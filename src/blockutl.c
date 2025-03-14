@@ -93,7 +93,7 @@ static void free_locobj (const_locObjType locobj)
           /* Parameters are freed by the function free_params (in name.c). */
           if (HAS_PROPERTY(locobj->object) &&
               locobj->object->descriptor.property != prog->property.literal) {
-            FREE_RECORD(locobj->object->descriptor.property, propertyRecord, count.property);
+            FREE_PROPERTY(locobj->object->descriptor.property);
           } /* if */
           FREE_OBJECT(locobj->object);
         } /* if */
@@ -132,7 +132,7 @@ static void free_properties (listType list)
     while (list != NULL) {
       if (HAS_PROPERTY(list->obj) &&
          list->obj->descriptor.property != prog->property.literal) {
-        FREE_RECORD(list->obj->descriptor.property, propertyRecord, count.property);
+        FREE_PROPERTY(list->obj->descriptor.property);
       } /* if */
       list->obj->descriptor.property = NULL;
       list = list->next;

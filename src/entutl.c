@@ -334,7 +334,7 @@ void free_entity (const_progType currentProg, entityType old_entity)
             old_entity->syobject->descriptor.property != currentProg->property.literal) {
           /* trace1(old_entity->syobject);
              printf("\n"); */
-          FREE_RECORD(old_entity->syobject->descriptor.property, propertyRecord, count.property);
+          FREE_PROPERTY(old_entity->syobject->descriptor.property);
         } /* if */
         FREE_OBJECT(old_entity->syobject);
       } /* if */
@@ -769,7 +769,7 @@ void init_entity (progType aProg, errInfoType *err_info)
     if ((aProg->entity.literal = new_entity(aProg->ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if (!ALLOC_RECORD(aProg->property.literal, propertyRecord, count.property)) {
+    if (!ALLOC_PROPERTY(aProg->property.literal)) {
       *err_info = MEMORY_ERROR;
     } else {
       aProg->property.literal->entity = aProg->entity.literal;

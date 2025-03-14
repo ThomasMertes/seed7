@@ -28,12 +28,13 @@
 typedef struct {
     objectType objects;
     listType list_elems;
+    propertyType properties;
     nodeType nodes;
     inFileType infiles;
   } freeListRootType;
 
 #ifdef DO_INIT
-freeListRootType flist = {NULL, NULL, NULL, NULL};
+freeListRootType flist = {NULL, NULL, NULL, NULL, NULL};
 #else
 EXTERN freeListRootType flist;
 #endif
@@ -86,13 +87,15 @@ EXTERN freeListRootType flist;
 
 #define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.object))    TRUE))
 #define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE))
+#define HEAP_PROP(P,T)  (!ALLOC_FLISTELEM(P, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.property))  TRUE))
 #define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.node))      TRUE))
 #define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.infil))     TRUE))
 
-#define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objValue, F_LOG1(O) TRUE)
-#define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,     F_LOG1(L) TRUE)
-#define POP_NODE(N)     (N = flist.nodes,      flist.nodes = flist.nodes->next1,              F_LOG1(N) TRUE)
-#define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
+#define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objValue,              F_LOG1(O) TRUE)
+#define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,                  F_LOG1(L) TRUE)
+#define POP_PROP(P)     (P = flist.properties, flist.properties = (propertyType) flist.properties->entity, F_LOG1(P) TRUE)
+#define POP_NODE(N)     (N = flist.nodes,      flist.nodes = flist.nodes->next1,                           F_LOG1(N) TRUE)
+#define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,                        F_LOG1(F) TRUE)
 
 
 #if SHOW_OBJECT_MEMORY_LEAKS
@@ -121,6 +124,17 @@ EXTERN freeListRootType flist;
 #define FREE_L_ELEM(L)  FREE_RECORD(L, listRecord, count.list_elem)
 #if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_LIST_FREELIST
+#endif
+#endif
+
+#if WITH_PROPERTY_FREELIST
+#define ALLOC_PROPERTY(P) (flist.properties != NULL ? POP_PROP(P) : HEAP_PROP(P, propertyRecord))
+#define FREE_PROPERTY(P)  (F_LOG2(P) (P)->entity = (entityType) flist.properties, flist.properties = (P))
+#else
+#define ALLOC_PROPERTY(P) ALLOC_RECORD(P, propertyRecord, count.property)
+#define FREE_PROPERTY(P)  FREE_RECORD(P, propertyRecord, count.property)
+#if USE_CHUNK_ALLOCS
+#error Configuration error: USE_CHUNK_ALLOCS needs WITH_PROPERTY_FREELIST
 #endif
 #endif
 

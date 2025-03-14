@@ -166,8 +166,7 @@ static void free_obj_and_prop (listType list)
       list_elem = list;
       do {
         if (list_elem->obj->descriptor.property != NULL) {
-          FREE_RECORD(list_elem->obj->descriptor.property,
-                      propertyRecord, count.property);
+          FREE_PROPERTY(list_elem->obj->descriptor.property);
         } /* if */
         FREE_OBJECT(list_elem->obj);
         list_end = list_elem;
@@ -392,7 +391,7 @@ void prgDestr (progType old_prog)
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
         if (old_prog->property.literal != NULL) {
-          FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
+          FREE_PROPERTY(old_prog->property.literal);
         } /* if */
         strDestr(old_prog->arg0);
         strDestr(old_prog->program_name);

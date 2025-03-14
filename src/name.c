@@ -122,7 +122,7 @@ static void free_params (progType currentProg, listType params)
                    trace1(param);
                    printf("\n"););
         if (HAS_PROPERTY(param) && param->descriptor.property != currentProg->property.literal) {
-          FREE_RECORD(param->descriptor.property, propertyRecord, count.property);
+          FREE_PROPERTY(param->descriptor.property);
         } /* if */
         FREE_OBJECT(param);
       } /* if */
@@ -181,7 +181,7 @@ static objectType get_object (progType currentProg, entityType entity,
       } /* if */
     } else {
       if (ALLOC_OBJECT(defined_object)) {
-        if (ALLOC_RECORD(defined_property, propertyRecord, count.property)) {
+        if (ALLOC_PROPERTY(defined_property)) {
           defined_property->entity = entity;
           defined_property->params = params;
           defined_property->file_number = file_number;
@@ -197,13 +197,13 @@ static objectType get_object (progType currentProg, entityType entity,
                 currentProg->stack_current->object_list_insert_place, defined_object, err_info);
             if (*err_info != OKAY_NO_ERROR) {
               pop_owner(&entity->data.owner);
-              FREE_RECORD(defined_property, propertyRecord, count.property);
+              FREE_PROPERTY(defined_property);
               FREE_OBJECT(defined_object);
               free_list(params);
               defined_object = NULL;
             } /* if */
           } else {
-            FREE_RECORD(defined_property, propertyRecord, count.property);
+            FREE_PROPERTY(defined_property);
             FREE_OBJECT(defined_object);
             free_list(params);
             defined_object = NULL;
@@ -234,8 +234,7 @@ void free_name (objectType object)
     if (object != NULL) {
       if (HAS_PROPERTY(object) &&
           object->descriptor.property != prog->property.literal) {
-        FREE_RECORD(object->descriptor.property,
-                    propertyRecord, count.property);
+        FREE_PROPERTY(object->descriptor.property);
       } /* if */
       FREE_OBJECT(object);
     } /* if */
@@ -363,7 +362,7 @@ static void free_name_list (listType name_list)
                        printf("\n"););
             if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
               /* free_params(prog, param_obj->descriptor.property->params); */
-              FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
+              FREE_PROPERTY(param_obj->descriptor.property);
             } /* if */
             FREE_OBJECT(param_obj);
           } /* if */
@@ -495,7 +494,7 @@ static void disconnect_entity (const objectType anObject)
         } /* if */
       } /* while */
       pop_object(prog, anObject);
-      FREE_RECORD(anObject->descriptor.property, propertyRecord, count.property);
+      FREE_PROPERTY(anObject->descriptor.property);
       anObject->descriptor.property = NULL;
     } /* if */
     logFunction(printf("disconnect_entity -->\n"););
@@ -619,8 +618,7 @@ static void close_current_stack (progType currentProg)
         /* descriptor.property are freed here.                      */
         free_params(currentProg,
                     list_element->obj->descriptor.property->params);
-        FREE_RECORD(list_element->obj->descriptor.property,
-                    propertyRecord, count.property);
+        FREE_PROPERTY(list_element->obj->descriptor.property);
         /* list_element->obj->descriptor.property = NULL; */
       } /* if */
       FREE_OBJECT(list_element->obj);

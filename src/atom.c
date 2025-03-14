@@ -72,13 +72,13 @@ static objectType gen_object (void)
     if (unlikely(!ALLOC_OBJECT(atomic_object))) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
-      if (unlikely(!ALLOC_RECORD(atomic_property, propertyRecord, count.property))) {
+      if (unlikely(!ALLOC_PROPERTY(atomic_property))) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2052));
       } else {
         if (unlikely(!ALLOC_RECORD(atomic_entity, entityRecord, count.entity))) {
-          FREE_RECORD(atomic_property, propertyRecord, count.property);
+          FREE_PROPERTY(atomic_property);
           FREE_OBJECT(atomic_object);
           atomic_object = NULL;
           fatal_memory_error(SOURCE_POSITION(2053));

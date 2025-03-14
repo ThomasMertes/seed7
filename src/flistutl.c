@@ -110,6 +110,23 @@ boolType check_obj_flist (objectType object)
 
 
 #if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
+static unsigned long property_flist_count (void)
+
+  {
+    register propertyType help_property;
+    register unsigned long num_properties = 0;
+
+  /* property_flist_count */
+    help_property = flist.properties;
+    while (help_property != NULL) {
+      help_property = (propertyType) help_property->entity;
+      num_properties++;
+    } /* while */
+    return num_properties;
+  } /* property_flist_count */
+
+
+
 static unsigned long object_flist_count (void)
 
   {
@@ -244,6 +261,7 @@ static unsigned long stri_flist_count (unsigned long *stri_chars)
 void heapStatistic (void)
 
   {
+    unsigned long num_flist_properties;
     unsigned long num_flist_objects;
     unsigned long num_flist_list_elems;
     unsigned long num_flist_nodes;
@@ -259,6 +277,7 @@ void heapStatistic (void)
 
   /* heapStatistic */
     logFunction(printf("heapStatistic\n"););
+    num_flist_properties = property_flist_count();
     num_flist_objects    = object_flist_count();
     num_flist_list_elems = list_elem_flist_count();
     num_flist_nodes      = node_flist_count();
@@ -425,12 +444,12 @@ void heapStatistic (void)
           (unsigned int) SIZ_REC(entityRecord));
       bytes_used += count.entity * SIZ_REC(entityRecord);
     } /* if */
-    if (count.property != 0) {
+    if (count.property > num_flist_properties) {
       printf(F_U_MEM(9) " bytes in %8lu properties of          %4u bytes\n",
-          count.property * SIZ_REC(propertyRecord),
-          count.property,
+          (count.property - num_flist_properties) * SIZ_REC(propertyRecord),
+          count.property - num_flist_properties,
           (unsigned int) SIZ_REC(propertyRecord));
-      bytes_used += count.property * SIZ_REC(propertyRecord);
+      bytes_used += (count.property - num_flist_properties) * SIZ_REC(propertyRecord);
     } /* if */
     if (count.object > num_flist_objects) {
       printf(F_U_MEM(9) " bytes in %8lu objects of             %4u bytes\n",
@@ -595,6 +614,13 @@ void heapStatistic (void)
           bytes_used, heapsize(), bytes_used - heapsize());
     } /* if */
     bytes_free = 0;
+    if (num_flist_properties != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu free properties of     %4u bytes\n",
+          num_flist_properties * SIZ_REC(propertyRecord),
+          num_flist_properties,
+          (unsigned int) SIZ_REC(propertyRecord));
+      bytes_free += num_flist_properties * SIZ_REC(propertyRecord);
+    } /* if */
     if (num_flist_objects != 0) {
       printf(F_U_MEM(9) " bytes in %8lu free objects of        %4u bytes\n",
           num_flist_objects * SIZ_REC(objectRecord),
@@ -759,7 +785,8 @@ memSizeType heapsize (void)
 
   /* heapsize */
 #if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
-    flist_bytes = object_flist_count() * sizeof(objectRecord);
+    flist_bytes = property_flist_count() * sizeof(propertyRecord);
+    flist_bytes += object_flist_count() * sizeof(objectRecord);
     flist_bytes += list_elem_flist_count() * sizeof(listRecord);
     flist_bytes += node_flist_count() * sizeof(nodeRecord);
     flist_bytes += infile_flist_count() * sizeof(inFileRecord);
