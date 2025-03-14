@@ -236,21 +236,28 @@ void substitute_params (const_objectType expr_object)
             list_elem->obj = created_object;
             list_elem->next = prog->substituted_objects;
             prog->substituted_objects = list_elem;
+          } else {
+            if (list_elem != NULL) {
+              FREE_L_ELEM(list_elem);
+            } /* if */
+            created_object = NULL;
           } /* if */
-          expr_list->obj = created_object;
+          if (created_object != NULL) {
+            expr_list->obj = created_object;
 #if TRACE_SUBSTITUTE_PARAMS
-          printf("Value is now: ");
-          prot_int((intType) expr_list->obj);
-          prot_cstri(" ");
-          trace1(expr_list->obj);
-          printf("\n");
+            printf("Value is now: ");
+            prot_int((intType) expr_list->obj);
+            prot_cstri(" ");
+            trace1(expr_list->obj);
+            printf("\n");
 #endif
-          if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
-            if (expr_list->obj->value.objValue != NULL) {
-              printf("Parameter again has value: ");
-              trace1(expr_list->obj);
-              printf("\n");
+            if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
+                CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
+              if (expr_list->obj->value.objValue != NULL) {
+                printf("Parameter again has value: ");
+                trace1(expr_list->obj);
+                printf("\n");
+              } /* if */
             } /* if */
           } /* if */
         } /* if */
