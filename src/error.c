@@ -852,6 +852,7 @@ void err_warning (errorType err)
   /* err_warning */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case OUT_OF_HEAP_SPACE:
         copyCStri(&error->msg, "No more memory");
@@ -937,7 +938,6 @@ void err_warning (errorType err)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_warning */
@@ -953,6 +953,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
   /* err_num_stri */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case REDECLARED_INFIX_PRIORITY:
         copyCStri(&error->msg, "\"");
@@ -1022,7 +1023,6 @@ void err_num_stri (errorType err, int num_found, int num_expected,
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_num_stri */
@@ -1037,6 +1037,7 @@ void err_ident (errorType err, const_identType ident)
   /* err_ident */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case PARAM_SPECIFIER_EXPECTED:
         copyCStri(&error->msg, "Parameter specifier \"ref\" expected found \"");
@@ -1053,7 +1054,6 @@ void err_ident (errorType err, const_identType ident)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_ident */
@@ -1067,10 +1067,14 @@ void err_object (errorType err, const_objectType obj_found)
 
   /* err_object */
     error = newError(err);
-    if (obj_found != NULL && HAS_POSINFO(obj_found)){
+    if (obj_found != NULL && HAS_POSINFO(obj_found)) {
       setPlaceForObject(error, obj_found);
-    } else if (in_file.name != NULL) {
-      setPlace(error, in_file.name, in_file.line);
+      storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
     } /* if */
     switch (err) {
       case PARAM_DECL_FAILED:
@@ -1157,11 +1161,6 @@ void err_object (errorType err, const_objectType obj_found)
         undefErr(&error->msg);
         break;
     } /* switch */
-    if (obj_found != NULL && HAS_POSINFO(obj_found)){
-      storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
-    } else {
-      storeErrorLine(error);
-    } /* if */
     finalizeError(error);
     display_compilation_info();
   } /* err_object */
@@ -1176,6 +1175,7 @@ void err_type (errorType err, const_typeType type_found)
   /* err_type */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case PROC_EXPECTED:
         copyCStri(&error->msg, "Procedure expected found ");
@@ -1186,7 +1186,6 @@ void err_type (errorType err, const_typeType type_found)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_type */
@@ -1197,18 +1196,20 @@ void err_expr_type (errorType err, const_objectType expr_object,
     const_typeType type_found)
 
   {
-    boolType hasPosInfo;
     fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_type */
     error = newError(err);
-    hasPosInfo = HAS_POSINFO(expr_object);
-    if (hasPosInfo){
+    if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
       setPlaceForObject(error, expr_object);
-    } else if (in_file.name != NULL) {
-      setPlace(error, in_file.name, in_file.line);
+      storePositionedErrorLine(error, fileNumber);
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
     } /* if */
     switch (err) {
       case KIND_OF_IN_PARAM_UNDEFINED:
@@ -1220,11 +1221,6 @@ void err_expr_type (errorType err, const_objectType expr_object,
         undefErr(&error->msg);
         break;
     } /* switch */
-    if (hasPosInfo){
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      storeErrorLine(error);
-    } /* if */
     finalizeError(error);
     display_compilation_info();
   } /* err_expr_type */
@@ -1235,18 +1231,20 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     objectType obj_found)
 
   {
-    boolType hasPosInfo;
     fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_obj */
     error = newError(err);
-    hasPosInfo = HAS_POSINFO(expr_object);
-    if (hasPosInfo){
+    if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
       setPlaceForObject(error, expr_object);
-    } else if (in_file.name != NULL) {
-      setPlace(error, in_file.name, in_file.line);
+      storePositionedErrorLine(error, fileNumber);
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
     } /* if */
     switch (err) {
       case WRONGACCESSRIGHT:
@@ -1301,11 +1299,6 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         undefErr(&error->msg);
         break;
     } /* switch */
-    if (hasPosInfo){
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      storeErrorLine(error);
-    } /* if */
     finalizeError(error);
     display_compilation_info();
   } /* err_expr_obj */
@@ -1316,18 +1309,20 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
     objectType obj_found, const_cstriType stri)
 
   {
-    boolType hasPosInfo;
     fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_obj_stri */
     error = newError(err);
-    hasPosInfo = HAS_POSINFO(expr_object);
-    if (hasPosInfo){
+    if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
       setPlaceForObject(error, expr_object);
-    } else if (in_file.name != NULL) {
-      setPlace(error, in_file.name, in_file.line);
+      storePositionedErrorLine(error, fileNumber);
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
     } /* if */
     switch (err) {
       case EXPECTED_SYMBOL:
@@ -1346,11 +1341,6 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
         undefErr(&error->msg);
         break;
     } /* switch */
-    if (hasPosInfo){
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      storeErrorLine(error);
-    } /* if */
     finalizeError(error);
     display_compilation_info();
   } /* err_expr_obj_stri */
@@ -1389,10 +1379,14 @@ void err_match (errorType err, objectType obj_found)
   /* err_match */
     if (!contains_match_err_flag(obj_found)) {
       error = newError(err);
-      if (HAS_POSINFO(obj_found)){
+      if (HAS_POSINFO(obj_found)) {
         setPlaceForObject(error, obj_found);
-      } else if (in_file.name != NULL) {
-        setPlace(error, in_file.name, in_file.line);
+        storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
+      } else {
+        if (in_file.name != NULL) {
+          setPlace(error, in_file.name, in_file.line);
+        } /* if */
+        storeErrorLine(error);
       } /* if */
       switch (err) {
         case NO_MATCH:
@@ -1409,11 +1403,6 @@ void err_match (errorType err, objectType obj_found)
           undefErr(&error->msg);
           break;
       } /* switch */
-      if (HAS_POSINFO(obj_found)){
-        storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
-      } else {
-        storeErrorLine(error);
-      } /* if */
       finalizeError(error);
       display_compilation_info();
     } /* if */
@@ -1430,6 +1419,7 @@ void err_ustri (errorType err, const const_ustriType stri)
   /* err_ustri */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case ILLEGALPRAGMA:
         copyCStri(&error->msg, "Illegal parameter ");
@@ -1458,7 +1448,6 @@ void err_ustri (errorType err, const const_ustriType stri)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_ustri */
@@ -1473,6 +1462,7 @@ void err_stri (errorType err, const const_striType stri)
   /* err_stri */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case FILENOTFOUND:
         copyCStri(&error->msg, "Include file ");
@@ -1491,7 +1481,6 @@ void err_stri (errorType err, const const_striType stri)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_stri */
@@ -1506,6 +1495,7 @@ void err_integer (errorType err, intType number)
   /* err_integer */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case BASE2TO36ALLOWED:
         copyCStri(&error->msg, "Integer base \"");
@@ -1530,7 +1520,6 @@ void err_integer (errorType err, intType number)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_integer */
@@ -1546,6 +1535,7 @@ void err_cchar (errorType err, int character)
   /* err_cchar */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case CHAR_ILLEGAL:
         copyCStri(&error->msg, "Illegal character in text \"");
@@ -1584,7 +1574,6 @@ void err_cchar (errorType err, int character)
       sprintf(buffer, "\\%u;\" (U+%04x)", character, character);
     } /* if */
     appendCStri(&error->msg, buffer);
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_cchar */
@@ -1600,6 +1589,7 @@ void err_char (errorType err, charType character)
   /* err_char */
     error = newError(err);
     setPlaceOfError(error);
+    storeErrorLine(error);
     switch (err) {
       case CHAR_ILLEGAL:
         copyCStri(&error->msg, "Illegal character in text");
@@ -1630,7 +1620,6 @@ void err_char (errorType err, charType character)
               (unsigned long) character, (unsigned long) character);
     } /* if */
     appendCStri(&error->msg, buffer);
-    storeErrorLine(error);
     finalizeError(error);
     display_compilation_info();
   } /* err_char */
@@ -1645,6 +1634,7 @@ void err_at_line (errorType err, lineNumType lineNumber)
   /* err_at_line */
     error = newError(err);
     setPlace(error, in_file.name, lineNumber);
+    storePositionedErrorLine(error, in_file.file_number);
     switch (err) {
       case COMMENTOPEN:
         copyCStri(&error->msg, "Unclosed comment");
@@ -1653,7 +1643,6 @@ void err_at_line (errorType err, lineNumType lineNumber)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storePositionedErrorLine(error, in_file.file_number);
     finalizeError(error);
     display_compilation_info();
   } /* err_at_line */
@@ -1672,8 +1661,14 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
     error = newError(err);
     if (fileNumber != 0 && lineNumber != 0) {
       setPlaceForFileNumber(error, fileNumber, lineNumber);
+      if (fileNumber != in_file.file_number || lineNumber != in_file.line) {
+        storePositionedErrorLine(error, fileNumber);
+      } else {
+        storeErrorLine(error);
+      } /* if */
     } else {
       setPlace(error, in_file.name, in_file.line);
+      storeErrorLine(error);
     } /* if */
     switch (err) {
       case PARAM_DECL_OR_SYMBOL_EXPECTED:
@@ -1698,12 +1693,6 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
         undefErr(&error->msg);
         break;
     } /* switch */
-    if (fileNumber != 0 && lineNumber != 0 &&
-        (fileNumber != in_file.file_number || lineNumber != in_file.line)) {
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      storeErrorLine(error);
-    } /* if */
     finalizeError(error);
     display_compilation_info();
   } /* err_at_file_in_line */
@@ -1722,6 +1711,7 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     fileNumber = obj_found->descriptor.property->file_number;
     lineNumber = obj_found->descriptor.property->line;
     setPlaceForFileNumber(error, fileNumber, lineNumber);
+    storePositionedErrorLine(error, fileNumber);
     switch (err) {
       case PREVIOUS_DECLARATION:
         copyCStri(&error->msg, "Previous declaration of \"");
@@ -1732,7 +1722,6 @@ void err_existing_obj (errorType err, const_objectType obj_found)
         undefErr(&error->msg);
         break;
     } /* switch */
-    storePositionedErrorLine(error, fileNumber);
     finalizeError(error);
     display_compilation_info();
   } /* err_existing_obj */
