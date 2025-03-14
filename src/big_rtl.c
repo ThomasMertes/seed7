@@ -4929,7 +4929,9 @@ bigIntType bigLog10 (const const_bigIntType big1)
             bigDestr(powerOf10);
           } /* if */
         } /* if */
-        if (likely(unsigned_big != NULL)) {
+        if (unlikely(unsigned_big == NULL)) {
+          logarithm = NULL;
+        } else {
           largeDecimalBlockCount = 0;
           while (unsigned_big->size > 2) {
             uBigRShift(unsigned_big, QUINARY_DIGITS_IN_BIGDIGIT);
