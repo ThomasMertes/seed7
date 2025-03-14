@@ -1627,7 +1627,11 @@ void trace1 (const_objectType traceobject)
             } /* if */
             break;
           case SYMBOLOBJECT:
-            prot_ptr(traceobject);
+            prot_cstri("file ");
+            prot_int((intType) GET_POS_FILE_NUM(traceobject));
+            prot_cstri("(");
+            prot_int((intType) GET_POS_LINE_NUM(traceobject));
+            prot_cstri(")");
             break;
           default:
             break;
