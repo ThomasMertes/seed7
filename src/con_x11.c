@@ -1556,63 +1556,67 @@ memSizeType length)
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol upward by numLines lines. The upper numLines lines of the
+ *  area are overwritten. At the lower end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that numLines is greater or equal 1.
+ */
 void conUpScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol upward by count lines. The upper count lines of the    */
-  /* area are overwritten. At the lower end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     int line1, line2;
     XImage *image;
 
   /* conUpScroll */
-    line1 = actual_scaledfont->yDiff * (startlin + count - 1);
+    line1 = actual_scaledfont->yDiff * (startlin + numLines - 1);
     line2 = actual_scaledfont->yDiff * stoplin - 1;
     XCopyArea(mydisplay, mywindow, mywindow, mygc,
         startcol - 1, line1,
         stopcol - startcol + 1, line2 - line1 + 1,
-        startcol - 1, line1 - count * actual_scaledfont->yDiff);
+        startcol - 1, line1 - numLines * actual_scaledfont->yDiff);
 #ifdef OUT_OF_ORDER
     while (line1 <= line2) {
       if (line1 + SCROLLBLOCKSIZE <= line2) {
 #ifdef OUT_OF_ORDER
         getimage(pred(startcol), line1, pred(stopcol), line1 + SCROLLBLOCKSIZE, SCROLLBUFFER);
-        putimage(pred(startcol), line1 - count * actual_scaledfont->yDiff, SCROLLBUFFER, normalput);
+        putimage(pred(startcol), line1 - numLines * actual_scaledfont->yDiff, SCROLLBUFFER, normalput);
 #endif
         image = XGetImage(mydisplay, mywindow, startcol - 1, line1,
             stopcol - startcol + 1, SCROLLBLOCKSIZE, -1, ZPixmap);
         XPutImage(mydisplay, mywindow, mygc, image, 0, 0,
-            startcol - 1, line1 - count * actual_scaledfont->yDiff,
+            startcol - 1, line1 - numLines * actual_scaledfont->yDiff,
             stopcol - startcol + 1, SCROLLBLOCKSIZE);
       } else {
 #ifdef OUT_OF_ORDER
         getimage(pred(startcol), line1, pred(stopcol), line2, SCROLLBUFFER);
-        putimage(pred(startcol), line1 - count * actual_scaledfont->yDiff, SCROLLBUFFER, normalput);
+        putimage(pred(startcol), line1 - numLines * actual_scaledfont->yDiff, SCROLLBUFFER, normalput);
 #endif
         image = XGetImage(mydisplay, mywindow, startcol - 1, line1,
             stopcol - startcol + 1, line2 - line1 + 1, -1, ZPixmap);
         XPutImage(mydisplay, mywindow, mygc, image, 0, 0,
-            startcol - 1, line1 - count * actual_scaledfont->yDiff,
+            startcol - 1, line1 - numLines * actual_scaledfont->yDiff,
             stopcol - startcol + 1, line2 - line1 + 1);
       } /* if */
       line1 = line1 + SCROLLBLOCKSIZE;
     } /* while */
 #endif
-    conClear(stoplin - count + 1, startcol, stoplin, stopcol);
+    conClear(stoplin - numLines + 1, startcol, stoplin, stopcol);
   } /* conUpScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol downward by numLines lines. The lower numLines lines of the
+ *  area are overwritten. At the upper end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that numLines is greater or equal 1.
+ */
 void conDownScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol downward by count lines. The lower count lines of the  */
-  /* area are overwritten. At the upper end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
+    intType stoplin, intType stopcol, intType numLines)
 
   {
     int line1, line2;
@@ -1620,62 +1624,66 @@ void conDownScroll (intType startlin, intType startcol,
 
   /* conDownScroll */
     line1 = actual_scaledfont->yDiff * (startlin - 1);
-    line2 = actual_scaledfont->yDiff * (stoplin - count) - 1;
+    line2 = actual_scaledfont->yDiff * (stoplin - numLines) - 1;
     XCopyArea(mydisplay, mywindow, mywindow, mygc,
         startcol - 1, line1,
         stopcol - startcol + 1, line2 - line1 + 1,
-        startcol - 1, line1 + count * actual_scaledfont->yDiff);
+        startcol - 1, line1 + numLines * actual_scaledfont->yDiff);
 #ifdef OUT_OF_ORDER
     while (line2 >= line1) {
       if (line2 - SCROLLBLOCKSIZE >= line1) {
 #ifdef OUT_OF_ORDER
         getimage(pred(startcol), line2 - SCROLLBLOCKSIZE, pred(stopcol), line2, SCROLLBUFFER);
-        putimage(pred(startcol), line2 - SCROLLBLOCKSIZE + actual_scaledfont->yDiff * count, SCROLLBUFFER, normalput);
+        putimage(pred(startcol), line2 - SCROLLBLOCKSIZE + actual_scaledfont->yDiff * numLines, SCROLLBUFFER, normalput);
 #endif
         image = XGetImage(mydisplay, mywindow, startcol - 1, line2 - SCROLLBLOCKSIZE,
             stopcol - startcol + 1, SCROLLBLOCKSIZE, -1, ZPixmap);
         XPutImage(mydisplay, mywindow, mygc, image, 0, 0,
-            startcol - 1, line2 - SCROLLBLOCKSIZE + actual_scaledfont->yDiff * count,
+            startcol - 1, line2 - SCROLLBLOCKSIZE + actual_scaledfont->yDiff * numLines,
             stopcol - startcol + 1, SCROLLBLOCKSIZE);
       } else {
 #ifdef OUT_OF_ORDER
         getimage(pred(startcol), line1, pred(stopcol), line2, SCROLLBUFFER);
-        putimage(pred(startcol), line1 + actual_scaledfont->yDiff * count, SCROLLBUFFER, normalput);
+        putimage(pred(startcol), line1 + actual_scaledfont->yDiff * numLines, SCROLLBUFFER, normalput);
 #endif
         image = XGetImage(mydisplay, mywindow, startcol - 1, line1,
             stopcol - startcol + 1, line2 - line1 + 1, -1, ZPixmap);
         XPutImage(mydisplay, mywindow, mygc, image, 0, 0,
-            startcol - 1, line1 + actual_scaledfont->yDiff * count,
+            startcol - 1, line1 + actual_scaledfont->yDiff * numLines,
             stopcol - startcol + 1, line2 - line1 + 1);
       } /* if */
       line2 = line2 - SCROLLBLOCKSIZE;
     } /* while */
 #endif
-    conClear(startlin, startcol, startlin + count - 1, stopcol);
+    conClear(startlin, startcol, startlin + numLines - 1, stopcol);
   } /* conDownScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol leftward by numCols columns. The left numCols columns of the
+ *  area are overwritten. At the right end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that numCols is greater or equal 1.
+ */
 void conLeftScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol leftward by count lines. The left count lines of the   */
-  /* area are overwritten. At the right end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conLeftScroll */
   } /* conLeftScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol rightward by numCols columns. The right numCols columns of the
+ *  area are overwritten. At the left end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that numCols is greater or equal 1.
+ */
 void conRightScroll (intType startlin, intType startcol,
-    intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol rightward by count lines. The right count lines of the */
-  /* area are overwritten. At the left end of the area blank lines  */
-  /* are inserted. Nothing is changed outside the area.             */
+    intType stoplin, intType stopcol, intType numCols)
 
   { /* conRightScroll */
   } /* conRightScroll */
