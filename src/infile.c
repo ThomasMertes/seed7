@@ -480,6 +480,10 @@ void removeProgFiles (progType aProg)
       currFile = aFile;
       aFile = aFile->next;
       freeFile(currFile);
+    } /* while */
+    if (question_mark != NULL) {
+      FREE_STRI(question_mark, question_mark->size);
+      question_mark = NULL;
     } /* if */
     logFunction(printf("removeProgFiles -->\n"););
   } /* removeProgFiles */
