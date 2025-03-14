@@ -155,7 +155,7 @@ static boolType stdinReady (void)
     HANDLE hKeyboard;
     DWORD numEvents;
     INPUT_RECORD *events;
-    DWORD count;
+    DWORD numEventsRead;
     DWORD idx;
     boolType result = FALSE;
 
@@ -167,8 +167,8 @@ static boolType stdinReady (void)
       /* printf("numEvents: %lu\n", (unsigned long) numEvents); */
       events = malloc(sizeof(INPUT_RECORD) * numEvents);
       if (events != NULL) {
-        if (PeekConsoleInputW(hKeyboard, events, numEvents, &count) != 0) {
-          for (idx = 0; idx < count; idx++) {
+        if (PeekConsoleInputW(hKeyboard, events, numEvents, &numEventsRead) != 0) {
+          for (idx = 0; idx < numEventsRead; idx++) {
             /* printf("EventType: %d\n", events[idx].EventType); */
             if (events[idx].EventType == KEY_EVENT &&
                 events[idx].Event.KeyEvent.bKeyDown &&
