@@ -916,7 +916,8 @@ static const wchar_t *followSymlinkRecursive (const wchar_t *osSymlinkPath,
             FREE_OS_STRI(destination);
           } /* if */
         } /* if */
-      } else if (unlikely(!ALLOC_OS_STRI(destination, (memSizeType) substituteNameLength))) {
+      } else if (unlikely(!ALLOC_OS_STRI(destination,
+                           (memSizeType) substituteNameLength))) {
         errno = EACCES;
         result = NULL;
       } else {
@@ -1175,7 +1176,7 @@ static void createSymlink (const wchar_t *osSymlinkPath,
           FREE_OS_STRI(destination);
         } /* if */
       } else if (unlikely(!ALLOC_OS_STRI(destination,
-                                         substituteNameLength - PREFIX_LEN))) {
+                           (memSizeType) substituteNameLength - PREFIX_LEN))) {
         *err_info = MEMORY_ERROR;
       } else {
         /* Omit the substitute prefix \??\ from the destination path. */
@@ -1189,7 +1190,8 @@ static void createSymlink (const wchar_t *osSymlinkPath,
       } /* if */
     } else {
       /* Relative substitute name */
-      if (unlikely(!ALLOC_OS_STRI(destination, substituteNameLength))) {
+      if (unlikely(!ALLOC_OS_STRI(destination,
+                    (memSizeType) substituteNameLength))) {
         *err_info = MEMORY_ERROR;
       } else {
         memcpy(destination, substituteName, substituteNameByteLen);
