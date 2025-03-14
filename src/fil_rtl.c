@@ -1952,8 +1952,8 @@ fileType filOpen (const const_striType path, const const_striType mode)
 
   {
     os_charType os_mode[MAX_MODE_LEN];
-    boolType readingAllowed;
-    boolType writingAllowed;
+    boolType readingAllowed = FALSE;
+    boolType writingAllowed = FALSE;
     cFileType cFile;
     errInfoType err_info = OKAY_NO_ERROR;
     fileType fileOpened;
