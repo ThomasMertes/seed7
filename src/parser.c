@@ -285,12 +285,16 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
       if (object_name != NULL) {
         defined_object = dollar_entername(node_level, object_name, err_info);
         free_expression(object_name);
+      } else {
+        defined_object = NULL;
       } /* if */
     } else {
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
       if (object_name != NULL) {
         defined_object = entername(node_level, object_name, err_info);
         free_expression(object_name);
+      } else {
+        defined_object = NULL;
       } /* if */
     } /* if */
     logFunction(printf("decl_name(" FMT_U_MEM ", %d) --> ",

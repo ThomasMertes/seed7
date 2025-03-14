@@ -690,6 +690,7 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
       prot_cstri("*** Could not open error file ");
       prot_stri(protFileName);
       prot_nl();
+      resultProg = NULL;
     } else {
       resultProg = analyzeFile(sourceFileArgument, options,
                                libraryDirs, errorFile, &err_info);
