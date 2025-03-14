@@ -606,7 +606,14 @@ void heapStatistic (void)
       printf(F_U_MEM(9) " bytes in buffers\n", bytes_in_buffers);
       bytes_used += bytes_in_buffers;
     } /* if */
-    if (bytes_used != 0) {
+    if (bytes_used != 0 || num_flist_properties != 0 ||
+        num_flist_objects != 0 || num_flist_list_elems != 0 ||
+        num_flist_nodes != 0 || num_flist_infiles != 0 ||
+        num_flist_stris != 0
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
+        || num_flist_bigints != 0
+#endif
+        ) {
       printf(F_U_MEM(9) " bytes in use\n", bytes_used);
     } /* if */
     if (bytes_used != heapsize()) {
@@ -1032,7 +1039,7 @@ objectType allocObject (void)
         all_objects = list_elem;
         return created_object;
       } else {
-	FREE_RECORD(created_object, objectRecord, count.object);
+        FREE_RECORD(created_object, objectRecord, count.object);
         return NULL;
       } /* if */
     } else {
