@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2025  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/match.h                                         */
-/*  Changes: 1995, 1999, 2000  Thomas Mertes                        */
+/*  Changes: 1995, 1999, 2000, 2025  Thomas Mertes                  */
 /*  Content: Functions to do static match on expressions.           */
 /*                                                                  */
 /********************************************************************/

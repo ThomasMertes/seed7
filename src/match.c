@@ -2,7 +2,7 @@
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2008, 2010, 2013, 2015  Thomas Mertes      */
-/*                2018, 2019, 2021  Thomas Mertes                   */
+/*                2018, 2019, 2021, 2025  Thomas Mertes             */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -22,7 +22,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/match.c                                         */
 /*  Changes: 1995, 1999, 2000, 2007, 2008, 2010  Thomas Mertes      */
-/*           2013, 2015, 2018, 2019, 2021  Thomas Mertes            */
+/*           2013, 2015, 2018, 2019, 2021, 2025  Thomas Mertes      */
 /*  Content: Functions to do static match on expressions.           */
 /*                                                                  */
 /********************************************************************/

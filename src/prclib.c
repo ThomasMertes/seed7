@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
+/*  Copyright (C) 1991 - 1994, 2007, 2009, 2010  Thomas Mertes      */
+/*  Copyright (C) 2012, 2013, 2015 - 2025  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +22,7 @@
 /*  Module: Library                                                 */
 /*  File: seed7/src/prclib.c                                        */
 /*  Changes: 1991 - 1994, 2007, 2009, 2010, 2012  Thomas Mertes     */
-/*           2013, 2015 - 2021  Thomas Mertes                       */
+/*           2013, 2015 - 2025  Thomas Mertes                       */
 /*  Content: Primitive actions to implement simple statements.      */
 /*                                                                  */
 /********************************************************************/

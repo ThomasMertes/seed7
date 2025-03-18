@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013, 2015, 2016, 2021  Thomas Mertes      */
+/*  Copyright (C) 1991 - 1994, 2008, 2013, 2015  Thomas Mertes      */
+/*  Copyright (C) 2016, 2021, 2025  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +22,7 @@
 /*  Module: Seed7 compiler library                                  */
 /*  File: seed7/src/prg_comp.c                                      */
 /*  Changes: 1991 - 1994, 2008, 2013, 2015, 2016 Thomas Mertes      */
-/*           2021  Thomas Mertes                                    */
+/*           2021, 2025  Thomas Mertes                              */
 /*  Content: Primitive actions for the program type.                */
 /*                                                                  */
 /********************************************************************/
