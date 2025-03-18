@@ -176,7 +176,7 @@ static void check_access_rights (const_objectType object)
  *  to the expression and this would leads to a double free of the
  *  expression.
  */
-void substitute_params (const_objectType expr_object)
+errInfoType substitute_params (const_objectType expr_object)
 
   {
     listType expr_list;
@@ -188,7 +188,7 @@ void substitute_params (const_objectType expr_object)
   /* substitute_params */
     logFunction(printf("substitute_params\n"););
     expr_list = expr_object->value.listValue;
-    while (expr_list != NULL) {
+    while (expr_list != NULL && err_info == OKAY_NO_ERROR) {
       current_element = expr_list->obj;
       if (HAS_ENTITY(current_element) &&
           GET_ENTITY(current_element)->data.owner != NULL) {
@@ -219,24 +219,25 @@ void substitute_params (const_objectType expr_object)
               CATEGORY_OF_OBJ(current_element) == MATCHOBJECT ||
               CATEGORY_OF_OBJ(current_element) == LISTOBJECT) {
             created_object = copy_expression(current_element, &err_info);
-            if (err_info != OKAY_NO_ERROR) {
-              printf("*** copy_expression failed ");
-              printf("\n");
-            } /* if */
-          } else if (ALLOC_L_ELEM(list_elem) && ALLOC_OBJECT(created_object)) {
+          } else if (likely(ALLOC_L_ELEM(list_elem) &&
+                            ALLOC_OBJECT(created_object))) {
             created_object->type_of = current_element->type_of;
             created_object->descriptor.property = NULL;
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
             created_object->value.objValue = NULL;
             do_create(created_object, current_element, &err_info);
-            if (err_info != OKAY_NO_ERROR) {
-              printf("*** do_create failed ");
-              printf("\n");
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              logError(printf("substitute_params: do_create failed.\n"););
+              FREE_L_ELEM(list_elem);
+              FREE_OBJECT(created_object);
+              created_object = NULL;
+            } else {
+              list_elem->obj = created_object;
+              list_elem->next = prog->substituted_objects;
+              prog->substituted_objects = list_elem;
             } /* if */
-            list_elem->obj = created_object;
-            list_elem->next = prog->substituted_objects;
-            prog->substituted_objects = list_elem;
           } else {
+            err_info = MEMORY_ERROR;
             if (list_elem != NULL) {
               FREE_L_ELEM(list_elem);
             } /* if */
@@ -254,9 +255,11 @@ void substitute_params (const_objectType expr_object)
             if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
                 CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
               if (expr_list->obj->value.objValue != NULL) {
-                printf("Parameter again has value: ");
-                trace1(expr_list->obj);
-                printf("\n");
+                logError(printf("substitute_params: "
+                                "Parameter again has value: ");
+                         trace1(expr_list->obj);
+                         printf("\n"););
+                err_info = ACTION_ERROR;
               } /* if */
             } /* if */
           } /* if */
@@ -264,7 +267,8 @@ void substitute_params (const_objectType expr_object)
       } /* if */
       expr_list = expr_list->next;
     } /* while */
-    logFunction(printf("substitute_params -->\n"););
+    logFunction(printf("substitute_params --> %d\n", err_info););
+    return err_info;
   } /* substitute_params */
 
 

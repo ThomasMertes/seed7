@@ -137,44 +137,46 @@ objectType dcl_const (listType arguments)
           printf("\n");
 #endif
           if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
-            substitute_params(value);
-            if (match_expression(value) != NULL &&
-                (matched_value = match_object(value)) != NULL) {
-              do_create(current_object, matched_value, &err_info);
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
-                if (err_info != CREATE_ERROR) {
-                  if (fail_file_number != 0) {
-                    err_at_file_in_line(EXCEPTION_RAISED,
-                                        prog->sys_var[err_info],
-                                        fail_file_number, fail_line_number);
-                  } else {
-                    err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
-                                 prog->sys_var[err_info]);
+            err_info = substitute_params(value);
+            if (err_info == OKAY_NO_ERROR) {
+              if (match_expression(value) != NULL &&
+                  (matched_value = match_object(value)) != NULL) {
+                do_create(current_object, matched_value, &err_info);
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  if (err_info != CREATE_ERROR) {
+                    if (fail_file_number != 0) {
+                      err_at_file_in_line(EXCEPTION_RAISED,
+                                          prog->sys_var[err_info],
+                                          fail_file_number, fail_line_number);
+                    } else {
+                      err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                                   prog->sys_var[err_info]);
+                    } /* if */
                   } /* if */
-                } /* if */
-                err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
-                err_info = OKAY_NO_ERROR;
+                  err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
+                  err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_CONST
-                printf("*** do_create failed ");
-                prot_list(arguments);
+                  printf("*** do_create failed ");
+                  prot_list(arguments);
+                  printf("\n");
+#endif
+                } /* if */
+#if TRACE_DCL_CONST
+              } else {
+                printf("match value failed: ");
+                trace1(value);
+                printf("\n");
+                printf("value_expr: ");
+                trace1(value_expr);
+                printf("\n");
+                printf("object: ");
+                trace1(current_object);
+                printf("\n");
+                printf("name_expr: ");
+                trace1(name_expr);
                 printf("\n");
 #endif
               } /* if */
-#if TRACE_DCL_CONST
-            } else {
-              printf("match value failed: ");
-              trace1(value);
-              printf("\n");
-              printf("value_expr: ");
-              trace1(value_expr);
-              printf("\n");
-              printf("object: ");
-              trace1(current_object);
-              printf("\n");
-              printf("name_expr: ");
-              trace1(name_expr);
-              printf("\n");
-#endif
             } /* if */
           } else {
             do_create(current_object, value, &err_info);
@@ -1116,35 +1118,37 @@ objectType dcl_var (listType arguments)
           printf("\n");
 #endif
           if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
-            substitute_params(value);
-            if (match_expression(value) != NULL &&
-                (matched_value = match_object(value)) != NULL) {
-              do_create(current_object, matched_value, &err_info);
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
-                if (err_info != CREATE_ERROR) {
-                  if (fail_file_number != 0) {
-                    err_at_file_in_line(EXCEPTION_RAISED,
-                                        prog->sys_var[err_info],
-                                        fail_file_number, fail_line_number);
-                  } else {
-                    err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
-                                 prog->sys_var[err_info]);
+            err_info = substitute_params(value);
+            if (err_info == OKAY_NO_ERROR) {
+              if (match_expression(value) != NULL &&
+                  (matched_value = match_object(value)) != NULL) {
+                do_create(current_object, matched_value, &err_info);
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  if (err_info != CREATE_ERROR) {
+                    if (fail_file_number != 0) {
+                      err_at_file_in_line(EXCEPTION_RAISED,
+                                          prog->sys_var[err_info],
+                                          fail_file_number, fail_line_number);
+                    } else {
+                      err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                                   prog->sys_var[err_info]);
+                    } /* if */
                   } /* if */
-                } /* if */
-                err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
-                err_info = OKAY_NO_ERROR;
+                  err_expr_obj(DECL_FAILED, decl_exec_object, current_object);
+                  err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_VAR
-                printf("*** do_create failed ");
-                prot_list(arguments);
+                  printf("*** do_create failed ");
+                  prot_list(arguments);
+                  printf("\n");
+#endif
+                } /* if */
+#if TRACE_DCL_VAR
+              } else {
+                printf("*** match value failed ");
+                trace1(value);
                 printf("\n");
 #endif
               } /* if */
-#if TRACE_DCL_VAR
-            } else {
-              printf("*** match value failed ");
-              trace1(value);
-              printf("\n");
-#endif
             } /* if */
           } else {
             do_create(current_object, value, &err_info);

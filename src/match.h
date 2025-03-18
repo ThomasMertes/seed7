@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-void substitute_params (const_objectType expr_object);
+errInfoType substitute_params (const_objectType expr_object);
 void update_owner (const_objectType expr_object);
 objectType match_object (objectType object);
 objectType match_expression (objectType expr_object);
