@@ -259,34 +259,39 @@ static listType create_parameter_list (listType name_list, errInfoType *err_info
     list_insert_place = &parameter_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-/* printf("create paramobject ");
-trace1(name_elem->obj);
-printf(" %lu\n", (long unsigned) name_elem->obj); */
+        logMessage(printf("create paramobject " FMT_U_MEM " ",
+                          (memSizeType) name_elem->obj);
+                   trace1(name_elem->obj);
+                   printf("\n"););
         param_obj = name_elem->obj->value.objValue;
         if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
             CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-/* printf("create in or ref param ");
-trace1(param_obj);
-printf(" %lu\n", (long unsigned) param_obj); */
+          logMessage(printf("create in or ref param " FMT_U_MEM " ",
+                            (memSizeType) param_obj);
+                     trace1(param_obj);
+                     printf("\n"););
           list_insert_place = append_element_to_list(list_insert_place,
               param_obj, err_info);
         } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-/* printf("create attr param ");
-trace1(param_obj);
-printf(" %lu\n", (long unsigned) param_obj); */
+          logMessage(printf("create attr param " FMT_U_MEM " ",
+                            (memSizeType) param_obj);
+                     trace1(param_obj);
+                     printf("\n"););
           list_insert_place = append_element_to_list(list_insert_place,
               param_obj, err_info);
         } else {
-/* printf("create symbol param ");
-trace1(param_obj);
-printf("\n"); */
+          logMessage(printf("create symbol param " FMT_U_MEM " ",
+                            (memSizeType) param_obj);
+                     trace1(param_obj);
+                     printf("\n"););
           list_insert_place = append_element_to_list(list_insert_place,
               param_obj, err_info);
         } /* if */
       } else {
-/* printf("create symbol param ");
-trace1(name_elem->obj);
-printf(" %lu\n", (long unsigned) name_elem->obj); */
+        logMessage(printf("create symbol param " FMT_U_MEM " ",
+                          (memSizeType) name_elem->obj);
+                   trace1(name_elem->obj);
+                   printf("\n"););
         list_insert_place = append_element_to_list(list_insert_place,
             name_elem->obj, err_info);
       } /* if */
@@ -333,29 +338,18 @@ static void free_name_list (listType name_list)
     name_elem = name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-        /* printf("free_name_list: ");
-        trace1(name_elem->obj);
-        printf("\n"); */
+        logMessage(printf("free_name_list: ");
+                   trace1(name_elem->obj);
+                   printf("\n"););
         param_obj = name_elem->obj->value.objValue;
         if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
             CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-          /* printf("formparam: ");
-          trace1(name_elem->obj);
-          printf("\n"); */
-          /* printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
-          trace1(param_obj);
-          printf("\n");
-          fflush(stdout); */
-          /* if (HAS_ENTITY(param_obj)) {
-            printf("name: \"%s\"\n", GET_ENTITY(param_obj)->ident == NULL ? "*NULL_IDENT*" : (char *) GET_ENTITY(param_obj)->ident->name);
-            printf("owner: " FMT_U_MEM "\n", (memSizeType) GET_ENTITY(param_obj)->data.owner);
-            if (GET_ENTITY(param_obj)->data.owner != NULL) {
-              trace1(GET_ENTITY(param_obj)->data.owner->obj);
-              printf("\n");
-            }
-          } else {
-            printf("no entity: " FMT_U_MEM "\n", (memSizeType) param_obj);
-          } * if */
+          logMessage(printf("free param_obj " FMT_U_MEM " %d %d: ",
+                            (memSizeType) param_obj,
+                            HAS_ENTITY(param_obj),
+                            HAS_PROPERTY(param_obj));
+                     trace1(param_obj);
+                     printf("\n"););
           if (HAS_ENTITY(param_obj) && GET_ENTITY(param_obj)->data.owner == NULL) {
             logMessage(printf("free " FMT_U_MEM " ", (memSizeType) param_obj);
                        trace1(param_obj);
