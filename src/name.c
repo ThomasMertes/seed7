@@ -576,7 +576,8 @@ static void close_current_stack (progType currentProg)
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
-        logMessage(printf("%lx ", (unsigned long int) list_element->obj);
+        logMessage(printf(FMT_U_MEM " ",
+                          (memSizeType) list_element->obj);
                    trace1(list_element->obj);
                    printf("\n"););
         dump_temp_value(list_element->obj);
@@ -587,7 +588,8 @@ static void close_current_stack (progType currentProg)
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) == BLOCKOBJECT) {
-        logMessage(printf("%lx ", (unsigned long int) list_element->obj);
+        logMessage(printf(FMT_U_MEM " ",
+                          (memSizeType) list_element->obj);
                    trace1(list_element->obj);
                    printf("\n"););
         dump_temp_value(list_element->obj);
