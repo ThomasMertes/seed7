@@ -582,9 +582,9 @@ static void close_current_stack (progType currentProg)
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
-        /* printf("%lx ", (unsigned long int) list_element->obj);
-        trace1(list_element->obj);
-        printf("\n"); */
+        logMessage(printf("%lx ", (unsigned long int) list_element->obj);
+                   trace1(list_element->obj);
+                   printf("\n"););
         dump_temp_value(list_element->obj);
         pop_object(currentProg, list_element->obj);
       } /* if */
@@ -593,9 +593,9 @@ static void close_current_stack (progType currentProg)
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) == BLOCKOBJECT) {
-        /* printf("%lx ", (unsigned long int) list_element->obj);
-        trace1(list_element->obj);
-        printf("\n"); */
+        logMessage(printf("%lx ", (unsigned long int) list_element->obj);
+                   trace1(list_element->obj);
+                   printf("\n"););
         dump_temp_value(list_element->obj);
         pop_object(currentProg, list_element->obj);
       } /* if */
@@ -619,7 +619,6 @@ static void close_current_stack (progType currentProg)
         free_params(currentProg,
                     list_element->obj->descriptor.property->params);
         FREE_PROPERTY(list_element->obj->descriptor.property);
-        /* list_element->obj->descriptor.property = NULL; */
       } /* if */
       FREE_OBJECT(list_element->obj);
       list_element = list_element->next;
