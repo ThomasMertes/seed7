@@ -52,8 +52,6 @@
 #define EXTERN
 #include "itflib.h"
 
-#undef TRACE_ITFLIB
-
 
 
 /**
@@ -117,14 +115,11 @@ objectType itf_cpy (listType arguments)
     source = arg_3(arguments);
     isit_interface(dest);
     /* isit_interface(source); allow FORWARDOBJECT */
-#ifdef TRACE_ITFLIB
-    printf("itf_cpy old value: ");
-    trace1(dest);
-    printf("\n");
-    printf("itf_cpy new value: ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("itf_cpy(");
+                trace1(dest);
+                printf(", ");
+                trace1(source);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(dest) == STRUCTOBJECT) {
       old_struct = take_struct(dest);
       old_value = NULL;
@@ -184,11 +179,9 @@ objectType itf_cpy (listType arguments)
                CATEGORY_OF_OBJ(old_value) != FORWARDOBJECT) {
       run_exception(INTERFACEOBJECT, old_value);
     } /* if */
-#ifdef TRACE_ITFLIB
-    printf("itf_cpy afterwards: ");
-    trace1(dest);
-    printf("\n");
-#endif
+    logFunction(printf("itf_cpy(");
+                trace1(dest);
+                printf(", *) -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* itf_cpy */
 
@@ -289,11 +282,9 @@ objectType itf_create (listType arguments)
     source = arg_3(arguments);
     /* isit_interface(source); allow FORWARDOBJECT */
     SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
-#ifdef TRACE_ITFLIB
-    printf("itf_create from: ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("itf_create(");
+                trace1(source);
+                printf(")\n"););
     new_value = take_interface(source);
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
@@ -320,11 +311,9 @@ objectType itf_create (listType arguments)
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
-#ifdef TRACE_ITFLIB
-    printf("itf_create to: ");
-    trace1(dest);
-    printf("\n");
-#endif
+    logFunction(printf("itf_create --> ");
+                trace1(dest);
+                printf("\n"););
     return SYS_EMPTY_OBJECT;
   } /* itf_create */
 
@@ -342,11 +331,9 @@ objectType itf_create2 (listType arguments)
     source = arg_3(arguments);
     /* isit_interface(source); allow FORWARDOBJECT */
     SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
-#ifdef TRACE_ITFLIB
-    printf("itf_create2 from: ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("itf_create2(");
+                trace1(source);
+                printf(")\n"););
     new_value = source;
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
@@ -370,11 +357,9 @@ objectType itf_create2 (listType arguments)
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
-#ifdef TRACE_ITFLIB
-    printf("itf_create2 to: ");
-    trace1(dest);
-    printf("\n");
-#endif
+    logFunction(printf("itf_create2 --> ");
+                trace1(dest);
+                printf("\n"););
     return SYS_EMPTY_OBJECT;
   } /* itf_create2 */
 
@@ -423,9 +408,9 @@ objectType itf_destr (listType arguments)
             /* Objects with property just lose their struct value.  */
             /* For these objects the HAS_PROPERTY flag and the      */
             /* descriptor.property stay unchanged. Objects with     */
-            /* property will be removed later by close_stack() or   */
-            /* by other functions. The descriptor.property will be  */
-            /* freed together with the object.                      */
+            /* property will be removed later by close_stack(). The */
+            /* descriptor.property will be freed together with the  */
+            /* object.                                              */
             if (HAS_PROPERTY(old_value)) {
               old_value->value.structValue = NULL;
               logMessage(printf("itf_destr: Struct object with property "
