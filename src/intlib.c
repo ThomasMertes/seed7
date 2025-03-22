@@ -737,10 +737,13 @@ objectType int_lowest_set_bit (listType arguments)
 
 /**
  *  Convert integer to string and pad it with zeros at the left side.
- *  The number is converted to a string with decimal representation.
- *  For negative numbers a minus sign is prepended.
+ *  The absolute value of number is converted to a string with decimal
+ *  representation. The decimal string is padded at the left with zeros
+ *  up to a length of 'padSize'. If the decimal string is already
+ *  longer than 'padSize' no padding takes place. For negative numbers
+ *  a minus sign is prepended.
  *  @param number/arg_1 Number to be converted to a string.
- *  @param length/arg_3 Minimum length of the result.
+ *  @param padSize/arg_3 Minimum number of digits in the result.
  *  @return number as decimal string left padded with zeroes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -1098,7 +1101,7 @@ objectType int_n_bytes_be_signed (listType arguments)
  *          representation of 'number'.
  *  @exception RANGE_ERROR If 'length' is negative or zero, or
  *                         if 'number' is negative, or
- *                         if the result would not fit in 'length'' bytes.
+ *                         if the result would not fit in 'length' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_n_bytes_be_unsigned (listType arguments)
@@ -1146,7 +1149,7 @@ objectType int_n_bytes_le_signed (listType arguments)
  *          representation of 'number'.
  *  @exception RANGE_ERROR If 'length' is negative or zero, or
  *                         if 'number' is negative, or
- *                         if the result would not fit in 'length'' bytes.
+ *                         if the result would not fit in 'length' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_n_bytes_le_unsigned (listType arguments)

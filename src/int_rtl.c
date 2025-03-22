@@ -2016,10 +2016,17 @@ intType intLowestSetBit (intType number)
 
 /**
  *  Convert integer to string and pad it with zeros at the left side.
- *  The number is converted to a string with decimal representation.
- *  For negative numbers a minus sign is prepended.
+ *  The absolute value of number is converted to a string with decimal
+ *  representation. The decimal string is padded at the left with zeros
+ *  up to a length of 'padSize'. If the decimal string is already
+ *  longer than 'padSize' no padding takes place. For negative numbers
+ *  a minus sign is prepended.
+ *   intLpad0( 123, 5)  returns  "00123"
+ *   intLpad0(-123, 5)  returns "-00123"
+ *   intLpad0( 123, 2)  returns    "123"
+ *   intLpad0(-123, 2)  returns   "-123"
  *  @param number Number to be converted to a string.
- *  @param length Minimum length of the result.
+ *  @param padSize Minimum number of digits in the result.
  *  @return number as decimal string left padded with zeroes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -2296,7 +2303,7 @@ striType intNBytesBeSigned (intType number, intType length)
  *          representation of 'number'.
  *  @exception RANGE_ERROR If 'length' is negative or zero, or
  *                         if 'number' is negative, or
- *                         if the result would not fit in 'length'' bytes.
+ *                         if the result would not fit in 'length' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType intNBytesBeUnsigned (intType number, intType length)
@@ -2449,7 +2456,7 @@ striType intNBytesLeSigned (intType number, intType length)
  *          representation of 'number'.
  *  @exception RANGE_ERROR If 'length' is negative or zero, or
  *                         if 'number' is negative, or
- *                         if the result would not fit in 'length'' bytes.
+ *                         if the result would not fit in 'length' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType intNBytesLeUnsigned (intType number, intType length)
