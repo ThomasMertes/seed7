@@ -1130,8 +1130,12 @@ objectType str_lpad (listType arguments)
 
 
 /**
- *  Pad a string with zeroes at the left side up to pad_size.
- *  @return the string left padded with zeroes.
+ *  Pad a 'string' with zeroes at the left side.
+ *  An optional '+' or '-' sign in front is kept intact. The string
+ *  after the optional sign is padded up to a length of 'padSize'.
+ *  @param stri/arg_1 String to be padded with zeroes at the left side.
+ *  @param padSize/arg_3 Minimum number of non-sign characters in the result.
+ *  @return the 'string' left padded with zeroes.
  */
 objectType str_lpad0 (listType arguments)
 

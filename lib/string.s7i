@@ -57,15 +57,18 @@ const func string: (in string: stri) lpad (in integer: length)   is action "STR_
 
 
 (**
- *  Pad a ''string'' with zeroes at the left side up to a given length.
- *  A '+' or '-' sign in front is left intact.
+ *  Pad a ''string'' with zeroes at the left side.
+ *  An optional '+' or '-' sign in front is kept intact. The string
+ *  after the optional sign is padded up to a length of ''padSize''.
  *    "123" lpad0 5  returns  "00123"
  *   "-123" lpad0 5  returns "-00123"
  *    "123" lpad0 2  returns    "123"
  *   "-123" lpad0 2  returns   "-123"
+ *  @param stri String to be padded with zeroes at the left side.
+ *  @param padSize Minimum number of non-sign characters in the result.
  *  @return the ''string'' left padded with zeroes.
  *)
-const func string: (in string: stri) lpad0 (in integer: length)  is action "STR_LPAD0";
+const func string: (in string: stri) lpad0 (in integer: padSize)  is action "STR_LPAD0";
 
 
 (**
