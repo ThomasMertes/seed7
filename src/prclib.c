@@ -1228,7 +1228,7 @@ objectType prc_res_begin (listType arguments)
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
       } /* if */
-      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR && result_var.object != NULL) {
         get_result_var(&result_var, result_type, result_init, &err_info);
         /* printf("result_var.object ");
         trace1(result_var.object);
@@ -1325,7 +1325,7 @@ objectType prc_res_local (listType arguments)
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
       } /* if */
-      if (result_var.object != NULL && err_info == OKAY_NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR && result_var.object != NULL) {
         get_result_var(&result_var, result_type, result_init, &err_info);
         local_object_insert_place = get_local_object_insert_place();
         decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
