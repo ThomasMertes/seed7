@@ -3282,6 +3282,16 @@ const func boolean: checkNoMatch is func
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: main is func\n\
                     \  local\n\
+                    \    const integer: number is 0;\n\
+                    \  begin\n\
+                    \    incr(\"asdf\");\n\
+                    \  end func;",
+                    NO_MATCH, 6, 0,
+                    "Match for {\"asdf\" incr } failed",
+                    "    incr(\"asdf\");") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: main is func\n\
+                    \  local\n\
                     \    var integer: number is 0;\n\
                     \  begin\n\
                     \    number := \"asdf\";\n\
@@ -3299,6 +3309,18 @@ const func boolean: checkNoMatch is func
                     NO_MATCH, 6, 0,
                     "Match for {number := \"asdf\" } failed",
                     "    number := \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func boolean: isOkay is func\n\
+                    \  result\n\
+                    \    var boolean: result is FALSE;\n\
+                    \  local\n\
+                    \    const integer: number is 0;\n\
+                    \  begin\n\
+                    \    incr(\"asdf\");\n\
+                    \  end func;",
+                    NO_MATCH, 8, 0,
+                    "Match for {\"asdf\" incr } failed",
+                    "    incr(\"asdf\");") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func boolean: isOkay is func\n\
                     \  result\n\
