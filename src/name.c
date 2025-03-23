@@ -2,6 +2,7 @@
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2013, 2015, 2020, 2021  Thomas Mertes      */
+/*                2024, 2025  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,6 +22,7 @@
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/name.c                                          */
 /*  Changes: 1994, 2011, 2013, 2015, 2020, 2021  Thomas Mertes      */
+/*           2024, 2025  Thomas Mertes                              */
 /*  Content: Enter an object in a specified declaration level.      */
 /*                                                                  */
 /********************************************************************/

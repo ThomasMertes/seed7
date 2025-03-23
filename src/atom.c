@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013, 2015, 2021  Thomas Mertes            */
+/*  Copyright (C) 1990 - 2013, 2015, 2021, 2025  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/atom.c                                          */
-/*  Changes: 1990 - 1994, 2013, 2015, 2021  Thomas Mertes           */
+/*  Changes: 1990 - 1994, 2013, 2015, 2021, 2025  Thomas Mertes     */
 /*  Content: Read the next object from the source file.             */
 /*                                                                  */
 /********************************************************************/

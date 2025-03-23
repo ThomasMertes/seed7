@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1989 - 2019, 2021  Thomas Mertes                  */
+/*  Copyright (C) 1989 - 2010, 2013, 2015, 2019  Thomas Mertes      */
+/*                2021, 2022, 2025  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +22,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/flistutl.c                                      */
 /*  Changes: 1993, 1994, 2010, 2013, 2015, 2019  Thomas Mertes      */
-/*           2021  Thomas Mertes                                    */
+/*           2021, 2022, 2025  Thomas Mertes                        */
 /*  Content: Functions for free memory list maintenance.            */
 /*                                                                  */
 /*  This file contains the heapsize function which calculates       */

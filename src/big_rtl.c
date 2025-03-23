@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Functions for the built-in bigInteger support.    */
-/*  Copyright (C) 1989 - 2020, 2022 - 2024  Thomas Mertes           */
+/*  Copyright (C) 2006 - 2020, 2022 - 2025  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_rtl.c                                       */
-/*  Changes: 2005, 2006, 2008 - 2010, 2013 - 2019 Thomas Mertes     */
+/*  Changes: 2006 - 2020, 2022 - 2025  Thomas Mertes                */
 /*  Content: Functions for the built-in bigInteger support.         */
 /*                                                                  */
 /********************************************************************/

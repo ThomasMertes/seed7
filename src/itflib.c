@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008, 2013, 2014, 2016  Thomas Mertes      */
+/*                2021, 2024, 2025  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,6 +22,7 @@
 /*  Module: Library                                                 */
 /*  File: seed7/src/itflib.c                                        */
 /*  Changes: 1993, 1994, 2002, 2008, 2013, 2014  Thomas Mertes      */
+/*           2016, 2021, 2024, 2025  Thomas Mertes                  */
 /*  Content: All primitive actions for interface types.             */
 /*                                                                  */
 /********************************************************************/

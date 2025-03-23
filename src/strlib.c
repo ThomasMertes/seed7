@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008, 2010, 2013 - 2021  Thomas Mertes     */
+/*                2023 - 2025  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/strlib.c                                        */
-/*  Changes: 1991 - 1994, 2008, 2010, 2013 - 2019  Thomas Mertes    */
+/*  Changes: 1991 - 1994, 2008, 2010, 2013 - 2021  Thomas Mertes    */
+/*           2023 - 2025  Thomas Mertes                             */
 /*  Content: All primitive actions for the string type.             */
 /*                                                                  */
 /********************************************************************/

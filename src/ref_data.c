@@ -1,7 +1,9 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007, 2008, 2010 - 2013  Thomas Mertes     */
+/*                2015, 2018 - 2020, 2022, 2024  Thomas Mertes      */
+/*                2025  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +22,9 @@
 /*                                                                  */
 /*  Module: Compiler data reflection                                */
 /*  File: seed7/src/ref_data.c                                      */
-/*  Changes: 1991-1994, 2004, 2007, 2008, 2010, 2015  Thomas Mertes */
+/*  Changes: 1991 - 1994, 2004, 2007, 2008  Thomas Mertes           */
+/*           2010 - 2013, 2015, 2018 - 2020, 2022  Thomas Mertes    */
+/*           2024, 2025  Thomas Mertes                              */
 /*  Content: Primitive actions for the reference type.              */
 /*                                                                  */
 /********************************************************************/

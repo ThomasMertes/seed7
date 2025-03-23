@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2022  Thomas Mertes                        */
+/*  Copyright (C) 1991 - 1994, 2005, 2007 - 2025  Thomas Mertes     */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.c                                       */
-/*  Changes: 1991 - 1994, 2005, 2008 - 2021  Thomas Mertes          */
+/*  Changes: 1991 - 1994, 2005, 2007 - 2025  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/

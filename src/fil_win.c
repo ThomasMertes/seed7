@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_win.c     File functions which call the Windows API.        */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013, 2015 - 2019, 2021  Thomas Mertes     */
+/*                2024, 2025  Thomas Mertes                         */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +25,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_win.c                                       */
-/*  Changes: 2011, 2012  Thomas Mertes                              */
+/*  Changes: 2011 - 2013, 2015 - 2019, 2021, 2024  Thomas Mertes    */
+/*           2025  Thomas Mertes                                    */
 /*  Content: File functions which call the Windows API.             */
 /*                                                                  */
 /********************************************************************/

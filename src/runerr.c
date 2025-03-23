@@ -2,7 +2,8 @@
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2000, 2010 - 2011  Thomas Mertes           */
-/*                2014 - 2017, 2020, 2021  Thomas Mertes            */
+/*                2014 - 2017, 2020, 2021, 2024  Thomas Mertes      */
+/*                2025  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,8 +22,8 @@
 /*                                                                  */
 /*  Module: Runtime                                                 */
 /*  File: seed7/src/runerr.c                                        */
-/*  Changes: 1990 - 1994, 2010 - 2011, 2014 - 2017   Thomas Mertes  */
-/*           2020, 2021   Thomas Mertes                             */
+/*  Changes: 1990 - 1994, 2010 - 2011, 2014 - 2017  Thomas Mertes   */
+/*           2020, 2021. 2024, 2025  Thomas Mertes                  */
 /*  Content: Runtime error and exception handling functions.        */
 /*                                                                  */
 /********************************************************************/
