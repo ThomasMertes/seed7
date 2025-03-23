@@ -26,6 +26,7 @@
 /********************************************************************/
 
 void free_loclist (locListType loclist);
+void free_local_consts (listType list);
 void free_block (blockType block);
 blockType new_block (locListType block_params, const_locObjType block_result,
     locListType block_local_vars, listType block_local_consts,
