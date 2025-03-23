@@ -3373,9 +3373,13 @@ striType strLpad0 (const const_striType stri, const intType padSize)
 
 
 /**
- *  Pad a string with zeroes at the left side up to padSize.
+ *  Pad a 'string' with zeroes at the left side.
+ *  An optional '+' or '-' sign in front is kept intact. The string
+ *  after the optional sign is padded up to a length of 'padSize'.
  *  StrLpad0Temp is used by the compiler if 'stri' is temporary
  *  value that can be reused.
+ *  @param stri String to be padded with zeroes at the left side.
+ *  @param padSize Minimum number of non-sign characters in the result.
  *  @return the string left padded with zeroes.
  */
 striType strLpad0Temp (const striType stri, const intType padSize)
