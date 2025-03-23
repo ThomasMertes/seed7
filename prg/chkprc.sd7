@@ -37,8 +37,12 @@ var boolean: true_var is TRUE;
 var boolean: false_var is FALSE;
 
 
-const func boolean: boolExpr (ref boolean: value) is
-  return value and str(rand(1, 9))[2 ..] = "";
+const func boolean: boolExpr (in boolean: aBool) is func
+  result
+    var boolean: boolResult is FALSE;
+  begin
+    boolResult := aBool;
+  end func;
 
 
 const func string: striExpr (in string: stri) is
@@ -950,6 +954,27 @@ const proc: check_while is func
       okay := FALSE;
     end while;
 
+    while FALSE do
+    end while;
+
+    global_loop_control := FALSE;
+    while global_loop_control do
+    end while;
+
+    local_loop_control := FALSE;
+    while local_loop_control do
+    end while;
+
+    array_loop_control[1] := FALSE;
+    while array_loop_control[1] do
+    end while;
+
+    while 0 <> 0 do
+    end while;
+
+    while boolExpr(FALSE) do
+    end while;
+
     counter := 0;
     global_loop_control := TRUE;
     while global_loop_control do
@@ -1187,6 +1212,19 @@ const proc: check_repeat is func
     end if;
 
     counter := 0;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until EXPRESSION  with one loop trip does not work correctly.");
+        okay := FALSE;
+      end if;
+    until boolExpr(counter = 1);
+    if counter <> 1 then
+      writeln(" ***** repeat ... until EXPRESSION  with one loop trip does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
     local_loop_control := FALSE;
     repeat
       incr(counter);
@@ -1246,6 +1284,24 @@ const proc: check_repeat is func
 
     repeat
     until TRUE;
+
+    global_loop_control := TRUE;
+    repeat
+    until global_loop_control;
+
+    local_loop_control := TRUE;
+    repeat
+    until local_loop_control;
+
+    array_loop_control[1] := TRUE;
+    repeat
+    until array_loop_control[1];
+
+    repeat
+    until 0 = 0;
+
+    repeat
+    until boolExpr(TRUE);
 
     repeat
     until rand(FALSE, TRUE);
