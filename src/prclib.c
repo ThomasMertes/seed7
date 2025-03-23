@@ -1154,8 +1154,10 @@ objectType prc_repeat (listType arguments)
         if (likely(!fail_flag)) {
           isit_bool(cond_value);
           cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
-          if (TEMP_OBJECT(cond_value)) {
-            dump_any_temp(cond_value);
+          if (TEMP_OBJECT(cond_value) &&
+              (CATEGORY_OF_OBJ(cond_value) == CONSTENUMOBJECT ||
+               CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
+            FREE_OBJECT(cond_value);
           } /* if */
         } /* if */
       } /* if */
@@ -1179,8 +1181,10 @@ objectType prc_repeat_noop (listType arguments)
       if (likely(!fail_flag)) {
         isit_bool(cond_value);
         cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
-        if (TEMP_OBJECT(cond_value)) {
-          dump_any_temp(cond_value);
+        if (TEMP_OBJECT(cond_value) &&
+            (CATEGORY_OF_OBJ(cond_value) == CONSTENUMOBJECT ||
+             CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
+          FREE_OBJECT(cond_value);
         } /* if */
       } /* if */
     } while (!fail_flag && cond);
@@ -1725,8 +1729,10 @@ objectType prc_while (listType arguments)
     if (likely(!fail_flag)) {
       isit_bool(cond_value);
       cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
-      if (TEMP_OBJECT(cond_value)) {
-        dump_any_temp(cond_value);
+      if (TEMP_OBJECT(cond_value) &&
+          (CATEGORY_OF_OBJ(cond_value) == CONSTENUMOBJECT ||
+           CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
+        FREE_OBJECT(cond_value);
       } /* if */
       while (cond && !fail_flag) {
         evaluate(statement);
@@ -1735,8 +1741,10 @@ objectType prc_while (listType arguments)
           if (likely(!fail_flag)) {
             isit_bool(cond_value);
             cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
-            if (TEMP_OBJECT(cond_value)) {
-              dump_any_temp(cond_value);
+            if (TEMP_OBJECT(cond_value) &&
+                (CATEGORY_OF_OBJ(cond_value) == CONSTENUMOBJECT ||
+                 CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
+              FREE_OBJECT(cond_value);
             } /* if */
           } /* if */
         } /* if */
@@ -1761,8 +1769,10 @@ objectType prc_while_noop (listType arguments)
       if (likely(!fail_flag)) {
         isit_bool(cond_value);
         cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
-        if (TEMP_OBJECT(cond_value)) {
-          dump_any_temp(cond_value);
+        if (TEMP_OBJECT(cond_value) &&
+            (CATEGORY_OF_OBJ(cond_value) == CONSTENUMOBJECT ||
+             CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
+          FREE_OBJECT(cond_value);
         } /* if */
       } /* if */
     } while (cond && !fail_flag);
