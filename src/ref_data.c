@@ -892,14 +892,13 @@ striType refStr (const const_objectType aReference)
   {
     const_cstriType stri;
     memSizeType buffer_len;
-    char *buffer;
+    char *buffer = NULL;
     listType name_elem;
     objectType param_obj;
     errInfoType err_info = OKAY_NO_ERROR;
     striType result;
 
   /* refStr */
-    buffer = NULL;
     if (aReference == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(aReference)) {
