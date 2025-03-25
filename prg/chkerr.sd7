@@ -472,7 +472,7 @@ const func boolean: checkIncludeAndPragmaErrors is func
       writeln(" *** Include and pragma errors are not reported correctly.");
     end if;
   end func;
-        
+
 
 const func boolean: checkWrongAction is func
   result
@@ -1586,7 +1586,7 @@ const func boolean: checkNumericLiteralErrors is func
     var boolean: okay is FALSE;
   begin
     if  checkCardDecimalTooBig and
-	checkNegativeExponent and
+        checkNegativeExponent and
         checkDigitExpected and
         checkCardWithExponentTooBig and
         checkBase2To36Allowed and
@@ -2737,10 +2737,10 @@ const func boolean: checkExpectedErrors is func
   result
     var boolean: okay is FALSE;
   begin
-    if	checkNameExpected and
+    if  checkNameExpected and
         checkCardExpected and
         checkStriExpected and
-	checkIdentExpected and
+        checkIdentExpected and
         checkTypeExpected and
         checkProcExpected and
         checkParamSpecifierExpected and
@@ -3194,8 +3194,7 @@ const func boolean: checkWrongPrefixPriority is func
   result
     var boolean: okay is FALSE;
   begin
-    if 
-        checkError1("$ include \"syntax.s7i\";\n\
+    if  checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .d2.() is -> 50;\n\
                     \d2 1 + 1;",
                     WRONG_PREFIX_PRIORITY, 3, 3,
@@ -3568,7 +3567,7 @@ const func boolean: checkSemanticErrors is func
     if  checkNoMatch and
         checkWrongAccessRight and
         checkLiteralTypeUndefined and
-	checkKindOfParamUndefined then
+        checkKindOfParamUndefined then
       writeln("Semantic errors are reported correctly.");
       okay := TRUE;
     else

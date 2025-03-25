@@ -608,7 +608,7 @@ static void storeLineFromBuffer (parseErrorType error,
 
   { /* storeLineFromBuffer */
     if (nlPos != lineStartPos && nlPos[-1] == '\r') {
-      /* Remove a '\r' which preceeds the '\n'. */ 
+      /* Remove a '\r' which preceeds the '\n'. */
       nlPos--;
     } /* if */
     error->errorLine = ustri_buf_to_stri(lineStartPos,

@@ -796,7 +796,7 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
                        arr1 != NULL ?
                            arr1->min_position : (intType) 1,
                        arr1 != NULL ?
-	                   arr1->max_position : (intType) 0););
+                           arr1->max_position : (intType) 0););
     return arr1;
   } /* arrArrlit2 */
 
@@ -1017,7 +1017,7 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
                        result != NULL ?
                            result->min_position : (intType) 1,
                        result != NULL ?
-	                   result->max_position : (intType) 0););
+                           result->max_position : (intType) 0););
     return result;
   } /* arrGen */
 
@@ -1973,7 +1973,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
                        result != NULL ?
                            result->min_position : (intType) 1,
                        result != NULL ?
-	                   result->max_position : (intType) 0););
+                           result->max_position : (intType) 0););
     return result;
   } /* arrRemoveArray */
 
