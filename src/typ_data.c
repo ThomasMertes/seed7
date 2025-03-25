@@ -158,33 +158,32 @@ typeType typMeta (typeType any_type)
 intType typNum (typeType actual_type)
 
   {
-    intType type_num;
+    intType typeNumber;
 
   /* typNum */
     logFunction(printf("typNum(" FMT_X_MEM ")\n",
                        (memSizeType) actual_type););
     if (unlikely(actual_type == NULL)) {
-      type_num = 0;
+      typeNumber = 0;
+    } else if (unlikely(actual_type->owningProg == NULL ||
+                        actual_type->owningProg->typeNumberMap == NULL)) {
+      logError(printf("typNum(" FMT_X_MEM "): "
+                      "No owning program or type number map.\n",
+                      (memSizeType) actual_type););
+      raise_error(RANGE_ERROR);
+      typeNumber = 0;
     } else {
-      if (likely(actual_type->owningProg != NULL &&
-                 actual_type->owningProg->typeNumberMap != NULL)) {
-        type_num = (intType) hshIdxEnterDefault(
-            actual_type->owningProg->typeNumberMap,
-            (genericType) (memSizeType) actual_type,
-            (genericType) actual_type->owningProg->nextFreeTypeNumber,
-            (intType) (((memSizeType) actual_type) >> 6));
-        if (type_num == actual_type->owningProg->nextFreeTypeNumber) {
-          actual_type->owningProg->nextFreeTypeNumber++;
-        } /* if */
-      } else {
-        logError(printf("typNum(" FMT_X_MEM ")\n",
-                        (memSizeType) actual_type););
-        raise_error(RANGE_ERROR);
-        type_num = 0;
+      typeNumber = (intType) hshIdxEnterDefault(
+          actual_type->owningProg->typeNumberMap,
+          (genericType) (memSizeType) actual_type,
+          (genericType) actual_type->owningProg->nextFreeTypeNumber,
+          (intType) (((memSizeType) actual_type) >> 6));
+      if (typeNumber == actual_type->owningProg->nextFreeTypeNumber) {
+        actual_type->owningProg->nextFreeTypeNumber++;
       } /* if */
     } /* if */
-    logFunction(printf("typNum --> " FMT_D "\n", type_num););
-    return type_num;
+    logFunction(printf("typNum --> " FMT_D "\n", typeNumber););
+    return typeNumber;
   } /* typNum */
 
 

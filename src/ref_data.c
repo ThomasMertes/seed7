@@ -650,35 +650,38 @@ listType refLocalVars (const const_objectType funcRef)
 /**
  *  Delivers an unique number for each object
  *  @return a unique object number.
+ *  @exception RANGE_ERROR The type has no owning program or number map.
  *  @exception MEMORY_ERROR Not enough memory to maintain the object table.
  */
 intType refNum (const const_objectType aReference)
 
   {
-    intType result;
+    intType objectNumber;
 
   /* refNum */
-    logFunction(printf("refNum(" FMT_U_MEM ")\n", (memSizeType) aReference););
-    if (unlikely(aReference == NULL)) {
-      result = 0;
+    logFunction(printf("refNum(" FMT_U_MEM ")\n",
+                       (memSizeType) aReference););
+    if (unlikely(aReference == NULL || aReference->type_of == NULL)) {
+      objectNumber = 0;
+    } else if (unlikely(aReference->type_of->owningProg == NULL ||
+                        aReference->type_of->owningProg->objectNumberMap == NULL)) {
+      logError(printf("refNum(" FMT_U_MEM "): "
+                      "No owning program or object number map.\n",
+                      (memSizeType) aReference););
+      raise_error(RANGE_ERROR);
+      objectNumber = 0;
     } else {
-      if (likely(aReference->type_of != NULL &&
-                 aReference->type_of->owningProg != NULL &&
-                 aReference->type_of->owningProg->objectNumberMap != NULL)) {
-        result = (intType) hshIdxEnterDefault(
-            aReference->type_of->owningProg->objectNumberMap,
-            (genericType) (memSizeType) aReference,
-            (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,
-            (intType) (((memSizeType) aReference) >> 6));
-        if (result == aReference->type_of->owningProg->nextFreeObjectNumber) {
-          aReference->type_of->owningProg->nextFreeObjectNumber++;
-        } /* if */
-      } else {
-        result = 0;
+      objectNumber = (intType) hshIdxEnterDefault(
+          aReference->type_of->owningProg->objectNumberMap,
+          (genericType) (memSizeType) aReference,
+          (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,
+          (intType) (((memSizeType) aReference) >> 6));
+      if (objectNumber == aReference->type_of->owningProg->nextFreeObjectNumber) {
+        aReference->type_of->owningProg->nextFreeObjectNumber++;
       } /* if */
     } /* if */
-    logFunction(printf("refNum --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("refNum --> " FMT_D "\n", objectNumber););
+    return objectNumber;
   } /* refNum */
 
 

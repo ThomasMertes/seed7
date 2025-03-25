@@ -680,6 +680,7 @@ const func integer: line (in reference: aReference)                    is action
 (**
  *  Delivers an unique number for each object
  *  @return a unique object number.
+ *  @exception RANGE_ERROR The type has no owning program or number map.
  *  @exception MEMORY_ERROR Not enough memory to maintain the object table.
  *)
 const func integer: objNumber (in reference: aReference)               is action "REF_NUM";

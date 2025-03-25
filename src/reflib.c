@@ -639,6 +639,7 @@ objectType ref_nil (listType arguments)
 /**
  *  Delivers an unique number for each object
  *  @return a unique object number.
+ *  @exception RANGE_ERROR The type has no owning program or number map.
  *  @exception MEMORY_ERROR Not enough memory to maintain the object table.
  */
 objectType ref_num (listType arguments)
