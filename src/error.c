@@ -126,7 +126,7 @@ static parseErrorType newError (errorType err)
       fatal_memory_error(SOURCE_POSITION(2121));
     } else {
       memset(error, 0, sizeof(parseErrorRecord));
-      error->err = err;
+      error->err = (int) err;
     } /* if */
     return error;
   } /* newError */
