@@ -22,6 +22,7 @@ chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.
 chkdb.sd7    Checks the database interface.
 chkenum.sd7  Checks enumeration literals and operations
+chkerr.sd7   Checks for parsing errors
 chkexc.sd7   Checks exceptions
 chkfil.sd7   Checks file operations
 chkflt.sd7   Checks float literals and operations

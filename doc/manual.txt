@@ -817,7 +817,7 @@ CONTENTS
   changed. All constants just keep the initialization value. An attempt
   to change a constant results in a parsing error:
 
-    *** tst352.sd7(14):53: Variable expected in {lower := 10 } found constant integer: lower
+    *** tst352.sd7(14):58: Variable expected in {lower := 10 } found constant integer: lower
         lower := 10;
 
   Note that the error is reported before the program execution starts.
@@ -1673,7 +1673,7 @@ CONTENTS
   Variables can only hold values of their type. An attempt to
   assign a value with the wrong type results in a compile error:
 
-    *** tst545.sd7(7):52: Match for {number := "hello" } failed
+    *** tst545.sd7(7):57: Match for {number := "hello" } failed
         number := "hello";
 
 
@@ -1687,7 +1687,7 @@ CONTENTS
   This declares the 'integer' constant 'ONE' with the value 1.
   An attempt to change a constant results in an compile error:
 
-    *** tst544.sd7(7):53: Variable expected in {ONE := 2 } found constant integer: ONE
+    *** tst544.sd7(7):58: Variable expected in {ONE := 2 } found constant integer: ONE
         ONE := 2;
 
 
@@ -1835,10 +1835,10 @@ CONTENTS
   must fit to the type of the variable or constant. A compile error
   is triggered if this is not the case:
 
-    *** tst546.sd7(3):52: Match for {number ::= ' ' } failed
+    *** tst546.sd7(3):57: Match for {number ::= ' ' } failed
     var integer: number is ' ';
     ---------------------------^
-    *** tst546.sd7(3):32: Declaration of "number" failed
+    *** tst546.sd7(3):42: Declaration of "number" failed
     var integer: number is ' ';
 
   Expressions can be used as initial value. E.g.:
@@ -2037,7 +2037,7 @@ CONTENTS
 
   An unknown pragma results in a parsing error:
 
-    *** pragma.sd7(1):7: Illegal pragma "unknownPragma"
+    *** pragma.sd7(1):8: Illegal pragma "unknownPragma"
     $ unknownPragma
     ---------------^
 
@@ -2193,7 +2193,7 @@ CONTENTS
 
   results in a parsing error:
 
-    *** tst316.sd7(5):52: Match for {INT_ADD({1 + 1 }) ; writeln } failed
+    *** tst316.sd7(5):57: Match for {INT_ADD({1 + 1 }) ; writeln } failed
         1 + 1;
 
   An unused expression result must be explicitly ignored. E.g.:
@@ -7310,7 +7310,7 @@ CONTENTS
   If the type declaration of 'intArrayType' would be inside of the 'local'
   declaration block you would receive a parsing error:
 
-    *** tst249.sd7(6):52: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+    *** tst249.sd7(6):57: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
         var intArrayType: arr is [](1, 2);
 
   A 'local' declaration block is parsed completely before it is executed.
@@ -10538,7 +10538,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   For the 'loop' example with the semantic errors (see above) we
   would get an error message like:
 
-    *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
+    *** chkloop.sd7(35):57: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 
 
 9.4 Priority and associativity
@@ -11161,7 +11161,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   Characters that introduce neither white_space nor a token trigger a
   parsing error:
 
-    *** tst255.sd7(1):5: Illegal character in text "\8;" (U+0008)
+    *** tst255.sd7(1):3: Illegal character in text "\8;" (U+0008)
     (* Illegal character *) \b
     ------------------------^
 
@@ -11234,7 +11234,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   If a comment is not closed at the end of the main file a parsing error
   is triggered:
 
-    *** tst256.sd7(2):6: Unclosed comment
+    *** tst256.sd7(2):4: Unclosed comment
     (* Unclosed comment
 
 
@@ -11404,28 +11404,28 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   If an integer literal cannot be read a parsing error is triggered:
 
-    *** tst256.sd7(2):10: Integer "12345678901234567890" too big
+    *** tst256.sd7(2):14: Integer "12345678901234567890" too big
     const integer: tooBig is 12345678901234567890;
     ---------------------------------------------^
-    *** tst256.sd7(3):11: Negative exponent in integer literal
+    *** tst256.sd7(3):15: Negative exponent in integer literal
     const integer: negativeExponent is 1e-1;
     -------------------------------------^
-    *** tst256.sd7(4):12: Digit expected found ";"
+    *** tst256.sd7(4):16: Digit expected found ";"
     const integer: digitExpected is 1e;
     ----------------------------------^
-    *** tst256.sd7(5):13: Integer "1E20" too big
+    *** tst256.sd7(5):17 Integer "1E20" too big
     const integer: integerWithExponentTooBig is 1e20;
     ------------------------------------------------^
-    *** tst256.sd7(6):14: Integer base "37" not between 2 and 36
+    *** tst256.sd7(6):18: Integer base "37" not between 2 and 36
     const integer: baseNotBetween2To36 is 37#0;
     ----------------------------------------^
-    *** tst256.sd7(7):15: Extended digit expected found ";"
+    *** tst256.sd7(7):19: Extended digit expected found ";"
     const integer: extendedDigitExpected is 16#;
     -------------------------------------------^
-    *** tst256.sd7(8):16: Illegal digit "G" in based integer "16#G"
+    *** tst256.sd7(8):20: Illegal digit "G" in based integer "16#G"
     const integer: illegalBasedDigit is 16#G;
     ----------------------------------------^
-    *** tst256.sd7(9):17: Based integer "16#ffffffffffffffff" too big
+    *** tst256.sd7(9):21: Based integer "16#ffffffffffffffff" too big
     const integer: basedIntegerTooBig is 16#ffffffffffffffff;
     --------------------------------------------------------^
 
@@ -11536,25 +11536,25 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   If a string literal cannot be read a parsing error is triggered:
 
-    *** tst256.sd7(2):20: Use \" instead of "" to represent " in a string
+    *** tst256.sd7(2):24: Use \" instead of "" to represent " in a string
     const string: wrongQuotationRepresentation is "double "" quotations";
     -------------------------------------------------------^
-    *** tst256.sd7(3):21: Illegal string escape "\z"
+    *** tst256.sd7(3):25: Illegal string escape "\z"
     const string: illegalStringEscape is "\z";
     ---------------------------------------^
-    *** tst256.sd7(4):22: Numerical escape sequences should end with ";" not "x"
+    *** tst256.sd7(4):26: Numerical escape sequences should end with ";" not "x"
     const string: wrongNumericEscape is "\1234xyz";
     ------------------------------------------^
-    *** tst256.sd7(5):23: The numerical escape sequence "\1234678123467892346;" is too big
+    *** tst256.sd7(5):27: The numerical escape sequence "\1234678123467892346;" is too big
     const string: numericEscapeTooBig is "asd\1234678123467892346;dfdfg";
     -------------------------------------------------------------^
-    *** tst256.sd7(6):24: String continuations should end with "\" not "c"
+    *** tst256.sd7(6):28: String continuations should end with "\" not "c"
     const string: backslashExpected is "string \      continuation";
     --------------------------------------------------^
-    *** tst256.sd7(7):25: String literal exceeds source line
+    *** tst256.sd7(7):29: String literal exceeds source line
     const string: exceedsSourceLine is "abc
     ---------------------------------------^
-    *** tst256.sd7(8):27: Integer literal expected found "1.5"
+    *** tst256.sd7(8):31: Integer literal expected found "1.5"
     const string: integerExpected is "\1.5;";
     --------------------------------------^
 
@@ -11580,10 +11580,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   If a char literal cannot be read a parsing error is triggered:
 
-    *** tst256.sd7(2):18: "'" expected found ";"
+    *** tst256.sd7(2):22: "'" expected found ";"
     const char: apostropheExpected is 'x;
     ------------------------------------^
-    *** tst256.sd7(3):19: Character literal exceeds source line
+    *** tst256.sd7(3):23: Character literal exceeds source line
     const char: charExceeds is '
     ----------------------------^
 
@@ -11601,25 +11601,25 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   UTF-8 can be commented out. Invalid UTF-8 encodings in identifiers
   and literals trigger a parsing error:
 
-    *** err.sd7(90):58: Overlong UTF-8 encoding used for character "\0;" (U+0000)
+    *** err.sd7(90):61: Overlong UTF-8 encoding used for character "\0;" (U+0000)
     ignore("\0;");
     -----------^
-    *** err.sd7(91):59: UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800)
+    *** err.sd7(91):62: UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800)
     ignore("\55296;");
     ---------------^
-    *** err.sd7(92):60: Non Unicode character found "\1114112;" (U+110000)
+    *** err.sd7(92):63: Non Unicode character found "\1114112;" (U+110000)
     "\1114112;");
     ----------^
-    *** err.sd7(93):61: UTF-8 continuation byte expected found "A"
+    *** err.sd7(93):64: UTF-8 continuation byte expected found "A"
     ignore("í\128;A");
     --------------^
-    *** err.sd7(94):62: Unexpected UTF-8 continuation byte found "\128;" (U+0080)
+    *** err.sd7(94):65: Unexpected UTF-8 continuation byte found "\128;" (U+0080)
     ignore("\128;");
     --------^
-    *** err.sd7(95):63: Solitary UTF-8 start byte found "\237;" (U+00ed)
+    *** err.sd7(95):66: Solitary UTF-8 start byte found "\237;" (U+00ed)
     ignore("íA");
     ---------^
-    *** bom16(1):64: UTF-16 byte order mark found "\65279;" (U+feff)
+    *** bom16(1):67: UTF-16 byte order mark found "\65279;" (U+feff)
     þÿ
     -^
 
@@ -16316,70 +16316,72 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   errors. The following parsing errors exist:
 
      1: Fatal Error: Out of heap space
-     2: File "%s" not found
-     3: Include file "%s" not found
-     4: "END OF FILE" encountered
-     5: Illegal character in text "%s" (U+%04x)
-     6: Unclosed comment
-     7: Illegal pragma "%s"
-     8: Illegal action "%s"
-     9: Illegal system declaration "%s"
-    10: Integer "%s" too big
-    11: Negative exponent in integer literal
-    12: Digit expected found "%s"
-    13: Integer "%dE%s" too big
-    14: Integer base "%ld" not between 2 and 36
-    15: Extended digit expected found "%s"
-    16: Illegal digit "%c" in based integer "%d#%s"
-    17: Based integer "%d#%s" too big
-    18: "'" expected found "%s"
-    19: Character literal exceeds source line
-    20: Use \" instead of "" to represent " in a string
-    21: Illegal string escape "\%s"
-    22: Numerical escape sequences should end with ";" not "%s"
-    23: The numerical escape sequence "\%u;" is too big
-    24: String continuations should end with "\" not "%s"
-    25: String literal exceeds source line
-    26: Name expected found "%s"
-    27: Integer literal expected found "%s"
-    28: String literal expected found "%s"
-    29: Identifier expected found "%s"
-    30: Expression expected found "%s"
-    31: Declaration of parameter %s failed
-    32: Declaration of "%s" failed
-    33: Exception "%s" raised
-    34: Redeclaration of "%s"
-    35: Previous declaration of "%s"
-    36: Associativity expected found "%s"
-    37: Statement priority "%s" too big
-    38: Syntax with two parameters before operator is illegal
-    39: Empty syntax declaration
-    40: Syntax %s declared twice
-    41: Dot expression expected as syntax description, found %s
-    42: "%s" redeclared with infix priority %d not %d
-    43: "%s" redeclared with prefix priority %d not %d
-    44: Priority %d required for parameter after "%s" not %d
-    45: Priority <= %d expected found "%s" with priority %d
-    46: "%s" must have priority %d not %d for dot expression
-    47: "%s" expected found "%s"
-    48: Undefined type for literal "%s"
-    49: Kind of in-parameter (val or ref) unspecified for type "%s"
-    50: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
-    51: "func" or "type" expected found "%s"
-    52: Match for %s failed
-    53: Variable expected in %s found %s
-    54: Type expected found %s
-    55: Procedure expected found %s expression
-    56: Parameter specifier expected found "%s"
-    57: Evaluate type expression %s failed
-    58: Overlong UTF-8 encoding used for character "%s" (U+%04x)
-    59: UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)
-    60: Non Unicode character found "%s" (U+%04x)
-    61: UTF-8 continuation byte expected found "%s" (U+%04x)
-    62: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
-    63: Solitary UTF-8 start byte found "%s" (U+%04x)
-    64: UTF-16 byte order mark found "%s" (U+%04x)
-    65: Use / instead of \\ as path delimiter
+     2: "END OF FILE" encountered
+     3: Illegal character in text "%s" (U+%04x)
+     4: Unclosed comment
+     5: Include file "%s" not found
+     6: Use / instead of \\ as path delimiter
+     7: Failed to include essential file. Parsing terminated.
+     8: Illegal pragma "%s"
+     9: Illegal action "%s"
+    10: Illegal system declaration "%s"
+    11: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
+    12: "func" or "type" expected found "%s"
+    13: System declaration for main missing
+    14: Integer "%s" too big
+    15: Negative exponent in integer literal
+    16: Digit expected found "%s"
+    17: Integer "%dE%s" too big
+    18: Integer base "%ld" not between 2 and 36
+    19: Extended digit expected found "%s"
+    20: Illegal digit "%c" in based integer "%d#%s"
+    21: Based integer "%d#%s" too big
+    22: "'" expected found "%s"
+    23: Character literal exceeds source line
+    24: Use \" instead of "" to represent " in a string
+    25: Illegal string escape "\%s"
+    26: Numerical escape sequences should end with ";" not "%s"
+    27: The numerical escape sequence "\%u;" is too big
+    28: String continuations should end with "\" not "%s"
+    29: String literal exceeds source line
+    30: Name expected found "%s"
+    31: Integer literal expected found "%s"
+    32: String literal expected found "%s"
+    33: Identifier expected found "%s"
+    34: Type expected found %s
+    35: Procedure expected found %s expression
+    36: Parameter specifier expected found "%s"
+    37: Parameter declaration or symbol expected found %s
+    38: Exception expected found %s
+    39: Expression expected found "%s"
+    40: "%s" expected found "%s"
+    41: Declaration of parameter %s failed
+    42: Declaration of "%s" failed
+    43: Redeclaration of "%s"
+    44: Previous declaration of "%s"
+    45: Exception "%s" raised
+    46: Associativity expected found "%s"
+    47: Statement priority "%s" too big
+    48: Syntax with two parameters before operator is illegal
+    49: Empty syntax declaration
+    50: Syntax %s declared twice
+    51: Dot expression expected as syntax description, found %s
+    52: "%s" redeclared with infix priority %d not %d
+    53: "%s" redeclared with prefix priority %d not %d
+    54: Priority %d required for parameter after "%s" not %d
+    55: Priority <= %d expected found "%s" with priority %d
+    56: "%s" must have priority %d not %d for dot expression
+    57: Match for %s failed
+    58: Variable expected in %s found %s
+    59: Undefined type for literal "%s"
+    60: Kind of in-parameter (val or ref) unspecified for type "%s"
+    61: Overlong UTF-8 encoding used for character "%s" (U+%04x)
+    62: UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)
+    63: Non Unicode character found "%s" (U+%04x)
+    64: UTF-8 continuation byte expected found "%s" (U+%04x)
+    65: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
+    66: Solitary UTF-8 start byte found "%s" (U+%04x)
+    67: UTF-16 byte order mark found "%s" (U+%04x)
         Undefined error
 
 

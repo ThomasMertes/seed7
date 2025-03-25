@@ -367,6 +367,9 @@ Why are strings in Seed7 mutable?
 <li><a class="link" href="#faq_indexed_from_one"><b>
 Why are strings indexed from one?
 </b></a></li>
+<li><a class="link" href="#faq_minimum_array_index"><b>
+Are arrays indexed from one?
+</b></a></li>
 <li><a class="link" href="#faq_comparisons"><b>
 How are comparisons done in Seed7?
 </b></a></li>
@@ -889,12 +892,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-01-11 the number of lines is:
+than 400000 lines of Seed7. For version 2025-03-25 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">184871</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13806</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">267373</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">197752</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">188316</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 14009</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">272719</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">198222</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1805,7 +1808,10 @@ as afterthought. This works worse than in a statically typed language. Since
 type annotations are optional they are not considered when the program is
 written, but at a later time (maybe by someone else). If the type annotations
 are not 100% correct unnecessary conversions might take place, which slow
-down the program.
+down the program. Python has type annotations and this would allow writing
+performance critical code in Python instead of C/C++. But in practice the
+type annotations of Python did not lead to a situation where C/C++ code is
+not needed.
 </p></div>
 
 <div><br /><a name="faq_first_class_types_and_type_checking"><h3>How can static type checking work if types are first-class objects?
@@ -1877,7 +1883,7 @@ more often read than written.
 </pre><p>
   triggers the error:
 </p><pre class="indent">
-*** tst249.sd7(6):52: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
+*** tst249.sd7(6):57: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
     var intArrayType: arr is [](1, 2);
 </pre><p>
   A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
@@ -1907,7 +1913,7 @@ more often read than written.
 </pre><p>
   triggers the error:
 </p><pre class="indent">
-*** tst309.sd7(4):52: <span class="link">Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed</span>
+*** tst309.sd7(4):57: <span class="link">Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed</span>
 const func array array string: test (in string: value) is func
 </pre><p>
   The reason is: The two occurrences of <tt><span class="type">array</span> <span class="type">array</span> <span class="type">string</span></tt> are considered
@@ -2070,10 +2076,10 @@ what happens if the function <tt>f</tt> is overloaded with different result type
 </pre><p>
 This overloading of the result type triggers compile-time errors:
 </p><pre class="indent">
-*** tst508.sd7(4):34: <a name="faq_OBJTWICEDECLARED_example"></a><span class="link">Redeclaration of "f (val char: x)"</span>
+*** tst508.sd7(4):43: <a name="faq_OBJTWICEDECLARED_example"></a><span class="link">Redeclaration of "f (val char: x)"</span>
 const func string:  f (in char: x) is return str(x);
 ----------------------------------------------------^
-*** tst508.sd7(3):35: <a name="faq_PREVIOUS_DECLARATION_example"></a><span class="link">Previous declaration of "f (val char: x)"</span>
+*** tst508.sd7(3):44: <a name="faq_PREVIOUS_DECLARATION_example"></a><span class="link">Previous declaration of "f (val char: x)"</span>
 const func integer: f (in char: x) is return ord(x);
 </pre><p>
 Assume return type overloading would be allowed. In this case the expression
@@ -2156,7 +2162,7 @@ The syntax of this variable declaration is defined in the file <span class="lib"
 A variable declaration with <tt><span class="op">:=</span></tt> would need a different syntax definition.
 An attempt to define this new syntax leads to an error:
 </p><pre class="indent">
-*** tst356.sd7(3):42: <a name="faq_FALSE_INFIX_PRIORITY_example"></a><span class="link">":=" redeclared with infix priority 127 not 20</span>
+*** tst356.sd7(3):52: <a name="faq_REDECLARED_INFIX_PRIORITY_example"></a><span class="link">":=" redeclared with infix priority 127 not 20</span>
 syntax expr: .var.(). : .(expr). := .(expr)    is  -> 40;
 ---------------------------------------------------------^
 </pre><p>
@@ -2190,14 +2196,14 @@ would be interpreted as
 Since the syntax pattern would expect a <tt><span class="op">:=</span></tt> after <tt>number <span class="op">:=</span> 42;</tt> this
 would lead to the error:
 </p><pre class="indent">
-*** tst356.sd7(8):47: <a name="faq_EXPECTED_SYMBOL_example"></a><span class="link">":=" expected found "begin"</span>
+*** tst356.sd7(8):40: <a name="faq_EXPECTED_SYMBOL_example"></a><span class="link">":=" expected found "begin"</span>
   begin
 -------^
 </pre><p>
 To avoid this misinterpretation, the syntax of a variable declaration
 with <tt><span class="op">:=</span></tt> is rejected beforehand with:
 </p><pre class="indent">
-*** tst356.sd7(3):42: <span class="link">":=" redeclared with infix priority 127 not 20</span>
+*** tst356.sd7(3):52: <span class="link">":=" redeclared with infix priority 127 not 20</span>
 </pre><p>
 Languages with hard-coded syntax analysis use a trick to allow the same
 symbol for assignments and initialization. They read the parameter
@@ -2403,6 +2409,52 @@ first offset is 0. From C this concept spread to many other programming
 languages. Seed7 breaks with this tradition as it uses the number one again
 for the purpose it has been invented, thousands of years ago, long before
 zero has been introduced.
+</p></div>
+
+<div><br /><a name="faq_minimum_array_index"><h3>Are arrays indexed from one?
+</h3></a><hr />
+<p>
+You can set the minimum index of an array. Standard <tt><span class="type">array</span></tt> types like
+<tt><span class="type">array</span> <span class="type">integer</span></tt> do not define a minimum index or the size of the array.
+Instead of being defined by the type the minimum index and the size are
+part of the array value. For an <tt><span class="type">array</span> <span class="type">integer</span></tt> the minimum index could be
+0, 1, 1000 or even -3. An <tt><span class="type">array</span> <span class="type">integer</span></tt> consisting of 5 elements, each
+with the value 123, is created with:
+</p><pre class="indent">
+5 <span class="op">times</span> 123
+</pre><p>
+In this case the minimum index is 1. The same array with a minimum index
+of 0 is created with:
+</p><pre class="indent">
+[0 .. 4] <span class="op">times</span> 123
+</pre><p>
+or
+</p><pre class="indent">
+[0 <span class="op">len</span> 5] <span class="op">times</span> 123
+</pre><p>
+The minimum index and the size of <tt><span class="type">array</span></tt> types like <tt><span class="type">array</span> <span class="type">integer</span></tt> may be
+changed at run-time. Functions like <span class="func">minIdx</span>, <span class="func">maxIdx</span> and <span class="func">length</span> can be used to
+determine the current properties of an array value.
+</p><p>
+In base idx <tt><span class="type">arrays</span></tt> the minimum index is part of the type. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: nameList <span class="keywd">is</span> <span class="type">array</span> [1 ..] <span class="type">string</span>;            <span class="comment"># minimum index is 1</span>
+<span class="keywd">const</span> <span class="type">type</span>: huffmanSymbolArray <span class="keywd">is</span> <span class="type">array</span> [0 ..] <span class="type">integer</span>; <span class="comment"># minimum index is 0</span>
+</pre><p>
+The size of a base idx <tt><span class="type">array</span></tt> may be changed at run-time.
+</p><p>
+In fixed size <tt><span class="type">arrays</span></tt> the minimum index and the size are part
+of the type. E.g.:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: dataBlockType <span class="keywd">is</span> <span class="type">array</span> [64] <span class="type">integer</span>;      <span class="comment"># minimum index is 1 and maximum index is 64</span>
+<span class="keywd">const</span> <span class="type">type</span>: keccakStateType <span class="keywd">is</span> <span class="type">array</span> [0 .. 24] <span class="type">bin64</span>; <span class="comment"># minimum index is 0 and maximum index is 24</span>
+</pre><p>
+Finally, there are indexed <tt><span class="type">arrays</span></tt> where the index may be any type that
+can be converted to an integer. E.d:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: charIndexArray <span class="keywd">is</span> <span class="type">array</span> [char] <span class="type">bigInteger</span>;
+</pre><p>
+A <tt><span class="type">hash</span></tt> can be used if the index type does not map to an <tt><span class="type">integer</span></tt>.
 </p></div>
 
 <div><br /><a name="faq_comparisons"><h3>How are comparisons done in Seed7?
@@ -3773,7 +3825,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 </p><pre class="indent">
-*** chkloop.sd7(35):52: <span class="link">Match for {while "X" do {1 + 2 } end while } failed</span>
+*** chkloop.sd7(35):57: <span class="link">Match for {while "X" do {1 + 2 } end while } failed</span>
 </pre><p>
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the <a class="link" href="#faq_bytecode">call-code</a>. Call-code can be executed by the <a class="link" href="#faq_interpreter">interpreter</a>.

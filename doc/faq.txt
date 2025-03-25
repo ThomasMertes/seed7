@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-01-11 the number of lines is:
+than 400000 lines of Seed7. For version 2025-03-25 the number of lines is:
 
-  184871  C source files (*.c)
-   13806  C header files (*.h)
-  267373  Seed7 source files (*.sd7)
-  197752  Seed7 library/include files (*.s7i)
+  188316  C source files (*.c)
+   14009  C header files (*.h)
+  272719  Seed7 source files (*.sd7)
+  198222  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1263,7 +1263,10 @@ as afterthought. This works worse than in a statically typed language. Since
 type annotations are optional they are not considered when the program is
 written, but at a later time (maybe by someone else). If the type annotations
 are not 100% correct unnecessary conversions might take place, which slow
-down the program.
+down the program. Python has type annotations and this would allow writing
+performance critical code in Python instead of C/C++. But in practice the
+type annotations of Python did not lead to a situation where C/C++ code is
+not needed.
 
 
 How can static type checking work if types are first-class objects?
@@ -1335,7 +1338,7 @@ Why does a local type declaration trigger an error?
 
   triggers the error:
 
-    *** tst249.sd7(6):52: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+    *** tst249.sd7(6):57: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
         var intArrayType: arr is [](1, 2);
 
   A 'local' declaration block is parsed completely before it is executed.
@@ -1365,7 +1368,7 @@ Why does a two-dimensional array trigger an error?
 
   triggers the error:
 
-    *** tst309.sd7(4):52: Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed
+    *** tst309.sd7(4):57: Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed
     const func array array string: test (in string: value) is func
 
   The reason is: The two occurrences of 'array array string' are considered
@@ -1528,10 +1531,10 @@ what happens if the function f is overloaded with different result types:
 
 This overloading of the result type triggers compile-time errors:
 
-  *** tst508.sd7(4):34: Redeclaration of "f (val char: x)"
+  *** tst508.sd7(4):43: Redeclaration of "f (val char: x)"
   const func string:  f (in char: x) is return str(x);
   ----------------------------------------------------^
-  *** tst508.sd7(3):35: Previous declaration of "f (val char: x)"
+  *** tst508.sd7(3):44: Previous declaration of "f (val char: x)"
   const func integer: f (in char: x) is return ord(x);
 
 Assume return type overloading would be allowed. In this case the expression
@@ -1614,7 +1617,7 @@ The syntax of this variable declaration is defined in the file syntax.s7i.
 A variable declaration with := would need a different syntax definition.
 An attempt to define this new syntax leads to an error:
 
-  *** tst356.sd7(3):42: ":=" redeclared with infix priority 127 not 20
+  *** tst356.sd7(3):52: ":=" redeclared with infix priority 127 not 20
   syntax expr: .var.(). : .(expr). := .(expr)    is  -> 40;
   ---------------------------------------------------------^
 
@@ -1648,14 +1651,14 @@ would be interpreted as
 Since the syntax pattern would expect a := after 'number := 42;' this
 would lead to the error:
 
-  *** tst356.sd7(8):47: ":=" expected found "begin"
+  *** tst356.sd7(8):40: ":=" expected found "begin"
     begin
   -------^
 
 To avoid this misinterpretation, the syntax of a variable declaration
 with := is rejected beforehand with:
 
-  *** tst356.sd7(3):42: ":=" redeclared with infix priority 127 not 20
+  *** tst356.sd7(3):52: ":=" redeclared with infix priority 127 not 20
 
 Languages with hard-coded syntax analysis use a trick to allow the same
 symbol for assignments and initialization. They read the parameter
@@ -1861,6 +1864,52 @@ first offset is 0. From C this concept spread to many other programming
 languages. Seed7 breaks with this tradition as it uses the number one again
 for the purpose it has been invented, thousands of years ago, long before
 zero has been introduced.
+
+
+Are arrays indexed from one?
+============================
+
+You can set the minimum index of an array. Standard 'array' types like
+'array integer' do not define a minimum index or the size of the array.
+Instead of being defined by the type the minimum index and the size are
+part of the array value. For an 'array integer' the minimum index could be
+0, 1, 1000 or even -3. An 'array integer' consisting of 5 elements, each
+with the value 123, is created with:
+
+  5 times 123
+
+In this case the minimum index is 1. The same array with a minimum index
+of 0 is created with:
+
+  [0 .. 4] times 123
+
+or
+
+  [0 len 5] times 123
+
+The minimum index and the size of 'array' types like 'array integer' may be
+changed at run-time. Functions like minIdx, maxIdx and length can be used to
+determine the current properties of an array value.
+
+In base idx 'arrays' the minimum index is part of the type. E.g.:
+
+  const type: nameList is array [1 ..] string;            # minimum index is 1
+  const type: huffmanSymbolArray is array [0 ..] integer; # minimum index is 0
+
+The size of a base idx 'array' may be changed at run-time.
+
+In fixed size 'arrays' the minimum index and the size are part
+of the type. E.g.:
+
+  const type: dataBlockType is array [64] integer;      # minimum index is 1 and maximum index is 64
+  const type: keccakStateType is array [0 .. 24] bin64; # minimum index is 0 and maximum index is 24
+
+Finally, there are indexed 'arrays' where the index may be any type that
+can be converted to an integer. E.d:
+
+  const type: charIndexArray is array [char] bigInteger;
+
+A 'hash' can be used if the index type does not map to an 'integer'.
 
 
 How are comparisons done in Seed7?
@@ -3231,7 +3280,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 
-  *** chkloop.sd7(35):52: Match for {while "X" do {1 + 2 } end while } failed
+  *** chkloop.sd7(35):57: Match for {while "X" do {1 + 2 } end while } failed
 
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the call-code. Call-code can be executed by the interpreter.

@@ -1,3 +1,368 @@
+20250325:
+- The compilation with s7c has been fixed. Many thanks to
+  Cheap-Ad9743 for pointing out that the linker issued the error
+  "undefined symbol 'objectFileName'" under Windows.
+- An answer concerning the minimum array index has been added to the
+  FAQ.
+- The new test program chkerr.sd7, which checks for parsing errors,
+  has been added. The program chk_all.sd7 has has been adjusted to
+  consider the new program chkerr.sd7.
+- The library zip.s7i has been improved to use code page 437 if the
+  flag ZIP_FILE_NAME_IS_UTF8 is not set.
+- The library zip.s7i has been improved to support the decryption of
+  encrypted ZIP files.
+- In charsets.s7i the cp_*g code pages have been changed to map all
+  control characters to graphic characters.
+- The set ascii_control_char has been added to chartype.s7i.
+- The handling of error messages in calc7 has been improved to use
+  the function getError().
+- The exception handling in calc7 has been improved to include
+  DATABASE_ERROR, GRAPHIC_ERROR and ILLEGAL_ACTION.
+- Support for the function str(aFloatNumber, SCIENTIFIC) has been
+  added to float.s7i. The function converts a float to a string in
+  scientific notation where trailing zeros in the fractional part
+  are omitted.
+- Tests for the function str(aFloatNumber, SCIENTIFIC) have been
+  added to chkflt.sd7.
+- Tests for based integer literals have been added to chkint.sd7.
+- In chkjson.sd7 tests have been added for the function category(),
+  when it is applied to jsonObject and jsonArray elements.
+- In integer.s7i and string.s7i the operator lpad0 has been changed
+  such that padSize refers to the number of digits (without sign).
+  For numbers without + or - sign the behavior of lpad0 stays the
+  same.
+- The tests of lpad0 in chkint.sd7 and chkstr.sd7 have been adjusted
+  to the new behavior of the lpad0 operator for negative numbers.
+- The time.s7i functions str(), strDate(), strDateTime(),
+  str_yyyy_mm_dd(), str_yy_mm_dd(), str_mm_dd_yyyy(),
+  str_mm_dd_yy(), str_dd_mm_yyyy(), str_dd_mm_yy(), str_d_m_yyyy()
+  and str_d_m_yy() now insert a sign for negative years. Besides
+  that the number of year digits stays unchanged. This is a
+  consequence of the changed behavior of the lpad0 operator.
+- The test program chktime.sd7 has been adjusted to use the new
+  behavior of the time to string conversion functions.
+- In progs.s7i in the functions parseFile() and parseStri() the
+  'protFileName' parameter has been replaced by a 'errorFile'
+  parameter.
+- In progs.s7i the functions parseStri() with a bstring parameter
+  have been added.
+- Support for the function getError() has been added to progs.s7i.
+- In syntax.s7i the new system variable f_param has been introduced.
+- The parsing error test file err.sd7 has been improved.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - Definitions of propertyType and descriptorUnion have been added
+    to the generated C code.
+  - The function assignArrayValue has been improved.
+- The configuration values USE_ID_NAME_CHUNK_ALLOCS,
+  HEAP_STATISTIC_AT_PROGRAM_EXIT, SHOW_OBJECT_MEMORY_LEAKS,
+  WITH_BIGINT_CAPACITY and WITH_PROPERTY_FREELIST have been added
+  to config.h.
+- Memory leaks in the parser have been fixed. The leaks have been
+  fixed in expr.c, name.c, parser.c and prclib.c.
+- Several improvements have been done in name.c:
+  - The function get_object() has been changed to set
+    defined_object to NULL if an object is declared twice.
+  - The functions free_name() and free_form_param_list() have been
+    added.
+  - The parameters file_number and line have been added to
+    eval_name_list().
+  - In match_name_list() and eval_name_list() parameters are only
+    appended to matched_name_list or name_list if no error occurred.
+  - The functions find_name() and search_name() have been changed
+    to use pop_stack() (which frees objects) instead of
+    down_stack().
+  - The functions dollar_parameter() and dollar_inst_list() have
+    been improved to fix memory leaks in case of a parsing error.
+- The function eval_expression() has been removed from exec.c and
+  the function eval_type() has been added to name.c as a
+  replacement.
+- In parser.c the function decl_value() has been improved to free
+  init_expression with free_expression().
+- In parser.c the function decl_name() has been improved to free
+  object_name with free_expression().
+- In numlit.c in the function readFloat() the code to read float
+  literals has been refactored.
+- In symbol.c the function close_symbol() has been improved to free
+  the bigInteger symbol value.
+- In actutl.c the function freeActPtrTable() has been added.
+- In literal.c the function skip_lines() has been added. This
+  improves the test for string continuations. The error messages
+  for string continuations have been improved as well.
+- In scanner.c the functions skip_whitespace(), skip_char() and
+  skip_past_char() have been added. They are used in analyze.c
+  and expr.c to skip over characters if an error has been detected.
+- In scanner.c the function scan_eof() has been improved to count
+  the lines correctly if EOF is not preceded by a newline.
+- Several improvements have been done in prg_comp.c:
+  - The functions free_obj_and_prop(), prgBStriParse() and
+    prgGetError() have been added.
+  - The function interpret() has been improved to free the arguments
+    array after the program has been executed.
+  - The functions prgErrorCount(), prgGlobalObjects(), prgMatch(),
+    prgMatchExpr(), prgName(), prgPath(), prgSyobject() and
+    prgSysvar() have been improved to raise RANGE_ERROR if the given
+    program is NULL.
+  - The function prgDestr() has been improved to free
+    when_set_objects, errorFile, errorList, substituted_objects,
+    when_value_objects, struct_objects, objectNumberMap,
+    typeNumberMap and fileList.
+- In ref_data.c the function refFile(), refNum() and refStr() have
+  been refactored.
+- In typ_data.c the function typNum() has been refactored.
+- Several improvements have been done in analyze.c:
+  - The function analyzeBString() has been added.
+  - The function declAny() has been improved to process
+    declExpression only if it is not NULL.
+  - The function declAny() has been improved to write an error if
+    an expected expression is missing.
+  - The function analyzeProg() has been improved to check for a BOM
+    also when strings are parsed.
+  - The function analyzeProg() has been improved to always reset the
+    currentlyAnalyzing flag at the end of analyzeProg().
+  - A check if system variables are types or exceptions has been
+    added. The errors TYPE_EXPECTED and EXCEPTION_EXPECTED might be
+    triggered.
+  - The function declAny() has been improved such that the parser
+    executes only const declarations after a parsing error.
+- In analyze.c and type.c the fail_flag is set to FALSE before
+  writing the error message.
+- In analyze.c, prg_comp.c, ref_data.c and typ_data.c the object-
+  (objectNumberMap) and type-number map (typeNumberMap) has been
+  moved to the program object (progStruct). These two maps are freed
+  by prgDestr().
+- In analyze.c, infile.c, libpath.c and ref_data.c the list of
+  source files (fileList) has been moved to the program object.
+  The source file data is freed by removeProgFiles() which is called
+  from prgDestr().
+- In match.c the function substitute_params() has been changed to
+  gather the substituted objects (substituted_objects) in the
+  program object. The objects are freed by prgDestr().
+- In dcllib.c the function dcl_elements() has been improved to save
+  a list of struct elements (struct_objects) in the program object.
+  The struct objects and properties created by dcl_elements() are
+  freed by prgDestr().
+- The file error.c has been refactored to store a list of parser
+  errors (errorList) in the program object. The errors can be
+  fetched with the function prgGetError(). The parser errors are
+  freed by prgDestr().
+- In match.c the function substitute_params() has been improved to
+  consider errors. The functions dcl_const() and dcl_var() call
+  substitute_params() and raise the corresponding exception if an
+  error is returned.
+- In syntax.c the function def_statement_syntax() has been changed
+  to set token_list_end to NULL if a literal is encountered instead
+  of an identifier.
+- The new source file msg_stri.c has been added. It contains
+  functions to append various types to a string. The functions are
+  used in error.c. The makefiles have been adjusted to
+  compile msg_stri.c.
+- The error messages SYSTEM_MAIN_MISSING (missing system declaration
+  for main) and ESSENTIAL_INCLUDE_FAILED (failed to include
+  essential file) have been moved from analyze.c to error.c.
+- Several improvements have been done in error.c:
+  - The functions freeError(), freeErrorList(), showError(),
+    newError(), appendErrorToProg(), toOutputString(),
+    computeColumnMarkerPos(), writeString(), writeChar(),
+    writeNewline(), writeError(), finalizeError(),
+    storeColumnNumber(), readLineFromCurrentFile(),
+    storeLineOfCurrentFile(), storeLineFromBuffer(),
+    storeLineFromFile(), findLineEndAndStoreLine(),
+    storeLineOfOtherFile(), storePositionedErrorLine(),
+    storeErrorLine(), setPlace(), setPlaceForObject(),
+    setPlaceForFileNumber() and setPlaceOfError() have been added.
+  - The functions read_ustri8_line(), print_stri(),
+    read_and_print_line(), printLineOfCurrentFile(),
+    printLineFromBuffer(), printLineFromFile(),
+    findLineEndAndPrintLine(), printLineOfOtherFile(), print_line(),
+    print_error_line(), write_place(), place_of_error(),
+    write_symbol(), write_type(), write_name_list(),
+    write_object_with_parameters() and write_object() have been
+    removed.
+  - The functions undef_err() and err_string() have been renamed to
+    undefErr() and err_ustri() respectively.
+  - The function ustri8_buffer_to_stri() has been refactored to
+    stri8_buffer_to_stri().
+- Improvements have been done in infile.c:
+  - The function openInfile() has been improved to check if fopen()
+    opened a directory.
+  - The function openString() has been renamed to openBString().
+  - The function openBString() has been improved to support the case
+    that USE_ALTERNATE_NEXT_CHARACTER is 0.
+  - A progType parameter has been added to get_file_name() and
+    get_file_name_ustri().
+  - The function objectFileName() has been added.
+- In dcllib.c the functions dcl_in1() and dcl_in2() have been
+  changed to return f_param with NULL if the kind of in-parameter
+  is unspecified. The function eval_name_list() removes these
+  f_param objects.
+- In blockutl.c the function free_block() has been improved to free
+  the properties of local constants.
+- In blockutl.c the function free_local_consts() has been added.
+  This function is used by free_block(), prc_local() and
+  prc_res_local().
+- The program chkccomp.c and the include file common.h have been
+  improved to define FMT_E_PRECISION.
+- In arr_rtl.c the function freeStringArray() has been added.
+- In hsh_rtl.c the function freeGenericHash() has been added. This
+  function is used by prgDestr() to free objectNumberMap and
+  typeNumberMap.
+- In int_rtl.c the function intLpad0() has been changed such that
+  padSize refers to the number of digits (without sign).
+- In str_rtl.c the functions strLpad0() and strLpad0Temp() have been
+  changed such that padSize refers to the number of non-sign
+  characters.
+- In flt_rtl.c the functions doubleToFormatE() and
+  fltStrScientific() have been added.
+- Improvements have been done in big_rtl.c:
+  - FREE_BIG2() has been introduced and FREE_BIG() has been
+    refactored to consider the capacity.
+  - A memory leak in bigLog10() has been fixed.
+  - The heap statistic for bigInteger has been improved.
+  - The function closeBig() has been added to big_rtl.c and
+    big_gmp.c.
+  - In big_rtl.c and big_gmp.c the function bigStrDecimal() has
+    been introduced. This function returns NULL if there is not
+    enough memory to represent the result. It is used in msg_stri.c,
+    numutl.c, sql_cli.c, sql_fire.c, sql_my.c, sql_oci.c and
+    sql_tds.c.
+- In itflib.c the function itf_destr() allows now that
+  take_struct(old_value) is NULL.
+- In blnlib.c the functions bln_and(), bln_or() and bln_ternary()
+  have been improved to free temporary boolean values.
+- In chkbool.sd7 tests where temporary booleans are freed have been
+  added.
+- In cmdlib.c, sqllib.c and timlib.c an initialization of is_dst
+  has been added to avoid the use of an uninitialized value in case
+  of an error.
+- In arrlib.c the function arr_insert() has been improved to
+  consider the temp flag of an element to be inserted. A temporary
+  element is made permanent and it is inserted into the array.
+- in fltlib.c the function flt_str_scientific() has been added.
+- In strlib.c the function str_lpad0() has been improved to call
+  strLpad0Temp() or strLpad0().
+- In prglib.c the functions prg_bstri_parse() and prg_get_error()
+  have been added.
+- The actions FLT_STR_SCIENTIFIC, PRG_BSTRI_PARSE and PRG_GET_ERROR
+  have been added to primitiv.c.
+- In s7.c the functions freeOptions() and main() have been changed
+  to free arg_v correctly.
+- Several improvements have been done in exec.c:
+  - The function exec_dynamic() has been improved to avoid that the
+    interpreter examines objects in the free-list. The TEMP flag is
+    cleared before calling exec_call(). Afterwards the TEMP flag is
+    restored with the help of a list of temp_values.
+  - In the function exec_dynamic() memory is freed if
+    match_prog_expression() or match_object() fails.
+  - The function do_exec_call() has been improved to call
+    leaveExceptionHandling() instead of using set_fail_flag(FALSE).
+- In executl.c, doany.c and name.c calls of copy_expression() and
+  free_expression() have been added around match_expression().
+- In listutl.c the function free_expression_list() has been added.
+  This function is used in prc_case(), prc_case_def(),
+  prc_case_hashset() and prc_case_hashset_def() before when_values
+  are turned into a SETOBJECT or HASHOBJECT.
+- Several improvements have been done in prclib.c:
+  - The functions prc_case(), prc_case_def(), prc_case_hashset() and
+    prc_case_hashset_def() have been improved to free temporary set
+    objects from the when-parts of case-statements. The set object
+    data (when_value_objects and when_set_objects) is gathered in
+    the program object and freed by prgDestr().
+  - The functions prc_begin(), prc_local(), prc_res_begin(),
+    prc_res_local(), prc_return(), prc_return2(), prc_varfunc() and
+    prc_varfunc2() have been improved to free parameters, function
+    results, local constants, local variables, and the function body
+    if an error occurred.
+  - The functions prc_repeat(), prc_repeat_noop(), prc_while() and
+    prc_while_noop() have been improved to free temporary boolean
+    values with FREE_OBJECT().
+- In chkprc.sd7 test cases for while- and repeat-loops with
+  temporary boolean values have been added.
+- Several improvements have been done in data.h:
+  - The flag is_type_type has been added to typeStruct. This flag
+    is initialized by new_type() in typeutl.c. The flag is set by
+    decl_value() in parser.c. The flag is used by eval_type() in
+    name.c to assure that an expression returns a type.
+  - A definition of parseErrorStruct has been added.
+  - The fields fileCounter, fileList, writeErrors,
+    errorFile, errorList, errorListEnd, objectNumberMap,
+    nextFreeObjectNumber, typeNumberMap, nextFreeTypeNumber,
+    substituted_objects, struct_objects, when_value_objects and
+    when_set_objects have been added to the progStruct.
+  - The field owningProg has been removed from the inFileStruct.
+- In syvarutl.h the new system variable f_param has been introduced.
+- In heaputl.h and flistutl.c the heap statistic has been improved:
+  - Now it distinguishes between arrayType and rtlArrayType.
+  - The rtl hash-tables and rtl hash-table elements are shown now.
+  - The bigInteger free lists are considered now.
+  - The parse errors (parseErrorRecord) have been added.
+  - The list of free property elements is shown now.
+  - The c1 and l1 parameters have been removed from the macro
+    HEAP_REALLOC_STRI().
+- In flistutl.c the functions allocObject(), freeObject() and
+  listAllObjects() have been added. These functions are used if
+  SHOW_OBJECT_MEMORY_LEAKS is 1.
+- In flistutl.c and flistutl.h a list of free propery elements has
+  been introduced. In atom.c, blockutl.c, entutl.c, name.c and
+  prg_comp.c usages of ALLOC_RECORD and FREE_RECORD have been
+  replaced with ALLOC_PROPERTY and FREE_PROPERTY.
+- In striutl.c the function stri8_to_stri() has been introduced.
+  It converts an UTF-8 encoded string to an UTF-32 encoded
+  string. It is used in error.c and str_rtl.c.
+- In traceutl.c the tracing has been improved in trace1(),
+  printobject() and print_real_value(). The improvements consider
+  SYMBOLOBJECT, INTERFACEOBJECT, UNUSED objects, properties and
+  file values.
+- In error.h and and progs.s7i the parser errors have been
+  reordered. The errors NO_SOURCEFILE and EVAL_TYPE_FAILED have been
+  removed. The errors ESSENTIAL_INCLUDE_FAILED, SYSTEM_MAIN_MISSING,
+  PARAM_DECL_OR_SYMBOL_EXPECTED and EXCEPTION_EXPECTED have been
+  added. The errors FALSE_INFIX_PRIORITY and FALSE_PREFIX_PRIORITY
+  have been renamed to REDECLARED_INFIX_PRIORITY respectively
+  REDECLARED_PREFIX_PRIORITY. The manual and the homepage have
+  been adjusted to use the new error numbers.
+- The AND_SO_ON_... definitions have been moved from striutl.c to
+  striutl.h. They are used in msg_stri.c, numutl.c and striutl.c.
+- In findid.c in the functions clean_idents() and write_idents() the
+  parameter currentProg has been renamed to aProg. In the function
+  wri_binary_ident_tree() the parameter aProg has been added.
+- In runerr.c the function raise_with_arguments() has been improved
+  to return the exception.
+- In runerr.c a progType parameter has been added to
+  uncaught_exception().
+- In runerr.h the global variables fail_file_number and
+  fail_line_number have been added. Functions in dcllib.c, parser.c
+  and runerr.c have been changed to use the new variables.
+- The function raise_with_obj_and_args() has been added to runerr.c.
+  Several primitive actions call other primitive actions. In this
+  case the global variable curr_exec_object has been changed and
+  raise_with_arguments() would refer to the wrong object.
+- Primitive action functions in dcllib.c, exec.c, hshlib.c and
+  prclib.c have been changed to use raise_with_obj_and_args()
+  instead of raise_with_arguments(). The changed functions copy
+  curr_exec_object to a local variable.
+- Interpreter and compiler have been improved to support the actions
+  FLT_STR_SCIENTIFIC, PRG_BSTRI_PARSE and PRG_GET_ERROR.
+- In con_cap.c, con_con.c, con_cur.c, con_dos.c, con_drv.h,
+  con_emc.c, con_inf.c, con_rtl.c, con_rtl.h, con_tcp.c, con_wat.c,
+  con_win.c and con_x11.c the name of the console function parameter
+  'count' has been changed to 'numLines' to avoid shadowing a global
+  declaration.
+- In con_win.c and fil_win.c the name of the local variable 'count'
+  has been changed to 'numEventsRead' to avoid shadowing a global
+  declaration.
+- In cmd_win.c the variable substituteNameLength is cast to
+  memSizeType for the ALLOC_OS_STRI macro. This avoids a warning.
+- Logging functions have been added or improved in analyze.c,
+  arr_rtl.c, dcllib.c, error.c, exec.c, executl.c, hsh_rtl.c,
+  itflib.c, msg_stri.c, name.c, parser.c, prg_comp.c, ref_data.c,
+  reflib.c, sctlib.c, set_rtl.c, setlib.c, str_rtl.c, syntax.c and
+  type.c.
+- Documentation comments have been improved in duration.s7i,
+  integer.s7i, string.s7i, time.s7i, progs.s7i, zip.s7i, big_gmp.c,
+  con_cap.c, con_con.c, con_cur.c, con_dos.c, con_inf.c, con_tcp.c,
+  con_wat.c, con_win.c, con_x11.c, int_rtl.c, intlib.c, match.c,
+  prg_comp.c, str_rtl.c and strlib.c.
+
 20250111:
 - The answer concerning scanner functions in the FAQ has been
   improved.
@@ -21,7 +386,7 @@
   - Corrupt extra fields are ignored now and the function
     writeExtraField() has been improved.
   - Now the functions inflate() and inflate64() are invoked with
-    the file as parameter. This saves memory if the comressed data
+    the file as parameter. This saves memory if the compressed data
     is huge.
   - The functions initializeFileReferenceMap, getReferencePaths,
     lzwDecompressShrink, getReference and readDataDescriptor have
@@ -107,7 +472,7 @@
 - The config value WITH_RTL_ARRAY_CAPACITY has been added to the
   library cc_conf.s7i and to the programs confval.sd7 and
   s7c.sd7.
-- The documentation of the parse operator hs been improved in
+- The documentation of the parse operator has been improved in
   bigint.s7i and integer.s7i.
 - The documentation of the digits and sci operators has been
   improved in bigint.s7i, bigrat.s7i, float.s7i, integer.s7i and
@@ -1482,7 +1847,7 @@
 - Deactivated code has been removed from big_rtl.c, blockutl.c,
   cmd_rtl.c, con_cap.c, con_inf.c, con_win.c, gkb_x11.c, hshlib.c,
   itflib.c, lstlib.c, name.c,  parser.c, pol_sel.c, pol_unx.c,
-  prclib.c,  reflib.c, scanner.c, sctlib.c, setlib.c, set_rtl.c,
+  prclib.c, reflib.c, scanner.c, sctlib.c, setlib.c, set_rtl.c,
   sql_fire.c, sql_odbc.c, striutl.c, strlib.c, str_rtl.c, tim_win.c,
   typlib.c and ut8_rtl.c.
 - Documentation comments have been improved in array.s7i,
