@@ -981,6 +981,14 @@ const func duration: (in time: tim1) - (in time: tim2) is func
 
 (**
  *  Wait for a given duration.
+ *   wait(1 . SECONDS);            # A space between 1 and . is needed.
+ *   wait(50000 . MICRO_SECONDS);
+ *   wait(1 . MINUTES);
+ *  If the waiting time should include some computations a combination of
+ *  ''time(NOW)'' and ''await'' can be used instead:
+ *   startTime := time(NOW);
+ *   ... some computations ...
+ *   await(startTime + aDuration);
  *)
 const proc: wait (in duration: aDuration) is func
   begin

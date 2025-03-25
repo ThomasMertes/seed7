@@ -1175,6 +1175,9 @@ const func time: date (in integer: year, in integer: month, in integer: day) is 
 
 (**
  *  Wait until 'aTime' is reached
+ *   startTime := time(NOW);
+ *   ... some computations ...
+ *   await(startTime + 1 . SECONDS);  # A space between 1 and . is needed.
  *)
 const proc: await (ref time: aTime) is func
   begin
