@@ -8055,7 +8055,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
     char *system_draw_libs)
 
   {
-    const char *inclDirList[] = {"/opt/X11/include"};
+    const char *inclDirList[] = {"/opt/X11/include", "/opt/homebrew/include"};
 #ifdef X11_LIBRARY_PATH
     const char *libDirList[] = { X11_LIBRARY_PATH };
 #endif
