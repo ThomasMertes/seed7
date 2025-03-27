@@ -42,6 +42,7 @@ objectType pcs_ne           (listType arguments);
 objectType pcs_pipe2        (listType arguments);
 objectType pcs_pty          (listType arguments);
 objectType pcs_start        (listType arguments);
+objectType pcs_start_pipe   (listType arguments);
 objectType pcs_str          (listType arguments);
 objectType pcs_value        (listType arguments);
 objectType pcs_wait_for     (listType arguments);

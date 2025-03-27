@@ -683,6 +683,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PCS_PIPE2",                    pcs_pipe2,                    },
     { "PCS_PTY",                      pcs_pty,                      },
     { "PCS_START",                    pcs_start,                    },
+    { "PCS_START_PIPE",               pcs_start_pipe,               },
     { "PCS_STR",                      pcs_str,                      },
     { "PCS_VALUE",                    pcs_value,                    },
     { "PCS_WAIT_FOR",                 pcs_wait_for,                 },

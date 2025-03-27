@@ -1327,6 +1327,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PCS_PTY, function, params, c_expr);
       when {"PCS_START"}:
         process(PCS_START, function, params, c_expr);
+      when {"PCS_START_PIPE"}:
+        process(PCS_START_PIPE, function, params, c_expr);
       when {"PCS_STR"}:
         process(PCS_STR, function, params, c_expr);
       when {"PCS_VALUE"}:

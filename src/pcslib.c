@@ -477,6 +477,31 @@ objectType pcs_start (listType arguments)
 
 
 
+objectType pcs_start_pipe (listType arguments)
+
+  {
+    rtlArrayType parameters;
+    processType process;
+
+  /* pcs_start_pipe */
+    isit_stri(arg_1(arguments));
+    isit_array(arg_2(arguments));
+    logFunction(printf("pcs_start_pipe(\"%s\", arr)\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments)))););
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      process = pcsStartPipe(take_stri(arg_1(arguments)), parameters);
+      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+    } /* if */
+    logFunction(printf("pcs_start_pipe --> " FMT_U_MEM "\n",
+                       (memSizeType) process););
+    return bld_process_temp(process);
+  } /* pcs_start_pipe */
+
+
+
 /**
  *  Convert a 'process' to a string.
  *  The process is converted to a string with the process identifier (PID).

@@ -41,6 +41,7 @@ const ACTION: PCS_NE           is action "PCS_NE";
 const ACTION: PCS_PIPE2        is action "PCS_PIPE2";
 const ACTION: PCS_PTY          is action "PCS_PTY";
 const ACTION: PCS_START        is action "PCS_START";
+const ACTION: PCS_START_PIPE   is action "PCS_START_PIPE";
 const ACTION: PCS_STR          is action "PCS_STR";
 const ACTION: PCS_VALUE        is action "PCS_VALUE";
 const ACTION: PCS_WAIT_FOR     is action "PCS_WAIT_FOR";
@@ -69,6 +70,7 @@ const proc: pcs_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        pcsPipe2 (const const_striType, const const_arrayType, fileType *, fileType *);");
     declareExtern(c_prog, "void        pcsPty (const const_striType, const const_arrayType, fileType *, fileType *);");
     declareExtern(c_prog, "processType pcsStart (const const_striType, const const_arrayType, fileType, fileType, fileType);");
+    declareExtern(c_prog, "processType pcsStartPipe (const const_striType, const const_arrayType);");
     declareExtern(c_prog, "striType    pcsStr (const const_processType);");
     declareExtern(c_prog, "processType pcsValue (const const_objRefType);");
     declareExtern(c_prog, "void        pcsWaitFor (const processType);");
@@ -273,6 +275,19 @@ const proc: process (PCS_START, in reference: function,
     getStdParamToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PCS_START_PIPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_process_result(c_expr);
+    c_expr.result_expr := "pcsStartPipe(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
