@@ -548,7 +548,7 @@ const func string: cmdOutput (in var string: cmdAndParams) is func
     var string: command is "";
     var string: parameter is "";
     var array string: parameters is 0 times "";
-    var file: childStdin is STD_NULL;
+    var process: aProcess is process.value;
     var file: childStdout is STD_NULL;
   begin
     command := getCommandLineWord(cmdAndParams);
@@ -557,11 +557,10 @@ const func string: cmdOutput (in var string: cmdAndParams) is func
       parameters &:= parameter;
       parameter := getCommandLineWord(cmdAndParams);
     end while;
-    if succeeds(
-        pipe2(commandPath(command), parameters, childStdin, childStdout)) then
+    if succeeds(aProcess := startPipe(commandPath(command), parameters)) then
+      childStdout := childStdOut(aProcess);
       output := gets(childStdout, 999999999);
-      close(childStdin);
-      close(childStdout);
+      waitFor(aProcess);
     else
       writeln;
       writeln(" *** Unable to execute " <& command);
