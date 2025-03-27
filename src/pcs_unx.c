@@ -306,6 +306,18 @@ void pcsFree (processType oldProcess)
     logFunction(printf("pcsFree(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        oldProcess != NULL ? (memSizeType) to_pid(oldProcess) : (memSizeType) 0,
                        oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
+    if (oldProcess->stdIn != NULL) {
+      filClose(oldProcess->stdIn);
+      filDestr(oldProcess->stdIn);
+    } /* if */
+    if (oldProcess->stdOut != NULL) {
+      filClose(oldProcess->stdOut);
+      filDestr(oldProcess->stdOut);
+    } /* if */
+    if (oldProcess->stdErr != NULL) {
+      filClose(oldProcess->stdErr);
+      filDestr(oldProcess->stdErr);
+    } /* if */
     FREE_RECORD(oldProcess, unx_processRecord, count.process);
   } /* pcsFree */
 

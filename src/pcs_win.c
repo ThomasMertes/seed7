@@ -389,6 +389,18 @@ void pcsFree (processType oldProcess)
     logFunction(printf("pcsFree(" FMT_U32 " (usage=" FMT_U "))\n",
                        (uint32Type) (oldProcess != NULL ? to_pid(oldProcess) : 0),
                        oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
+    if (oldProcess->stdIn != NULL) {
+      filClose(oldProcess->stdIn);
+      filDestr(oldProcess->stdIn);
+    } /* if */
+    if (oldProcess->stdOut != NULL) {
+      filClose(oldProcess->stdOut);
+      filDestr(oldProcess->stdOut);
+    } /* if */
+    if (oldProcess->stdErr != NULL) {
+      filClose(oldProcess->stdErr);
+      filDestr(oldProcess->stdErr);
+    } /* if */
     CloseHandle(to_hProcess(oldProcess));
     CloseHandle(to_hThread(oldProcess));
     FREE_RECORD(oldProcess, win_processRecord, count.process);

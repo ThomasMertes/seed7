@@ -285,18 +285,6 @@ void pcsDestr (const processType oldProcess)
     if (oldProcess != NULL) {
       oldProcess->usage_count--;
       if (oldProcess->usage_count == 0) {
-        if (oldProcess->stdIn != NULL) {
-          filClose(oldProcess->stdIn);
-          filDestr(oldProcess->stdIn);
-        } /* if */
-        if (oldProcess->stdOut != NULL) {
-          filClose(oldProcess->stdOut);
-          filDestr(oldProcess->stdOut);
-        } /* if */
-        if (oldProcess->stdErr != NULL) {
-          filClose(oldProcess->stdErr);
-          filDestr(oldProcess->stdErr);
-        } /* if */
         pcsFree(oldProcess);
       } /* if */
     } /* if */
