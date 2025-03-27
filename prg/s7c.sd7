@@ -8535,7 +8535,7 @@ const proc: writeHelp is func
     writeln("usage: s7c [options] source");
     writeln;
     writeln("Options:");
-    writeln("  -?   Write Seed7 compiler usage.");
+    writeln("  -? or -h  Write Seed7 compiler usage.");
     writeln("  -On  Tell the C compiler to optimize with level n (n is between 1 and 3).");
     writeln("  -O   Equivalent to -O1");
     writeln("  -S   Specify the stack size of the executable (e.g.: -S 16777216).");
@@ -8599,7 +8599,7 @@ const proc: main is func
       writeln;
       writeln("usage: s7c [options] source");
       writeln;
-      writeln("Use  s7c -?  to get more information about s7c.");
+      writeln("Use  s7c -?  or  s7c -h  to get more information about s7c.");
       writeln;
     else
       for index range 1 to length(argv(PROGRAM)) do
@@ -8611,7 +8611,7 @@ const proc: main is func
           elsif currArg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif currArg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
+          elsif currArg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-h", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
             if currArg[.. 2] in compilerOptions then
               if currArg[3 ..] = compilerOptions[currArg[.. 2]] then
                 writeln("*** Option " <& currArg <& " specified twice.");
@@ -8619,7 +8619,7 @@ const proc: main is func
                 writeln("*** Option " <& currArg[.. 2] <& " specified twice.");
               end if;
               okay := FALSE;
-            elsif currArg[.. 2] in {"-?", "-e", "-p"} and currArg[3 ..] <> "" then
+            elsif currArg[.. 2] in {"-?", "-e", "-h", "-p"} and currArg[3 ..] <> "" then
               writeln("*** Unsupported option: " <& currArg);
               okay := FALSE;
             else
@@ -8636,7 +8636,7 @@ const proc: main is func
           okay := FALSE;
         end if;
       end for;
-      if "-?" in compilerOptions then
+      if "-?" in compilerOptions or "-h" in compilerOptions then
         writeHelp;
       else
         pass_1(source, prog, compilerOptions, okay);

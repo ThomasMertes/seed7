@@ -418,7 +418,7 @@ int main (int argc, char **argv)
           printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
           printf("Homepage: http://seed7.sourceforge.net\n\n");
           printf("usage: s7 [options] sourcefile [parameters]\n\n");
-          printf("Use  s7 -?  to get more information about s7.\n\n");
+          printf("Use  s7 -?  or  s7 -h  to get more information about s7.\n\n");
         } else if (option.writeHelp) {
           writeHelp();
         } else {
