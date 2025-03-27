@@ -139,6 +139,18 @@ objectType pcs_cpy (listType arguments)
     isit_process(dest);
     isit_process(source);
     is_variable(dest);
+    logFunction(printf("pcs_cpy(" FMT_U_MEM " (usage=" FMT_U "), %s"
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) dest,
+                       take_process(dest) != NULL ?
+                           take_process(dest)->usage_count :
+                           (uintType) 0,
+                       take_process(source) == NULL ? "NULL " : "",
+                       take_process(source) != NULL ?
+                           (memSizeType) source : (memSizeType) 0,
+                       take_process(source) != NULL ?
+                           take_process(source)->usage_count :
+                           (uintType) 0););
     process_source = take_process(source);
     if (TEMP_OBJECT(source)) {
       source->value.processValue = NULL;
@@ -155,6 +167,18 @@ objectType pcs_cpy (listType arguments)
       } /* if */
     } /* if */
     dest->value.processValue = process_source;
+    logFunction(printf("pcs_cpy(" FMT_U_MEM " (usage=" FMT_U "), %s"
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) dest,
+                       take_process(dest) != NULL ?
+                           take_process(dest)->usage_count :
+                           (uintType) 0,
+                       take_process(source) == NULL ? "NULL " : "",
+                       take_process(source) != NULL ?
+                           (memSizeType) source : (memSizeType) 0,
+                       take_process(source) != NULL ?
+                           take_process(source)->usage_count :
+                           (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* pcs_cpy */
 
@@ -169,15 +193,26 @@ objectType pcs_cpy (listType arguments)
 objectType pcs_create (listType arguments)
 
   {
+    objectType dest;
     objectType source;
     processType process_value;
 
   /* pcs_create */
+    dest = arg_1(arguments);
     source = arg_3(arguments);
     isit_process(source);
-    SET_CATEGORY_OF_OBJ(arg_1(arguments), PROCESSOBJECT);
+    logFunction(printf("pcs_create(" FMT_U_MEM ", %s"
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) dest,
+                       take_process(source) == NULL ? "NULL " : "",
+                       take_process(source) != NULL ?
+                           (memSizeType) source : (memSizeType) 0,
+                       take_process(source) != NULL ?
+                           take_process(source)->usage_count :
+                           (uintType) 0););
+    SET_CATEGORY_OF_OBJ(dest, PROCESSOBJECT);
     process_value = take_process(source);
-    arg_1(arguments)->value.processValue = process_value;
+    dest->value.processValue = process_value;
     if (TEMP_OBJECT(source)) {
       source->value.processValue = NULL;
     } else {
@@ -185,6 +220,18 @@ objectType pcs_create (listType arguments)
         process_value->usage_count++;
       } /* if */
     } /* if */
+    logFunction(printf("pcs_create(" FMT_U_MEM " (usage=" FMT_U "), %s"
+                       FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) dest,
+                       take_process(dest) != NULL ?
+                           take_process(dest)->usage_count :
+                           (uintType) 0,
+                       take_process(source) == NULL ? "NULL " : "",
+                       take_process(source) != NULL ?
+                           (memSizeType) source : (memSizeType) 0,
+                       take_process(source) != NULL ?
+                           take_process(source)->usage_count :
+                           (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* pcs_create */
 
@@ -198,19 +245,34 @@ objectType pcs_create (listType arguments)
 objectType pcs_destr (listType arguments)
 
   {
+    objectType old_object;
     processType old_process;
 
   /* pcs_destr */
-    isit_process(arg_1(arguments));
-    old_process = take_process(arg_1(arguments));
+    old_object = arg_1(arguments);
+    isit_process(old_object);
+    old_process = take_process(old_object);
+    logFunction(printf("pcs_destr(%s" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       old_process == NULL ? "NULL " : "",
+                       old_process != NULL ?
+                           (memSizeType) old_object : (memSizeType) 0,
+                       old_process != NULL ?
+                           old_process->usage_count : (uintType) 0););
     if (old_process != NULL) {
       old_process->usage_count--;
       if (old_process->usage_count == 0) {
         pcsFree(old_process);
       } /* if */
-      arg_1(arguments)->value.processValue = NULL;
+      old_object->value.processValue = NULL;
     } /* if */
-    SET_UNUSED_FLAG(arg_1(arguments));
+    SET_UNUSED_FLAG(old_object);
+    logFunction(printf("pcs_destr(%s" FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       take_process(old_object) == NULL ? "NULL " : "",
+                       take_process(old_object) != NULL ?
+                           (memSizeType) old_object : (memSizeType) 0,
+                       take_process(old_object) != NULL ?
+                           take_process(old_object)->usage_count :
+                           (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* pcs_destr */
 

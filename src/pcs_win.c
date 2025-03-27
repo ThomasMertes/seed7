@@ -352,12 +352,23 @@ intType pcsExitValue (const const_processType process)
     intType exitValue;
 
   /* pcsExitValue */
+    logFunction(printf("pcsExitValue(" FMT_U32 " (usage=" FMT_U "))\n",
+                       (uint32Type) (process != NULL ? to_pid(process) : 0),
+                       process != NULL ? process->usage_count : (uintType) 0););
     if (unlikely(!to_isTerminated(process))) {
+      logError(printf("pcsExitValue(" FMT_U32 " (usage=" FMT_U ")): "
+                      "Process has not terminated.\n",
+                      (uint32Type) (process != NULL ? to_pid(process) : 0),
+                      process != NULL ? process->usage_count : (uintType) 0););
       raise_error(FILE_ERROR);
       exitValue = -1;
     } else {
       exitValue = (intType) to_exitValue(process);
     } /* if */
+    logFunction(printf("pcsExitValue(" FMT_U32 " (usage=" FMT_U ")) --> " FMT_D "\n",
+                       (uint32Type) (process != NULL ? to_pid(process) : 0),
+                       process != NULL ? process->usage_count : (uintType) 0,
+                       exitValue););
     return exitValue;
   } /* pcsExitValue */
 
@@ -371,7 +382,7 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType oldProcess)
 
   { /* pcsFree */
-    logFunction(printf("pcsFree(" FMT_U32 ") (usage=" FMT_U ")\n",
+    logFunction(printf("pcsFree(" FMT_U32 " (usage=" FMT_U "))\n",
                        (uint32Type) (oldProcess != NULL ? to_pid(oldProcess) : 0),
                        oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
     CloseHandle(to_hProcess(oldProcess));
@@ -755,8 +766,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStart --> " FMT_U32 "\n",
-                       (uint32Type) (process != NULL ? process->pid : 0)););
+    logFunction(printf("pcsStart --> " FMT_U32 " (usage=" FMT_U ")\n",
+                       (uint32Type) (process != NULL ? process->pid : 0),
+                       process != NULL ? process->usage_count : (uintType) 0););
     return (processType) process;
   } /* pcsStart */
 
@@ -908,8 +920,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       } /* if */
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStartPipe --> " FMT_U32 "\n",
-                       (uint32Type) (process != NULL ? process->pid : 0)););
+    logFunction(printf("pcsStartPipe --> " FMT_U32 " (usage=" FMT_U ")\n",
+                       (uint32Type) (process != NULL ? process->pid : 0),
+                       process != NULL ? process->usage_count : (uintType) 0););
     return (processType) process;
   } /* pcsStartPipe */
 
@@ -951,8 +964,9 @@ void pcsWaitFor (const processType process)
     DWORD exitCode = 0;
 
   /* pcsWaitFor */
-    logFunction(printf("pcsWaitFor(" FMT_U32 ") (hProcess=" FMT_U_MEM ")\n",
+    logFunction(printf("pcsWaitFor(" FMT_U32 " (usage=" FMT_U ", hProcess=" FMT_U_MEM "))\n",
                        (uint32Type) (process != NULL ? to_pid(process) : 0),
+                       process != NULL ? process->usage_count : (uintType) 0,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (!to_isTerminated(process)) {
       if (WaitForSingleObject(to_hProcess(process), INFINITE) == WAIT_OBJECT_0) {

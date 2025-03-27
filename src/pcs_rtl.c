@@ -38,6 +38,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
 #include "pcs_drv.h"
@@ -57,6 +58,9 @@ fileType pcsChildStdErr (const const_processType process)
     fileType stdErr;
 
   /* pcsChildStdErr */
+    logFunction(printf("pcsChildStdErr(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsChildStdErr: process == NULL\n"););
       raise_error(FILE_ERROR);
@@ -67,6 +71,14 @@ fileType pcsChildStdErr (const const_processType process)
       stdErr = process->stdErr;
       stdErr->usage_count++;
     } /* if */
+    logFunction(printf("pcsChildStdErr(" FMT_U_MEM " (usage=" FMT_U "))"
+                       " --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0,
+                       (memSizeType) stdErr,
+                       stdErr == NULL ? "NULL " : "",
+                       stdErr != NULL ? safe_fileno(stdErr->cFile) : 0,
+                       stdErr != NULL ? stdErr->usage_count : (uintType) 0););
     return stdErr;
   } /* pcsChildStdErr */
 
@@ -85,6 +97,9 @@ fileType pcsChildStdIn (const const_processType process)
     fileType stdIn;
 
   /* pcsChildStdIn */
+    logFunction(printf("pcsChildStdIn(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsChildStdIn: process == NULL\n"););
       raise_error(FILE_ERROR);
@@ -95,6 +110,14 @@ fileType pcsChildStdIn (const const_processType process)
       stdIn = process->stdIn;
       stdIn->usage_count++;
     } /* if */
+    logFunction(printf("pcsChildStdIn(" FMT_U_MEM " (usage=" FMT_U "))"
+                       " --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0,
+                       (memSizeType) stdIn,
+                       stdIn == NULL ? "NULL " : "",
+                       stdIn != NULL ? safe_fileno(stdIn->cFile) : 0,
+                       stdIn != NULL ? stdIn->usage_count : (uintType) 0););
     return stdIn;
   } /* pcsChildStdIn */
 
@@ -113,6 +136,9 @@ fileType pcsChildStdOut (const const_processType process)
     fileType stdOut;
 
   /* pcsChildStdOut */
+    logFunction(printf("pcsChildStdOut(" FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsChildStdOut: process == NULL\n"););
       raise_error(FILE_ERROR);
@@ -123,6 +149,14 @@ fileType pcsChildStdOut (const const_processType process)
       stdOut = process->stdOut;
       stdOut->usage_count++;
     } /* if */
+    logFunction(printf("pcsChildStdOut(" FMT_U_MEM " (usage=" FMT_U "))"
+                       " --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? process->usage_count : (uintType) 0,
+                       (memSizeType) stdOut,
+                       stdOut == NULL ? "NULL " : "",
+                       stdOut != NULL ? safe_fileno(stdOut->cFile) : 0,
+                       stdOut != NULL ? stdOut->usage_count : (uintType) 0););
     return stdOut;
   } /* pcsChildStdOut */
 
@@ -203,7 +237,7 @@ void pcsCpyGeneric (genericType *const dest, const genericType source)
 processType pcsCreate (const processType source)
 
   { /* pcsCreate */
-    logFunction(printf("pcsCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+    logFunction(printf("pcsCreate(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) source,
                        source != NULL ? source->usage_count : (uintType) 0););
     if (source != NULL) {
@@ -245,7 +279,7 @@ genericType pcsCreateGeneric (const genericType from_value)
 void pcsDestr (const processType oldProcess)
 
   { /* pcsDestr */
-    logFunction(printf("pcsDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+    logFunction(printf("pcsDestr(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) oldProcess,
                        oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
     if (oldProcess != NULL) {
