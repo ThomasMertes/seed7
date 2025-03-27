@@ -192,6 +192,62 @@ const func process: startProcess (in var string: cmdAndParams) is func
   end func;
 
 
+(**
+ *  Start a new process which communicates via pipes.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  After the process has been started the pipes can be obtained with
+ *  the functions childStdIn(), childStdOut() and childStdErr().
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Array of argument strings passed to the new
+ *         program.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startPipe (in string: command, in array string: parameters) is action "PCS_START_PIPE";
+
+
+(**
+ *  Start a new process which communicates via pipes.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  After the process has been started the pipes can be obtained with
+ *  the functions childStdIn(), childStdOut() and childStdErr().
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startPipe (in var string: cmdAndParams) is func
+  result
+    var process: childProcess is process.value;
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    childProcess := startPipe(command, parameters);
+  end func;
+
+
 const func clib_file: childStdInClibFile (in process: aProcess) is action "PCS_CHILD_STDIN";
 const func clib_file: childStdOutClibFile (in process: aProcess) is action "PCS_CHILD_STDOUT";
 const func clib_file: childStdErrClibFile (in process: aProcess) is action "PCS_CHILD_STDERR";
