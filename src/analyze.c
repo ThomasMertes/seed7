@@ -478,7 +478,14 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                        errorFile->cFile == NULL? "NULL_FILE " : "",
                        errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
                        *err_info););
-    if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
+    if (unlikely(errorFile != NULL &&
+                 errorFile != &nullFileRecord &&
+                 errorFile->cFile == NULL)) {
+      logError(printf("analyzeProg: Attempt to write to closed file.\n"););
+      closeInfile();
+      *err_info = FILE_ERROR;
+      resultProg = NULL;
+    } else if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       closeInfile();
       *err_info = MEMORY_ERROR;
     } else {
