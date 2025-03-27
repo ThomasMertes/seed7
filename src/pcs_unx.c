@@ -272,7 +272,11 @@ intType pcsExitValue (const const_processType process)
     logFunction(printf("pcsExitValue(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0,
                        process != NULL ? process->usage_count : (uintType) 0););
-    if (unlikely(!to_isTerminated(process))) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsExitValue: process == NULL\n"););
+      raise_error(FILE_ERROR);
+      exitValue = -1;
+    } else if (unlikely(!to_isTerminated(process))) {
       logError(printf("pcsExitValue(" FMT_U_MEM " (usage=" FMT_U ")): "
                       "Process has not terminated.\n",
                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0,
@@ -342,7 +346,7 @@ boolType pcsIsAlive (const processType process)
   /* pcsIsAlive */
     logFunction(printf("pcsIsAlive(" FMT_U_MEM ")\n",
                        process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
-    if (to_isTerminated(process)) {
+    if (process == NULL || to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
       status = 0;
@@ -937,7 +941,10 @@ void pcsWaitFor (const processType process)
     logFunction(printf("pcsWaitFor(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0,
                        process != NULL ? process->usage_count : (uintType) 0););
-    if (!to_isTerminated(process)) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsWaitFor: process == NULL\n"););
+      raise_error(FILE_ERROR);
+    } else if (!to_isTerminated(process)) {
       status = 0;
       waitpid_result = waitpid(to_pid(process), &status, 0);
       if (waitpid_result == to_pid(process)) {

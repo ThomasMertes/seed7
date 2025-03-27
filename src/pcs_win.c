@@ -355,7 +355,11 @@ intType pcsExitValue (const const_processType process)
     logFunction(printf("pcsExitValue(" FMT_U32 " (usage=" FMT_U "))\n",
                        (uint32Type) (process != NULL ? to_pid(process) : 0),
                        process != NULL ? process->usage_count : (uintType) 0););
-    if (unlikely(!to_isTerminated(process))) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsExitValue: process == NULL\n"););
+      raise_error(FILE_ERROR);
+      exitValue = -1;
+    } else if (unlikely(!to_isTerminated(process))) {
       logError(printf("pcsExitValue(" FMT_U32 " (usage=" FMT_U ")): "
                       "Process has not terminated.\n",
                       (uint32Type) (process != NULL ? to_pid(process) : 0),
@@ -427,7 +431,7 @@ boolType pcsIsAlive (const processType process)
     logFunction(printf("pcsIsAlive(" FMT_U32 ") (hProcess=" FMT_U_MEM ")\n",
                        (uint32Type) (process != NULL ? to_pid(process) : 0),
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
-    if (to_isTerminated(process)) {
+    if (process == NULL || to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
       if (GetExitCodeProcess(to_hProcess(process), &exitCode) != 0) {
@@ -968,7 +972,10 @@ void pcsWaitFor (const processType process)
                        (uint32Type) (process != NULL ? to_pid(process) : 0),
                        process != NULL ? process->usage_count : (uintType) 0,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
-    if (!to_isTerminated(process)) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsWaitFor: process == NULL\n"););
+      raise_error(FILE_ERROR);
+    } else if (!to_isTerminated(process)) {
       if (WaitForSingleObject(to_hProcess(process), INFINITE) == WAIT_OBJECT_0) {
         if (GetExitCodeProcess(to_hProcess(process), &exitCode) != 0) {
           to_var_isTerminated(process) = TRUE;
