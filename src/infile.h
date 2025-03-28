@@ -110,4 +110,5 @@ void next_file (void);
 int next_line (void);
 striType get_file_name (progType aProg, fileNumType file_num);
 striType objectFileName (const_objectType anObject);
+striType objectFilePath (const_objectType anObject);
 const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num);

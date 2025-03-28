@@ -589,6 +589,68 @@ striType objectFileName (const_objectType anObject)
 
 
 
+static striType get_file_path (progType aProg, fileNumType file_num)
+
+  {
+    register inFileType help_file;
+    striType file_path;
+
+  /* get_file_path */
+    logFunction(printf("get_file_path(" FMT_U_MEM ", %u)\n",
+                       (memSizeType) aProg, file_num););
+    help_file = aProg->fileList;
+    while (help_file != NULL && help_file->file_number != file_num) {
+      help_file = help_file->next;
+    } /* while */
+    if (help_file != NULL) {
+      file_path = help_file->path;
+    } else {
+      if (question_mark == NULL) {
+        question_mark = CSTRI_LITERAL_TO_STRI("?");
+      } /* if */
+      file_path = question_mark;
+    } /* if */
+    logFunction(printf("get_file_path --> \"%s\"\n",
+                       striAsUnquotedCStri(file_path)););
+    return file_path;
+  } /* get_file_path */
+
+
+
+striType objectFilePath (const_objectType anObject)
+
+  {
+    fileNumType fileNumber;
+    striType filePath;
+
+  /* objectFilePath */
+    logFunction(printf("objectFilePath(" FMT_U_MEM ")\n",
+                       (memSizeType) anObject););
+    if (HAS_POSINFO(anObject)) {
+      fileNumber = GET_FILE_NUM(anObject);
+    } else if (HAS_PROPERTY(anObject)) {
+      fileNumber = anObject->descriptor.property->file_number;
+    } else {
+      fileNumber = 0;
+    } /* if */
+    if (fileNumber != 0 &&
+        anObject->type_of != NULL &&
+        anObject->type_of->owningProg != NULL) {
+      filePath = get_file_path(anObject->type_of->owningProg,
+                               fileNumber);
+    } else {
+      if (question_mark == NULL) {
+        question_mark = CSTRI_LITERAL_TO_STRI("?");
+      } /* if */
+      filePath = question_mark;
+    } /* if */
+    logFunction(printf("objectFilePath --> \"%s\"\n",
+                       striAsUnquotedCStri(filePath)););
+    return filePath;
+  } /* objectFilePath */
+
+
+
 const_ustriType get_file_name_ustri (progType aProg, fileNumType file_num)
 
   {
