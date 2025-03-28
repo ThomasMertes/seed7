@@ -599,6 +599,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
 
   {
     striType sourceFilePath;
+    striType absolutePath;
     memSizeType nameLen;
     boolType add_extension;
     boolType isOpen;
@@ -637,14 +638,28 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         memcpy_to_strelem(&sourceFilePath->mem[sourceFileArgument->size],
                           (const_ustriType) ".sd7", STRLEN(".sd7"));
       } /* if */
-      isOpen = openInfile(sourceFilePath, 1, NULL,
-                          (options & WRITE_LIBRARY_NAMES) != 0,
-                          (options & WRITE_LINE_NUMBERS) != 0, err_info);
-      if (!isOpen && add_extension) {
-        sourceFilePath->size = nameLen - STRLEN(".sd7");
-        isOpen = openInfile(sourceFilePath, 1, NULL,
+      if ((absolutePath = getAbsolutePath(sourceFilePath)) == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        isOpen = openInfile(sourceFilePath, absolutePath, 1, NULL,
                             (options & WRITE_LIBRARY_NAMES) != 0,
                             (options & WRITE_LINE_NUMBERS) != 0, err_info);
+        if (!isOpen) {
+          FREE_STRI(absolutePath, absolutePath->size);
+          if (add_extension) {
+            sourceFilePath->size = nameLen - STRLEN(".sd7");
+            if ((absolutePath = getAbsolutePath(sourceFilePath)) == NULL) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              isOpen = openInfile(sourceFilePath, absolutePath, 1, NULL,
+                                  (options & WRITE_LIBRARY_NAMES) != 0,
+                                  (options & WRITE_LINE_NUMBERS) != 0, err_info);
+              if (!isOpen) {
+                FREE_STRI(absolutePath, absolutePath->size);
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
       } /* if */
 #if HAS_SYMBOLIC_LINKS
       if (isOpen) {

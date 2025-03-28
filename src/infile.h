@@ -97,7 +97,7 @@ EXTERN inFileRecord in_file;
 
 int fill_buf (void);
 boolType openInfile (const_striType sourceFileName,
-    fileNumType fileNumber, inFileType nextFile,
+    striType absolutePath, fileNumType fileNumber, inFileType nextFile,
     boolType write_library_names, boolType write_line_numbers,
     errInfoType *err_info);
 void closeInfile (void);

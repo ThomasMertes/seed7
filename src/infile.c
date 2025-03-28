@@ -184,7 +184,7 @@ static inline boolType speedup (void)
 
 
 boolType openInfile (const_striType sourceFileName,
-    fileNumType fileNumber, inFileType nextFile,
+    striType absolutePath, fileNumType fileNumber, inFileType nextFile,
     boolType write_library_names, boolType write_line_numbers,
     errInfoType *err_info)
 
@@ -200,7 +200,6 @@ boolType openInfile (const_striType sourceFileName,
     ustriType resized_name_ustri;
     memSizeType name_length;
     striType in_name;
-    striType in_path;
     int path_info = PATH_IS_NORMAL;
     boolType isOpen = FALSE;
 
@@ -252,9 +251,7 @@ boolType openInfile (const_striType sourceFileName,
           } /* if */
           if (name_ustri == NULL) {
             fclose(in_fil);
-          } else if ((in_name = copy_stri(sourceFileName)) == NULL ||
-                     (in_path = getAbsolutePath(sourceFileName)) == NULL) {
-            strDestr(in_name);
+          } else if ((in_name = copy_stri(sourceFileName)) == NULL) {
             free_cstri8(name_ustri, sourceFileName);
             fclose(in_fil);
             *err_info = MEMORY_ERROR;
@@ -267,7 +264,6 @@ boolType openInfile (const_striType sourceFileName,
               fclose(in_file.fil);
               free_cstri8(name_ustri, sourceFileName);
               FREE_STRI(in_name, in_name->size);
-              FREE_STRI(in_path, in_path->size);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
               } else {
@@ -280,7 +276,7 @@ boolType openInfile (const_striType sourceFileName,
               COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
               in_file.name_ustri = name_ustri;
               in_file.name = in_name;
-              in_file.path = in_path;
+              in_file.path = absolutePath;
               in_file.character = next_character();
               in_file.line = 1;
               in_file.file_number = fileNumber;
@@ -368,6 +364,7 @@ boolType openBString (bstriType inputString,
     memSizeType name_length;
     ustriType name_ustri;
     striType in_name;
+    striType in_path;
     FILE *in_fil;
     boolType isOpen = FALSE;
 
@@ -385,6 +382,10 @@ boolType openBString (bstriType inputString,
           *err_info = MEMORY_ERROR;
         } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
           UNALLOC_USTRI(name_ustri, name_length);
+          *err_info = MEMORY_ERROR;
+        } else if (!ALLOC_STRI_SIZE_OK(in_path, name_length)) {
+          UNALLOC_USTRI(name_ustri, name_length);
+          FREE_STRI(in_name, name_length);
           *err_info = MEMORY_ERROR;
         } else {
 #if USE_ALTERNATE_NEXT_CHARACTER
@@ -412,6 +413,7 @@ boolType openBString (bstriType inputString,
           if (unlikely(in_fil == NULL)) {
             UNALLOC_USTRI(name_ustri, name_length);
             FREE_STRI(in_name, name_length);
+            FREE_STRI(in_path, name_length);
           } else
 #endif
           {
@@ -420,12 +422,15 @@ boolType openBString (bstriType inputString,
             name_ustri[name_length] = '\0';
             in_name->size = name_length;
             memcpy_to_strelem(in_name->mem, name_ustri, name_length);
+            in_path->size = name_length;
+            memcpy_to_strelem(in_path->mem, name_ustri, name_length);
             if (in_file.curr_infile != NULL) {
               memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
             } /* if */
             in_file.fil = in_fil;
             in_file.name_ustri = name_ustri;
             in_file.name = in_name;
+            in_file.path = in_path;
 #if USE_ALTERNATE_NEXT_CHARACTER
             in_file.start = inputString->mem;
             in_file.nextch = in_file.start;

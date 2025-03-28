@@ -107,8 +107,10 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
         logMessage(printf("already included: \"%s\"\n",
                           striAsUnquotedCStri(absolutePath)););
         includeResult = INCLUDE_ALREADY;
-      } else if (openInfile(includeFileName, prog->fileCounter + 1,
-                            prog->fileList, in_file.write_library_names,
+        FREE_STRI(absolutePath, absolutePath->size);
+      } else if (openInfile(includeFileName, absolutePath,
+                            prog->fileCounter + 1, prog->fileList,
+                            in_file.write_library_names,
                             in_file.write_line_numbers, err_info)) {
         prog->fileList = in_file.curr_infile;
         prog->fileCounter++;
@@ -118,8 +120,9 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
                 &strCmpGeneric, &strCreateGeneric,
                 &genericCreate, &genericCpy);
         includeResult = INCLUDE_SUCCESS;
+      } else {
+        FREE_STRI(absolutePath, absolutePath->size);
       } /* if */
-      FREE_STRI(absolutePath, absolutePath->size);
     } /* if */
     logFunction(printf("openIncludeFile --> %d (err_info=%d)\n",
                        includeResult, *err_info););
