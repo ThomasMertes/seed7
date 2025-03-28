@@ -494,6 +494,8 @@ void drawInit (void)
       /* If linking with a profiling standard library XOpenDisplay */
       /* deadlocked. Be careful to avoid this situation.           */
       mydisplay = XOpenDisplay("");
+      logMessage(printf("drawInit(): XOpenDisplay(\"\") returned "
+                        FMT_U_MEM "\n", (memSizeType) mydisplay););
       if (mydisplay == NULL) {
         displayVariable = getenv("DISPLAY");
         logError(printf("drawInit(): XOpenDisplay(\"\") failed.\n"
@@ -505,16 +507,21 @@ void drawInit (void)
                  });
         if (displayVariable == NULL) {
           mydisplay = XOpenDisplay(":0.0");
+          logMessage(printf("drawInit(): XOpenDisplay(\":0.0\") returned "
+                            FMT_U_MEM "\n", (memSizeType) mydisplay););
           if (mydisplay == NULL) {
             logError(printf("drawInit(): XOpenDisplay(\":0.0\") failed.\n"););
           } /* if */
         } /* if */
       } /* if */
+    } else {
+      logError(printf("drawInit(): findX11Dll() failed.\n"););
     } /* if */
     if (emptyWindow != NULL && mydisplay != NULL) {
       myscreen = DefaultScreen(mydisplay);
-      /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
-
+      logMessage(printf("drawInit(): DefaultScreen(" FMT_U_MEM
+                        ") returned %d\n",
+                        (memSizeType) mydisplay, myscreen););
       default_visual = XDefaultVisual(mydisplay, myscreen);
       usesTrueColor = default_visual->c_class == TrueColor;
 #ifdef OUT_OF_ORDER
