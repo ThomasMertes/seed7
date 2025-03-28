@@ -2810,7 +2810,7 @@ striType strHeadAssign (const striType stri, const intType stop)
         /* Theoretical shrinking a memory area should never fail.  */
         /* For the strange case that it fails we keep stri intact  */
         /* with the oversized memory usage.                        */
-        tail = stri;
+        head = stri;
       } else {
         COUNT_SHRINK_STRI(striSize, headSize);
       } /* if */
@@ -2885,7 +2885,7 @@ striType strHeadTemp (const striType stri, const intType stop)
         /* Theoretical shrinking a memory area should never fail.  */
         /* For the strange case that it fails we keep stri intact  */
         /* with the oversized memory usage.                        */
-        tail = stri;
+        head = stri;
       } else {
         COUNT_SHRINK_STRI(striSize, headSize);
       } /* if */

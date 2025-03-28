@@ -1502,7 +1502,7 @@ static striType readLinkAbsolute (const const_striType filePath, errInfoType *er
           } /* if */
           absolutePath = strHeadAssign(absolutePath, pathLength);
           absoluteDestination = concatPath(absolutePath, destination);
-          FREE_STRI(absolutePath, pathLength);
+          FREE_STRI(absolutePath, absolutePath->size);
           FREE_STRI(destination, destination->size);
           destination = absoluteDestination;
         } /* if */
