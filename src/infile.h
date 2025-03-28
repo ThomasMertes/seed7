@@ -65,6 +65,7 @@ inFileRecord in_file = {
     NULL,       /* fil */
     NULL,       /* name_ustri */
     NULL,       /* name */
+    NULL,       /* path */
 #if USE_ALTERNATE_NEXT_CHARACTER
     NULL,       /* start */
     NULL,       /* nextch */

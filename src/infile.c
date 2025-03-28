@@ -35,15 +35,6 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-
-#include "common.h"
-#include "data.h"
-#include "os_decls.h"
-#include "heaputl.h"
-#include "flistutl.h"
-#include "striutl.h"
-#include "info.h"
-#include "stat.h"
 #include "errno.h"
 
 #if HAS_MMAP
@@ -52,6 +43,18 @@
 #include "sys/mman.h"
 #include "stat_drv.h"
 #endif
+
+#include "common.h"
+#include "data.h"
+#include "data_rtl.h"
+#include "os_decls.h"
+#include "heaputl.h"
+#include "flistutl.h"
+#include "striutl.h"
+#include "info.h"
+#include "stat.h"
+#include "cmd_rtl.h"
+#include "str_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -197,6 +200,7 @@ boolType openInfile (const_striType sourceFileName,
     ustriType resized_name_ustri;
     memSizeType name_length;
     striType in_name;
+    striType in_path;
     int path_info = PATH_IS_NORMAL;
     boolType isOpen = FALSE;
 
@@ -248,14 +252,13 @@ boolType openInfile (const_striType sourceFileName,
           } /* if */
           if (name_ustri == NULL) {
             fclose(in_fil);
-          } else if (!ALLOC_STRI_CHECK_SIZE(in_name, sourceFileName->size)) {
+          } else if ((in_name = copy_stri(sourceFileName)) == NULL ||
+                     (in_path = getAbsolutePath(sourceFileName)) == NULL) {
+            strDestr(in_name);
             free_cstri8(name_ustri, sourceFileName);
             fclose(in_fil);
             *err_info = MEMORY_ERROR;
           } else {
-            in_name->size = sourceFileName->size;
-            memcpy(in_name->mem, sourceFileName->mem,
-                   sourceFileName->size * sizeof(strElemType));
             if (in_file.curr_infile != NULL) {
               memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
             } /* if */
@@ -263,7 +266,8 @@ boolType openInfile (const_striType sourceFileName,
             if (!speedup()) {
               fclose(in_file.fil);
               free_cstri8(name_ustri, sourceFileName);
-              FREE_STRI(in_name, sourceFileName->size);
+              FREE_STRI(in_name, in_name->size);
+              FREE_STRI(in_path, in_path->size);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
               } else {
@@ -276,6 +280,7 @@ boolType openInfile (const_striType sourceFileName,
               COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
               in_file.name_ustri = name_ustri;
               in_file.name = in_name;
+              in_file.path = in_path;
               in_file.character = next_character();
               in_file.line = 1;
               in_file.file_number = fileNumber;
@@ -461,6 +466,7 @@ static void freeFile (inFileType old_file)
     name_length = strlen((const_cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
     FREE_STRI(old_file->name, old_file->name->size);
+    FREE_STRI(old_file->path, old_file->path->size);
     FREE_FILE(old_file);
     logFunction(printf("freeFile -->\n"););
   } /* freeFile */

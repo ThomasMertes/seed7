@@ -454,6 +454,7 @@ typedef struct inFileStruct {
     FILE *fil;
     const_ustriType name_ustri;
     striType name;
+    striType path;
 #if USE_ALTERNATE_NEXT_CHARACTER
     ustriType start;
     const_ustriType nextch;
