@@ -143,7 +143,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_var_resizeReturnsKey(win) (((x11_winType) (win))->resizeReturnsKey)
 #define to_var_close_action(win)     (((x11_winType) (win))->close_action)
 
-static winType emptyWindow;
+static winType emptyWindow = NULL;
 static Visual *default_visual;
 static boolType usesTrueColor = FALSE;
 
@@ -477,6 +477,7 @@ static winType generateEmptyWindow (void)
 void drawInit (void)
 
   {
+    char *displayVariable;
 #ifdef OUT_OF_ORDER
     const_cstriType class_text;
 #endif
@@ -486,13 +487,29 @@ void drawInit (void)
 
   /* drawInit */
     logFunction(printf("drawInit()\n"););
-    emptyWindow = generateEmptyWindow();
+    if (emptyWindow == NULL) {
+      emptyWindow = generateEmptyWindow();
+    } /* if */
     if (findX11Dll()) {
       /* If linking with a profiling standard library XOpenDisplay */
       /* deadlocked. Be careful to avoid this situation.           */
       mydisplay = XOpenDisplay("");
-      /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
-      /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */
+      if (mydisplay == NULL) {
+        displayVariable = getenv("DISPLAY");
+        logError(printf("drawInit(): XOpenDisplay(\"\") failed.\n"
+                        "DISPLAY=");
+                 if (displayVariable == NULL) {
+                   printf("NULL\n");
+                 } else {
+                   printf("\"%s\"\n", displayVariable);
+                 });
+        if (displayVariable == NULL) {
+          mydisplay = XOpenDisplay(":0.0");
+          if (mydisplay == NULL) {
+            logError(printf("drawInit(): XOpenDisplay(\":0.0\") failed.\n"););
+          } /* if */
+        } /* if */
+      } /* if */
     } /* if */
     if (emptyWindow != NULL && mydisplay != NULL) {
       myscreen = DefaultScreen(mydisplay);
@@ -580,7 +597,7 @@ void drawInit (void)
       useRgbToPixel = 1;
 #endif
     } /* if */
-    logFunction(printf("drawInit -->\n"););
+    logFunction(printf("drawInit --> (init_called=%d)\n", init_called););
   } /* drawInit */
 
 
