@@ -237,6 +237,7 @@ utf16striType stri_to_wstri16 (const const_striType stri, memSizeType *length,
                                errInfoType *err_info);
 utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
                                errInfoType *err_info);
+striType copy_stri (const const_striType source);
 striType cstri_to_stri (const_cstriType cstri);
 striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length);
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info);

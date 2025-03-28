@@ -2068,6 +2068,30 @@ utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
 
 
 /**
+ *  Copy a Seed7 string .
+ *  @return a copy of the source string, or
+ *          NULL if the memory allocation failed.
+ */
+striType copy_stri (const const_striType source)
+
+  {
+    memSizeType new_size;
+    striType result;
+
+  /* copy_stri */
+    new_size = source->size;
+    if (likely(ALLOC_STRI_SIZE_OK(result, new_size))) {
+      result->size = new_size;
+      if (new_size != 0) {
+        memcpy(result->mem, source->mem, new_size * sizeof(strElemType));
+      } /* if */
+    } /* if */
+    return result;
+  } /* copy_stri */
+
+
+
+/**
  *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri Null terminated ISO-8859-1 encoded C string.
