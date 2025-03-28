@@ -450,7 +450,7 @@ int XConvertSelection (Display *display, Atom selection, Atom target,
 
   /* XConvertSelection */
     logFunction(printf("XConvertSelection(" FMT_U_MEM ", " FMT_U_ATOM
-                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", " FMT_U_XID " %ul)\n",
+                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", " FMT_U_XID " %lu)\n",
                        (memSizeType) display, selection, target,
                        property, requestor, time););
     funcResult = ptr_XConvertSelection(display, selection, target,
@@ -1548,7 +1548,7 @@ int XSetLineAttributes (Display *display, GC gc, unsigned int line_width,
 
   /* XSetLineAttributes */
     logFunction(printf("XSetLineAttributes(" FMT_U_MEM ", " FMT_U_MEM
-                       ", %u, %d, &d, %d)\n",
+                       ", %u, %d, %d, %d)\n",
                        (memSizeType) display, (memSizeType) gc,
                        line_width, line_style, cap_style, join_style););
     funcResult = ptr_XSetLineAttributes(display, gc, line_width,
@@ -1607,9 +1607,9 @@ Status XSetWMProtocols (Display *display, Window window, Atom *protocols,
 
   /* XSetWMProtocols */
     logFunction(printf("XSetWMProtocols(" FMT_U_MEM ", " FMT_U_XID
-                       ", " FMT_U_ATOM ", %d)\n",
-                       (memSizeType) display, window, protocols,
-                       count););
+                       ", " FMT_U_MEM ", %d)\n",
+                       (memSizeType) display, window,
+                       (memSizeType) protocols, count););
     status = ptr_XSetWMProtocols(display, window, protocols, count);
     logFunction(printf("XSetWMProtocols --> %d\n", status););
     return status;
