@@ -63,6 +63,7 @@ objectType ref_ne            (listType arguments);
 objectType ref_nil           (listType arguments);
 objectType ref_num           (listType arguments);
 objectType ref_params        (listType arguments);
+objectType ref_path          (listType arguments);
 objectType ref_prog          (listType arguments);
 objectType ref_resini        (listType arguments);
 objectType ref_result        (listType arguments);

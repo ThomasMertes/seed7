@@ -50,6 +50,7 @@ listType refLocalConsts (const const_objectType funcRef);
 listType refLocalVars (const const_objectType funcRef);
 intType refNum (const const_objectType aReference);
 listType refParams (const const_objectType funcRef);
+striType refPath (const const_objectType aReference);
 objectType refResini (const const_objectType funcRef);
 objectType refResult (const const_objectType funcRef);
 listType refSctToList (const const_objectType aReference);

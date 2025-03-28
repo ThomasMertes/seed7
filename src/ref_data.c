@@ -715,6 +715,35 @@ listType refParams (const const_objectType funcRef)
 
 
 /**
+ *  Determine the absolute file path of a referenced object.
+ *  @return the absolute file path of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType refPath (const const_objectType aReference)
+
+  {
+    striType fileName;
+
+  /* refPath */
+    logFunction(printf("refPath(");
+                trace1(aReference);
+                printf(")\n"););
+    if (unlikely(aReference == NULL)) {
+      logError(printf("refPath(NULL): Object is NULL.\n"););
+      raise_error(RANGE_ERROR);
+      fileName = NULL;
+    } else {
+      fileName = objectFilePath(aReference);
+    } /* if */
+    logFunction(printf("refPath -> \"%s\"\n",
+                       striAsUnquotedCStri(fileName)););
+    return fileName;
+  } /* refPath */
+
+
+
+/**
  *  Gets the initialization value of the result variable of 'funcRef'.
  *  @return a reference to the initialization value.
  *  @exception RANGE_ERROR If 'funcRef' is NIL or

@@ -679,6 +679,31 @@ objectType ref_params (listType arguments)
 
 
 
+/**
+ *  Determine the absolute file path of a referenced object.
+ *  @return the absolute file path of the referenced object.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType ref_path (listType arguments)
+
+  {
+    const_striType path;
+    objectType result;
+
+  /* ref_path */
+    isit_reference(arg_1(arguments));
+    path = refPath(take_reference(arg_1(arguments)));
+    if (path == NULL) {
+      result = NULL;
+    } else {
+      result = bld_stri_temp(strCreate(path));
+    } /* if */
+    return result;
+  } /* ref_path */
+
+
+
 objectType ref_prog (listType arguments)
 
   { /* ref_prog */
