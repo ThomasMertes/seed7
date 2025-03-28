@@ -670,6 +670,15 @@ const func string: file (in reference: aReference)                     is action
 
 
 (**
+ *  Determine the absolute file path of a referenced object.
+ *  @return the absolute file path of the referenced object.
+ *  @exception RANGE_ERROR If ''aReference'' is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: path (in reference: aReference)                     is action "REF_PATH";
+
+
+(**
  *  Determine the line number of a referenced object.
  *  @return the line number of the referenced object.
  *  @exception RANGE_ERROR If ''aReference'' is NIL.
