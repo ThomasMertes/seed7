@@ -1533,6 +1533,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_NUM, function, params, c_expr);
       when {"REF_PARAMS"}:
         process(REF_PARAMS, function, params, c_expr);
+      when {"REF_PATH"}:
+        process(REF_PATH, function, params, c_expr);
       when {"REF_RESINI"}:
         process(REF_RESINI, function, params, c_expr);
       when {"REF_RESULT"}:

@@ -55,6 +55,7 @@ const ACTION: REF_LOCAL_VARS     is action "REF_LOCAL_VARS";
 const ACTION: REF_NE             is action "REF_NE";
 const ACTION: REF_NUM            is action "REF_NUM";
 const ACTION: REF_PARAMS         is action "REF_PARAMS";
+const ACTION: REF_PATH           is action "REF_PATH";
 const ACTION: REF_RESINI         is action "REF_RESINI";
 const ACTION: REF_RESULT         is action "REF_RESULT";
 const ACTION: REF_SCTTOLIST      is action "REF_SCTTOLIST";
@@ -95,6 +96,7 @@ const proc: ref_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "listType    refLocalVars (const const_objRefType);");
     declareExtern(c_prog, "intType     refNum (const const_objRefType);");
     declareExtern(c_prog, "listType    refParams (const const_objRefType);");
+    declareExtern(c_prog, "striType    refPath (const const_objRefType);");
     declareExtern(c_prog, "objRefType  refResini (const const_objRefType);");
     declareExtern(c_prog, "objRefType  refResult (const const_objRefType);");
     declareExtern(c_prog, "listType    refSctToList (const const_objRefType);");
@@ -470,6 +472,17 @@ const proc: process (REF_PARAMS, in reference: function,
   begin
     compDataLibraryUsed := TRUE;
     c_expr.expr &:= "refParams(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refPath(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
