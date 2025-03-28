@@ -390,6 +390,7 @@ int main (int argc, char **argv)
         NULL,  /* argv               */
         0,     /* argvStart          */
       };
+    int returnCode = 0;
 
   /* main */
     logFunction(printf("main\n"););
@@ -448,6 +449,7 @@ int main (int argc, char **argv)
                           option.execOptions, option.protFileName);
               } /* if */
               if (fail_flag) {
+                returnCode = 1;
                 uncaught_exception(currentProg);
                 if (fail_value == DB_EXCEPTION(currentProg)) {
                   striType message;
@@ -483,9 +485,9 @@ int main (int argc, char **argv)
 #if CHECK_STACK
     printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif
-    logFunction(printf("main --> 0\n"););
+    logFunction(printf("main --> %d\n", returnCode););
 #ifdef USE_DO_EXIT
-    doExit(0);
+    doExit(returnCode);
 #endif
-    return 0;
+    return returnCode;
   } /* main */
