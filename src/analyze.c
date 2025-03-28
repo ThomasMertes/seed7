@@ -520,7 +520,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->literals = NULL;
       resultProg->arg0         = strCreate(sourceFileArgument);
       resultProg->program_name = getProgramName(sourceFileArgument);
-      resultProg->program_path = getAbsolutePath(sourceFilePath);
+      resultProg->program_path = copy_stri(in_file.path);
       if (resultProg->arg0 == NULL ||
           resultProg->program_name == NULL ||
           resultProg->program_path == NULL) {
