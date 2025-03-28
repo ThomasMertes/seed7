@@ -46,15 +46,12 @@
 
 #include "common.h"
 #include "data.h"
-#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
 #include "info.h"
 #include "stat.h"
-#include "cmd_rtl.h"
-#include "str_rtl.h"
 
 #undef EXTERN
 #define EXTERN
