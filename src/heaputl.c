@@ -284,7 +284,7 @@ void freeStriFreelist (void)
       while (elem != NULL) {
         stri = (striType) elem;
         elem = elem->next;
-        HEAP_FREE_STRI(stri);
+        HEAP_FREE_STRI(stri, capacity);
         sflist_allowed[capacity]++;
       } /* while */
       sflist[capacity] = NULL;
@@ -294,7 +294,7 @@ void freeStriFreelist (void)
     while (elem != NULL) {
       stri = (striType) elem;
       elem = elem->next;
-      HEAP_FREE_STRI(stri);
+      HEAP_FREE_STRI(stri, 1);
       sflist_allowed++;
     } /* while */
     sflist = NULL;
