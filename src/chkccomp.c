@@ -7523,6 +7523,7 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
     char filePath[PATH_SIZE + 1 + NAME_SIZE];
     char linkParam[PATH_SIZE + 3 + NAME_SIZE];
     char linkOption[PATH_SIZE + 4 + 2 * NAME_SIZE];
+    int testResult;
     int libFound = 0;
 
   /* findStaticLib */
@@ -7552,7 +7553,8 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
             fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
             fprintf(logFile, "linkOption: \"%s\"\n", linkOption); */
             if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
-              if (doTest() == 1) {
+              testResult = doTest();
+              if (testResult == 1) {
                 fprintf(logFile, "\r%s: %s", scopeName, libNameList[nameIndex]);
                 describeLibrary(filePath);
                 fprintf(logFile, " found in: %s\n", dirPath);
@@ -7562,6 +7564,12 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
                 fprintf(logFile, "\r%s: Cannot execute with %s", scopeName, filePath);
                 describeLibrary(filePath);
                 fprintf(logFile, "\n");
+                fprintf(logFile, "testResult: %d\n", testResult);
+                fprintf(logFile, "Test program:\n%s\n", testProgram);
+                fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
+                fprintf(logFile, "linkOption: \"%s\"\n", linkOption);
+                fprintf(logFile, "libraryOption: \"%s\"\n", libraryOption);
+                fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
               } /* if */
             } else {
               fprintf(logFile, "\r%s: Cannot link %s", scopeName, filePath);
