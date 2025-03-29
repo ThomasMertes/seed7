@@ -279,6 +279,13 @@ typedef int64Type timeStampType;
 #endif
 
 
+#if INT_SIZE >= INTTYPE_SIZE
+#define unsignedFitsInIntType(num) (num) <= INTTYPE_MAX
+#else
+#define unsignedFitsInIntType(num) TRUE
+#endif
+
+
 #if SHORT_SIZE < INTTYPE_SIZE
 #ifdef USE_SIMPLE_RANGE_CHECK
 #define inShortRange(num) ((num) >= SHRT_MIN && (num) <= SHRT_MAX)

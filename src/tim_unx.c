@@ -114,6 +114,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
+      raise_error(RANGE_ERROR);
     } else {
       do {
         gettimeofday(&time_val, NULL);
@@ -168,6 +172,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                                         F_D(02) ":" F_D(02) ":" F_D(02)
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -228,6 +236,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                                         F_D(02) ":" F_D(02) ":" F_D(02)
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -295,6 +307,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                                         F_D(02) ":" F_D(02) ":" F_D(02)
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
       raise_error(RANGE_ERROR);
     } else {
       do {
@@ -369,6 +385,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
+      raise_error(RANGE_ERROR);
     } else {
       gettimeofday(&time_val, NULL);
       if (time_val.tv_sec < await_second ||
@@ -442,6 +462,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
                                         F_D(02) ":" F_D(02) ":" F_D(02)
                       " or Timezone " FMT_D " not in allowed range.\n",
                       year, month, day, hour, min, sec, time_zone););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
       raise_error(RANGE_ERROR);
     } else {
       gettimeofday(&time_val, NULL);

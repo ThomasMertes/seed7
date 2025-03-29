@@ -99,6 +99,9 @@ static boolType setupDll (const char *dllName)
             (tgetflag         = (tp_tgetflag)     dllFunc(x11Dll, "tgetflag"))     == NULL ||
             (tgetnum          = (tp_tgetnum)      dllFunc(x11Dll, "tgetnum"))      == NULL ||
             (tgetstr          = (tp_tgetstr)      dllFunc(x11Dll, "tgetstr"))      == NULL) {
+          logError(printf("setupDll(\"%s\"): "
+                          "Opened library successful but some functions are missing.\n",
+                          dllName););
           x11Dll = NULL;
         } /* if */
       } /* if */

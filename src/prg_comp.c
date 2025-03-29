@@ -440,7 +440,7 @@ intType prgErrorCount (const const_progType aProgram)
                       (memSizeType) aProgram););
       raise_error(RANGE_ERROR);
       result = 0;
-    } else if (unlikely(aProgram->error_count > INTTYPE_MAX)) {
+    } else if (unlikely(!unsignedFitsInIntType(aProgram->error_count))) {
       logError(printf("prgErrorCount(" FMT_X_MEM "): "
                       "Error count %u too big.\n",
                       (memSizeType) aProgram, aProgram->error_count););

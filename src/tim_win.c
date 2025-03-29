@@ -108,6 +108,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
         &await_time_struct, &await_file_time.filetime) == 0)) {
       logError(printf("timAwait: SystemTimeToFileTime() failed.\n"););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(micro_sec < 0 || micro_sec >= 1000000)) {
+      logError(printf("timAwait: Micro seconds " FMT_D
+                      " not in allowed range.\n", micro_sec););
+      raise_error(RANGE_ERROR);
     } else {
       await_second = await_file_time.nanosecs100 / 10000000;
       await_second = (uint64Type) ((int64Type) await_second - time_zone * 60);
