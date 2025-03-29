@@ -261,6 +261,9 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XUndefineCursor         = (tp_XUndefineCursor)         dllFunc(x11Dll, "XUndefineCursor"))         == NULL ||
             (ptr_XWarpPointer            = (tp_XWarpPointer)            dllFunc(x11Dll, "XWarpPointer"))            == NULL ||
             (ptr_XWhitePixel             = (tp_XWhitePixel)             dllFunc(x11Dll, "XWhitePixel"))             == NULL) {
+          logError(printf("setupX11Dll(\"%s\"): "
+                          "Opened library successful but some functions are missing.\n",
+                          dllName););
           x11Dll = NULL;
         } /* if */
       } /* if */
@@ -287,6 +290,9 @@ static boolType setupXrenderDll (const char *dllName)
             (ptr_XRenderFindVisualFormat    = (tp_XRenderFindVisualFormat)    dllFunc(renderDll, "XRenderFindVisualFormat"))    == NULL ||
             (ptr_XRenderFreePicture         = (tp_XRenderFreePicture)         dllFunc(renderDll, "XRenderFreePicture"))         == NULL ||
             (ptr_XRenderSetPictureTransform = (tp_XRenderSetPictureTransform) dllFunc(renderDll, "XRenderSetPictureTransform")) == NULL) {
+          logError(printf("setupXrenderDll(\"%s\"): "
+                          "Opened library successful but some functions are missing.\n",
+                          dllName););
           renderDll = NULL;
         } /* if */
       } /* if */
