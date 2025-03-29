@@ -7438,6 +7438,79 @@ static const char *findIncludeFile (const char *scopeName, char *testProgram,
 
 
 
+static int pointerSizeOfDynamicLibrary (const char *dllName)
+
+  {
+    FILE *dllFile;
+    unsigned char buffer[BUFFER_SIZE];
+    unsigned long offset;
+    unsigned long machine;
+    int pointerSize = 0;
+
+  /* pointerSizeOfDynamicLibrary */
+    dllFile = fopen(dllName, "rb");
+    if (dllFile != NULL) {
+      if (fread(buffer, 1, 5, dllFile) == 5) {
+        if (memcmp(buffer, "\177ELF", 4) == 0) {
+          if (buffer[4] == '\1') {
+            pointerSize = 32;
+          } else if (buffer[4] == '\2') {
+            pointerSize = 64;
+          } /* if */
+        } else if (memcmp(buffer, "\376\355\372\316" /* 0xfeedface */, 4) == 0 ||
+                   memcmp(buffer, "\316\372\355\376" /* 0xcefaedfe */, 4) == 0) {
+          pointerSize = 32;
+        } else if (memcmp(buffer, "\376\355\372\317" /* 0xfeedfacf */, 4) == 0 ||
+                   memcmp(buffer, "\317\372\355\376" /* 0xcffaedfe */, 4) == 0) {
+          pointerSize = 64;
+        } else if (memcmp(buffer, "MZ", 2) == 0) {
+          if (fread(&buffer[5], 1, 59, dllFile) == 59) {
+            offset = (unsigned long) buffer[60] |
+                     (unsigned long) buffer[61] << 8 |
+                     (unsigned long) buffer[62] << 16 |
+                     (unsigned long) buffer[63] << 24;
+            if (offset <= BUFFER_SIZE - 6 &&
+                fread(&buffer[64], 1, offset - 58, dllFile) == offset - 58) {
+              if (memcmp(&buffer[offset], "PE\0\0", 4) == 0) {
+                machine = (unsigned long) buffer[offset + 4] |
+                          (unsigned long) buffer[offset + 5] << 8;
+                if (machine ==  0x184 || machine ==  0x1d3 || machine ==  0x1c0 ||
+                    machine ==  0x14c || machine == 0x6232 || machine == 0x9041 ||
+                    machine == 0x5032 || machine ==  0x1a2 || machine ==  0x1a3 ||
+                    machine ==  0x1a6) {
+                  pointerSize = 32;
+                } else if (machine ==  0x284 || machine == 0x8664 || machine == 0xaa64 ||
+                           machine ==  0x200 || machine == 0x6264 || machine ==  0x1f0 ||
+                           machine ==  0x1f1 || machine ==  0x166 || machine == 0x5064 ||
+                           machine ==  0x1a8) {
+                  pointerSize = 64;
+                } /* if */
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+      fclose(dllFile);
+    } /* if */
+    return pointerSize;
+  } /* pointerSizeOfDynamicLibrary */
+
+
+
+static void describeLibrary (const char *filePath)
+
+  {
+    int dllPointerSize;
+
+  /* describeLibrary */
+    dllPointerSize = pointerSizeOfDynamicLibrary(filePath);
+    if (dllPointerSize != 0) {
+      fprintf(logFile, " (%d-bit)", dllPointerSize);
+    } /* if */
+  } /* describeLibrary */
+
+
+
 static int findStaticLib (const char *scopeName, const char *testProgram,
     const char *includeOption, const char *libraryOption, const char *baseDir,
     const char **libDirList, size_t libDirListLength,
@@ -7480,15 +7553,20 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
             fprintf(logFile, "linkOption: \"%s\"\n", linkOption); */
             if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
               if (doTest() == 1) {
-                fprintf(logFile, "\r%s: %s found in: %s\n",
-                        scopeName, libNameList[nameIndex], dirPath);
+                fprintf(logFile, "\r%s: %s", scopeName, libNameList[nameIndex]);
+                describeLibrary(filePath);
+                fprintf(logFile, " found in: %s\n", dirPath);
                 appendOption(system_libs, linkParam);
                 libFound = 1;
               } else {
-                fprintf(logFile, "\r%s: Cannot execute with %s\n", scopeName, filePath);
+                fprintf(logFile, "\r%s: Cannot execute with %s", scopeName, filePath);
+                describeLibrary(filePath);
+                fprintf(logFile, "\n");
               } /* if */
             } else {
-              fprintf(logFile, "\r%s: Cannot link %s\n", scopeName, filePath);
+              fprintf(logFile, "\r%s: Cannot link %s", scopeName, filePath);
+              describeLibrary(filePath);
+              fprintf(logFile, "\n");
             } /* if */
           } else {
             if (strchr(dirPath, ' ') != NULL) {
@@ -7630,64 +7708,6 @@ static int canLoadDynamicLibrary (const char *dllName)
       return 0;
     } /* if */
   } /* canLoadDynamicLibrary */
-
-
-
-static int pointerSizeOfDynamicLibrary (const char *dllName)
-
-  {
-    FILE *dllFile;
-    unsigned char buffer[BUFFER_SIZE];
-    unsigned long offset;
-    unsigned long machine;
-    int pointerSize = 0;
-
-  /* pointerSizeOfDynamicLibrary */
-    dllFile = fopen(dllName, "rb");
-    if (dllFile != NULL) {
-      if (fread(buffer, 1, 5, dllFile) == 5) {
-        if (memcmp(buffer, "\177ELF", 4) == 0) {
-          if (buffer[4] == '\1') {
-            pointerSize = 32;
-          } else if (buffer[4] == '\2') {
-            pointerSize = 64;
-          } /* if */
-        } else if (memcmp(buffer, "\376\355\372\316" /* 0xfeedface */, 4) == 0 ||
-                   memcmp(buffer, "\316\372\355\376" /* 0xcefaedfe */, 4) == 0) {
-          pointerSize = 32;
-        } else if (memcmp(buffer, "\376\355\372\317" /* 0xfeedfacf */, 4) == 0 ||
-                   memcmp(buffer, "\317\372\355\376" /* 0xcffaedfe */, 4) == 0) {
-          pointerSize = 64;
-        } else if (memcmp(buffer, "MZ", 2) == 0) {
-          if (fread(&buffer[5], 1, 59, dllFile) == 59) {
-            offset = (unsigned long) buffer[60] |
-                     (unsigned long) buffer[61] << 8 |
-                     (unsigned long) buffer[62] << 16 |
-                     (unsigned long) buffer[63] << 24;
-            if (offset <= BUFFER_SIZE - 6 &&
-                fread(&buffer[64], 1, offset - 58, dllFile) == offset - 58) {
-              if (memcmp(&buffer[offset], "PE\0\0", 4) == 0) {
-                machine = (unsigned long) buffer[offset + 4] |
-                          (unsigned long) buffer[offset + 5] << 8;
-                if (machine ==  0x184 || machine ==  0x1d3 || machine ==  0x1c0 ||
-                    machine ==  0x14c || machine == 0x6232 || machine == 0x9041 ||
-                    machine == 0x5032 || machine ==  0x1a2 || machine ==  0x1a3 ||
-                    machine ==  0x1a6) {
-                  pointerSize = 32;
-                } else if (machine ==  0x284 || machine == 0x8664 || machine == 0xaa64 ||
-                           machine ==  0x200 || machine == 0x6264 || machine ==  0x1f0 ||
-                           machine ==  0x1f1 || machine ==  0x166 || machine == 0x5064 ||
-                           machine ==  0x1a8) {
-                  pointerSize = 64;
-                } /* if */
-              } /* if */
-            } /* if */
-          } /* if */
-        } /* if */
-      } /* if */
-    } /* if */
-    return pointerSize;
-  } /* pointerSizeOfDynamicLibrary */
 
 
 
