@@ -7523,7 +7523,6 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
     char filePath[PATH_SIZE + 1 + NAME_SIZE];
     char linkParam[PATH_SIZE + 3 + NAME_SIZE];
     char linkOption[PATH_SIZE + 4 + 2 * NAME_SIZE];
-    int testResult;
     int libFound = 0;
 
   /* findStaticLib */
@@ -7553,8 +7552,7 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
             fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
             fprintf(logFile, "linkOption: \"%s\"\n", linkOption); */
             if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
-              testResult = doTest();
-              if (testResult == 1) {
+              if (doTest() == 1) {
                 fprintf(logFile, "\r%s: %s", scopeName, libNameList[nameIndex]);
                 describeLibrary(filePath);
                 fprintf(logFile, " found in: %s\n", dirPath);
@@ -7564,22 +7562,11 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
                 fprintf(logFile, "\r%s: Cannot execute with %s", scopeName, filePath);
                 describeLibrary(filePath);
                 fprintf(logFile, "\n");
-                fprintf(logFile, "testResult: %d\n", testResult);
-                fprintf(logFile, "Test program:\n%s\n", testProgram);
-                fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
-                fprintf(logFile, "linkOption: \"%s\"\n", linkOption);
-                fprintf(logFile, "libraryOption: \"%s\"\n", libraryOption);
-                fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
               } /* if */
             } else {
               fprintf(logFile, "\r%s: Cannot link %s", scopeName, filePath);
               describeLibrary(filePath);
               fprintf(logFile, "\n");
-              fprintf(logFile, "Test program:\n%s\n", testProgram);
-              fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
-              fprintf(logFile, "linkOption: \"%s\"\n", linkOption);
-              fprintf(logFile, "libraryOption: \"%s\"\n", libraryOption);
-              fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
             } /* if */
           } else {
             if (strchr(dirPath, ' ') != NULL) {
@@ -7986,6 +7973,9 @@ static int visualDepthOf32BitsSupported (const char *x11IncludeCommand,
                          "Display* display;\n"
                          "XVisualInfo vinfo;\n"
                          "display = XOpenDisplay(NULL);\n"
+                         "if (display == NULL) {\n"
+                         "  display = XOpenDisplay(\":0\");\n"
+                         "}/n"
                          "printf(\"%%d\\n\",\n"
                          "    display != NULL &&\n"
                          "    XMatchVisualInfo(display, DefaultScreen(display),\n"
@@ -8039,7 +8029,10 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
                            "Display *display;\n"
                            "int screen;\n"
                            "Visual *defaultVisual;\n"
-                           "display = XOpenDisplay(\"\");\n"
+                           "display = XOpenDisplay(NULL);\n"
+                           "if (display == NULL) {\n"
+                           "  display = XOpenDisplay(\":0\");\n"
+                           "}/n"
                            "if (display != NULL) {\n"
                            "  screen = DefaultScreen(display);\n"
                            "  defaultVisual = XDefaultVisual(display, screen);\n"
@@ -8209,7 +8202,10 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
       sprintf(testProgram, "#include<stdio.h>\n%s"
                            "int main(int argc,char *argv[]){\n"
                            "Display *display;\n"
-                           "display = XOpenDisplay(\"\");\n"
+                           "display = XOpenDisplay(NULL);\n"
+                           "if (display == NULL) {\n"
+                           "  display = XOpenDisplay(\":0\");\n"
+                           "}/n"
                            "printf(\"1\\n\");\n"
                            "return 0;}\n", x11IncludeCommand);
       /* fprintf(logFile, "%s\n", testProgram);
@@ -8236,12 +8232,17 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         sprintf(testProgram, "#include<stdio.h>\n%s%s"
                              "int main(int argc,char *argv[]){\n"
                              "Display *display;\n"
+                             "int xrender;\n"
                              "int event_basep;\n"
                              "int error_basep;\n"
-                             "display = XOpenDisplay(\"\");\n"
-                             "printf(\"%%d\\n\",\n"
-                             "    display != NULL &&\n"
-                             "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                             "display = XOpenDisplay(NULL);\n"
+                             "if (display == NULL) {\n"
+                             "  display = XOpenDisplay(\":0\");\n"
+                             "}/n"
+                             "if (display != NULL) {\n"
+                             "  xrender = XRenderQueryExtension(display, &event_basep, &error_basep);\n"
+                             "}\n"
+                             "printf(\"1\\n\");\n"
                              "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
         /* fprintf(logFile, "%s\n", testProgram);
            fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
