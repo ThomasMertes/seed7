@@ -7567,6 +7567,11 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
               fprintf(logFile, "\r%s: Cannot link %s", scopeName, filePath);
               describeLibrary(filePath);
               fprintf(logFile, "\n");
+              fprintf(logFile, "Test program:\n%s\n", testProgram);
+              fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
+              fprintf(logFile, "linkOption: \"%s\"\n", linkOption);
+              fprintf(logFile, "libraryOption: \"%s\"\n", libraryOption);
+              fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
             } /* if */
           } else {
             if (strchr(dirPath, ' ') != NULL) {
