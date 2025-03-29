@@ -2247,7 +2247,7 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
     logFunction(printf("sqlStmtColumnCount(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(preparedStmt->result_column_count > INTTYPE_MAX)) {
+    if (unlikely(!unsignedFitsInIntType(preparedStmt->result_column_count))) {
       logError(printf("sqlStmtColumnCount: "
                       "Result_array_size does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
