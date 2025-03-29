@@ -8166,7 +8166,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                          "XRenderPictFormat pictFormat;\n"
                          "XRenderPictureAttributes pictureAttributes;\n"
                          "return 0;}\n", x11IncludeCommand);
-    if (compileAndLinkWithOptionsOk(testProgram, "", "")) {
+    if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
       x11XrenderInclude="X11/extensions/Xrender.h";
       fprintf(versionFile, "#define X11_XRENDER_INCLUDE \"%s\"\n", x11XrenderInclude);
       fprintf(logFile, "\rX11: %s found in system include directory.\n", x11XrenderInclude);
