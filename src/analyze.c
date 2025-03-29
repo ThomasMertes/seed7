@@ -660,17 +660,17 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
             } /* if */
           } /* if */
         } /* if */
-      } /* if */
 #if HAS_SYMBOLIC_LINKS
-      if (isOpen) {
-        sourceFilePath = followLink(sourceFilePath, err_info);
-      } /* if */
+        if (isOpen) {
+          sourceFilePath = followLink(sourceFilePath, err_info);
+        } /* if */
 #endif
-      if (isOpen && sourceFilePath != NULL) {
-        resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
-                                 libraryDirs, errorFile, err_info);
-      } else if (*err_info == FILE_ERROR) {
-        *err_info = OKAY_NO_ERROR;
+        if (isOpen && sourceFilePath != NULL) {
+          resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
+                                   libraryDirs, errorFile, err_info);
+        } else if (*err_info == FILE_ERROR) {
+          *err_info = OKAY_NO_ERROR;
+        } /* if */
       } /* if */
       if (sourceFilePath != NULL) {
         FREE_STRI(sourceFilePath, nameLen);

@@ -261,6 +261,9 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XUndefineCursor         = (tp_XUndefineCursor)         dllFunc(x11Dll, "XUndefineCursor"))         == NULL ||
             (ptr_XWarpPointer            = (tp_XWarpPointer)            dllFunc(x11Dll, "XWarpPointer"))            == NULL ||
             (ptr_XWhitePixel             = (tp_XWhitePixel)             dllFunc(x11Dll, "XWhitePixel"))             == NULL) {
+          logError(printf("setupX11Dll(\"%s\"): "
+                          "Opened library successful but some functions are missing.\n",
+                          dllName););
           x11Dll = NULL;
         } /* if */
       } /* if */
@@ -287,6 +290,9 @@ static boolType setupXrenderDll (const char *dllName)
             (ptr_XRenderFindVisualFormat    = (tp_XRenderFindVisualFormat)    dllFunc(renderDll, "XRenderFindVisualFormat"))    == NULL ||
             (ptr_XRenderFreePicture         = (tp_XRenderFreePicture)         dllFunc(renderDll, "XRenderFreePicture"))         == NULL ||
             (ptr_XRenderSetPictureTransform = (tp_XRenderSetPictureTransform) dllFunc(renderDll, "XRenderSetPictureTransform")) == NULL) {
+          logError(printf("setupXrenderDll(\"%s\"): "
+                          "Opened library successful but some functions are missing.\n",
+                          dllName););
           renderDll = NULL;
         } /* if */
       } /* if */
@@ -450,7 +456,7 @@ int XConvertSelection (Display *display, Atom selection, Atom target,
 
   /* XConvertSelection */
     logFunction(printf("XConvertSelection(" FMT_U_MEM ", " FMT_U_ATOM
-                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", " FMT_U_XID " %ul)\n",
+                       ", " FMT_U_ATOM ", " FMT_U_ATOM ", " FMT_U_XID " %lu)\n",
                        (memSizeType) display, selection, target,
                        property, requestor, time););
     funcResult = ptr_XConvertSelection(display, selection, target,
@@ -1548,7 +1554,7 @@ int XSetLineAttributes (Display *display, GC gc, unsigned int line_width,
 
   /* XSetLineAttributes */
     logFunction(printf("XSetLineAttributes(" FMT_U_MEM ", " FMT_U_MEM
-                       ", %u, %d, &d, %d)\n",
+                       ", %u, %d, %d, %d)\n",
                        (memSizeType) display, (memSizeType) gc,
                        line_width, line_style, cap_style, join_style););
     funcResult = ptr_XSetLineAttributes(display, gc, line_width,
@@ -1607,9 +1613,9 @@ Status XSetWMProtocols (Display *display, Window window, Atom *protocols,
 
   /* XSetWMProtocols */
     logFunction(printf("XSetWMProtocols(" FMT_U_MEM ", " FMT_U_XID
-                       ", " FMT_U_ATOM ", %d)\n",
-                       (memSizeType) display, window, protocols,
-                       count););
+                       ", " FMT_U_MEM ", %d)\n",
+                       (memSizeType) display, window,
+                       (memSizeType) protocols, count););
     status = ptr_XSetWMProtocols(display, window, protocols, count);
     logFunction(printf("XSetWMProtocols --> %d\n", status););
     return status;

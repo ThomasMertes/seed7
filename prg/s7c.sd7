@@ -1769,12 +1769,13 @@ const proc: optimize_constant_expressions (inout reference: current_expression,
           end if;
         end if;
       exception
-        catch NUMERIC_ERROR:  c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
-        catch OVERFLOW_ERROR: c_expr.expr &:= "/* OVERFLOW_ERROR */ "; # noop;
-        catch RANGE_ERROR:    c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
-        catch INDEX_ERROR:    c_expr.expr &:= "/* INDEX_ERROR */ "; # noop;
-        catch FILE_ERROR:     c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
-        catch DATABASE_ERROR: c_expr.expr &:= "/* DATABASE_ERROR */ "; # noop;
+        catch NUMERIC_ERROR:  noop;
+        catch OVERFLOW_ERROR: noop;
+        catch RANGE_ERROR:    noop;
+        catch INDEX_ERROR:    noop;
+        catch FILE_ERROR:     noop;
+        catch DATABASE_ERROR: noop;
+        catch GRAPHIC_ERROR:  noop;
       end block;
     end if;
   end func;
