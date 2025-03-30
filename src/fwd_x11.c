@@ -316,15 +316,27 @@ boolType findX11Dll (void)
 
   /* findX11Dll */
     logFunction(printf("findX11Dll()\n"););
-    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
-      found = setupX11Dll(dllList[pos]);
-    } /* for */
+    if (sizeof(dllList) == 0) {
+      logError(printf("findX11Dll(): X11_DLL is empty.\n"););
+    } else {
+      for (pos = 0;
+           pos < sizeof(dllList) / sizeof(char *) && !found;
+           pos++) {
+        found = setupX11Dll(dllList[pos]);
+      } /* for */
+    } /* if */
 #ifdef HAS_XRENDER_EXTENSION
     if (found) {
       found = FALSE;
-      for (pos = 0; pos < sizeof(xRenderDllList) / sizeof(char *) && !found; pos++) {
-        found = setupXrenderDll(xRenderDllList[pos]);
-      } /* for */
+      if (sizeof(xRenderDllList)  == 0) {
+        logError(printf("findX11Dll(): X11_XRENDER_DLL is empty.\n"););
+      } else {
+        for (pos = 0;
+          pos < sizeof(xRenderDllList) / sizeof(char *) && !found;
+          pos++) {
+          found = setupXrenderDll(xRenderDllList[pos]);
+        } /* for */
+      } /* if */
     } /* if */
 #endif
     logFunction(printf("findX11Dll --> %d\n", found););
@@ -1261,7 +1273,10 @@ Display *XOpenDisplay (const char *display_name)
     Display *display;
 
   /* XOpenDisplay */
-    logFunction(printf("XOpenDisplay(\"%s\")\n", display_name););
+    logFunction(printf("XOpenDisplay(%s%s%s)\n",
+                       display_name == NULL ? "NULL" : "\"",
+                       display_name == NULL ? "" : display_name,
+                       display_name == NULL ? "" : "\""););
     display = ptr_XOpenDisplay(display_name);
     logFunction(printf("XOpenDisplay --> " FMT_U_MEM "\n",
                        (memSizeType) display););
