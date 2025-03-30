@@ -268,7 +268,8 @@ static boolType setupX11Dll (const char *dllName)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("setupX11Dll --> %d\n", x11Dll != NULL););
+    logFunction(printf("setupX11Dll(\"%s\") --> %d\n",
+                       dllName, x11Dll != NULL););
     return x11Dll != NULL;
   } /* setupX11Dll */
 
@@ -297,7 +298,8 @@ static boolType setupXrenderDll (const char *dllName)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("setupXrenderDll --> %d\n", renderDll != NULL););
+    logFunction(printf("setupXrenderDll(\"%s\") --> %d\n",
+                       dllName, renderDll != NULL););
     return renderDll != NULL;
   } /* setupXrenderDll */
 #endif
