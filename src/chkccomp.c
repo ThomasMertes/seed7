@@ -8295,6 +8295,12 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         appendOption(system_draw_libs, LINKER_OPT_DYN_LINK_LIBS);
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define X11_DLL");
+#ifdef X11_LIBRARY_PATH
+        listDynamicLibs("X11", "",
+                        libDirList, sizeof(libDirList) / sizeof(char *),
+                        dllNameList, sizeof(dllNameList) / sizeof(char *),
+                        versionFile);
+#endif
         for (nameIndex = 0;
              nameIndex < sizeof(dllNameList) / sizeof(char *);
              nameIndex++) {
@@ -8305,6 +8311,12 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
         } /* for */
         fprintf(versionFile, "\n");
         fprintf(versionFile, "#define X11_XRENDER_DLL");
+#ifdef X11_LIBRARY_PATH
+        listDynamicLibs("Xrender", "",
+                        libDirList, sizeof(libDirList) / sizeof(char *),
+                        xRenderDllNameList, sizeof(xRenderDllNameList) / sizeof(char *),
+                        versionFile);
+#endif
         for (nameIndex = 0;
              nameIndex < sizeof(xRenderDllNameList) / sizeof(char *);
              nameIndex++) {

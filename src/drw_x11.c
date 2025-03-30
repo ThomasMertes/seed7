@@ -491,8 +491,8 @@ void drawInit (void)
       emptyWindow = generateEmptyWindow();
     } /* if */
     if (findX11Dll()) {
-      /* If linking with a profiling standard library XOpenDisplay */
-      /* deadlocked. Be careful to avoid this situation.           */
+      /* After linking with a profiling standard library the function */
+      /* XOpenDisplay deadlocked. Be careful to avoid this situation. */
       mydisplay = XOpenDisplay(NULL);
       logMessage(printf("drawInit(): XOpenDisplay(NULL) returned "
                         FMT_U_MEM "\n", (memSizeType) mydisplay););
@@ -505,8 +505,19 @@ void drawInit (void)
                  } else {
                    printf("\"%s\"\n", displayVariable);
                  });
-        if (displayVariable == NULL) {
-          mydisplay = XOpenDisplay(":0.0");
+        if (displayVariable != NULL) {
+          /* This should have happened with XOpenDisplay(NULL). */
+          mydisplay = XOpenDisplay(displayVariable);
+          logMessage(printf("drawInit(): XOpenDisplay(\"%s\") returned "
+                            FMT_U_MEM "\n", displayVariable,
+                            (memSizeType) mydisplay););
+          if (mydisplay == NULL) {
+            logError(printf("drawInit(): XOpenDisplay(\"%s\") failed.\n",
+                            displayVariable););
+          } /* if */
+        } /* if */
+        if (mydisplay == NULL) {
+          mydisplay = XOpenDisplay(":0");
           logMessage(printf("drawInit(): XOpenDisplay(\":0\") returned "
                             FMT_U_MEM "\n", (memSizeType) mydisplay););
           if (mydisplay == NULL) {
