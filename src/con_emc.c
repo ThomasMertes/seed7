@@ -92,22 +92,34 @@ static void kbd_init (void)
         ["f10",           10],
         ["f11",           11],
         ["f12",           12],
-        ["left",          13],
-        ["right",         14],
-        ["up",            15],
-        ["down",          16],
-        ["home",          17],
-        ["end",           18],
-        ["pageup",        19],
-        ["pagedown",      20],
-        ["insert",        21],
-        ["delete",        22],
-        ["enter",         23],
-        ["return",        23],
-        ["backspace",     24],
-        ["tab",           25],
-        ["escape",        26],
-        ["clear",         35]
+        ["f13",           13],
+        ["f14",           14],
+        ["f15",           15],
+        ["f16",           16],
+        ["f17",           17],
+        ["f18",           18],
+        ["f19",           19],
+        ["f20",           20],
+        ["f21",           21],
+        ["f22",           22],
+        ["f23",           23],
+        ["f24",           24],
+        ["left",          25], // KEY_ID_ArrowLeft
+        ["right",         26], // KEY_ID_ArrowRight
+        ["up",            27], // KEY_ID_ArrowUp
+        ["down",          28], // KEY_ID_ArrowDown
+        ["home",          29], // KEY_ID_Home
+        ["end",           30], // KEY_ID_End
+        ["pageup",        31], // KEY_ID_PageUp
+        ["pagedown",      32], // KEY_ID_PageDown
+        ["insert",        33], // KEY_ID_Insert
+        ["delete",        34], // KEY_ID_Delete
+        ["enter",         35], // KEY_ID_Enter
+        ["return",        35], // KEY_ID_Enter
+        ["backspace",     36], // KEY_ID_Backspace
+        ["tab",           37], // KEY_ID_Tab
+        ["escape",        38], // KEY_ID_Escape
+        ["clear",         47]  // KEY_ID_Numpad5
       ]);
     });
     keybd_initialized = TRUE;
@@ -176,7 +188,7 @@ EMSCRIPTEN_KEEPALIVE int decodeKeypress (int keyNameId, int key1, int key2,
         } else {
           pressedKey = key1;
         } /* if */
-      } else if (key1 == 127 && keyNameId == 24 /* backspace */) {
+      } else if (key1 == 127 && keyNameId == KEY_ID_Backspace) {
         pressedKey = K_BS;
       } else if (ctrlKey) {
         if (key1 >= 'A' && key1 <= 'Z') {

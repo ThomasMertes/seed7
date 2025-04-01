@@ -278,19 +278,21 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
     int aKey;
 
   /* mapKeyNameIdToKey */
+    logFunction(printf("mapKeyNameIdToKey(%d, %d, %d, %d, %d)\n",
+                       keyNameId, shiftKey, ctrlKey, altKey, keyDown););
     switch (keyNameId) {
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-      case 9:
-      case 10:
-      case 11:
-      case 12:
+      case KEY_ID_F1:
+      case KEY_ID_F2:
+      case KEY_ID_F3:
+      case KEY_ID_F4:
+      case KEY_ID_F5:
+      case KEY_ID_F6:
+      case KEY_ID_F7:
+      case KEY_ID_F8:
+      case KEY_ID_F9:
+      case KEY_ID_F10:
+      case KEY_ID_F11:
+      case KEY_ID_F12:
         if (shiftKey) {
           aKey = keyNameId - 1 + K_SFT_F1;
         } else if (ctrlKey) {
@@ -301,7 +303,21 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = keyNameId - 1 + K_F1;
         }
         break;
-      case 13:
+      case KEY_ID_F13:
+      case KEY_ID_F14:
+      case KEY_ID_F15:
+      case KEY_ID_F16:
+      case KEY_ID_F17:
+      case KEY_ID_F18:
+      case KEY_ID_F19:
+      case KEY_ID_F20:
+      case KEY_ID_F21:
+      case KEY_ID_F22:
+      case KEY_ID_F23:
+      case KEY_ID_F24:
+        aKey = K_UNDEF;
+        break;
+      case KEY_ID_ArrowLeft:
         if (shiftKey) {
           aKey = K_SFT_LEFT;
         } else if (ctrlKey) {
@@ -312,7 +328,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_LEFT;
         }
         break;
-      case 14:
+      case KEY_ID_ArrowRight:
         if (shiftKey) {
           aKey = K_SFT_RIGHT;
         } else if (ctrlKey) {
@@ -323,7 +339,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_RIGHT;
         }
         break;
-      case 15:
+      case KEY_ID_ArrowUp:
         if (shiftKey) {
           aKey = K_SFT_UP;
         } else if (ctrlKey) {
@@ -334,7 +350,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_UP;
         }
         break;
-      case 16:
+      case KEY_ID_ArrowDown:
         if (shiftKey) {
           aKey = K_SFT_DOWN;
         } else if (ctrlKey) {
@@ -345,7 +361,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_DOWN;
         }
         break;
-      case 17:
+      case KEY_ID_Home:
         if (shiftKey) {
           aKey = K_SFT_HOME;
         } else if (ctrlKey) {
@@ -356,7 +372,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_HOME;
         }
         break;
-      case 18:
+      case KEY_ID_End:
         if (shiftKey) {
           aKey = K_SFT_END;
         } else if (ctrlKey) {
@@ -367,7 +383,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_END;
         }
         break;
-      case 19:
+      case KEY_ID_PageUp:
         if (shiftKey) {
           aKey = K_SFT_PGUP;
         } else if (ctrlKey) {
@@ -378,7 +394,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PGUP;
         }
         break;
-      case 20:
+      case KEY_ID_PageDown:
         if (shiftKey) {
           aKey = K_SFT_PGDN;
         } else if (ctrlKey) {
@@ -389,7 +405,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PGDN;
         }
         break;
-      case 21:
+      case KEY_ID_Insert:
         if (shiftKey) {
           aKey = K_SFT_INS;
         } else if (ctrlKey) {
@@ -400,7 +416,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_INS;
         }
         break;
-      case 22:
+      case KEY_ID_Delete:
         if (shiftKey) {
           aKey = K_SFT_DEL;
         } else if (ctrlKey) {
@@ -411,7 +427,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_DEL;
         }
         break;
-      case 23:
+      case KEY_ID_Enter:
         if (shiftKey) {
           aKey = K_SFT_NL;
         } else if (ctrlKey) {
@@ -422,7 +438,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_NL;
         }
         break;
-      case 24:
+      case KEY_ID_Backspace:
         if (shiftKey) {
           aKey = K_SFT_BS;
         } else if (ctrlKey) {
@@ -433,7 +449,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_BS;
         }
         break;
-      case 25:
+      case KEY_ID_Tab:
         if (shiftKey) {
           aKey = K_SFT_TAB;
         } else if (ctrlKey) {
@@ -444,7 +460,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_TAB;
         }
         break;
-      case 26:
+      case KEY_ID_Escape:
         if (shiftKey) {
           aKey = K_SFT_ESC;
         } else if (ctrlKey) {
@@ -455,7 +471,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_ESC;
         }
         break;
-      case 27:
+      case KEY_ID_ContextMenu:
         if (shiftKey) {
           aKey = K_SFT_MENU;
         } else if (ctrlKey) {
@@ -466,7 +482,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_MENU;
         }
         break;
-      case 28:
+      case KEY_ID_PrintScreen:
         if (shiftKey) {
           aKey = K_SFT_PRINT;
         } else if (ctrlKey) {
@@ -477,7 +493,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PRINT;
         }
         break;
-      case 29:
+      case KEY_ID_Pause:
         if (shiftKey) {
           aKey = K_SFT_PAUSE;
         } else if (ctrlKey) {
@@ -488,7 +504,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PAUSE;
         }
         break;
-      case 30:
+      case KEY_ID_Numpad0:
         if (shiftKey) {
           aKey = K_SFT_INS;
         } else if (ctrlKey) {
@@ -499,7 +515,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_INS;
         }
         break;
-      case 31:
+      case KEY_ID_Numpad1:
         if (shiftKey) {
           aKey = K_SFT_END;
         } else if (ctrlKey) {
@@ -510,7 +526,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_END;
         }
         break;
-      case 32:
+      case KEY_ID_Numpad2:
         if (shiftKey) {
           aKey = K_SFT_DOWN;
         } else if (ctrlKey) {
@@ -521,7 +537,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_DOWN;
         }
         break;
-      case 33:
+      case KEY_ID_Numpad3:
         if (shiftKey) {
           aKey = K_SFT_PGDN;
         } else if (ctrlKey) {
@@ -532,7 +548,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PGDN;
         }
         break;
-      case 34:
+      case KEY_ID_Numpad4:
         if (shiftKey) {
           aKey = K_SFT_LEFT;
         } else if (ctrlKey) {
@@ -543,7 +559,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_LEFT;
         }
         break;
-      case 35:
+      case KEY_ID_Numpad5:
         if (shiftKey) {
           aKey = K_SFT_PAD_CENTER;
         } else if (ctrlKey) {
@@ -554,7 +570,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PAD_CENTER;
         }
         break;
-      case 36:
+      case KEY_ID_Numpad6:
         if (shiftKey) {
           aKey = K_SFT_RIGHT;
         } else if (ctrlKey) {
@@ -565,7 +581,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_RIGHT;
         }
         break;
-      case 37:
+      case KEY_ID_Numpad7:
         if (shiftKey) {
           aKey = K_SFT_HOME;
         } else if (ctrlKey) {
@@ -576,7 +592,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_HOME;
         }
         break;
-      case 38:
+      case KEY_ID_Numpad8:
         if (shiftKey) {
           aKey = K_SFT_UP;
         } else if (ctrlKey) {
@@ -587,7 +603,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_UP;
         }
         break;
-      case 39:
+      case KEY_ID_Numpad9:
         if (shiftKey) {
           aKey = K_SFT_PGUP;
         } else if (ctrlKey) {
@@ -598,7 +614,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_PGUP;
         }
         break;
-      case 40:
+      case KEY_ID_NumpadDecimal:
         if (shiftKey) {
           aKey = K_SFT_DEL;
         } else if (ctrlKey) {
@@ -609,7 +625,7 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
           aKey = K_DEL;
         }
         break;
-      case 41:
+      case KEY_ID_NumpadEnter:
         if (shiftKey) {
           aKey = K_SFT_NL;
         } else if (ctrlKey) {
@@ -624,5 +640,6 @@ int mapKeyNameIdToKey (int keyNameId, boolType shiftKey,
         aKey = K_UNDEF;
         break;
     } /* switch */
+    logFunction(printf("mapKeyNameIdToKey --> %d\n", aKey););
     return aKey;
   } /* mapKeyNameIdToKey */
