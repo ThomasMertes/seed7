@@ -157,7 +157,7 @@ struct modifierState {
 static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                         FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
                                         FALSE, FALSE, FALSE, FALSE, {0, 0, 0} };
-static boolType codeIdPressed[54];
+static boolType codeIdPressed[KEY_ID_LAST_VALUE + 1];
 static rtlHashType charPressed;
 static boolType mouseKeyPressed[5];
 static boolType closePopupActive = FALSE;
@@ -504,76 +504,76 @@ static int mapKeyToCodeId (charType aKey)
       case K_F1:  case K_F2:  case K_F3:  case K_F4: case K_F5:
       case K_F6:  case K_F7:  case K_F8:  case K_F9: case K_F10:
       case K_F11: case K_F12:
-        codeId = (int) aKey - K_F1 + 1;
+        codeId = (int) aKey - K_F1 + KEY_ID_F1;
         break;
       case K_SFT_F1:  case K_SFT_F2:  case K_SFT_F3:  case K_SFT_F4:
       case K_SFT_F5:  case K_SFT_F6:  case K_SFT_F7:  case K_SFT_F8:
       case K_SFT_F9:  case K_SFT_F10: case K_SFT_F11: case K_SFT_F12:
-        codeId = (int) aKey - K_SFT_F1 + 1;
+        codeId = (int) aKey - K_SFT_F1 + KEY_ID_F1;
         break;
       case K_CTL_F1:  case K_CTL_F2:  case K_CTL_F3:  case K_CTL_F4:
       case K_CTL_F5:  case K_CTL_F6:  case K_CTL_F7:  case K_CTL_F8:
       case K_CTL_F9:  case K_CTL_F10: case K_CTL_F11: case K_CTL_F12:
-        codeId = (int) aKey - K_CTL_F1 + 1;
+        codeId = (int) aKey - K_CTL_F1 + KEY_ID_F1;
         break;
       case K_ALT_F1:  case K_ALT_F2:  case K_ALT_F3:  case K_ALT_F4:
       case K_ALT_F5:  case K_ALT_F6:  case K_ALT_F7:  case K_ALT_F8:
       case K_ALT_F9:  case K_ALT_F10: case K_ALT_F11: case K_ALT_F12:
-        codeId = (int) aKey - K_ALT_F1 + 1;
+        codeId = (int) aKey - K_ALT_F1 + KEY_ID_F1;
         break;
       case K_SFT_LEFT: case K_CTL_LEFT: case K_ALT_LEFT: case K_LEFT:
-        codeId = 13;
+        codeId = KEY_ID_ArrowLeft;
         break;
       case K_SFT_RIGHT: case K_CTL_RIGHT: case K_ALT_RIGHT: case K_RIGHT:
-        codeId = 14;
+        codeId = KEY_ID_ArrowRight;
         break;
       case K_SFT_UP: case K_CTL_UP: case K_ALT_UP: case K_UP:
-        codeId = 15;
+        codeId = KEY_ID_ArrowUp;
         break;
       case K_SFT_DOWN: case K_CTL_DOWN: case K_ALT_DOWN: case K_DOWN:
-        codeId = 16;
+        codeId = KEY_ID_ArrowDown;
         break;
       case K_SFT_HOME: case K_CTL_HOME: case K_ALT_HOME: case K_HOME:
-        codeId = 17;
+        codeId = KEY_ID_Home;
         break;
       case K_SFT_END: case K_CTL_END: case K_ALT_END: case K_END:
-        codeId = 18;
+        codeId = KEY_ID_End;
         break;
       case K_SFT_PGUP: case K_CTL_PGUP: case K_ALT_PGUP: case K_PGUP:
-        codeId = 19;
+        codeId = KEY_ID_PageUp;
         break;
       case K_SFT_PGDN: case K_CTL_PGDN: case K_ALT_PGDN: case K_PGDN:
-        codeId = 20;
+        codeId = KEY_ID_PageDown;
         break;
       case K_SFT_INS: case K_CTL_INS: case K_ALT_INS: case K_INS:
-        codeId = 21;
+        codeId = KEY_ID_Insert;
         break;
       case K_SFT_DEL: case K_CTL_DEL: case K_ALT_DEL: case K_DEL:
-        codeId = 22;
+        codeId = KEY_ID_Delete;
         break;
       case K_SFT_NL: case K_CTL_NL: case K_ALT_NL: case K_NL:
-        codeId = 23;
+        codeId = KEY_ID_Enter;
         break;
       case K_SFT_BS: case K_CTL_BS: case K_ALT_BS: case K_BS:
-        codeId = 24;
+        codeId = KEY_ID_Backspace;
         break;
       case K_SFT_TAB: case K_CTL_TAB: case K_ALT_TAB: case K_TAB:
-        codeId = 25;
+        codeId = KEY_ID_Tab;
         break;
       case K_SFT_ESC: case K_CTL_ESC: case K_ALT_ESC: case K_ESC:
-        codeId = 26;
+        codeId = KEY_ID_Escape;
         break;
       case K_SFT_MENU: case K_CTL_MENU: case K_ALT_MENU: case K_MENU:
-        codeId = 27;
+        codeId = KEY_ID_ContextMenu;
         break;
       case K_SFT_PRINT: case K_CTL_PRINT: case K_ALT_PRINT: case K_PRINT:
-        codeId = 28;
+        codeId = KEY_ID_PrintScreen;
         break;
       case K_SFT_PAUSE: case K_CTL_PAUSE: case K_ALT_PAUSE: case K_PAUSE:
-        codeId = 29;
+        codeId = KEY_ID_Pause;
         break;
       default:
-        codeId = 0;
+        codeId = KEY_ID_NO_KEY;
         break;
     } /* switch */
     return codeId;
@@ -589,43 +589,43 @@ static int mapKeyToNumpadCodeId (charType aKey)
   /* mapKeyToNumpadCodeId */
     switch (aKey) {
       case K_SFT_INS: case K_CTL_INS: case K_ALT_INS: case K_INS:
-        codeId = 30;
+        codeId = KEY_ID_Numpad0;
         break;
       case K_SFT_END: case K_CTL_END: case K_ALT_END: case K_END:
-        codeId = 31;
+        codeId = KEY_ID_Numpad1;
         break;
       case K_SFT_DOWN: case K_CTL_DOWN: case K_ALT_DOWN: case K_DOWN:
-        codeId = 32;
+        codeId = KEY_ID_Numpad2;
         break;
       case K_SFT_PGDN: case K_CTL_PGDN: case K_ALT_PGDN: case K_PGDN:
-        codeId = 33;
+        codeId = KEY_ID_Numpad3;
         break;
       case K_SFT_LEFT: case K_CTL_LEFT: case K_ALT_LEFT: case K_LEFT:
-        codeId = 34;
+        codeId = KEY_ID_Numpad4;
         break;
       case K_SFT_PAD_CENTER: case K_CTL_PAD_CENTER: case K_ALT_PAD_CENTER: case K_PAD_CENTER:
-        codeId = 35;
+        codeId = KEY_ID_Numpad5;
         break;
       case K_SFT_RIGHT: case K_CTL_RIGHT: case K_ALT_RIGHT: case K_RIGHT:
-        codeId = 36;
+        codeId = KEY_ID_Numpad6;
         break;
       case K_SFT_HOME: case K_CTL_HOME: case K_ALT_HOME: case K_HOME:
-        codeId = 37;
+        codeId = KEY_ID_Numpad7;
         break;
       case K_SFT_UP: case K_CTL_UP: case K_ALT_UP: case K_UP:
-        codeId = 38;
+        codeId = KEY_ID_Numpad8;
         break;
       case K_SFT_PGUP: case K_CTL_PGUP: case K_ALT_PGUP: case K_PGUP:
-        codeId = 39;
+        codeId = KEY_ID_Numpad9;
         break;
       case K_SFT_DEL: case K_CTL_DEL: case K_ALT_DEL: case K_DEL:
-        codeId = 40;
+        codeId = KEY_ID_NumpadDecimal;
         break;
       case K_SFT_NL: case K_CTL_NL: case K_ALT_NL: case K_NL:
-        codeId = 41;
+        codeId = KEY_ID_NumpadEnter;
         break;
       default:
-        codeId = 0;
+        codeId = KEY_ID_NO_KEY;
         break;
     } /* switch */
     return codeId;
@@ -640,58 +640,54 @@ int mapCodeIdToKey (int codeId, boolType shiftKey, boolType ctrlKey,
     int aKey;
 
   /* mapCodeIdToKey */
+    logFunction(printf("mapCodeIdToKey(%d, %d, %d, %d, %d)\n",
+                       codeId, shiftKey, ctrlKey, altKey, keyDown););
     switch (codeId) {
-      case 42:
+      case KEY_ID_ShiftLeft:
         modState.leftShift = keyDown;
-        if (!shiftKey) {
-          modState.rightShift = keyDown;
-        } /* if */
         aKey = K_NONE;
         break;
-      case 43:
+      case KEY_ID_ShiftRight:
         modState.rightShift = keyDown;
-        if (!shiftKey) {
-          modState.leftShift = keyDown;
-        } /* if */
         aKey = K_NONE;
         break;
-      case 44:
+      case KEY_ID_ControlLeft:
         modState.leftControl = keyDown;
         aKey = K_NONE;
         break;
-      case 45:
+      case KEY_ID_ControlRight:
         modState.rightControl = keyDown;
         aKey = K_NONE;
         break;
-      case 46:
+      case KEY_ID_AltLeft:
         modState.leftAlt = keyDown;
         aKey = K_NONE;
         break;
-      case 47:
+      case KEY_ID_AltRight:
         modState.rightAlt = keyDown;
         aKey = K_NONE;
         break;
-      case 48:
+      case KEY_ID_MetaLeft:
         modState.leftSuper = keyDown;
         aKey = K_NONE;
         break;
-      case 49:
+      case KEY_ID_MetaRight:
         modState.rightSuper = keyDown;
         aKey = K_NONE;
         break;
-      case 50:
+      case KEY_ID_AltGraph:
         modState.altGraph = keyDown;
         aKey = K_NONE;
         break;
-      case 51:
+      case KEY_ID_CapsLock:
         modState.capsLock = keyDown;
         aKey = K_NONE;
         break;
-      case 52:
+      case KEY_ID_NumLock:
         modState.numLock = keyDown;
         aKey = K_NONE;
         break;
-      case 53:
+      case KEY_ID_ScrollLock:
         modState.scrollLock = keyDown;
         aKey = K_NONE;
         break;
@@ -699,6 +695,7 @@ int mapCodeIdToKey (int codeId, boolType shiftKey, boolType ctrlKey,
         aKey = mapKeyNameIdToKey(codeId, shiftKey, ctrlKey, altKey, keyDown);
         break;
     } /* switch */
+    logFunction(printf("mapCodeIdToKey --> %d\n", aKey););
     return aKey;
   } /* mapCodeIdToKey */
 
@@ -795,6 +792,8 @@ EMSCRIPTEN_KEEPALIVE int decodeKeydownEvent (int codeId, boolType deadKey,
           pressedKey = key1 - 'a' + K_ALT_A;
         } else if (key1 >= '0' && key1 <= 57) {
           pressedKey = key1 - '0' + K_ALT_0;
+        } else if ((key1 >= ' ' && key1 <= '~') || key1 >= 160) {
+          pressedKey = key1;
         } else {
           pressedKey = K_UNDEF;
         }
@@ -853,6 +852,8 @@ EMSCRIPTEN_KEEPALIVE int decodeKeyupEvent (int codeId, int key1,
           releasedKey = key1 - 'a' + K_ALT_A;
         } else if (key1 >= '0' && key1 <= 57) {
           releasedKey = key1 - '0' + K_ALT_0;
+        } else if ((key1 >= ' ' && key1 <= '~') || key1 >= 160) {
+          releasedKey = key1;
         } else {
           releasedKey = K_UNDEF;
         }
@@ -1728,49 +1729,87 @@ void gkbInitKeyboard (void)
         ["F10",           10],
         ["F11",           11],
         ["F12",           12],
-        ["ArrowLeft",     13],
-        ["ArrowRight",    14],
-        ["ArrowUp",       15],
-        ["ArrowDown",     16],
-        ["Home",          17],
-        ["End",           18],
-        ["PageUp",        19],
-        ["PageDown",      20],
-        ["Insert",        21],
-        ["Delete",        22],
-        ["Enter",         23],
-        ["Backspace",     24],
-        ["Tab",           25],
-        ["Escape",        26],
-        ["ContextMenu",   27],
-        ["PrintScreen",   28],
-        ["Pause",         29],
-        ["Numpad0",       30],
-        ["Numpad1",       31],
-        ["Numpad2",       32],
-        ["Numpad3",       33],
-        ["Numpad4",       34],
-        ["Numpad5",       35],
-        ["Numpad6",       36],
-        ["Numpad7",       37],
-        ["Numpad8",       38],
-        ["Numpad9",       39],
-        ["NumpadDecimal", 40],
-        ["NumpadEnter",   41],
-        ["ShiftLeft",     42],
-        ["ShiftRight",    43],
-        ["ControlLeft",   44],
-        ["ControlRight",  45],
-        ["AltLeft",       46],
-        ["AltRight",      47],
-        ["MetaLeft",      48],
-        ["OSLeft",        48],
-        ["MetaRight",     49],
-        ["OSRight",       49],
-        ["AltGraph",      50],
-        ["CapsLock",      51],
-        ["NumLock",       52],
-        ["ScrollLock",    53]
+        ["F13",           13],
+        ["F14",           14],
+        ["F15",           15],
+        ["F16",           16],
+        ["F17",           17],
+        ["F18",           18],
+        ["F19",           19],
+        ["F20",           20],
+        ["F21",           21],
+        ["F22",           22],
+        ["F23",           23],
+        ["F24",           24],
+        ["ArrowLeft",     25],
+        ["ArrowRight",    26],
+        ["ArrowUp",       27],
+        ["ArrowDown",     28],
+        ["Home",          29],
+        ["End",           30],
+        ["PageUp",        31],
+        ["PageDown",      32],
+        ["Insert",        33],
+        ["Delete",        34],
+        ["Enter",         35],
+        ["Backspace",     36],
+        ["Tab",           37],
+        ["Escape",        38],
+        ["ContextMenu",   39],
+        ["PrintScreen",   40],
+        ["Pause",         41],
+        ["Numpad0",       42],
+        ["Numpad1",       43],
+        ["Numpad2",       44],
+        ["Numpad3",       45],
+        ["Numpad4",       46],
+        ["Numpad5",       47],
+        ["Numpad6",       48],
+        ["Numpad7",       49],
+        ["Numpad8",       50],
+        ["Numpad9",       51],
+        ["NumpadDecimal", 52],
+        ["NumpadEnter",   53],
+        ["KeyA",          54],
+        ["KeyB",          55],
+        ["KeyC",          56],
+        ["KeyD",          57],
+        ["KeyE",          58],
+        ["KeyF",          59],
+        ["KeyG",          60],
+        ["KeyH",          61],
+        ["KeyI",          62],
+        ["KeyJ",          63],
+        ["KeyK",          64],
+        ["KeyL",          65],
+        ["KeyM",          66],
+        ["KeyN",          67],
+        ["KeyO",          68],
+        ["KeyP",          69],
+        ["KeyQ",          70],
+        ["KeyR",          71],
+        ["KeyS",          72],
+        ["KeyT",          73],
+        ["KeyU",          74],
+        ["KeyV",          75],
+        ["KeyW",          76],
+        ["KeyX",          77],
+        ["KeyY",          78],
+        ["KeyZ",          79],
+        ["ShiftLeft",     80],
+        ["ShiftRight",    81],
+        ["ControlLeft",   82],
+        ["ControlRight",  83],
+        ["AltLeft",       84],
+        ["AltRight",      85],
+        ["MetaLeft",      86],
+        ["OSLeft",        86],
+        ["MetaRight",     87],
+        ["OSRight",       87],
+        ["AltGraph",      88],
+        ["CapsLock",      89],
+        ["NumLock",       90],
+        ["ScrollLock",    91]
       ]);
     });
 #if USE_WASM_WORKERS
@@ -1933,12 +1972,12 @@ boolType gkbButtonPressed (charType button)
           } /* if */
           if (!buttonPressed) {
             codeId = mapKeyToCodeId(button);
-            if (codeId != 0) {
+            if (codeId != KEY_ID_NO_KEY) {
               buttonPressed = codeIdPressed[codeId];
             } /* if */
             if (!buttonPressed) {
               codeId = mapKeyToNumpadCodeId(button);
-              if (codeId != 0) {
+              if (codeId != KEY_ID_NO_KEY) {
                 buttonPressed = codeIdPressed[codeId];
               } /* if */
             } /* if */
