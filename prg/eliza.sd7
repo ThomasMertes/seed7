@@ -213,6 +213,7 @@ const proc: main is func
     var string: replaced_stri is "";
     var integer: sentence_num is 0;
     var string: sentence is "";
+    var boolean: shut_program is FALSE;
   begin
     for number range 1 to 25 do
       writeln;
@@ -227,68 +228,74 @@ const proc: main is func
       repeat
         write("? ");
         readln(user_input);
-        user_input := " " & user_input & "  ";
-        (* Lose extraneous input chars *)
-        user_input := replace(user_input, "'", "");
-        if pos(user_input, "shut") <> 0 then
-          writeln("Good-bye!");
-          exit(PROGRAM);
-        end if;
-        if user_input = last_input then
-          writeln("Please don't repeat yourself!");
-        end if;
-      until user_input <> last_input;
-      (* Get keywords *)
-      keyword_num := 0;
-      for number range 1 to length(keyword_table) do
-        keyword_stri := keyword_table[number];
-        if keyword_num = 0 then
-          position := pos(upper(user_input), upper(keyword_stri));
-          if position <> 0 then
-            keyword_num := number;
-            keyword_pos := position;
-            keyword_found := keyword_stri;
+        if eof(IN) then
+          writeln;
+          shut_program := TRUE;
+        else
+          user_input := " " & user_input & "  ";
+          (* Lose extraneous input chars *)
+          user_input := replace(user_input, "'", "");
+          if pos(user_input, "shut") <> 0 then
+            shut_program := TRUE;
+          elsif user_input = last_input then
+            writeln("Please don't repeat yourself!");
           end if;
         end if;
-      end for;
-      if keyword_num = 0 then
-        (* No keywords *)
-        keyword_num := 36;
-      else
-        replaced_stri := " " & user_input[keyword_pos + length(keyword_found) ..] & " ";
-        for number range 1 to length(replace_words) do
-          replace1 := replace_words[number][1];
-          replace2 := replace_words[number][2];
-          for position range 1 to length(replaced_stri) do
-            if replaced_stri[position len length(replace1)] = replace1 then
-              replaced_stri := replaced_stri[.. pred(position)] &
-                  replace2 & replaced_stri[position + length(replace1) ..];
-              position +:= length(replace2);
-            elsif replaced_stri[position len length(replace2)] = replace2 then
-              replaced_stri := replaced_stri[.. pred(position)] &
-                  replace1 & replaced_stri[position + length(replace2) ..];
-              position +:= length(replace1);
+      until user_input <> last_input or shut_program;
+      if not shut_program then
+        (* Get keywords *)
+        keyword_num := 0;
+        for number range 1 to length(keyword_table) do
+          keyword_stri := keyword_table[number];
+          if keyword_num = 0 then
+            position := pos(upper(user_input), upper(keyword_stri));
+            if position <> 0 then
+              keyword_num := number;
+              keyword_pos := position;
+              keyword_found := keyword_stri;
             end if;
-          end for;
+          end if;
         end for;
+        if keyword_num = 0 then
+          (* No keywords *)
+          keyword_num := 36;
+        else
+          replaced_stri := " " & user_input[keyword_pos + length(keyword_found) ..] & " ";
+          for number range 1 to length(replace_words) do
+            replace1 := replace_words[number][1];
+            replace2 := replace_words[number][2];
+            for position range 1 to length(replaced_stri) do
+              if replaced_stri[position len length(replace1)] = replace1 then
+                replaced_stri := replaced_stri[.. pred(position)] &
+                    replace2 & replaced_stri[position + length(replace1) ..];
+                position +:= length(replace2);
+              elsif replaced_stri[position len length(replace2)] = replace2 then
+                replaced_stri := replaced_stri[.. pred(position)] &
+                    replace1 & replaced_stri[position + length(replace2) ..];
+                position +:= length(replace1);
+              end if;
+            end for;
+          end for;
 
-        if replaced_stri[2] = ' ' then
-          replaced_stri := replaced_stri[2 ..];
+          if replaced_stri[2] = ' ' then
+            replaced_stri := replaced_stri[2 ..];
+          end if;
+
+          replaced_stri := replace(replaced_stri, "!", "");
         end if;
-
-        replaced_stri := replace(replaced_stri, "!", "");
+        sentence_num := keyword_assignment[keyword_num];
+        sentence := example_sentence[sentence_num][current_sentence[keyword_num]];
+        incr(current_sentence[keyword_num]);
+        if current_sentence[keyword_num] > length(example_sentence[sentence_num]) then
+          current_sentence[keyword_num] := 1;
+        end if;
+        if sentence[length(sentence)] <> '*' then
+          writeln(sentence);
+        else
+          writeln(sentence[.. pred(length(sentence))] <& replaced_stri);
+        end if;
+        last_input := user_input;
       end if;
-      sentence_num := keyword_assignment[keyword_num];
-      sentence := example_sentence[sentence_num][current_sentence[keyword_num]];
-      incr(current_sentence[keyword_num]);
-      if current_sentence[keyword_num] > length(example_sentence[sentence_num]) then
-        current_sentence[keyword_num] := 1;
-      end if;
-      if sentence[length(sentence)] <> '*' then
-        writeln(sentence);
-      else
-        writeln(sentence[.. pred(length(sentence))] <& replaced_stri);
-      end if;
-      last_input := user_input;
-    until FALSE;
+    until shut_program;
+    writeln("Good-bye!");
   end func;
