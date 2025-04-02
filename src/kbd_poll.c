@@ -626,7 +626,8 @@ static void kbd_init (void)
         erase_ch[0] = (char) term_descr.c_cc[VERASE];
         erase_ch[1] = '\0';
         /* printf("erase_ch %d\n", erase_ch[0]); */
-        term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+        term_descr.c_iflag &= (unsigned int) ~(IXON);
+        term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON | ISIG | IEXTEN);
         term_descr.c_cc[VINTR] = (cc_t) -1;
         term_descr.c_cc[VQUIT] = (cc_t) -1;
         term_descr.c_cc[VSTOP] = (cc_t) -1;
@@ -635,6 +636,9 @@ static void kbd_init (void)
 #endif
 #ifdef VSUSP
         term_descr.c_cc[VSUSP] = (cc_t) -1;
+#endif
+#ifdef VDISCARD
+        term_descr.c_cc[VDISCARD] = (cc_t) -1;
 #endif
         term_descr.c_cc[VMIN] = 1;
         term_descr.c_cc[VTIME] = 0;
