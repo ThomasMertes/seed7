@@ -315,7 +315,9 @@ static charType read_utf8_key (ustriType ustri, size_t ustri_len)
     memSizeType dest_len;
 
   /* read_utf8_key */
-    if (ustri[0] <= 0x7F) {
+    if (ustri[0] <= 0xBF) {
+      /* ustri[0] range 0 to 191           */
+      /* ASCII chars + UTF-8 continuation bytes */
       if (ustri_len == 1) {
         return ustri[0];
       } else { /* ustri_len == 2 */
@@ -323,24 +325,21 @@ static charType read_utf8_key (ustriType ustri, size_t ustri_len)
         key_buffer_filled = TRUE;
         return ustri[0];
       } /* if */
-    } else if ((ustri[0] & 0xE0) == 0xC0) {
+    } else if (ustri[0]  <= 0xDF) {
+      /* ustri[0] range 192 to 223 (leading bits 110.....) */
       len = 2;
-    } else if ((ustri[0] & 0xF0) == 0xE0) {
+    } else if (ustri[0] <= 0xEF) {
+      /* ustri[0] range 224 to 239 (leading bits 1110....) */
       len = 3;
-    } else if ((ustri[0] & 0xF8) == 0xF0) {
+    } else if (ustri[0] <= 0xF7) {
+      /* ustri[0] range 240 to 247 (leading bits 11110...) */
       len = 4;
-    } else if ((ustri[0] & 0xFC) == 0xF8) {
+    } else if (ustri[0] <= 0xFB) {
+      /* ustri[0] range 248 to 251 (leading bits 111110..) */
       len = 5;
-    } else if ((ustri[0] & 0xFC) == 0xFC) {
+    } else { /* if (ustri[0] <= 0xFF) { */
+      /* ustri[0] range 252 to 255 (leading bits 111111..) */
       len = 6;
-    } else {
-      if (ustri_len == 1) {
-        return ustri[0];
-      } else { /* ustri_len == 2 */
-        last_key = ustri[1];
-        key_buffer_filled = TRUE;
-        return ustri[0];
-      } /* if */
     } /* if */
     if (ustri_len == 2 && (ustri[1] & 0xC0) != 0x80) {
       last_key = ustri[1];
