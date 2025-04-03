@@ -477,7 +477,7 @@ const proc: welcome is func
 
 const proc: turn_sound_on is func
   begin (* turn_sound_on *)
-    sound(BLUE[musicindex].freq);
+    noop; # sound(BLUE[musicindex].freq);
   end func; (* turn_sound_on *)
 
 
