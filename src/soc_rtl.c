@@ -1731,6 +1731,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               result = NULL;
             } else {
               result = resized_result;
+              COUNT3_STRI(old_result_size, result_size);
               old_result_size = result_size;
               /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
               memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
@@ -1755,6 +1756,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                   result = NULL;
                 } else {
                   result = resized_result;
+                  COUNT3_STRI(result_size, result_pos);
                   result->size = result_pos;
                   *terminationChar = (charType) EOF;
                 } /* if */
@@ -1791,6 +1793,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               result = NULL;
             } else {
               result = resized_result;
+              COUNT3_STRI(old_result_size, result_size);
               /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
               memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
               result->size = result_size;
