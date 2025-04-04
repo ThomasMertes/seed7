@@ -4,7 +4,7 @@
 # Purpose   : Build the Seed7 system.
 # Created   : Friday, March 28 2025.
 # Author    : Pierre Rouleau
-# Time-stamp: <2025-03-28 17:44:46 EDT, updated by Pierre Rouleau>
+# Time-stamp: <2025-04-04 08:57:53 EDT, updated by Pierre Rouleau>
 # ----------------------------------------------------------------------------
 # Module Description
 # ------------------
@@ -46,8 +46,8 @@ print_usage()
  • Build Seed7.
 
    Options:
-        -c | --no-clean: build only.  Do not run tests, which are
-                        executed by default.
+        -c | --no-clean: build without first performing a make clean,
+                         which would otherwise be done.
         -t | --no-test: build only.  Do not run tests, which are
                         executed by default.
         -n |  --dry-run: only show what make would execute, without
