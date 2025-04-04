@@ -311,6 +311,7 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
           stri->size--;
         } /* while */
         numerator = bigParse(stri);
+        stri->size = savedSize;
         if (numerator != NULL) {
           if (scale == 0) {
             *denominator = bigFromInt32(1);
@@ -318,7 +319,7 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
             *denominator = bigIPowSignedDigit(10, (intType) scale);
           } /* if */
         } /* if */
-        FREE_STRI(stri, savedSize);
+        FREE_STRI(stri, stri->size);
       } /* if */
     } /* if */
     logFunction(printf("roundDoubleToBigRat --> %s",
