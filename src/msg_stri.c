@@ -80,7 +80,7 @@ void appendString (striType *const msg, const const_striType stri)
                  printf("\"%s\"): "
                         "Number of bytes does not fit into memSizeType.\n",
                         striAsUnquotedCStri(stri)););
-        FREE_STRI(msg_dest, msg_dest->size);
+        FREE_STRI(msg_dest);
         *msg = NULL;
       } else {
         new_size = msg_dest->size + stri_size;
@@ -92,7 +92,7 @@ void appendString (striType *const msg, const const_striType stri)
                             striAsUnquotedCStri(msg_dest));
                      printf("\"%s\"): growStri() failed.\n",
                             striAsUnquotedCStri(stri)););
-            FREE_STRI(msg_dest, msg_dest->size);
+            FREE_STRI(msg_dest);
             *msg = NULL;
             return;
           } else {
@@ -111,7 +111,7 @@ void appendString (striType *const msg, const const_striType stri)
                           striAsUnquotedCStri(msg_dest));
                    printf("\"%s\"): GROW_STRI() failed.\n",
                           striAsUnquotedCStri(stri)););
-          FREE_STRI(msg_dest, msg_dest->size);
+          FREE_STRI(msg_dest);
           *msg = NULL;
         } else {
           COUNT_GROW_STRI(new_msg->size, new_size);
@@ -148,7 +148,7 @@ void appendChar (striType *const msg, const charType aChar)
           logError(printf("appendChar(\"%s\", '\\" FMT_U32 ";'): "
                           "growStri() failed.\n",
                           striAsUnquotedCStri(msg_dest), aChar););
-          FREE_STRI(msg_dest, msg_dest->size);
+          FREE_STRI(msg_dest);
           *msg = NULL;
           return;
         } else {
@@ -164,7 +164,7 @@ void appendChar (striType *const msg, const charType aChar)
         logError(printf("appendChar(\"%s\", '\\" FMT_U32 ";'): "
                         "GROW_STRI() failed.\n",
                         striAsUnquotedCStri(msg_dest), aChar););
-        FREE_STRI(msg_dest, msg_dest->size);
+        FREE_STRI(msg_dest);
         *msg = NULL;
       } else {
         COUNT_GROW_STRI(msg_dest->size, new_size);
@@ -194,11 +194,11 @@ void appendCStri (striType *const msg, const const_cstriType cstri)
         logError(printf("appendCStri(\"%s\", \"%s\"): "
                         "cstri_to_stri() failed.\n",
                         striAsUnquotedCStri(*msg), cstri););
-        FREE_STRI(*msg, (*msg)->size);
+        FREE_STRI(*msg);
         *msg = NULL;
       } else {
         appendString(msg, stri);
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
       } /* if */
     } /* if */
     logFunction(printf("appendCStri(\"%s\", \"%s\") -->\n",
@@ -220,7 +220,7 @@ void appendCStri8 (striType *const msg, const const_cstriType cstri8)
       stri = cstri8_to_stri(cstri8, &err_info);
       if (stri != NULL) {
         appendString(msg, stri);
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
       } else {
         appendCStri(msg, cstri8);
       } /* if */
@@ -297,11 +297,11 @@ void appendBigInt (striType *const msg, const const_bigIntType number)
         logError(printf("appendBigInt(\"%s\", %s): "
                         "bigStrDecimal() failed.\n",
                         striAsUnquotedCStri(*msg), bigHexCStri(number)););
-        FREE_STRI(*msg, (*msg)->size);
+        FREE_STRI(*msg);
         *msg = NULL;
       } else {
         appendString(msg, stri);
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
       } /* if */
     } /* if */
     logFunction(printf("appendBigInt(\"%s\", %s) -->\n",

@@ -929,7 +929,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
               } /* if */
               REALLOC_STRI_SIZE_SMALLER(resized_result, result, chars_requested, result_size);
               if (unlikely(resized_result == NULL)) {
-                FREE_STRI(result, chars_requested);
+                FREE_STRI2(result, chars_requested);
                 logError(printf("socGets(%d, " FMT_D ", *): "
                                 "Out of memory when allocating result.\n",
                                 inSocket, length););
@@ -1725,7 +1725,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                 (unsigned long) result, (unsigned long) resized_result); */
             if (unlikely(resized_result == NULL)) {
               if (result != NULL) {
-                FREE_STRI(result, old_result_size);
+                FREE_STRI2(result, old_result_size);
               } /* if */
               raise_error(MEMORY_ERROR);
               result = NULL;
@@ -1751,7 +1751,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               if (bytes_received == 0) {
                 REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_pos);
                 if (unlikely(resized_result == NULL)) {
-                  FREE_STRI(result, result_size);
+                  FREE_STRI2(result, result_size);
                   raise_error(MEMORY_ERROR);
                   result = NULL;
                 } else {
@@ -1788,7 +1788,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
             /* printf("D result=%08lx, resized_result=%08lx\n",
                 (unsigned long) result, (unsigned long) resized_result); */
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, result_size);
+              FREE_STRI2(result, result_size);
               raise_error(MEMORY_ERROR);
               result = NULL;
             } else {
@@ -2225,7 +2225,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
+            FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -2244,7 +2244,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
       } /* if */
       REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, memlength);
+        FREE_STRI2(result, memlength);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {

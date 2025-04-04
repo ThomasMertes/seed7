@@ -107,7 +107,7 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
         logMessage(printf("already included: \"%s\"\n",
                           striAsUnquotedCStri(absolutePath)););
         includeResult = INCLUDE_ALREADY;
-        FREE_STRI(absolutePath, absolutePath->size);
+        FREE_STRI(absolutePath);
       } else if (openInfile(includeFileName, absolutePath,
                             prog->fileCounter + 1, prog->fileList,
                             in_file.write_library_names,
@@ -121,7 +121,7 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
                 &genericCreate, &genericCpy);
         includeResult = INCLUDE_SUCCESS;
       } else {
-        FREE_STRI(absolutePath, absolutePath->size);
+        FREE_STRI(absolutePath);
       } /* if */
     } /* if */
     logFunction(printf("openIncludeFile --> %d (err_info=%d)\n",
@@ -185,7 +185,7 @@ includeResultType findIncludeFile (const rtlHashType includeFileHash,
                 memcpy(&stri->mem[curr_path->size], includeFileName->mem,
                     (size_t) includeFileName->size * sizeof(strElemType));
                 includeResult = openIncludeFile(includeFileHash, stri, err_info);
-                FREE_STRI(stri, length);
+                FREE_STRI2(stri, length);
               } /* if */
             } /* if */
           } /* if */
@@ -249,7 +249,7 @@ void appendToLibPath (const_striType path, errInfoType *err_info)
       max_position = lib_path->max_position;
       if (unlikely(!REALLOC_RTL_ARRAY(resized_lib_path, lib_path,
           (memSizeType) (max_position + 1)))) {
-        FREE_STRI(stri, stri_len);
+        FREE_STRI2(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
         lib_path = resized_lib_path;
@@ -316,7 +316,7 @@ void initLibPath (const_striType sourceFileName,
         path->size = dir_path_size;
         memcpy(path->mem, sourceFileName->mem, dir_path_size * sizeof(strElemType));
         appendToLibPath(path, err_info);
-        FREE_STRI(path, path->size);
+        FREE_STRI(path);
       } /* if */
 
       /* Add the libraries from the commandline to the lib_path */
@@ -334,7 +334,7 @@ void initLibPath (const_striType sourceFileName,
         *err_info = MEMORY_ERROR;
       } else {
         appendToLibPath(path, err_info);
-        FREE_STRI(path, path->size);
+        FREE_STRI(path);
       } /* if */
 
       /* Add the SEED7_LIBRARY environment variable to the lib_path */
@@ -344,7 +344,7 @@ void initLibPath (const_striType sourceFileName,
         os_getenv_string_free(library_environment_variable);
         if (path != NULL) {
           appendToLibPath(path, err_info);
-          FREE_STRI(path, path->size);
+          FREE_STRI(path);
         } /* if */
       } /* if */
 
@@ -367,7 +367,7 @@ void freeLibPath (void)
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.striValue;
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
     } /* for */
     FREE_RTL_ARRAY(lib_path, length);
     lib_path = NULL;

@@ -647,14 +647,14 @@ striType ut8Gets (fileType inFile, intType length)
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         if (result != NULL) {
-          FREE_STRI(result, result->size);
+          FREE_STRI(result);
         } /* if */
         raise_error(err_info);
         result = NULL;
       } else if (num_of_chars_read < result->size) {
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, result->size);
+          FREE_STRI(result);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -761,7 +761,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
           } else {
             if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
               FREE_BSTRI(buffer, memlength);
-              FREE_STRI(result, position);
+              FREE_STRI2(result, position);
               logError(printf("ut8LineRead(%d, '\\" FMT_U32 ";'): "
                               "The file contains an invalid encoding.\n",
                               safe_fileno(cInFile), *terminationChar););
@@ -771,7 +771,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
               FREE_BSTRI(buffer, memlength);
               REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
               if (unlikely(resized_result == NULL)) {
-                FREE_STRI(result, position);
+                FREE_STRI2(result, position);
                 raise_error(MEMORY_ERROR);
                 result = NULL;
               } else {
@@ -974,7 +974,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
           } else {
             if (unlikely(utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0)) {
               FREE_BSTRI(buffer, memlength);
-              FREE_STRI(result, position);
+              FREE_STRI2(result, position);
               logError(printf("ut8WordRead(%d, '\\" FMT_U32 ";'): "
                               "The file contains an invalid encoding.\n",
                               safe_fileno(cInFile), *terminationChar););
@@ -984,7 +984,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
               FREE_BSTRI(buffer, memlength);
               REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
               if (unlikely(resized_result == NULL)) {
-                FREE_STRI(result, position);
+                FREE_STRI2(result, position);
                 raise_error(MEMORY_ERROR);
                 result = NULL;
               } else {

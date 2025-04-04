@@ -1459,7 +1459,7 @@ striType filGets (fileType inFile, intType length)
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         if (result != NULL) {
-          FREE_STRI(result, result->size);
+          FREE_STRI(result);
         } /* if */
         raise_error(err_info);
         result = NULL;
@@ -1654,7 +1654,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
             REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, memlength);
+              FREE_STRI2(result, memlength);
               funlockfile(cInFile);
               raise_error(MEMORY_ERROR);
               return NULL;
@@ -1671,7 +1671,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
           position--;
         } /* if */
         if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
-          FREE_STRI(result, memlength);
+          FREE_STRI2(result, memlength);
           logError(printf("filLineRead(%d, '\\" FMT_U32 ";'): "
                           "getc_unlocked(%d) failed:\n"
                           "errno=%d\nerror: %s\n",
@@ -1682,7 +1682,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
         } else {
           REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
+            FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
@@ -2439,7 +2439,7 @@ striType filTerminatedRead (fileType inFile, charType terminator,
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
             REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, memlength);
+              FREE_STRI2(result, memlength);
               funlockfile(cInFile);
               raise_error(MEMORY_ERROR);
               return NULL;
@@ -2453,7 +2453,7 @@ striType filTerminatedRead (fileType inFile, charType terminator,
         } /* while */
         funlockfile(cInFile);
         if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
-          FREE_STRI(result, memlength);
+          FREE_STRI2(result, memlength);
           logError(printf("filTerminatedRead(%d, '\\" FMT_U32 ";', '\\" FMT_U32 ";'): "
                           "getc_unlocked(%d) failed:\n"
                           "errno=%d\nerror: %s\n",
@@ -2464,7 +2464,7 @@ striType filTerminatedRead (fileType inFile, charType terminator,
         } else {
           REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
+            FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
@@ -2623,7 +2623,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
             REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, memlength);
+              FREE_STRI2(result, memlength);
               funlockfile(cInFile);
               raise_error(MEMORY_ERROR);
               return NULL;
@@ -2641,7 +2641,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
           position--;
         } /* if */
         if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
-          FREE_STRI(result, memlength);
+          FREE_STRI2(result, memlength);
           logError(printf("filWordRead(%d, '\\" FMT_U32 ";'): "
                           "getc_unlocked(%d) failed:\n"
                           "errno=%d\nerror: %s\n",
@@ -2652,7 +2652,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
         } else {
           REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
+            FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {

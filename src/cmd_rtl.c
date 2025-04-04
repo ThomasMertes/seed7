@@ -905,7 +905,7 @@ static rtlArrayType addStriToRtlArray (const striType stri,
       if (unlikely(max_position > (intType) (MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA) ||
           !REALLOC_RTL_ARRAY(resized_work_array, work_array,
               (uintType) max_position + ARRAY_SIZE_DELTA))) {
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
         freeRtlStriArray(work_array, used_max_position);
         work_array = NULL;
       } else {
@@ -978,7 +978,7 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
           } while (nameStri != NULL && dir_array != NULL);
         } /* if */
         if (unlikely(nameStri != NULL)) {
-          FREE_STRI(nameStri, nameStri->size);
+          FREE_STRI(nameStri);
         } /* if */
         dir_array = completeRtlStriArray(dir_array, used_max_position);
         if (unlikely(dir_array == NULL)) {
@@ -1073,7 +1073,7 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
         memcpy(&stri->mem[name->size + 1], value->mem,
             value->size * sizeof(strElemType));
         env_stri = stri_to_os_stri(stri, err_info);
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
         if (likely(env_stri != NULL)) {
           putenv_result = os_putenv(env_stri);
           if (unlikely(putenv_result != 0)) {
@@ -1269,9 +1269,9 @@ static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
           *err_info = MEMORY_ERROR;
         } else {
           setEnvironmentVariable(pathVariableName, pathStri, err_info);
-          FREE_STRI(pathVariableName, pathVariableName->size);
+          FREE_STRI(pathVariableName);
         } /* if */
-        FREE_STRI(pathStri, pathStri->size);
+        FREE_STRI(pathStri);
       } /* if */
     } /* if */
     logFunction(printf("setSearchPath --> (err_info=%d)\n",
@@ -1483,17 +1483,17 @@ static striType readLinkAbsolute (const const_striType filePath, errInfoType *er
         absoluteDestination = straightenAbsolutePath(destination);
         if (unlikely(absoluteDestination == NULL)) {
           *err_info = MEMORY_ERROR;
-          FREE_STRI(destination, destination->size);
+          FREE_STRI(destination);
           destination = NULL;
         } else {
-          FREE_STRI(destination, destination->size);
+          FREE_STRI(destination);
           destination = absoluteDestination;
         } /* if */
       } else {
         absolutePath = getAbsolutePath(filePath);
         if (unlikely(absolutePath == NULL)) {
           *err_info = MEMORY_ERROR;
-          FREE_STRI(destination, destination->size);
+          FREE_STRI(destination);
           destination = NULL;
         } else {
           pathLength = strRChPos(absolutePath, '/');
@@ -1502,8 +1502,8 @@ static striType readLinkAbsolute (const const_striType filePath, errInfoType *er
           } /* if */
           absolutePath = strHeadAssign(absolutePath, pathLength);
           absoluteDestination = concatPath(absolutePath, destination);
-          FREE_STRI(absolutePath, absolutePath->size);
-          FREE_STRI(destination, destination->size);
+          FREE_STRI(absolutePath);
+          FREE_STRI(destination);
           destination = absoluteDestination;
         } /* if */
       } /* if */
@@ -1532,13 +1532,13 @@ striType followLink (striType startPath, errInfoType *err_info)
              number_of_links_followed != 0) {
         helpPath = path;
         path = readLinkAbsolute(helpPath, err_info);
-        FREE_STRI(helpPath, helpPath->size);
+        FREE_STRI(helpPath);
         number_of_links_followed--;
       } /* while */
       if (path == NULL || number_of_links_followed != 0) {
-        FREE_STRI(startPath, startPath->size);
+        FREE_STRI(startPath);
       } else {
-        FREE_STRI(path, path->size);
+        FREE_STRI(path);
         path = startPath;
       } /* if */
     } else {
@@ -1819,7 +1819,7 @@ striType getAbsolutePath (const const_striType aPath)
         absolutePath = NULL;
       } else {
         absolutePath = concatPath(cwd, aPath);
-        FREE_STRI(cwd, cwd->size);
+        FREE_STRI(cwd);
       } /* if */
     } /* if */
     logFunction(printf("getAbsolutePath --> \"%s\"\n",
@@ -4461,14 +4461,14 @@ striType cmdShellEscape (const const_striType stri)
         } /* switch */
       } /* for */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
+        FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
         raise_error(err_info);
         result = NULL;
       } else {
         REALLOC_STRI_SIZE_SMALLER(resized_result, result,
             escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
+          FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -4576,7 +4576,7 @@ striType cmdShellEscape (const const_striType stri)
         } /* switch */
       } /* for */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
+        FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
         raise_error(err_info);
         result = NULL;
       } else {
@@ -4605,7 +4605,7 @@ striType cmdShellEscape (const const_striType stri)
         REALLOC_STRI_SIZE_SMALLER(resized_result, result,
             escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
+          FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -4808,7 +4808,7 @@ void cmdUnsetenv (const const_striType name)
             name->size * sizeof(strElemType));
         stri->mem[name->size] = (strElemType) '=';
         env_stri = stri_to_os_stri(stri, &err_info);
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
         if (likely(env_stri != NULL)) {
           /* printf("os_putenv(\"" FMT_S_OS "\")\n", env_stri); */
           putenv_result = os_putenv(env_stri);

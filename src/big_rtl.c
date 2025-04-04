@@ -1476,7 +1476,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
                  (size_t) big1->size * sizeof(bigDigitType));
         } /* if */
         if (unlikely(unsigned_big == NULL)) {
-          FREE_STRI(result, result_size);
+          FREE_STRI2(result, result_size);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -1500,7 +1500,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           if (final_result_size < result_size) {
             REALLOC_STRI_SIZE_SMALLER(resized_result, result, result_size, final_result_size);
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, result_size);
+              FREE_STRI2(result, result_size);
               raise_error(MEMORY_ERROR);
               result = NULL;
             } else {
@@ -7135,7 +7135,7 @@ striType bigStrDecimal (const const_bigIntType big1)
                  (size_t) big1->size * sizeof(bigDigitType));
         } /* if */
         if (unlikely(unsigned_big == NULL)) {
-          FREE_STRI(result, result_size);
+          FREE_STRI2(result, result_size);
           result = NULL;
         } else {
           /* pos = basicToStri(unsigned_big, result, result_size - 1); */
@@ -7158,7 +7158,7 @@ striType bigStrDecimal (const const_bigIntType big1)
           if (final_result_size < result_size) {
             REALLOC_STRI_SIZE_SMALLER(resized_result, result, result_size, final_result_size);
             if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, result_size);
+              FREE_STRI2(result, result_size);
               result = NULL;
             } else {
               result = resized_result;

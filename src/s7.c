@@ -225,7 +225,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 traceLevel->mem[0] = 'a';
                 traceLevel->size = 1;
                 mapTraceFlags(traceLevel, &option->parserOptions);
-                FREE_STRI(traceLevel, 1);
+                FREE_STRI2(traceLevel, 1);
               } /* if */
               break;
             case 'h':
@@ -238,7 +238,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
             case 'p':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
-                FREE_STRI(opt, opt->size);
+                FREE_STRI(opt);
                 position++;
                 opt = arg_v->arr[position].value.striValue;
                 option->protFileName = stri_to_standard_path(opt);
@@ -257,7 +257,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 traceLevel->mem[0] = 'a';
                 traceLevel->size = 1;
                 mapTraceFlags(traceLevel, &option->execOptions);
-                FREE_STRI(traceLevel, 1);
+                FREE_STRI2(traceLevel, 1);
               } /* if */
               break;
             case 'v':
@@ -269,7 +269,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
             case 'l':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
-                FREE_STRI(opt, opt->size);
+                FREE_STRI(opt);
                 position++;
                 opt = arg_v->arr[position].value.striValue;
                 pathObj.value.striValue = stri_to_standard_path(opt);
@@ -298,7 +298,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                        (opt->size - 2) * sizeof(strElemType));
                 traceLevel->size = opt->size - 2;
                 mapTraceFlags(traceLevel, &option->parserOptions);
-                FREE_STRI(traceLevel, 1);
+                FREE_STRI2(traceLevel, 1);
               } /* if */
               break;
             case 't':
@@ -307,7 +307,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                        (opt->size - 2) * sizeof(strElemType));
                 traceLevel->size = opt->size - 2;
                 mapTraceFlags(traceLevel, &option->execOptions);
-                FREE_STRI(traceLevel, 1);
+                FREE_STRI2(traceLevel, 1);
               } /* if */
               break;
             case 'v':
@@ -334,7 +334,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
         } /* if */
         if (opt != NULL) {
           arg_v->arr[position].value.striValue = NULL;
-          FREE_STRI(opt, opt->size);
+          FREE_STRI(opt);
         } /* if */
       } else {
         if (option->argv == NULL) {
@@ -458,7 +458,7 @@ int main (int argc, char **argv)
                   printf("\nMessage from the DATABASE_ERROR exception:\n");
                   conWrite(message);
                   printf("\n");
-                  FREE_STRI(message, message->size);
+                  FREE_STRI(message);
                 } /* if */
               } /* if */
             } /* if */

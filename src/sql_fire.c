@@ -1190,7 +1190,7 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
         logError(printf("getBlobAsStri: isc_close_blob() error:\n%s\n",
                         dbError.message););
         *err_info = DATABASE_ERROR;
-        FREE_STRI(stri, blobLength);
+        FREE_STRI2(stri, blobLength);
         stri = NULL;
       } /* if */
     } /* if */
@@ -1252,7 +1252,7 @@ static striType getClob (preparedStmtType preparedStmt,
         logError(printf("getClob: isc_close_blob() error:\n%s\n",
                         dbError.message););
         *err_info = DATABASE_ERROR;
-        FREE_STRI(stri, blobLength);
+        FREE_STRI2(stri, blobLength);
         stri = NULL;
       } /* if */
     } /* if */
@@ -1410,7 +1410,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                 memset(&sqlvar->sqldata[decimalNumber->size], ' ',
                     (memSizeType) sqlvar->sqllen - decimalNumber->size);
               } /* if */
-              FREE_STRI(decimalNumber, decimalNumber->size);
+              FREE_STRI(decimalNumber);
             } /* if */
             break;
           case SQL_VARYING:
@@ -1434,7 +1434,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                 memset(&sqlvar->sqldata[sizeof(uint16Type) + decimalNumber->size],
                     '\0', (memSizeType) sqlvar->sqllen - decimalNumber->size);
               } /* if */
-              FREE_STRI(decimalNumber, decimalNumber->size);
+              FREE_STRI(decimalNumber);
             } /* if */
             break;
           default:

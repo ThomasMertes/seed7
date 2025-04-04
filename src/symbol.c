@@ -135,7 +135,7 @@ void close_symbol (void)
     bigDestr(symbol.bigIntValue);
     symbol.bigIntValue = NULL;
     if (symbol.striValue != NULL) {
-      FREE_STRI(symbol.striValue, symbol.stri_max);
+      FREE_STRI2(symbol.striValue, symbol.stri_max);
       symbol.striValue = NULL;
     } /* if */
     symbol.stri_max = 0;

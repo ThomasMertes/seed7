@@ -1299,7 +1299,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           if (varNum > MAX_BIND_VAR_NUM) {
             logError(printf("processStatementStri: Too many variables\n"););
             *err_info = RANGE_ERROR;
-            FREE_STRI(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+            FREE_STRI2(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
             processed = NULL;
           } else {
             processed->mem[destPos++] = ':';
@@ -2095,7 +2095,7 @@ static striType getRowid (preparedStmtType preparedStmt,
       logError(printf("getRowid: OCIRowidToChar:\n%s\n",
                       dbError.message););
       *err_info = DATABASE_ERROR;
-      FREE_STRI(stri, length);
+      FREE_STRI2(stri, length);
       stri = NULL;
     } else {
       stri->size = length;
@@ -2126,7 +2126,7 @@ static striType getRef (preparedStmtType preparedStmt, OCIRef *ref,
       logError(printf("getRef: OCIRefToHex:\n%s\n",
                       dbError.message););
       *err_info = DATABASE_ERROR;
-      FREE_STRI(stri, length);
+      FREE_STRI2(stri, length);
       stri = NULL;
     } else {
       stri->size = length;
@@ -2237,7 +2237,7 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
         logError(printf("getBlobAsStri: OCILobRead2:\n%s\n",
                         dbError.message););
         *err_info = DATABASE_ERROR;
-        FREE_STRI(stri, (memSizeType) lobLength);
+        FREE_STRI2(stri, (memSizeType) lobLength);
         stri = NULL;
       } else {
         memcpy_to_strelem(stri->mem, (ustriType) stri->mem, (memSizeType) lobLength);
@@ -2341,7 +2341,7 @@ static int setBigInt (void *const buffer, const const_bigIntType bigIntValue,
       *err_info = MEMORY_ERROR;
     } else {
       length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, 0, err_info);
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
     } /* if */
     return length;
   } /* setBigInt */
@@ -2385,7 +2385,7 @@ static int setBigRat (void *const buffer, const const_bigIntType numerator,
           *err_info = MEMORY_ERROR;
         } else {
           length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, 128, err_info);
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
         } /* if */
         bigDestr(mantissaValue);
       } /* if */
@@ -2497,7 +2497,7 @@ static int setFloat (void *const buffer, const floatType floatValue,
         } else {
           length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, (int) scale, err_info);
         } /* if */
-        FREE_STRI(stri, savedSize);
+        FREE_STRI2(stri, savedSize);
       } /* if */
     } /* if */
     logFunction(printf("setFloat --> ");
@@ -4386,7 +4386,7 @@ static sqlStmtType sqlPrepare (databaseType database,
         } /* if */
         free_cstri8(query, statementStri);
       } /* if */
-      FREE_STRI(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+      FREE_STRI2(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

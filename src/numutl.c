@@ -319,7 +319,7 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
             *denominator = bigIPowSignedDigit(10, (intType) scale);
           } /* if */
         } /* if */
-        FREE_STRI(stri, stri->size);
+        FREE_STRI(stri);
       } /* if */
     } /* if */
     logFunction(printf("roundDoubleToBigRat --> %s",
@@ -484,7 +484,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
          printf("\n"); */
       if (unlikely(!okay)) {
         logError(printf("getDecimalBigRational: Decimal literal illegal.\n"););
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         *denominator = NULL;
         raise_error(RANGE_ERROR);
         numerator = NULL;
@@ -497,7 +497,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
         } /* if */
         /* printf("scale: " FMT_U_MEM "\n", scale); */
         numerator = bigParse(stri);
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         if (numerator != NULL) {
           if (unlikely(scale > INTTYPE_MAX)) {
             *denominator = NULL;
@@ -577,7 +577,7 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
       *err_info = MEMORY_ERROR;
       decimal = NULL;
     } else if (unlikely(!ALLOC_USTRI(decimal, stri->size))) {
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
       *err_info = MEMORY_ERROR;
     } else {
       for (idx = 0; idx < stri->size; idx++) {
@@ -586,7 +586,7 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
       decimal[idx] = '\0';
       /* printf("decimal: %s\n", decimal); */
       *length = stri->size;
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
     } /* if */
     logFunction(printf("bigIntToDecimal --> %s (length=" FMT_U_MEM ", err_info=%d)\n",
                        decimal == NULL ? "NULL" : (char *) decimal,
@@ -697,7 +697,7 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
               decimal[destIndex] = '\0';
               *length = destIndex;
             } /* if */
-            FREE_STRI(stri, stri->size);
+            FREE_STRI(stri);
           } /* if */
         } /* if */
         bigDestr(mantissaValue);

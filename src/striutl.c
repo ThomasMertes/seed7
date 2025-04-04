@@ -1528,7 +1528,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (unlikely(resized_stri == NULL)) {
-          FREE_STRI(stri, length);
+          FREE_STRI2(stri, length);
           stri = NULL;
         } else {
           stri = resized_stri;
@@ -1684,7 +1684,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
           stri->mem[pos] = map_from_858[(unsigned char) os_stri[pos]];
         } /* for */
       } else {
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         stri = NULL;
       } /* if */
     } /* if */
@@ -1722,7 +1722,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
         if (stri_size != length) {
           REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
           if (unlikely(resized_stri == NULL)) {
-            FREE_STRI(stri, length);
+            FREE_STRI2(stri, length);
             stri = NULL;
           } else {
             stri = resized_stri;
@@ -2167,7 +2167,7 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
         if (stri_size != length) {
           REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
           if (unlikely(resized_stri == NULL)) {
-            FREE_STRI(stri, length);
+            FREE_STRI2(stri, length);
             *err_info = MEMORY_ERROR;
             stri = NULL;
           } else {
@@ -2176,7 +2176,7 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
           } /* if */
         } /* if */
       } else {
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         *err_info = RANGE_ERROR;
         stri = NULL;
       } /* if */
@@ -2215,7 +2215,7 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
         if (stri_size != length) {
           REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
           if (unlikely(resized_stri == NULL)) {
-            FREE_STRI(stri, length);
+            FREE_STRI2(stri, length);
             *err_info = MEMORY_ERROR;
             stri = NULL;
           } else {
@@ -2224,7 +2224,7 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
           } /* if */
         } /* if */
       } else {
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         *err_info = RANGE_ERROR;
         stri = NULL;
       } /* if */
@@ -2284,7 +2284,7 @@ striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (unlikely(resized_stri == NULL)) {
-          FREE_STRI(stri, length);
+          FREE_STRI2(stri, length);
           *err_info = MEMORY_ERROR;
           stri = NULL;
         } else {
@@ -2425,7 +2425,7 @@ striType stri_to_standard_path (const striType stri)
               stdPath->mem[2] = (strElemType) '/';
               memcpy(&stdPath->mem[3], &stri->mem[2],
                      (pathLength - 2) * sizeof(strElemType));
-              FREE_STRI(stri, pathLength);
+              FREE_STRI2(stri, pathLength);
               pathLength++;
               stdPath->size = pathLength;
             } /* if */
@@ -2462,7 +2462,7 @@ striType stri_to_standard_path (const striType stri)
           stdPathSize = stdPath->size;
           REALLOC_STRI_SIZE_SMALLER(resized_stdPath, stdPath, pathLength, stdPathSize);
           if (unlikely(resized_stdPath == NULL)) {
-            FREE_STRI(stdPath, pathLength);
+            FREE_STRI2(stdPath, pathLength);
             stdPath = NULL;
           } else {
             stdPath = resized_stdPath;

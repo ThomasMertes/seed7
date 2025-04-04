@@ -733,7 +733,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           if (varNum > MAX_BIND_VAR_NUM) {
             logError(printf("processStatementStri: Too many variables\n"););
             *err_info = RANGE_ERROR;
-            FREE_STRI(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+            FREE_STRI2(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
             processed = NULL;
           } else {
             processed->mem[destPos++] = '$';
@@ -3424,7 +3424,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           } /* if */
           free_cstri8(query, statementStri);
         } /* if */
-        FREE_STRI(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+        FREE_STRI2(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

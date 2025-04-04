@@ -384,7 +384,7 @@ static void freeStmtParts (striType *stmtPartArray, memSizeType partArraySize)
 
   /* freeStmtParts */
     for (pos = 0; pos < partArraySize; pos++) {
-      FREE_STRI(stmtPartArray[pos], stmtPartArray[pos]->size);
+      FREE_STRI(stmtPartArray[pos]);
     } /* for */
   } /* freeStmtParts */
 
@@ -614,7 +614,7 @@ static striType *processStatementStri (const const_striType sqlStatementStri,
           *err_info = MEMORY_ERROR;
         } /* if */
       } /* if */
-      FREE_STRI(processed, sqlStatementStri->size);
+      FREE_STRI2(processed, sqlStatementStri->size);
       *numBindParameters = partIndex;
     } /* if */
     logFunction(printf("processStatementStri(\"%s\", " FMT_U_MEM ", %d) --> ",
@@ -1240,7 +1240,7 @@ static striType genSqlStringLiteral (const const_striType stri)
       REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
           QUOTE_IN_STRING_LEN * striSize + numOfQuotes, pos);
       if (unlikely(resized_literal == NULL)) {
-        FREE_STRI(literal, QUOTE_IN_STRING_LEN * striSize + numOfQuotes);
+        FREE_STRI2(literal, QUOTE_IN_STRING_LEN * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         literal = NULL;
       } else {
@@ -2391,7 +2391,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
         } /* if */
         free_cstri8(query, boundStatement);
       } /* if */
-      FREE_STRI(boundStatement, boundStatement->size);
+      FREE_STRI(boundStatement);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } /* if */

@@ -91,8 +91,7 @@ static void freeStriArray (arrayType work_array, intType used_max_position)
 
   /* freeStriArray */
     for (position = 0; position < (uintType) used_max_position; position++) {
-      FREE_STRI(work_array->arr[position].value.striValue,
-                work_array->arr[position].value.striValue->size);
+      FREE_STRI(work_array->arr[position].value.striValue);
     } /* for */
     FREE_ARRAY(work_array, (uintType) work_array->max_position);
   } /* freeStriArray */
@@ -116,7 +115,7 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
         if (unlikely(max_position > (intType) (MAX_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
             !REALLOC_ARRAY(resized_work_array, work_array,
                 (uintType) max_position * ARRAY_SIZE_FACTOR))) {
-          FREE_STRI(new_stri, new_stri->size);
+          FREE_STRI(new_stri);
           freeStriArray(work_array, used_max_position);
           work_array = NULL;
         } else {
@@ -523,7 +522,7 @@ objectType str_cpy (listType arguments)
     is_variable(dest);
     stri_dest = take_stri(dest);
     if (TEMP_OBJECT(source)) {
-      FREE_STRI(stri_dest, stri_dest->size);
+      FREE_STRI(stri_dest);
       dest->value.striValue = take_stri(source);
       source->value.striValue = NULL;
     } else {
@@ -541,7 +540,7 @@ objectType str_cpy (listType arguments)
         if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          FREE_STRI(take_stri(dest), take_stri(dest)->size);
+          FREE_STRI(take_stri(dest));
           dest->value.striValue = stri_dest;
           stri_dest->size = new_size;
         } /* if */
@@ -616,7 +615,7 @@ objectType str_destr (listType arguments)
     logFunction(printf("str_destr(\"%s\")\n",
                        striAsUnquotedCStri(old_string)););
     if (old_string != NULL) {
-      FREE_STRI(old_string, old_string->size);
+      FREE_STRI(old_string);
       arg_1(arguments)->value.striValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));

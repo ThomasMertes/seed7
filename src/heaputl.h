@@ -426,13 +426,15 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 
 #define ALLOC_STRI_SIZE_OK(var,len)    ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
-#define FREE_STRI(var,len)  if ((var)->capacity < STRI_FREELIST_ARRAY_SIZE) PUSH_OR_FREE_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI2(var,len)  if ((var)->capacity < STRI_FREELIST_ARRAY_SIZE) PUSH_OR_FREE_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI(var)       FREE_STRI2(var, (var)->size)
 
 #else
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var, len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var, len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
-#define FREE_STRI(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI2(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI(var)       FREE_STRI2(var, (var)->size)
 #endif
 
 #else
@@ -455,14 +457,16 @@ EXTERN unsigned int sflist_allowed;
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
-#define FREE_STRI(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI2(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var) else HEAP_FREE_STRI(var, len);
+#define FREE_STRI(var)       FREE_STRI2(var, (var)->size)
 
 #endif
 #else
 
 #define ALLOC_STRI_SIZE_OK(var,len)       HEAP_ALLOC_STRI(var, len)
 #define ALLOC_STRI_CHECK_SIZE(var,len)    ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE))
-#define FREE_STRI(var,len)                HEAP_FREE_STRI(var, len)
+#define FREE_STRI2(var,len)               HEAP_FREE_STRI(var, len)
+#define FREE_STRI(var)                    FREE_STRI2(var, (var)->size)
 
 #endif
 

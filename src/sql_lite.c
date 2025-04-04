@@ -2407,7 +2407,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
               err_info = DATABASE_ERROR;
               fileName = NULL;
             } /* if */
-            FREE_STRI(dbNameWithExtension, dbNameWithExtension->size);
+            FREE_STRI(dbNameWithExtension);
           } /* if */
         } else {
           dbLibError("sqlOpenLite", "sqlite3_open",

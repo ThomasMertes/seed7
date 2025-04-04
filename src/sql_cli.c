@@ -2290,7 +2290,7 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
         decimal[destIndex] = '\0';
         /* printf("%s\n", decimal); */
       } /* if */
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
     } /* if */
     return destIndex;
   } /* setDecimalBigInt */
@@ -5411,7 +5411,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           } /* if */
           UNALLOC_SQLWSTRI(query, statementStri);
         } /* if */
-        FREE_STRI(statementStri, sqlStatementStri->size);
+        FREE_STRI(statementStri);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

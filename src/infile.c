@@ -260,7 +260,7 @@ boolType openInfile (const_striType sourceFileName,
             if (!speedup()) {
               fclose(in_file.fil);
               free_cstri8(name_ustri, sourceFileName);
-              FREE_STRI(in_name, in_name->size);
+              FREE_STRI(in_name);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
               } else {
@@ -382,7 +382,7 @@ boolType openBString (bstriType inputString,
           *err_info = MEMORY_ERROR;
         } else if (!ALLOC_STRI_SIZE_OK(in_path, name_length)) {
           UNALLOC_USTRI(name_ustri, name_length);
-          FREE_STRI(in_name, name_length);
+          FREE_STRI2(in_name, name_length);
           *err_info = MEMORY_ERROR;
         } else {
 #if USE_ALTERNATE_NEXT_CHARACTER
@@ -409,8 +409,8 @@ boolType openBString (bstriType inputString,
           } /* if */
           if (unlikely(in_fil == NULL)) {
             UNALLOC_USTRI(name_ustri, name_length);
-            FREE_STRI(in_name, name_length);
-            FREE_STRI(in_path, name_length);
+            FREE_STRI2(in_name, name_length);
+            FREE_STRI2(in_path, name_length);
           } else
 #endif
           {
@@ -467,8 +467,8 @@ static void freeFile (inFileType old_file)
     logFunction(printf("freeFile\n"););
     name_length = strlen((const_cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
-    FREE_STRI(old_file->name, old_file->name->size);
-    FREE_STRI(old_file->path, old_file->path->size);
+    FREE_STRI(old_file->name);
+    FREE_STRI(old_file->path);
     FREE_FILE(old_file);
     logFunction(printf("freeFile -->\n"););
   } /* freeFile */
@@ -490,7 +490,7 @@ void removeProgFiles (progType aProg)
       freeFile(currFile);
     } /* while */
     if (question_mark != NULL) {
-      FREE_STRI(question_mark, question_mark->size);
+      FREE_STRI(question_mark);
       question_mark = NULL;
     } /* if */
     logFunction(printf("removeProgFiles -->\n"););

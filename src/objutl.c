@@ -713,7 +713,7 @@ void dump_temp_value (objectType object)
         break;
       case STRIOBJECT:
         if (object->value.striValue != NULL) {
-          FREE_STRI(object->value.striValue, object->value.striValue->size);
+          FREE_STRI(object->value.striValue);
         } /* if */
         SET_UNUSED_FLAG(object);
         break;

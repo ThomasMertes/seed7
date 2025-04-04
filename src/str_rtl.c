@@ -801,7 +801,7 @@ static rtlArrayType addCopiedStriToRtlArray (const strElemType *const stri_elems
         if (unlikely(max_position > (intType) (MAX_RTL_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
             !REALLOC_RTL_ARRAY(resized_work_array, work_array,
                 (uintType) max_position * ARRAY_SIZE_FACTOR))) {
-          FREE_STRI(new_stri, new_stri->size);
+          FREE_STRI(new_stri);
           freeRtlStriArray(work_array, used_max_position);
           work_array = NULL;
         } else {
@@ -939,7 +939,7 @@ striType concatPath (const const_striType absolutePath,
             result->mem, relativePath->mem, &relativePath->mem[relativePath->size]);
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, estimated_result_size);
+          FREE_STRI2(result, estimated_result_size);
           result = NULL;
         } else {
           result = resized_result;
@@ -988,7 +988,7 @@ striType straightenAbsolutePath (const const_striType absolutePath)
             &absolutePath->mem[1], &absolutePath->mem[absolutePath->size]);
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, estimated_result_size);
+          FREE_STRI2(result, estimated_result_size);
           result = NULL;
         } else {
           result = resized_result;
@@ -1159,7 +1159,7 @@ void strAppendN (striType *const destination,
             memcpy(dest, extensionArray[pos]->mem, elem_size * sizeof(strElemType));
             dest += elem_size;
           } /* for */
-          FREE_STRI(stri_dest, stri_dest->size);
+          FREE_STRI(stri_dest);
           *destination = new_stri;
         } /* if */
       } else {
@@ -1605,7 +1605,7 @@ void strAppendTemp (striType *const destination, const striType extension)
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
-        FREE_STRI(extension, extension->size);
+        FREE_STRI(extension);
       } else if (new_size <= extension->capacity) {
         if (stri_dest->size != 0) {
           COUNT_GROW2_STRI(extension->size, new_size);
@@ -1616,11 +1616,11 @@ void strAppendTemp (striType *const destination, const striType extension)
           extension->size = new_size;
         } /* if */
         *destination = extension;
-        FREE_STRI(stri_dest, stri_dest->size);
+        FREE_STRI(stri_dest);
       } else {
         stri_dest = growStri(stri_dest, new_size);
         if (unlikely(stri_dest == NULL)) {
-          FREE_STRI(extension, extension->size);
+          FREE_STRI(extension);
           raise_error(MEMORY_ERROR);
         } else {
           *destination = stri_dest;
@@ -1628,13 +1628,13 @@ void strAppendTemp (striType *const destination, const striType extension)
           memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                  extension->size * sizeof(strElemType));
           stri_dest->size = new_size;
-          FREE_STRI(extension, extension->size);
+          FREE_STRI(extension);
         } /* if */
       } /* if */
 #else
       GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
       if (unlikely(stri_dest == NULL)) {
-        FREE_STRI(extension, extension->size);
+        FREE_STRI(extension);
         raise_error(MEMORY_ERROR);
       } else {
         *destination = stri_dest;
@@ -1642,7 +1642,7 @@ void strAppendTemp (striType *const destination, const striType extension)
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
-        FREE_STRI(extension, extension->size);
+        FREE_STRI(extension);
       } /* if */
 #endif
     } /* if */
@@ -1853,7 +1853,7 @@ striType strChRepl (const const_striType mainStri,
          result, guessed_result_size, result_size); */
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, guessed_result_size, result_size);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, guessed_result_size);
+        FREE_STRI2(result, guessed_result_size);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -2013,7 +2013,7 @@ striType strCLit (const const_striType stri)
           literal->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
           pos += 4;
         } else {
-          FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
+          FREE_STRI2(literal, escSequenceMax * striSize + numOfQuotes);
           logError(printf("strCLit(\"%s\"): Character > '\\255;' found.\n",
                           striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
@@ -2026,7 +2026,7 @@ striType strCLit (const const_striType stri)
       REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
           escSequenceMax * striSize + numOfQuotes, pos);
       if (unlikely(resized_literal == NULL)) {
-        FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
+        FREE_STRI2(literal, escSequenceMax * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         literal = NULL;
       } else {
@@ -2199,7 +2199,7 @@ striType strConcatCharTemp (striType stri1, const charType aChar)
                 fflush(stdout););
     if (unlikely(stri1->size > MAX_STRI_LEN - 1)) {
       /* number of bytes does not fit into memSizeType */
-      FREE_STRI(stri1, stri1->size);
+      FREE_STRI(stri1);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
     } else {
@@ -2208,7 +2208,7 @@ striType strConcatCharTemp (striType stri1, const charType aChar)
       if (result_size > stri1->capacity) {
         resized_stri1 = growStri(stri1, result_size);
         if (unlikely(resized_stri1 == NULL)) {
-          FREE_STRI(stri1, stri1->size);
+          FREE_STRI(stri1);
           raise_error(MEMORY_ERROR);
           return NULL;
         } else {
@@ -2221,7 +2221,7 @@ striType strConcatCharTemp (striType stri1, const charType aChar)
 #else
       GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
       if (unlikely(resized_stri1 == NULL)) {
-        FREE_STRI(stri1, stri1->size);
+        FREE_STRI(stri1);
         raise_error(MEMORY_ERROR);
         stri1 = NULL;
       } else {
@@ -2311,7 +2311,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
                 fflush(stdout););
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
       /* number of bytes does not fit into memSizeType */
-      FREE_STRI(stri1, stri1->size);
+      FREE_STRI(stri1);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
     } else {
@@ -2322,7 +2322,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
         /* that 'stri2' is identical to 'stri1' or a slice of it. */
         resized_stri1 = growStri(stri1, result_size);
         if (unlikely(resized_stri1 == NULL)) {
-          FREE_STRI(stri1, stri1->size);
+          FREE_STRI(stri1);
           raise_error(MEMORY_ERROR);
           return NULL;
         } else {
@@ -2338,7 +2338,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       /* that 'stri2' is identical to 'stri1' or a slice of it.  */
       GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
       if (unlikely(resized_stri1 == NULL)) {
-        FREE_STRI(stri1, stri1->size);
+        FREE_STRI(stri1);
         raise_error(MEMORY_ERROR);
         stri1 = NULL;
       } else {
@@ -2410,7 +2410,7 @@ void strCopy (striType *const dest, const const_striType source)
           stri_dest->size = new_size;
           memcpy(stri_dest->mem, source->mem,
                  new_size * sizeof(strElemType));
-          FREE_STRI(*dest, (*dest)->size);
+          FREE_STRI(*dest);
           *dest = stri_dest;
         } /* if */
       } /* if */
@@ -2496,7 +2496,7 @@ void strDestr (const const_striType old_string)
   { /* strDestr */
     logFunction(printf("strDestr(\"%s\")\n", striAsUnquotedCStri(old_string)););
     if (old_string != NULL) {
-      FREE_STRI(old_string, old_string->size);
+      FREE_STRI(old_string);
     } /* if */
   } /* strDestr */
 
@@ -2576,7 +2576,7 @@ striType strFromUtf8 (const const_striType utf8)
                         FMT_U_MEM ": \"\\" FMT_U32 ";\\ ...\".\n",
                         utf8Size + 1 - unconverted,
                         utf8->mem[utf8Size - unconverted]););
-        FREE_STRI(result, utf8Size);
+        FREE_STRI2(result, utf8Size);
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -2584,7 +2584,7 @@ striType strFromUtf8 (const const_striType utf8)
         if (resultSize != utf8Size) {
           REALLOC_STRI_SIZE_SMALLER(resized_result, result, utf8Size, resultSize);
           if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, utf8Size);
+            FREE_STRI2(result, utf8Size);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
@@ -2844,7 +2844,7 @@ striType strHeadTemp (const striType stri, const intType stop)
                 fflush(stdout););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadTemp: Stop negative."););
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
       raise_error(INDEX_ERROR);
       /* The function strHeadTemp() is only used by the compiler. */
       /* In this situation raise_error() always does a longjmp(). */
@@ -3138,7 +3138,7 @@ striType strLit (const const_striType stri)
       REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
           ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes, pos);
       if (unlikely(resized_literal == NULL)) {
-        FREE_STRI(literal, ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes);
+        FREE_STRI2(literal, ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         literal = NULL;
       } else {
@@ -3273,7 +3273,7 @@ striType strLpadTemp (const striType stri, const intType padSize)
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
-        FREE_STRI(stri, striSize);
+        FREE_STRI2(stri, striSize);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -3292,7 +3292,7 @@ striType strLpadTemp (const striType stri, const intType padSize)
 #endif
         memcpy(&result->mem[(memSizeType) padSize - striSize], stri->mem,
                striSize * sizeof(strElemType));
-        FREE_STRI(stri, striSize);
+        FREE_STRI2(stri, striSize);
       } /* if */
     } else {
       result = stri;
@@ -3399,7 +3399,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     sourceElem = stri->mem;
     if (padSize >= (intType) striSize) {
       if (unlikely((uintType) padSize >= MAX_STRI_LEN)) {
-        FREE_STRI(stri, striSize);
+        FREE_STRI2(stri, striSize);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3424,7 +3424,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
               *destElem++ = (strElemType) '0';
             } /* while */
             memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
-            FREE_STRI(stri, striSize);
+            FREE_STRI2(stri, striSize);
           } /* if */
         } else {
           result = stri;
@@ -4072,7 +4072,7 @@ striType strRepl (const const_striType mainStri,
          result, guessed_result_size, result_size); */
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, guessed_result_size, result_size);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, guessed_result_size);
+        FREE_STRI2(result, guessed_result_size);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -4886,7 +4886,7 @@ striType strToUtf8 (const const_striType stri)
       result_size = (memSizeType) (dest - result->mem);
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, max_utf8_size(stri->size), result_size);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, max_utf8_size(stri->size));
+        FREE_STRI2(result, max_utf8_size(stri->size));
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {

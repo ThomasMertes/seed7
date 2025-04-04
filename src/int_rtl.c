@@ -909,7 +909,7 @@ striType uintNBytesBe (uintType number, intType length)
       } else if (unlikely(number != 0)) {
         logError(printf("uintNBytesBe: "
                         "Number does not fit into " FMT_D " bytes.\n", length););
-        FREE_STRI(result, (memSizeType) length);
+        FREE_STRI2(result, (memSizeType) length);
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */
@@ -970,7 +970,7 @@ striType uintNBytesLe (uintType number, intType length)
       } else if (unlikely(number != 0)) {
         logError(printf("uintNBytesLe: "
                         "Number does not fit into " FMT_D " bytes.\n", length););
-        FREE_STRI(result, (memSizeType) length);
+        FREE_STRI2(result, (memSizeType) length);
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */
@@ -2259,7 +2259,7 @@ striType intNBytesBeSigned (intType number, intType length)
         } else if (unlikely(number != 0 || buffer[pos] > BYTE_MAX)) {
           logError(printf("intNBytesBeSigned: "
                           "Number does not fit into " FMT_D " bytes.\n", length););
-          FREE_STRI(result, (memSizeType) length);
+          FREE_STRI2(result, (memSizeType) length);
           raise_error(RANGE_ERROR);
           result = NULL;
         } /* if */
@@ -2281,7 +2281,7 @@ striType intNBytesBeSigned (intType number, intType length)
         } else if (unlikely(number != -1 || buffer[pos] <= BYTE_MAX)) {
           logError(printf("intNBytesBeSigned: "
                           "Number does not fit into " FMT_D " bytes.\n", length););
-          FREE_STRI(result, (memSizeType) length);
+          FREE_STRI2(result, (memSizeType) length);
           raise_error(RANGE_ERROR);
           result = NULL;
         } /* if */
@@ -2352,7 +2352,7 @@ striType intNBytesBeUnsigned (intType number, intType length)
       } else if (unlikely(number != 0)) {
         logError(printf("intNBytesBeUnsigned: "
                         "Number does not fit into " FMT_D " bytes.\n", length););
-        FREE_STRI(result, (memSizeType) length);
+        FREE_STRI2(result, (memSizeType) length);
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */
@@ -2414,7 +2414,7 @@ striType intNBytesLeSigned (intType number, intType length)
         } else if (unlikely(number != 0 || buffer[pos - 1] > BYTE_MAX)) {
           logError(printf("intNBytesLeSigned: "
                           "Number does not fit into " FMT_D " bytes.\n", length););
-          FREE_STRI(result, (memSizeType) length);
+          FREE_STRI2(result, (memSizeType) length);
           raise_error(RANGE_ERROR);
           result = NULL;
         } /* if */
@@ -2434,7 +2434,7 @@ striType intNBytesLeSigned (intType number, intType length)
         } else if (unlikely(number != -1 || buffer[pos - 1] <= BYTE_MAX)) {
           logError(printf("intNBytesLeSigned: "
                           "Number does not fit into " FMT_D " bytes.\n", length););
-          FREE_STRI(result, (memSizeType) length);
+          FREE_STRI2(result, (memSizeType) length);
           raise_error(RANGE_ERROR);
           result = NULL;
         } /* if */
@@ -2503,7 +2503,7 @@ striType intNBytesLeUnsigned (intType number, intType length)
       } else if (unlikely(number != 0)) {
         logError(printf("intNBytesLeUnsigned: "
                         "Number does not fit into " FMT_D " bytes.\n", length););
-        FREE_STRI(result, (memSizeType) length);
+        FREE_STRI2(result, (memSizeType) length);
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */

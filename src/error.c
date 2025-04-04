@@ -304,7 +304,7 @@ static striType stri8_buffer_to_stri (const strElemType *const stri8,
       } while (unconverted != 0);
       REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
       if (resized_stri == NULL) {
-        FREE_STRI(stri, length);
+        FREE_STRI2(stri, length);
         stri = NULL;
       } else {
         stri = resized_stri;
@@ -336,7 +336,7 @@ static memSizeType computeColumnMarkerPos (const_striType errorLine, memSizeType
     part1 = stri8_buffer_to_stri(errorLine->mem, part1_len);
     if (part1 != NULL) {
       columnMarkerPos = calculate_output_length(part1) + 1;
-      FREE_STRI(part1, part1->size);
+      FREE_STRI(part1);
     } else {
       columnMarkerPos = part1_len + 1;
     } /* if */
@@ -406,7 +406,7 @@ static void writeError (fileType errorFile, parseErrorType error)
       fatal_memory_error(SOURCE_POSITION(2123));
     } else {
       writeString(errorFile, message);
-      FREE_STRI(message, message->size);
+      FREE_STRI(message);
       writeNewline(errorFile);
       if (error->errorLine != NULL) {
         outputLine = stri8_buffer_to_stri(error->errorLine->mem,
@@ -416,13 +416,13 @@ static void writeError (fileType errorFile, parseErrorType error)
           fatal_memory_error(SOURCE_POSITION(2124));
         } else {
           output = toOutputString(outputLine);
-          FREE_STRI(outputLine, outputLine->size);
+          FREE_STRI(outputLine);
           if (unlikely(output == NULL)) {
             logError(printf("writeError(): No more memory. (3)\n"););
             fatal_memory_error(SOURCE_POSITION(2125));
           } else {
             writeString(errorFile, output);
-            FREE_STRI(output, output->size);
+            FREE_STRI(output);
             writeNewline(errorFile);
             if (error->columnNumber != 0) {
               column = computeColumnMarkerPos(error->errorLine, error->columnNumber);
@@ -506,7 +506,7 @@ static striType readLineFromCurrentFile (void)
           newmemlength = memlength + LINE_SIZE_INCREMENT;
           REALLOC_STRI_CHECK_SIZE(resizedLine, line, memlength, newmemlength);
           if (unlikely(resizedLine == NULL)) {
-            FREE_STRI(line, memlength);
+            FREE_STRI2(line, memlength);
             return NULL;
           } /* if */
           line = resizedLine;
@@ -521,7 +521,7 @@ static striType readLineFromCurrentFile (void)
       } /* if */
       REALLOC_STRI_SIZE_SMALLER(resizedLine, line, memlength, position);
       if (unlikely(resizedLine == NULL)) {
-        FREE_STRI(line, memlength);
+        FREE_STRI2(line, memlength);
         line = NULL;
       } else {
         line = resizedLine;

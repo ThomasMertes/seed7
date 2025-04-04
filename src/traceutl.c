@@ -151,7 +151,7 @@ void prot_cstri (const_cstriType cstri)
         stri = cstri_to_stri(cstri);
         if (stri != NULL) {
           conWrite(stri);
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
         } else {
           fputs(cstri, protfile->cFile);
         } /* if */
@@ -181,7 +181,7 @@ void prot_cstri8 (const const_cstriType cstri8)
         stri = cstri8_to_stri(cstri8, &err_info);
         if (stri != NULL) {
           do_wrstri(SYS_PROT_OUTFILE_OBJECT, stri);
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
         } else {
           do_wrcstri(SYS_PROT_OUTFILE_OBJECT, cstri8);
         } /* if */
@@ -195,7 +195,7 @@ void prot_cstri8 (const const_cstriType cstri8)
         stri = cstri8_to_stri(cstri8, &err_info);
         if (stri != NULL) {
           conWrite(stri);
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
         } else {
           fputs(cstri8, protfile->cFile);
         } /* if */
@@ -1798,7 +1798,7 @@ void mapTraceFlags2 (const_cstriType ctrace_level, uintType *options)
       trace_level = cstri8_or_cstri_to_stri(ctrace_level);
       if (trace_level != NULL) {
         mapTraceFlags(trace_level, options);
-        FREE_STRI(trace_level, trace_level->size);
+        FREE_STRI(trace_level);
       } /* if */
     } /* if */
     logFunction(printf("mapTraceFlags2 -->\n"););

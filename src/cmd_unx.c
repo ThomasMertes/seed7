@@ -128,14 +128,14 @@ striType getExecutablePath (const const_striType arg_0)
     procSelfExe = CSTRI_LITERAL_TO_STRI("/proc/self/exe");
     if (likely(procSelfExe != NULL)) {
       executablePath = doReadLink(procSelfExe, &err_info);
-      FREE_STRI(procSelfExe, procSelfExe->size);
+      FREE_STRI(procSelfExe);
       if (executablePath != NULL) {
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
         exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
         if (likely(exeExtension != NULL)) {
           strAppendTemp(&executablePath, exeExtension);
         } else {
-          FREE_STRI(executablePath, executablePath->size);
+          FREE_STRI(executablePath);
           executablePath = NULL;
         } /* if */
 #endif
@@ -154,7 +154,7 @@ striType getExecutablePath (const const_striType arg_0)
           raise_error(err_info);
         } else {
           executablePath = concatPath(cwd, arg_0);
-          FREE_STRI(cwd, cwd->size);
+          FREE_STRI(cwd);
         } /* if */
       } /* if */
       if (unlikely(executablePath == NULL)) {

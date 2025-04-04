@@ -221,7 +221,7 @@ boolType do_wrcstri (objectType outfile, const_cstriType stri)
     out_stri = cstri_to_stri(stri);
     if (out_stri != NULL) {
       result = do_wrstri(outfile, out_stri);
-      FREE_STRI(out_stri, out_stri->size);
+      FREE_STRI(out_stri);
     } /* if */
     logFunction(printf("do_wrcstri -->\n"););
     return result;

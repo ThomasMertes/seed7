@@ -217,7 +217,7 @@ static boolType includeFile (void)
           } /* if */
           scan_symbol();
         } /* if */
-        FREE_STRI(includeFileName, includeFileName->size);
+        FREE_STRI(includeFileName);
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);
@@ -645,7 +645,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
                             (options & WRITE_LIBRARY_NAMES) != 0,
                             (options & WRITE_LINE_NUMBERS) != 0, err_info);
         if (!isOpen) {
-          FREE_STRI(absolutePath, absolutePath->size);
+          FREE_STRI(absolutePath);
           if (add_extension) {
             sourceFilePath->size = nameLen - STRLEN(".sd7");
             if ((absolutePath = getAbsolutePath(sourceFilePath)) == NULL) {
@@ -655,7 +655,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
                                   (options & WRITE_LIBRARY_NAMES) != 0,
                                   (options & WRITE_LINE_NUMBERS) != 0, err_info);
               if (!isOpen) {
-                FREE_STRI(absolutePath, absolutePath->size);
+                FREE_STRI(absolutePath);
               } /* if */
             } /* if */
           } /* if */
@@ -673,7 +673,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         } /* if */
       } /* if */
       if (sourceFilePath != NULL) {
-        FREE_STRI(sourceFilePath, nameLen);
+        FREE_STRI2(sourceFilePath, nameLen);
       } /* if */
     } /* if */
     logFunction(printf("analyzeFile --> " FMT_U_MEM
@@ -765,7 +765,7 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
         resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
                                  options, libraryDirs, errorFile, err_info);
       } /* if */
-      FREE_STRI(sourceFileArgument, sourceFileArgument->size);
+      FREE_STRI(sourceFileArgument);
     } /* if */
     logFunction(printf("analyzeBString --> " FMT_U_MEM
                        " (error_count=%u, err_info=%d)\n",

@@ -806,7 +806,7 @@ static unsigned int setBigInt (void *const buffer, const const_bigIntType bigInt
         } /* for */
         length = destIndex;
       } /* if */
-      FREE_STRI(stri, stri->size);
+      FREE_STRI(stri);
     } /* if */
     logFunction(printf("setBigInt --> %u\n", length););
     return length;
@@ -855,7 +855,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
           *err_info = MEMORY_ERROR;
         } else if (unlikely(stri->size > UINT_MAX)) {
           /* It is not possible to cast stri->size to unsigned int. */
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
           *err_info = MEMORY_ERROR;
         } else {
           /* printf("%s\n", striAsUnquotedCStri(stri)); */
@@ -908,7 +908,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
             } /* for */
             length = destIndex;
           } /* if */
-          FREE_STRI(stri, stri->size);
+          FREE_STRI(stri);
         } /* if */
         bigDestr(mantissaValue);
       } /* if */
@@ -2131,7 +2131,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                                   mysql_stmt_error(preparedStmt->ppStmt));
                     logError(printf("sqlColumnStri: mysql_stmt_fetch_column error: %s\n",
                                     mysql_stmt_error(preparedStmt->ppStmt)););
-                    FREE_STRI(columnValue, length);
+                    FREE_STRI2(columnValue, length);
                     err_info = DATABASE_ERROR;
                   } else {
                     columnValue->size = length;
@@ -2574,7 +2574,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           } /* if */
           free_cstri8(query, statementStri);
         } /* if */
-        FREE_STRI(statementStri, sqlStatementStri->size * 2);
+        FREE_STRI2(statementStri, sqlStatementStri->size * 2);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2844,11 +2844,11 @@ static void determineIfBackslashEscapes (dbType database)
             /* This happens if the database uses backslash as escape char. */
             database->backslashEscapes = TRUE;
           } /* if */
-          FREE_STRI(data, data->size);
+          FREE_STRI(data);
         } /* if */
         freePreparedStmt(preparedStmt);
       } /* if */
-      FREE_STRI(statementStri, statementStri->size);
+      FREE_STRI(statementStri);
     } /* if */
     /* printf("backslashEscapes: %d\n", database->backslashEscapes); */
   } /* determineIfBackslashEscapes */

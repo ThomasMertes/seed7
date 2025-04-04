@@ -275,7 +275,7 @@ static striType getProgramName (const const_striType arg_0)
                exeExtension->mem, exeExtension->size * sizeof(strElemType)) == 0) {
       name_len -= exeExtension->size;
     } /* if */
-    FREE_STRI(exeExtension, exeExtension->size);
+    FREE_STRI(exeExtension);
 #endif
     lastSlashPos = strRChPos(arg_0, (charType) '/');
     name_len -= (memSizeType) lastSlashPos;
@@ -325,7 +325,7 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
             while (number >= 1) {
               number--;
               stri = arg_v->arr[number].value.striValue;
-              FREE_STRI(stri, stri->size);
+              FREE_STRI(stri);
             } /* while */
             FREE_RTL_ARRAY(arg_v, arg_c);
             logError(printf("copyArgv(%d, ...): "
@@ -405,7 +405,7 @@ rtlArrayType getArgv (const int argc, const utf16striType *const argv,
         if (arg_0 != NULL) {
           *arg_0 = arg_0_temp;
         } else {
-          FREE_STRI(arg_0_temp, arg_0_temp->size);
+          FREE_STRI(arg_0_temp);
         } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -484,7 +484,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
           if (arg_0 != NULL) {
             *arg_0 = arg_0_temp;
           } else {
-            FREE_STRI(arg_0_temp, arg_0_temp->size);
+            FREE_STRI(arg_0_temp);
           } /* if */
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -558,7 +558,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
         if (arg_0 != NULL) {
           *arg_0 = arg_0_temp;
         } else {
-          FREE_STRI(arg_0_temp, arg_0_temp->size);
+          FREE_STRI(arg_0_temp);
         } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -613,12 +613,12 @@ striType examineSearchPath (const const_striType fileName)
         if (cmdFileType(aPath) == FILE_REGULAR) {
           result = aPath;
         } else {
-          FREE_STRI(aPath, aPath->size);
+          FREE_STRI(aPath);
         } /* if */
       } /* for */
       for (; pos < searchPathSize; pos++) {
         aPath = searchPath->arr[pos].value.striValue;
-        FREE_STRI(aPath, aPath->size);
+        FREE_STRI(aPath);
       } /* for */
       FREE_RTL_ARRAY(searchPath, searchPathSize);
     } /* if */
@@ -637,8 +637,7 @@ void freeRtlStriArray (rtlArrayType work_array, intType used_max_position)
 
   /* freeRtlStriArray */
     for (position = 0; position < (uintType) used_max_position; position++) {
-      FREE_STRI(work_array->arr[position].value.striValue,
-                work_array->arr[position].value.striValue->size);
+      FREE_STRI(work_array->arr[position].value.striValue);
     } /* for */
     FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
   } /* freeRtlStriArray */
