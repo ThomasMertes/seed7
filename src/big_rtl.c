@@ -286,9 +286,9 @@ static unsigned int flist_allowed[BIG_FREELIST_ARRAY_SIZE] = {
 #define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : \
                                       ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len): \
                                       (var=NULL, FALSE)))
-#define FREE_BIG2(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else \
-                            HEAP_FREE_BIG(var, (var)->capacity);
-#define FREE_BIG(var)       FREE_BIG2(var, 0)
+#define FREE_BIG2(var,unused)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else \
+                               HEAP_FREE_BIG(var, (var)->capacity);
+#define FREE_BIG(var)          FREE_BIG2(var, **not-used**)
 #else
 
 static freeListElemType flist = NULL;
