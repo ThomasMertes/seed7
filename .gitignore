@@ -1,0 +1,72 @@
+# Identifies files to be ignored by Git.
+# Also used by fd|fdfind to identify directories and files to ignore.
+
+# Files built by Seed7 build
+# Unix-like
+*.o
+bin/s7
+bin/s7c
+bin/s7_comp.a
+bin/s7_con.a
+bin/s7_data.a
+bin/s7_db.a
+bin/s7_draw.a
+bin/seed7_05.a
+
+# Windows
+*.obj
+*.lib
+
+# Generated files
+prg/chkexc
+prg/chkfil
+prg/chkjson
+prg/s7
+prg/s7c
+prg/tmp1_chkerr.c
+prg/tmp1_chkexc.c
+prg/tmp1_chkfil.c
+prg/tmp1_chkjson.c
+prg/tmp_chkerr.c
+prg/tmp_chkerr.lerrs
+prg/tmp_chkexc.c
+prg/tmp_chkfil.c
+prg/tmp_chkint.c
+prg/tmp_chkjson.c
+src/base.h
+src/chkccomp
+src/chkccomp.h
+src/depend
+src/level.h
+src/level_bk.h
+src/levelup
+src/macros
+src/next_lvl
+src/settings.h
+src/vers_linux.h
+src/vers_osx.h
+src/vers_osxcl.h
+src/version.h
+src/wrdepend
+
+# Tooling Files
+# -------------
+# CTags file
+TAGS
+.etags-*.txt
+
+# Emacs Backup files
+*~
+
+# Emacs temporary files
+.#*
+*#
+\#*
+
+# OS Specific Non Project Files
+# -----------------------------
+
+# macOS fork files
+.DS_Store
+
+# ----------------------------------------------------------------------------
