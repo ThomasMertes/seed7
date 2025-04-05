@@ -622,7 +622,8 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
     while (chars_missing - result_size >= LIST_BUFFER_SIZE &&
            bytes_in_buffer == LIST_BUFFER_SIZE) {
       bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1, LIST_BUFFER_SIZE, inFile);
-      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      logMessage(printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n",
+                        bytes_in_buffer););
       if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
         logError(printf("read_and_alloc_stri: "
                         "fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
@@ -655,7 +656,8 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
         bytes_in_buffer == LIST_BUFFER_SIZE) {
       bytes_in_buffer = (memSizeType) fread(currBuffer->buffer, 1,
                                             chars_missing - result_size, inFile);
-      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      logMessage(printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n",
+                        bytes_in_buffer););
       if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
         logError(printf("read_and_alloc_stri: "
                         "fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
@@ -1406,7 +1408,8 @@ striType filGets (fileType inFile, intType length)
       } /* if */
       if (result == NULL) {
         bytes_there = remainingBytesInFile(cInFile);
-        /* printf("bytes_there=" FMT_U_MEM "\n", bytes_there); */
+        logMessage(printf("filGets: bytes_there=" FMT_U_MEM "\n",
+                          bytes_there););
         if (bytes_there != 0) {
           /* Now we know that bytes_there bytes are available in cInFile */
           if (chars_requested <= bytes_there) {
@@ -1414,7 +1417,8 @@ striType filGets (fileType inFile, intType length)
           } else {
             allocated_size = bytes_there;
           } /* if */
-          /* printf("allocated_size=" FMT_U_MEM "\n", allocated_size); */
+          logMessage(printf("filGets: allocated_size=" FMT_U_MEM "\n",
+                            allocated_size););
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
             /* printf("MAX_STRI_LEN= " FMT_U_MEM
                 ", SIZ_STRI(MAX_STRI_LEN)=" FMT_U_MEM "\n",
@@ -1428,10 +1432,12 @@ striType filGets (fileType inFile, intType length)
         /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
-        /* printf("read_size=" FMT_U_MEM "\n", allocated_size); */
+        logMessage(printf("filGets: allocated_size=" FMT_U_MEM "\n",
+                          allocated_size););
         num_of_chars_read = (memSizeType) fread(result->mem, 1,
             (size_t) allocated_size, cInFile);
-        /* printf("num_of_chars_read=" FMT_U_MEM "\n", num_of_chars_read); */
+        logMessage(printf("filGets: num_of_chars_read=" FMT_U_MEM "\n",
+                          num_of_chars_read););
         if (unlikely(num_of_chars_read == 0 && ferror(cInFile))) {
           logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
                           "errno=%d\nerror: %s\n",

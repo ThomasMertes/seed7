@@ -263,7 +263,8 @@ memSizeType doubleToCharBuffer (const double doubleValue,
       len = (memSizeType) sprintf(buffer, "%1.1f", doubleValue);
     } else {
       len = (memSizeType) sprintf(buffer, format, doubleValue);
-      /* printf("buffer: \"%s\"\n", buffer); */
+      logMessage(printf("doubleToCharBuffer: buffer: \"%s\"\n",
+                        buffer););
       /* Subtract two more chars for sign and letter 'e': */
       len -= MIN_PRINTED_EXPONENT_DIGITS + 2;
       while (buffer[len] != 'e') {
@@ -280,12 +281,14 @@ memSizeType doubleToCharBuffer (const double doubleValue,
       if (buffer[len + 1] == '-') {
         decimalExponent = -decimalExponent;
       } /* if */
-      /* printf("decimalExponent: %ld\n", decimalExponent); */
+      logMessage(printf("doubleToCharBuffer: decimalExponent: %d\n",
+                        decimalExponent););
       do {
         len--;
       } while (buffer[len] == '0');
       len++;
-      /* printf("len: " FMT_U_MEM "\n", len); */
+      logMessage(printf("doubleToCharBuffer: len: " FMT_U_MEM "\n",
+                        len););
       start = buffer[0] == '-';
       if (decimalExponent > 0) {
         scale = (memSizeType) decimalExponent;

@@ -545,7 +545,8 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
       raise_error(RANGE_ERROR);
     } else {
       timeZoneReference = unchecked_mkutc(local_time) / 60;
-      /* printf("timeZoneReference: %ld\n", timeZoneReference); */
+      logMessage(printf("timSetLocalTZ: timeZoneReference: " FMT_T "\n",
+                        timeZoneReference););
       timestamp = timToTimestamp(year, month, day, hour, minute, second, 0);
       if (unlikely(timestamp == TIMESTAMPTYPE_MIN)) {
         logError(printf("timSetLocalTZ: Time " F_D(04) "-" F_D(02) "-" F_D(02) " "
