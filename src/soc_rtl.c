@@ -399,7 +399,8 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
-      /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      logMessage(printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n",
+                        bytes_in_buffer););
       if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
         logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
@@ -432,7 +433,8 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(chars_missing - result_size), 0);
-      /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      logMessage(printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n",
+                        bytes_in_buffer););
       if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
         logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
@@ -800,7 +802,8 @@ charType socGetc (socketType inSocket, charType *const eofIndicator)
                        inSocket, *eofIndicator););
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&ch), 1, 0);
-    /* printf("socGetc: bytes_received=" FMT_U_MEM "\n", bytes_received); */
+    logMessage(printf("socGetc: bytes_received=" FMT_U_MEM "\n",
+                      bytes_received););
     if (bytes_received != 1) {
       if (unlikely(inSocket == (socketType) -1)) {
         logError(printf("socGetc(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
@@ -870,7 +873,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         result_size = (memSizeType) recv((os_socketType) inSocket,
                                          cast_send_recv_data(buffer),
                                          cast_buffer_len(chars_requested), 0);
-        /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
+        logMessage(printf("socGets: result_size=" FMT_U_MEM "\n",
+                          result_size););
         if (unlikely(result_size == (memSizeType) -1)) {
           logError(printf("socGets: "
                           "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
@@ -912,7 +916,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
             result_size = (memSizeType) recv((os_socketType) inSocket,
                                              cast_send_recv_data(result->mem),
                                              cast_buffer_len(chars_requested), 0);
-            /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
+            logMessage(printf("socGets: result_size=" FMT_U_MEM "\n",
+                              result_size););
             if (unlikely(result_size == (memSizeType) -1)) {
               logError(printf("socGets: "
                               "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
@@ -1098,14 +1103,15 @@ boolType socHasNext (socketType inSocket)
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&next_char), 1, MSG_PEEK);
     if (bytes_received != 1) {
-      /* printf("socHasNext: bytes_received=" FMT_U_MEM "\n", bytes_received); */
+      logMessage(printf("socHasNext: bytes_received=" FMT_U_MEM "\n",
+                        bytes_received););
       if (unlikely(inSocket == (socketType) -1)) {
         logError(printf("socHasNext(%d): Invalid socket.\n", inSocket););
         raise_error(FILE_ERROR);
       } /* if */
       hasNext = FALSE;
     } else {
-      /* printf("socHasNext: next_char=%d\n", next_char); */
+      logMessage(printf("socHasNext: next_char=%d\n", next_char););
       hasNext = TRUE;
     } /* if */
     logFunction(printf("socHasNext(%d) --> %d\n", inSocket, hasNext););
@@ -1547,7 +1553,8 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
           bytes_received = (memSizeType) recv((os_socketType) sock,
                                               cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
-            /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+            logMessage(printf("socInputReady: bytes_received=" FMT_U_MEM "\n",
+                              bytes_received););
             inputReady = FALSE;
           } /* if */
         } /* if */
@@ -1614,7 +1621,8 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
           bytes_received = (memSizeType) recv((os_socketType) sock,
                                               cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
-            /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+            logMessage(printf("socInputReady: bytes_received=" FMT_U_MEM "\n",
+                              bytes_received););
             inputReady = FALSE;
           } /* if */
         } /* if */
@@ -1667,7 +1675,8 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                                           cast_send_recv_data(buffer),
                                           cast_buffer_len(BUFFER_START_SIZE),
                                           MSG_PEEK);
-      /* printf("socLineRead: bytes_received: " FMT_U_MEM "\n", bytes_received); */
+      logMessage(printf("socLineRead: bytes_received=" FMT_U_MEM "\n",
+                        bytes_received););
       if (unlikely(bytes_received == (memSizeType) -1)) {
         logError(printf("socLineRead: "
                         "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
