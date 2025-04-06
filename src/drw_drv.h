@@ -30,6 +30,7 @@
 /********************************************************************/
 
 void drawInit (void);
+void drawClose (void);
 boolType gkbButtonPressed (charType button);
 intType gkbClickedXpos (void);
 intType gkbClickedYpos (void);

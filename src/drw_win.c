@@ -134,7 +134,7 @@ typedef const win_winRecord *const_win_winType;
 
 typedef HWND (WINAPI *pGetConsoleWindowType)(void);
 static pGetConsoleWindowType pGetConsoleWindow = NULL;
-static winType emptyWindow;
+static winType emptyWindow = NULL;
 
 
 winType find_window (HWND sys_window);
@@ -455,6 +455,17 @@ static winType generateEmptyWindow (void)
                        newWindow != NULL ? newWindow->usage_count : (uintType) 0););
     return (winType) newWindow;
   } /* generateEmptyWindow */
+
+
+
+void drawClose (void)
+
+  { /* drawClose */
+    if (emptyWindow != NULL) {
+      FREE_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes);
+      emptyWindow = NULL;
+    } /* if */
+  } /* drawClose */
 
 
 

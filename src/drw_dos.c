@@ -108,6 +108,13 @@ intType gkbClickedYpos (void)
 
 
 
+void drawClose (void)
+
+  { /* drawClose */
+  } /* drawClose */
+
+
+
 void drawInit (void)
 
   { /* drawInit */

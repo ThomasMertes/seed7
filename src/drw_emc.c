@@ -331,6 +331,17 @@ void drawShut (void)
 
 
 
+void drawClose (void)
+
+  { /* drawClose */
+    if (emptyWindow != NULL) {
+      FREE_RECORD2(emptyWindow, emc_winRecord, count.win, count.win_bytes);
+      emptyWindow = NULL;
+    } /* if */
+  } /* drawClose */
+
+
+
 void drawInit (void)
 
   { /* drawInit */

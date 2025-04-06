@@ -476,6 +476,7 @@ int main (int argc, char **argv)
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
     leaveExceptionHandling();
     freeActPtrTable();
+    drawClose();
     closeBig();
     heapStatistic();
 #endif

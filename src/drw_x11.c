@@ -474,6 +474,21 @@ static winType generateEmptyWindow (void)
 
 
 
+void drawClose (void)
+
+  { /* drawClose */
+    if (mydisplay != NULL) {
+      if (emptyWindow != NULL) {
+        XFreeGC(mydisplay, mygc);
+        FREE_RECORD2(emptyWindow, x11_winRecord, count.win, count.win_bytes);
+        emptyWindow = NULL;
+      } /* if */
+      XCloseDisplay(mydisplay);
+    } /* if */
+  } /* drawClose */
+
+
+
 void drawInit (void)
 
   {
