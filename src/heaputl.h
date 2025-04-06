@@ -435,7 +435,7 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 #define FREE_STRI2(var,unused)  if (PUSH_STRI_OK(var)) PUSH_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, **not-used**);
 #endif
 
-#define FREE_STRI(var)          FREE_STRI2(var, 0)
+#define FREE_STRI(var)          FREE_STRI2(var, **not-used**)
 
 #else
 
