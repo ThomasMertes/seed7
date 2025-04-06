@@ -541,7 +541,7 @@ void heapStatistic (void)
           count.files * SIZ_REC(fileRecord),
           count.files,
           (unsigned int) SIZ_REC(fileRecord));
-      bytes_used += count.win_bytes;
+      bytes_used += count.files * SIZ_REC(fileRecord);
     } /* if */
     if (count.win != 0) {
       printf(F_U_MEM(9) " bytes in %8lu windows of             %4u bytes\n",
