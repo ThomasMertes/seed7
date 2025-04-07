@@ -356,24 +356,24 @@ EXTERN memSizeType hs;
 #define UNALLOC_UTF32(var,len)     FREE_HEAP(var, SIZ_UTF32(len))
 
 
-#define COUNT3X_STRI(oldCap,newCap)     CNT3(CNT2_STRI(oldCap, SIZ_STRI(oldCap)), CNT1_STRI(newCap, SIZ_STRI(newCap)))
+#define COUNT3_STRI(oldCap,newCap)     CNT3(CNT2_STRI(oldCap, SIZ_STRI(oldCap)), CNT1_STRI(newCap, SIZ_STRI(newCap)))
 
 #if WITH_STRI_CAPACITY
 #if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->mem=(var)->mem1,(var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3X_STRI((v1)->capacity,cap))(v1)->mem=(v1)->mem1,(v1)->capacity=(cap);}
+#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3_STRI((v1)->capacity,cap))(v1)->mem=(v1)->mem1,(v1)->capacity=(cap);}
 #else
 #define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3X_STRI((v1)->capacity,cap))(v1)->capacity=(cap);}
+#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3_STRI((v1)->capacity,cap))(v1)->capacity=(cap);}
 #endif
 #define HEAP_FREE_STRI(var, unused)          (CNT(CNT2_STRI((var)->capacity,SIZ_STRI((var)->capacity))) FREE_HEAP(var,SIZ_STRI((var)->capacity)))
 #else
 #if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){CNT(COUNT3X_STRI(l1,l2))(v1)->mem=(v1)->mem1;}
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){CNT(COUNT3_STRI(l1,l2))(v1)->mem=(v1)->mem1;}
 #else
 #define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){COUNT3X_STRI(l1,l2);}
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){COUNT3_STRI(l1,l2);}
 #endif
 #define HEAP_FREE_STRI(var, len)             (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
 #endif
