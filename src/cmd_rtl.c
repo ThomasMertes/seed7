@@ -4473,7 +4473,6 @@ striType cmdShellEscape (const const_striType stri)
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(escSequenceMax * stri->size + numOfQuotes, outPos);
           result->size = outPos;
         } /* if */
       } /* if */
@@ -4610,7 +4609,6 @@ striType cmdShellEscape (const const_striType stri)
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(escSequenceMax * stri->size + numOfQuotes, outPos);
           result->size = outPos;
         } /* if */
       } /* if */

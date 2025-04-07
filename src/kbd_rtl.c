@@ -130,7 +130,6 @@ striType kbdLineRead (charType *terminationChar)
             return NULL;
           } /* if */
           result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
@@ -146,7 +145,6 @@ striType kbdLineRead (charType *terminationChar)
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(memlength, position);
         result->size = position;
         *terminationChar = ch;
       } /* if */
@@ -201,7 +199,6 @@ striType kbdWordRead (charType *terminationChar)
             return NULL;
           } /* if */
           result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
@@ -218,7 +215,6 @@ striType kbdWordRead (charType *terminationChar)
         return NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(memlength, position);
         result->size = position;
         *terminationChar = ch;
       } /* if */

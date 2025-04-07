@@ -1505,7 +1505,6 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
               result = NULL;
             } else {
               result = resized_result;
-              COUNT3_STRI(result_size, final_result_size);
             } /* if */
           } /* if */
         } /* if */
@@ -7162,7 +7161,6 @@ striType bigStrDecimal (const const_bigIntType big1)
               result = NULL;
             } else {
               result = resized_result;
-              COUNT3_STRI(result_size, final_result_size);
             } /* if */
           } /* if */
         } /* if */

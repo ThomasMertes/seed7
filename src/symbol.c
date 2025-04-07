@@ -100,7 +100,6 @@ void extend_stri_length (void)
       } else {
         symbol.stri_max = newStriMax;
         symbol.striValue = resizedStriValue;
-        COUNT3_STRI(symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
       } /* if */
     } /* if */
   } /* extend_stri_length */

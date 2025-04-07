@@ -377,7 +377,6 @@ EXTERN memSizeType hs;
 #endif
 #define HEAP_FREE_STRI(var, len)             (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
 #endif
-#define COUNT3_STRI(oldCap,newCap)
 
 
 #if WITH_STRI_FREELIST

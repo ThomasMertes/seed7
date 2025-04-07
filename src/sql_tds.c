@@ -1245,7 +1245,6 @@ static striType genSqlStringLiteral (const const_striType stri)
         literal = NULL;
       } else {
         literal = resized_literal;
-        COUNT3_STRI(QUOTE_IN_STRING_LEN * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return literal;

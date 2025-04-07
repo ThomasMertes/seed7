@@ -308,7 +308,6 @@ static striType stri8_buffer_to_stri (const strElemType *const stri8,
         stri = NULL;
       } else {
         stri = resized_stri;
-        COUNT3_STRI(length, stri_size);
         stri->size = stri_size;
       } /* if */
     } /* if */
@@ -510,7 +509,6 @@ static striType readLineFromCurrentFile (void)
             return NULL;
           } /* if */
           line = resizedLine;
-          COUNT3_STRI(memlength, newmemlength);
           memory = line->mem;
           memlength = newmemlength;
         } /* if */
@@ -525,7 +523,6 @@ static striType readLineFromCurrentFile (void)
         line = NULL;
       } else {
         line = resizedLine;
-        COUNT3_STRI(memlength, position);
         line->size = position;
       } /* if */
     } /* if */

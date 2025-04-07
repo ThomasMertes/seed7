@@ -942,7 +942,6 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
                 result = NULL;
               } else {
                 result = resized_result;
-                COUNT3_STRI(chars_requested, result_size);
               } /* if */
             } /* if */
           } /* if */
@@ -1740,7 +1739,6 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               result = NULL;
             } else {
               result = resized_result;
-              COUNT3_STRI(old_result_size, result_size);
               old_result_size = result_size;
               /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
               memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
@@ -1765,7 +1763,6 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                   result = NULL;
                 } else {
                   result = resized_result;
-                  COUNT3_STRI(result_size, result_pos);
                   result->size = result_pos;
                   *terminationChar = (charType) EOF;
                 } /* if */
@@ -1802,7 +1799,6 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               result = NULL;
             } else {
               result = resized_result;
-              COUNT3_STRI(old_result_size, result_size);
               /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
               memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
               result->size = result_size;
@@ -1882,7 +1878,6 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
           return 0;
         } /* if */
         *stri = resized_stri;
-        COUNT3_STRI(old_stri_size, bytes_requested);
         old_stri_size = bytes_requested;
       } /* if */
       new_stri_size = (memSizeType) recv((os_socketType) sock,
@@ -1898,7 +1893,6 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
             return 0;
           } /* if */
           *stri = resized_stri;
-          COUNT3_STRI(old_stri_size, new_stri_size);
         } /* if */
       } /* if */
     } /* if */
@@ -1945,7 +1939,6 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
         return 0;
       } /* if */
       *stri = resized_stri;
-      COUNT3_STRI((*stri)->size, bytes_requested);
       old_address_size = (*address)->size;
       REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
       if (unlikely(resized_address == NULL)) {
@@ -1955,7 +1948,6 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           (*stri)->size = bytes_requested;
         } else {
           *stri = resized_stri;
-          COUNT3_STRI(bytes_requested, stri_size);
         } /* if */
         raise_error(MEMORY_ERROR);
         return 0;
@@ -2005,7 +1997,6 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
             return 0;
           } /* if */
           *stri = resized_stri;
-          COUNT3_STRI(bytes_requested, stri_size);
         } /* if */
       } /* if */
     } /* if */
@@ -2239,7 +2230,6 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
             return NULL;
           } /* if */
           result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
@@ -2258,7 +2248,6 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(memlength, position);
         result->size = position;
         if (bytes_received != 1) {
           *terminationChar = (charType) EOF;

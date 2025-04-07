@@ -168,7 +168,6 @@ static inline striType new_string (void)
     if (unlikely(stri_created == NULL)) {
       fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
-    COUNT3_STRI(symbol.stri_max, stri_created->size);
     if (unlikely(!ALLOC_STRI_SIZE_OK(symbol.striValue, symbol.stri_max))) {
       fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */

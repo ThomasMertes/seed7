@@ -123,7 +123,6 @@ striType gkbLineRead (charType *terminationChar)
             return NULL;
           } /* if */
           result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
@@ -139,7 +138,6 @@ striType gkbLineRead (charType *terminationChar)
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(memlength, position);
         result->size = position;
         *terminationChar = ch;
       } /* if */
@@ -191,7 +189,6 @@ striType gkbWordRead (charType *terminationChar)
             return NULL;
           } /* if */
           result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
@@ -208,7 +205,6 @@ striType gkbWordRead (charType *terminationChar)
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(memlength, position);
         result->size = position;
         *terminationChar = ch;
       } /* if */

@@ -943,7 +943,6 @@ striType concatPath (const const_striType absolutePath,
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(estimated_result_size, result_size);
           result->size = result_size;
         } /* if */
       } /* if */
@@ -992,7 +991,6 @@ striType straightenAbsolutePath (const const_striType absolutePath)
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(estimated_result_size, result_size);
           result->size = result_size;
         } /* if */
       } /* if */
@@ -1838,7 +1836,6 @@ striType strChRepl (const const_striType mainStri,
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(guessed_result_size, result_size);
         result->size = result_size;
       } /* if */
     } /* if */
@@ -2011,7 +2008,6 @@ striType strCLit (const const_striType stri)
         literal = NULL;
       } else {
         literal = resized_literal;
-        COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return literal;
@@ -2563,7 +2559,6 @@ striType strFromUtf8 (const const_striType utf8)
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(utf8Size, resultSize);
           } /* if */
         } /* if */
       } /* if */
@@ -3107,7 +3102,6 @@ striType strLit (const const_striType stri)
         literal = NULL;
       } else {
         literal = resized_literal;
-        COUNT3_STRI(ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return literal;
@@ -4040,7 +4034,6 @@ striType strRepl (const const_striType mainStri,
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(guessed_result_size, result_size);
         result->size = result_size;
       } /* if */
     } /* if */
@@ -4849,7 +4842,6 @@ striType strToUtf8 (const const_striType stri)
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(max_utf8_size(stri->size), result_size);
         result->size = result_size;
       } /* if */
     } /* if */

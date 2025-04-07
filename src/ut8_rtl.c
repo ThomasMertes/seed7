@@ -216,7 +216,6 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
               return result;
             } else {
               result = resized_result;
-              COUNT3_STRI(result->size, new_size);
               result->size = new_size;
             } /* if */
           } /* if */
@@ -244,7 +243,6 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
               return result;
             } else {
               result = resized_result;
-              COUNT3_STRI(result->size, new_size);
               result->size = new_size;
             } /* if */
           } /* if */
@@ -661,7 +659,6 @@ striType ut8Gets (fileType inFile, intType length)
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(result->size, num_of_chars_read);
           result->size = num_of_chars_read;
         } /* if */
       } /* if */
@@ -778,7 +775,6 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
                 result = NULL;
               } else {
                 result = resized_result;
-                COUNT3_STRI(position, result_size);
                 result->size = result_size;
                 *terminationChar = (charType) ch;
               } /* if */
@@ -991,7 +987,6 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
                 result = NULL;
               } else {
                 result = resized_result;
-                COUNT3_STRI(position, result_size);
                 result->size = result_size;
                 *terminationChar = (charType) ch;
               } /* if */

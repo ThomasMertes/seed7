@@ -1454,7 +1454,6 @@ striType filGets (fileType inFile, intType length)
               err_info = MEMORY_ERROR;
             } else {
               result = resized_result;
-              COUNT3_STRI(result->size, num_of_chars_read);
               result->size = num_of_chars_read;
             } /* if */
           } /* if */
@@ -1666,7 +1665,6 @@ striType filLineRead (fileType inFile, charType *terminationChar)
               return NULL;
             } /* if */
             result = resized_result;
-            COUNT3_STRI(memlength, newmemlength);
             memory = result->mem;
             memlength = newmemlength;
           } /* if */
@@ -1693,7 +1691,6 @@ striType filLineRead (fileType inFile, charType *terminationChar)
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(memlength, position);
             result->size = position;
             *terminationChar = (charType) ch;
           } /* if */
@@ -2451,7 +2448,6 @@ striType filTerminatedRead (fileType inFile, charType terminator,
               return NULL;
             } /* if */
             result = resized_result;
-            COUNT3_STRI(memlength, newmemlength);
             memory = result->mem;
             memlength = newmemlength;
           } /* if */
@@ -2475,7 +2471,6 @@ striType filTerminatedRead (fileType inFile, charType terminator,
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(memlength, position);
             result->size = position;
             *terminationChar = (charType) ch;
           } /* if */
@@ -2635,7 +2630,6 @@ striType filWordRead (fileType inFile, charType *terminationChar)
               return NULL;
             } /* if */
             result = resized_result;
-            COUNT3_STRI(memlength, newmemlength);
             memory = result->mem;
             memlength = newmemlength;
           } /* if */
@@ -2663,7 +2657,6 @@ striType filWordRead (fileType inFile, charType *terminationChar)
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(memlength, position);
             result->size = position;
             *terminationChar = (charType) ch;
           } /* if */

@@ -1532,7 +1532,6 @@ striType conv_from_os_stri (const const_os_striType os_stri,
           stri = NULL;
         } else {
           stri = resized_stri;
-          COUNT3_STRI(length, stri_size);
         } /* if */
       } /* if */
     } /* if */
@@ -1726,7 +1725,6 @@ striType conv_from_os_stri (const const_os_striType os_stri,
             stri = NULL;
           } else {
             stri = resized_stri;
-            COUNT3_STRI(length, stri_size);
           } /* if */
         } /* if */
       } else {
@@ -2172,7 +2170,6 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
             stri = NULL;
           } else {
             stri = resized_stri;
-            COUNT3_STRI(length, stri_size);
           } /* if */
         } /* if */
       } else {
@@ -2220,7 +2217,6 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
             stri = NULL;
           } else {
             stri = resized_stri;
-            COUNT3_STRI(length, stri_size);
           } /* if */
         } /* if */
       } else {
@@ -2289,7 +2285,6 @@ striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
           stri = NULL;
         } else {
           stri = resized_stri;
-          COUNT3_STRI(length, stri_size);
         } /* if */
       } /* if */
     } /* if */
@@ -2466,7 +2461,6 @@ striType stri_to_standard_path (const striType stri)
             stdPath = NULL;
           } else {
             stdPath = resized_stdPath;
-            COUNT3_STRI(pathLength, stdPath->size);
           } /* if */
         } /* if */
       } /* if */

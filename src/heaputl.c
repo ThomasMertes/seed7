@@ -219,7 +219,6 @@ striType growStri (striType stri, memSizeType len)
 #if ALLOW_STRITYPE_SLICES
         result->mem = result->mem1;
 #endif
-        COUNT3_STRI(result->capacity, newCapacity);
         result->capacity = newCapacity;
       } else {
         logError(printf("growStri(" FMT_X_MEM " (capacity=" FMT_U_MEM "), "
@@ -259,7 +258,6 @@ striType shrinkStri (striType stri, memSizeType len)
 #if ALLOW_STRITYPE_SLICES
     result->mem = result->mem1;
 #endif
-    COUNT3_STRI(result->capacity, newCapacity);
     result->capacity = newCapacity;
     return result;
   } /* shrinkStri */
