@@ -136,7 +136,7 @@ objectType bst_cat (listType arguments)
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          COUNT3_STRI(bstri1_size, result_size);
+          COUNT3_BSTRI(bstri1_size, result_size);
           result->size = result_size;
           memcpy(&result->mem[bstri1_size], bstri2->mem,
               bstri2->size);
