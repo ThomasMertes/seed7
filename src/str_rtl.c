@@ -3399,7 +3399,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     sourceElem = stri->mem;
     if (padSize >= (intType) striSize) {
       if (unlikely((uintType) padSize >= MAX_STRI_LEN)) {
-        FREE_STRI2(stri, striSize);
+        FREE_STRI(stri);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3409,6 +3409,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
         } /* if */
         if (result_size > striSize) {
           if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+            FREE_STRI(stri);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
@@ -3424,7 +3425,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
               *destElem++ = (strElemType) '0';
             } /* while */
             memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
-            FREE_STRI2(stri, striSize);
+            FREE_STRI(stri);
           } /* if */
         } else {
           result = stri;
