@@ -205,14 +205,14 @@ striType growStri (striType stri, memSizeType len)
              (memSizeType) stri, len, stri->size, stri->capacity, newCapacity,
              SIZ_STRI(newCapacity), sizeof(striRecord));
       fflush(stdout); */
-      result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
+      REALLOC_STRI_SIZE_OK(result, stri, newCapacity);
       if (unlikely(result == NULL)) {
         do {
           newCapacity = (newCapacity + len) / 2;
           /* printf("newCapacity: " FMT_U_MEM ", siz_stri=" FMT_U_MEM "\n",
               newCapacity, SIZ_STRI(newCapacity));
           fflush(stdout); */
-          result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
+          REALLOC_STRI_SIZE_OK(result, stri, newCapacity);
         } while (result == NULL && newCapacity != len);
       } /* if */
       if (likely(result != NULL)) {
@@ -255,7 +255,7 @@ striType shrinkStri (striType stri, memSizeType len)
     /* printf("shrinkStri(%lX, %lu) size=%u, capacity=%u, newCapacity=%u, siz_stri=%u, sizeof=%u\n",
          stri, len, stri->size, stri->capacity, newCapacity, SIZ_STRI(newCapacity), sizeof(striRecord));
     fflush(stdout); */
-    result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
+    REALLOC_STRI_SIZE_OK(result, stri, newCapacity);
 #if ALLOW_STRITYPE_SLICES
     result->mem = result->mem1;
 #endif

@@ -932,7 +932,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
               if (result_size == 0) {
                 *eofIndicator = (charType) EOF;
               } /* if */
-              REALLOC_STRI_SIZE_SMALLER(resized_result, result, chars_requested, result_size);
+              REALLOC_STRI_SIZE_SMALLER2(resized_result, result, chars_requested, result_size);
               if (unlikely(resized_result == NULL)) {
                 FREE_STRI2(result, chars_requested);
                 logError(printf("socGets(%d, " FMT_D ", *): "
@@ -1729,7 +1729,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
             result_size += BUFFER_DELTA_SIZE;
             /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
                 (unsigned long) result, old_result_size, result_size); */
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+            REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
             /* printf("B result=%08lx, resized_result=%08lx\n",
                 (unsigned long) result, (unsigned long) resized_result); */
             if (unlikely(resized_result == NULL)) {
@@ -1758,7 +1758,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
                 bytes_received = 0;
               } /* if */
               if (bytes_received == 0) {
-                REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_pos);
+                REALLOC_STRI_CHECK_SIZE2(resized_result, result, result_size, result_pos);
                 if (unlikely(resized_result == NULL)) {
                   FREE_STRI2(result, result_size);
                   raise_error(MEMORY_ERROR);
@@ -1793,7 +1793,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
             result_size = result_pos + bytes_requested;
             /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
                 (unsigned long) result, old_result_size, result_size); */
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+            REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
             /* printf("D result=%08lx, resized_result=%08lx\n",
                 (unsigned long) result, (unsigned long) resized_result); */
             if (unlikely(resized_result == NULL)) {
@@ -1876,7 +1876,7 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
       } /* if */
       old_stri_size = (*stri)->size;
       if (old_stri_size < bytes_requested) {
-        REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, old_stri_size, bytes_requested);
+        REALLOC_STRI_CHECK_SIZE2(resized_stri, *stri, old_stri_size, bytes_requested);
         if (unlikely(resized_stri == NULL)) {
           raise_error(MEMORY_ERROR);
           return 0;
@@ -1892,7 +1892,7 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
         memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, new_stri_size);
         (*stri)->size = new_stri_size;
         if (new_stri_size < old_stri_size) {
-          REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
+          REALLOC_STRI_SIZE_OK2(resized_stri, *stri, old_stri_size, new_stri_size);
           if (unlikely(resized_stri == NULL)) {
             raise_error(MEMORY_ERROR);
             return 0;
@@ -1939,7 +1939,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
       } else {
         bytes_requested = (memSizeType) length;
       } /* if */
-      REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, (*stri)->size, bytes_requested);
+      REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, bytes_requested);
       if (unlikely(resized_stri == NULL)) {
         raise_error(MEMORY_ERROR);
         return 0;
@@ -1950,7 +1950,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
       REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
       if (unlikely(resized_address == NULL)) {
         stri_size = (*stri)->size;
-        REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
+        REALLOC_STRI_SIZE_OK2(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
           (*stri)->size = bytes_requested;
         } else {
@@ -1999,7 +1999,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
         memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, stri_size);
         (*stri)->size = stri_size;
         if (stri_size < bytes_requested) {
-          REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
+          REALLOC_STRI_SIZE_OK2(resized_stri, *stri, bytes_requested, stri_size);
           if (unlikely(resized_stri == NULL)) {
             raise_error(MEMORY_ERROR);
             return 0;
@@ -2232,7 +2232,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
           ch != ' ' && ch != '\t' && ch != '\n') {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
           if (unlikely(resized_result == NULL)) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -2251,7 +2251,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
           position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK2(resized_result, result, memlength, position);
       if (unlikely(resized_result == NULL)) {
         FREE_STRI2(result, memlength);
         raise_error(MEMORY_ERROR);

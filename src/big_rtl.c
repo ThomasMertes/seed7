@@ -1498,7 +1498,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           } /* if */
           result->size = final_result_size;
           if (final_result_size < result_size) {
-            REALLOC_STRI_SIZE_SMALLER(resized_result, result, result_size, final_result_size);
+            REALLOC_STRI_SIZE_SMALLER2(resized_result, result, result_size, final_result_size);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI2(result, result_size);
               raise_error(MEMORY_ERROR);
@@ -7156,7 +7156,7 @@ striType bigStrDecimal (const const_bigIntType big1)
           } /* if */
           result->size = final_result_size;
           if (final_result_size < result_size) {
-            REALLOC_STRI_SIZE_SMALLER(resized_result, result, result_size, final_result_size);
+            REALLOC_STRI_SIZE_SMALLER2(resized_result, result, result_size, final_result_size);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI2(result, result_size);
               result = NULL;

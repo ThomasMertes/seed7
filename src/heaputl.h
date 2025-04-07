@@ -356,29 +356,28 @@ EXTERN memSizeType hs;
 #define UNALLOC_UTF32(var,len)     FREE_HEAP(var, SIZ_UTF32(len))
 
 
+#define COUNT3X_STRI(oldCap,newCap)     CNT3(CNT2_STRI(oldCap, SIZ_STRI(oldCap)), CNT1_STRI(newCap, SIZ_STRI(newCap)))
+
 #if WITH_STRI_CAPACITY
 #if ALLOW_STRITYPE_SLICES
-#define HEAP_ALLOC_STRI(var,cap)       (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->mem=(var)->mem1,(var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,cap)   if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=(cap);}
+#define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->mem=(var)->mem1,(var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3X_STRI((v1)->capacity,cap))(v1)->mem=(v1)->mem1,(v1)->capacity=(cap);}
 #else
-#define HEAP_ALLOC_STRI(var,cap)       (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,cap)   if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL)(v1)->capacity=(cap);
+#define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3X_STRI((v1)->capacity,cap))(v1)->capacity=(cap);}
 #endif
-#define HEAP_FREE_STRI(var, unused)    (CNT(CNT2_STRI((var)->capacity,SIZ_STRI((var)->capacity))) FREE_HEAP(var,SIZ_STRI((var)->capacity)))
+#define HEAP_FREE_STRI(var, unused)          (CNT(CNT2_STRI((var)->capacity,SIZ_STRI((var)->capacity))) FREE_HEAP(var,SIZ_STRI((var)->capacity)))
 #else
 #if ALLOW_STRITYPE_SLICES
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,len)   if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(len)))!=NULL)(v1)->mem=(v1)->mem1;
+#define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){CNT(COUNT3X_STRI(l1,l2))(v1)->mem=(v1)->mem1;}
 #else
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,len)   v1=REALLOC_HEAP(v2,striType,SIZ_STRI(len));
+#define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){COUNT3X_STRI(l1,l2);}
 #endif
-#define HEAP_FREE_STRI(var, len)       (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
+#define HEAP_FREE_STRI(var, len)             (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
 #endif
-#define COUNT3_STRI(cap1,cap2)         CNT3(CNT2_STRI(cap1, SIZ_STRI(cap1)), CNT1_STRI(cap2, SIZ_STRI(cap2)))
-#define COUNT_GROW_STRI(len1,len2)
-#define COUNT_GROW2_STRI(len1,len2)
-#define COUNT_SHRINK_STRI(len1,len2)
+#define COUNT3_STRI(oldCap,newCap)
 
 
 #if WITH_STRI_FREELIST
@@ -471,19 +470,22 @@ EXTERN unsigned int sflist_allowed;
 #endif
 
 #if WITH_STRI_CAPACITY
-#define GROW_STRI(v1,v2,l1,l2)            ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
-#define SHRINK_STRI(v1,v2,l1,l2)          ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
+#define GROW_STRI(v1,v2,l2)               ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
+#define SHRINK_STRI(v1,v2,l2)             ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
 #define MIN_GROW_SHRINK_CAPACITY          8
 #define SHRINK_REASON(v2,l2)              ((v2)->capacity>MIN_GROW_SHRINK_CAPACITY&&(l2)<(v2)->capacity>>2)
 #else
-#define GROW_STRI(v1,v2,l1,l2)            if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l2)}else v1=NULL;
-#define SHRINK_STRI(v1,v2,l1,l2)          HEAP_REALLOC_STRI(v1,v2,l2)
+#define GROW_STRI(v1,v2,l2)               if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,(v1)->size,l2)}else v1=NULL;
+#define SHRINK_STRI(v1,v2,l2)             HEAP_REALLOC_STRI(v1,v2,(v1)->size,l2)
 #endif
 
-#define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2)      HEAP_REALLOC_STRI(v1,v2,l2)
-#define REALLOC_STRI_CHECK_SIZE(v1,v2,l1,l2)   if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l2)}else v1=NULL;
+#define REALLOC_STRI_SIZE_OK(v1,v2,l2)           HEAP_REALLOC_STRI(v1,v2,(v1)->size,l2)
+#define REALLOC_STRI_SIZE_OK2(v1,v2,l1,l2)       HEAP_REALLOC_STRI(v1,v2,l1,l2)
+#define REALLOC_STRI_CHECK_SIZE(v1,v2,l2)        if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,(v1)->size,l2)}else v1=NULL;
+#define REALLOC_STRI_CHECK_SIZE2(v1,v2,l1,l2)    if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l1,l2)}else v1=NULL;
 /* The following macro is used if the new size is smaller or equal to the current one. */
-#define REALLOC_STRI_SIZE_SMALLER(v1,v2,l1,l2) HEAP_REALLOC_STRI(v1,v2,l2)
+#define REALLOC_STRI_SIZE_SMALLER(v1,v2,l2)      HEAP_REALLOC_STRI(v1,v2,(v1)->size,l2)
+#define REALLOC_STRI_SIZE_SMALLER2(v1,v2,l1,l2)  HEAP_REALLOC_STRI(v1,v2,l1,l2)
 
 #if ALLOW_STRITYPE_SLICES
 #define GET_DESTINATION_ORIGIN(dest)           (dest)->mem1

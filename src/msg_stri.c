@@ -100,12 +100,11 @@ void appendString (striType *const msg, const const_striType stri)
             *msg = msg_dest;
           } /* if */
         } /* if */
-        COUNT_GROW_STRI(msg_dest->size, new_size);
         memcpy(&msg_dest->mem[msg_dest->size], stri->mem,
                stri_size * sizeof(strElemType));
         msg_dest->size = new_size;
 #else
-        GROW_STRI(new_msg, msg_dest, msg_dest->size, new_size);
+        GROW_STRI(new_msg, msg_dest, new_size);
         if (unlikely(new_msg == NULL)) {
           logError(printf("appendString(\"%s\", ",
                           striAsUnquotedCStri(msg_dest));
@@ -114,7 +113,6 @@ void appendString (striType *const msg, const const_striType stri)
           FREE_STRI(msg_dest);
           *msg = NULL;
         } else {
-          COUNT_GROW_STRI(new_msg->size, new_size);
           memcpy(&new_msg->mem[new_msg->size], stri->mem,
                  stri_size * sizeof(strElemType));
           new_msg->size = new_size;
@@ -156,11 +154,10 @@ void appendChar (striType *const msg, const charType aChar)
           *msg = msg_dest;
         } /* if */
       } /* if */
-      COUNT_GROW_STRI(msg_dest->size, new_size);
       msg_dest->mem[msg_dest->size] = aChar;
       msg_dest->size = new_size;
 #else
-      GROW_STRI(new_msg, msg_dest, msg_dest->size, new_size);
+      GROW_STRI(new_msg, msg_dest, new_size);
       if (unlikely(new_msg == NULL)) {
         logError(printf("appendChar(\"%s\", '\\" FMT_U32 ";'): "
                         "GROW_STRI() failed.\n",
@@ -168,7 +165,6 @@ void appendChar (striType *const msg, const charType aChar)
         FREE_STRI(msg_dest);
         *msg = NULL;
       } else {
-        COUNT_GROW_STRI(new_msg->size, new_size);
         new_msg->mem[new_msg->size] = aChar;
         new_msg->size = new_size;
         *msg = new_msg;

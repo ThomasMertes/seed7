@@ -116,7 +116,7 @@ striType gkbLineRead (charType *terminationChar)
       while ((ch = gkbGetc()) != '\n' && ch != (charType) ((scharType) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -132,7 +132,7 @@ striType gkbLineRead (charType *terminationChar)
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_SMALLER2(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI2(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -184,7 +184,7 @@ striType gkbWordRead (charType *terminationChar)
           ch != '\n' && ch != (charType) ((scharType) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -201,7 +201,7 @@ striType gkbWordRead (charType *terminationChar)
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_SMALLER2(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI2(result, memlength);
         raise_error(MEMORY_ERROR);

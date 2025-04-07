@@ -93,7 +93,7 @@ void extend_stri_length (void)
       fatal_memory_error(SOURCE_POSITION(2013));
     } else {
       newStriMax = symbol.stri_max + INCR_SYMB_LENGTH;
-      REALLOC_STRI_SIZE_OK(resizedStriValue, symbol.striValue,
+      REALLOC_STRI_SIZE_OK2(resizedStriValue, symbol.striValue,
           symbol.stri_max, newStriMax);
       if (symbol.striValue == NULL) {
         fatal_memory_error(SOURCE_POSITION(2014));

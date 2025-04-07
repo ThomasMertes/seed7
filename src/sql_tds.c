@@ -1237,7 +1237,7 @@ static striType genSqlStringLiteral (const const_striType stri)
       literal->mem[pos] = (strElemType) '\'';
       pos++;
       literal->size = pos;
-      REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
+      REALLOC_STRI_SIZE_SMALLER2(resized_literal, literal,
           QUOTE_IN_STRING_LEN * striSize + numOfQuotes, pos);
       if (unlikely(resized_literal == NULL)) {
         FREE_STRI2(literal, QUOTE_IN_STRING_LEN * striSize + numOfQuotes);

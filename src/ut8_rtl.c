@@ -210,7 +210,7 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
         } else {
           if (result_pos + bytes_in_buffer > result->size) {
             new_size = result->size + GETS_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, new_size);
             if (resized_result == NULL) {
               *err_info = MEMORY_ERROR;
               return result;
@@ -238,7 +238,7 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
         } else {
           if (result_pos + bytes_in_buffer > result->size) {
             new_size = result->size + GETS_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, result->size, new_size);
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, new_size);
             if (resized_result == NULL) {
               *err_info = MEMORY_ERROR;
               return result;
@@ -654,7 +654,7 @@ striType ut8Gets (fileType inFile, intType length)
         raise_error(err_info);
         result = NULL;
       } else if (num_of_chars_read < result->size) {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, num_of_chars_read);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result);
           raise_error(MEMORY_ERROR);
@@ -771,7 +771,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
               result = NULL;
             } else {
               FREE_BSTRI(buffer, memlength);
-              REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
+              REALLOC_STRI_SIZE_OK2(resized_result, result, position, result_size);
               if (unlikely(resized_result == NULL)) {
                 FREE_STRI2(result, position);
                 raise_error(MEMORY_ERROR);
@@ -984,7 +984,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
               result = NULL;
             } else {
               FREE_BSTRI(buffer, memlength);
-              REALLOC_STRI_SIZE_OK(resized_result, result, position, result_size);
+              REALLOC_STRI_SIZE_OK2(resized_result, result, position, result_size);
               if (unlikely(resized_result == NULL)) {
                 FREE_STRI2(result, position);
                 raise_error(MEMORY_ERROR);

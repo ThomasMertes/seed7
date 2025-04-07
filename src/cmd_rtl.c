@@ -4465,7 +4465,7 @@ striType cmdShellEscape (const const_striType stri)
         raise_error(err_info);
         result = NULL;
       } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+        REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
             escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
@@ -4602,7 +4602,7 @@ striType cmdShellEscape (const const_striType stri)
             inPos--;
           } /* if */
         } /* for */
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+        REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
             escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);

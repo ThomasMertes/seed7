@@ -1448,7 +1448,7 @@ striType filGets (fileType inFile, intType length)
           memcpy_to_strelem(result->mem, (ustriType) result->mem,
                             num_of_chars_read);
           if (num_of_chars_read < result->size) {
-            REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size,
+            REALLOC_STRI_SIZE_SMALLER(resized_result, result,
                                       num_of_chars_read);
             if (unlikely(resized_result == NULL)) {
               err_info = MEMORY_ERROR;
@@ -1658,7 +1658,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
         while ((ch = getc_unlocked(cInFile)) != '\n' && ch != EOF) {
           if (position >= memlength) {
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI2(result, memlength);
               funlockfile(cInFile);
@@ -1686,7 +1686,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
           raise_error(FILE_ERROR);
           result = NULL;
         } else {
-          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          REALLOC_STRI_SIZE_SMALLER2(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -2443,7 +2443,7 @@ striType filTerminatedRead (fileType inFile, charType terminator,
         while ((ch = getc_unlocked(cInFile)) != termCh && ch != EOF) {
           if (position >= memlength) {
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI2(result, memlength);
               funlockfile(cInFile);
@@ -2468,7 +2468,7 @@ striType filTerminatedRead (fileType inFile, charType terminator,
           raise_error(FILE_ERROR);
           result = NULL;
         } else {
-          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          REALLOC_STRI_SIZE_SMALLER2(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -2627,7 +2627,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
             ch != '\n' && ch != EOF) {
           if (position >= memlength) {
             newmemlength = memlength + READ_STRI_SIZE_DELTA;
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            REALLOC_STRI_CHECK_SIZE2(resized_result, result, memlength, newmemlength);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI2(result, memlength);
               funlockfile(cInFile);
@@ -2656,7 +2656,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
           raise_error(FILE_ERROR);
           result = NULL;
         } else {
-          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          REALLOC_STRI_SIZE_SMALLER2(resized_result, result, memlength, position);
           if (unlikely(resized_result == NULL)) {
             FREE_STRI2(result, memlength);
             raise_error(MEMORY_ERROR);

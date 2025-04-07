@@ -303,7 +303,7 @@ objectType str_append (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = str_to_size + str_from->size;
-        GROW_STRI(new_str, str_to, str_to_size, new_size);
+        GROW_STRI(new_str, str_to, new_size);
         if (unlikely(new_str == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
@@ -313,7 +313,6 @@ objectType str_append (listType arguments)
             /* after realloc() enlarged 'str_to'.            */
             str_from = new_str;
           } /* if */
-          COUNT_GROW_STRI(str_to_size, new_size);
           memcpy(&new_str->mem[str_to_size], str_from->mem,
                  str_from->size * sizeof(strElemType));
           new_str->size = new_size;
@@ -355,11 +354,10 @@ objectType str_cat (listType arguments)
     } else {
       result_size = stri1_size + stri2->size;
       if (TEMP_OBJECT(arg_1(arguments))) {
-        GROW_STRI(result, stri1, stri1_size, result_size);
+        GROW_STRI(result, stri1, result_size);
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          COUNT_GROW_STRI(stri1_size, result_size);
           result->size = result_size;
           memcpy(&result->mem[stri1_size], stri2->mem,
                  stri2->size * sizeof(strElemType));
@@ -906,11 +904,10 @@ objectType str_head (listType arguments)
         result_size = (memSizeType) stop;
       } /* if */
       if (TEMP_OBJECT(arg_1(arguments))) {
-        SHRINK_STRI(result, stri, striSize, result_size);
+        SHRINK_STRI(result, stri, result_size);
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        COUNT_SHRINK_STRI(striSize, result_size);
         result->size = result_size;
         arg_1(arguments)->value.striValue = NULL;
       } else {
@@ -1362,11 +1359,10 @@ objectType str_push (listType arguments)
     isit_char(arg_3(arguments));
     char_from = take_char(arg_3(arguments));
     new_size = str_to->size + 1;
-    GROW_STRI(str_to, str_to, str_to->size, new_size);
+    GROW_STRI(str_to, str_to, new_size);
     if (unlikely(str_to == NULL)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      COUNT_GROW_STRI(str_to->size, new_size);
       str_to->mem[str_to->size] = char_from;
       str_to->size = new_size;
       str_variable->value.striValue = str_to;
@@ -1593,7 +1589,6 @@ objectType str_rtrim (listType arguments)
 
   {
     striType stri;
-    memSizeType striSize;
     memSizeType result_size;
     striType result;
 
@@ -1605,12 +1600,10 @@ objectType str_rtrim (listType arguments)
       result_size--;
     } /* while */
     if (TEMP_OBJECT(arg_1(arguments))) {
-      striSize = stri->size;
-      SHRINK_STRI(result, stri, striSize, result_size);
+      SHRINK_STRI(result, stri, result_size);
       if (unlikely(result == NULL)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      COUNT_SHRINK_STRI(striSize, result_size);
       result->size = result_size;
       arg_1(arguments)->value.striValue = NULL;
     } else {

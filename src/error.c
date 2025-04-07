@@ -302,7 +302,7 @@ static striType stri8_buffer_to_stri (const strElemType *const stri8,
           } /* if */
         } /* if */
       } while (unconverted != 0);
-      REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+      REALLOC_STRI_SIZE_SMALLER2(resized_stri, stri, length, stri_size);
       if (resized_stri == NULL) {
         FREE_STRI2(stri, length);
         stri = NULL;
@@ -504,7 +504,7 @@ static striType readLineFromCurrentFile (void)
       while ((ch = next_character()) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + LINE_SIZE_INCREMENT;
-          REALLOC_STRI_CHECK_SIZE(resizedLine, line, memlength, newmemlength);
+          REALLOC_STRI_CHECK_SIZE2(resizedLine, line, memlength, newmemlength);
           if (unlikely(resizedLine == NULL)) {
             FREE_STRI2(line, memlength);
             return NULL;
@@ -519,7 +519,7 @@ static striType readLineFromCurrentFile (void)
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_SMALLER(resizedLine, line, memlength, position);
+      REALLOC_STRI_SIZE_SMALLER2(resizedLine, line, memlength, position);
       if (unlikely(resizedLine == NULL)) {
         FREE_STRI2(line, memlength);
         line = NULL;
