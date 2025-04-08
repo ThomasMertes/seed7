@@ -381,6 +381,7 @@ const proc: moveLeft (inout pixmapFontFile: fontFile, in string: stri) is func
       end if;
       fontFile.currLeftX -:= width(charPixmap) + characterSpacing(fontFile.font);
     end for;
+    fontFile.column -:= length(stri);
   end func;
 
 
@@ -411,6 +412,7 @@ const proc: erase (inout pixmapFontFile: fontFile, in string: stri) is func
       rect(fontFile.win, fontFile.currLeftX, fontFile.currTopY, width, height,
           background(fontFile.font));
       fontFile.currLeftX +:= width;
+      fontFile.column +:= length(stri);
     end if;
   end func;
 
