@@ -233,12 +233,13 @@ const proc: (inout string: destination) &:= (in char: extension)     is action "
 
 (**
  *  Assign the char ''source'' to the ''position'' of the ''destination''.
+ *   A := "abcd";  A @:= [3] 'x';  # Now A has the value "abxd"
+ *   A := "abcd";  A @:= [5] 'x';  # Raises INDEX_ERROR
+ *   A := "abcd";  A @:= [0] 'x';  # Raises INDEX_ERROR
+ *  If the ''position'' is inside of ''source'' then
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  E.g.:
- *   A := "abcd";  A @:= [3] 'x';  # Now A has the value "abxd"
- *   A := "abcd";  A @:= [5] 'x';  # Raises INDEX_ERROR
  *  @exception INDEX_ERROR If ''position'' is negative or zero, or
  *             a character beyond ''destination'' would be overwritten
  *             (''position'' > length(''destination'') holds).
@@ -248,12 +249,14 @@ const proc: (inout string: destination) @:= [ (in integer: position) ] (in char:
 
 (**
  *  Assign the string ''source'' to the ''position'' of the ''destination''.
+ *   A := "abcd";  A @:= [2] "xy";  # Now A has the value "axyd"
+ *   A := "abcd";  A @:= [3] "xy";  # Now A has the value "abxy"
+ *   A := "abcd";  A @:= [4] 'xy';  # Raises INDEX_ERROR
+ *   A := "abcd";  A @:= [0] 'xy';  # Raises INDEX_ERROR
+ *  If nothing beyond the end of ''destination'' would be overwritten then
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & C & A[B+length(C)..];
- *  E.g.:
- *   A := "abcd";  A @:= [3] "xy";  # Now A has the value "abxy"
- *   A := "abcd";  A @:= [4] 'xy';  # Raises INDEX_ERROR
  *  @exception INDEX_ERROR If ''position'' is negative or zero, or
  *             if ''destination'' is smaller than ''source'', or
  *             characters beyond ''destination'' would be overwritten
