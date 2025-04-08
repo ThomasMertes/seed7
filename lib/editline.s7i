@@ -146,23 +146,31 @@ const func string: getln (inout editLineFile: inEditLine) is func
               erase(inEditLine.outFile, line[pos ..]);
               moveLeft(inEditLine.outFile, line[pos ..]);
               line := line[.. pred(pos)] & line[succ(pos) ..];
-              write(inEditLine.outFile, line[pos ..]);
-              moveLeft(inEditLine.outFile, line[pos ..]);
+              if pos <= length(line) then
+                write(inEditLine.outFile, line[pos ..]);
+                moveLeft(inEditLine.outFile, line[pos ..]);
+              end if;
             end if;
           when {KEY_DEL}:
             if pos <= length(line) then
               erase(inEditLine.outFile, line[pos ..]);
               moveLeft(inEditLine.outFile, line[pos ..]);
               line := line[.. pred(pos)] & line[succ(pos) ..];
-              write(inEditLine.outFile, line[pos ..]);
-              moveLeft(inEditLine.outFile, line[pos ..]);
+              if pos <= length(line) then
+                write(inEditLine.outFile, line[pos ..]);
+                moveLeft(inEditLine.outFile, line[pos ..]);
+              end if;
             end if;
           when {KEY_HOME}:
-            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
-            pos := 1;
+            if pos > 1 then
+              moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+              pos := 1;
+            end if;
           when {KEY_END}:
-            write(inEditLine.outFile, line[pos ..]);
-            pos := succ(length(line));
+            if pos <= length(line) then
+              write(inEditLine.outFile, line[pos ..]);
+              pos := succ(length(line));
+            end if;
           when {KEY_LEFT}:
             if pos > 1 then
               decr(pos);
@@ -209,8 +217,10 @@ const func string: getln (inout editLineFile: inEditLine) is func
               exit(PROGRAM);
             else
               backSpace(inEditLine.outFile, " terminate (y/n)? ");
-              write(inEditLine.outFile, line[pos len 20]);
-              moveLeft(inEditLine.outFile, line[pos len 20]);
+              if pos <= length(line) then
+                write(inEditLine.outFile, line[pos ..]);
+                moveLeft(inEditLine.outFile, line[pos ..]);
+              end if;
             end if;
           when {KEY_NL, KEY_CLOSE, EOF}:
             noop;
@@ -219,7 +229,9 @@ const func string: getln (inout editLineFile: inEditLine) is func
                 ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
               line := line[.. pred(pos)] & str(ch) & line[pos ..];
               write(inEditLine.outFile, line[pos ..]);
-              moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+              if pos < length(line) then
+                moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+              end if;
               incr(pos);
             end if;
         end case;
