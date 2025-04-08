@@ -372,7 +372,16 @@ const proc: writeln (inout window_file: window_fil) is func
 
 const proc: moveLeft (inout window_file: window_fil, in string: stri) is func
   begin
-    window_fil.curr_column -:= length(stri);
+    if stri <> "" then
+      if window_fil.curr_column > length(stri) then
+        moveLeft(window_fil.out_file, stri);
+        window_fil.curr_column -:= length(stri);
+      elsif window_fil.curr_column > 1 then
+        moveLeft(window_fil.out_file,
+                 stri[length(stri) - window_fil.curr_column + 2 ..]);
+        window_fil.curr_column := 1;
+      end if;
+    end if;
   end func;
 
 
