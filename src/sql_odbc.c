@@ -424,13 +424,11 @@ static void listDrivers (connectDataType connectData, SQLHDBC sql_connection,
       direction = SQL_FETCH_NEXT;
       printWstri(driver);
       printf("\n");
-      /* printf("%ls:\n", driver); */
       attrPtr = attr;
       while (*attrPtr != '\0') {
         printf("  ");
         printWstri(attrPtr);
         printf("\n");
-        /* printf("  %ls\n", attrPtr); */
         while (*attrPtr != '\0') {
           attrPtr++;
         } /* while */

@@ -279,7 +279,9 @@ progType prgBStriParse (const bstriType bstri, const const_setType options,
     progType resultProg;
 
   /* prgBStriParse */
-    logFunction(printf("prgBStriParse(\"%s\")\n", bstriAsUnquotedCStri(bstri)););
+    logFunction(printf("prgBStriParse(\"%s\", 0x" F_X(016) ")\n",
+                       bstriAsUnquotedCStri(bstri),
+                       (uintType) setSConv(options)););
     int_options = (uintType) setSConv(options);
     resultProg = analyzeBString(bstri, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -520,7 +522,9 @@ progType prgFilParse (const const_striType fileName, const const_setType options
     progType resultProg;
 
   /* prgFilParse */
-    logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
+    logFunction(printf("prgFilParse(\"%s\", 0x" F_X(016) ")\n",
+                       striAsUnquotedCStri(fileName),
+                       (uintType) setSConv(options)););
     int_options = (uintType) setSConv(options);
     resultProg = analyzeFile(fileName, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -806,7 +810,9 @@ progType prgStrParse (const const_striType stri, const const_setType options,
     progType resultProg;
 
   /* prgStrParse */
-    logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
+    logFunction(printf("prgStrParse(\"%s\", 0x" F_X(016) ")\n",
+                       striAsUnquotedCStri(stri),
+                       (uintType) setSConv(options)););
     int_options = (uintType) setSConv(options);
     resultProg = analyzeString(stri, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {

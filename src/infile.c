@@ -233,7 +233,8 @@ boolType openInfile (const_striType sourceFileName,
         } else {
           name_ustri = (ustriType) stri_to_cstri8(sourceFileName, err_info);
           if (name_ustri != NULL) {
-            /* printf("name_ustri: \"%s\"\n", name_ustri); */
+            logMessage(printf("openInfile: name_ustri: \"%s\"\n",
+                              name_ustri););
             name_length = strlen((cstriType) name_ustri);
             resized_name_ustri = REALLOC_USTRI(name_ustri,
                 max_utf8_size(sourceFileName->size), name_length);
@@ -297,8 +298,8 @@ boolType openInfile (const_striType sourceFileName,
 void closeInfile (void)
 
   { /* closeInfile */
-    logFunction(printf("closeInfile\n"););
-    /* printf("\nclose(\"%s\");\n", in_file.name); */
+    logFunction(printf("closeInfile (name=\"%s\")\n",
+                       in_file.name););
 #if WITH_COMPILATION_INFO
     if (in_file.write_line_numbers) {
       NL_LIN_INFO();
