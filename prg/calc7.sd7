@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "console.s7i";
   include "editline.s7i";
+  include "unicode.s7i";
 
 
 const proc: main is func
@@ -109,7 +110,8 @@ const proc: main is func
             if startsWith(error.errorLine, writelnLineStart) then
               if error.columnNumber > length(writelnLineStart) then
                 columnNumber := length(prompt) +
-                    error.columnNumber - length(writelnLineStart) - 1;
+                    width(fromUtf8(error.errorLine[.. pred(error.columnNumber)])) -
+                    length(writelnLineStart);
                 writeln("-" mult columnNumber <& "^");
               end if;
             end if;
