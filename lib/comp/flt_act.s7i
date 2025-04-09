@@ -283,7 +283,7 @@ const proc: process (FLT_BITS2SINGLE, in reference: function,
     var string: temp_name is "";
     var string: union_name is "";
   begin
-    if conversion_range_check then
+    if config.conversion_range_check then
       number_range := getIntRange(params[1]);
       if number_range.maxValue < 0 or number_range.minValue >= 2 ** 32 then
         warning(DOES_RAISE, "RANGE_ERROR", c_expr);
@@ -482,7 +482,7 @@ const proc: process (FLT_DIV, in reference: function,
           not isVar(getActionParameter(params[3], 2)) and
           getValue(getActionParameter(params[3], 2), float) = 0.0 then
       process_const_flt_div(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
-    elsif ccConf.FLOAT_ZERO_DIV_ERROR and evaluate_const_expr = 0 and
+    elsif ccConf.FLOAT_ZERO_DIV_ERROR and config.evaluate_const_expr = 0 and
           category(params[3]) = FLOATOBJECT and not isVar(params[3]) and
           getValue(params[3], float) = 0.0 then
       process_const_flt_div(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
@@ -2121,7 +2121,7 @@ const proc: process_const_flt_rand (in float: low, in float: high,
         c_expr.expr &:= ", ";
         c_expr.expr &:= floatLiteral(high);
         c_expr.expr &:= ")";
-      elsif inlineFunctions then
+      elsif config.inlineFunctions then
         if delta > 0.0 and 2.0 ** floor(log2(delta)) = delta then
           # Delta is a power of two.
           incr(countInlinedFunctions);
@@ -2342,7 +2342,7 @@ const proc: process (FLT_ROUND, in reference: function,
     else
       c_expr.expr &:= "(";
       number := getParameterAsVariable("floatType", "tmp_", params[1], c_expr);
-      if conversion_range_check then
+      if config.conversion_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(os_isnan(";
         c_expr.expr &:= number;
@@ -2736,7 +2736,7 @@ const proc: process (FLT_TRUNC, in reference: function,
           warning(DOES_RAISE, "RANGE_ERROR", c_expr);
           c_expr.expr &:= intRaiseError("RANGE_ERROR");
       end block;
-    elsif conversion_range_check then
+    elsif config.conversion_range_check then
       incr(countRangeChecks);
       c_expr.expr &:= "(";
       number := getParameterAsVariable("floatType", "tmp_", params[1], c_expr);

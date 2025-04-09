@@ -70,7 +70,7 @@ const proc: declareExtern (inout file: c_prog, in string: prototype) is func
 
   begin
     write(c_prog, "extern ");
-    if declare_with_extern_c then
+    if config.declare_with_extern_c then
       write(c_prog, "\"C\" ");
     end if;
     writeln(c_prog, prototype);

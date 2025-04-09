@@ -89,7 +89,7 @@ const proc: process (ENU_ICONV2, in reference: function,
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= "(enumType)";
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    elsif conversion_range_check then
+    elsif config.conversion_range_check then
       if number_range.minValue >= 0 and
           number_range.maxValue < numberOfEnumLiterals then
         # This conversion cannot trigger a range error.

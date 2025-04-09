@@ -658,9 +658,9 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
     var string: param_value is "";
   begin
     arraySize := arrayLength(arrayValue);
-    if evaluate_const_expr >= 2 and
+    if config.evaluate_const_expr >= 2 and
         arrayMinIdx(arrayValue) > arrayMaxIdx(arrayValue) then
-      if inlineFunctions and
+      if config.inlineFunctions and
           arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 then
         incr(c_declaration.temp_num);
         variableName := "new_arr" <& c_declaration.temp_num;
@@ -691,7 +691,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
         c_declaration.temp_assigns &:= ");\n";
       end if;
-    elsif evaluate_const_expr >= 2 and
+    elsif config.evaluate_const_expr >= 2 and
         canUseArrTimes(objectType, arrayValue, repeatedElement) and
         category(repeatedElement) = INTOBJECT then
       if getValue(repeatedElement, integer) = 0 then
@@ -702,7 +702,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_decls &:= variableName;
         c_declaration.temp_assigns &:= "(";
         c_declaration.temp_assigns &:= variableName;
-        if inlineFunctions and
+        if config.inlineFunctions and
             arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 and
             arraySize <= 100000000 then
           # The indices are okay and the size given to malloc() will not overflow.
@@ -1748,7 +1748,8 @@ const proc: optimize_constant_expressions (inout reference: current_expression,
   local
     var reference: evaluated_expression is NIL;
   begin
-    if evaluate_const_expr = 3 and isConstantExpr(current_expression) then
+    if config.evaluate_const_expr = 3 and
+        isConstantExpr(current_expression) then
       block
         evaluated_expression := evaluate(prog, current_expression);
         if evaluated_expression <> NIL and evaluated_expression <> current_expression then
@@ -2243,7 +2244,7 @@ const proc: process_result_declaration (in reference: result_object,
     var reference: evaluatedExpr is NIL;
   begin
     if result_object <> NIL then
-      if evaluate_const_expr >= 2 and isConstant(result_init) then
+      if config.evaluate_const_expr >= 2 and isConstant(result_init) then
         block
           evaluatedExpr := evaluate(prog, result_init);
           if evaluatedExpr <> NIL then
@@ -2368,7 +2369,7 @@ const proc: process_const_func_declaration (in reference: function,
         currentProfiledFunction := function;
         process_expr(body(function), c_func_body);
         if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" or
-            trace_function or profile_function then
+            config.trace_function or config.profile_function then
           c_expr.currentFile := file(body(function));
           c_expr.currentLine := line(body(function));
           setDiagnosticLine(c_expr);
@@ -2380,19 +2381,19 @@ const proc: process_const_func_declaration (in reference: function,
           end if;
           appendWithDiagnostic(c_param_list.temp_decls, c_expr);
           appendWithDiagnostic(c_func_body.temp_decls, c_expr);
-          if trace_function then
+          if config.trace_function then
             c_expr.expr &:= "fprintf(";
-            c_expr.expr &:= trace_output;
+            c_expr.expr &:= config.trace_output;
             c_expr.expr &:= ", \"-> ";
             create_name(function, c_expr.expr);
             c_expr.expr &:= "\\n\");\n";
-            if flush_trace_output then
+            if config.flush_trace_output then
               c_expr.expr &:= "fflush(";
-              c_expr.expr &:= trace_output;
+              c_expr.expr &:= config.trace_output;
               c_expr.expr &:= ");\n";
             end if;
           end if;
-          if profile_function then
+          if config.profile_function then
             profiledFunctions @:= [objNumber(function)] function;
             c_expr.expr &:= "profile[";
             c_expr.expr &:= str(objNumber(function));
@@ -2421,7 +2422,7 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= ");\n";
           appendWithDiagnostic(c_param_list.temp_frees, c_expr);
           appendWithDiagnostic(c_func_body.temp_frees, c_expr);
-          if profile_function then
+          if config.profile_function then
             c_expr.expr &:= "profile[";
             c_expr.expr &:= str(objNumber(function));
             c_expr.expr &:= "].depth--;\n";
@@ -2433,15 +2434,15 @@ const proc: process_const_func_declaration (in reference: function,
             c_expr.expr &:= "].time += timMicroSec();\n";
             c_expr.expr &:= "}\n";
           end if;
-          if trace_function then
+          if config.trace_function then
             c_expr.expr &:= "fprintf(";
-            c_expr.expr &:= trace_output;
+            c_expr.expr &:= config.trace_output;
             c_expr.expr &:= ", \"<- ";
             create_name(function, c_expr.expr);
             c_expr.expr &:= "\\n\");\n";
-            if flush_trace_output then
+            if config.flush_trace_output then
               c_expr.expr &:= "fflush(";
-              c_expr.expr &:= trace_output;
+              c_expr.expr &:= config.trace_output;
               c_expr.expr &:= ");\n";
             end if;
           end if;
@@ -2473,19 +2474,19 @@ const proc: process_const_func_declaration (in reference: function,
         c_expr.expr &:= c_result.temp_decls;
         c_expr.expr &:= c_local_vars.temp_decls;
         appendWithDiagnostic(c_func_body.temp_decls, c_expr);
-        if trace_function then
+        if config.trace_function then
           c_expr.expr &:= "fprintf(";
-          c_expr.expr &:= trace_output;
+          c_expr.expr &:= config.trace_output;
           c_expr.expr &:= ", \"-> ";
           create_name(function, c_expr.expr);
           c_expr.expr &:= "\\n\");\n";
-          if flush_trace_output then
+          if config.flush_trace_output then
             c_expr.expr &:= "fflush(";
-            c_expr.expr &:= trace_output;
+            c_expr.expr &:= config.trace_output;
             c_expr.expr &:= ");\n";
           end if;
         end if;
-        if profile_function then
+        if config.profile_function then
           profiledFunctions @:= [objNumber(function)] function;
           c_expr.expr &:= "profile[";
           c_expr.expr &:= str(objNumber(function));
@@ -2509,7 +2510,7 @@ const proc: process_const_func_declaration (in reference: function,
         appendWithDiagnostic(c_param_list.temp_frees, c_expr);
         appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
         appendWithDiagnostic(c_func_body.temp_frees, c_expr);
-        if profile_function then
+        if config.profile_function then
           c_expr.expr &:= "profile[";
           c_expr.expr &:= str(objNumber(function));
           c_expr.expr &:= "].depth--;\n";
@@ -2521,15 +2522,15 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= "].time += timMicroSec();\n";
           c_expr.expr &:= "}\n";
         end if;
-        if trace_function then
+        if config.trace_function then
           c_expr.expr &:= "fprintf(";
-          c_expr.expr &:= trace_output;
+          c_expr.expr &:= config.trace_output;
           c_expr.expr &:= ", \"<- ";
           create_name(function, c_expr.expr);
           c_expr.expr &:= "\\n\");\n";
-          if flush_trace_output then
+          if config.flush_trace_output then
             c_expr.expr &:= "fflush(";
-            c_expr.expr &:= trace_output;
+            c_expr.expr &:= config.trace_output;
             c_expr.expr &:= ");\n";
           end if;
         end if;
@@ -2654,17 +2655,17 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "int fail_value;\n";
     main_prolog &:= "catch_stack_pos = 0;\n";
     main_prolog &:= "max_catch_stack = 128;\n";
-    if trace_function then
+    if config.trace_function then
       main_prolog &:= "fprintf(";
-      main_prolog &:= trace_output;
+      main_prolog &:= config.trace_output;
       main_prolog &:= ", \"-> main\\n\");\n";
-      if flush_trace_output then
+      if config.flush_trace_output then
         main_prolog &:= "fflush(";
-        main_prolog &:= trace_output;
+        main_prolog &:= config.trace_output;
         main_prolog &:= ");\n";
       end if;
     end if;
-    if profile_function then
+    if config.profile_function then
       main_prolog &:= "initProfile();\n";
       profiledFunctions @:= [objNumber(main_object)] main_object;
       main_prolog &:= "profile[";
@@ -2683,7 +2684,7 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    main_prolog &:= "setupStack(" <& stack_size <& ");\n";
+    main_prolog &:= "setupStack(" <& config.stack_size <& ");\n";
     main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFiles();\n";
     if ccConf.USE_WINMAIN then
@@ -2700,7 +2701,8 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "init_primitiv();\n";
     end if;
     main_prolog &:= "init_values();\n";
-    main_prolog &:= "setupSignalHandlers(1, " <& ord(trace_signal) <&  ", " <&
+    main_prolog &:= "setupSignalHandlers(1, " <&
+                                         ord(config.trace_signal) <&  ", " <&
                                          ord(ccConf.OVERFLOW_SIGNAL <> "") <&
                                          ", 1, NULL);\n";
     main_prolog &:= "init_globals();\n";
@@ -2724,7 +2726,7 @@ const proc: process_main_declaration (in reference: current_object,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
 
-    if profile_function then
+    if config.profile_function then
       main_epilog &:= "profile[";
       main_epilog &:= str(objNumber(main_object));
       main_epilog &:= "].depth--;\n";
@@ -2762,13 +2764,13 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "  }\n";
       main_epilog &:= "}\n";
     end if;
-    if trace_function then
+    if config.trace_function then
       main_epilog &:= "fprintf(";
-      main_epilog &:= trace_output;
+      main_epilog &:= config.trace_output;
       main_epilog &:= ", \"<- main\\n\");\n";
-      if flush_trace_output then
+      if config.flush_trace_output then
         main_epilog &:= "fflush(";
-        main_epilog &:= trace_output;
+        main_epilog &:= config.trace_output;
         main_epilog &:= ");\n";
       end if;
     end if;
@@ -2941,7 +2943,7 @@ const proc: process_int_declaration (in reference: current_object,
       c_expr.expr &:= integerLiteral(getValue(current_object, integer));
       c_expr.expr &:= ";\n\n";
       count_declarations(c_expr);
-    elsif optimizeFixedSizeArrays then
+    elsif config.optimizeFixedSizeArrays then
       param_list := formalParams(current_object);
       if param_list <> ref_list.EMPTY then
         if length(param_list) = 2 and
@@ -4246,14 +4248,14 @@ const proc: process_dynamic_decision (in reference: current_object,
       appendWithDiagnostic(c_param_list.temp_decls, c_expr);
       appendWithDiagnostic(c_func_body.temp_decls, c_expr);
       c_expr.expr &:= c_param_list.temp_assigns;
-      if trace_dynamic_calls then
+      if config.trace_dynamic_calls then
         c_expr.expr &:= "fprintf(";
-        c_expr.expr &:= trace_output;
+        c_expr.expr &:= config.trace_output;
         c_expr.expr &:= ", \"DYNAMIC ";
         create_name(current_object, c_expr.expr);
         c_expr.expr &:= "\\n\");\n";
         c_expr.expr &:= "fflush(";
-        c_expr.expr &:= trace_output;
+        c_expr.expr &:= config.trace_output;
         c_expr.expr &:= ");\n";
       end if;
       appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
@@ -5764,7 +5766,7 @@ const proc: write_file_head is func
     writeln(c_prog, "size_t max_catch_stack;");
     writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
-    if profile_function then
+    if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
       writeln(c_prog, "static unsigned int profile_size;");
       writeln(c_prog, "struct profileElement {");
@@ -5806,7 +5808,7 @@ const proc: declareExtern (in string: prototype) is func
 
   begin
     write(c_prog, "extern ");
-    if declare_with_extern_c then
+    if config.declare_with_extern_c then
       write(c_prog, "\"C\" ");
     end if;
     writeln(c_prog, prototype);
@@ -5884,7 +5886,7 @@ const proc: write_prototypes is func
     declareExtern("intType     enuValue (objRefType a)                         {printf(\"enuValue\\n\");}");
     declareExtern("intType     enuValue (objRefType);");
 *)
-    if trace_signal then
+    if config.trace_signal then
       writeln(c_prog, "#define filGetc(inFile) filGetcChkCtrlC(inFile)");
       writeln(c_prog, "#define filGets(inFile, length) filGetsChkCtrlC(inFile, length)");
       writeln(c_prog, "#define filHasNext(inFile) filHasNextChkCtrlC(inFile)");
@@ -7642,7 +7644,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
   begin
     c_expr.expr &:= "void rtlRaiseError (int fail_value, const char *file_name, int line_number)\n";
     c_expr.expr &:= "{\n";
-    if trace_exception then
+    if config.trace_exception then
       c_expr.expr &:= "  int ch;\n";
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
       c_expr.expr &:= "    printf(\"\\n*** Uncaught exception \");\n";
@@ -7668,7 +7670,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
     end if;
     c_expr.expr &:= "  error_file = file_name;\n";
     c_expr.expr &:= "  error_line = line_number;\n";
-    if signal_exception then
+    if config.signal_exception then
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
       c_expr.expr &:= "    printf(\"\\n*** Uncaught exception \");\n";
       c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
@@ -7701,7 +7703,7 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
     c_expr.expr &:= "{\n";
     if compilerLibraryUsed then
       c_expr.expr &:= "  if (interpreter_exception) {\n";
-      if trace_exception then
+      if config.trace_exception then
         c_expr.expr &:= "    int ch;\n";
         c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
         c_expr.expr &:= "      printf(\"*** Exception %s\", exception_name[fail_value]);\n";
@@ -7775,7 +7777,7 @@ const proc: process_global_declarations (in program: prog) is func
     initCaseLabels(c_expr);
     init_values(c_expr);
     init_globals(c_expr);
-    if profile_function then
+    if config.profile_function then
       int_type := getValue(sysVar(prog, "integer"), type);
       numObjects := objNumber(alloc(TRUE, int_type, 0));
       writeln(c_prog, "static unsigned int profile_size = " <& numObjects <& ";");
@@ -7891,7 +7893,7 @@ const proc: pass_1 (in string: source, inout program: prog,
     end if;
     if "-w" in compilerOptions then
       if compilerOptions["-w"] in {"0", "1", "2"} then
-        warning_level := integer(compilerOptions["-w"]);
+        config.warning_level := integer(compilerOptions["-w"]);
       else
         writeln("*** Unsupported option: -w" <& compilerOptions["-w"]);
         okay := FALSE;
@@ -7899,7 +7901,7 @@ const proc: pass_1 (in string: source, inout program: prog,
     end if;
     if "-g" in compilerOptions then
       if compilerOptions["-g"] in {"", "-debug_c"} then
-        source_debug_info := compilerOptions["-g"] <> "-debug_c";
+        config.source_debug_info := compilerOptions["-g"] <> "-debug_c";
       else
         writeln("*** Unsupported option: -g" <& compilerOptions["-g"]);
         okay := FALSE;
@@ -7908,10 +7910,10 @@ const proc: pass_1 (in string: source, inout program: prog,
     if "-t" in compilerOptions then
       for optionChar range compilerOptions["-t"] do
         case optionChar of
-          when {'d'}: trace_dynamic_calls := TRUE;
-          when {'e'}: trace_exception := TRUE;
-          when {'f'}: trace_function := TRUE;
-          when {'s'}: trace_signal := TRUE;
+          when {'d'}: config.trace_dynamic_calls := TRUE;
+          when {'e'}: config.trace_exception := TRUE;
+          when {'f'}: config.trace_function := TRUE;
+          when {'s'}: config.trace_signal := TRUE;
           otherwise:
             writeln("*** Unsupported option: -t" <& optionChar);
             okay := FALSE;
@@ -7919,43 +7921,43 @@ const proc: pass_1 (in string: source, inout program: prog,
       end for;
     end if;
     if "-p" in compilerOptions then
-      profile_function := TRUE;
+      config.profile_function := TRUE;
     end if;
     if "-e" in compilerOptions then
-      signal_exception := TRUE;
+      config.signal_exception := TRUE;
     end if;
     if "-o" in compilerOptions then
       if compilerOptions["-o"] in {"c0", "c1", "c2", "c3"} then
-        evaluate_const_expr := integer(compilerOptions["-o"][2 ..]);
+        config.evaluate_const_expr := integer(compilerOptions["-o"][2 ..]);
       else
         writeln("*** Unsupported option: -o" <& compilerOptions["-o"]);
         okay := FALSE;
       end if;
     end if;
-    setOptimizationSettings(evaluate_const_expr);
+    setOptimizationSettings(config.evaluate_const_expr);
     if "-s" in compilerOptions then
       for optionChar range compilerOptions["-s"] do
         case optionChar of
-          when {'d'}: integer_division_check := FALSE;
-          when {'i'}: string_index_check := FALSE;
-                      bstring_index_check := FALSE;
-                      array_index_check := FALSE;
-                      ref_list_index_check := FALSE;
-          when {'o'}: integer_overflow_check := FALSE;
-          when {'r'}: function_range_check := FALSE;
-                      conversion_range_check := FALSE;
+          when {'d'}: config.integer_division_check := FALSE;
+          when {'i'}: config.string_index_check := FALSE;
+                      config.bstring_index_check := FALSE;
+                      config.array_index_check := FALSE;
+                      config.ref_list_index_check := FALSE;
+          when {'o'}: config.integer_overflow_check := FALSE;
+          when {'r'}: config.function_range_check := FALSE;
+                      config.conversion_range_check := FALSE;
           otherwise:
             writeln("*** Unsupported option: -s" <& optionChar);
             okay := FALSE;
         end case;
       end for;
     end if;
-    setIntegerDivisionCheck(integer_division_check);
-    setIntegerOverflowCheck(integer_overflow_check);
+    setIntegerDivisionCheck(config.integer_division_check);
+    setIntegerOverflowCheck(config.integer_overflow_check);
     if "-c" in compilerOptions then
       if compilerOptions["-c"] = "++" then
-        generate_c_plus_plus := TRUE;
-        declare_with_extern_c := generate_c_plus_plus;
+        config.generate_c_plus_plus := TRUE;
+        config.declare_with_extern_c := config.generate_c_plus_plus;
       else
         configFileName := ccConf.S7_LIB_DIR & "/cc_conf_" & compilerOptions["-c"] & ".prop";
         if fileType(configFileName) = FILE_REGULAR then
@@ -7970,7 +7972,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       case compilerOptions["-f"] of
         when {"lto"}:
           if ccConf.CC_OPT_LINK_TIME_OPTIMIZATION <> "" then
-            enable_link_time_optimization := TRUE;
+            config.enable_link_time_optimization := TRUE;
           end if;
         otherwise:
           writeln("*** Unsupported option: -f" <& compilerOptions["-f"]);
@@ -7979,14 +7981,14 @@ const proc: pass_1 (in string: source, inout program: prog,
     end if;
     if "-S" in compilerOptions then
       block
-        stack_size := integer(compilerOptions["-S"]);
+        config.stack_size := integer(compilerOptions["-S"]);
       exception
         otherwise:
           writeln("*** Ignore unsupported option: -S" <& compilerOptions["-S"]);
           okay := FALSE;
       end block;
     else
-      stack_size := ccConf.DEFAULT_STACK_SIZE;
+      config.stack_size := ccConf.DEFAULT_STACK_SIZE;
     end if;
     if okay then
       writeln("Source: " <& source);
@@ -8027,7 +8029,7 @@ const proc: pass_2 (in string: source, in program: prog,
       if main_object <> NIL then
         compileLibrary := category(main_object) = FORWARDOBJECT;
         temporaryFileName := temp_name(source);
-        if generate_c_plus_plus then
+        if config.generate_c_plus_plus then
           temporaryFileName &:= ".cpp";
         else
           temporaryFileName &:= ".c";
@@ -8305,7 +8307,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         sourceFile := sourcePath[succ(rpos(sourcePath, "/")) ..];
       end if;
       cSourceFile  := "tmp_" & sourceFile;
-      if generate_c_plus_plus then
+      if config.generate_c_plus_plus then
         cSourceFile  &:= ".cpp";
       else
         cSourceFile  &:= ".c";
@@ -8322,13 +8324,13 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       if fileType(objectFile) = FILE_REGULAR then
         removeFile(objectFile);
       end if;
-      if generate_c_plus_plus then
+      if config.generate_c_plus_plus then
         compile_cmd := ccConf.CPLUSPLUS_COMPILER;
       else
         compile_cmd := ccConf.C_COMPILER;
       end if;
       compileParams &:= ccConf.CC_OPT_NO_WARNINGS;
-      if enable_link_time_optimization then
+      if config.enable_link_time_optimization then
         compileParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
       end if;
       if "-O" in compilerOptions then
@@ -8343,7 +8345,8 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             writeln("*** Ignore unsupported option: -O" <& compilerOptions["-O"]);
         end case;
       end if;
-      if integer_overflow_check and ccConf.CC_OPT_TRAP_OVERFLOW <> "" then
+      if config.integer_overflow_check and
+          ccConf.CC_OPT_TRAP_OVERFLOW <> "" then
         compileParams &:= ccConf.CC_OPT_TRAP_OVERFLOW;
       end if;
       if "-g" in compilerOptions then
@@ -8429,12 +8432,13 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           end if;
           if fileType(linkedProgram) = FILE_ABSENT then
             writeln("Calling the linker ...");
-            if generate_c_plus_plus then
+            if config.generate_c_plus_plus then
               link_cmd := ccConf.CPLUSPLUS_COMPILER;
             else
               link_cmd := ccConf.C_COMPILER;
             end if;
-            if enable_link_time_optimization or ccConf.LINKER_OPT_LTO_MANDATORY then
+            if config.enable_link_time_optimization or
+                ccConf.LINKER_OPT_LTO_MANDATORY then
               linkParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
             end if;
             if "-g" in compilerOptions then
@@ -8447,7 +8451,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               end if;
             end if;
             if ccConf.LINKER_OPT_STACK_SIZE <> "" then
-              linkParams &:= ccConf.LINKER_OPT_STACK_SIZE <& stack_size;
+              linkParams &:= ccConf.LINKER_OPT_STACK_SIZE <& config.stack_size;
             end if;
             linkParams &:= ccConf.LINKER_FLAGS;
             if ccConf.LINKER_OPT_OUTPUT_FILE <> "" then

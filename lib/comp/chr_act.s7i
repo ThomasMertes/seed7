@@ -206,7 +206,7 @@ const proc: process_chr_iconv (in reference: number, inout expr_type: c_expr) is
   begin
     if getConstant(number, INTOBJECT, evaluatedParam) then
       process_const_chr_iconv(getValue(evaluatedParam, integer), c_expr);
-    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
+    elsif config.conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
       number_range := getIntRange(number);
       if number_range.minValue >= -2147483648 and
           number_range.maxValue <= 2147483647 then

@@ -1067,7 +1067,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
   begin
     if base = -1_ then
       incr(countOptimizations);
-      if bigint_power_check then
+      if config.bigint_power_check then
         c_expr.expr &:= "(";
         exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
         c_expr.expr &:= "numChk(";
@@ -1091,7 +1091,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
       end if;
     elsif base = 0_ then
       incr(countOptimizations);
-      if bigint_power_check then
+      if config.bigint_power_check then
         c_expr.expr &:= "(";
         exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
         c_expr.expr &:= "numChk(";
@@ -1115,7 +1115,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
       end if;
     elsif base = 1_ then
       incr(countOptimizations);
-      if bigint_power_check then
+      if config.bigint_power_check then
         c_expr.expr &:= "(numChk((";
         process_expr(exponent, c_expr);
         c_expr.expr &:= ")<0)?";
@@ -1729,7 +1729,7 @@ const proc: optimize_big_mod_dividend (in reference: dividend,
   local
     var addSubBigListType: addSubParamList is addSubBigListType.value;
   begin
-    if evaluate_const_expr >= 2 then
+    if config.evaluate_const_expr >= 2 then
       generateAddSubParamList(addSubParamList, dividend);
       evaluateConstants(addSubParamList);
       c_expr.expr &:= "(";
@@ -1769,7 +1769,7 @@ const proc: process (BIG_ORD, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    if evaluate_const_expr >= 1 and
+    if config.evaluate_const_expr >= 1 and
         isActionExpression(params[1], "BIG_MOD") and
         getConstant(getActionParameter(params[1], 3),
                     BIGINTOBJECT, evaluatedParam) then

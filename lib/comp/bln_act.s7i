@@ -142,7 +142,7 @@ const proc: process_bln_iconv (in reference: number, inout expr_type: c_expr) is
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= "(boolType)";
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    elsif conversion_range_check then
+    elsif config.conversion_range_check then
       if number_range.minValue >= 0 and number_range.maxValue <= 1 then
         # This conversion cannot trigger a range error.
         countRangeOptimizations(c_expr);
@@ -298,7 +298,7 @@ const proc: process (BLN_PRED, in reference: function,
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
       end if;
     else
-      if function_range_check then
+      if config.function_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(!(";
         process_expr(params[1], c_expr);
@@ -332,7 +332,7 @@ const proc: process (BLN_SUCC, in reference: function,
         c_expr.expr &:= "1";
       end if;
     else
-      if function_range_check then
+      if config.function_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         process_expr(params[1], c_expr);

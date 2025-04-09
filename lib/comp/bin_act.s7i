@@ -86,7 +86,7 @@ const proc: process_const_bin_and (in reference: bits1, in integer: bits2,
       incr(countOptimizations);
       c_expr.expr &:= "/*a & 0*/";
       c_expr.expr &:= integerLiteral(bits2);
-    elsif modDividendOptimization then
+    elsif config.modDividendOptimization then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       if isActionExpression(bits1, "BIN_BINARY") then
@@ -186,7 +186,7 @@ const proc: process (BIN_BINARY, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    if evaluate_const_expr >= 1 and
+    if config.evaluate_const_expr >= 1 and
         isActionExpression(params[1], "BIG_MOD") and
         getConstant(getActionParameter(params[1], 3),
                     BIGINTOBJECT, evaluatedParam) then
@@ -258,7 +258,7 @@ const proc: optimize_bin_bytes_2_uint_length_0 (in reference: stri,
       else
         start_name := getTempVariable("intType", "start_", start, c_expr);
       end if;
-      if string_index_check then
+      if config.string_index_check then
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
           incr(countIndexChecks);
@@ -341,7 +341,7 @@ const proc: optimize_bin_bytes_2_uint_length_1 (in reference: stri,
       start_name := getTempVariable("intType", "start_", start, c_expr);
     end if;
     if not raisesException then
-      if string_index_check then
+      if config.string_index_check then
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
           incr(countIndexChecks);
@@ -368,7 +368,7 @@ const proc: optimize_bin_bytes_2_uint_length_1 (in reference: stri,
         incr(countSuppressedIndexChecks);
       end if;
       c_expr.expr &:= "(";
-      if function_range_check then
+      if config.function_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         if not fixedLengthSubstring then
@@ -403,7 +403,7 @@ const proc: optimize_bin_bytes_be_2_uint (in string: slice_name, in integer: len
     var integer: index is 0;
   begin
     for index range 1 to length do
-      if function_range_check then
+      if config.function_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= or_name;
         if index <> 1 then
@@ -432,7 +432,7 @@ const proc: optimize_bin_bytes_be_2_uint (in string: slice_name, in integer: len
       end if;
       c_expr.expr &:= ",";
     end for;
-    if function_range_check then
+    if config.function_range_check then
       c_expr.expr &:= "rngChk(";
       c_expr.expr &:= or_name;
       c_expr.expr &:= ">255)?";
@@ -465,7 +465,7 @@ const proc: optimize_bin_bytes_be_2_uint (in reference: stri,
       incr(countOptimizations);
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";
-      if function_range_check then
+      if config.function_range_check then
         or_name := defineTempVariable("uintType", "or_", c_expr);
       end if;
       result_name := defineTempVariable("uintType", "result_", c_expr);
@@ -504,12 +504,12 @@ const proc: process (BIN_BYTES_BE_2_UINT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    if inlineFunctions and
+    if config.inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
         getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_bin_bytes_be_2_uint(params[1], getActionParameter(params[1], 3),
           getActionParameter(params[1], 5), getValue(evaluatedParam, integer), FALSE, c_expr);
-    elsif inlineFunctions and
+    elsif config.inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
         getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_bin_bytes_be_2_uint(params[1], getActionParameter(params[1], 3),
@@ -529,7 +529,7 @@ const proc: optimize_bin_bytes_le_2_uint (in string: slice_name, in integer: len
     var integer: index is 0;
   begin
     for index range 1 to length do
-      if function_range_check then
+      if config.function_range_check then
         incr(countRangeChecks);
         c_expr.expr &:= or_name;
         if index <> 1 then
@@ -558,7 +558,7 @@ const proc: optimize_bin_bytes_le_2_uint (in string: slice_name, in integer: len
       end if;
       c_expr.expr &:= ",";
     end for;
-    if function_range_check then
+    if config.function_range_check then
       c_expr.expr &:= "rngChk(";
       c_expr.expr &:= or_name;
       c_expr.expr &:= ">255)?";
@@ -591,7 +591,7 @@ const proc: optimize_bin_bytes_le_2_uint (in reference: stri,
       incr(countOptimizations);
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";
-      if function_range_check then
+      if config.function_range_check then
         or_name := defineTempVariable("uintType", "or_", c_expr);
       end if;
       result_name := defineTempVariable("uintType", "result_", c_expr);
@@ -630,12 +630,12 @@ const proc: process (BIN_BYTES_LE_2_UINT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    if inlineFunctions and
+    if config.inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
         getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_bin_bytes_le_2_uint(params[1], getActionParameter(params[1], 3),
           getActionParameter(params[1], 5), getValue(evaluatedParam, integer), FALSE, c_expr);
-    elsif inlineFunctions and
+    elsif config.inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
         getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_bin_bytes_le_2_uint(params[1], getActionParameter(params[1], 3),
@@ -665,7 +665,7 @@ const proc: process (BIN_CMP, in reference: function,
     var string: number1_name is "";
     var string: number2_name is "";
   begin
-    if inlineFunctions then
+    if config.inlineFunctions then
       incr(countOptimizations);
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";
@@ -744,7 +744,7 @@ const proc: process (BIN_LSHIFT, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif check_int_shift_overflow then
+    elsif config.check_int_shift_overflow then
       lshift_range := getIntRange(params[3]);
       if lshift_range.minValue < 0 or
           lshift_range.maxValue >= ccConf.INTTYPE_SIZE then
@@ -770,7 +770,7 @@ const proc: process (BIN_LSHIFT, in reference: function,
         c_expr.expr &:= "))";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
+      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") << (";
@@ -816,7 +816,7 @@ const proc: process (BIN_LSHIFT_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_lshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif check_int_shift_overflow then
+    elsif config.check_int_shift_overflow then
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       lshift_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
@@ -833,7 +833,7 @@ const proc: process (BIN_LSHIFT_ASSIGN, in reference: function,
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
+      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       statement.expr &:= variable_name;
       statement.expr &:= "=(intType)((uintType)(";
@@ -884,7 +884,7 @@ const proc: process_const_bin_n_bytes_be (in reference: number,
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
-      if function_range_check and length < 8 then
+      if config.function_range_check and length < 8 then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         c_expr.expr &:= "(uintType)";
@@ -926,7 +926,7 @@ const proc: process_const_bin_n_bytes_be (in reference: number,
       c_expr.expr &:= "&";
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf";
-      if function_range_check and length < 8 then
+      if config.function_range_check and length < 8 then
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
@@ -947,7 +947,7 @@ const proc: process (BIN_N_BYTES_BE, in reference: function,
   local
     var reference: evaluatedLength is NIL;
   begin
-    if inlineFunctions and
+    if config.inlineFunctions and
         getConstant(params[3], INTOBJECT, evaluatedLength) then
       process_const_bin_n_bytes_be(params[1],
           getValue(evaluatedLength, integer), c_expr);
@@ -1000,7 +1000,7 @@ const proc: process_const_bin_n_bytes_le (in reference: number,
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
-      if function_range_check and length < 8 then
+      if config.function_range_check and length < 8 then
         incr(countRangeChecks);
         c_expr.expr &:= "rngChk(";
         c_expr.expr &:= "(uintType)";
@@ -1042,7 +1042,7 @@ const proc: process_const_bin_n_bytes_le (in reference: number,
       c_expr.expr &:= "&";
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf";
-      if function_range_check and length < 8 then
+      if config.function_range_check and length < 8 then
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
@@ -1063,7 +1063,7 @@ const proc: process (BIN_N_BYTES_LE, in reference: function,
   local
     var reference: evaluatedLength is NIL;
   begin
-    if inlineFunctions and
+    if config.inlineFunctions and
         getConstant(params[3], INTOBJECT, evaluatedLength) then
       process_const_bin_n_bytes_le(params[1],
           getValue(evaluatedLength, integer), c_expr);
@@ -1216,7 +1216,7 @@ const proc: process (BIN_RSHIFT, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif check_int_shift_overflow then
+    elsif config.check_int_shift_overflow then
       rshift_range := getIntRange(params[3]);
       if rshift_range.minValue < 0 or
           rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
@@ -1242,7 +1242,7 @@ const proc: process (BIN_RSHIFT, in reference: function,
         c_expr.expr &:= "))";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
+      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") >> (";
@@ -1288,7 +1288,7 @@ const proc: process (BIN_RSHIFT_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_rshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif check_int_shift_overflow then
+    elsif config.check_int_shift_overflow then
       incr(countOverflowChecks);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       rshift_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
@@ -1305,7 +1305,7 @@ const proc: process (BIN_RSHIFT_ASSIGN, in reference: function,
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not integer_overflow_check);
+      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
       statement.expr &:= variable_name;
       statement.expr &:= "=(intType)((uintType)(";

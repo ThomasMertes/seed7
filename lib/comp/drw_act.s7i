@@ -204,9 +204,9 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwPut (const_winType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwPutScaled (const_winType, intType, intType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
-    if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
-                           ccConf.PIXEL_GREEN_MASK <> 0 and
-                           ccConf.PIXEL_BLUE_MASK  <> 0 then
+    if config.inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
+                                  ccConf.PIXEL_GREEN_MASK <> 0 and
+                                  ccConf.PIXEL_BLUE_MASK  <> 0 then
       if ccConf.RGB_TO_PIXEL_FLAG_NAME = "" then
         writeln(c_prog, "#define drwRgbColor(red, green, blue) " <&
                         "(" <& defineRgbMacroBody <& ")");
@@ -982,9 +982,9 @@ const proc: process (DRW_PIXEL_TO_RGB, in reference: function,
     var expr_type: statement is expr_type.value;
     var string: pixelName is "";
   begin
-    if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
-                           ccConf.PIXEL_GREEN_MASK <> 0 and
-                           ccConf.PIXEL_BLUE_MASK  <> 0 then
+    if config.inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
+                                  ccConf.PIXEL_GREEN_MASK <> 0 and
+                                  ccConf.PIXEL_BLUE_MASK  <> 0 then
       incr(countInlinedFunctions);
       if ccConf.RGB_TO_PIXEL_FLAG_NAME <> "" then
         statement.expr &:= "if (";

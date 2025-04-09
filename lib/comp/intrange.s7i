@@ -1061,7 +1061,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
     var intRange: argument1Range is intRange.value;
     var intRange: argument2Range is intRange.value;
   begin
-    if reduceOverflowChecks then
+    if config.reduceOverflowChecks then
       if getConstant(intExpression, INTOBJECT, evaluatedParam) then
         number := getValue(evaluatedParam, integer);
         valueRange.minValue := number;

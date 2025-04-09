@@ -24,99 +24,103 @@
 (********************************************************************)
 
 
-var string:  trace_output            is "stderr";
-var boolean: flush_trace_output      is FALSE;
-var boolean: trace_exception         is FALSE;
-var boolean: trace_function          is FALSE;
-var boolean: trace_dynamic_calls     is FALSE;
-var boolean: trace_signal            is FALSE;
+const type: compilerConfig is new struct
+    var string:  trace_output            is "stderr";
+    var boolean: flush_trace_output      is FALSE;
+    var boolean: trace_exception         is FALSE;
+    var boolean: trace_function          is FALSE;
+    var boolean: trace_dynamic_calls     is FALSE;
+    var boolean: trace_signal            is FALSE;
 
-var integer: warning_level           is 1;
-var integer: stack_size              is 0;
+    var integer: warning_level           is 1;
+    var integer: stack_size              is 0;
 
-var boolean: for_loop_variable_check is FALSE;
-var boolean: source_debug_info       is TRUE;
-var boolean: profile_function        is FALSE;
-var boolean: signal_exception        is FALSE;
+    var boolean: for_loop_variable_check is FALSE;
+    var boolean: source_debug_info       is TRUE;
+    var boolean: profile_function        is FALSE;
+    var boolean: signal_exception        is FALSE;
 
-var integer: evaluate_const_expr     is 1;
-var boolean: inlineFunctions         is FALSE;
-var boolean: structFreelist          is FALSE;
-var boolean: fixArrayFreelist        is FALSE;
-var boolean: useSpecialCaseFunctions is FALSE;
-var boolean: optimizeStringFunctions is FALSE;
-var boolean: modDividendOptimization is FALSE;
-var boolean: callOptimizeIntAdd      is FALSE;
-var boolean: reduceOverflowChecks    is FALSE;
-var boolean: optimizeComparisons     is FALSE;
-var boolean: optimizeFixedSizeArrays is FALSE;
-var boolean: declare_with_extern_c   is FALSE;
-var boolean: generate_c_plus_plus    is FALSE;
+    var integer: evaluate_const_expr     is 1;
+    var boolean: inlineFunctions         is FALSE;
+    var boolean: structFreelist          is FALSE;
+    var boolean: fixArrayFreelist        is FALSE;
+    var boolean: useSpecialCaseFunctions is FALSE;
+    var boolean: optimizeStringFunctions is FALSE;
+    var boolean: modDividendOptimization is FALSE;
+    var boolean: callOptimizeIntAdd      is FALSE;
+    var boolean: reduceOverflowChecks    is FALSE;
+    var boolean: optimizeComparisons     is FALSE;
+    var boolean: optimizeFixedSizeArrays is FALSE;
+    var boolean: declare_with_extern_c   is FALSE;
+    var boolean: generate_c_plus_plus    is FALSE;
 
-var boolean: enable_link_time_optimization  is FALSE;
+    var boolean: enable_link_time_optimization  is FALSE;
 
-# Checks related to OVERFLOW_ERROR:
+    # Checks related to OVERFLOW_ERROR:
 
-var boolean: integer_overflow_check  is TRUE;
+    var boolean: integer_overflow_check  is TRUE;
 
-var boolean: check_int_arithmetic_overflow is FALSE;
-var boolean: check_int_division_overflow   is FALSE;
-var boolean: check_int_abs_overflow        is FALSE;
-var boolean: check_int_shift_overflow      is FALSE;
+    var boolean: check_int_arithmetic_overflow is FALSE;
+    var boolean: check_int_division_overflow   is FALSE;
+    var boolean: check_int_abs_overflow        is FALSE;
+    var boolean: check_int_shift_overflow      is FALSE;
 
-# Checks related to RANGE_ERROR:
+    # Checks related to RANGE_ERROR:
 
-var boolean: function_range_check    is TRUE;
-var boolean: conversion_range_check  is TRUE;
+    var boolean: function_range_check    is TRUE;
+    var boolean: conversion_range_check  is TRUE;
 
-# Checks ralated to INDEX_ERROR:
+    # Checks ralated to INDEX_ERROR:
 
-var boolean: string_index_check      is TRUE;
-var boolean: bstring_index_check     is TRUE;
-var boolean: array_index_check       is TRUE;
-var boolean: ref_list_index_check    is TRUE;
+    var boolean: string_index_check      is TRUE;
+    var boolean: bstring_index_check     is TRUE;
+    var boolean: array_index_check       is TRUE;
+    var boolean: ref_list_index_check    is TRUE;
 
-# Checks related to NUMERIC_ERROR:
+    # Checks related to NUMERIC_ERROR:
 
-var boolean: integer_power_check     is TRUE;
-var boolean: bigint_power_check      is TRUE;
-var boolean: integer_division_check  is TRUE;
+    var boolean: integer_power_check     is TRUE;
+    var boolean: bigint_power_check      is TRUE;
+    var boolean: integer_division_check  is TRUE;
 
-var boolean: check_int_div_by_zero      is FALSE;
-var boolean: check_int_div_zero_by_zero is FALSE;
-var boolean: check_int_rem_by_zero      is FALSE;
-var boolean: check_int_rem_zero_by_zero is FALSE;
+    var boolean: check_int_div_by_zero      is FALSE;
+    var boolean: check_int_div_zero_by_zero is FALSE;
+    var boolean: check_int_rem_by_zero      is FALSE;
+    var boolean: check_int_rem_zero_by_zero is FALSE;
+  end struct;
+
+var compilerConfig: config is compilerConfig.value;
 
 
 const proc: setOptimizationSettings (in integer: evaluate_const_expr) is func
   begin
-    useSpecialCaseFunctions := evaluate_const_expr >= 2;
-    optimizeStringFunctions := evaluate_const_expr >= 2;
-    callOptimizeIntAdd      := evaluate_const_expr >= 2;
-    inlineFunctions         := evaluate_const_expr >= 3;
-    structFreelist          := evaluate_const_expr >= 3;
-    # fixArrayFreelist        := evaluate_const_expr >= 3;
-    modDividendOptimization := evaluate_const_expr >= 3;
-    reduceOverflowChecks    := evaluate_const_expr >= 3;
-    optimizeComparisons     := evaluate_const_expr >= 3;
-    optimizeFixedSizeArrays := evaluate_const_expr >= 2;
+    config.useSpecialCaseFunctions := evaluate_const_expr >= 2;
+    config.optimizeStringFunctions := evaluate_const_expr >= 2;
+    config.callOptimizeIntAdd      := evaluate_const_expr >= 2;
+    config.inlineFunctions         := evaluate_const_expr >= 3;
+    config.structFreelist          := evaluate_const_expr >= 3;
+    # config.fixArrayFreelist        := evaluate_const_expr >= 3;
+    config.modDividendOptimization := evaluate_const_expr >= 3;
+    config.reduceOverflowChecks    := evaluate_const_expr >= 3;
+    config.optimizeComparisons     := evaluate_const_expr >= 3;
+    config.optimizeFixedSizeArrays := evaluate_const_expr >= 2;
   end func;
 
 
 const proc: setIntegerOverflowCheck (in boolean: check) is func
   begin
     if check then
-      check_int_arithmetic_overflow := ccConf.OVERFLOW_SIGNAL = "";
-      check_int_division_overflow   := ccConf.TWOS_COMPLEMENT_INTTYPE;
-      check_int_abs_overflow        := ccConf.TWOS_COMPLEMENT_INTTYPE;
-      check_int_shift_overflow      := TRUE;
+      config.check_int_arithmetic_overflow := ccConf.OVERFLOW_SIGNAL = "";
+      config.check_int_division_overflow   := ccConf.TWOS_COMPLEMENT_INTTYPE;
+      config.check_int_abs_overflow        := ccConf.TWOS_COMPLEMENT_INTTYPE;
+      config.check_int_shift_overflow      := TRUE;
     else
-      check_int_arithmetic_overflow := FALSE;
+      config.check_int_arithmetic_overflow := FALSE;
       # Avoid an endless loop triggered by a division overflow.
-      check_int_division_overflow   := ccConf.INT_DIV_OVERFLOW = 0 or
-                                       ccConf.INT_REM_OVERFLOW = 0;
-      check_int_abs_overflow        := FALSE;
-      check_int_shift_overflow      := FALSE;
+      config.check_int_division_overflow   := ccConf.INT_DIV_OVERFLOW = 0 or
+                                              ccConf.INT_REM_OVERFLOW = 0;
+      config.check_int_abs_overflow        := FALSE;
+      config.check_int_shift_overflow      := FALSE;
     end if;
   end func;
 
@@ -124,14 +128,14 @@ const proc: setIntegerOverflowCheck (in boolean: check) is func
 const proc: setIntegerDivisionCheck (in boolean: check) is func
   begin
     if check then
-      check_int_div_by_zero      := ccConf.CHECK_INT_DIV_BY_ZERO;
-      check_int_div_zero_by_zero := ccConf.CHECK_INT_DIV_ZERO_BY_ZERO;
-      check_int_rem_by_zero      := ccConf.CHECK_INT_REM_BY_ZERO;
-      check_int_rem_zero_by_zero := ccConf.CHECK_INT_REM_ZERO_BY_ZERO;
+      config.check_int_div_by_zero      := ccConf.CHECK_INT_DIV_BY_ZERO;
+      config.check_int_div_zero_by_zero := ccConf.CHECK_INT_DIV_ZERO_BY_ZERO;
+      config.check_int_rem_by_zero      := ccConf.CHECK_INT_REM_BY_ZERO;
+      config.check_int_rem_zero_by_zero := ccConf.CHECK_INT_REM_ZERO_BY_ZERO;
     else
-      check_int_div_by_zero      := FALSE;
-      check_int_div_zero_by_zero := FALSE;
-      check_int_rem_by_zero      := FALSE;
-      check_int_rem_zero_by_zero := FALSE;
+      config.check_int_div_by_zero      := FALSE;
+      config.check_int_div_zero_by_zero := FALSE;
+      config.check_int_rem_by_zero      := FALSE;
+      config.check_int_rem_zero_by_zero := FALSE;
     end if;
   end func;

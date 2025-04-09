@@ -437,7 +437,7 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
   result
     var boolean: okay is FALSE;
   begin
-    if evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
+    if config.evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
       if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
         okay := TRUE;
       elsif currExpr in inlineParam and
@@ -449,7 +449,7 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
         evaluatedExpr := currExpr;
         incr(countEvaluations);
         okay := TRUE;
-      elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+      elsif config.evaluate_const_expr >= 2 and isConstant(currExpr) then
         block
           evaluatedExpr := evaluate(prog, currExpr);
           if evaluatedExpr <> NIL then
@@ -476,7 +476,7 @@ const func boolean: getConstant (in var reference: currExpr,
   result
       var boolean: okay is FALSE;
   begin
-    if evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
+    if config.evaluate_const_expr >= 1 and not isFuncParamData(currExpr) then
       if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
         okay := TRUE;
       elsif currExpr in inlineParam and
@@ -488,7 +488,7 @@ const func boolean: getConstant (in var reference: currExpr,
         evaluatedExpr := currExpr;
         incr(countEvaluations);
         okay := TRUE;
-      elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+      elsif config.evaluate_const_expr >= 2 and isConstant(currExpr) then
         block
           evaluatedExpr := evaluate(prog, currExpr);
           if evaluatedExpr <> NIL then

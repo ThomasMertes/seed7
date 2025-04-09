@@ -298,7 +298,7 @@ const proc: process_const_str_push (in reference: stri, in char: ch,
     inout expr_type: c_expr) is func
 
   begin
-    if inlineFunctions and ccConf.WITH_STRI_CAPACITY then
+    if config.inlineFunctions and ccConf.WITH_STRI_CAPACITY then
       incr(countInlinedFunctions);
       process_const_inline_str_push(stri, ch, c_expr);
     else
@@ -378,7 +378,7 @@ const proc: process_str_push (in reference: stri,
   local
     var expr_type: statement is expr_type.value;
   begin
-    if inlineFunctions and ccConf.WITH_STRI_CAPACITY then
+    if config.inlineFunctions and ccConf.WITH_STRI_CAPACITY then
       incr(countInlinedFunctions);
       process_inline_str_push(stri, extension, c_expr);
     else
@@ -493,12 +493,12 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
     elsif length(appendExtensions) = 1 then
       if getConstant(appendExtensions[1], STRIOBJECT, evaluatedParam) then
         process_const_str_append(dest, getValue(evaluatedParam, string), c_expr);
-      elsif useSpecialCaseFunctions and
+      elsif config.useSpecialCaseFunctions and
           isActionExpression(appendExtensions[1], "STR_MULT") and
           getConstant(getActionParameter(appendExtensions[1], 1), STRIOBJECT, evaluatedParam) then
         optimize_append_mult(dest, getValue(evaluatedParam, string),
                              getActionParameter(appendExtensions[1], 3), statement);
-      elsif useSpecialCaseFunctions and
+      elsif config.useSpecialCaseFunctions and
           isActionExpression(appendExtensions[1], "STR_MULT") and
           isActionExpression(getActionParameter(appendExtensions[1], 1), "CHR_STR") then
         incr(countOptimizations);
@@ -548,14 +548,14 @@ const proc: process_str_append (in reference: param1, in reference: param3,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if optimizeStringFunctions then
+    if config.optimizeStringFunctions then
       optimize_str_append(param1, param3, c_expr);
     elsif getConstant(param3, STRIOBJECT, evaluatedParam) then
       process_const_str_append(param1, getValue(evaluatedParam, string), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(param1, c_param1, statement);
-      if useSpecialCaseFunctions and
+      if config.useSpecialCaseFunctions and
           isActionExpression(param3, "CHR_STR") then
         incr(countOptimizations);
         statement.expr &:= "strPush(&(";
@@ -689,7 +689,7 @@ const proc: process (STR_CAT, in reference: function,
   local
     var expr_type: c_param1 is expr_type.value;
   begin
-    if optimizeStringFunctions then
+    if config.optimizeStringFunctions then
       optimize_str_cat(params, c_expr);
     else
       prepare_stri_result(c_expr);
@@ -787,7 +787,7 @@ const proc: process_const_str_chpos (in string: mainStri, in reference: searched
       end for;
       c_expr.expr &:= integerLiteral(0);
       c_expr.expr &:= ")";
-    elsif inlineFunctions and isByteString(mainStri) then
+    elsif config.inlineFunctions and isByteString(mainStri) then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       searchedName := getParameterAsVariable("charType", "searched_", searched, c_expr);
@@ -883,7 +883,7 @@ const proc: process (STR_CPY, in reference: function,
     var expr_type: c_param3 is expr_type.value;
     var boolean: codeGenerated is FALSE;
   begin
-    if useSpecialCaseFunctions and
+    if config.useSpecialCaseFunctions and
         isActionExpression(params[3], "STR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
       incr(countOptimizations);
@@ -891,7 +891,7 @@ const proc: process (STR_CPY, in reference: function,
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
-      if useSpecialCaseFunctions then
+      if config.useSpecialCaseFunctions then
         if isActionExpression(params[3], "STR_HEAD") and
             getActionParameter(params[3], 1) = params[1] then
           incr(countOptimizations);
@@ -977,7 +977,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
     else
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         if isNormalVariable(destStri) then
           destStriName := normalVariable(destStri, statement);
@@ -1037,7 +1037,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= raiseError("INDEX_ERROR");
     else
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         if isNormalVariable(destStri) then
           destStriName := normalVariable(destStri, statement);
@@ -1097,7 +1097,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       process_const_str_elemcpy(destStri, getValue(evaluatedParam, integer), aChar, c_expr);
     else
       incr(countOptimizations);
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         if isNormalVariable(destStri) then
           destStriName := normalVariable(destStri, statement);
@@ -1195,7 +1195,7 @@ const proc: process_str_elemcpy_last_char (in reference: destStri,
       statement.expr &:= ");\n";
       destStriName := "*" & destStriName;
     end if;
-    if string_index_check then
+    if config.string_index_check then
       statement.expr &:= "if (idxChk(";
       statement.expr &:= destStriName;
       statement.expr &:= "->size==0)) {\n";
@@ -1208,7 +1208,7 @@ const proc: process_str_elemcpy_last_char (in reference: destStri,
     statement.expr &:= "->size-1] = (";
     process_expr(aChar, statement);
     statement.expr &:= ");\n";
-    if string_index_check then
+    if config.string_index_check then
       statement.expr &:= "}\n";
     end if;
     doLocalDeclsOfStatement(statement, c_expr);
@@ -1224,7 +1224,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
     var string: destStriName is "";
     var string: positionName is "";
   begin
-    if optimizeStringFunctions and
+    if config.optimizeStringFunctions and
         isActionExpression(params[4], "STR_LNG") and
         getActionParameter(params[4], 1) = params[1] then
       process_str_elemcpy_last_char(params[1], params[6], c_expr);
@@ -1233,7 +1233,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_elemcpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         if isNormalVariable(params[1]) then
           destStriName := normalVariable(params[1], statement);
@@ -1396,7 +1396,7 @@ const func boolean: optimize_str_eq_of_substr_fixlen (in reference: stri1,
         end if;
       end if;
       if not raisesIndexError then
-        if string_index_check then
+        if config.string_index_check then
           start1_range := getIntRange(start1);
           start2_range := getIntRange(start2);
           length_range := getIntRange(length1);
@@ -1616,7 +1616,7 @@ const proc: process (STR_EQ, in reference: function,
     elsif getConstant(params[1], STRIOBJECT, evaluatedParam) then
       process_const_str_eq(params[3], getValue(evaluatedParam, string), c_expr);
       optimizationDone := TRUE;
-    elsif optimizeStringFunctions and
+    elsif config.optimizeStringFunctions and
         isActionExpression(params[1], "STR_SUBSTR_FIXLEN") and
         isActionExpression(params[3], "STR_SUBSTR_FIXLEN") then
       optimizationDone := optimize_str_eq_of_substr_fixlen(
@@ -1894,7 +1894,7 @@ const proc: process (STR_HASHCODE, in reference: function,
     if getConstant(params[1], STRIOBJECT, evaluatedParam) then
       incr(countOptimizations);
       c_expr.expr &:= integerLiteral(hashCode(getValue(evaluatedParam, string)));
-    elsif inlineFunctions then
+    elsif config.inlineFunctions then
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       stri_name := getParameterAsVariable("const_striType", "tmp_", params[1], c_expr);
@@ -1942,7 +1942,7 @@ const proc: process_const_str_head (in string: stri, in reference: length,
     elsif stri = "" then
       incr(countOptimizations);
       c_expr.expr &:= "/* \"\"[ .. n] */ (";
-      if string_index_check then
+      if config.string_index_check then
         length_range := getIntRange(length);
         if length_range.minValue < 0 then
           incr(countIndexChecks);
@@ -1963,7 +1963,7 @@ const proc: process_const_str_head (in string: stri, in reference: length,
       incr(countOptimizations);
       c_expr.expr &:= "(";
       length_name := getParameterAsVariable("intType", "length_", length, c_expr);
-      if string_index_check then
+      if config.string_index_check then
         length_range := getIntRange(length);
         if length_range.minValue < 0 then
           incr(countIndexChecks);
@@ -1991,10 +1991,10 @@ const proc: process_const_str_head (in string: stri, in reference: length,
       c_expr.temp_decls &:= "struct striStruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      if inlineFunctions then
+      if config.inlineFunctions then
         incr(countInlinedFunctions);
         length_name := getParameterAsVariable("intType", "length_", length, c_expr);
-        if string_index_check then
+        if config.string_index_check then
           length_range := getIntRange(length);
           if length_range.minValue < 0 then
             c_expr.expr &:= "idxChk(";
@@ -2120,7 +2120,7 @@ const proc: process_inline_str_head (in reference: stri, in reference: length,
     end if;
     if not raisesIndexError then
       if length_is_variable then
-        if string_index_check then
+        if config.string_index_check then
           length_range := getIntRange(length);
           if length_range.minValue < 0 then
             incr(countIndexChecks);
@@ -2197,7 +2197,7 @@ const proc: process_str_head (in reference: stri, in reference: length,
         c_expr.temp_decls &:= "struct striStruct ";
         c_expr.temp_decls &:= slice_name;
         c_expr.temp_decls &:= ";\n";
-        if inlineFunctions then
+        if config.inlineFunctions then
           incr(countInlinedFunctions);
           process_inline_str_head(stri, length, slice_name, c_expr);
         else
@@ -2240,7 +2240,7 @@ const proc: process_const_str_idx (in string: stri,
     var string: index_name is "";
   begin
     incr(countOptimizations);
-    if string_index_check then
+    if config.string_index_check then
       indexRange := getIntRange(index);
       if indexRange.maxValue < 1 or
           indexRange.minValue > length(stri) then
@@ -2319,7 +2319,7 @@ const proc: process_const_str_idx (in reference: stri,
     if index < 1 then
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
-    elsif string_index_check then
+    elsif config.string_index_check then
       lengthRange := getStrLenRange(stri);
       if index > lengthRange.maxValue then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
@@ -2366,7 +2366,7 @@ const proc: process_str_idx_last_char (in reference: stri,
     incr(countOptimizations);
     c_expr.expr &:= "/* stri[length[stri)] */ (";
     stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
-    if string_index_check then
+    if config.string_index_check then
       c_expr.expr &:= "idxChk(";
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->size==0) ? ";
@@ -2394,11 +2394,11 @@ const proc: process_str_idx (in reference: stri,
       process_const_str_idx(getValue(evaluatedParam, string), index, c_expr);
     elsif getConstant(index, INTOBJECT, evaluatedParam) then
       process_const_str_idx(stri, getValue(evaluatedParam, integer), c_expr);
-    elsif optimizeStringFunctions and
+    elsif config.optimizeStringFunctions and
         isActionExpression(index, "STR_LNG") and
         getActionParameter(index, 1) = stri then
       process_str_idx_last_char(stri, c_expr);
-    elsif string_index_check then
+    elsif config.string_index_check then
       lengthRange := getStrLenRange(stri);
       indexRange := getIntRange(index);
       if indexRange.maxValue < 1 or
@@ -2651,7 +2651,7 @@ const proc: process (STR_LNG, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if optimizeStringFunctions then
+    if config.optimizeStringFunctions then
       optimize_str_lng(params[1], c_expr);
     else
       c_expr.expr &:= "(intType)((";
@@ -2822,7 +2822,7 @@ const proc: process_const_str_mult (in string: stri, in reference: factor,
   begin
     if stri = "" then
       incr(countOptimizations);
-      if function_range_check then
+      if config.function_range_check then
         factorRange := getIntRange(factor);
         if factorRange.minValue >= 0 then
           # This function cannot trigger a range error.
@@ -2881,7 +2881,7 @@ const proc: process_const_str_mult (in reference: stri, in integer: factor,
     elsif factor = 1 then
       incr(countOptimizations);
       process_expr(stri, c_expr);
-    elsif useSpecialCaseFunctions and
+    elsif config.useSpecialCaseFunctions and
         isActionExpression(stri, "CHR_STR") then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
@@ -2911,7 +2911,7 @@ const proc: process (STR_MULT, in reference: function,
       process_const_str_mult(getValue(evaluatedParam, string), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_str_mult(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif useSpecialCaseFunctions and
+    elsif config.useSpecialCaseFunctions and
         isActionExpression(params[1], "CHR_STR") then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
@@ -3149,7 +3149,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_decls, c_expr);
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
        end if;
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
@@ -3218,7 +3218,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_aStri.temp_assigns, c_expr);
       end if;
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
@@ -3280,7 +3280,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
       end if;
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
@@ -3361,7 +3361,7 @@ const proc: process (STR_POSCPY, in reference: function,
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
         appendWithDiagnostic(c_aStri.temp_assigns, c_expr);
       end if;
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
@@ -3463,7 +3463,7 @@ const proc: process_inline_str_range (in reference: stri,
       raisesIndexError := TRUE;
     else
       start_name := getTempVariable("intType", "start_", start, c_expr);
-      if string_index_check then
+      if config.string_index_check then
         if start_range.minValue < 1 then
           incr(countIndexChecks);
           c_expr.expr &:= "idxChk(";
@@ -3504,7 +3504,7 @@ const proc: process_inline_str_range (in reference: stri,
         if not stri_is_variable and not start_is_variable and
             length(stri_value) < start_value then
           if stop_is_variable then
-            if string_index_check then
+            if config.string_index_check then
               if stop_range.minValue < pred(start_value) then
                 incr(countIndexChecks);
                 c_expr.expr &:= "idxChk(";
@@ -3582,7 +3582,7 @@ const proc: process_inline_str_range (in reference: stri,
           end if;
           c_expr.expr &:= "))";
           if start_is_variable or stop_is_variable then
-            if string_index_check then
+            if config.string_index_check then
               if stop_range.minValue < start_range.maxValue then
                 incr(countIndexChecks);
                 c_expr.expr &:= " : idxChk(";
@@ -3659,7 +3659,7 @@ const proc: process_str_range_of_empty_string (in ref_list: params,
       end if;
       if not raisesIndexError then
         if start_is_variable or stop_is_variable then
-          if string_index_check then
+          if config.string_index_check then
             incr(countIndexChecks);
             c_expr.expr &:= "idxChk(";
             if start_is_variable then
@@ -3705,7 +3705,7 @@ const proc: process (STR_RANGE, in reference: function,
       c_expr.temp_decls &:= "struct striStruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      if inlineFunctions then
+      if config.inlineFunctions then
         incr(countInlinedFunctions);
         process_inline_str_range(params[1], params[3], params[5],
                                  slice_name, c_expr);
@@ -3920,7 +3920,7 @@ const proc: process (STR_REPL, in reference: function,
   begin
     if getConstant(params[2], STRIOBJECT, evaluatedParam) then
       process_const_str_repl(params[1], getValue(evaluatedParam, string), params[3], c_expr);
-    elsif useSpecialCaseFunctions and
+    elsif config.useSpecialCaseFunctions and
         isActionExpression(params[2], "CHR_STR") then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
@@ -4129,7 +4129,7 @@ const proc: process_str_substr0 (in reference: stri, in reference: start,
       c_expr.expr &:= strRaiseError("INDEX_ERROR");
     else
       c_expr.expr &:= "/* string[m len 0] */ (";
-      if string_index_check then
+      if config.string_index_check then
         if start_range.minValue < 1 then
           incr(countIndexChecks);
           c_expr.expr &:= "idxChk((";
@@ -4179,7 +4179,7 @@ const proc: process_str_substr1 (in reference: stri, in reference: start,
       c_expr.temp_decls &:= "struct striStruct ";
       c_expr.temp_decls &:= striStruct_name;
       c_expr.temp_decls &:= ";\n";
-      if string_index_check then
+      if config.string_index_check then
         start_range := getIntRange(start);
         if start_range.minValue < 1 then
           incr(countIndexChecks);
@@ -4276,7 +4276,7 @@ const proc: process_inline_str_substr (in reference: stri,
       end if;
       if not raisesIndexError then
         if start_is_variable or length_is_variable then
-          if string_index_check then
+          if config.string_index_check then
             start_range := getIntRange(start);
             length_range := getIntRange(length);
             if start_range.minValue < 1 or length_range.minValue < 0 then
@@ -4422,7 +4422,7 @@ const proc: process_str_substr_slice (in reference: stri,
     c_expr.temp_decls &:= "struct striStruct ";
     c_expr.temp_decls &:= slice_name;
     c_expr.temp_decls &:= ";\n";
-    if inlineFunctions then
+    if config.inlineFunctions then
       incr(countInlinedFunctions);
       process_inline_str_substr(stri, start, length, slice_name, c_expr);
     else
@@ -4451,7 +4451,7 @@ const proc: process (STR_SUBSTR, in reference: function,
         getValue(evaluatedParam, string) = "" then
       incr(countOptimizations);
       c_expr.expr &:= "/* \"\"[m len n] */ (";
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "idxChk((";
         process_expr(params[3], c_expr);
@@ -4531,7 +4531,7 @@ const proc: process_str_substr_fixlen0 (in reference: stri,
     end if;
     if not raisesIndexError then
       c_expr.expr &:= "/* string[m fixLen 0] */ (";
-      if string_index_check then
+      if config.string_index_check then
         if stri_is_variable or start_range.minValue < 1 or
                                start_range.maxValue > stri_length then
           incr(countIndexChecks);
@@ -4628,7 +4628,7 @@ const proc: process_str_substr_fixlen1 (in reference: stri,
         c_expr.temp_decls &:= "struct striStruct ";
         c_expr.temp_decls &:= striStruct_name;
         c_expr.temp_decls &:= ";\n";
-        if string_index_check then
+        if config.string_index_check then
           start_range := getIntRange(start);
           if stri_is_variable or start_range.minValue < 1 or
                                  start_range.maxValue > stri_length then
@@ -4742,7 +4742,7 @@ const proc: process_inline_str_substr_fixlen (in string: stri,
         length_name := getParameterAsVariable("intType", "length_", length, c_expr);
       end if;
       if not raisesIndexError then
-        if string_index_check then
+        if config.string_index_check then
           start_range := getIntRange(start);
           length_range := getIntRange(length);
           if start_is_variable or length_is_variable then
@@ -4880,7 +4880,7 @@ const proc: process_inline_str_substr_fixlen (in reference: stri,
         length_name := getParameterAsVariable("intType", "length_", length, c_expr);
       end if;
       if not raisesIndexError then
-        if string_index_check then
+        if config.string_index_check then
           start_range := getIntRange(start);
           length_range := getIntRange(length);
           incr(countIndexChecks);
@@ -4987,7 +4987,7 @@ const proc: process_str_substr_fixlen_slice (in reference: stri,
     c_expr.temp_decls &:= "struct striStruct ";
     c_expr.temp_decls &:= slice_name;
     c_expr.temp_decls &:= ";\n";
-    if inlineFunctions then
+    if config.inlineFunctions then
       incr(countInlinedFunctions);
       if getConstant(stri, STRIOBJECT, evaluatedParam) then
         process_inline_str_substr_fixlen(getValue(evaluatedParam, string),
@@ -5095,7 +5095,7 @@ const proc: process_inline_str_tail (in reference: stri,
     end if;
     if not raisesIndexError then
       if start_is_variable then
-        if string_index_check then
+        if config.string_index_check then
           start_range := getIntRange(start);
           if start_range.minValue < 1 then
             incr(countIndexChecks);
@@ -5156,7 +5156,7 @@ const proc: process (STR_TAIL, in reference: function,
         getValue(evaluatedParam, string) = "" then
       incr(countOptimizations);
       c_expr.expr &:= "/* \"\"[n .. ] */ (";
-      if string_index_check then
+      if config.string_index_check then
         incr(countIndexChecks);
         c_expr.expr &:= "idxChk((";
         process_expr(params[3], c_expr);
@@ -5175,7 +5175,7 @@ const proc: process (STR_TAIL, in reference: function,
       c_expr.temp_decls &:= "struct striStruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      if inlineFunctions then
+      if config.inlineFunctions then
         incr(countInlinedFunctions);
         process_inline_str_tail(params[1], params[3], slice_name, c_expr);
       else

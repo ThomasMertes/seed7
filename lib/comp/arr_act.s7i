@@ -294,7 +294,7 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
     prepareAnyParamTemporarys(dest, c_param1, statement);
     statement.expr &:= "(";
     factorName := getParameterAsVariable("intType", "factor_", factor, statement);
-    if function_range_check then
+    if config.function_range_check then
       factorRange := getIntRange(factor);
       if factorRange.minValue < 0 then
         statement.expr &:= "(rngChk((";
@@ -566,13 +566,13 @@ const proc: process (ARR_CPY, in reference: function,
     if isActionExpression(params[3], "ARR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
       process_arr_append(params[1], getActionParameter(params[3], 3), c_expr);
-    elsif inlineFunctions and
+    elsif config.inlineFunctions and
         isActionExpression(params[3], "ARR_TIMES") and
         getConstant(getActionParameter(params[3], 3), INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
       process_arr_cpy_times_optimization(params[1],
           getActionParameter(params[3], 1), c_expr);
-    elsif inlineFunctions and
+    elsif config.inlineFunctions and
         getConstant(params[3], ARRAYOBJECT, evaluatedParam) and
         isIntArrayOfZeros(evaluatedParam) then
       process_arr_cpy_array_of_zeros(params[1],
@@ -776,7 +776,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(const_table[anArray]);
         c_expr.expr &:= "]->arr[";
-        if array_index_check then
+        if config.array_index_check then
           if indexRange.minValue < arrayMinIdx(anArray) or
               indexRange.maxValue > arrayMaxIdx(anArray) then
             incr(countIndexChecks);
@@ -916,7 +916,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= array_name;
       c_expr.expr &:= "->arr[";
       arrayType := getExprResultType(param1);
-      if array_index_check then
+      if config.array_index_check then
         if arrayType in array_minIdx and arrayType in array_maxIdx then
           if index < array_minIdx[arrayType] or
               index > array_maxIdx[arrayType] then
@@ -1172,7 +1172,7 @@ const proc: process (ARR_IDX, in reference: function,
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->arr[";
         arrayType := getExprResultType(params[1]);
-        if array_index_check then
+        if config.array_index_check then
           indexRange := getIntRange(params[3]);
           if arrayType in array_minIdx and arrayType in array_maxIdx then
             process_fixlen_array_index(params[3], indexRange,
@@ -1263,7 +1263,7 @@ const proc: process (ARR_INSERT, in reference: function,
       array_element @:= [array_type] element_type;
     end if;
     if valueIsAtHeap(element_type) then
-      if array_index_check then
+      if config.array_index_check then
         incr(countIndexChecks);
         incr(statement.temp_num);
         if getConstant(params[2], INTOBJECT, evaluatedParam) then
@@ -1781,7 +1781,7 @@ const proc: process (ARR_TIMES, in reference: function,
       incr(countOptimizations);
       prepare_typed_result(result_type, c_expr);
       c_expr.result_expr := "arrMalloc(1, 0)";
-    elsif inlineFunctions and ccConf.STMT_BLOCK_IN_PARENTHESES_OK and
+    elsif config.inlineFunctions and ccConf.STMT_BLOCK_IN_PARENTHESES_OK and
         isActionExpression(params[3], "ARR_TIMES") and
         getConstant(getActionParameter(params[3], 3), INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then

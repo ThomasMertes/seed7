@@ -199,7 +199,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
       c_expr.expr &:= "(";
       c_expr.expr &:= bstriLiteral(bstri);
       c_expr.expr &:= ")->mem[";
-      if bstring_index_check then
+      if config.bstring_index_check then
         incr(countIndexChecks);
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);
@@ -258,7 +258,7 @@ const proc: process_const_bst_idx (in reference: param1,
     if index < 1 then
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
-    elsif bstring_index_check then
+    elsif config.bstring_index_check then
       incr(countIndexChecks);
       c_expr.expr &:= "(";
       bstri_name := getParameterAsVariable("const_bstriType", "tmp_", param1, c_expr);
@@ -295,7 +295,7 @@ const proc: process (BST_IDX, in reference: function,
       process_const_bst_idx(getValue(evaluatedParam, bstring), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bst_idx(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif bstring_index_check then
+    elsif config.bstring_index_check then
       incr(countIndexChecks);
       incr(c_expr.temp_num);
       index_name := "idx_" & str(c_expr.temp_num);

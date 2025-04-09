@@ -202,7 +202,7 @@ const proc: writeLine (in string: fileName, in integer: fileLine) is func
 const proc: warning (COMPARISON_RESULT_CONSTANT, in string: comparisonName,
     in boolean: comparisonResult, in expr_type: c_expr) is func
   begin
-    if warning_level >= 2 then
+    if config.warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): Comparison with " <& comparisonName <&
               " always evaluates to " <& comparisonResult <& ".");
@@ -214,7 +214,7 @@ const proc: warning (COMPARISON_RESULT_CONSTANT, in string: comparisonName,
 
 const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr) is func
   begin
-    if warning_level >= 2 then
+    if config.warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): Expression raises " <& exceptionName <& ".");
       writeLine(c_expr.currentFile, c_expr.currentLine);
@@ -225,11 +225,14 @@ const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr)
 
 const proc: checkWarning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: place) is func
   begin
-    if warning_level >= 1 and
-        ((not (string_index_check and bstring_index_check and array_index_check) and exceptionName = "INDEX_ERROR") or
-         (not integer_division_check and exceptionName = "NUMERIC_ERROR") or
-         (not integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
-         (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR")) then
+    if config.warning_level >= 1 and
+        ((not (config.string_index_check and
+               config.bstring_index_check and
+               config.array_index_check) and exceptionName = "INDEX_ERROR") or
+         (not config.integer_division_check and exceptionName = "NUMERIC_ERROR") or
+         (not config.integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
+         (not (config.function_range_check and
+               config.conversion_range_check) and exceptionName = "RANGE_ERROR")) then
       writeln("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
               "): Catch of " <& exceptionName <& " although the checks are suppressed.");
       writeLine(file(place), line(place));
@@ -243,17 +246,20 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
     var array string: exceptionNameList is 0 times "";
     var integer: index is 0;
   begin
-    if warning_level >= 2 then
-      if not (string_index_check and bstring_index_check and array_index_check) then
+    if config.warning_level >= 2 then
+      if not (config.string_index_check and
+              config.bstring_index_check and
+              config.array_index_check) then
         exceptionNameList &:= "INDEX_ERROR";
       end if;
-      if not integer_division_check then
+      if not config.integer_division_check then
         exceptionNameList &:= "NUMERIC_ERROR";
       end if;
-      if not integer_overflow_check then
+      if not config.integer_overflow_check then
         exceptionNameList &:= "OVERFLOW_ERROR";
       end if;
-      if not (function_range_check and conversion_range_check) then
+      if not (config.function_range_check and
+             config.conversion_range_check) then
         exceptionNameList &:= "RANGE_ERROR";
       end if;
       if length(exceptionNameList) <> 0 then
@@ -280,7 +286,7 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
 const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin
-    if warning_level >= 1 then
+    if config.warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Duplicate when values " <& overlappingWhenValues <& ".");
       writeLine(file(current_expression), line(current_expression));
@@ -292,7 +298,7 @@ const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
 const proc: error (WHEN_PREVIOUS, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin
-    if warning_level >= 1 then
+    if config.warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Previous usage of " <& overlappingWhenValues <& ".");
       writeLine(file(current_expression), line(current_expression));
@@ -303,7 +309,7 @@ const proc: error (WHEN_PREVIOUS, in bitset: overlappingWhenValues,
 
 const proc: error (EMPTY_WHEN_SET, in reference: current_expression) is func
   begin
-    if warning_level >= 1 then
+    if config.warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): When set is empty.");
       writeLine(file(current_expression), line(current_expression));
@@ -314,7 +320,7 @@ const proc: error (EMPTY_WHEN_SET, in reference: current_expression) is func
 
 const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
   begin
-    if warning_level >= 1 then
+    if config.warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): When value must be constant.");
       writeLine(file(current_expression), line(current_expression));
@@ -326,7 +332,7 @@ const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
 const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: currentVariable,
     in reference: inoutParam, in expr_type: c_expr) is func
   begin
-    if warning_level >= 2 then
+    if config.warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): The variable " <& literal(str(currentVariable)) <&
               " is used for two or more inout-parameters (" <& str(inoutParam) <& ").");
@@ -339,7 +345,7 @@ const proc: error (VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS, in reference: current
 const proc: error (VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER, in reference: currentVariable,
     in reference: inoutParam, in reference: refParam, in expr_type: c_expr) is func
   begin
-    if warning_level >= 2 then
+    if config.warning_level >= 2 then
       writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
               "): The variable " <& literal(str(currentVariable)) <&
               " is used as inout-parameter (" <& str(inoutParam) <&
@@ -353,7 +359,7 @@ const proc: error (VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER, in reference: curre
 const proc: error (FORWARD_CALLED, in reference: current_expression,
     in reference: function) is func
   begin
-    if warning_level >= 1 then
+    if config.warning_level >= 1 then
       writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
               "): Forward defined function called.");
       writeLine(file(current_expression), line(current_expression));

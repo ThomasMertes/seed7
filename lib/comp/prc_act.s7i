@@ -565,7 +565,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
         step_name := defineTempConstant("intType", "step_", incrStep, statement);
       end if;
     end if;
-    if for_loop_variable_check and incrStep = NIL then
+    if config.for_loop_variable_check and incrStep = NIL then
       if constant_end_value then
         if for_to then
           if end_value = integer.last then
@@ -1345,7 +1345,7 @@ const proc: process (PRC_RAISE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if profile_function and catchAllExceptionsLevel = 0 and
+    if config.profile_function and catchAllExceptionsLevel = 0 and
         (str(params[2]) not in catchExceptionLevel or catchExceptionLevel[str(params[2])] = 0) then
       c_expr.expr &:= "profile[";
       c_expr.expr &:= str(objNumber(currentProfiledFunction));

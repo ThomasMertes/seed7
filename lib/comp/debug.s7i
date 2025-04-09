@@ -57,7 +57,7 @@ const func string: noDiagnosticLine is func
   result
     var string: diagnosticLine is "";
   begin
-    if source_debug_info then
+    if config.source_debug_info then
       diagnosticLine &:= "#line 1 \"no_file\"\n";
     else
       diagnosticLine &:= "/* line 1 \"no_file\" */\n";
@@ -70,7 +70,7 @@ const func string: diagnosticLine (in reference: current_object) is func
   result
     var string: diagnosticLine is "";
   begin
-    if source_debug_info and line(current_object) <> 0 then
+    if config.source_debug_info and line(current_object) <> 0 then
       diagnosticLine := "#line ";
       diagnosticLine &:= str(line(current_object));
       diagnosticLine &:= " ";
@@ -91,7 +91,7 @@ const func string: diagnosticLine (inout expr_type: c_expr) is func
   result
     var string: diagnosticLine is "";
   begin
-    if source_debug_info and c_expr.currentLine <> 0 then
+    if config.source_debug_info and c_expr.currentLine <> 0 then
       diagnosticLine := "#line ";
       diagnosticLine &:= str(c_expr.currentLine);
       diagnosticLine &:= " ";
@@ -110,7 +110,7 @@ const func string: diagnosticLine (inout expr_type: c_expr) is func
 const proc: setDiagnosticLine (inout expr_type: c_expr) is func
 
   begin
-    if source_debug_info and c_expr.currentLine <> 0 then
+    if config.source_debug_info and c_expr.currentLine <> 0 then
       c_expr.expr &:= "#line ";
       c_expr.expr &:= str(c_expr.currentLine);
       c_expr.expr &:= " ";
