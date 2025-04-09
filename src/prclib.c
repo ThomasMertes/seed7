@@ -105,7 +105,6 @@ static objectType process_local_decl (objectType local_decl,
         if (VAR_OBJECT(local_element->obj)) {
           local_var = local_element->obj;
           if (CATEGORY_OF_OBJ(local_var) != LOCALVOBJECT) {
-            /* printf("U "); trace1(local_var); printf("\n"); */
             if (likely(ALLOC_OBJECT(init_value))) {
               init_value->type_of =     local_var->type_of;
               init_value->descriptor.property = NULL;

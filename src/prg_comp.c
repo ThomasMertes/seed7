@@ -102,7 +102,6 @@ static objectType copy_args (const const_rtlArrayType argv,
     } else {
       argc = (memSizeType) argv->max_position - start;
     } /* if */
-    /* printf("argc = %d\n", argc); */
     if (unlikely(!ALLOC_ARRAY(arg_array, argc))) {
       result = NULL;
     } else {
@@ -374,10 +373,8 @@ void prgDestr (progType old_prog)
                        old_prog != NULL ? old_prog->usage_count
                                         : (uintType) 0););
     if (old_prog != NULL) {
-      /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
       if (old_prog->usage_count == 0) {
-        /* printf("prgDestr: old progType: %lx\n", old_prog); */
         progBackup = prog;
         prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
@@ -525,7 +522,6 @@ progType prgFilParse (const const_striType fileName, const const_setType options
   /* prgFilParse */
     logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
     int_options = (uintType) setSConv(options);
-    /* printf("options: 0x" F_X(016) "\n", int_options); */
     resultProg = analyzeFile(fileName, int_options, libraryDirs, errorFile, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgFilParse(\"%s\"): analyzeFile() failed:\n"

@@ -915,9 +915,6 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);
-      /* printf(". %llu %llu cmp=%d\n",
-          (unsigned long long) hashelem->key.value.genericValue,
-          (unsigned long long) aKey, cmp); */
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -966,9 +963,6 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericValue, aKey);
-      /* printf(". %llu %llu cmp=%d\n",
-          (unsigned long long) hashelem->key.value.genericValue,
-          (unsigned long long) aKey, cmp); */
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -1023,7 +1017,6 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
       aHashMap->size++;
     } else {
       do {
-        /* printf("key=%llX\n", hashelem->key.value.genericValue); */
         if (hashelem->key.value.genericValue < aKey) {
           if (hashelem->next_less == NULL) {
             result_hashelem = new_helem(aKey, defaultData,

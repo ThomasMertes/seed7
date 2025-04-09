@@ -210,8 +210,6 @@ boolType openInfile (const_striType sourceFileName,
     os_path = cp_to_os_path(sourceFileName, &path_info, err_info);
     if (likely(os_path != NULL)) {
       in_fil = os_fopen(os_path, os_mode_rb);
-      /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
-             os_path, (memSizeType) in_fil); */
       if (unlikely(in_fil == NULL)) {
         logError(printf("openInfile: "
                         "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
