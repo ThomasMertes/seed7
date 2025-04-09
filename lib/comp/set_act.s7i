@@ -161,7 +161,7 @@ const proc: optimize_set_card (in reference: argument,
     var intRange: argumentRange is intRange.value;
     var string: argumentName is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     argumentRange := getIntRange(argument);
     if argumentRange.maxValue < 0 then
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
@@ -176,7 +176,7 @@ const proc: optimize_set_card (in reference: argument,
         process_expr(argument, c_expr);
         c_expr.expr &:= "))";
       else
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(";
         argumentName := getTempVariable("intType", "tmp_", argument, c_expr);
         c_expr.expr &:= "rngChk(";
@@ -191,7 +191,7 @@ const proc: optimize_set_card (in reference: argument,
         c_expr.expr &:= ")))";
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(count.noRangeChecks);
       c_expr.expr &:= "uintCard((uintType) (";
       process_expr(argument, c_expr);
       c_expr.expr &:= "))";
@@ -318,7 +318,7 @@ const proc: process (SET_DIFF_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore: set -:= EMPTY_SET */\n";
     else
       statement.expr := "setDiffAssign(&(";
@@ -348,29 +348,29 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
                    min(numberRange.maxValue, max(aBitset))};
     end if;
     if getConstant(param1, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       isElement := getValue(evaluatedParam, integer) in aBitset;
       c_expr.expr &:= str(ord(isElement));
       c_expr.expr &:= "/*";
       c_expr.expr &:= str(isElement);
       c_expr.expr &:= "*/";
     elsif aBitset = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*FALSE*/";
     elsif numberRange.minValue >= min(aBitset) and
           numberRange.maxValue <= max(aBitset) and
           {numberRange.minValue .. numberRange.maxValue} <= aBitset and
           not numberRange.mayRaiseException then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "1/*TRUE*/";
     elsif card(aBitset) = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ") == ";
       c_expr.expr &:= integerLiteral(min(aBitset));
     elsif card(aBitset) >= 3 and max(aBitset) - min(aBitset) = pred(card(aBitset)) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       if ccConf.TWOS_COMPLEMENT_INTTYPE and min(aBitset) = 0 then
@@ -389,7 +389,7 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
       c_expr.expr &:= ")";
     elsif card(aBitset) = 2 or
         card(aBitset) = 3 and (min(aBitset) < 0 or max(aBitset) >= ccConf.INTTYPE_SIZE) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       for number range aBitset do
@@ -404,7 +404,7 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
       end for;
       c_expr.expr &:= ")";
     elsif min(aBitset) >= 0 and max(aBitset) < ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if numberRange.minValue >= 0 and numberRange.maxValue < ccConf.INTTYPE_SIZE then
         c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
         c_expr.expr &:= ">>(";
@@ -431,7 +431,7 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
         c_expr.expr &:= "&1)";
       end if;
     elsif max(aBitset) - min(aBitset) < ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       if max(aBitset) >= integer.first + ccConf.INTTYPE_SIZE and
@@ -465,8 +465,8 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
       end if;
       c_expr.expr &:= ")&1)";
     elsif config.inlineFunctions then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       if ccConf.TWOS_COMPLEMENT_INTTYPE and bitset_pos(min(aBitset)) = 0 then
@@ -516,8 +516,8 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
     if getConstant(param3, SETOBJECT, evaluatedParam) then
       process_const_set_elem(param1, getValue(evaluatedParam, bitset), c_expr);
     elsif config.inlineFunctions then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       set_name := getParameterAsVariable("const_setType", "tmp_", param3, c_expr);
@@ -572,14 +572,14 @@ const proc: process_const_set_eq (in reference: param1, in bitset: aBitset,
     var boolean: isEqual is FALSE;
   begin
     if getConstant(param1, SETOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       isEqual := getValue(evaluatedParam, bitset) = aBitset;
       c_expr.expr &:= str(ord(isEqual));
       c_expr.expr &:= "/*";
       c_expr.expr &:= str(isEqual);
       c_expr.expr &:= "*/";
     elsif aBitset = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "setIsEmpty(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")";
@@ -686,8 +686,8 @@ const proc: process (SET_EXCL, in reference: function,
     var expr_type: statement is expr_type.value;
   begin
     if config.inlineFunctions then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       process_inline_set_excl(params, c_expr);
     else
       statement.expr := "setExcl(&(";
@@ -800,7 +800,7 @@ const proc: process (SET_INTERSECT_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr &:= "setCpy(&(";
       process_expr(params[1], statement);
       statement.expr &:= "), ";
@@ -897,11 +897,11 @@ const proc: process_const_set_rand (in bitset: aBitset,
 
   begin
     if aBitset = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
     elsif card(aBitset) = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= integerLiteral(min(aBitset));
     elsif min(aBitset) + pred(card(aBitset)) = max(aBitset) then
       process_const_int_rand(min(aBitset), max(aBitset), c_expr);
@@ -1007,7 +1007,7 @@ const proc: process (SET_UNION_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore: set |:= EMPTY_SET */\n";
     else
       statement.expr := "setUnionAssign(&(";

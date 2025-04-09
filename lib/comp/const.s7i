@@ -417,7 +417,7 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
             evaluatedExpr := evaluate(current_expression, new_actual_params);
             if evaluatedExpr <> NIL then
               if category(evaluatedExpr) in basicExpressionCategories then
-                incr(countEvaluations);
+                incr(count.evaluations);
                 okay := TRUE;
               end if;
             end if;
@@ -447,14 +447,14 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
       elsif category(currExpr) = exprCategory and
           not isVar(currExpr) then
         evaluatedExpr := currExpr;
-        incr(countEvaluations);
+        incr(count.evaluations);
         okay := TRUE;
       elsif config.evaluate_const_expr >= 2 and isConstant(currExpr) then
         block
           evaluatedExpr := evaluate(prog, currExpr);
           if evaluatedExpr <> NIL then
             if category(evaluatedExpr) = exprCategory then
-              incr(countEvaluations);
+              incr(count.evaluations);
               okay := TRUE;
             end if;
           end if;
@@ -486,14 +486,14 @@ const func boolean: getConstant (in var reference: currExpr,
       elsif category(currExpr) in basicExpressionCategories and
           not isVar(currExpr) then
         evaluatedExpr := currExpr;
-        incr(countEvaluations);
+        incr(count.evaluations);
         okay := TRUE;
       elsif config.evaluate_const_expr >= 2 and isConstant(currExpr) then
         block
           evaluatedExpr := evaluate(prog, currExpr);
           if evaluatedExpr <> NIL then
             if category(evaluatedExpr) in basicExpressionCategories then
-              incr(countEvaluations);
+              incr(count.evaluations);
               okay := TRUE;
             end if;
           end if;

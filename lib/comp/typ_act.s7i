@@ -215,7 +215,7 @@ const proc: process (TYP_STR, in reference: function,
 
   begin
     if category(params[1]) = TYPEOBJECT and not isVar(params[1]) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= stringLiteral(str(getValue(params[1], type)));
     else
       compDataLibraryUsed := TRUE;

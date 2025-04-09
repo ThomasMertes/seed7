@@ -153,7 +153,7 @@ const proc: process_const_prc_if (in boolean: condition, in reference: statement
   local
     var expr_type: c_statement is expr_type.value;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if condition then
       c_expr.expr &:= "/* Optimized: if TRUE */ {\n";
       process_call_by_name_expr(statement, c_statement);
@@ -212,7 +212,7 @@ const proc: process_const_prc_if_elsif (in boolean: condition, in reference: the
     var expr_type: c_then_part is expr_type.value;
     var expr_type: c_else_part is expr_type.value;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     c_expr.expr &:= "/* Optimized: if ";
     c_expr.expr &:= str(condition);
     c_expr.expr &:= " */ {\n";
@@ -281,7 +281,7 @@ const proc: process_const_prc_if_noop (in boolean: condition, in reference: stat
   local
     var expr_type: c_statement is expr_type.value;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if condition then
       c_expr.expr &:= "/* Optimized: elsif TRUE */\n";
     else
@@ -581,7 +581,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           end if;
         end if;
       else
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         statement.expr &:= "if (rngChk(";
         statement.expr &:= end_name;
         statement.expr &:= "==";

@@ -309,7 +309,7 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
             bigSum -:= bigInteger(addSubParamList[succ(index)].constSummand);
           end if;
           if bigSum > bigInteger(integer.first) and bigSum < 0_ then
-            incr(countOptimizations);
+            incr(count.optimizations);
             if index > 1 then
               addSubParamList[index].doAdd := FALSE;
               addSubParamList[index].constSummand := -ord(bigSum);
@@ -319,12 +319,12 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
             end if;
             ignore(remove(addSubParamList, succ(index)));
           elsif bigSum > 0_ and bigSum <= bigInteger(integer.last) then
-            incr(countOptimizations);
+            incr(count.optimizations);
             addSubParamList[index].doAdd := TRUE;
             addSubParamList[index].constSummand := ord(bigSum);
             ignore(remove(addSubParamList, succ(index)));
           elsif bigSum = 0_ then
-            incr(countOptimizations);
+            incr(count.optimizations);
             if index > 1 or length(addSubParamList) = 2 or
                 addSubParamList[3].doAdd then
               ignore(remove(addSubParamList, index));
@@ -335,12 +335,12 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
               ignore(remove(addSubParamList, succ(index)));
             end if;
           elsif bigSum = bigInteger(integer.first) then
-            incr(countOptimizations);
+            incr(count.optimizations);
             addSubParamList[index].doAdd := TRUE;
             addSubParamList[index].constSummand := integer.first;
             ignore(remove(addSubParamList, succ(index)));
           elsif bigSum = -bigInteger(integer.first) then
-            incr(countOptimizations);
+            incr(count.optimizations);
             if index > 1 then
               addSubParamList[index].doAdd := FALSE;
               addSubParamList[index].constSummand := integer.first;
@@ -355,7 +355,7 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
           if index > 1 or index = length(addSubParamList) or
               addSubParamList[succ(index)].doAdd then
             # Zero elements are removed.
-            incr(countOptimizations);
+            incr(count.optimizations);
             ignore(remove(addSubParamList, index));
           else
             incr(index);
@@ -877,7 +877,7 @@ const proc: negate (in reference: number, inout expr_type: c_expr) is func
         process_expr(number, c_expr);
         c_expr.expr &:= ")";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "number_", number, c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -892,7 +892,7 @@ const proc: negate (in reference: number, inout expr_type: c_expr) is func
       end if;
     else
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       c_expr.expr &:= "-(";
       process_expr(number, c_expr);
@@ -920,7 +920,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
       maxAllowedSummand1 := integer.last - summand2;
     end if;
     if getConstant(summand1, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       summand1_value := getValue(evaluatedParam, integer);
       if  summand1_value < minAllowedSummand1 or
           summand1_value > maxAllowedSummand1 then
@@ -930,10 +930,10 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
         c_expr.expr &:= integerLiteral(summand1_value + summand2);
       end if;
     elsif summand2 = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(summand1, c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
+      incr(count.optimizations);
       summand1_range := getIntRange(summand1);
       if summand1_range <> intRange.value and
           summand1_range.minValue >= minAllowedSummand1 and
@@ -945,7 +945,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
         c_expr.expr &:= ") + ";
         c_expr.expr &:= integerLiteral(summand2);
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         summand1Expr.temp_num := c_expr.temp_num;
         process_expr(summand1, summand1Expr);
         c_expr.temp_num := summand1Expr.temp_num;
@@ -956,7 +956,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
         const_int_add_with_overflow_check(summand1Expr, summand2, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(summand1, c_expr);
       c_expr.expr &:= ") + ";
@@ -1003,7 +1003,7 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
           c_expr.expr &:= ")";
         elsif summand2_range.minValue >= minAllowedSummand2 or
               summand2_range.maxValue <= maxAllowedSummand2 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "/*simplified_overflow_check_add*/(";
           summand1_name := getParameterAsVariable("intType", "summand1_", summand1, c_expr);
           summand2_name := getParameterAsVariable("intType", "summand2_", summand2, c_expr);
@@ -1036,9 +1036,9 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
         fullOverflowCheck := TRUE;
       end if;
       if fullOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         if summand1 = summand2 then
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "(";
           summand1_name := getParameterAsVariable("intType", "summand1_", summand1, c_expr);
           c_expr.expr &:= "ovfChk(";
@@ -1063,7 +1063,7 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
         end if;
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(summand1, c_expr);
       c_expr.expr &:= ") + (";
@@ -1092,7 +1092,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
       maxAllowedMinuend := integer.last;
     end if;
     if getConstant(minuend, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       minuend_value := getValue(evaluatedParam, integer);
       if  minuend_value < minAllowedMinuend or
           minuend_value > maxAllowedMinuend then
@@ -1102,10 +1102,10 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
         c_expr.expr &:= integerLiteral(minuend_value - subtrahend);
       end if;
     elsif subtrahend = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(minuend, c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
+      incr(count.optimizations);
       minuend_range := getIntRange(minuend);
       if minuend_range <> intRange.value and
           minuend_range.minValue >= minAllowedMinuend and
@@ -1117,7 +1117,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
         c_expr.expr &:= ") - ";
         c_expr.expr &:= integerLiteral(subtrahend);
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         minuendExpr.temp_num := c_expr.temp_num;
         process_expr(minuend, minuendExpr);
         c_expr.temp_num := minuendExpr.temp_num;
@@ -1128,7 +1128,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
         const_int_sbtr_with_overflow_check(minuendExpr, subtrahend, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(minuend, c_expr);
       c_expr.expr &:= ") - ";
@@ -1156,7 +1156,7 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
     if minuend = 0 then
       negate(subtrahend, c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
+      incr(count.optimizations);
       subtrahend_range := getIntRange(subtrahend);
       if subtrahend_range <> intRange.value and
           subtrahend_range.minValue >= minAllowedSubtrahend and
@@ -1169,7 +1169,7 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
         process_expr(subtrahend, c_expr);
         c_expr.expr &:= ")";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         subtrahendExpr.temp_num := c_expr.temp_num;
         process_expr(subtrahend, subtrahendExpr);
         c_expr.temp_num := subtrahendExpr.temp_num;
@@ -1180,7 +1180,7 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
         const_int_sbtr_with_overflow_check(minuend, subtrahendExpr, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= integerLiteral(minuend);
       c_expr.expr &:= " - (";
       process_expr(subtrahend, c_expr);
@@ -1203,7 +1203,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
     var string: subtrahend_name is "";
   begin
     if minuend = subtrahend then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0";
     elsif config.check_int_arithmetic_overflow then
       minuend_range := getIntRange(minuend);
@@ -1230,7 +1230,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
           c_expr.expr &:= ")";
         elsif subtrahend_range.minValue >= minAllowedSubtrahend or
               subtrahend_range.maxValue <= maxAllowedSubtrahend then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "/*simplified_overflow_check_sbtr*/(";
           minuend_name := getParameterAsVariable("intType", "minuend_", minuend, c_expr);
           subtrahend_name := getParameterAsVariable("intType", "subtrahend_", subtrahend, c_expr);
@@ -1263,7 +1263,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
         fullOverflowCheck := TRUE;
       end if;
       if fullOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         minuendExpr.temp_num := c_expr.temp_num;
         process_expr(minuend, minuendExpr);
         c_expr.temp_num := minuendExpr.temp_num;
@@ -1274,7 +1274,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
         int_sbtr_with_overflow_check(minuendExpr, subtrahend, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(minuend, c_expr);
       c_expr.expr &:= ") - (";
@@ -1324,7 +1324,7 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
     var boolean: doAdd is FALSE;
   begin
     if length(addSubParamList) >= 2 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.check_int_arithmetic_overflow then
         summand1Expr.temp_num := c_expr.temp_num;
         optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], summand1Range, summand1Expr);
@@ -1365,7 +1365,7 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
               warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
               c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
             else
-              incr(countOverflowChecks);
+              incr(count.overflowChecks);
               if doAdd then
                 const_int_add_with_overflow_check(summand1Expr, summand2Value, c_expr);
               else
@@ -1397,7 +1397,7 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
             warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
             c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
           else
-            incr(countOverflowChecks);
+            incr(count.overflowChecks);
             if doAdd then
               int_add_with_overflow_check(summand1Expr, summand2Ref, c_expr);
             else
@@ -1406,7 +1406,7 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
           end if;
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         c_expr.expr &:= "(";
         optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], summand1Range, c_expr);
         if addSubParamList[length(addSubParamList)].doAdd then
@@ -1423,10 +1423,10 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
         end if;
       end if;
     elsif length(addSubParamList) = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       optimize_int_add(addSubParamList[1], sumRange, c_expr);
     else
-      incr(countOptimizations);
+      incr(count.optimizations);
       sumRange := getIntRange(0);
       c_expr.expr &:= integerLiteral(0);
     end if;
@@ -1526,7 +1526,7 @@ const proc: process (INT_ABS, in reference: function,
     var integer: number is 0;
   begin
     if getConstant(params[1], INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.first and ccConf.TWOS_COMPLEMENT_INTTYPE then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -1539,11 +1539,11 @@ const proc: process (INT_ABS, in reference: function,
       if config.check_int_abs_overflow and
           number_range.minValue = integer.first then
         if config.check_int_arithmetic_overflow then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "(";
           number_name := getParameterAsVariable("intType", "number_", params[1], c_expr);
           if number_range.maxValue <= 0 then
-            incr(countOptimizations);
+            incr(count.optimizations);
             c_expr.expr &:= "ovfChk(";
             c_expr.expr &:= number_name;
             c_expr.expr &:= "==";
@@ -1570,7 +1570,7 @@ const proc: process (INT_ABS, in reference: function,
         else
           (* There is a signal for integer overflow. *)
           if number_range.maxValue <= 0 then
-            incr(countOptimizations);
+            incr(count.optimizations);
             c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
             process_expr(params[1], c_expr);
             c_expr.expr &:= ")";
@@ -1592,11 +1592,11 @@ const proc: process (INT_ABS, in reference: function,
           countOverflowOptimizations(c_expr);
         end if;
         if number_range.minValue >= 0 then
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "/*abs_of_nonnegative_number*/";
           process_expr(params[1], c_expr);
         elsif number_range.maxValue <= 0 then
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
           process_expr(params[1], c_expr);
           c_expr.expr &:= ")";
@@ -1675,11 +1675,11 @@ const proc: process_const_int_add_assign (in reference: variable, in integer: de
     var expr_type: statement is expr_type.value;
   begin
     if delta = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore integer +:= 0; */\n";
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
-      incr(countOverflowChecks);
+      incr(count.optimizations);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", variable, statement);
       statement.expr &:= "if (ovfChk(";
       statement.expr &:= variable_name;
@@ -1706,7 +1706,7 @@ const proc: process_const_int_add_assign (in reference: variable, in integer: de
       statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(variable, statement);
       statement.expr &:= "+=";
       statement.expr &:= integerLiteral(delta);
@@ -1733,7 +1733,7 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
       if deltaRange.minValue = 0 and deltaRange.maxValue = 0 then
         c_expr.expr &:= "/* ignore integer +:= 0; */\n";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         variable_name := getParameterAsReference("intType", "variable_", params[1], statement);
         if ccConf.BUILTIN_ADD_OVERFLOW <> "" then
           statement.expr &:= "ovfChk(";
@@ -1794,7 +1794,7 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
         doLocalDeclsOfStatement(statement, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(params[1], statement);
       statement.expr &:= "+=";
       process_expr(params[3], statement);
@@ -1812,7 +1812,7 @@ const proc: process_const_int_binom (in integer: n_number, in reference: k_numbe
     var string: k_name is "";
   begin
     if getConstant(k_number, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       block
         c_expr.expr &:= integerLiteral(n_number ! getValue(evaluatedParam, integer));
       exception
@@ -1924,8 +1924,8 @@ const proc: optimize_int_bytes_2_int_length_0 (in reference: stri,
     var boolean: raisesException is FALSE;
     var string: logicalOr is "";
   begin
-    incr(countOptimizations);
-    incr(countInlinedFunctions);
+    incr(count.optimizations);
+    incr(count.inlinedFunctions);
     start_range := getIntRange(start);
     c_expr.expr &:= "(";
     if start_range.maxValue < 1 then
@@ -1959,7 +1959,7 @@ const proc: optimize_int_bytes_2_int_length_0 (in reference: stri,
       if config.string_index_check then
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
-          incr(countIndexChecks);
+          incr(count.indexChecks);
           c_expr.expr &:= "idxChk(";
           if start_range.minValue < 1 then
             c_expr.expr &:= start_name;
@@ -1980,7 +1980,7 @@ const proc: optimize_int_bytes_2_int_length_0 (in reference: stri,
           countIndexOptimizations(c_expr);
         end if;
       else
-        incr(countSuppressedIndexChecks);
+        incr(count.suppressedIndexChecks);
       end if;
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
     end if;
@@ -2005,8 +2005,8 @@ const proc: optimize_int_bytes_2_int_length_1 (in reference: stri,
     var boolean: raisesException is FALSE;
     var string: logicalOr is "";
   begin
-    incr(countOptimizations);
-    incr(countInlinedFunctions);
+    incr(count.optimizations);
+    incr(count.inlinedFunctions);
     c_expr.expr &:= "(";
     if getConstant(stri, STRIOBJECT, evaluatedParam) then
       stri_is_variable := FALSE;
@@ -2042,7 +2042,7 @@ const proc: optimize_int_bytes_2_int_length_1 (in reference: stri,
       if config.string_index_check then
         if start_range.minValue < 1 or (fixedLengthSubstring and
             (stri_is_variable or start_range.maxValue > stri_length)) then
-          incr(countIndexChecks);
+          incr(count.indexChecks);
           c_expr.expr &:= "idxChk(";
           if start_range.minValue < 1 then
             c_expr.expr &:= start_name;
@@ -2063,11 +2063,11 @@ const proc: optimize_int_bytes_2_int_length_1 (in reference: stri,
           countIndexOptimizations(c_expr);
         end if;
       else
-        incr(countSuppressedIndexChecks);
+        incr(count.suppressedIndexChecks);
       end if;
       c_expr.expr &:= "(";
       if config.function_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "rngChk(";
         if not fixedLengthSubstring then
           c_expr.expr &:= start_name;
@@ -2082,7 +2082,7 @@ const proc: optimize_int_bytes_2_int_length_1 (in reference: stri,
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= ":";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
       end if;
       c_expr.expr &:= "(intType)";
       if signed then
@@ -2108,7 +2108,7 @@ const proc: optimize_int_bytes_be_2_int (in string: slice_name,
         c_expr.expr &:= "|";
       end if;
       if config.function_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(rngChk(";
         c_expr.expr &:= slice_name;
         c_expr.expr &:= ".mem[";
@@ -2130,7 +2130,7 @@ const proc: optimize_int_bytes_be_2_int (in string: slice_name,
         c_expr.expr &:= integerLiteral(pred(index));
         c_expr.expr &:= "])";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
         c_expr.expr &:= "(intType)";
         if signed and index = 1 then
           c_expr.expr &:= "(signed char)";
@@ -2166,8 +2166,8 @@ const proc: optimize_int_bytes_be_2_int (in reference: stri,
       optimize_int_bytes_2_int_length_1(getActionParameter(stri, 1),
           start, fixedLengthSubstring, signed, c_expr);
     elsif ccConf.ALLOW_STRITYPE_SLICES and length >= 2 and length <= 8 then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
@@ -2294,7 +2294,7 @@ const proc: optimize_int_bytes_le_2_int (in string: slice_name,
         c_expr.expr &:= "|";
       end if;
       if config.function_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(rngChk(";
         c_expr.expr &:= slice_name;
         c_expr.expr &:= ".mem[";
@@ -2316,7 +2316,7 @@ const proc: optimize_int_bytes_le_2_int (in string: slice_name,
         c_expr.expr &:= integerLiteral(pred(index));
         c_expr.expr &:= "])";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
         c_expr.expr &:= "(intType)";
         if signed and index = length then
           c_expr.expr &:= "(signed char)";
@@ -2352,8 +2352,8 @@ const proc: optimize_int_bytes_le_2_int (in reference: stri,
       optimize_int_bytes_2_int_length_1(getActionParameter(stri, 1),
           start, fixedLengthSubstring, signed, c_expr);
     elsif ccConf.ALLOW_STRITYPE_SLICES and length >= 2 and length <= 8 then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
@@ -2477,8 +2477,8 @@ const proc: process (INT_CMP, in reference: function,
     var string: number2_name is "";
   begin
     if config.inlineFunctions then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       c_expr.expr &:= "(";
       number1_name := getParameterAsVariable("intType", "number1_", params[1], c_expr);
       number2_name := getParameterAsVariable("intType", "number2_", params[2], c_expr);
@@ -2525,7 +2525,7 @@ const proc: process (INT_DECR, in reference: function,
     var expr_type: statement is expr_type.value;
   begin
     if config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       if isNormalVariable(params[1]) then
         process_expr(params[1], c_param1);
         statement.expr &:= "if (ovfChk(";
@@ -2558,7 +2558,7 @@ const proc: process (INT_DECR, in reference: function,
         statement.expr &:= ");\n";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       statement.expr &:= "--(";
       process_expr(params[1], statement);
       statement.expr &:= ");\n";
@@ -2582,17 +2582,17 @@ const func boolean: optimize_div_of_product (in reference: number, in integer: f
     var boolean: done is TRUE;
   begin
     if factor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0";
     elsif factor = divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       countOverflowOptimizations(c_expr);
       process_expr(number, c_expr);
     elsif factor rem divisor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_const_int_mult(number, factor div divisor, c_expr);
     elsif divisor rem factor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       countOverflowOptimizations(c_expr);
       process_const_int_div(number, divisor div factor, c_expr);
     else
@@ -2613,11 +2613,11 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
     var boolean: done is TRUE;
   begin
     if divisor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       dividend_value := getValue(evaluatedDividend, integer);
       if divisor = -1 and dividend_value < -integer.last then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -2626,7 +2626,7 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
         c_expr.expr &:= integerLiteral(dividend_value div divisor);
       end if;
     elsif divisor = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")";
@@ -2645,13 +2645,13 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
       if divisor = -1 then
         # Dividing by -1 is equal to changing the sign.
         # integer.first / -1 causes an integer overflow.
-        incr(countOptimizations);
+        incr(count.optimizations);
         negate(dividend, c_expr);
       elsif divisor > 0 and 2 ** log2(divisor) = divisor then
         # Divisor is a power of two.
         dividend_range := getIntRange(dividend);
         if dividend_range.minValue >= 0 then
-          incr(countOptimizations);
+          incr(count.optimizations);
           if ccConf.RSHIFT_DOES_SIGN_EXTEND then
             c_expr.expr &:= "(";
             process_expr(dividend, c_expr);
@@ -2677,7 +2677,7 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
         # Negating the divisor would fail for the most negative integer.
         dividend_range := getIntRange(dividend);
         if dividend_range.maxValue <= 0 then
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "(intType)(-(uintType)(";
           process_expr(dividend, c_expr);
           c_expr.expr &:= ") >> ";
@@ -2708,11 +2708,11 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
   begin
     divisor_range := getIntRange(divisor);
     if dividend = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.integer_division_check then
         if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
             divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(divChk((";
           process_expr(divisor, c_expr);
           c_expr.expr &:= ")==0)?";
@@ -2742,7 +2742,7 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
         c_expr.expr &:= "(";
         divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
         if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==-1)?";
@@ -2753,7 +2753,7 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
         end if;
         if config.check_int_div_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "divChk(";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= "==0)?";
@@ -2770,11 +2770,11 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
       end if;
     else
       if dividend = integer.first then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if config.check_int_div_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(";
           divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
           c_expr.expr &:= "divChk(";
@@ -2826,7 +2826,7 @@ const proc: process (INT_DIV, in reference: function,
           config.check_int_div_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-      incr(countDivisionChecks);
+      incr(count.divisionChecks);
       c_expr.expr &:= "(divChk((";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")==0)?";
@@ -2841,7 +2841,7 @@ const proc: process (INT_DIV, in reference: function,
         if config.integer_division_check then
           if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
               divisor_range.mayRaiseException then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(divChk((";
             process_expr(params[1], c_expr);
             c_expr.expr &:= ")==0)?";
@@ -2877,7 +2877,7 @@ const proc: process (INT_DIV, in reference: function,
           divisor_name := getParameterAsVariable("intType", "divisor_", params[3], c_expr);
           if dividend_range.minValue = integer.first and
               divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-            incr(countOverflowChecks);
+            incr(count.overflowChecks);
             c_expr.expr &:= "ovfChk(";
             c_expr.expr &:= dividend_name;
             c_expr.expr &:= "==";
@@ -2893,7 +2893,7 @@ const proc: process (INT_DIV, in reference: function,
           end if;
           if config.check_int_div_by_zero then
             if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-              incr(countDivisionChecks);
+              incr(count.divisionChecks);
               c_expr.expr &:= "divChk(";
               c_expr.expr &:= divisor_name;
               c_expr.expr &:= "==0)?";
@@ -2909,10 +2909,10 @@ const proc: process (INT_DIV, in reference: function,
           c_expr.expr &:= ")";
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         if config.check_int_div_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(";
             divisor_name := getParameterAsVariable("intType", "divisor_", params[3], c_expr);
             c_expr.expr &:= "divChk(";
@@ -2960,13 +2960,13 @@ const proc: process (INT_EQ, in reference: function,
             number2Range.minValue = number2Range.maxValue and
             number1Range.minValue = number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, "=", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.maxValue < number2Range.minValue or
             number1Range.minValue > number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, "=", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -3032,12 +3032,12 @@ const proc: process (INT_GE, in reference: function,
       if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
         if number1Range.minValue >= number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, ">=", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.maxValue < number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, ">=", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -3067,12 +3067,12 @@ const proc: process (INT_GT, in reference: function,
       if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
         if number1Range.minValue > number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, ">", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.maxValue <= number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, ">", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -3127,7 +3127,7 @@ const proc: process (INT_INCR, in reference: function,
     var expr_type: statement is expr_type.value;
   begin
     if config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       if isNormalVariable(params[1]) then
         process_expr(params[1], c_param1);
         statement.expr &:= "if (ovfChk(";
@@ -3160,7 +3160,7 @@ const proc: process (INT_INCR, in reference: function,
         statement.expr &:= ");\n";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       statement.expr &:= "++(";
       process_expr(params[1], statement);
       statement.expr &:= ");\n";
@@ -3183,12 +3183,12 @@ const proc: process (INT_LE, in reference: function,
       if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
         if number1Range.maxValue <= number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, "<=", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.minValue > number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, "<=", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -3242,7 +3242,7 @@ const proc: process (INT_LPAD0, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) <= 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_int_str(params[1], c_expr);
     else
       prepare_stri_result(c_expr);
@@ -3268,11 +3268,11 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
     var boolean: fullOverflowCheck is FALSE;
   begin
     if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number_value := getValue(evaluatedNumber, integer);
       if number_value < integer.first >> lshift or
           number_value > integer.last >> lshift then
@@ -3282,10 +3282,10 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
         c_expr.expr &:= integerLiteral(number_value << lshift);
       end if;
     elsif lshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(number, c_expr);
     elsif config.check_int_shift_overflow then
-      incr(countOptimizations);
+      incr(count.optimizations);
       minAllowedNumber := integer.first >> lshift;
       maxAllowedNumber := integer.last >> lshift;
       number_range := getIntRange(number);
@@ -3300,7 +3300,7 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
           c_expr.expr &:= integerLiteral(lshift);
         elsif number_range.minValue >= minAllowedNumber or
               number_range.maxValue <= maxAllowedNumber then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "/*simplified_overflow_check_lshift*/(";
           number_name := getParameterAsVariable("intType", "number_", number, c_expr);
           c_expr.expr &:= "ovfChk(";
@@ -3326,7 +3326,7 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
         fullOverflowCheck := TRUE;
       end if;
       if fullOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "number_", number, c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -3341,7 +3341,7 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
         c_expr.expr &:= ")";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(number, c_expr);
       c_expr.expr &:= ") << ";
@@ -3372,11 +3372,11 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
         countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_lshift*/";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         doOverflowCheck := TRUE;
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
     end if;
     if not raisesException then
       if doOverflowCheck then
@@ -3448,7 +3448,7 @@ const proc: process (INT_LSHIFT, in reference: function,
           process_expr(params[3], c_expr);
           c_expr.expr &:= ")";
         else
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "(";
           lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
           c_expr.expr &:= "ovfChk(";
@@ -3465,7 +3465,7 @@ const proc: process (INT_LSHIFT, in reference: function,
         fullOverflowCheck := TRUE;
       end if;
       if fullOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "number_", params[1], c_expr);
         lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
@@ -3505,7 +3505,7 @@ const proc: process (INT_LSHIFT, in reference: function,
         c_expr.expr &:= ")";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") << (";
@@ -3523,16 +3523,16 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
     var expr_type: statement is expr_type.value;
   begin
     if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= raiseError("OVERFLOW_ERROR");
     elsif lshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore integer <<:= 0; */\n";
     elsif config.check_int_shift_overflow then
-      incr(countOptimizations);
-      incr(countOverflowChecks);
+      incr(count.optimizations);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", variable, statement);
       statement.expr &:= "if (ovfChk(";
       checkIfOutsideRange(variable_name, integer.first >> lshift,
@@ -3547,7 +3547,7 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
       statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(variable, statement);
       statement.expr &:= "<<=";
       statement.expr &:= integerLiteral(lshift);
@@ -3569,7 +3569,7 @@ const proc: process (INT_LSHIFT_ASSIGN, in reference: function,
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_lshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_shift_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", params[1], statement);
       lshift_name := getParameterAsVariable("intType", "lshift_", params[3], statement);
       statement.expr &:= "ovfChk(";
@@ -3603,7 +3603,7 @@ const proc: process (INT_LSHIFT_ASSIGN, in reference: function,
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(params[1], statement);
       statement.expr &:= "<<=";
       process_expr(params[3], statement);
@@ -3627,12 +3627,12 @@ const proc: process (INT_LT, in reference: function,
       if not number1Range.mayRaiseException and not number2Range.mayRaiseException then
         if number1Range.maxValue < number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, "<", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.minValue >= number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, "<", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -3659,17 +3659,17 @@ const func boolean: optimize_mdiv_of_product (in reference: number, in integer: 
     var boolean: done is TRUE;
   begin
     if factor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0";
     elsif factor = divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       countOverflowOptimizations(c_expr);
       process_expr(number, c_expr);
     elsif factor mod divisor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_const_int_mult(number, factor mdiv divisor, c_expr);
     elsif divisor mod factor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       countOverflowOptimizations(c_expr);
       process_const_int_mdiv(number, divisor mdiv factor, c_expr);
     else
@@ -3689,7 +3689,7 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
     var intRange: dividend_range is intRange.value;
     var boolean: done is TRUE;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if divisor = 0 then
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
@@ -3844,13 +3844,13 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
     var string: divisor_name is "";
     var intRange: divisor_range is intRange.value;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     divisor_range := getIntRange(divisor);
     if dividend = 0 then
       if config.integer_division_check then
         if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
             divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(divChk((";
           process_expr(divisor, c_expr);
           c_expr.expr &:= ")==0)?";
@@ -3893,7 +3893,7 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         c_expr.expr &:= "(";
         divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
         if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==-1)?";
@@ -3912,7 +3912,7 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         end if;
         if config.check_int_div_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "divChk(";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= "==0)?";
@@ -3929,7 +3929,7 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
       end if;
     else
       if dividend = integer.first then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if (dividend <= 0 and
           ((dividend > integer.first and divisor_range.maxValue < 0) or
@@ -3977,7 +3977,7 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         end if;
         if config.check_int_div_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "divChk(";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= "==0)?";
@@ -4014,7 +4014,7 @@ const proc: process (INT_MDIV, in reference: function,
           config.check_int_div_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-      incr(countDivisionChecks);
+      incr(count.divisionChecks);
       c_expr.expr &:= "(divChk((";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")==0)?";
@@ -4029,7 +4029,7 @@ const proc: process (INT_MDIV, in reference: function,
         if config.integer_division_check then
           if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
               divisor_range.mayRaiseException then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(divChk((";
             process_expr(params[1], c_expr);
             c_expr.expr &:= ")==0)?";
@@ -4063,7 +4063,7 @@ const proc: process (INT_MDIV, in reference: function,
           if config.check_int_division_overflow then
             countOverflowOptimizations(c_expr);
           else
-            countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+            count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
           end if;
           if config.check_int_div_by_zero then
             countDivisionOptimizations(c_expr);
@@ -4079,7 +4079,7 @@ const proc: process (INT_MDIV, in reference: function,
           if config.check_int_division_overflow then
             countOverflowOptimizations(c_expr);
           else
-            countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+            count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
           end if;
           if config.check_int_div_by_zero then
             countDivisionOptimizations(c_expr);
@@ -4131,7 +4131,7 @@ const proc: process (INT_MDIV, in reference: function,
           end if;
           if config.check_int_div_by_zero then
             if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-              incr(countDivisionChecks);
+              incr(count.divisionChecks);
               c_expr.expr &:= "divChk(";
               c_expr.expr &:= divisor_name;
               c_expr.expr &:= "==0)?";
@@ -4144,7 +4144,7 @@ const proc: process (INT_MDIV, in reference: function,
           if config.check_int_division_overflow then
             if dividend_range.minValue = integer.first and
                 divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-              incr(countOverflowChecks);
+              incr(count.overflowChecks);
               c_expr.expr &:= "ovfChk(";
               c_expr.expr &:= dividend_name;
               c_expr.expr &:= "==";
@@ -4159,7 +4159,7 @@ const proc: process (INT_MDIV, in reference: function,
               countOverflowOptimizations(c_expr);
             end if;
           else
-            countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+            count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
           end if;
           c_expr.expr &:= dividend_name;
           c_expr.expr &:= "/";
@@ -4229,7 +4229,7 @@ const proc: optimize_mod_of_left_shifted_value (in reference: argument,
         process_expr(lshift, c_expr);
         c_expr.expr &:= "))";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -4245,7 +4245,7 @@ const proc: optimize_mod_of_left_shifted_value (in reference: argument,
         c_expr.expr &:= "))";
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "((uintType)(";
       process_expr(argument, c_expr);
       c_expr.expr &:= ") << (";
@@ -4390,7 +4390,7 @@ const proc: optimize_mod_by_power_of_two (in reference: dividend, in reference: 
     var integer: lshift_value is 0;
     var string: lshift_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     c_expr.expr &:= "/*mod_by_power_of_two*/ ";
     if getConstant(lshift, INTOBJECT, evaluatedParam) then
       lshift_value := getValue(evaluatedParam, integer);
@@ -4413,7 +4413,7 @@ const proc: optimize_mod_by_power_of_two (in reference: dividend, in reference: 
         c_expr.expr &:= integerLiteral(pred(1 << lshift_value));
       end if;
     elsif config.check_int_shift_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       c_expr.expr &:= "(";
       lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
       if powerOperator then
@@ -4441,7 +4441,7 @@ const proc: optimize_mod_by_power_of_two (in reference: dividend, in reference: 
       c_expr.expr &:= lshift_name;
       c_expr.expr &:= "))-1))";
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       if powerOperator then
         c_expr.expr &:= "(";
         lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
@@ -4478,7 +4478,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     var string: dividend_name is "";
     var string: remainder_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if divisor = 0 then
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
@@ -4503,13 +4503,13 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       end if;
     elsif divisor = -1 then
       if not config.check_int_division_overflow then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         c_expr.expr &:= "0";
       elsif config.reduceOverflowChecks then
         countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_mod*/ 0";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -4522,7 +4522,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       end if;
     elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       # Divisor is a power of two.
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.modDividendOptimization then
         if isActionExpression(dividend, "INT_LSHIFT") and
             getConstant(getActionParameter(dividend, 3), INTOBJECT, evaluatedLshift) then
@@ -4593,13 +4593,13 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
     var intRange: divisor_range is intRange.value;
     var string: remainder_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     divisor_range := getIntRange(divisor);
     if dividend = 0 then
       if config.integer_division_check then
         if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
             divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(divChk((";
           process_expr(divisor, c_expr);
           c_expr.expr &:= ")==0)?";
@@ -4619,7 +4619,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
       c_expr.expr &:= "<=0?";
       if config.integer_division_check then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(divChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==0)?";
@@ -4657,7 +4657,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
         divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
         remainder_name := defineTempVariable("intType", "remainder_", c_expr);
         if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==-1)?";
@@ -4668,7 +4668,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
         end if;
         if config.check_int_rem_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "divChk(";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= "==0)?";
@@ -4706,13 +4706,13 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
       end if;
     else
       if dividend = integer.first then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
       if config.check_int_rem_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "divChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==0)?";
@@ -4797,7 +4797,7 @@ const proc: process (INT_MOD, in reference: function,
           config.check_int_rem_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-      incr(countDivisionChecks);
+      incr(count.divisionChecks);
       c_expr.expr &:= "(divChk((";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")==0)?";
@@ -4812,7 +4812,7 @@ const proc: process (INT_MOD, in reference: function,
         if config.integer_division_check then
           if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
               divisor_range.mayRaiseException then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(divChk((";
             process_expr(params[1], c_expr);
             c_expr.expr &:= ")==0)?";
@@ -4850,7 +4850,7 @@ const proc: process (INT_MOD, in reference: function,
           if config.check_int_division_overflow then
             if dividend_range.minValue = integer.first and
                 divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-              incr(countOverflowChecks);
+              incr(count.overflowChecks);
               c_expr.expr &:= "ovfChk(";
               c_expr.expr &:= dividend_name;
               c_expr.expr &:= "==";
@@ -4865,11 +4865,11 @@ const proc: process (INT_MOD, in reference: function,
               countOverflowOptimizations(c_expr);
             end if;
           else
-            countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+            count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
           end if;
           if config.check_int_rem_by_zero then
             if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-              incr(countDivisionChecks);
+              incr(count.divisionChecks);
               c_expr.expr &:= "divChk(";
               c_expr.expr &:= divisor_name;
               c_expr.expr &:= "==0)?";
@@ -4965,7 +4965,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
       maxAllowedFactor1 := integer.last div factor2;
     end if;
     if getConstant(factor1, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       factor1_value := getValue(evaluatedParam, integer);
       if  factor1_value < minAllowedFactor1 or
           factor1_value > maxAllowedFactor1 then
@@ -4975,18 +4975,18 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
         c_expr.expr &:= integerLiteral(factor1_value * factor2);
       end if;
     elsif factor2 = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0";
     elsif factor2 = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(factor1, c_expr);
     elsif factor2 = -1 then
       # Multiplying with -1 is equal to changing the sign.
       # integer.first * -1 causes an integer overflow.
-      incr(countOptimizations);
+      incr(count.optimizations);
       negate(factor1, c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
+      incr(count.optimizations);
       factor1_range := getIntRange(factor1);
       if factor1_range <> intRange.value then
         if  factor1_range.minValue >= minAllowedFactor1 and
@@ -4999,7 +4999,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
           c_expr.expr &:= integerLiteral(factor2);
         elsif factor1_range.minValue >= minAllowedFactor1 or
               factor1_range.maxValue <= maxAllowedFactor1 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "/*simplified_overflow_check_mult*/(";
           factor1_name := getParameterAsVariable("intType", "factor1_", factor1, c_expr);
           c_expr.expr &:= "ovfChk(";
@@ -5025,7 +5025,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
         fullOverflowCheck := TRUE;
       end if;
       if fullOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         if ccConf.BUILTIN_MULT_OVERFLOW <> "" then
           product_name := defineTempVariable("intType", "product_", c_expr);
           c_expr.expr &:= "ovfChk(";
@@ -5056,7 +5056,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
         end if;
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(factor1, c_expr);
       c_expr.expr &:= ") * ";
@@ -5092,10 +5092,10 @@ const proc: process (INT_MULT, in reference: function,
           doOverflowCheck := TRUE;
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if doOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         int_mult_with_overflow_check(params[1], params[3], c_expr);
         c_expr.expr &:= ")";
@@ -5118,19 +5118,19 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
     var expr_type: statement is expr_type.value;
   begin
     if factor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(variable, statement);
       statement.expr &:= "=";
       statement.expr &:= integerLiteral(0);
       statement.expr &:= ";\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif factor = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore integer *:= 1; */\n";
     elsif factor = -1 then
       if config.check_int_arithmetic_overflow and
           ccConf.TWOS_COMPLEMENT_INTTYPE then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         variable_name := getParameterAsReference("intType", "variable_", variable, statement);
         statement.expr &:= "if (ovfChk(";
         statement.expr &:= variable_name;
@@ -5144,15 +5144,15 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
         statement.expr &:= "}\n";
       else
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
-          countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+          count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         end if;
         process_expr(variable, statement);
         statement.expr &:= "*= -1;\n";
       end if;
       doLocalDeclsOfStatement(statement, c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
-      incr(countOverflowChecks);
+      incr(count.optimizations);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", variable, statement);
       statement.expr &:= "if (ovfChk(";
       if factor < 0 then
@@ -5172,7 +5172,7 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
       statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(variable, statement);
       statement.expr &:= "*=";
       statement.expr &:= integerLiteral(factor);
@@ -5195,7 +5195,7 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mult_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", params[1], statement);
       if ccConf.BUILTIN_MULT_OVERFLOW <> "" then
         statement.expr &:= "ovfChk(";
@@ -5273,7 +5273,7 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
       end if;
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(params[1], statement);
       statement.expr &:= "*=";
       process_expr(params[3], statement);
@@ -5298,14 +5298,14 @@ const proc: process (INT_NE, in reference: function,
         if number1Range.maxValue < number2Range.minValue or
             number1Range.minValue > number2Range.maxValue then
           warning(COMPARISON_RESULT_CONSTANT, "<>", TRUE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "1";
           doCompare := FALSE;
         elsif number1Range.minValue = number1Range.maxValue and
             number2Range.minValue = number2Range.maxValue and
             number1Range.minValue = number2Range.minValue then
           warning(COMPARISON_RESULT_CONSTANT, "<>", FALSE, c_expr);
-          incr(countOptimizations);
+          incr(count.optimizations);
           c_expr.expr &:= "0";
           doCompare := FALSE;
         end if;
@@ -5330,7 +5330,7 @@ const proc: process (INT_NEGATE, in reference: function,
     var integer: number is 0;
   begin
     if getConstant(params[2], INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.first and ccConf.TWOS_COMPLEMENT_INTTYPE then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -5370,11 +5370,11 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
     var integer: index is 0;
   begin
     if length <= 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= strRaiseError("RANGE_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       numberValue := getValue(evaluatedNumber, integer);
       if numberValue < 0 or (length < 8 and numberValue >= 2 ** (8 * length)) then
         warning(DOES_RAISE, "RANGE_ERROR", c_expr);
@@ -5383,8 +5383,8 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
         c_expr.expr &:= stringLiteral(bytes(numberValue, UNSIGNED, BE, length));
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -5404,7 +5404,7 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
           # This function cannot trigger a range error.
           countRangeOptimizations(c_expr);
         else
-          incr(countRangeChecks);
+          incr(count.rangeChecks);
           c_expr.expr &:= "rngChk(";
           if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
             c_expr.expr &:= number_name;
@@ -5418,7 +5418,7 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
           rangeCheckDone := TRUE;
         end if;
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
@@ -5512,11 +5512,11 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
     var integer: index is 0;
   begin
     if length <= 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= strRaiseError("RANGE_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       numberValue := getValue(evaluatedNumber, integer);
       if numberValue < 0 or (length < 8 and numberValue >= 2 ** (8 * length)) then
         warning(DOES_RAISE, "RANGE_ERROR", c_expr);
@@ -5525,8 +5525,8 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
         c_expr.expr &:= stringLiteral(bytes(numberValue, UNSIGNED, LE, length));
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
-      incr(countOptimizations);
-      incr(countInlinedFunctions);
+      incr(count.optimizations);
+      incr(count.inlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -5546,7 +5546,7 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
           # This function cannot trigger a range error.
           countRangeOptimizations(c_expr);
         else
-          incr(countRangeChecks);
+          incr(count.rangeChecks);
           c_expr.expr &:= "rngChk(";
           if length >= 8 or numberRange.maxValue < 2 ** (8 * length) then
             c_expr.expr &:= number_name;
@@ -5560,7 +5560,7 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
           rangeCheckDone := TRUE;
         end if;
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
       end if;
       c_expr.expr &:= buffer_name;
       c_expr.expr &:= ".striBuf.size=";
@@ -5706,11 +5706,11 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
     var integer: maxBase is 0;
   begin
     if exponent < 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif getConstant(base, INTOBJECT, evaluatedBase) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       baseValue := getValue(evaluatedBase, integer);
       if powerOverflows(baseValue, exponent) then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -5719,13 +5719,13 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
         c_expr.expr &:= integerLiteral(baseValue ** exponent);
       end if;
     elsif exponent = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= integerLiteral(1);
     elsif exponent = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(base, c_expr);
     elsif exponent in {2 .. maxIdx(power)} then
-      incr(countOptimizations);
+      incr(count.optimizations);
       powerTemplate := power[exponent];
       c_expr.expr &:= "(";
       baseName := getParameterAsVariable("intType", "base_", base, c_expr);
@@ -5733,7 +5733,7 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
         baseRange := getIntRange(base);
         if baseRange.minValue < minBaseOfExponent[exponent] or
             baseRange.maxValue > maxBaseOfExponent[exponent] then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           checkIfOutsideRange(baseName, minBaseOfExponent[exponent],
                               maxBaseOfExponent[exponent], c_expr);
@@ -5744,7 +5744,7 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
           countOverflowOptimizations(c_expr);
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       for ch range variables do
         if pos(powerTemplate, ch) <> 0 then
@@ -5755,7 +5755,7 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
       c_expr.expr &:= replace(powerTemplate, "x", baseName);
       c_expr.expr &:= ")";
     elsif config.integer_overflow_check then
-      incr(countOptimizations);
+      incr(count.optimizations);
       baseRange := getIntRange(base);
       minBase := minIdx(maxExponentOfBase);
       while exponent > maxExponentOfBase[minBase] do
@@ -5769,7 +5769,7 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
       baseName := getParameterAsVariable("intType", "base_", base, c_expr);
       if baseRange.minValue < minBase or
           baseRange.maxValue > maxBase then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "ovfChk(";
         checkIfOutsideRange(baseName, minBase, maxBase, c_expr);
         c_expr.expr &:= ")?";
@@ -5807,7 +5807,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif base = -1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.integer_power_check and exponentRange.minValue < 0 then
         c_expr.expr &:= "(";
         exponentName := getParameterAsVariable("intType", "exponent_", exponent, c_expr);
@@ -5824,7 +5824,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         c_expr.expr &:= ")&1)<<1)";
       end if;
     elsif base = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.integer_power_check and exponentRange.minValue < 0 then
         c_expr.expr &:= "(";
         exponentName := getParameterAsVariable("intType", "exponent_", exponent, c_expr);
@@ -5848,7 +5848,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         c_expr.expr &:= integerLiteral(0);
       end if;
     elsif base = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.integer_power_check and exponentRange.minValue < 0 then
         c_expr.expr &:= "(numChk((";
         process_expr(exponent, c_expr);
@@ -5862,7 +5862,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       end if;
     elsif base > 0 and 2 ** log2(base) = base then
       # Base is a power of two.
-      incr(countOptimizations);
+      incr(count.optimizations);
       maxExponent := log2(integer.last) div log2(base);
       if exponentRange.minValue > maxExponent then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -5880,7 +5880,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         end if;
         if config.integer_overflow_check then
           if exponentRange.maxValue > maxExponent then
-            incr(countOverflowChecks);
+            incr(count.overflowChecks);
             c_expr.expr &:= "ovfChk(";
             c_expr.expr &:= exponentName;
             c_expr.expr &:= ">";
@@ -5920,7 +5920,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       #   base < 0 and 2 ** log2(-base) = -base
       # The check with bitLength is used to avoid negating the base.
       # Negating the base would fail for the most negative integer.
-      incr(countOptimizations);
+      incr(count.optimizations);
       # The following computation is done with bigInteger,
       # because base could be integer.first.
       log2ofNegatedBase := ord(log2(-bigInteger(base)));
@@ -5943,7 +5943,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         end if;
         if config.integer_overflow_check then
           if exponentRange.maxValue > maxExponent then
-            incr(countOverflowChecks);
+            incr(count.overflowChecks);
             c_expr.expr &:= "ovfChk(";
             c_expr.expr &:= exponentName;
             c_expr.expr &:= ">";
@@ -5975,7 +5975,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         c_expr.expr &:= ")";
       end if;
     elsif config.integer_overflow_check then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if base >= minIdx(maxExponentOfBase) and base <= maxIdx(maxExponentOfBase) then
         maxExponent := maxExponentOfBase[base];
       elsif base > 0 then
@@ -5998,7 +5998,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         c_expr.expr &:= "(";
         exponentName := getParameterAsVariable("intType", "exponent_", exponent, c_expr);
         if exponentRange.maxValue > maxExponent then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           c_expr.expr &:= exponentName;
           c_expr.expr &:= ">";
@@ -6049,7 +6049,7 @@ const proc: process (INT_POW, in reference: function,
               exponentRange.maxValue > maxIdx(minBaseOfExponent) or
               baseRange.minValue < minBaseOfExponent[exponentRange.maxValue] or
               baseRange.maxValue > maxBaseOfExponent[exponentRange.maxValue] then
-            incr(countOverflowChecks);
+            incr(count.overflowChecks);
             c_expr.expr &:= "intPowOvfChk(";
           else
             countOverflowOptimizations(c_expr);
@@ -6078,7 +6078,7 @@ const proc: process (INT_PRED, in reference: function,
     if config.callOptimizeIntAdd then
       optimize_int_add(params[1], -1, c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.first then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -6087,7 +6087,7 @@ const proc: process (INT_PRED, in reference: function,
         c_expr.expr &:= integerLiteral(pred(number));
       end if;
     elsif config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "number_", params[1], c_expr);
       c_expr.expr &:= "ovfChk(";
@@ -6100,7 +6100,7 @@ const proc: process (INT_PRED, in reference: function,
       c_expr.expr &:= number_name;
       c_expr.expr &:= "-1)";
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ")-1";
@@ -6113,14 +6113,14 @@ const proc: process_const_int_radix (in reference: param1, in integer: base,
 
   begin
     if base < 2 or base > 36 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= strRaiseError("RANGE_ERROR");
     elsif base = 10 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_int_str(param1, c_expr);
     elsif 2 ** log2(base) = base then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_stri_result(c_expr);
       c_expr.result_expr := "intRadixPow2(";
       getStdParamToResultExpr(param1, c_expr);
@@ -6190,7 +6190,7 @@ const proc: process_const_int_rand (in integer: lowerBound, in integer: upperBou
     var bigInteger: beyond is 0_;
     var bigInteger: rand_max is 0_;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if lowerBound >= upperBound then
       if lowerBound = upperBound then
         c_expr.expr &:= integerLiteral(lowerBound);
@@ -6274,14 +6274,14 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
     var intRange: dividend_range is intRange.value;
   begin
     if divisor = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif divisor = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0";
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       dividend_value := getValue(evaluatedDividend, integer);
       if divisor = -1 and dividend_value < -integer.last then
         # Normally this raises OVERFLOW_ERROR, but it is not guaranteed to do so.
@@ -6299,15 +6299,15 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
         c_expr.expr &:= integerLiteral(dividend_value rem divisor);
       end if;
     elsif divisor = -1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if not config.check_int_division_overflow then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         c_expr.expr &:= "0";
       elsif config.reduceOverflowChecks then
         countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_rem*/ 0";
       else
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -6322,7 +6322,7 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
       # Divisor is a power of two.
       dividend_range := getIntRange(dividend);
       if dividend_range.minValue >= 0 then
-        incr(countOptimizations);
+        incr(count.optimizations);
         c_expr.expr &:= "(";
         process_expr(dividend, c_expr);
         c_expr.expr &:= ")";
@@ -6352,11 +6352,11 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
   begin
     divisor_range := getIntRange(divisor);
     if dividend = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.integer_division_check then
         if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
             divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(divChk((";
           process_expr(divisor, c_expr);
           c_expr.expr &:= ")==0)?";
@@ -6375,7 +6375,7 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
       if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "ovfChk(";
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==-1)?";
@@ -6386,7 +6386,7 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       end if;
       if config.check_int_rem_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "divChk(";
           c_expr.expr &:= divisor_name;
           c_expr.expr &:= "==0)?";
@@ -6402,11 +6402,11 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       c_expr.expr &:= ")";
     else
       if dividend = integer.first then
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if config.check_int_rem_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
+          incr(count.divisionChecks);
           c_expr.expr &:= "(";
           divisor_name := getParameterAsVariable("intType", "divisor_", divisor, c_expr);
           c_expr.expr &:= "divChk(";
@@ -6455,7 +6455,7 @@ const proc: process (INT_REM, in reference: function,
           config.check_int_rem_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-      incr(countDivisionChecks);
+      incr(count.divisionChecks);
       c_expr.expr &:= "(divChk((";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")==0)?";
@@ -6470,7 +6470,7 @@ const proc: process (INT_REM, in reference: function,
         if config.integer_division_check then
           if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
               divisor_range.mayRaiseException then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(divChk((";
             process_expr(params[1], c_expr);
             c_expr.expr &:= ")==0)?";
@@ -6491,7 +6491,7 @@ const proc: process (INT_REM, in reference: function,
         divisor_name := getParameterAsVariable("intType", "divisor_", params[3], c_expr);
         if dividend_range.minValue = integer.first and
             divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           c_expr.expr &:= "ovfChk(";
           c_expr.expr &:= dividend_name;
           c_expr.expr &:= "==";
@@ -6507,7 +6507,7 @@ const proc: process (INT_REM, in reference: function,
         end if;
         if config.check_int_rem_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "divChk(";
             c_expr.expr &:= divisor_name;
             c_expr.expr &:= "==0)?";
@@ -6522,10 +6522,10 @@ const proc: process (INT_REM, in reference: function,
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= ")";
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         if config.check_int_rem_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
+            incr(count.divisionChecks);
             c_expr.expr &:= "(";
             divisor_name := getParameterAsVariable("intType", "divisor_", params[3], c_expr);
             c_expr.expr &:= "divChk(";
@@ -6565,15 +6565,15 @@ const proc: process_const_int_rshift (in reference: number, in integer: rshift,
     var string: number_name is "";
   begin
     if rshift < 0 or rshift >= ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       # Right shift does never trigger OVERFLOW_ERROR.
       c_expr.expr &:= integerLiteral(getValue(evaluatedNumber, integer) >> rshift);
     elsif rshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(number, c_expr);
     else
       if ccConf.RSHIFT_DOES_SIGN_EXTEND then
@@ -6608,14 +6608,14 @@ const proc: process (INT_RSHIFT, in reference: function,
         rshift_range := getIntRange(params[3]);
         if rshift_range.minValue < 0 or
             rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           doOverflowCheck := TRUE;
         else
           countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_rshift*/";
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if doOverflowCheck then
         c_expr.expr &:= "(";
@@ -6641,17 +6641,17 @@ const proc: process (INT_RSHIFT, in reference: function,
         rshift_range := getIntRange(params[3]);
         if rshift_range.minValue < 0 or
             rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
-          incr(countOverflowChecks);
+          incr(count.overflowChecks);
           doOverflowCheck := TRUE;
         else
           countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_rshift*/";
         end if;
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       if doOverflowCheck then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "number_", params[1], c_expr);
         rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
@@ -6689,12 +6689,12 @@ const proc: process_const_int_rshift_assign (in reference: variable, in integer:
     var expr_type: statement is expr_type.value;
   begin
     if rshift < 0 or rshift >= ccConf.INTTYPE_SIZE then
-      incr(countOptimizations);
+      incr(count.optimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= raiseError("OVERFLOW_ERROR");
     elsif rshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore integer >>:= 0; */\n";
     elsif ccConf.RSHIFT_DOES_SIGN_EXTEND then
       process_expr(variable, statement);
@@ -6735,7 +6735,7 @@ const proc: process (INT_RSHIFT_ASSIGN, in reference: function,
       process_const_int_rshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif ccConf.RSHIFT_DOES_SIGN_EXTEND then
       if config.check_int_shift_overflow then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         rshift_name := getParameterAsVariable("intType", "rshift_", params[3], statement);
         statement.expr &:= "ovfChk(";
         checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), statement);
@@ -6747,7 +6747,7 @@ const proc: process (INT_RSHIFT_ASSIGN, in reference: function,
         statement.expr &:= rshift_name;
         statement.expr &:= ");\n";
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
         process_expr(params[1], statement);
         statement.expr &:= ">>=";
         process_expr(params[3], statement);
@@ -6758,14 +6758,14 @@ const proc: process (INT_RSHIFT_ASSIGN, in reference: function,
       variable_name := getParameterAsReference("intType", "variable_", params[1], statement);
       rshift_name := getParameterAsVariable("intType", "rshift_", params[3], statement);
       if config.check_int_shift_overflow then
-        incr(countOverflowChecks);
+        incr(count.overflowChecks);
         statement.expr &:= "ovfChk(";
         checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), statement);
         statement.expr &:= ")?";
         statement.expr &:= intRaiseError("OVERFLOW_ERROR");
         statement.expr &:= ":";
       else
-        countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+        count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       end if;
       (* Formula used: a<0?a=~(~a>>b):a>>=b; *)
       statement.expr &:= variable_name;
@@ -6813,11 +6813,11 @@ const proc: process_const_int_sbtr_assign (in reference: variable, in integer: d
     var expr_type: statement is expr_type.value;
   begin
     if delta = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore integer -:= 0; */\n";
     elsif config.check_int_arithmetic_overflow then
-      incr(countOptimizations);
-      incr(countOverflowChecks);
+      incr(count.optimizations);
+      incr(count.overflowChecks);
       variable_name := getParameterAsReference("intType", "variable_", variable, statement);
       statement.expr &:= "if (ovfChk(";
       statement.expr &:= variable_name;
@@ -6844,7 +6844,7 @@ const proc: process_const_int_sbtr_assign (in reference: variable, in integer: d
       statement.expr &:= "}\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(variable, statement);
       statement.expr &:= "-=";
       statement.expr &:= integerLiteral(delta);
@@ -6867,7 +6867,7 @@ const proc: process (INT_SBTR_ASSIGN, in reference: function,
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_sbtr_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       deltaRange := getIntRange(params[3]);
       if deltaRange.minValue = 0 and deltaRange.maxValue = 0 then
         c_expr.expr &:= "/* ignore integer -:= 0; */\n";
@@ -6932,7 +6932,7 @@ const proc: process (INT_SBTR_ASSIGN, in reference: function,
         doLocalDeclsOfStatement(statement, c_expr);
       end if;
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       process_expr(params[1], statement);
       statement.expr &:= "-=";
       process_expr(params[3], statement);
@@ -6971,7 +6971,7 @@ const proc: process (INT_SUCC, in reference: function,
     if config.callOptimizeIntAdd then
       optimize_int_add(params[1], 1, c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.last then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
@@ -6980,7 +6980,7 @@ const proc: process (INT_SUCC, in reference: function,
         c_expr.expr &:= integerLiteral(succ(number));
       end if;
     elsif config.check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
+      incr(count.overflowChecks);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "number_", params[1], c_expr);
       c_expr.expr &:= "ovfChk(";
@@ -6993,7 +6993,7 @@ const proc: process (INT_SUCC, in reference: function,
       c_expr.expr &:= number_name;
       c_expr.expr &:= "+1)";
     else
-      countSuppressedOverflowChecks +:= ord(not config.integer_overflow_check);
+      count.suppressedOverflowChecks +:= ord(not config.integer_overflow_check);
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ")+1";

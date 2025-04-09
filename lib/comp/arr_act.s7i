@@ -306,7 +306,7 @@ const proc: process_arr_cpy_times_optimization (in reference: dest,
         countRangeOptimizations(statement);
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(count.noRangeChecks);
     end if;
     if isNormalVariable(dest) then
       statement.temp_decls &:= "memSizeType size_a = (uintType)((";
@@ -480,7 +480,7 @@ const proc: two_dimensional_times_optimization (in reference: dest,
     var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     arrayType := getExprResultType(dest);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(dest, c_param1, statement);
@@ -745,7 +745,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
     var intRange: indexRange is intRange.value;
     var string: index_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if anArray not in const_table then
       const_table @:= [anArray] length(const_table);
     end if;
@@ -779,7 +779,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         if config.array_index_check then
           if indexRange.minValue < arrayMinIdx(anArray) or
               indexRange.maxValue > arrayMaxIdx(anArray) then
-            incr(countIndexChecks);
+            incr(count.indexChecks);
             incr(c_expr.temp_num);
             index_name := "idx_" & str(c_expr.temp_num);
             if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -826,7 +826,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
             end if;
           end if;
         else
-          incr(countSuppressedIndexChecks);
+          incr(count.suppressedIndexChecks);
           c_expr.expr &:= "(";
           process_expr(index, c_expr);
           c_expr.expr &:= ")";
@@ -895,7 +895,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= ")";
       end if;
     else
-      incr(countOptimizations);
+      incr(count.optimizations);
       if isNormalVariable(param1) then
         array_name := "(" & c_param.expr & ")";
       else
@@ -930,7 +930,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
           warning(DOES_RAISE, "INDEX_ERROR", c_expr);
           c_expr.expr &:= intRaiseError("INDEX_ERROR");
         else
-          incr(countIndexChecks);
+          incr(count.indexChecks);
           c_expr.expr &:= "(idxChk(";
           if arrayType not in array_minIdx then
             c_expr.expr &:= integerLiteral(index);
@@ -955,7 +955,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
           c_expr.expr &:= ")";
         end if;
       else
-        incr(countSuppressedIndexChecks);
+        incr(count.suppressedIndexChecks);
         if arrayType in array_minIdx then
           c_expr.expr &:= integerLiteral(index - array_minIdx[arrayType]);
         else
@@ -996,7 +996,7 @@ const proc: process_fixlen_array_index (in reference: index,
         c_expr.expr &:= integerLiteral(minIndex);
       end if;
     else
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
         index_name := getTempVariable("uintType", "idx_", "", c_expr);
         c_expr.expr &:= "(";
@@ -1052,7 +1052,7 @@ const proc: process_base_array_index (in string: array_name,
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
     else
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       index_name := getParameterAsVariable("intType", "idx_", index, c_expr);
       c_expr.expr &:= "(idxChk(";
       if ccConf.TWOS_COMPLEMENT_INTTYPE and
@@ -1181,7 +1181,7 @@ const proc: process (ARR_IDX, in reference: function,
             process_base_array_index(array_name, params[3], indexRange,
                 array_minIdx[arrayType], c_expr);
           else
-            incr(countIndexChecks);
+            incr(count.indexChecks);
             if ccConf.TWOS_COMPLEMENT_INTTYPE then
               index_name := getTempVariable("uintType", "idx_", "", c_expr);
               c_expr.expr &:= "(";
@@ -1221,7 +1221,7 @@ const proc: process (ARR_IDX, in reference: function,
             end if;
           end if;
         else
-          incr(countSuppressedIndexChecks);
+          incr(count.suppressedIndexChecks);
           c_expr.expr &:= "(";
           process_expr(params[3], c_expr);
           c_expr.expr &:= ")";
@@ -1264,7 +1264,7 @@ const proc: process (ARR_INSERT, in reference: function,
     end if;
     if valueIsAtHeap(element_type) then
       if config.array_index_check then
-        incr(countIndexChecks);
+        incr(count.indexChecks);
         incr(statement.temp_num);
         if getConstant(params[2], INTOBJECT, evaluatedParam) then
           position_name := integerLiteral(getValue(evaluatedParam, integer));
@@ -1360,7 +1360,7 @@ const proc: process (ARR_LNG, in reference: function,
     var string: array_name is "";
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= str(arrayMaxIdx(evaluatedParam) - arrayMinIdx(evaluatedParam) + 1);
       if evaluatedParam in const_table then
         c_expr.expr &:= " /* length(arr[";
@@ -1387,7 +1387,7 @@ const proc: process (ARR_MAXIDX, in reference: function,
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= str(arrayMaxIdx(evaluatedParam));
       if evaluatedParam in const_table then
         c_expr.expr &:= " /* maxIdx(arr[";
@@ -1411,7 +1411,7 @@ const proc: process (ARR_MINIDX, in reference: function,
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= str(arrayMinIdx(evaluatedParam));
       if evaluatedParam in const_table then
         c_expr.expr &:= " /* minIdx(arr[";
@@ -1734,7 +1734,7 @@ const proc: two_dimensional_times_optimization (in type: result_type,
     var string: factor2Name is "";
     var string: resultName is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "({";
     factor1Name := defineTempVariable("intType", "factor1_", c_expr);
@@ -1778,7 +1778,7 @@ const proc: process (ARR_TIMES, in reference: function,
     typeCategory @:= [result_type] ARRAYOBJECT;
     if getConstant(params[1], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_typed_result(result_type, c_expr);
       c_expr.result_expr := "arrMalloc(1, 0)";
     elsif config.inlineFunctions and ccConf.STMT_BLOCK_IN_PARENTHESES_OK and
@@ -1791,7 +1791,7 @@ const proc: process (ARR_TIMES, in reference: function,
       element_type := getType(formalParams(function)[3]);
       if element_type in typeCategory and
           typeCategory[element_type] in simpleValueType then
-        incr(countOptimizations);
+        incr(count.optimizations);
         prepare_typed_result(result_type, c_expr);
         c_expr.result_expr := "arrTimes(1, ";
         getStdParamToResultExpr(params[1], c_expr);

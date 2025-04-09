@@ -138,7 +138,7 @@ const proc: process_bln_iconv (in reference: number, inout expr_type: c_expr) is
     number_range := getIntRange(number);
     if number_range.minValue > 1 and number_range.maxValue > 1 or
         number_range.minValue < 0 and number_range.maxValue < 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= "(boolType)";
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
@@ -150,7 +150,7 @@ const proc: process_bln_iconv (in reference: number, inout expr_type: c_expr) is
         process_expr(number, c_expr);
         c_expr.expr &:= ")";
       else
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(boolType)(";
         number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
         c_expr.expr &:= "rngChk(";
@@ -176,7 +176,7 @@ const proc: process_bln_iconv (in reference: number, inout expr_type: c_expr) is
         c_expr.expr &:= ")";
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(count.noRangeChecks);
       c_expr.expr &:= "(boolType)(";
       process_expr(number, c_expr);
       c_expr.expr &:= ")";
@@ -290,7 +290,7 @@ const proc: process (BLN_PRED, in reference: function,
   begin
     c_expr.expr &:= "(boolType)(";
     if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if getValue(evaluatedParam, boolean) then
         c_expr.expr &:= "0";
       else
@@ -299,14 +299,14 @@ const proc: process (BLN_PRED, in reference: function,
       end if;
     else
       if config.function_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "rngChk(!(";
         process_expr(params[1], c_expr);
         c_expr.expr &:= "))?";
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= ":0";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
         c_expr.expr &:= "(";
         process_expr(params[1], c_expr);
         c_expr.expr &:= ")-1";
@@ -324,7 +324,7 @@ const proc: process (BLN_SUCC, in reference: function,
   begin
     c_expr.expr &:= "(boolType)(";
     if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if getValue(evaluatedParam, boolean) then
         warning(DOES_RAISE, "RANGE_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
@@ -333,14 +333,14 @@ const proc: process (BLN_SUCC, in reference: function,
       end if;
     else
       if config.function_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "rngChk(";
         process_expr(params[1], c_expr);
         c_expr.expr &:= ")?";
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= ":1";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
         c_expr.expr &:= "(";
         process_expr(params[1], c_expr);
         c_expr.expr &:= ")+1";
@@ -360,7 +360,7 @@ const proc: process (BLN_TERNARY, in reference: function,
     var type: resultType is void;
   begin
     if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if getValue(evaluatedParam, boolean) then
         process_call_by_name_expr(params[3], c_expr);
       else

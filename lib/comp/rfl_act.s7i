@@ -321,13 +321,13 @@ const proc: process_const_rfl_idx (in reference: param1,
     var string: listName is "";
     var integer: number is 0;
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if index < 1 then
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
     elsif index <= 3 and isNormalVariable(param1) and
         config.ref_list_index_check then
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       c_expr.expr &:= "(";
       listName := normalVariable(param1, c_expr);
       c_expr.expr &:= "idxChk(";
@@ -346,7 +346,7 @@ const proc: process_const_rfl_idx (in reference: param1,
       c_expr.expr &:= "->next" mult pred(index);
       c_expr.expr &:= "->obj)";
     elsif index <= 7 and config.ref_list_index_check then
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       c_expr.expr &:= "(";
       listName := getTempVariable("const_listType", "list_", param1, c_expr);
       c_expr.expr &:= "idxChk(";
@@ -365,7 +365,7 @@ const proc: process_const_rfl_idx (in reference: param1,
       c_expr.expr &:= listName;
       c_expr.expr &:= "->obj)";
     elsif index <= 12 and not config.ref_list_index_check then
-      incr(countSuppressedIndexChecks);
+      incr(count.suppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")";

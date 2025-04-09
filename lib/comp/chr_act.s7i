@@ -186,7 +186,7 @@ const proc: process (CHR_HASHCODE, in reference: function,
 const proc: process_const_chr_iconv (in integer: number, inout expr_type: c_expr) is func
 
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if number < pred(-2147483647) or number > 2147483647 then
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
@@ -216,7 +216,7 @@ const proc: process_chr_iconv (in reference: number, inout expr_type: c_expr) is
         process_expr(number, c_expr);
         c_expr.expr &:= ")";
       else
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
         c_expr.expr &:= "rngChk(";
@@ -239,7 +239,7 @@ const proc: process_chr_iconv (in reference: number, inout expr_type: c_expr) is
       end if;
     else
       if ccConf.INTTYPE_SIZE > 32 then
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
       end if;
       c_expr.expr &:= "(charType)(";
       process_expr(number, c_expr);
@@ -360,7 +360,7 @@ const proc: process (CHR_STR, in reference: function,
     var string: striStruct_name is "";
   begin
     if getConstant(params[1], CHAROBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/*chrStr*/";
       c_expr.expr &:= stringLiteral(str(getValue(evaluatedParam, char)));
     elsif c_expr.demand < REQUIRE_RESULT then

@@ -69,7 +69,6 @@ var array string: libraryDirs is 0 times "";
 var reference: main_object is NIL;
 var file: c_prog is STD_NULL;
 
-var integer: countDeclarations is 0;
 var expr_type: global_init is expr_type.value;
 
 const type: globalInitHash is hash [reference] string;
@@ -115,11 +114,11 @@ const func boolean: isFuncParamData (in reference: currExpr) is
 const proc: count_declarations (inout expr_type: c_expr) is func
 
   begin
-    incr(countDeclarations);
+    incr(count.declarations);
     c_expr.expr &:= "/* ";
-    c_expr.expr &:= str(countDeclarations);
+    c_expr.expr &:= str(count.declarations);
     c_expr.expr &:= " */\n";
-    write(OUT, countDeclarations);
+    write(OUT, count.declarations);
     write(OUT, "\r");
     flush(OUT);
   end func;
@@ -237,7 +236,7 @@ const proc: process_big_create_call (in bigInteger: number, inout string: expr) 
 
   begin
     if number = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       expr &:= "bigZero(); /* 0_ */\n";
     else
       expr &:= "bigCreate(";
@@ -254,10 +253,10 @@ const proc: process_str_create_call (in string: stri, inout string: expr) is fun
     var integer: index is 2;
   begin
     if stri = "" then
-      incr(countOptimizations);
+      incr(count.optimizations);
       expr &:= "strEmpty(); /* \"\" */\n";
     elsif length(stri) = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       expr &:= "chrStr(";
       expr &:= charLiteral(stri[1]);
       expr &:= "); /* ";
@@ -269,7 +268,7 @@ const proc: process_str_create_call (in string: stri, inout string: expr) is fun
         incr(index);
       end while;
       if index > length(stri) then
-        incr(countOptimizations);
+        incr(count.optimizations);
         if ch = '\0;' then
           expr &:= "strZero(";
         else
@@ -929,7 +928,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     elsif valueCategory = HASHOBJECT then
       if length(hashKeysToList(object_value)) = 0 then
         process_destr_declaration(objectType, global_c_expr);
-        incr(countOptimizations);
+        incr(count.optimizations);
         c_declaration.temp_assigns &:= diagnosticLine(current_object);
         c_declaration.temp_assigns &:= "o_";
         create_name(current_object, c_declaration.temp_assigns);
@@ -1753,7 +1752,7 @@ const proc: optimize_constant_expressions (inout reference: current_expression,
       block
         evaluated_expression := evaluate(prog, current_expression);
         if evaluated_expression <> NIL and evaluated_expression <> current_expression then
-          incr(countEvaluations);
+          incr(count.evaluations);
           c_expr.expr &:= "/* evaluate ";
           if category(getValue(current_expression, ref_list)[1]) = ACTOBJECT then
             c_expr.expr &:= str(getValue(getValue(current_expression, ref_list)[1], ACTION));
@@ -2248,7 +2247,7 @@ const proc: process_result_declaration (in reference: result_object,
         block
           evaluatedExpr := evaluate(prog, result_init);
           if evaluatedExpr <> NIL then
-            incr(countEvaluations);
+            incr(count.evaluations);
             result_init := evaluatedExpr;
           end if;
         exception
@@ -5336,7 +5335,7 @@ const proc: process_object (in reference: current_object) is func
     process_object_declaration(current_object, c_expr);
     write(c_prog, global_c_expr.expr);
     if write_object_declaration then
-      # writeln(c_prog, "/* " <& countDeclarations <& " */");
+      # writeln(c_prog, "/* " <& count.declarations <& " */");
       write(c_prog, c_expr.expr);
 (*
     else
@@ -8074,46 +8073,46 @@ const proc: pass_2 (in string: source, in program: prog,
             end if;
             process_global_declarations(prog);
             close(c_prog);
-            writeln(countDeclarations  <& " declarations processed");
-            writeln(countOptimizations <& " optimizations done");
-            if countInlinedFunctions <> 0 then
-              writeln(countInlinedFunctions <& " functions inlined");
+            writeln(count.declarations  <& " declarations processed");
+            writeln(count.optimizations <& " optimizations done");
+            if count.inlinedFunctions <> 0 then
+              writeln(count.inlinedFunctions <& " functions inlined");
             end if;
-            if countEvaluations <> 0 then
-              writeln(countEvaluations <& " evaluations done");
+            if count.evaluations <> 0 then
+              writeln(count.evaluations <& " evaluations done");
             end if;
-            if countDivisionChecks <> 0 then
-              writeln(countDivisionChecks <& " division checks inserted");
+            if count.divisionChecks <> 0 then
+              writeln(count.divisionChecks <& " division checks inserted");
             end if;
-            if countOptimizedDivisionChecks <> 0 then
-              writeln(countOptimizedDivisionChecks <& " division checks optimized away");
+            if count.optimizedDivisionChecks <> 0 then
+              writeln(count.optimizedDivisionChecks <& " division checks optimized away");
             end if;
-            if countRangeChecks <> 0 then
-              writeln(countRangeChecks <& " range checks inserted");
+            if count.rangeChecks <> 0 then
+              writeln(count.rangeChecks <& " range checks inserted");
             end if;
-            if countOptimizedRangeChecks <> 0 then
-              writeln(countOptimizedRangeChecks <& " range checks optimized away");
+            if count.optimizedRangeChecks <> 0 then
+              writeln(count.optimizedRangeChecks <& " range checks optimized away");
             end if;
-            if countNoRangeChecks <> 0 then
-              writeln(countNoRangeChecks <& " range checks suppressed");
+            if count.noRangeChecks <> 0 then
+              writeln(count.noRangeChecks <& " range checks suppressed");
             end if;
-            if countIndexChecks <> 0 then
-              writeln(countIndexChecks <& " index checks inserted");
+            if count.indexChecks <> 0 then
+              writeln(count.indexChecks <& " index checks inserted");
             end if;
-            if countOptimizedIndexChecks <> 0 then
-              writeln(countOptimizedIndexChecks <& " index checks optimized away");
+            if count.optimizedIndexChecks <> 0 then
+              writeln(count.optimizedIndexChecks <& " index checks optimized away");
             end if;
-            if countSuppressedIndexChecks <> 0 then
-              writeln(countSuppressedIndexChecks <& " index checks suppressed");
+            if count.suppressedIndexChecks <> 0 then
+              writeln(count.suppressedIndexChecks <& " index checks suppressed");
             end if;
-            if countOverflowChecks <> 0 then
-              writeln(countOverflowChecks <& " overflow checks inserted");
+            if count.overflowChecks <> 0 then
+              writeln(count.overflowChecks <& " overflow checks inserted");
             end if;
-            if countOptimizedOverflowChecks <> 0 then
-              writeln(countOptimizedOverflowChecks <& " overflow checks optimized away");
+            if count.optimizedOverflowChecks <> 0 then
+              writeln(count.optimizedOverflowChecks <& " overflow checks optimized away");
             end if;
-            if countSuppressedOverflowChecks <> 0 then
-              writeln(countSuppressedOverflowChecks <& " overflow checks suppressed");
+            if count.suppressedOverflowChecks <> 0 then
+              writeln(count.suppressedOverflowChecks <& " overflow checks suppressed");
             end if;
           else
             write("*** Cannot open temp file ");

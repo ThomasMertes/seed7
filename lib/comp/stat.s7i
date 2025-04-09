@@ -24,45 +24,50 @@
 (********************************************************************)
 
 
-var integer: countOptimizations            is 0;
-var integer: countInlinedFunctions         is 0;
-var integer: countEvaluations              is 0;
-var integer: countDivisionChecks           is 0;
-var integer: countOptimizedDivisionChecks  is 0;
-var integer: countRangeChecks              is 0;
-var integer: countOptimizedRangeChecks     is 0;
-var integer: countNoRangeChecks            is 0;
-var integer: countIndexChecks              is 0;
-var integer: countOptimizedIndexChecks     is 0;
-var integer: countSuppressedIndexChecks    is 0;
-var integer: countOverflowChecks           is 0;
-var integer: countOptimizedOverflowChecks  is 0;
-var integer: countSuppressedOverflowChecks is 0;
+const type: compilerStatistic is new struct
+    var integer: declarations             is 0;
+    var integer: optimizations            is 0;
+    var integer: inlinedFunctions         is 0;
+    var integer: evaluations              is 0;
+    var integer: divisionChecks           is 0;
+    var integer: optimizedDivisionChecks  is 0;
+    var integer: rangeChecks              is 0;
+    var integer: optimizedRangeChecks     is 0;
+    var integer: noRangeChecks            is 0;
+    var integer: indexChecks              is 0;
+    var integer: optimizedIndexChecks     is 0;
+    var integer: suppressedIndexChecks    is 0;
+    var integer: overflowChecks           is 0;
+    var integer: optimizedOverflowChecks  is 0;
+    var integer: suppressedOverflowChecks is 0;
+  end struct;
+
+var compilerStatistic: count is compilerStatistic.value;
 
 
 const proc: countDivisionOptimizations (in expr_type: c_expr) is func
   begin
-    incr(countOptimizedDivisionChecks);
+    incr(count.optimizedDivisionChecks);
     # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Division check optimized away.");
   end func;
 
 
 const proc: countIndexOptimizations (in expr_type: c_expr) is func
   begin
-    incr(countOptimizedIndexChecks);
+    incr(count.optimizedIndexChecks);
     # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Index check optimized away.");
   end func;
 
 
 const proc: countRangeOptimizations (in expr_type: c_expr) is func
   begin
-    incr(countOptimizedRangeChecks);
+    incr(count.optimizedRangeChecks);
     # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Range check optimized away.");
   end func;
 
 
 const proc: countOverflowOptimizations (in expr_type: c_expr) is func
   begin
-    incr(countOptimizedOverflowChecks);
+    incr(count.optimizedOverflowChecks);
     # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Overflow check optimized away.");
   end func;

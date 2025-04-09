@@ -985,7 +985,7 @@ const proc: process (DRW_PIXEL_TO_RGB, in reference: function,
     if config.inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
                                   ccConf.PIXEL_GREEN_MASK <> 0 and
                                   ccConf.PIXEL_BLUE_MASK  <> 0 then
-      incr(countInlinedFunctions);
+      incr(count.inlinedFunctions);
       if ccConf.RGB_TO_PIXEL_FLAG_NAME <> "" then
         statement.expr &:= "if (";
         statement.expr &:= ccConf.RGB_TO_PIXEL_FLAG_NAME;

@@ -186,7 +186,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
     var integer: index_value is 0;
     var string: index_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if getConstant(index, INTOBJECT, evaluatedParam) then
       index_value := getValue(evaluatedParam, integer);
       if index_value < 1 or index_value > length(bstri) then
@@ -200,7 +200,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
       c_expr.expr &:= bstriLiteral(bstri);
       c_expr.expr &:= ")->mem[";
       if config.bstring_index_check then
-        incr(countIndexChecks);
+        incr(count.indexChecks);
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -238,7 +238,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
           c_expr.expr &:= "-1)";
         end if;
       else
-        incr(countSuppressedIndexChecks);
+        incr(count.suppressedIndexChecks);
         c_expr.expr &:= "(";
         process_expr(index, c_expr);
         c_expr.expr &:= ")-1";
@@ -254,12 +254,12 @@ const proc: process_const_bst_idx (in reference: param1,
   local
     var string: bstri_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if index < 1 then
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
     elsif config.bstring_index_check then
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       c_expr.expr &:= "(";
       bstri_name := getParameterAsVariable("const_bstriType", "tmp_", param1, c_expr);
       c_expr.expr &:= bstri_name;
@@ -273,7 +273,7 @@ const proc: process_const_bst_idx (in reference: param1,
       c_expr.expr &:= integerLiteral(pred(index));
       c_expr.expr &:= ")])";
     else
-      incr(countSuppressedIndexChecks);
+      incr(count.suppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")->mem[";
@@ -296,7 +296,7 @@ const proc: process (BST_IDX, in reference: function,
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bst_idx(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.bstring_index_check then
-      incr(countIndexChecks);
+      incr(count.indexChecks);
       incr(c_expr.temp_num);
       index_name := "idx_" & str(c_expr.temp_num);
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -337,7 +337,7 @@ const proc: process (BST_IDX, in reference: function,
         c_expr.expr &:= "-1)])";
       end if;
     else
-      incr(countSuppressedIndexChecks);
+      incr(count.suppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")->mem[(";

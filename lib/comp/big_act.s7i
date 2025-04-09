@@ -331,7 +331,7 @@ const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
     var expr_type: c_param1 is expr_type.value;
   begin
     if lshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(param1, c_expr);
     elsif lshift < 0 and lshift <> integer.first then
       process_const_big_rshift(param1, -lshift, c_expr);
@@ -369,7 +369,7 @@ const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
     var expr_type: c_param1 is expr_type.value;
   begin
     if rshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(param1, c_expr);
     elsif rshift < 0 and rshift <> integer.first then
       process_const_big_lshift(param1, -rshift, c_expr);
@@ -408,7 +408,7 @@ const proc: process (BIG_ABS, in reference: function,
     var expr_type: c_param1 is expr_type.value;
   begin
     if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       bigNumber := abs(getValue(evaluatedParam, bigInteger));
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     else
@@ -434,13 +434,13 @@ const proc: process_const_big_add (in reference: param1, in bigInteger: number,
     var expr_type: c_param1 is expr_type.value;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(getValue(evaluatedParam, bigInteger) + number);
     elsif number = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(param1, c_expr);
     elsif number = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(param1, c_param1, c_expr);
       if c_param1.result_expr <> "" then
@@ -452,7 +452,7 @@ const proc: process_const_big_add (in reference: param1, in bigInteger: number,
       end if;
       c_expr.result_expr &:= ")";
     elsif number = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(param1, c_param1, c_expr);
       if c_param1.result_expr <> "" then
@@ -513,7 +513,7 @@ const proc: process (BIG_ADD, in reference: function,
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_add(params[3], getValue(evaluatedParam, bigInteger), c_expr);
     elsif params[1] = params[3] then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigLShift(";
       getAnyParamToResultExpr(params[1], c_expr);
@@ -521,7 +521,7 @@ const proc: process (BIG_ADD, in reference: function,
     else
       prepare_bigint_result(c_expr);
       if isActionExpression(params[1], "BIG_NEGATE") then
-        incr(countOptimizations);
+        incr(count.optimizations);
         prepareAnyParamTemporarys(params[3], c_param3, c_expr);
         if c_param3.result_expr <> "" then
           c_expr.result_expr := "bigSbtrTemp(";
@@ -566,22 +566,22 @@ const proc: process_const_big_add_assign (in reference: param1, in bigInteger: d
     var expr_type: statement is expr_type.value;
   begin
     if delta = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigDecr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif delta = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore bigInteger +:= 0_; */\n";
     elsif delta = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigIncr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif abs(delta) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigAddAssignSignedDigit(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
@@ -636,10 +636,10 @@ const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= str(compare(getValue(evaluatedParam, bigInteger), number));
     elsif abs(number) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "bigCmpSignedDigit(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", ";
@@ -755,18 +755,18 @@ const proc: process_const_big_div (in reference: dividend, in bigInteger: diviso
     var expr_type: c_dividend is expr_type.value;
   begin
     if divisor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= bigRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, BIGINTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       quotient := getValue(evaluatedDividend, bigInteger) div divisor;
       c_expr.expr &:= bigIntegerLiteral(quotient);
     elsif divisor = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(dividend, c_expr);
     elsif divisor = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
       if c_dividend.result_expr <> "" then
@@ -853,13 +853,13 @@ const proc: process_const_big_eq (in reference: param1, in bigInteger: number,
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= str(ord(getValue(evaluatedParam, bigInteger) = number));
       c_expr.expr &:= "/*";
       c_expr.expr &:= str(getValue(evaluatedParam, bigInteger) = number);
       c_expr.expr &:= "*/";
     elsif abs(number) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "bigEqSignedDigit(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", ";
@@ -1029,21 +1029,21 @@ const proc: process_const_big_ipow (in reference: base, in integer: exponent,
     var bigInteger: bigNumber is 0_;
   begin
     if exponent < 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= bigRaiseError("NUMERIC_ERROR");
     elsif getConstant(base, BIGINTOBJECT, evaluatedBase) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       bigNumber := getValue(evaluatedBase, bigInteger) ** exponent;
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     elsif exponent = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(1_);
     elsif exponent = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(base, c_expr);
     elsif exponent = 2 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigSquare(";
       getAnyParamToResultExpr(base, c_expr);
@@ -1066,7 +1066,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
     var string: exponent_name is "";
   begin
     if base = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.bigint_power_check then
         c_expr.expr &:= "(";
         exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
@@ -1090,7 +1090,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
         c_expr.expr &:= bigIntegerLiteral(1_);
       end if;
     elsif base = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.bigint_power_check then
         c_expr.expr &:= "(";
         exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
@@ -1114,7 +1114,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
         c_expr.expr &:= bigIntegerLiteral(0_);
       end if;
     elsif base = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if config.bigint_power_check then
         c_expr.expr &:= "(numChk((";
         process_expr(exponent, c_expr);
@@ -1128,7 +1128,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
       end if;
     elsif base > 0_ and log2(base) <= INTTYPE_MAX and
         2_ ** ord(log2(base)) = base then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigLog2BaseIPow(";
       c_expr.result_expr &:= integerLiteral(ord(log2(base)));
@@ -1136,7 +1136,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: exponent,
       getStdParamToResultExpr(exponent, c_expr);
       c_expr.result_expr &:= ")";
     elsif abs(base) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigIPowSignedDigit(";
       c_expr.result_expr &:= integerLiteral(ord(base));
@@ -1236,15 +1236,15 @@ const proc: process_const_big_lshift (in bigInteger: number, in reference: param
     var bigInteger: bigNumber is 0_;
   begin
     (* if category(param3) = INTOBJECT and not isVar(param3) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       bigNumber := number << getValue(param3, integer);
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     els *)
     if number = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     elsif number = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigLShiftOne(";
       getStdParamToResultExpr(param3, c_expr);
@@ -1307,7 +1307,7 @@ const proc: process (BIG_LSHIFT_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore bigInteger <<:= 0; */\n";
     else
       statement.expr := "bigLShiftAssign(&(";
@@ -1352,18 +1352,18 @@ const proc: process_const_big_mdiv (in reference: dividend, in bigInteger: divis
     var expr_type: c_dividend is expr_type.value;
   begin
     if divisor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= bigRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, BIGINTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       quotient := getValue(evaluatedDividend, bigInteger) mdiv divisor;
       c_expr.expr &:= bigIntegerLiteral(quotient);
     elsif divisor = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(dividend, c_expr);
     elsif divisor = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
       if c_dividend.result_expr <> "" then
@@ -1376,11 +1376,11 @@ const proc: process_const_big_mdiv (in reference: dividend, in bigInteger: divis
       c_expr.result_expr &:= ")";
     elsif divisor > 0_ and log2(divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(divisor)) = divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_const_big_rshift(dividend, ord(log2(divisor)), c_expr);
     elsif divisor < 0_ and log2(-divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(-divisor)) = -divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
       c_expr.result_expr := "(bigRShiftAssign((";
@@ -1440,19 +1440,19 @@ const proc: process_const_big_mod (in reference: dividend, in bigInteger: diviso
     var expr_type: c_dividend is expr_type.value;
   begin
     if divisor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= bigRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, BIGINTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       modulus := getValue(evaluatedDividend, bigInteger) mod divisor;
       c_expr.expr &:= bigIntegerLiteral(modulus);
     elsif divisor = 1_ or divisor = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     elsif divisor > 0_ and log2(divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(divisor)) = divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
       if c_dividend.result_expr <> "" then
@@ -1467,7 +1467,7 @@ const proc: process_const_big_mod (in reference: dividend, in bigInteger: diviso
       c_expr.result_expr &:= ")";
     elsif divisor < 0_ and log2(-divisor) <= INTTYPE_MAX and
         2_ ** ord(log2(-divisor)) = -divisor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigNegateTemp(bigLowerBitsTemp(";
       prepareAnyParamTemporarys(dividend, c_dividend, c_expr);
@@ -1521,11 +1521,11 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
     var expr_type: c_negate_param is expr_type.value;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       product := getValue(evaluatedParam, bigInteger) * factor;
       c_expr.expr &:= bigIntegerLiteral(product);
     elsif factor = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(param1, c_param1, c_expr);
       if c_param1.result_expr <> "" then
@@ -1537,18 +1537,18 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
       end if;
       c_expr.result_expr &:= ")";
     elsif factor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     elsif factor = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(param1, c_expr);
     elsif factor > 1_ and log2(factor) <= INTTYPE_MAX and
         2_ ** ord(log2(factor)) = factor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_const_big_lshift(param1, ord(log2(factor)), c_expr);
     elsif factor < 1_ and log2(-factor) <= INTTYPE_MAX and
         2_ ** ord(log2(-factor)) = -factor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_negate_param.temp_num := c_expr.temp_num;
       process_const_big_lshift(param1, ord(log2(-factor)), c_negate_param);
       c_expr.temp_num := c_negate_param.temp_num;
@@ -1566,7 +1566,7 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: factor,
       end if;
       c_expr.result_expr &:= ")";
     elsif abs(factor) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMultSignedDigit(";
       getAnyParamToResultExpr(param1, c_expr);
@@ -1595,7 +1595,7 @@ const proc: process (BIG_MULT, in reference: function,
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_mult(params[3], getValue(evaluatedParam, bigInteger), c_expr);
     elsif params[1] = params[3] then
-      incr(countOptimizations);
+      incr(count.optimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigSquare(";
       getAnyParamToResultExpr(params[1], c_expr);
@@ -1627,7 +1627,7 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif factor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigCpy(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
@@ -1635,11 +1635,11 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif factor = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore bigInteger *:= 1_; */\n";
     elsif factor > 1_ and log2(factor) <= INTTYPE_MAX and
         2_ ** ord(log2(factor)) = factor then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigLShiftAssign(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
@@ -1695,7 +1695,7 @@ const proc: process (BIG_NEGATE, in reference: function,
     var expr_type: c_param1 is expr_type.value;
   begin
     if getConstant(params[2], BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       bigNumber := -getValue(evaluatedParam, bigInteger);
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     else
@@ -1882,15 +1882,15 @@ const proc: process_const_big_rem (in reference: dividend, in bigInteger: diviso
     var bigInteger: remainder is 0_;
   begin
     if divisor = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= bigRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, BIGINTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       remainder := getValue(evaluatedDividend, bigInteger) rem divisor;
       c_expr.expr &:= bigIntegerLiteral(remainder);
     elsif divisor = 1_ or divisor = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     else
       prepare_bigint_result(c_expr);
@@ -1929,11 +1929,11 @@ const proc: process_const_big_rshift (in bigInteger: number, in reference: param
     var bigInteger: bigNumber is 0_;
   begin
     if category(param3) = INTOBJECT and not isVar(param3) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       bigNumber := number >> getValue(param3, integer);
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     elsif number = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     else
       prepare_bigint_result(c_expr);
@@ -1993,7 +1993,7 @@ const proc: process (BIG_RSHIFT_ASSIGN, in reference: function,
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore bigInteger >>:= 0; */\n";
     else
       statement.expr := "bigRShiftAssign(&(";
@@ -2023,7 +2023,7 @@ const proc: process (BIG_SBTR, in reference: function,
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_add(params[1], -getValue(evaluatedParam, bigInteger), c_expr);
     elsif params[1] = params[3] then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
     else
       prepare_bigint_result(c_expr);
@@ -2049,22 +2049,22 @@ const proc: process_const_big_sbtr_assign (in reference: param1, in bigInteger: 
     var expr_type: statement is expr_type.value;
   begin
     if delta = -1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigIncr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif delta = 0_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "/* ignore bigInteger -:= 0_; */\n";
     elsif delta = 1_ then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigDecr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
     elsif abs(delta) <= MAX_BIGDIGIT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       statement.expr := "bigAddAssignSignedDigit(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";

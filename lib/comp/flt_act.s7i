@@ -289,7 +289,7 @@ const proc: process (FLT_BITS2SINGLE, in reference: function,
         warning(DOES_RAISE, "RANGE_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
       elsif number_range.minValue < 0 or number_range.maxValue >= 2 ** 32 then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "(";
         temp_name := getTempVariable("intType", "tmp_", params[1], c_expr);
         union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
@@ -318,7 +318,7 @@ const proc: process (FLT_BITS2SINGLE, in reference: function,
         c_expr.expr &:= ".aFloat)";
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(count.noRangeChecks);
       c_expr.expr &:= "(";
       union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
       c_expr.expr &:= union_name;
@@ -439,7 +439,7 @@ const proc: process_const_flt_div (in reference: dividend, in float: divisor,
     var float: quotient is 0.0;
     var string: dividend_name is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if divisor = 0.0 and (ccConf.FLOAT_ZERO_DIV_ERROR or ccConf.CHECK_FLOAT_DIV_BY_ZERO) then
       if getConstant(dividend, FLOATOBJECT, evaluatedDividend) then
         quotient := getValue(evaluatedDividend, float) / divisor;
@@ -521,7 +521,7 @@ const proc: process_const_flt_div_assign (in reference: param1, in float: diviso
     var expr_type: statement is expr_type.value;
     var string: dividend is "";
   begin
-    incr(countOptimizations);
+    incr(count.optimizations);
     if divisor = 0.0 and (ccConf.FLOAT_ZERO_DIV_ERROR or ccConf.CHECK_FLOAT_DIV_BY_ZERO) then
       if isNormalVariable(param1) then
         dividend := normalVariable(param1, statement);
@@ -656,10 +656,10 @@ const proc: process_const_flt_eq (in float: number, in reference: param3,
     var float: number2 is 0.0;
   begin
     if isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*NaN == anything*/";
     elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number2 := getValue(evaluatedParam, float);
       c_expr.expr &:= str(ord(number = number2));
       c_expr.expr &:= "/*";
@@ -747,10 +747,10 @@ const proc: process_const_flt_ge (in float: number, in reference: param3,
     var float: number2 is 0.0;
   begin
     if isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*NaN >= anything*/";
     elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number2 := getValue(evaluatedParam, float);
       c_expr.expr &:= str(ord(number >= number2));
       c_expr.expr &:= "/*";
@@ -779,7 +779,7 @@ const proc: process_const_flt_ge (in reference: param1, in float: number,
 
   begin
     if isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*anything >= NaN*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
       mathLibraryUsed := TRUE;
@@ -891,7 +891,7 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
     var string: exponentName is "";
   begin
     if getConstant(exponent, INTOBJECT, evaluatedExponent) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(base ** getValue(evaluatedExponent, integer));
     elsif base = -1.0 then
       c_expr.expr &:= "((";
@@ -902,7 +902,7 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
       c_expr.expr &:= floatLiteral(1.0);
       c_expr.expr &:= ")";
     elsif base = 0.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if isNegativeZero(base) then
         if exponentRange.maxValue < 0 then
@@ -971,10 +971,10 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
         end if;
       end if;
     elsif base = 1.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(1.0);
     elsif base = -2.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if exponentRange.minValue >= ccConf.INT_MIN and
           exponentRange.maxValue <= ccConf.INT_MAX then
@@ -1031,7 +1031,7 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
         c_expr.expr &:= ")))";
       end if;
     elsif base = 2.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if exponentRange.minValue >= ccConf.INT_MIN and
           exponentRange.maxValue <= ccConf.INT_MAX then
@@ -1075,7 +1075,7 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
           base <= flt(ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
           floor(base) = base and
           2 ** log2(trunc(base)) = trunc(base) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if exponentRange.minValue >= ccConf.INT_MIN div log2(trunc(base)) and
           exponentRange.maxValue <= ccConf.INT_MAX div log2(trunc(base)) then
@@ -1150,7 +1150,7 @@ const proc: process_const_flt_ipow (in reference: base, in integer: exponent,
     var char: ch is ' ';
   begin
     if exponent = -1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       if ccConf.CHECK_FLOAT_DIV_BY_ZERO then
         c_expr.expr &:= "(";
         baseName := getParameterAsVariable("floatType", "tmp_", base, c_expr);
@@ -1166,13 +1166,13 @@ const proc: process_const_flt_ipow (in reference: base, in integer: exponent,
         c_expr.expr &:= ")";
       end if;
     elsif exponent = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(1.0);
     elsif exponent = 1 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(base, c_expr);
     elsif exponent < 0 and exponent in {-maxIdx(power) .. -2} then
-      incr(countOptimizations);
+      incr(count.optimizations);
       powerTemplate := power[-exponent];
       c_expr.expr &:= "(";
       baseName := getParameterAsVariable("floatType", "tmp_", base, c_expr);
@@ -1197,7 +1197,7 @@ const proc: process_const_flt_ipow (in reference: base, in integer: exponent,
       c_expr.expr &:= replace(powerTemplate, "x", baseName);
       c_expr.expr &:= "))";
     elsif exponent in {2 .. maxIdx(power)} then
-      incr(countOptimizations);
+      incr(count.optimizations);
       powerTemplate := power[exponent];
       c_expr.expr &:= "(";
       baseName := getParameterAsVariable("floatType", "tmp_", base, c_expr);
@@ -1285,10 +1285,10 @@ const proc: process_const_flt_le (in float: number, in reference: param3,
     var float: number2 is 0.0;
   begin
     if isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*NaN <= anything*/";
     elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number2 := getValue(evaluatedParam, float);
       c_expr.expr &:= str(ord(number <= number2));
       c_expr.expr &:= "/*";
@@ -1317,7 +1317,7 @@ const proc: process_const_flt_le (in reference: param1, in float: number,
 
   begin
     if isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "0/*anything <= NaN*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
       mathLibraryUsed := TRUE;
@@ -1412,10 +1412,10 @@ const proc: process_const_flt_lshift (in float: number, in reference: lshift,
     var string: lshiftName is "";
   begin
     if number = 0.0 or abs(number) = Infinity or isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(number);
     elsif getConstant(lshift, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       lshiftNum := getValue(evaluatedParam, integer);
       c_expr.expr &:= floatLiteral(number << lshiftNum);
     else
@@ -1491,7 +1491,7 @@ const proc: process_const_flt_lshift (in reference: number, in integer: lshift,
     var float: powerOfTwo is 0.0;
   begin
     if lshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(number, c_expr);
     else
       powerOfTwo := 2.0 ** lshift;
@@ -1660,7 +1660,7 @@ const proc: process_flt_mult_with_flt_ipow (in reference: factor,
     var integer: exponentNum is 0;
   begin
     if getConstant(exponent, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentNum := getValue(evaluatedParam, integer);
       if getConstant(factor, FLOATOBJECT, evaluatedParam) then
         c_expr.expr &:= floatLiteral(getValue(evaluatedParam, float) * base ** exponentNum);
@@ -1671,10 +1671,10 @@ const proc: process_flt_mult_with_flt_ipow (in reference: factor,
         c_expr.expr &:= floatLiteral(base ** exponentNum);
       end if;
     elsif base = 1.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(factor, c_expr);
     elsif base = 2.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if exponentRange.minValue >= ccConf.INT_MIN and
           exponentRange.maxValue <= ccConf.INT_MAX then
@@ -1760,7 +1760,7 @@ const proc: process_flt_mult_with_flt_ipow (in reference: factor,
           base <= flt(ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
           floor(base) = base and
           2 ** log2(trunc(base)) = trunc(base) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       exponentRange := getIntRange(exponent);
       if exponentRange.minValue >= ccConf.INT_MIN div log2(trunc(base)) and
           exponentRange.maxValue <= ccConf.INT_MAX div log2(trunc(base)) then
@@ -1912,7 +1912,7 @@ const proc: process_const_flt_ne (in float: number, in reference: param3,
     if isNaN(number) then
       c_expr.expr &:= "1/*NaN != anything*/";
     elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       number2 := getValue(evaluatedParam, float);
       c_expr.expr &:= str(ord(number <> number2));
       c_expr.expr &:= "/*";
@@ -1970,7 +1970,7 @@ const proc: process (FLT_NEGATE, in reference: function,
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(params[2], FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(-getValue(evaluatedParam, float));
     else
       c_expr.expr &:= "-(";
@@ -2006,23 +2006,23 @@ const proc: process_const_flt_pow (in float: base, in reference: exponent,
     var string: exponentName is "";
   begin
     if getConstant(exponent, FLOATOBJECT, evaluatedExponent) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(base ** getValue(evaluatedExponent, float));
     elsif base = 1.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(1.0);
     elsif base = 2.0 and ccConf.HAS_EXP2 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "exp2(";
       process_expr(exponent, c_expr);
       c_expr.expr &:= ")";
     elsif base = 10.0 and ccConf.HAS_EXP10 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "exp10(";
       process_expr(exponent, c_expr);
       c_expr.expr &:= ")";
     elsif base = E then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "fltExp(";
       process_expr(exponent, c_expr);
       c_expr.expr &:= ")";
@@ -2046,7 +2046,7 @@ const proc: process_const_flt_pow (in reference: base, in float: exponent,
       process_const_flt_ipow(base, trunc(exponent), c_expr);
 (*
     elsif exponent = -0.5 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "1.0/";
       c_expr.expr &:= "fltSqrt(";
       process_expr(base, c_expr);
@@ -2054,12 +2054,12 @@ const proc: process_const_flt_pow (in reference: base, in float: exponent,
 *)
     elsif exponent = 0.33333333333333333333333333333333333333333333333333 and
         ccConf.HAS_CBRT then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "cbrt(";
       process_expr(base, c_expr);
       c_expr.expr &:= ")";
     elsif exponent = 0.5 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "fltSqrt(";
       process_expr(base, c_expr);
       c_expr.expr &:= ")";
@@ -2124,7 +2124,7 @@ const proc: process_const_flt_rand (in float: low, in float: high,
       elsif config.inlineFunctions then
         if delta > 0.0 and 2.0 ** floor(log2(delta)) = delta then
           # Delta is a power of two.
-          incr(countInlinedFunctions);
+          incr(count.inlinedFunctions);
           binaryExponent := trunc(log2(delta));
           union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
           c_expr.expr &:= "(";
@@ -2140,7 +2140,7 @@ const proc: process_const_flt_rand (in float: low, in float: high,
         elsif justBelow1 * delta + low < high then
           # The computed number is always in the range [low, high).
           # No loop is necessary to repeat the computation.
-          incr(countInlinedFunctions);
+          incr(count.inlinedFunctions);
           union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
           c_expr.expr &:= "(";
           c_expr.expr &:= union_name;
@@ -2162,7 +2162,7 @@ const proc: process_const_flt_rand (in float: low, in float: high,
         elsif ccConf.STMT_BLOCK_IN_PARENTHESES_OK then
           # The computation might result in a number >= high.
           # Repeat the computation until the number is in the range [low, high).
-          incr(countInlinedFunctions);
+          incr(count.inlinedFunctions);
           incr(c_expr.temp_num);
           union_name := "conv_" <& c_expr.temp_num;
           c_expr.expr &:= "({double2BitsUnion ";
@@ -2241,13 +2241,13 @@ const proc: process_const_flt_rem (in float: dividend, in reference: divisor,
     var string: divisor_name is "";
   begin
     if isNaN(dividend) or dividend = Infinity or dividend = -Infinity then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "NOT_A_NUMBER";
     elsif getConstant(divisor, FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(dividend rem getValue(evaluatedParam, float));
     elsif dividend = 0.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("floatType", "tmp_", divisor, c_expr);
       c_expr.expr &:= divisor_name;
@@ -2273,10 +2273,10 @@ const proc: process_const_flt_rem (in reference: dividend, in float: divisor,
     var string: dividend_name is "";
   begin
     if isNaN(divisor) or divisor = 0.0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "NOT_A_NUMBER";
     elsif divisor = Infinity or divisor = -Infinity then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= "(";
       dividend_name := getParameterAsVariable("floatType", "tmp_", dividend, c_expr);
       c_expr.expr &:= dividend_name;
@@ -2331,7 +2331,7 @@ const proc: process (FLT_ROUND, in reference: function,
       (* combination of inexact float literals and a C compiler   *)
       (* that trunctates this literals leads to errors. To avoid  *)
       (* problems we do the rounding instead of the C compiler.   *)
-      incr(countOptimizations);
+      incr(count.optimizations);
       block
         c_expr.expr &:= integerLiteral(round(getValue(params[1], float)));
       exception
@@ -2343,7 +2343,7 @@ const proc: process (FLT_ROUND, in reference: function,
       c_expr.expr &:= "(";
       number := getParameterAsVariable("floatType", "tmp_", params[1], c_expr);
       if config.conversion_range_check then
-        incr(countRangeChecks);
+        incr(count.rangeChecks);
         c_expr.expr &:= "rngChk(os_isnan(";
         c_expr.expr &:= number;
         c_expr.expr &:= ")||";
@@ -2358,7 +2358,7 @@ const proc: process (FLT_ROUND, in reference: function,
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= ":";
       else
-        incr(countNoRangeChecks);
+        incr(count.noRangeChecks);
       end if;
       (* Formula used: (a<0.0?-((intType)(0.5-a)):(intType)(0.5+a)) *)
       c_expr.expr &:= number;
@@ -2381,10 +2381,10 @@ const proc: process_const_flt_rshift (in float: number, in reference: rshift,
     var string: rshiftName is "";
   begin
     if number = 0.0 or abs(number) = Infinity or isNaN(number) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       c_expr.expr &:= floatLiteral(number);
     elsif getConstant(rshift, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
+      incr(count.optimizations);
       rshiftNum := getValue(evaluatedParam, integer);
       c_expr.expr &:= floatLiteral(number >> rshiftNum);
     else
@@ -2460,7 +2460,7 @@ const proc: process_const_flt_rshift (in reference: number, in integer: rshift,
     var float: powerOfTwo is Infinity;
   begin
     if rshift = 0 then
-      incr(countOptimizations);
+      incr(count.optimizations);
       process_expr(number, c_expr);
     else
       if rshift <> integer.first then
@@ -2728,7 +2728,7 @@ const proc: process (FLT_TRUNC, in reference: function,
       (* combination of inexact float literals and a C compiler   *)
       (* that trunctates this literals leads to errors. To avoid  *)
       (* problems we do the truncation instead of the C compiler. *)
-      incr(countOptimizations);
+      incr(count.optimizations);
       block
         c_expr.expr &:= integerLiteral(trunc(getValue(params[1], float)));
       exception
@@ -2737,7 +2737,7 @@ const proc: process (FLT_TRUNC, in reference: function,
           c_expr.expr &:= intRaiseError("RANGE_ERROR");
       end block;
     elsif config.conversion_range_check then
-      incr(countRangeChecks);
+      incr(count.rangeChecks);
       c_expr.expr &:= "(";
       number := getParameterAsVariable("floatType", "tmp_", params[1], c_expr);
       c_expr.expr &:= "rngChk(os_isnan(";
@@ -2756,7 +2756,7 @@ const proc: process (FLT_TRUNC, in reference: function,
       c_expr.expr &:= number;
       c_expr.expr &:= "))";
     else
-      incr(countNoRangeChecks);
+      incr(count.noRangeChecks);
       c_expr.expr &:= "(intType)(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ")";
