@@ -948,7 +948,9 @@ objectType exec_dynamic (listType expr_list)
     objectType result = NULL;
 
   /* exec_dynamic */
-    logFunction(printf("exec_dynamic\n"););
+    logFunction(printf("exec_dynamic(");
+                prot_list(expr_list);
+                printf(")\n"););
 #ifdef WITH_PROTOCOL
     if (trace.dynamic) {
       if (trace.heapsize) {
@@ -1084,7 +1086,11 @@ objectType exec_dynamic (listType expr_list)
       return raise_with_obj_and_args(prog->sys_var[err_info],
                                      dynamic_call_obj, expr_list);
     } /* if */
-    logFunction(printf("exec_dynamic -->\n"););
+    logFunction(printf("exec_dynamic(");
+                prot_list(expr_list);
+                printf(") --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* exec_dynamic */
 
