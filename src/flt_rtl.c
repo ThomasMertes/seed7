@@ -1337,13 +1337,18 @@ floatType fltParse (const const_striType stri)
         logError(printf("fltParse(\"%s\"): conv_to_cstri() failed.\n",
                         striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;
-        result = 0.0;
       } /* if */
     } else {
       cstri = stri_to_cstri(stri, &err_info);
       buffer_ptr = cstri;
+      if (unlikely(buffer_ptr == NULL)) {
+        logError(printf("fltParse(\"%s\"): stri_to_cstri() failed (err_info=%d).\n",
+                        striAsUnquotedCStri(stri), err_info););
+      } /* if */
     } /* if */
-    if (likely(buffer_ptr != NULL)) {
+    if (unlikely(buffer_ptr == NULL)) {
+      result = 0.0;
+    } else {
 #if !STRTOD_ACCEPTS_INF || !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
       next_ch = buffer_ptr;
       while (*next_ch != '\0' && !isdigit(*next_ch)) {
