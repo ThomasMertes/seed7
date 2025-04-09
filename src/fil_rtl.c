@@ -631,7 +631,6 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
                         (memSizeType) LIST_BUFFER_SIZE, safe_fileno(inFile),
                         errno, strerror(errno)););
         *err_info = FILE_ERROR;
-        result = NULL;
       } else {
         result_size += bytes_in_buffer;
         if (chars_missing > result_size && bytes_in_buffer == LIST_BUFFER_SIZE) {
@@ -642,7 +641,6 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
                             safe_fileno(inFile), chars_missing,
                             (memSizeType) sizeof(struct bufferStruct)););
             *err_info = MEMORY_ERROR;
-            result = NULL;
             /* Leave the while loop by setting bytes_in_buffer to zero. */
             bytes_in_buffer = 0;
           } else {
@@ -665,12 +663,13 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
                         chars_missing - result_size, safe_fileno(inFile),
                         errno, strerror(errno)););
         *err_info = FILE_ERROR;
-        result = NULL;
       } else {
         result_size += bytes_in_buffer;
       } /* if */
     } /* if */
-    if (likely(*err_info == OKAY_NO_ERROR)) {
+    if (unlikely(*err_info != OKAY_NO_ERROR)) {
+      result = NULL;
+    } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         logError(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *): "
                         "ALLOC_STRI_SIZE_OK(*, " FMT_U_MEM ") failed.\n",
@@ -2093,8 +2092,8 @@ fileType filPopen (const const_striType command,
 #if HAS_POPEN
     os_striType os_command;
     os_charType os_mode[MAX_MODE_LEN];
-    boolType readingAllowed;
-    boolType writingAllowed;
+    boolType readingAllowed = FALSE;
+    boolType writingAllowed = FALSE;
     int mode_pos = 0;
     errInfoType err_info = OKAY_NO_ERROR;
     cFileType cFile;
