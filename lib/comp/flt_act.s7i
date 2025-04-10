@@ -668,7 +668,7 @@ const proc: process_const_flt_eq (in float: number, in reference: param3,
       c_expr.expr &:= str(number2);
       c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltEq(";
       c_expr.expr &:= floatLiteral(number);
       c_expr.expr &:= ", ";
@@ -693,7 +693,7 @@ const proc: process (FLT_EQ, in reference: function,
     elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_eq(getValue(evaluatedParam, float), params[1], c_expr);
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltEq(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
@@ -759,7 +759,7 @@ const proc: process_const_flt_ge (in float: number, in reference: param3,
       c_expr.expr &:= str(number2);
       c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltGe(";
       c_expr.expr &:= floatLiteral(number);
       c_expr.expr &:= ", ";
@@ -782,7 +782,7 @@ const proc: process_const_flt_ge (in reference: param1, in float: number,
       incr(count.optimizations);
       c_expr.expr &:= "0/*anything >= NaN*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltGe(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ", ";
@@ -808,7 +808,7 @@ const proc: process (FLT_GE, in reference: function,
     elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_ge(params[1], getValue(evaluatedParam, float), c_expr);
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltGe(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
@@ -829,7 +829,7 @@ const proc: process (FLT_GT, in reference: function,
 
   begin
     if not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltGt(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
@@ -1297,7 +1297,7 @@ const proc: process_const_flt_le (in float: number, in reference: param3,
       c_expr.expr &:= str(number2);
       c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltLe(";
       c_expr.expr &:= floatLiteral(number);
       c_expr.expr &:= ", ";
@@ -1320,7 +1320,7 @@ const proc: process_const_flt_le (in reference: param1, in float: number,
       incr(count.optimizations);
       c_expr.expr &:= "0/*anything <= NaN*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltLe(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ", ";
@@ -1346,7 +1346,7 @@ const proc: process (FLT_LE, in reference: function,
     elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_le(params[1], getValue(evaluatedParam, float), c_expr);
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltLe(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
@@ -1618,7 +1618,7 @@ const proc: process (FLT_LT, in reference: function,
 
   begin
     if not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "fltLt(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
@@ -1921,7 +1921,7 @@ const proc: process_const_flt_ne (in float: number, in reference: param3,
       c_expr.expr &:= str(number2);
       c_expr.expr &:= "*/";
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "!fltEq(";
       c_expr.expr &:= floatLiteral(number);
       c_expr.expr &:= ", ";
@@ -1947,7 +1947,7 @@ const proc: process (FLT_NE, in reference: function,
     elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_ne(getValue(evaluatedParam, float), params[1], c_expr);
     elsif not ccConf.FLOAT_COMPARISON_OKAY then
-      mathLibraryUsed := TRUE;
+      programUses.mathLibrary := TRUE;
       c_expr.expr &:= "!fltEq(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";

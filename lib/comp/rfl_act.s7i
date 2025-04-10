@@ -81,7 +81,7 @@ const proc: process (RFL_APPEND, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
     getTemporaryToResultExpr(params[3], c_param3);
@@ -111,7 +111,7 @@ const proc: process (RFL_CAT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflCat(";
     getTemporaryToResultExpr(params[1], c_expr);
@@ -129,7 +129,7 @@ const proc: process (RFL_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     c_param3.demand := ASSIGN_RESULT;
@@ -167,7 +167,7 @@ const proc: process (RFL_ELEM, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "rflElem(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -184,7 +184,7 @@ const proc: process (RFL_ELEMCPY, in reference: function,
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     process_expr(params[1], c_param1);
     c_param4.temp_num := c_param1.temp_num;
     process_expr(params[4], c_param4);
@@ -220,7 +220,7 @@ const proc: process (RFL_EQ, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "rflEq(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -304,7 +304,7 @@ const proc: process (RFL_HEAD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflHead(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -387,7 +387,7 @@ const proc: process (RFL_IDX, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_rfl_idx(params[1], getValue(evaluatedParam, integer), c_expr);
     else
@@ -406,7 +406,7 @@ const proc: process (RFL_INCL, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     statement.expr := "rflIncl(&(";
     process_expr(params[1], statement);
     statement.expr &:= "), ";
@@ -420,7 +420,7 @@ const proc: process (RFL_IPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "rflIpos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -435,7 +435,7 @@ const proc: process (RFL_LNG, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "rflLng(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -446,7 +446,7 @@ const proc: process (RFL_MKLIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "rflMklist(";
     getStdParamToResultExpr(params[1], c_expr);
@@ -458,7 +458,7 @@ const proc: process (RFL_NE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "!rflEq(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -471,7 +471,7 @@ const proc: process (RFL_NOT_ELEM, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "!rflElem(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -484,7 +484,7 @@ const proc: process (RFL_POS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "rflPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -497,7 +497,7 @@ const proc: process (RFL_SET_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "rflSetValue(";
     process_expr(params[1], c_expr);
@@ -511,7 +511,7 @@ const proc: process (RFL_TAIL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "rflTail(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -525,7 +525,7 @@ const proc: process (RFL_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "rflValue(";
     getStdParamToResultExpr(params[1], c_expr);

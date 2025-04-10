@@ -172,163 +172,163 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"ARR_TAIL"}:
         process(ARR_TAIL, function, params, c_expr);
       when {"BIG_ABS"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ABS, function, params, c_expr);
       when {"BIG_ADD"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ADD, function, params, c_expr);
       when {"BIG_ADD_ASSIGN"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ADD_ASSIGN, function, params, c_expr);
       when {"BIG_BIT_LENGTH"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_BIT_LENGTH, function, params, c_expr);
       when {"BIG_CMP"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_CMP, function, params, c_expr);
       when {"BIG_CONV"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_CONV, function, params, c_expr);
       when {"BIG_CPY"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_CPY, function, params, c_expr);
       when {"BIG_DECR"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_DECR, function, params, c_expr);
       when {"BIG_DIV"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_DIV, function, params, c_expr);
       when {"BIG_DIV_REM"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_DIV_REM, function, params, c_expr);
       when {"BIG_EQ"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_EQ, function, params, c_expr);
       when {"BIG_FROM_BSTRI_BE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_FROM_BSTRI_BE, function, params, c_expr);
       when {"BIG_FROM_BSTRI_LE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_FROM_BSTRI_LE, function, params, c_expr);
       when {"BIG_GCD"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_GCD, function, params, c_expr);
       when {"BIG_GE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_GE, function, params, c_expr);
       when {"BIG_GT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_GT, function, params, c_expr);
       when {"BIG_HASHCODE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_HASHCODE, function, params, c_expr);
       when {"BIG_ICONV1"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ICONV1, function, params, c_expr);
       when {"BIG_ICONV3"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ICONV3, function, params, c_expr);
       when {"BIG_INCR"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_INCR, function, params, c_expr);
       when {"BIG_IPOW"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_IPOW, function, params, c_expr);
       when {"BIG_LE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LE, function, params, c_expr);
       when {"BIG_LOG10"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LOG10, function, params, c_expr);
       when {"BIG_LOG2"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LOG2, function, params, c_expr);
       when {"BIG_LOWEST_SET_BIT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LOWEST_SET_BIT, function, params, c_expr);
       when {"BIG_LSHIFT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LSHIFT, function, params, c_expr);
       when {"BIG_LSHIFT_ASSIGN"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LSHIFT_ASSIGN, function, params, c_expr);
       when {"BIG_LT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_LT, function, params, c_expr);
       when {"BIG_MDIV"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_MDIV, function, params, c_expr);
       when {"BIG_MOD"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_MOD, function, params, c_expr);
       when {"BIG_MULT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_MULT, function, params, c_expr);
       when {"BIG_MULT_ASSIGN"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_MULT_ASSIGN, function, params, c_expr);
       when {"BIG_NE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_NE, function, params, c_expr);
       when {"BIG_NEGATE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_NEGATE, function, params, c_expr);
       when {"BIG_ODD"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ODD, function, params, c_expr);
       when {"BIG_ORD"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_ORD, function, params, c_expr);
       when {"BIG_PARSE1"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_PARSE1, function, params, c_expr);
       when {"BIG_PARSE_BASED"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_PARSE_BASED, function, params, c_expr);
       when {"BIG_PLUS"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_PLUS, function, params, c_expr);
       when {"BIG_PRED"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_PRED, function, params, c_expr);
       when {"BIG_radix"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_radix, function, params, c_expr);
       when {"BIG_RADIX"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_RADIX, function, params, c_expr);
       when {"BIG_RAND"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_RAND, function, params, c_expr);
       when {"BIG_REM"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_REM, function, params, c_expr);
       when {"BIG_RSHIFT"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_RSHIFT, function, params, c_expr);
       when {"BIG_RSHIFT_ASSIGN"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_RSHIFT_ASSIGN, function, params, c_expr);
       when {"BIG_SBTR"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_SBTR, function, params, c_expr);
       when {"BIG_SBTR_ASSIGN"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_SBTR_ASSIGN, function, params, c_expr);
       when {"BIG_STR"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_STR, function, params, c_expr);
       when {"BIG_SUCC"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_SUCC, function, params, c_expr);
       when {"BIG_TO_BSTRI_BE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_TO_BSTRI_BE, function, params, c_expr);
       when {"BIG_TO_BSTRI_LE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_TO_BSTRI_LE, function, params, c_expr);
       when {"BIG_VALUE"}:
-        bigintLibraryUsed := TRUE;
+        programUses.bigintLibrary := TRUE;
         process(BIG_VALUE, function, params, c_expr);
       when {"BIN_AND"}:
         process(BIN_AND, function, params, c_expr);
@@ -575,40 +575,40 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"CMD_UNSETENV"}:
         process(CMD_UNSETENV, function, params, c_expr);
       when {"CON_CLEAR"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_CLEAR, function, params, c_expr);
       when {"CON_COLUMN"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_COLUMN, function, params, c_expr);
       when {"CON_CURSOR"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_CURSOR, function, params, c_expr);
       when {"CON_FLUSH"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_FLUSH, function, params, c_expr);
       when {"CON_HEIGHT"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_HEIGHT, function, params, c_expr);
       when {"CON_H_SCL"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_H_SCL, function, params, c_expr);
       when {"CON_LINE"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_LINE, function, params, c_expr);
       when {"CON_OPEN"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_OPEN, function, params, c_expr);
       when {"CON_SETPOS"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_SETPOS, function, params, c_expr);
       when {"CON_V_SCL"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_V_SCL, function, params, c_expr);
       when {"CON_WIDTH"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_WIDTH, function, params, c_expr);
       when {"CON_WRITE"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(CON_WRITE, function, params, c_expr);
       when {"DCL_CONST"}:
         process(DCL_CONST, function, params, c_expr);
@@ -619,211 +619,211 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DCL_VAR"}:
         process(DCL_VAR, function, params, c_expr);
       when {"DRW_ARC"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_ARC, function, params, c_expr);
       when {"DRW_ARC2"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_ARC2, function, params, c_expr);
       when {"DRW_BACKGROUND"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_BACKGROUND, function, params, c_expr);
       when {"DRW_BORDER"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_BORDER, function, params, c_expr);
       when {"DRW_CAPTURE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CAPTURE, function, params, c_expr);
       when {"DRW_CIRCLE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CIRCLE, function, params, c_expr);
       when {"DRW_CLEAR"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CLEAR, function, params, c_expr);
       when {"DRW_CMP"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CMP, function, params, c_expr);
       when {"DRW_COLOR"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_COLOR, function, params, c_expr);
       when {"DRW_CONV_POINT_LIST"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CONV_POINT_LIST, function, params, c_expr);
       when {"DRW_COPYAREA"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_COPYAREA, function, params, c_expr);
       when {"DRW_CPY"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_CPY, function, params, c_expr);
       when {"DRW_EQ"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_EQ, function, params, c_expr);
       when {"DRW_FARCCHORD"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FARCCHORD, function, params, c_expr);
       when {"DRW_FARCPIESLICE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FARCPIESLICE, function, params, c_expr);
       when {"DRW_FCIRCLE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FCIRCLE, function, params, c_expr);
       when {"DRW_FELLIPSE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FELLIPSE, function, params, c_expr);
       when {"DRW_FLUSH"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FLUSH, function, params, c_expr);
       when {"DRW_FPOLY_LINE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_FPOLY_LINE, function, params, c_expr);
       when {"DRW_GEN_POINT_LIST"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GEN_POINT_LIST, function, params, c_expr);
       when {"DRW_GET_IMAGE_PIXEL"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_IMAGE_PIXEL, function, params, c_expr);
       when {"DRW_GET_PIXEL"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXEL, function, params, c_expr);
       when {"DRW_GET_PIXEL_ARRAY"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXEL_ARRAY, function, params, c_expr);
       when {"DRW_GET_PIXEL_DATA"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXEL_DATA, function, params, c_expr);
       when {"DRW_GET_PIXEL_DATA_FROM_ARRAY"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXEL_DATA_FROM_ARRAY, function, params, c_expr);
       when {"DRW_GET_PIXMAP"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXMAP, function, params, c_expr);
       when {"DRW_GET_PIXMAP_FROM_PIXELS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_GET_PIXMAP_FROM_PIXELS, function, params, c_expr);
       when {"DRW_HASHCODE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_HASHCODE, function, params, c_expr);
       when {"DRW_HEIGHT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_HEIGHT, function, params, c_expr);
       when {"DRW_LINE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_LINE, function, params, c_expr);
       when {"DRW_NE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_NE, function, params, c_expr);
       when {"DRW_NEW_PIXMAP"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_NEW_PIXMAP, function, params, c_expr);
       when {"DRW_OPEN"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_OPEN, function, params, c_expr);
       when {"DRW_OPEN_SUB_WINDOW"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_OPEN_SUB_WINDOW, function, params, c_expr);
       when {"DRW_PARC"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PARC, function, params, c_expr);
       when {"DRW_PCIRCLE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PCIRCLE, function, params, c_expr);
       when {"DRW_PFARC"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PFARC, function, params, c_expr);
       when {"DRW_PFARCCHORD"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PFARCCHORD, function, params, c_expr);
       when {"DRW_PFARCPIESLICE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PFARCPIESLICE, function, params, c_expr);
       when {"DRW_PFCIRCLE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PFCIRCLE, function, params, c_expr);
       when {"DRW_PFELLIPSE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PFELLIPSE, function, params, c_expr);
       when {"DRW_PIXEL_TO_RGB"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PIXEL_TO_RGB, function, params, c_expr);
       when {"DRW_PLINE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PLINE, function, params, c_expr);
       when {"DRW_POINT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_POINT, function, params, c_expr);
       when {"DRW_POINTER_XPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_POINTER_XPOS, function, params, c_expr);
       when {"DRW_POINTER_YPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_POINTER_YPOS, function, params, c_expr);
       when {"DRW_POLY_LINE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_POLY_LINE, function, params, c_expr);
       when {"DRW_PPOINT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PPOINT, function, params, c_expr);
       when {"DRW_PRECT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PRECT, function, params, c_expr);
       when {"DRW_PUT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PUT, function, params, c_expr);
       when {"DRW_PUT_SCALED"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_PUT_SCALED, function, params, c_expr);
       when {"DRW_RECT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_RECT, function, params, c_expr);
       when {"DRW_RGBCOL"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_RGBCOL, function, params, c_expr);
       when {"DRW_SCREEN_HEIGHT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SCREEN_HEIGHT, function, params, c_expr);
       when {"DRW_SCREEN_WIDTH"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SCREEN_WIDTH, function, params, c_expr);
       when {"DRW_SET_CONTENT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_CONTENT, function, params, c_expr);
       when {"DRW_SET_CURSOR_VISIBLE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_CURSOR_VISIBLE, function, params, c_expr);
       when {"DRW_SET_POINTER_POS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_POINTER_POS, function, params, c_expr);
       when {"DRW_SET_POS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_POS, function, params, c_expr);
       when {"DRW_SET_SIZE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_SIZE, function, params, c_expr);
       when {"DRW_SET_TRANSPARENT_COLOR"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_TRANSPARENT_COLOR, function, params, c_expr);
       when {"DRW_SET_WINDOW_NAME"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_SET_WINDOW_NAME, function, params, c_expr);
       when {"DRW_TEXT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_TEXT, function, params, c_expr);
       when {"DRW_TO_BOTTOM"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_TO_BOTTOM, function, params, c_expr);
       when {"DRW_TO_TOP"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_TO_TOP, function, params, c_expr);
       when {"DRW_VALUE"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_VALUE, function, params, c_expr);
       when {"DRW_WIDTH"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_WIDTH, function, params, c_expr);
       when {"DRW_XPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_XPOS, function, params, c_expr);
       when {"DRW_YPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(DRW_YPOS, function, params, c_expr);
       when {"ENU_CONV"}:
         process(ENU_CONV, function, params, c_expr);
@@ -912,47 +912,47 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FIL_WORD_READ"}:
         process(FIL_WORD_READ, function, params, c_expr);
       when {"FLT_ABS"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ABS, function, params, c_expr);
       when {"FLT_ACOS"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ACOS, function, params, c_expr);
       when {"FLT_ADD"}:
         process(FLT_ADD, function, params, c_expr);
       when {"FLT_ADD_ASSIGN"}:
         process(FLT_ADD_ASSIGN, function, params, c_expr);
       when {"FLT_ASIN"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ASIN, function, params, c_expr);
       when {"FLT_ATAN"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ATAN, function, params, c_expr);
       when {"FLT_ATAN2"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ATAN2, function, params, c_expr);
       when {"FLT_BITS2DOUBLE"}:
         process(FLT_BITS2DOUBLE, function, params, c_expr);
       when {"FLT_BITS2SINGLE"}:
         process(FLT_BITS2SINGLE, function, params, c_expr);
       when {"FLT_CEIL"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_CEIL, function, params, c_expr);
       when {"FLT_CMP"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_CMP, function, params, c_expr);
       when {"FLT_COS"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_COS, function, params, c_expr);
       when {"FLT_COSH"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_COSH, function, params, c_expr);
       when {"FLT_CPY"}:
         process(FLT_CPY, function, params, c_expr);
       when {"FLT_DECOMPOSE"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_DECOMPOSE, function, params, c_expr);
       when {"FLT_DGTS"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_DGTS, function, params, c_expr);
       when {"FLT_DIV"}:
         process(FLT_DIV, function, params, c_expr);
@@ -963,13 +963,13 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_EQ"}:
         process(FLT_EQ, function, params, c_expr);
       when {"FLT_EXP"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_EXP, function, params, c_expr);
       when {"FLT_EXPM1"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_EXPM1, function, params, c_expr);
       when {"FLT_FLOOR"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_FLOOR, function, params, c_expr);
       when {"FLT_GE"}:
         process(FLT_GE, function, params, c_expr);
@@ -982,34 +982,34 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_ICONV3"}:
         process(FLT_ICONV3, function, params, c_expr);
       when {"FLT_IPOW"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_IPOW, function, params, c_expr);
       when {"FLT_ISNAN"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ISNAN, function, params, c_expr);
       when {"FLT_ISNEGATIVEZERO"}:
         process(FLT_ISNEGATIVEZERO, function, params, c_expr);
       when {"FLT_LE"}:
         process(FLT_LE, function, params, c_expr);
       when {"FLT_LOG"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_LOG, function, params, c_expr);
       when {"FLT_LOG10"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_LOG10, function, params, c_expr);
       when {"FLT_LOG1P"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_LOG1P, function, params, c_expr);
       when {"FLT_LOG2"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_LOG2, function, params, c_expr);
       when {"FLT_LSHIFT"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_LSHIFT, function, params, c_expr);
       when {"FLT_LT"}:
         process(FLT_LT, function, params, c_expr);
       when {"FLT_MOD"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_MOD, function, params, c_expr);
       when {"FLT_MULT"}:
         process(FLT_MULT, function, params, c_expr);
@@ -1024,88 +1024,88 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_PLUS"}:
         process(FLT_PLUS, function, params, c_expr);
       when {"FLT_POW"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_POW, function, params, c_expr);
       when {"FLT_RAND"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_RAND, function, params, c_expr);
       when {"FLT_REM"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_REM, function, params, c_expr);
       when {"FLT_ROUND"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_ROUND, function, params, c_expr);
       when {"FLT_RSHIFT"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_RSHIFT, function, params, c_expr);
       when {"FLT_SBTR"}:
         process(FLT_SBTR, function, params, c_expr);
       when {"FLT_SBTR_ASSIGN"}:
         process(FLT_SBTR_ASSIGN, function, params, c_expr);
       when {"FLT_SCI"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_SCI, function, params, c_expr);
       when {"FLT_SIN"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_SIN, function, params, c_expr);
       when {"FLT_SINGLE2BITS"}:
         process(FLT_SINGLE2BITS, function, params, c_expr);
       when {"FLT_SINH"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_SINH, function, params, c_expr);
       when {"FLT_SQRT"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_SQRT, function, params, c_expr);
       when {"FLT_STR"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_STR, function, params, c_expr);
       when {"FLT_STR_SCIENTIFIC"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_STR_SCIENTIFIC, function, params, c_expr);
       when {"FLT_TAN"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_TAN, function, params, c_expr);
       when {"FLT_TANH"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_TANH, function, params, c_expr);
       when {"FLT_TRUNC"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_TRUNC, function, params, c_expr);
       when {"FLT_VALUE"}:
-        mathLibraryUsed := TRUE;
+        programUses.mathLibrary := TRUE;
         process(FLT_VALUE, function, params, c_expr);
       when {"GKB_GETC"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_GETC, function, params, c_expr);
       when {"GKB_GETS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_GETS, function, params, c_expr);
       when {"GKB_INPUT_READY"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_INPUT_READY, function, params, c_expr);
       when {"GKB_LINE_READ"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_LINE_READ, function, params, c_expr);
       when {"GKB_RAW_GETC"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_RAW_GETC, function, params, c_expr);
       when {"GKB_SELECT_INPUT"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_SELECT_INPUT, function, params, c_expr);
       when {"GKB_WINDOW"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_WINDOW, function, params, c_expr);
       when {"GKB_WORD_READ"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_WORD_READ, function, params, c_expr);
       when {"GKB_BUTTON_PRESSED"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_BUTTON_PRESSED, function, params, c_expr);
       when {"GKB_CLICKED_XPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_CLICKED_XPOS, function, params, c_expr);
       when {"GKB_CLICKED_YPOS"}:
-        drawLibraryUsed := TRUE;
+        programUses.drawLibrary := TRUE;
         process(GKB_CLICKED_YPOS, function, params, c_expr);
       when {"HSH_CONCAT_KEY_VALUE"}:
         process(HSH_CONCAT_KEY_VALUE, function, params, c_expr);
@@ -1282,22 +1282,22 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"ITF_TO_INTERFACE"}:
         process(ITF_TO_INTERFACE, function, params, c_expr);
       when {"KBD_GETC"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_GETC, function, params, c_expr);
       when {"KBD_GETS"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_GETS, function, params, c_expr);
       when {"KBD_INPUT_READY"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_INPUT_READY, function, params, c_expr);
       when {"KBD_LINE_READ"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_LINE_READ, function, params, c_expr);
       when {"KBD_RAW_GETC"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_RAW_GETC, function, params, c_expr);
       when {"KBD_WORD_READ"}:
-        consoleLibraryUsed := TRUE;
+        programUses.consoleLibrary := TRUE;
         process(KBD_WORD_READ, function, params, c_expr);
       when {"PCS_CHILD_STDERR"}:
         process(PCS_CHILD_STDERR, function, params, c_expr);
@@ -1736,163 +1736,163 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"SOC_WRITE"}:
         process(SOC_WRITE, function, params, c_expr);
       when {"SQL_BIND_BIGINT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_BIGINT, function, params, c_expr);
       when {"SQL_BIND_BIGRAT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_BIGRAT, function, params, c_expr);
       when {"SQL_BIND_BOOL"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_BOOL, function, params, c_expr);
       when {"SQL_BIND_BSTRI"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_BSTRI, function, params, c_expr);
       when {"SQL_BIND_DURATION"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_DURATION, function, params, c_expr);
       when {"SQL_BIND_FLOAT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_FLOAT, function, params, c_expr);
       when {"SQL_BIND_INT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_INT, function, params, c_expr);
       when {"SQL_BIND_NULL"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_NULL, function, params, c_expr);
       when {"SQL_BIND_STRI"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_STRI, function, params, c_expr);
       when {"SQL_BIND_TIME"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_BIND_TIME, function, params, c_expr);
       when {"SQL_CLOSE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_CLOSE, function, params, c_expr);
       when {"SQL_CMP_DB"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_CMP_DB, function, params, c_expr);
       when {"SQL_CMP_STMT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_CMP_STMT, function, params, c_expr);
       when {"SQL_COLUMN_BIGINT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_BIGINT, function, params, c_expr);
       when {"SQL_COLUMN_BIGRAT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_BIGRAT, function, params, c_expr);
       when {"SQL_COLUMN_BOOL"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_BOOL, function, params, c_expr);
       when {"SQL_COLUMN_BSTRI"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_BSTRI, function, params, c_expr);
       when {"SQL_COLUMN_DURATION"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_DURATION, function, params, c_expr);
       when {"SQL_COLUMN_FLOAT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_FLOAT, function, params, c_expr);
       when {"SQL_COLUMN_INT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_INT, function, params, c_expr);
       when {"SQL_COLUMN_STRI"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_STRI, function, params, c_expr);
       when {"SQL_COLUMN_TIME"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COLUMN_TIME, function, params, c_expr);
       when {"SQL_COMMIT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_COMMIT, function, params, c_expr);
       when {"SQL_CPY_DB"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_CPY_DB, function, params, c_expr);
       when {"SQL_CPY_STMT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_CPY_STMT, function, params, c_expr);
       when {"SQL_DRIVER"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_DRIVER, function, params, c_expr);
       when {"SQL_EQ_DB"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_EQ_DB, function, params, c_expr);
       when {"SQL_EQ_STMT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_EQ_STMT, function, params, c_expr);
       when {"SQL_ERR_CODE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_ERR_CODE, function, params, c_expr);
       when {"SQL_ERR_DB_FUNC"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_ERR_DB_FUNC, function, params, c_expr);
       when {"SQL_ERR_LIB_FUNC"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_ERR_LIB_FUNC, function, params, c_expr);
       when {"SQL_ERR_MESSAGE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_ERR_MESSAGE, function, params, c_expr);
       when {"SQL_EXECUTE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_EXECUTE, function, params, c_expr);
       when {"SQL_FETCH"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_FETCH, function, params, c_expr);
       when {"SQL_GET_AUTO_COMMIT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_GET_AUTO_COMMIT, function, params, c_expr);
       when {"SQL_IS_NULL"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_IS_NULL, function, params, c_expr);
       when {"SQL_NE_DB"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_NE_DB, function, params, c_expr);
       when {"SQL_NE_STMT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_NE_STMT, function, params, c_expr);
       when {"SQL_OPEN_DB2"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_DB2, function, params, c_expr);
       when {"SQL_OPEN_FIRE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_FIRE, function, params, c_expr);
       when {"SQL_OPEN_INFORMIX"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_INFORMIX, function, params, c_expr);
       when {"SQL_OPEN_LITE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_LITE, function, params, c_expr);
       when {"SQL_OPEN_MY"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_MY, function, params, c_expr);
       when {"SQL_OPEN_OCI"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_OCI, function, params, c_expr);
       when {"SQL_OPEN_ODBC"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_ODBC, function, params, c_expr);
       when {"SQL_OPEN_POST"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_POST, function, params, c_expr);
       when {"SQL_OPEN_SQLSRV"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_SQLSRV, function, params, c_expr);
       when {"SQL_OPEN_TDS"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_OPEN_TDS, function, params, c_expr);
       when {"SQL_PREPARE"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_PREPARE, function, params, c_expr);
       when {"SQL_ROLLBACK"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_ROLLBACK, function, params, c_expr);
       when {"SQL_SET_AUTO_COMMIT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_SET_AUTO_COMMIT, function, params, c_expr);
       when {"SQL_STMT_COLUMN_COUNT"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_STMT_COLUMN_COUNT, function, params, c_expr);
       when {"SQL_STMT_COLUMN_NAME"}:
-        databaseLibraryUsed := TRUE;
+        programUses.databaseLibrary := TRUE;
         process(SQL_STMT_COLUMN_NAME, function, params, c_expr);
       when {"STR_APPEND"}:
         process(STR_APPEND, function, params, c_expr);

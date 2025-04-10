@@ -74,7 +74,7 @@ const proc: process (PRG_BSTRI_PARSE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     prepare_prog_result(c_expr);
     c_expr.result_expr := "prgBStriParse((const bstriType)(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -96,7 +96,7 @@ const proc: process (PRG_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     c_param3.demand := ASSIGN_RESULT;
@@ -146,7 +146,7 @@ const proc: process (PRG_ERROR_COUNT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgErrorCount(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -157,7 +157,7 @@ const proc: process (PRG_EVAL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgEval(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -170,7 +170,7 @@ const proc: process (PRG_EXEC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgExec(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -187,7 +187,7 @@ const proc: process (PRG_FIL_PARSE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     prepare_prog_result(c_expr);
     c_expr.result_expr := "prgFilParse(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -205,7 +205,7 @@ const proc: process (PRG_GET_ERROR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr := "prgGetError(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -230,7 +230,7 @@ const proc: process (PRG_GLOBAL_OBJECTS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "prgGlobalObjects(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -242,7 +242,7 @@ const proc: process (PRG_MATCH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgMatch(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -255,7 +255,7 @@ const proc: process (PRG_MATCH_EXPR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgMatchExpr(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -268,7 +268,7 @@ const proc: process (PRG_NAME, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgName(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -307,7 +307,7 @@ const proc: process (PRG_PATH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgPath(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -318,7 +318,7 @@ const proc: process (PRG_STR_PARSE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     prepare_prog_result(c_expr);
     c_expr.result_expr := "prgStrParse(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -336,7 +336,7 @@ const proc: process (PRG_SYOBJECT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgSyobject(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -349,7 +349,7 @@ const proc: process (PRG_SYSVAR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgSysvar(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -362,7 +362,7 @@ const proc: process (PRG_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "prgValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";

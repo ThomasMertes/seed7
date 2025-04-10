@@ -130,7 +130,7 @@ const proc: process (REF_ALLOC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refAlloc(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -141,7 +141,7 @@ const proc: process (REF_ALLOC_INT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refAllocInt(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -156,7 +156,7 @@ const proc: process (REF_ALLOC_STRI, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refAllocStri(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -171,7 +171,7 @@ const proc: process (REF_ALLOC_VAR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refAllocVar(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -184,7 +184,7 @@ const proc: process (REF_ARRMAXIDX, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refArrMaxIdx(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -195,7 +195,7 @@ const proc: process (REF_ARRMINIDX, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refArrMinIdx(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -206,7 +206,7 @@ const proc: process (REF_ARRTOLIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refArrToList(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -218,7 +218,7 @@ const proc: process (REF_BODY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refBody(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -229,7 +229,7 @@ const proc: process (REF_CATEGORY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refCategory(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -240,7 +240,7 @@ const proc: process (REF_CAT_PARSE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refCatParse(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -251,7 +251,7 @@ const proc: process (REF_CAT_STR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_stri_result(c_expr);
     c_expr.result_expr := "refCatStr(";
     getStdParamToResultExpr(params[1], c_expr);
@@ -313,7 +313,7 @@ const proc: process (REF_FILE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refFile(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -344,7 +344,7 @@ const proc: process (REF_HSHDATATOLIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refHshDataToList(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -356,7 +356,7 @@ const proc: process (REF_HSHKEYSTOLIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refHshKeysToList(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -368,7 +368,7 @@ const proc: process (REF_HSHLENGTH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refHshLength(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -379,7 +379,7 @@ const proc: process (REF_ISTEMP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refIsTemp(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -390,7 +390,7 @@ const proc: process (REF_ISVAR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refIsVar(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -401,7 +401,7 @@ const proc: process (REF_ITFTOSCT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refItfToSct(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -412,7 +412,7 @@ const proc: process (REF_LINE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refLine(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -423,7 +423,7 @@ const proc: process (REF_LOCAL_CONSTS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refLocalConsts(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -435,7 +435,7 @@ const proc: process (REF_LOCAL_VARS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refLocalVars(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -459,7 +459,7 @@ const proc: process (REF_NUM, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refNum(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -470,7 +470,7 @@ const proc: process (REF_PARAMS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refParams(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -481,7 +481,7 @@ const proc: process (REF_PATH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refPath(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -492,7 +492,7 @@ const proc: process (REF_RESINI, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refResini(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -503,7 +503,7 @@ const proc: process (REF_RESULT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refResult(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -514,7 +514,7 @@ const proc: process (REF_SCTTOLIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_list_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "refSctToList(";
     getAnyParamToResultExpr(params[1], c_expr);
@@ -553,7 +553,7 @@ const proc: process (REF_SETCATEGORY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetCategory(";
     process_expr(params[1], c_expr);
@@ -567,7 +567,7 @@ const proc: process (REF_SETPARAMS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetParams(";
     process_expr(params[1], c_expr);
@@ -581,7 +581,7 @@ const proc: process (REF_SETTYPE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetType(";
     process_expr(params[1], c_expr);
@@ -595,7 +595,7 @@ const proc: process (REF_SETVAR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetVar(";
     process_expr(params[1], c_expr);
@@ -609,7 +609,7 @@ const proc: process (REF_STR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     prepare_stri_result(c_expr);
     c_expr.result_expr := "refStr(";
     getStdParamToResultExpr(params[1], c_expr);
@@ -760,7 +760,7 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
         when {REFOBJECT}:
-          compDataLibraryUsed := TRUE;
+          programUses.compDataLibrary := TRUE;
           c_expr.expr &:= "{\n";
           c_expr.expr &:= "objRefType ref=";
           c_expr.expr &:= param1.expr;
@@ -876,7 +876,7 @@ const proc: process (REF_TYPE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refType(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -887,7 +887,7 @@ const proc: process (REF_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "refValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";

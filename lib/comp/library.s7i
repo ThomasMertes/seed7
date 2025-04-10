@@ -24,10 +24,14 @@
 (********************************************************************)
 
 
-var boolean: bigintLibraryUsed   is FALSE;
-var boolean: compDataLibraryUsed is FALSE;
-var boolean: compilerLibraryUsed is FALSE;
-var boolean: consoleLibraryUsed  is FALSE;
-var boolean: databaseLibraryUsed is FALSE;
-var boolean: drawLibraryUsed     is FALSE;
-var boolean: mathLibraryUsed     is FALSE;
+const type: programUsesLibrary is new struct
+    var boolean: bigintLibrary   is FALSE;
+    var boolean: compDataLibrary is FALSE;
+    var boolean: compilerLibrary is FALSE;
+    var boolean: consoleLibrary  is FALSE;
+    var boolean: databaseLibrary is FALSE;
+    var boolean: drawLibrary     is FALSE;
+    var boolean: mathLibrary     is FALSE;
+  end struct;
+
+var programUsesLibrary: programUses is programUsesLibrary.value;

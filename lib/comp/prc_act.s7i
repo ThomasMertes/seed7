@@ -1159,7 +1159,7 @@ const proc: process (PRC_HEAPSTAT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "heapStatistic();\n";
   end func;

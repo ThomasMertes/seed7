@@ -2693,10 +2693,10 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "setupBig();\n";
-    if drawLibraryUsed then
+    if programUses.drawLibrary then
       main_prolog &:= "drawInit();\n";
     end if;
-    if compilerLibraryUsed then
+    if programUses.compilerLibrary then
       main_prolog &:= "init_primitiv();\n";
     end if;
     main_prolog &:= "init_values();\n";
@@ -2789,12 +2789,12 @@ const proc: process_main_declaration (in reference: current_object,
     main_epilog &:= "    printf(\" at %s(%d)\", error_file, error_line);\n";
     main_epilog &:= "  }\n";
     main_epilog &:= "  printf(\"\\n\");\n";
-    if databaseLibraryUsed then
+    if programUses.databaseLibrary then
       main_epilog &:= "  if (fail_value == 6 /*DATABASE_ERROR*/) {\n";
       main_epilog &:= "    striType message;\n";
       main_epilog &:= "    message = sqlErrMessage();\n";
       main_epilog &:= "    printf(\"\\nMessage from the DATABASE_ERROR exception:\\n\");\n";
-      if consoleLibraryUsed then
+      if programUses.consoleLibrary then
         main_epilog &:= "    conWrite(message);\n";
       else
         main_epilog &:= "    ut8Write(&stdoutFileRecord, message);\n";
@@ -7694,13 +7694,13 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
 const proc: declare_raise_error2 (inout expr_type: c_expr) is func
 
   begin
-    if compilerLibraryUsed then
+    if programUses.compilerLibrary then
       writeln(c_prog, "extern boolType interpreter_exception;");
       declareExtern("void interprRaiseError (int, const char *, int);");
     end if;
     c_expr.expr &:= "void raise_error2 (int fail_value, const char *file_name, int line_number)\n";
     c_expr.expr &:= "{\n";
-    if compilerLibraryUsed then
+    if programUses.compilerLibrary then
       c_expr.expr &:= "  if (interpreter_exception) {\n";
       if config.trace_exception then
         c_expr.expr &:= "    int ch;\n";
@@ -7753,13 +7753,13 @@ const proc: process_global_declarations (in program: prog) is func
     var integer: numObjects is 0;
     var integer: index is 0;
   begin
-    if not compDataLibraryUsed then
+    if not programUses.compDataLibrary then
       declareExtern("intType heapsize (void) {return 0;}");
       declareExtern("typeType refType (objRefType a) {printf(\"refType\\n\"); return NULL;}");
       declareExtern("typeType typValue (objRefType a) {printf(\"typValue\\n\"); return NULL;}");
       writeln(c_prog);
     end if;
-    if compDataLibraryUsed and not compilerLibraryUsed then
+    if programUses.compDataLibrary and not programUses.compilerLibrary then
       declareExtern("striType get_file_name (progType aProg, unsigned int file_num) {return " <& stringLiteral("") <& ";}");
       declareExtern("striType objectFileName (objRefType anObject) {return " <& stringLiteral("") <& ";}");
       declareExtern("striType objectFilePath (objRefType anObject) {return " <& stringLiteral("") <& ";}");
@@ -8385,33 +8385,33 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         if "-g" not in compilerOptions then
           removeFile(cSourceFile);
         end if;
-        if compilerLibraryUsed then
-          drawLibraryUsed := TRUE;
-          mathLibraryUsed := TRUE;
-          consoleLibraryUsed := TRUE;
-          databaseLibraryUsed := TRUE;
+        if programUses.compilerLibrary then
+          programUses.drawLibrary := TRUE;
+          programUses.mathLibrary := TRUE;
+          programUses.consoleLibrary := TRUE;
+          programUses.databaseLibrary := TRUE;
         end if;
         if fileType(seed7_lib) <> FILE_REGULAR then
           writeln("*** Seed7 library " <& literal(seed7_lib) <& " missing");
           okay := FALSE;
         end if;
-        if drawLibraryUsed and fileType(draw_lib) <> FILE_REGULAR then
+        if programUses.drawLibrary and fileType(draw_lib) <> FILE_REGULAR then
           writeln("*** Draw library " <& literal(draw_lib) <& " missing");
           okay := FALSE;
         end if;
-        if consoleLibraryUsed and fileType(console_lib) <> FILE_REGULAR then
+        if programUses.consoleLibrary and fileType(console_lib) <> FILE_REGULAR then
           writeln("*** Console library " <& literal(console_lib) <& " missing");
           okay := FALSE;
         end if;
-        if databaseLibraryUsed and fileType(database_lib) <> FILE_REGULAR then
+        if programUses.databaseLibrary and fileType(database_lib) <> FILE_REGULAR then
           writeln("*** Database library " <& literal(database_lib) <& " missing");
           okay := FALSE;
         end if;
-        if compilerLibraryUsed and fileType(compiler_lib) <> FILE_REGULAR then
+        if programUses.compilerLibrary and fileType(compiler_lib) <> FILE_REGULAR then
           writeln("*** Compiler library " <& literal(compiler_lib) <& " missing");
           okay := FALSE;
         end if;
-        if compDataLibraryUsed and fileType(comp_data_lib) <> FILE_REGULAR then
+        if programUses.compDataLibrary and fileType(comp_data_lib) <> FILE_REGULAR then
           writeln("*** Compiler data library " <& literal(comp_data_lib) <& " missing");
           okay := FALSE;
         end if;
@@ -8463,19 +8463,19 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               end if;
             end if;
             linkParams &:= toOsPath(objectFile);
-            if compilerLibraryUsed then
+            if programUses.compilerLibrary then
               appendLibrary(linkParams, toOsPath(compiler_lib));
             end if;
-            if compDataLibraryUsed then
+            if programUses.compDataLibrary then
               appendLibrary(linkParams, toOsPath(comp_data_lib));
             end if;
-            if drawLibraryUsed then
+            if programUses.drawLibrary then
               appendLibrary(linkParams, toOsPath(draw_lib));
             end if;
-            if consoleLibraryUsed then
+            if programUses.consoleLibrary then
               appendLibrary(linkParams, toOsPath(console_lib));
             end if;
-            if databaseLibraryUsed then
+            if programUses.databaseLibrary then
               appendLibrary(linkParams, toOsPath(database_lib));
             end if;
             appendLibrary(linkParams, toOsPath(seed7_lib));
@@ -8484,19 +8484,19 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               appendLibrary(linkParams, toOsPath(special_lib));
             end if;
             appendLibrary(linkParams, ccConf.SYSTEM_LIBS);
-            if bigintLibraryUsed then
+            if programUses.bigintLibrary then
               appendLibrary(linkParams, ccConf.SYSTEM_BIGINT_LIBS);
             end if;
-            if consoleLibraryUsed then
+            if programUses.consoleLibrary then
               appendLibrary(linkParams, ccConf.SYSTEM_CONSOLE_LIBS);
             end if;
-            if databaseLibraryUsed then
+            if programUses.databaseLibrary then
               appendLibrary(linkParams, ccConf.SYSTEM_DATABASE_LIBS);
             end if;
-            if drawLibraryUsed then
+            if programUses.drawLibrary then
               appendLibrary(linkParams, ccConf.SYSTEM_DRAW_LIBS);
             end if;
-            if mathLibraryUsed then
+            if programUses.mathLibrary then
               appendLibrary(linkParams, ccConf.SYSTEM_MATH_LIBS);
             end if;
             if ccConf.CALL_C_COMPILER_FROM_SHELL then

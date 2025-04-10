@@ -96,7 +96,7 @@ const proc: process (ACT_GEN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr &:= "actGen(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
@@ -107,7 +107,7 @@ const proc: process (ACT_ICONV1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "actIConv(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -118,7 +118,7 @@ const proc: process (ACT_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "actIConv(";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
@@ -141,7 +141,7 @@ const proc: process (ACT_ORD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     c_expr.expr := "actOrd(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
@@ -152,7 +152,7 @@ const proc: process (ACT_STR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compilerLibraryUsed := TRUE;
+    programUses.compilerLibrary := TRUE;
     prepare_stri_result(c_expr);
     c_expr.result_expr := "actStr(";
     getStdParamToResultExpr(params[1], c_expr);
@@ -164,7 +164,7 @@ const proc: process (ACT_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    compDataLibraryUsed := TRUE;
+    programUses.compDataLibrary := TRUE;
     c_expr.expr &:= "actValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
