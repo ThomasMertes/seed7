@@ -142,8 +142,8 @@ void appendChar (striType *const msg, const charType aChar)
       new_size = msg_dest->size + 1;
 #if WITH_STRI_CAPACITY
       if (new_size > msg_dest->capacity) {
-        msg_dest = growStri(msg_dest, new_size);
-        if (unlikely(msg_dest == NULL)) {
+        new_msg = growStri(msg_dest, new_size);
+        if (unlikely(new_msg == NULL)) {
           logError(printf("appendChar(\"%s\", '\\" FMT_U32 ";'): "
                           "growStri() failed.\n",
                           striAsUnquotedCStri(msg_dest), aChar););
@@ -151,6 +151,7 @@ void appendChar (striType *const msg, const charType aChar)
           *msg = NULL;
           return;
         } else {
+          msg_dest = new_msg;
           *msg = msg_dest;
         } /* if */
       } /* if */
