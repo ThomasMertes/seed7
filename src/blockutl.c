@@ -328,7 +328,7 @@ locListType get_local_var_list (const_listType local_object_list,
     while (local_element != NULL) {
       if (VAR_OBJECT(local_element->obj)) {
         local_var = local_element->obj;
-#if OUT_OF_ORDER
+#ifdef OUT_OF_ORDER
         if (CATEGORY_OF_OBJ(local_var) != LOCALVOBJECT) {
           if (ALLOC_OBJECT(init_value)) {
             init_value->type_of =     local_var->type_of;
@@ -351,7 +351,7 @@ locListType get_local_var_list (const_listType local_object_list,
           append_to_loclist(&local_vars_insert_place,
               local_var, init_value, create_call_obj, destroy_call_obj, err_info);
         } /* if */
-#if OUT_OF_ORDER
+#ifdef OUT_OF_ORDER
         } else if (ALLOC_OBJECT(init_value)) {
           init_value->type_of =     local_var->type_of;
           init_value->descriptor.property = NULL;
