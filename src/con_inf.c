@@ -309,12 +309,14 @@ static void downleft (int col, int lin)
 
 
 
+#ifdef OUT_OF_ORDER
 static void inf_beep (void)
 
   { /* inf_beep */
     fputc('\007', stderr);
     fflush(stderr);
   } /* inf_beep */
+#endif
 
 
 
@@ -346,12 +348,14 @@ static void inf_setcolor (intType foreground, intType background)
 
 
 
+#ifdef OUT_OF_ORDER
 static void inf_standardcolour (void)
 
   { /* inf_standardcolour */
     inf_setcolor(lightgray,black);
 /*  curr_attribute = 0; */
   } /* inf_standardcolour */
+#endif
 
 
 
@@ -364,11 +368,13 @@ void inf_normalcolour (void)
 
 
 
+#ifdef OUT_OF_ORDER
 static int inf_setfont (char *fontname)
 
   { /* inf_setfont */
     return 1;
   } /* inf_setfont */
+#endif
 
 
 
