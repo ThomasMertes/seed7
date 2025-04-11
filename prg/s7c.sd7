@@ -751,12 +751,12 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= "));\n";
       end if;
     else
-      if arrayValue not in const_table then
-        const_table @:= [arrayValue] length(const_table);
+      if arrayValue not in constTable.other_const then
+        constTable.other_const @:= [arrayValue] length(constTable.other_const);
       end if;
       process_create_declaration(objectType, global_c_expr);
       param_value := "arr[";
-      param_value &:= str(const_table[arrayValue]);
+      param_value &:= str(constTable.other_const[arrayValue]);
       param_value &:= "]";
       process_create_call(objectType,
           param_value, c_declaration.temp_assigns);
@@ -802,8 +802,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         c_declaration.temp_assigns &:= str(valueCategory);
         c_declaration.temp_assigns &:= " */);\n";
       else
-        if object_value not in const_table then
-          const_table @:= [object_value] length(const_table);
+        if object_value not in constTable.other_const then
+          constTable.other_const @:= [object_value] length(constTable.other_const);
         end if;
         c_declaration.temp_assigns &:= diagnosticLine(current_object);
         c_declaration.temp_assigns &:= "o_";
@@ -811,7 +811,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         c_declaration.temp_assigns &:= "=(";
         c_declaration.temp_assigns &:= type_name(objectType);
         c_declaration.temp_assigns &:= ")(itfCreate(itf[";
-        c_declaration.temp_assigns &:= str(const_table[object_value]);
+        c_declaration.temp_assigns &:= str(constTable.other_const[object_value]);
         c_declaration.temp_assigns &:= "]));\n";
       end if;
       process_destr_declaration(objectType, global_c_expr);
@@ -907,8 +907,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = STRUCTOBJECT then
-      if object_value not in const_table then
-        const_table @:= [object_value] length(const_table);
+      if object_value not in constTable.other_const then
+        constTable.other_const @:= [object_value] length(constTable.other_const);
       end if;
       process_create_declaration(objectType, global_c_expr);
       process_destr_declaration(objectType, global_c_expr);
@@ -917,7 +917,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, c_declaration.temp_assigns);
       c_declaration.temp_assigns &:= "=";
       param_value := "sct[";
-      param_value &:= str(const_table[object_value]);
+      param_value &:= str(constTable.other_const[object_value]);
       param_value &:= "]";
       process_create_call(objectType,
           param_value, c_declaration.temp_assigns);
@@ -934,8 +934,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         create_name(current_object, c_declaration.temp_assigns);
         c_declaration.temp_assigns &:= "=hshEmpty();\n";
       else
-        if object_value not in const_table then
-          const_table @:= [object_value] length(const_table);
+        if object_value not in constTable.other_const then
+          constTable.other_const @:= [object_value] length(constTable.other_const);
         end if;
         process_create_declaration(objectType, global_c_expr);
         process_destr_declaration(objectType, global_c_expr);
@@ -944,7 +944,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         create_name(current_object, c_declaration.temp_assigns);
         c_declaration.temp_assigns &:= "=";
         param_value := "hsh[";
-        param_value &:= str(const_table[object_value]);
+        param_value &:= str(constTable.other_const[object_value]);
         param_value &:= "]";
         process_create_call(objectType,
             param_value, c_declaration.temp_assigns);
@@ -954,14 +954,14 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = INTERFACEOBJECT then
-      if object_value not in const_table then
-        const_table @:= [object_value] length(const_table);
+      if object_value not in constTable.other_const then
+        constTable.other_const @:= [object_value] length(constTable.other_const);
       end if;
       c_declaration.temp_assigns &:= diagnosticLine(current_object);
       c_declaration.temp_assigns &:= "o_";
       create_name(current_object, c_declaration.temp_assigns);
       c_declaration.temp_assigns &:= "=itf[";
-      c_declaration.temp_assigns &:= str(const_table[object_value]);
+      c_declaration.temp_assigns &:= str(constTable.other_const[object_value]);
       c_declaration.temp_assigns &:= "];\n";
       process_destr_declaration(objectType, global_c_expr);
       param_name := "o_";
@@ -1954,11 +1954,11 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        if current_expression not in const_table then
-          const_table @:= [current_expression] length(const_table);
+        if current_expression not in constTable.other_const then
+          constTable.other_const @:= [current_expression] length(constTable.other_const);
         end if;
         c_expr.expr &:= "arr[";
-        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= str(constTable.other_const[current_expression]);
         c_expr.expr &:= "]";
       end if;
     elsif exprCategory = STRUCTOBJECT then
@@ -1966,11 +1966,11 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        if current_expression not in const_table then
-          const_table @:= [current_expression] length(const_table);
+        if current_expression not in constTable.other_const then
+          constTable.other_const @:= [current_expression] length(constTable.other_const);
         end if;
         c_expr.expr &:= "sct[";
-        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= str(constTable.other_const[current_expression]);
         c_expr.expr &:= "]";
       end if;
     elsif exprCategory = HASHOBJECT then
@@ -1978,11 +1978,11 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        if current_expression not in const_table then
-          const_table @:= [current_expression] length(const_table);
+        if current_expression not in constTable.other_const then
+          constTable.other_const @:= [current_expression] length(constTable.other_const);
         end if;
         c_expr.expr &:= "hsh[";
-        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= str(constTable.other_const[current_expression]);
         c_expr.expr &:= "]";
       end if;
     elsif exprCategory = INTERFACEOBJECT then
@@ -1990,11 +1990,11 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        if current_expression not in const_table then
-          const_table @:= [current_expression] length(const_table);
+        if current_expression not in constTable.other_const then
+          constTable.other_const @:= [current_expression] length(constTable.other_const);
         end if;
         c_expr.expr &:= "itf[";
-        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= str(constTable.other_const[current_expression]);
         c_expr.expr &:= "]";
       end if;
     elsif exprCategory = FILEOBJECT then
@@ -3478,8 +3478,8 @@ const proc: process_array_declaration (in reference: current_object,
       c_expr.expr &:= " o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
-      if current_object not in const_table then
-        const_table @:= [current_object] length(const_table);
+      if current_object not in constTable.other_const then
+        constTable.other_const @:= [current_object] length(constTable.other_const);
       end if;
       global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
@@ -3488,7 +3488,7 @@ const proc: process_array_declaration (in reference: current_object,
       param_value := "(";
       param_value &:= type_name(getType(current_object));
       param_value &:= ")(arr[";
-      param_value &:= str(const_table[current_object]);
+      param_value &:= str(constTable.other_const[current_object]);
       param_value &:= "])";
       process_create_declaration(getType(current_object), global_c_expr);
       process_create_call(getType(current_object),
@@ -3510,8 +3510,8 @@ const proc: process_hash_declaration (in reference: current_object,
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    if current_object not in const_table then
-      const_table @:= [current_object] length(const_table);
+    if current_object not in constTable.other_const then
+      constTable.other_const @:= [current_object] length(constTable.other_const);
     end if;
     global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
@@ -3520,7 +3520,7 @@ const proc: process_hash_declaration (in reference: current_object,
     param_value := "(";
     param_value &:= type_name(getType(current_object));
     param_value &:= ")(hsh[";
-    param_value &:= str(const_table[current_object]);
+    param_value &:= str(constTable.other_const[current_object]);
     param_value &:= "])";
     if isVar(current_object) then
       process_create_declaration(getType(current_object), global_c_expr);
@@ -3566,8 +3566,8 @@ const proc: process_struct_declaration (in reference: current_object,
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    if current_object not in const_table then
-      const_table @:= [current_object] length(const_table);
+    if current_object not in constTable.other_const then
+      constTable.other_const @:= [current_object] length(constTable.other_const);
     end if;
     init_expr &:= diagnosticLine(current_object);
     init_expr &:= "o_";
@@ -3576,7 +3576,7 @@ const proc: process_struct_declaration (in reference: current_object,
     param_value := "(";
     param_value &:= type_name(getType(current_object));
     param_value &:= ")(sct[";
-    param_value &:= str(const_table[current_object]);
+    param_value &:= str(constTable.other_const[current_object]);
     param_value &:= "])";
     if isVar(current_object) then
       process_create_declaration(getType(current_object), global_c_expr);
@@ -3603,8 +3603,8 @@ const proc: process_interface_declaration (in reference: current_object,
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    if current_object not in const_table then
-      const_table @:= [current_object] length(const_table);
+    if current_object not in constTable.other_const then
+      constTable.other_const @:= [current_object] length(constTable.other_const);
     end if;
     global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
@@ -3612,7 +3612,7 @@ const proc: process_interface_declaration (in reference: current_object,
     global_init.expr &:= "=(";
     global_init.expr &:= type_name(getType(current_object));
     global_init.expr &:= ")(itfCreate(itf[";
-    global_init.expr &:= str(const_table[current_object]);
+    global_init.expr &:= str(constTable.other_const[current_object]);
     global_init.expr &:= "]));\n";
     count_declarations(c_expr);
   end func;
@@ -5988,67 +5988,67 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
     for current_object range const_list do
       objectCategory := category(current_object);
       if objectCategory = BIGINTOBJECT then
-        if getValue(current_object, bigInteger) not in bigint_const_table then
-          bigint_const_table @:= [getValue(current_object, bigInteger)] length(bigint_const_table);
+        if getValue(current_object, bigInteger) not in constTable.bigint_const then
+          constTable.bigint_const @:= [getValue(current_object, bigInteger)] length(constTable.bigint_const);
         end if;
       elsif objectCategory = STRIOBJECT then
-        if getValue(current_object, string) not in stri_const_table then
-          stri_const_table @:= [getValue(current_object, string)] length(stri_const_table);
+        if getValue(current_object, string) not in constTable.stri_const then
+          constTable.stri_const @:= [getValue(current_object, string)] length(constTable.stri_const);
         end if;
       elsif objectCategory = BSTRIOBJECT then
-        if getValue(current_object, bstring) not in bstri_const_table then
-          bstri_const_table @:= [getValue(current_object, bstring)] length(bstri_const_table);
+        if getValue(current_object, bstring) not in constTable.bstri_const then
+          constTable.bstri_const @:= [getValue(current_object, bstring)] length(constTable.bstri_const);
         end if;
       elsif objectCategory = SETOBJECT then
-        if getValue(current_object, bitset) not in set_const_table then
-          set_const_table @:= [getValue(current_object, bitset)] length(set_const_table);
+        if getValue(current_object, bitset) not in constTable.set_const then
+          constTable.set_const @:= [getValue(current_object, bitset)] length(constTable.set_const);
         end if;
       elsif objectCategory = WINOBJECT then
-        if getValue(current_object, PRIMITIVE_WINDOW) not in win_const_table then
-          win_const_table @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(win_const_table);
+        if getValue(current_object, PRIMITIVE_WINDOW) not in constTable.win_const then
+          constTable.win_const @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(constTable.win_const);
         end if;
       elsif objectCategory = POINTLISTOBJECT then
         aPointList := getValue(current_object, pointList);
-        if aPointList not in plist_const_table then
-          plist_const_table @:= [aPointList] length(plist_const_table);
+        if aPointList not in constTable.plist_const then
+          constTable.plist_const @:= [aPointList] length(constTable.plist_const);
         end if;
       elsif objectCategory = ARRAYOBJECT then
-        if current_object not in const_table then
-          const_table @:= [current_object] length(const_table);
+        if current_object not in constTable.other_const then
+          constTable.other_const @:= [current_object] length(constTable.other_const);
         end if;
         elements_to_walk := determine_multiple_array_elements(arrayToList(current_object));
         walk_const_list(elements_to_walk, sorted_list);
         sorted_list &:= make_list(current_object);
       elsif objectCategory = STRUCTOBJECT then
-        if current_object not in const_table then
-          const_table @:= [current_object] length(const_table);
+        if current_object not in constTable.other_const then
+          constTable.other_const @:= [current_object] length(constTable.other_const);
         end if;
         walk_const_list(structToList(current_object), sorted_list);
         sorted_list &:= make_list(current_object);
       elsif objectCategory = HASHOBJECT then
-        if current_object not in const_table then
-          const_table @:= [current_object] length(const_table);
+        if current_object not in constTable.other_const then
+          constTable.other_const @:= [current_object] length(constTable.other_const);
         end if;
         walk_const_list(hashKeysToList(current_object), sorted_list);
         walk_const_list(hashDataToList(current_object), sorted_list);
         sorted_list &:= make_list(current_object);
       elsif objectCategory = INTERFACEOBJECT then
-        if current_object not in const_table then
-          const_table @:= [current_object] length(const_table);
+        if current_object not in constTable.other_const then
+          constTable.other_const @:= [current_object] length(constTable.other_const);
         end if;
         struct_of_interface := interfaceToStruct(current_object);
-        if struct_of_interface not in const_table then
-          const_table @:= [struct_of_interface] length(const_table);
+        if struct_of_interface not in constTable.other_const then
+          constTable.other_const @:= [struct_of_interface] length(constTable.other_const);
           walk_const_list(structToList(struct_of_interface), sorted_list);
           sorted_list &:= make_list(struct_of_interface);
-        elsif const_table[struct_of_interface] >= const_table[current_object] then
+        elsif constTable.other_const[struct_of_interface] >= constTable.other_const[current_object] then
           sorted_list &:= make_list(struct_of_interface);
         end if;
         sorted_list &:= make_list(current_object);
       elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
           objectCategory = BLOCKOBJECT then
-        if current_object not in const_table then
-          const_table @:= [current_object] length(const_table);
+        if current_object not in constTable.other_const then
+          constTable.other_const @:= [current_object] length(constTable.other_const);
         end if;
         sorted_list &:= make_list(current_object);
       end if;
@@ -6169,21 +6169,21 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = ARRAYOBJECT then
       c_expr.expr &:= ".value.arrayValue=";
       c_expr.expr &:= "arr[";
-      c_expr.expr &:= str(const_table[current_object]);
+      c_expr.expr &:= str(constTable.other_const[current_object]);
       c_expr.expr &:= "]";
     elsif objectCategory = STRUCTOBJECT then
       c_expr.expr &:= ".value.structValue=";
       c_expr.expr &:= "sct[";
-      c_expr.expr &:= str(const_table[current_object]);
+      c_expr.expr &:= str(constTable.other_const[current_object]);
       c_expr.expr &:= "]";
     elsif objectCategory = HASHOBJECT then
       c_expr.expr &:= ".value.hashValue=";
       c_expr.expr &:= "hsh[";
-      c_expr.expr &:= str(const_table[current_object]);
+      c_expr.expr &:= str(constTable.other_const[current_object]);
       c_expr.expr &:= "]";
     elsif objectCategory = INTERFACEOBJECT then
       c_expr.expr &:= ".value.interfaceValue=itfCreate(itf[";
-      c_expr.expr &:= str(const_table[current_object]);
+      c_expr.expr &:= str(constTable.other_const[current_object]);
       c_expr.expr &:= "])";
     elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
         objectCategory = BLOCKOBJECT then
@@ -6251,13 +6251,13 @@ const proc: init_bigint_constants is func
     var integer: number is 0;
     var bstring: bstri is bstring.value;
   begin
-    bigint_index := flip(bigint_const_table);
+    bigint_index := flip(constTable.bigint_const);
     for number range sort(keys(bigint_index)) do
       bstri := bStriLe(bigint_index[number][1], TRUE);
-      if bstri not in bstri_const_table then
-        bstri_const_table @:= [bstri] length(bstri_const_table);
+      if bstri not in constTable.bstri_const then
+        constTable.bstri_const @:= [bstri] length(constTable.bstri_const);
       end if;
-      bigint_bstri_table @:= [number] bstri_const_table[bstri];
+      constTable.bigint_bstri @:= [number] constTable.bstri_const[bstri];
     end for;
   end func;
 
@@ -6269,13 +6269,13 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
     var bigInteger: big1 is bigInteger.value;
     var integer: number is 0;
   begin
-    if length(bigint_const_table) = 0 then
+    if length(constTable.bigint_const) = 0 then
       c_expr.expr &:= "big = NULL;\n";
     else
       c_expr.expr &:= "big = (bigIntType *)(malloc(";
-      c_expr.expr &:= str(length(bigint_const_table));
+      c_expr.expr &:= str(length(constTable.bigint_const));
       c_expr.expr &:= " * sizeof(bigIntType)));\n";
-      bigint_index := flip(bigint_const_table);
+      bigint_index := flip(constTable.bigint_const);
       for number range sort(keys(bigint_index)) do
         big1 := bigint_index[number][1];
         c_expr.expr &:= "big[";
@@ -6285,7 +6285,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= "&";
         end if;
         c_expr.expr &:= "bst[";
-        c_expr.expr &:= str(bigint_bstri_table[number]);
+        c_expr.expr &:= str(constTable.bigint_bstri[number]);
         c_expr.expr &:= "], 1);";
         if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
           c_expr.expr &:= " /* ";
@@ -6398,7 +6398,7 @@ const proc: init_win_constants is func
     var integer: number is 0;
     var bstring: bImage is bstring.value;
   begin
-    win_index := flip(win_const_table);
+    win_index := flip(constTable.win_const);
     if length(win_index) <> 0 and (length(win_index) > 1 or
         width(win_index[keys(win_index)[1]][1]) <> 0 or
         height(win_index[keys(win_index)[1]][1]) <> 0) then
@@ -6413,10 +6413,10 @@ const proc: init_win_constants is func
           win1 := win_index[number][1];
           if width(win1) <> 0 or height(win1) <> 0 then
             bImage := getPixelData(win1);
-            if bImage not in bstri_const_table then
-              bstri_const_table @:= [bImage] length(bstri_const_table);
+            if bImage not in constTable.bstri_const then
+              constTable.bstri_const @:= [bImage] length(constTable.bstri_const);
             end if;
-            win_bstri_table @:= [number] bstri_const_table[bImage];
+            constTable.win_bstri @:= [number] constTable.bstri_const[bImage];
           end if;
         end for;
       elsif pixelEncodingWithRedAndBlueSwapped or
@@ -6425,10 +6425,10 @@ const proc: init_win_constants is func
           win1 := win_index[number][1];
           if width(win1) <> 0 or height(win1) <> 0 then
             bImage := swapRedAndBlue(getPixelData(win1));
-            if bImage not in bstri_const_table then
-              bstri_const_table @:= [bImage] length(bstri_const_table);
+            if bImage not in constTable.bstri_const then
+              constTable.bstri_const @:= [bImage] length(constTable.bstri_const);
             end if;
-            win_bstri_table @:= [number] bstri_const_table[bImage];
+            constTable.win_bstri @:= [number] constTable.bstri_const[bImage];
           end if;
         end for;
       else
@@ -6436,10 +6436,10 @@ const proc: init_win_constants is func
           win1 := win_index[number][1];
           if width(win1) <> 0 or height(win1) <> 0 then
             bImage := fixPixels(getPixelArray(win1));
-            if bImage not in bstri_const_table then
-              bstri_const_table @:= [bImage] length(bstri_const_table);
+            if bImage not in constTable.bstri_const then
+              constTable.bstri_const @:= [bImage] length(constTable.bstri_const);
             end if;
-            win_bstri_table @:= [number] bstri_const_table[bImage];
+            constTable.win_bstri @:= [number] constTable.bstri_const[bImage];
           end if;
         end for;
       end if;
@@ -6454,13 +6454,13 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
     var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
     var integer: number is 0;
   begin
-    if length(win_const_table) = 0 then
+    if length(constTable.win_const) = 0 then
       c_expr.expr &:= "win = NULL;\n";
     else
       c_expr.expr &:= "win = (winType *)(malloc(";
-      c_expr.expr &:= str(length(win_const_table));
+      c_expr.expr &:= str(length(constTable.win_const));
       c_expr.expr &:= " * sizeof(winType)));\n";
-      win_index := flip(win_const_table);
+      win_index := flip(constTable.win_const);
       for number range sort(keys(win_index)) do
         win1 := win_index[number][1];
         c_expr.expr &:= "win[";
@@ -6474,7 +6474,7 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
             c_expr.expr &:= "&";
           end if;
           c_expr.expr &:= "bst[";
-          c_expr.expr &:= str(win_bstri_table[number]);
+          c_expr.expr &:= str(constTable.win_bstri[number]);
           c_expr.expr &:= "])->mem), ";
           c_expr.expr &:= str(width(win1));
           c_expr.expr &:= ", ";
@@ -6633,14 +6633,14 @@ const proc: init_plist_constants is func
     var integer: number is 0;
     var bstring: bstri is bstring.value;
   begin
-    plist_index := flip(plist_const_table);
+    plist_index := flip(constTable.plist_const);
     for number range sort(keys(plist_index)) do
       plist := plist_index[number][1];
       bstri := toTargetPointListBstring(plist);
-      if bstri not in bstri_const_table then
-        bstri_const_table @:= [bstri] length(bstri_const_table);
+      if bstri not in constTable.bstri_const then
+        constTable.bstri_const @:= [bstri] length(constTable.bstri_const);
       end if;
-      plist_bstri_table @:= [number] bstri_const_table[bstri];
+      constTable.plist_bstri @:= [number] constTable.bstri_const[bstri];
     end for;
   end func;
 
@@ -6652,13 +6652,13 @@ const proc: assign_plist_constants (inout expr_type: c_expr) is func
     var pointList: plist is pointList.value;
     var integer: number is 0;
   begin
-    if length(win_const_table) = 0 then
+    if length(constTable.win_const) = 0 then
       c_expr.expr &:= "plist = NULL;\n";
     else
       c_expr.expr &:= "plist = (bstriType *)(malloc(";
-      c_expr.expr &:= str(length(plist_const_table));
+      c_expr.expr &:= str(length(constTable.plist_const));
       c_expr.expr &:= " * sizeof(bstriType)));\n";
-      plist_index := flip(plist_const_table);
+      plist_index := flip(constTable.plist_const);
       for number range sort(keys(plist_index)) do
         plist := plist_index[number][1];
         c_expr.expr &:= "plist[";
@@ -6668,7 +6668,7 @@ const proc: assign_plist_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= "&";
         end if;
         c_expr.expr &:= "bst[";
-        c_expr.expr &:= str(plist_bstri_table[number]);
+        c_expr.expr &:= str(constTable.plist_bstri[number]);
         c_expr.expr &:= "]);\n";
       end for;
     end if;
@@ -6705,8 +6705,8 @@ const proc: write_str_table (in stri_index_hash: stri_index,
     var string: stri is "";
   begin
     c_expr.expr &:= "struct striStruct str[]={\n";
-    if length(stri_const_table) > 0 then
-      for number range 0 to pred(length(stri_const_table)) do
+    if length(constTable.stri_const) > 0 then
+      for number range 0 to pred(length(constTable.stri_const)) do
         stri := stri_index[number][1];
         c_expr.expr &:= "/* str[";
         c_expr.expr &:= str(number);
@@ -6815,8 +6815,8 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     var integer: checkedLength is 0;
     var boolean: found is FALSE;
   begin
-    stringPosition := [0 .. pred(length(stri_const_table))] times 0;
-    for number range 0 to pred(length(stri_const_table)) do
+    stringPosition := [0 .. pred(length(constTable.stri_const))] times 0;
+    for number range 0 to pred(length(constTable.stri_const)) do
       stringLengths @:= [number] length(stri_index[number][1]);
     end for;
     lengthToStriNum := flip(stringLengths);
@@ -6885,7 +6885,7 @@ const proc: init_string_constants_no_slices (in stri_index_hash: stri_index,
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "striType str[]={\n";
-    if length(stri_const_table) > 0 then
+    if length(constTable.stri_const) > 0 then
       for number range sort(keys(stri_index)) do
         stri := stri_index[number][1];
         c_expr.expr &:= "(striType) stri_";
@@ -6906,7 +6906,7 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
   local
     var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
   begin
-    stri_index := flip(stri_const_table);
+    stri_index := flip(constTable.stri_const);
     if ccConf.ALLOW_STRITYPE_SLICES then
       init_string_constants_with_slices(stri_index, c_expr);
     else
@@ -6959,8 +6959,8 @@ const proc: write_bst_table (in bstri_index_hash: bstri_index,
     var string: stri is "";
   begin
     c_expr.expr &:= "struct bstriStruct bst[]={\n";
-    if length(bstri_const_table) > 0 then
-      for number range 0 to pred(length(bstri_const_table)) do
+    if length(constTable.bstri_const) > 0 then
+      for number range 0 to pred(length(constTable.bstri_const)) do
         stri := str(bstri_index[number][1]);
         c_expr.expr &:= "/* bst[";
         c_expr.expr &:= str(number);
@@ -7008,8 +7008,8 @@ const proc: init_bstri_constants_with_slices (in bstri_index_hash: bstri_index,
     var integer: checkedLength is 0;
     var boolean: found is FALSE;
   begin
-    stringPosition := [0 .. pred(length(bstri_const_table))] times 0;
-    for number range 0 to pred(length(bstri_const_table)) do
+    stringPosition := [0 .. pred(length(constTable.bstri_const))] times 0;
+    for number range 0 to pred(length(constTable.bstri_const)) do
       stringLengths @:= [number] length(bstri_index[number][1]);
     end for;
     lengthToStriNum := flip(stringLengths);
@@ -7097,7 +7097,7 @@ const proc: init_bstri_constants_no_slices (in bstri_index_hash: bstri_index,
       end if;
     end for;
     c_expr.expr &:= "bstriType bst[]={\n";
-    if length(bstri_const_table) > 0 then
+    if length(constTable.bstri_const) > 0 then
       for number range sort(keys(bstri_index)) do
         c_expr.expr &:= "(bstriType) bstri_";
         c_expr.expr &:= str(number);
@@ -7115,7 +7115,7 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
   local
     var bstri_index_hash: bstri_index is bstri_index_hash.EMPTY_HASH;
   begin
-    bstri_index := flip(bstri_const_table);
+    bstri_index := flip(constTable.bstri_const);
     if ccConf.ALLOW_BSTRITYPE_SLICES then
       init_bstri_constants_with_slices(bstri_index, c_expr);
     else
@@ -7135,7 +7135,7 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
     var integer: elem_num is 0;
     var integer: columnsFree is 0;
   begin
-    set_index := flip(set_const_table);
+    set_index := flip(constTable.set_const);
     for number range sort(keys(set_index)) do
       set1 := set_index[number][1];
       c_expr.expr &:= "/* set[";
@@ -7173,7 +7173,7 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "setType set[]={\n";
-    if length(set_const_table) > 0 then
+    if length(constTable.set_const) > 0 then
       for number range sort(keys(set_index)) do
         c_expr.expr &:= "(setType) set_";
         c_expr.expr &:= str(number);
@@ -7193,7 +7193,7 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
     var type: aType is void;
     var integer: number is 0;
   begin
-    type_index := flip(type_const_table);
+    type_index := flip(constTable.type_const);
     for number range sort(keys(type_index)) do
       aType := type_index[number][1];
       c_expr.expr &:= "/* typ[";
@@ -7206,7 +7206,7 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "typeType typ[]={\n";
-    if length(type_const_table) > 0 then
+    if length(constTable.type_const) > 0 then
       for number range sort(keys(type_index)) do
         aType := type_index[number][1];
         c_expr.expr &:= "&typ_";
@@ -7231,7 +7231,7 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     var integer: elem_after_repeat_block is 0;
     var reference: element is NIL;
   begin
-    number := const_table[const_object];
+    number := constTable.other_const[const_object];
     array_list := arrayToList(const_object);
     c_expr.expr &:= "arr[";
     c_expr.expr &:= str(number);
@@ -7279,7 +7279,7 @@ const proc: malloc_struct (in reference: const_object, inout expr_type: c_expr) 
     var ref_list: struct_list is ref_list.EMPTY;
     var integer: number is 0;
   begin
-    number := const_table[const_object];
+    number := constTable.other_const[const_object];
     struct_list := structToList(const_object);
     c_expr.expr &:= "sct[";
     c_expr.expr &:= str(number);
@@ -7301,7 +7301,7 @@ const proc: init_struct_constants (in reference: const_object, inout expr_type: 
     var integer: elem_num is 0;
     var reference: element is NIL;
   begin
-    number := const_table[const_object];
+    number := constTable.other_const[const_object];
     struct_list := structToList(const_object);
     c_expr.expr &:= "sct[";
     c_expr.expr &:= str(number);
@@ -7341,7 +7341,7 @@ const proc: init_hash_constants (in reference: const_object, inout expr_type: c_
     var reference: key_element is NIL;
     var expr_type: hashcode_expr is expr_type.value;
   begin
-    number := const_table[const_object];
+    number := constTable.other_const[const_object];
     hash_key_list := hashKeysToList(const_object);
     hash_data_list := hashDataToList(const_object);
     c_expr.expr &:= "hsh[";
@@ -7397,7 +7397,7 @@ const proc: init_interface_constants (in reference: const_object, inout expr_typ
     var reference: struct_of_interface is NIL;
     var integer: number is 0;
   begin
-    number := const_table[const_object];
+    number := constTable.other_const[const_object];
     struct_of_interface := interfaceToStruct(const_object);
     c_expr.expr &:= "itf[";
     c_expr.expr &:= str(number);
@@ -7407,7 +7407,7 @@ const proc: init_interface_constants (in reference: const_object, inout expr_typ
       create_name(struct_of_interface, c_expr.expr);
     elsif category(struct_of_interface) = STRUCTOBJECT then
       c_expr.expr &:= "=sct[";
-      c_expr.expr &:= str(const_table[struct_of_interface]);
+      c_expr.expr &:= str(constTable.other_const[struct_of_interface]);
       c_expr.expr &:= "]";
     else
       c_expr.expr &:= " /* = ";
@@ -7426,8 +7426,8 @@ const proc: init_nan_constants (inout expr_type: c_expr) is func
     var bin64: bits is bin64(0);
   begin
     c_expr.expr &:= "double2BitsUnion nanValue[] = {\n";
-    if length(nan_const_table) > 0 then
-      nan_index := flip(nan_const_table);
+    if length(constTable.nan_const) > 0 then
+      nan_index := flip(constTable.nan_const);
       for number range sort(keys(nan_index)) do
         bits := nan_index[number][1];
         c_expr.expr &:= "{0x";
@@ -7531,7 +7531,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     var integer: functionBreakupLimit is 0;
     const integer: intendedFunctionSize is 100000;
   begin
-    const_index := flip(const_table);
+    const_index := flip(constTable.other_const);
     for number range sort(keys(const_index)) do
       const_object := const_index[number][1];
       if category(const_object) = ARRAYOBJECT then
@@ -7546,15 +7546,15 @@ const proc: init_values (inout expr_type: c_expr) is func
         walk_const_list(hashDataToList(const_object), sorted_list);
         sorted_list &:= make_list(const_object);
       elsif category(const_object) = INTERFACEOBJECT then
-        if const_object not in const_table then
-          const_table @:= [const_object] length(const_table);
+        if const_object not in constTable.other_const then
+          constTable.other_const @:= [const_object] length(constTable.other_const);
         end if;
         struct_of_interface := interfaceToStruct(const_object);
-        if struct_of_interface not in const_table then
-          const_table @:= [struct_of_interface] length(const_table);
+        if struct_of_interface not in constTable.other_const then
+          constTable.other_const @:= [struct_of_interface] length(constTable.other_const);
           walk_const_list(structToList(struct_of_interface), sorted_list);
           sorted_list &:= make_list(struct_of_interface);
-        elsif const_table[struct_of_interface] >= const_table[const_object] then
+        elsif constTable.other_const[struct_of_interface] >= constTable.other_const[const_object] then
           sorted_list &:= make_list(struct_of_interface);
         end if;
         sorted_list &:= make_list(const_object);
@@ -7586,7 +7586,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     assign_win_constants(c_expr);
     assign_plist_constants(c_expr);
     c_expr.expr &:= "arr = (arrayType *)(malloc(";
-    c_expr.expr &:= str(length(const_table));
+    c_expr.expr &:= str(length(constTable.other_const));
     c_expr.expr &:= " * sizeof(arrayType)));\n";
     c_expr.expr &:= "sct = (structType *)(arr);\n";
     c_expr.expr &:= "hsh = (hashType *)(arr);\n";
@@ -7616,7 +7616,7 @@ const proc: init_values (inout expr_type: c_expr) is func
         init_interface_constants(const_object, c_expr);
       elsif category(const_object) <> MATCHOBJECT and
             category(const_object) <> ACTOBJECT then
-        number := const_table[const_object];
+        number := constTable.other_const[const_object];
         c_expr.expr &:= "/* const ";
         c_expr.expr &:= str(category(const_object));
         c_expr.expr &:= " [";

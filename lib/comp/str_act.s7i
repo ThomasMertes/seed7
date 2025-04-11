@@ -806,7 +806,7 @@ const proc: process_const_str_chpos (in string: mainStri, in reference: searched
       c_expr.expr &:= "==NULL?0:(intType)(";
       c_expr.expr &:= memchrResultName;
       c_expr.expr &:= "-bst[";
-      c_expr.expr &:= str(bstri_const_table[bstring(mainStri)]);
+      c_expr.expr &:= str(constTable.bstri_const[bstring(mainStri)]);
       c_expr.expr &:= "].mem+1)))";
     else
       c_expr.expr &:= "strChPos(";

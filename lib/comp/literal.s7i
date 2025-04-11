@@ -34,52 +34,56 @@ const type: bigint_table_hash is hash [bigInteger] integer;
 const type: bigint_index_hash is hash [integer] array bigInteger;
 const type: bigint_bstri_hash is hash [integer] integer;
 
-var bigint_table_hash: bigint_const_table is bigint_table_hash.EMPTY_HASH;
-var bigint_bstri_hash: bigint_bstri_table is bigint_bstri_hash.EMPTY_HASH;
-
 const type: stri_table_hash is hash [string] integer;
 const type: stri_index_hash is hash [integer] array string;
-
-var stri_table_hash: stri_const_table is stri_table_hash.EMPTY_HASH;
 
 const type: bstri_table_hash is hash [bstring] integer;
 const type: bstri_index_hash is hash [integer] array bstring;
 
-var bstri_table_hash: bstri_const_table is bstri_table_hash.EMPTY_HASH;
-
 const type: nan_table_hash is hash [bin64] integer;
 const type: nan_index_hash is hash [integer] array bin64;
-
-var nan_table_hash: nan_const_table is nan_table_hash.EMPTY_HASH;
 
 const type: set_table_hash is hash [bitset] integer;
 const type: set_index_hash is hash [integer] array bitset;
 
-var set_table_hash: set_const_table is set_table_hash.EMPTY_HASH;
-
 const type: type_table_hash is hash [type] integer;
 const type: type_index_hash is hash [integer] array type;
-
-var type_table_hash: type_const_table is type_table_hash.EMPTY_HASH;
 
 const type: win_table_hash is hash [PRIMITIVE_WINDOW] integer;
 const type: win_index_hash is hash [integer] array PRIMITIVE_WINDOW;
 const type: win_bstri_hash is hash [integer] integer;
 
-var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
-var win_bstri_hash: win_bstri_table is win_bstri_hash.EMPTY_HASH;
-
 const type: plist_table_hash is hash [pointList] integer;
 const type: plist_index_hash is hash [integer] array pointList;
 const type: plist_bstri_hash is hash [integer] integer;
 
-var plist_table_hash: plist_const_table is plist_table_hash.EMPTY_HASH;
-var plist_bstri_hash: plist_bstri_table is plist_bstri_hash.EMPTY_HASH;
-
 const type: const_table_hash is hash [reference] integer;
 const type: const_index_hash is hash [integer] array reference;
 
-var const_table_hash: const_table is const_table_hash.EMPTY_HASH;
+const type: programConstants is new struct
+    var bigint_table_hash: bigint_const is bigint_table_hash.EMPTY_HASH;
+    var bigint_bstri_hash: bigint_bstri is bigint_bstri_hash.EMPTY_HASH;
+
+    var stri_table_hash: stri_const is stri_table_hash.EMPTY_HASH;
+
+    var bstri_table_hash: bstri_const is bstri_table_hash.EMPTY_HASH;
+
+    var nan_table_hash: nan_const is nan_table_hash.EMPTY_HASH;
+
+    var set_table_hash: set_const is set_table_hash.EMPTY_HASH;
+
+    var type_table_hash: type_const is type_table_hash.EMPTY_HASH;
+
+    var win_table_hash: win_const is win_table_hash.EMPTY_HASH;
+    var win_bstri_hash: win_bstri is win_bstri_hash.EMPTY_HASH;
+
+    var plist_table_hash: plist_const is plist_table_hash.EMPTY_HASH;
+    var plist_bstri_hash: plist_bstri is plist_bstri_hash.EMPTY_HASH;
+
+    var const_table_hash: other_const is const_table_hash.EMPTY_HASH;
+  end struct;
+
+var programConstants: constTable is programConstants.value;
 
 
 const func string: stringInComment (in string: stri) is func
@@ -100,14 +104,14 @@ const func string: stringLiteral (in string: stri) is func
   result
     var string: expr is "";
   begin
-    if stri not in stri_const_table then
-      stri_const_table @:= [stri] length(stri_const_table);
+    if stri not in constTable.stri_const then
+      constTable.stri_const @:= [stri] length(constTable.stri_const);
     end if;
     if ccConf.ALLOW_STRITYPE_SLICES then
       expr := "&";
     end if;
     expr &:= "str[";
-    expr &:= str(stri_const_table[stri]);
+    expr &:= str(constTable.stri_const[stri]);
     expr &:= "]";
     expr &:= stringInComment(stri);
   end func;
@@ -118,14 +122,14 @@ const func string: bstriLiteral (in bstring: bstri) is func
   result
     var string: expr is "";
   begin
-    if bstri not in bstri_const_table then
-      bstri_const_table @:= [bstri] length(bstri_const_table);
+    if bstri not in constTable.bstri_const then
+      constTable.bstri_const @:= [bstri] length(constTable.bstri_const);
     end if;
     if ccConf.ALLOW_BSTRITYPE_SLICES then
       expr := "&";
     end if;
     expr &:= "bst[";
-    expr &:= str(bstri_const_table[bstri]);
+    expr &:= str(constTable.bstri_const[bstri]);
     expr &:= "]";
   end func;
 
@@ -173,11 +177,11 @@ const func string: bigIntegerLiteral (in bigInteger: number) is func
   result
     var string: expr is "";
   begin
-    if number not in bigint_const_table then
-      bigint_const_table @:= [number] length(bigint_const_table);
+    if number not in constTable.bigint_const then
+      constTable.bigint_const @:= [number] length(constTable.bigint_const);
     end if;
     expr := "big[";
-    expr &:= str(bigint_const_table[number]);
+    expr &:= str(constTable.bigint_const[number]);
     expr &:= "]";
     if bitLength(number) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
       expr &:= " /* ";
@@ -238,11 +242,11 @@ const func string: bitsetLiteral (in bitset: aBitset) is func
   result
     var string: expr is "";
   begin
-    if aBitset not in set_const_table then
-      set_const_table @:= [aBitset] length(set_const_table);
+    if aBitset not in constTable.set_const then
+      constTable.set_const @:= [aBitset] length(constTable.set_const);
     end if;
     expr := "set[";
-    expr &:= str(set_const_table[aBitset]);
+    expr &:= str(constTable.set_const[aBitset]);
     expr &:= "]";
   end func;
 
@@ -258,11 +262,11 @@ const func string: floatLiteral (in float: aFloat) is func
   begin
     if isNaN(aFloat) then
       bits := bin64(aFloat);
-      if bits not in nan_const_table then
-        nan_const_table @:= [bits] length(nan_const_table);
+      if bits not in constTable.nan_const then
+        constTable.nan_const @:= [bits] length(constTable.nan_const);
       end if;
       expr := "nanValue[";
-      expr &:= str(nan_const_table[bits]);
+      expr &:= str(constTable.nan_const[bits]);
       expr &:= "].aDouble";
     elsif aFloat = Infinity then
       expr := "POSITIVE_INFINITY";
@@ -291,11 +295,11 @@ const func string: typeLiteral (in type: aType) is func
   result
     var string: expr is "";
   begin
-    if aType not in type_const_table then
-      type_const_table @:= [aType] length(type_const_table);
+    if aType not in constTable.type_const then
+      constTable.type_const @:= [aType] length(constTable.type_const);
     end if;
     expr := "typ[";
-    expr &:= str(type_const_table[aType]);
+    expr &:= str(constTable.type_const[aType]);
     expr &:= "] /* ";
     expr &:= type_name2(aType);
     expr &:= " */";
@@ -307,11 +311,11 @@ const func string: windowLiteral (in PRIMITIVE_WINDOW: aWindow) is func
   result
     var string: expr is "";
   begin
-    if aWindow not in win_const_table then
-      win_const_table @:= [aWindow] length(win_const_table);
+    if aWindow not in constTable.win_const then
+      constTable.win_const @:= [aWindow] length(constTable.win_const);
     end if;
     expr := "win[";
-    expr &:= str(win_const_table[aWindow]);
+    expr &:= str(constTable.win_const[aWindow]);
     expr &:= "]";
   end func;
 
@@ -321,10 +325,10 @@ const func string: pointListLiteral (in pointList: aPointList) is func
   result
     var string: expr is "";
   begin
-    if aPointList not in plist_const_table then
-      plist_const_table @:= [aPointList] length(plist_const_table);
+    if aPointList not in constTable.plist_const then
+      constTable.plist_const @:= [aPointList] length(constTable.plist_const);
     end if;
     expr &:= "plist[";
-    expr &:= str(plist_const_table[aPointList]);
+    expr &:= str(constTable.plist_const[aPointList]);
     expr &:= "]";
   end func;
