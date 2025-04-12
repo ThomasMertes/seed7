@@ -4353,7 +4353,7 @@ const proc: declare_literal_function_of_enums (inout expr_type: c_expr) is func
     var type: enumType is void;
   begin
     for key enumType range typeData.enum_literal do
-      if enumType in literal_function_of_enum_used then
+      if enumType in typeData.literal_function_of_enum_used then
         declare_literal_function_of_enum(enumType, c_expr);
       end if;
     end for;

@@ -33,8 +33,6 @@ const ACTION: ENU_NE      is action "ENU_NE";
 const ACTION: ENU_ORD2    is action "ENU_ORD2";
 const ACTION: ENU_VALUE   is action "ENU_VALUE";
 
-var boolean_type_hash: literal_function_of_enum_used is boolean_type_hash.EMPTY_HASH;
-
 
 const proc: process (ENU_CONV, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
@@ -140,13 +138,13 @@ const proc: process (ENU_LIT, in reference: function,
     var type: enumType is void;
   begin
     enumType := getType(formalParams(function)[1]);
-    if enumType not in literal_function_of_enum_used then
+    if enumType not in typeData.literal_function_of_enum_used then
       global_c_expr.expr &:= "static striType lit_";
       global_c_expr.expr &:= str(typeNumber(enumType));
       global_c_expr.expr &:= " (";
       global_c_expr.expr &:= type_name(enumType);
       global_c_expr.expr &:= " enumValue);\n\n";
-      literal_function_of_enum_used @:= [enumType] TRUE;
+      typeData.literal_function_of_enum_used @:= [enumType] TRUE;
     end if;
     c_expr.expr &:= "lit_";
     c_expr.expr &:= str(typeNumber(enumType));

@@ -34,15 +34,14 @@ const type: typeCategoryHash is hash [type] category;
 const type: type_hash is hash [type] type;
 const type: boolean_type_hash is hash [type] boolean;
 const type: integer_type_hash is hash [type] integer;
+const type: string_type_hash is hash [type] string;
 const type: element_type_array is array type;
 const type: struct_element_type_hash is hash [type] element_type_array;
-const type: string_type_hash is hash [type] string;
 const type: implements_hash is hash [type] array type;
 
 const type: element_number_hash is hash [reference] integer;
 const type: enum_literal_hash is hash [type] element_number_hash;
 const type: number_element_hash is hash [integer] array reference;
-const type: struct_size_hash is hash [type] integer;
 const type: struct_element_array is array reference;
 const type: struct_element_hash is hash [type] struct_element_array;
 const type: element_idx_hash is hash [reference] integer;
@@ -57,7 +56,7 @@ const type: typeDataStruct is new struct
   var integer_type_hash: array_minIdx is integer_type_hash.value;
   var integer_type_hash: array_maxIdx is integer_type_hash.value;
 
-  var struct_size_hash: struct_size is struct_size_hash.value;
+  var integer_type_hash: struct_size is integer_type_hash.value;
   var struct_element_hash: struct_element is struct_element_hash.EMPTY_HASH;
   var struct_element_idx_hash: struct_element_idx is struct_element_idx_hash.EMPTY_HASH;
   var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
@@ -87,6 +86,7 @@ const type: typeDataStruct is new struct
   var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 
   var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
+  var boolean_type_hash: literal_function_of_enum_used is boolean_type_hash.EMPTY_HASH;
 
   var implements_hash: implements is implements_hash.EMPTY_HASH;
 
