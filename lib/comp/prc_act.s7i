@@ -772,8 +772,8 @@ const proc: generate_switch (in reference: controlExpr,
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "switch (";
     controlExprType := getExprResultType(controlExpr);
-    if controlExprType in typeCategory and
-        typeCategory[controlExprType] = CHAROBJECT then
+    if controlExprType in typeData.typeCategory and
+        typeData.typeCategory[controlExprType] = CHAROBJECT then
       c_expr.expr &:= "(scharType)(";
       process_expr(controlExpr, c_expr);
       c_expr.expr &:= ")";

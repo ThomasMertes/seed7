@@ -76,7 +76,6 @@ const type: globalInitHash is hash [reference] string;
 var globalInitHash: globalInitalisations is globalInitHash.EMPTY_HASH;
 
 const type: interface_hash is hash [type] array type;
-const type: enum_literal_hash is hash [type] element_number_hash;
 const type: act_to_form_param_hash is hash [reference] reference;
 const type: params_added_hash is hash [reference] act_to_form_param_hash;
 const type: setOfCategory is set of category;
@@ -98,7 +97,6 @@ var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
-var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
 var boolean_obj_hash: definedActualFuncParams is boolean_obj_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
@@ -360,7 +358,8 @@ const func string: enum_value (in reference: current_object) is func
     var string: object_name is "";
   begin
     enum_type := getType(current_object);
-    if enum_type in typeCategory and typeCategory[enum_type] = BOOLOBJECT then
+    if enum_type in typeData.typeCategory and
+        typeData.typeCategory[enum_type] = BOOLOBJECT then
       object_name := str(current_object);
       if object_name = "FALSE" then
         enumValue := "0/*FALSE*/";
@@ -369,9 +368,9 @@ const func string: enum_value (in reference: current_object) is func
       end if;
     else
       enumValue := "/*" & str(current_object) & "*/";
-      if enum_type in enum_literal and
-          current_object in enum_literal[enum_type] then
-        enumValue &:= str(enum_literal[enum_type][current_object]);
+      if enum_type in typeData.enum_literal and
+          current_object in typeData.enum_literal[enum_type] then
+        enumValue &:= str(typeData.enum_literal[enum_type][current_object]);
       else
         enumValue &:= str(objNumber(current_object));
       end if;
@@ -625,10 +624,10 @@ const func boolean: canUseArrTimes (in type: objectType, in reference: arrayValu
     var reference: previous_element is NIL;
     var integer: repeat_count is 1;
   begin
-    if objectType in array_element then
-      elementType := array_element[objectType];
-      if elementType in typeCategory and
-          typeCategory[elementType] in simpleValueType then
+    if objectType in typeData.array_element then
+      elementType := typeData.array_element[objectType];
+      if elementType in typeData.typeCategory and
+          typeData.typeCategory[elementType] in simpleValueType then
         array_list := arrayToList(arrayValue);
         for element range array_list do
           if previous_element <> NIL then
@@ -779,15 +778,17 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     c_declaration.temp_num := c_expr.temp_num;
     valueCategory := category(object_value);
     objectType := getType(current_object);
-    if objectType = getType(object_value) and objectType not in typeCategory then
-      typeCategory @:= [objectType] valueCategory;
+    if objectType = getType(object_value) and
+        objectType not in typeData.typeCategory then
+      typeData.typeCategory @:= [objectType] valueCategory;
     end if;
     declare_type_if_necessary(objectType, global_c_expr);
     c_declaration.temp_decls &:= diagnosticLine(current_object);
     c_declaration.temp_decls &:= type_name(objectType);
     c_declaration.temp_decls &:= " o_";
     create_name(current_object, c_declaration.temp_decls);
-    if objectType in typeCategory and typeCategory[objectType] = INTERFACEOBJECT then
+    if objectType in typeData.typeCategory and
+        typeData.typeCategory[objectType] = INTERFACEOBJECT then
       if valueCategory = INTERFACEOBJECT then
         object_value := interfaceToStruct(object_value);
         valueCategory := category(object_value);
@@ -1153,7 +1154,7 @@ const proc: defineFunctype (in string: valueName, in reference: actual_param,
         data_value &:= ")->data.data_";
         create_name(dataItem, data_value);
         data_value &:= ")";
-        if getType(dataItem) = proctype then
+        if getType(dataItem) = typeData.proctype then
           data_value &:= ";\n";
         end if;
       else
@@ -1209,7 +1210,7 @@ const proc: defineActualFuncParam (in type: resultType, in string: valueName,
     end if;
     appendWithDiagnostic(c_func_body.temp_decls, c_expr);
     appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
-    if getType(actual_param) = proctype then
+    if getType(actual_param) = typeData.proctype then
       c_expr.expr &:= c_func_body.expr;
       appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     else
@@ -1399,7 +1400,7 @@ const proc: call_params (in ref_list: formal_params,
           c_expr.expr &:= " ";
           c_expr.expr &:= str(getValue(formal_param, type));
           c_expr.expr &:= "*/ ";
-        elsif getType(formal_param) <> voidtype then
+        elsif getType(formal_param) <> typeData.voidtype then
           if first_element then
             first_element := FALSE;
           else
@@ -1508,7 +1509,7 @@ const proc: process_const_func_call (in reference: function,
       c_expr.temp_to_null &:= c_params.temp_to_null;
       c_expr.result_expr &:= c_params.expr;
       c_expr.result_expr &:= ")";
-    elsif result_type = voidtype then
+    elsif result_type = typeData.voidtype then
       c_params.temp_num := c_expr.temp_num;
       call_params(formal_params, actual_params, c_params);
       c_expr.temp_num := c_params.temp_num;
@@ -1555,7 +1556,7 @@ const proc: process_func_call (in reference: function,
     var type: result_type is void;
   begin
     if isVar(function) then
-      if getType(function) = proctype then
+      if getType(function) = typeData.proctype then
         setDiagnosticLine(c_expr);
       end if;
       result_type := resultType(getType(function));
@@ -1572,7 +1573,7 @@ const proc: process_func_call (in reference: function,
         c_expr.expr &:= "->func(o_";
         create_name(function, c_expr.expr);
         c_expr.expr &:= ")";
-        if getType(function) = proctype then
+        if getType(function) = typeData.proctype then
           c_expr.expr &:= ";\n";
         end if;
       end if;
@@ -1623,7 +1624,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
         if function in inlineParam then
           process_inline_param(function, c_expr);
         else
-          if getType(function) = proctype then
+          if getType(function) = typeData.proctype then
             setDiagnosticLine(c_expr);
           end if;
           c_expr.expr &:= "o_";
@@ -1631,7 +1632,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           c_expr.expr &:= "->func(o_";
           create_name(function, c_expr.expr);
           c_expr.expr &:= ")";
-          if getType(function) = proctype then
+          if getType(function) = typeData.proctype then
             c_expr.expr &:= ";\n";
           end if;
         end if;
@@ -1797,7 +1798,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       create_name(current_expression, c_expr.expr);
       if not isVar(current_expression) then
         c_expr.expr &:= "()";
-        if resultType(getType(current_expression)) = voidtype then
+        if resultType(getType(current_expression)) = typeData.voidtype then
           c_expr.expr &:= ";\n";
         end if;
       end if;
@@ -1838,7 +1839,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         if current_expression in inlineParam then
           process_inline_param(current_expression, c_expr);
         else
-          if getType(current_expression) = proctype then
+          if getType(current_expression) = typeData.proctype then
             setDiagnosticLine(c_expr);
           end if;
           c_expr.expr &:= "o_";
@@ -1846,7 +1847,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
           c_expr.expr &:= "->func(o_";
           create_name(current_expression, c_expr.expr);
           c_expr.expr &:= ")";
-          if getType(current_expression) = proctype then
+          if getType(current_expression) = typeData.proctype then
             c_expr.expr &:= ";\n";
           end if;
         end if;
@@ -2073,7 +2074,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         create_name(current_expression, c_expr.expr);
       end if;
     elsif exprCategory = ENUMLITERALOBJECT then
-      if getType(current_expression) = voidtype then
+      if getType(current_expression) = typeData.voidtype then
         c_expr.expr &:= "/* empty */\n";
       else
         c_expr.expr &:= "o_";
@@ -2114,7 +2115,7 @@ const proc: process_call_by_name_expr (in var reference: current_expression, ino
       create_name(current_expression, c_expr.expr);
       if not isVar(current_expression) then
         c_expr.expr &:= "()";
-        if resultType(getType(current_expression)) = voidtype then
+        if resultType(getType(current_expression)) = typeData.voidtype then
           c_expr.expr &:= ";\n";
         end if;
       end if;
@@ -2220,7 +2221,7 @@ const proc: process_param_list_declaration (in ref_list: formal_params, inout ex
           c_expr.expr &:= " ";
           c_expr.expr &:= str(getValue(formal_param, type));
           c_expr.expr &:= "*/ ";
-        elsif getType(formal_param) <> voidtype then
+        elsif getType(formal_param) <> typeData.voidtype then
           if first_element then
             first_element := FALSE;
           else
@@ -2360,7 +2361,7 @@ const proc: process_const_func_declaration (in reference: function,
       c_expr.expr &:= c_param_list.expr;
       c_expr.expr &:= ")\n";
       c_expr.expr &:= "{\n";
-      if function_type <> proctype and result_object = NIL then
+      if function_type <> typeData.proctype and result_object = NIL then
         if isFunctionCallingSpecialAction(function) then
           write_object_declaration := FALSE;
         end if;
@@ -2590,7 +2591,7 @@ const proc: declare_exception_name (inout expr_type: c_expr) is func
     enumType := getType(exceptionRef);
     c_expr.expr &:=  "static const char *exception_name[] = {\n";
     c_expr.expr &:=  "    \"OKAY_NO_ERROR\",\n";
-    enumsByIntValue := flip(enum_literal[enumType]);
+    enumsByIntValue := flip(typeData.enum_literal[enumType]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
       # If the enums are correct there will only be one per integer value
@@ -2949,8 +2950,10 @@ const proc: process_int_declaration (in reference: current_object,
             category(param_list[1]) = TYPEOBJECT and
             category(param_list[2]) = SYMBOLOBJECT then
           case str(param_list[2]) of
-            when {"minIdx"}: array_minIdx @:= [getValue(param_list[1], type)] getValue(current_object, integer);
-            when {"maxIdx"}: array_maxIdx @:= [getValue(param_list[1], type)] getValue(current_object, integer);
+            when {"minIdx"}: typeData.array_minIdx @:=
+                [getValue(param_list[1], type)] getValue(current_object, integer);
+            when {"maxIdx"}: typeData.array_maxIdx @:=
+                [getValue(param_list[1], type)] getValue(current_object, integer);
           end case;
         end if;
       end if;
@@ -3059,7 +3062,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "ARR_CREATE" then
       object_type := getType(formalParams(function)[1]);
-      typeCategory @:= [object_type] ARRAYOBJECT;
+      typeData.typeCategory @:= [object_type] ARRAYOBJECT;
       process_generic_create_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&generic_create_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -3203,7 +3206,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SCT_CREATE" then
       object_type := getType(formalParams(function)[1]);
-      typeCategory @:= [object_type] STRUCTOBJECT;
+      typeData.typeCategory @:= [object_type] STRUCTOBJECT;
       process_generic_create_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&generic_create_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -3472,7 +3475,7 @@ const proc: process_array_declaration (in reference: current_object,
   local
     var string: param_value is "";
   begin
-    typeCategory @:= [getType(current_object)] ARRAYOBJECT;
+    typeData.typeCategory @:= [getType(current_object)] ARRAYOBJECT;
     if isVar(current_object) then
       c_expr.expr &:= type_name(getType(current_object));
       c_expr.expr &:= " o_";
@@ -3505,7 +3508,7 @@ const proc: process_hash_declaration (in reference: current_object,
   local
     var string: param_value is "";
   begin
-    typeCategory @:= [getType(current_object)] HASHOBJECT;
+    typeData.typeCategory @:= [getType(current_object)] HASHOBJECT;
     c_expr.expr &:= type_name(getType(current_object));
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
@@ -3687,7 +3690,7 @@ const proc: process_enum_declaration (in reference: current_object,
 
   begin
     if isVar(current_object) or not isFunc(getType(current_object)) then
-      if getType(current_object) = voidtype then
+      if getType(current_object) = typeData.voidtype then
         c_expr.expr &:= "/* do not declare void variable or constant o_";
         create_name2(current_object, c_expr.expr);
         c_expr.expr &:= " */\n\n";
@@ -3715,14 +3718,15 @@ const proc: process_enum_literal_declaration (in reference: current_object,
     var type: enum_type is void;
   begin
     enum_type := getType(current_object);
-    if enum_type = voidtype then
+    if enum_type = typeData.voidtype then
       c_expr.expr &:= "/* do not declare: void o_4_empty */\n\n";
     else
-      if enum_type not in enum_literal then
-        enum_literal @:= [enum_type] element_number_hash.EMPTY_HASH;
+      if enum_type not in typeData.enum_literal then
+        typeData.enum_literal @:= [enum_type] element_number_hash.EMPTY_HASH;
       end if;
-      if current_object not in enum_literal[enum_type] then
-        enum_literal[enum_type] @:= [current_object] length(enum_literal[enum_type]);
+      if current_object not in typeData.enum_literal[enum_type] then
+        typeData.enum_literal[enum_type] @:=
+            [current_object] length(typeData.enum_literal[enum_type]);
       end if;
       c_expr.expr &:= "const ";
       declare_type_if_necessary(enum_type, c_expr);
@@ -3756,9 +3760,9 @@ const proc: print_parameter_list (in ref_list: formal_params,
           c_expr.expr &:= " printf(\", \");\n";
         end if;
         param_type := getType(formal_param);
-        if param_type in implements then
+        if param_type in typeData.implements then
           c_expr.expr &:= " /*# ";
-          for implementationType range implements[param_type] do
+          for implementationType range typeData.implements[param_type] do
             c_expr.expr &:= type_name2(implementationType);
             c_expr.expr &:= "  ";
           end for;
@@ -3767,8 +3771,8 @@ const proc: print_parameter_list (in ref_list: formal_params,
         c_expr.expr &:= "printf(";
         c_expr.expr &:= c_literal(str(paramCategory) & " ");
         c_expr.expr &:= "); ";
-        if param_type in typeCategory then
-          case typeCategory[param_type] of
+        if param_type in typeData.typeCategory then
+          case typeData.typeCategory[param_type] of
             when {INTOBJECT}:
               c_expr.expr &:= "printf(\"intType \"); ";
               c_expr.expr &:= "printf(\"%ld\", ";
@@ -3928,7 +3932,7 @@ const proc: process_dynamic_action_call (in reference: function,
       c_expr.expr &:= c_action_expr.result_expr;
     else
       if isVarfunc(getType(interface_object)) or
-          getType(interface_object) = proctype then
+          getType(interface_object) = typeData.proctype then
         c_expr.expr &:= c_action_expr.expr;
       else
         c_expr.expr &:= "/* copy ref_to_value */ ";
@@ -3956,20 +3960,20 @@ const proc: process_dynamic_call (in reference: function,
       c_expr.expr &:= diagnosticLine(interface_object);
       objectCategory := category(function);
       if objectCategory = BLOCKOBJECT then
-        if resultType(getType(interface_object)) <> voidtype then
+        if resultType(getType(interface_object)) <> typeData.voidtype then
           c_expr.expr &:= "return ";
         end if;
         process_dynamic_function_call(function, actual_params, interface_object, c_expr);
         c_expr.expr &:= ";\n";
       elsif objectCategory = ACTOBJECT then
-        if resultType(getType(interface_object)) <> voidtype then
+        if resultType(getType(interface_object)) <> typeData.voidtype then
           c_expr.expr &:= "return ";
           if isVarfunc(getType(interface_object)) then
             c_expr.expr &:= "&(";
           end if;
         end if;
         process_dynamic_action_call(function, actual_params, interface_object, c_expr);
-        if resultType(getType(interface_object)) <> voidtype then
+        if resultType(getType(interface_object)) <> typeData.voidtype then
           if isVarfunc(getType(interface_object)) then
             c_expr.expr &:= ")";
           end if;
@@ -4031,7 +4035,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     end if;
     create_name(formal_param, c_expr.expr);
     c_expr.expr &:= ")->type_num) {\n";
-    for implementationType range implements[param_type] do
+    for implementationType range typeData.implements[param_type] do
       if typeNumber(implementationType) not in usedCaseLabels then
         c_expr.expr &:= "case ";
         c_expr.expr &:= str(typeNumber(implementationType));
@@ -4097,7 +4101,7 @@ const proc: process_dynamic_param_enumeration (in reference: current_object,
       create_name(formal_param, c_expr.expr);
     end if;
     c_expr.expr &:= ") {\n";
-    enumsByIntValue := flip(enum_literal[param_type]);
+    enumsByIntValue := flip(typeData.enum_literal[param_type]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
       c_expr.expr &:= diagnosticLine(current_object);
@@ -4156,10 +4160,10 @@ const proc: process_dynamic_condition (in reference: current_object,
       paramCategory := category(formal_param);
       if paramCategory <> SYMBOLOBJECT then
         param_type := getType(formal_param);
-        if param_type in implements then
+        if param_type in typeData.implements then
           process_dynamic_param_implements(current_object,
               formal_params, paramNum, param_type, c_expr);
-        elsif param_type in enum_literal then
+        elsif param_type in typeData.enum_literal then
           process_dynamic_param_enumeration(current_object,
               formal_params, paramNum, param_type, c_expr);
         else
@@ -4180,7 +4184,7 @@ const proc: process_dynamic_condition (in reference: current_object,
           paramCategory := category(formal_param);
           if paramCategory <> SYMBOLOBJECT then
             param_type := getType(formal_param);
-            if param_type in implements then
+            if param_type in typeData.implements then
               c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "((interfaceType) *o_";
@@ -4189,7 +4193,7 @@ const proc: process_dynamic_condition (in reference: current_object,
               end if;
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ")->type_num);\n";
-            elsif param_type in enum_literal then
+            elsif param_type in typeData.enum_literal then
               c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "*o_";
@@ -4327,7 +4331,7 @@ const proc: declare_literal_function_of_enum (in type: enumType,
     c_expr.expr &:= "{\n";
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "switch (enumValue) {\n";
-    enumsByIntValue := flip(enum_literal[enumType]);
+    enumsByIntValue := flip(typeData.enum_literal[enumType]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
       # If the enums are correct there will only be one per integer value
@@ -4353,7 +4357,7 @@ const proc: declare_literal_function_of_enums (inout expr_type: c_expr) is func
   local
     var type: enumType is void;
   begin
-    for key enumType range enum_literal do
+    for key enumType range typeData.enum_literal do
       if enumType in literal_function_of_enum_used then
         declare_literal_function_of_enum(enumType, c_expr);
       end if;
@@ -4447,14 +4451,14 @@ const proc: process_arr_cpy_declaration (in reference: current_object) is func
     if length(params) >= 1 then
       arrayType := getType(params[1]);
       copyFunction @:= [arrayType] current_object;
-      typeCategory @:= [arrayType] ARRAYOBJECT;
+      typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
-        if arrayType not in array_element then
-          array_element @:= [arrayType] elementType;
+        if arrayType not in typeData.array_element then
+          typeData.array_element @:= [arrayType] elementType;
         end if;
-        if elementType not in array_type then
-          array_type @:= [elementType] arrayType;
+        if elementType not in typeData.array_type then
+          typeData.array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4472,14 +4476,14 @@ const proc: process_arr_create_declaration (in reference: current_object) is fun
     if length(params) >= 1 then
       arrayType := getType(params[1]);
       createFunction @:= [arrayType] current_object;
-      typeCategory @:= [arrayType] ARRAYOBJECT;
+      typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
-        if arrayType not in array_element then
-          array_element @:= [arrayType] elementType;
+        if arrayType not in typeData.array_element then
+          typeData.array_element @:= [arrayType] elementType;
         end if;
-        if elementType not in array_type then
-          array_type @:= [elementType] arrayType;
+        if elementType not in typeData.array_type then
+          typeData.array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4497,14 +4501,14 @@ const proc: process_arr_destr_declaration (in reference: current_object) is func
     if length(params) >= 1 then
       arrayType := getType(params[1]);
       destrFunction @:= [arrayType] current_object;
-      typeCategory @:= [arrayType] ARRAYOBJECT;
+      typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
-        if arrayType not in array_element then
-          array_element @:= [arrayType] elementType;
+        if arrayType not in typeData.array_element then
+          typeData.array_element @:= [arrayType] elementType;
         end if;
-        if elementType not in array_type then
-          array_type @:= [elementType] arrayType;
+        if elementType not in typeData.array_type then
+          typeData.array_type @:= [elementType] arrayType;
         end if;
       end if;
     end if;
@@ -4523,11 +4527,11 @@ const proc: process_arr_gen_declaration (in reference: current_object,
     if length(params) >= 1 then
       arrayType := resultType(getType(current_object));
       elementType := getType(params[1]);
-      if arrayType not in array_element then
-        array_element @:= [arrayType] elementType;
+      if arrayType not in typeData.array_element then
+        typeData.array_element @:= [arrayType] elementType;
       end if;
-      if elementType not in array_type then
-        array_type @:= [elementType] arrayType;
+      if elementType not in typeData.array_type then
+        typeData.array_type @:= [elementType] arrayType;
       end if;
       c_expr.expr &:= "/* ACTION ARR_GEN for type ";
       c_expr.expr &:= type_name2(arrayType);
@@ -4550,11 +4554,11 @@ const proc: process_arr_idx_declaration (in reference: current_object,
     if length(params) >= 1 then
       arrayType := getType(params[1]);
       elementType := resultType(getType(current_object));
-      if arrayType not in array_element then
-        array_element @:= [arrayType] elementType;
+      if arrayType not in typeData.array_element then
+        typeData.array_element @:= [arrayType] elementType;
       end if;
-      if elementType not in array_type then
-        array_type @:= [elementType] arrayType;
+      if elementType not in typeData.array_type then
+        typeData.array_type @:= [elementType] arrayType;
       end if;
       c_expr.expr &:= "/* ACTION ARR_IDX for type ";
       c_expr.expr &:= type_name2(arrayType);
@@ -4579,8 +4583,8 @@ const proc: process_arr_times_declaration (in reference: current_object,
     if length(params) >= 3 then
       arrayType := resultType(getType(current_object));
       elementType := getType(params[3]);
-      if elementType in typeCategory and
-          typeCategory[elementType] in simpleValueType then
+      if elementType in typeData.typeCategory and
+          typeData.typeCategory[elementType] in simpleValueType then
         c_expr.expr &:= "/* times_";
         c_expr.expr &:= str(typeNumber(arrayType));
         c_expr.expr &:= " not defined because arrTimes() is used instead. */\n";
@@ -4636,7 +4640,7 @@ const proc: defineParam1TypeCategory (in reference: current_object,
     params := formalParams(current_object);
     if length(params) >= 1 then
       param1Type := getType(params[1]);
-      typeCategory @:= [param1Type] param1Category;
+      typeData.typeCategory @:= [param1Type] param1Category;
     end if;
   end func;
 
@@ -4644,10 +4648,10 @@ const proc: defineParam1TypeCategory (in reference: current_object,
 const proc: addImplementationToInterface (in type: implementationType, in type: interfaceType) is func
 
   begin
-    if interfaceType in implements then
-      implements[interfaceType] &:= implementationType;
+    if interfaceType in typeData.implements then
+      typeData.implements[interfaceType] &:= implementationType;
     else
-      implements @:= [interfaceType] [] (implementationType);
+      typeData.implements @:= [interfaceType] [] (implementationType);
     end if;
     if implementationType in interfaceOfType then
       interfaceOfType[implementationType] &:= interfaceType;
@@ -4686,7 +4690,7 @@ const proc: process_itf_next_file_declaration (in reference: current_object) is 
   begin
     object_type := getType(current_object);
     if isFunc(object_type) or isVarfunc(object_type) then
-      fileInterfaceType := resultType(object_type);
+      typeData.fileInterfaceType := resultType(object_type);
     end if;
   end func;
 
@@ -4701,7 +4705,7 @@ const proc: process_hsh_cpy_declaration (in reference: current_object) is func
     if length(params) >= 1 then
       hashType := getType(params[1]);
       copyFunction @:= [hashType] current_object;
-      typeCategory @:= [hashType] HASHOBJECT;
+      typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
 
@@ -4716,7 +4720,7 @@ const proc: process_hsh_create_declaration (in reference: current_object) is fun
     if length(params) >= 1 then
       hashType := getType(params[1]);
       createFunction @:= [hashType] current_object;
-      typeCategory @:= [hashType] HASHOBJECT;
+      typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
 
@@ -4731,7 +4735,7 @@ const proc: process_hsh_destr_declaration (in reference: current_object) is func
     if length(params) >= 1 then
       hashType := getType(params[1]);
       destrFunction @:= [hashType] current_object;
-      typeCategory @:= [hashType] HASHOBJECT;
+      typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
 
@@ -4742,18 +4746,18 @@ const proc: addStructElem (in type: structType, in type: elemType, in reference:
     var integer: elementIndex is 0;
     var element_idx_hash: element_index is element_idx_hash.EMPTY_HASH;
   begin
-    if structType in struct_element_idx then
-      elementIndex := struct_size[structType];
-      struct_element_idx[structType] @:= [elementOfStruct] elementIndex;
-      struct_element_type[structType] &:= elemType;
-      struct_element[structType] &:= elementOfStruct;
-      struct_size @:= [structType] succ(elementIndex);
+    if structType in typeData.struct_element_idx then
+      elementIndex := typeData.struct_size[structType];
+      typeData.struct_element_idx[structType] @:= [elementOfStruct] elementIndex;
+      typeData.struct_element_type[structType] &:= elemType;
+      typeData.struct_element[structType] &:= elementOfStruct;
+      typeData.struct_size @:= [structType] succ(elementIndex);
     else
-      struct_size @:= [structType] 1;
+      typeData.struct_size @:= [structType] 1;
       element_index @:= [elementOfStruct] 0;
-      struct_element_idx @:= [structType] element_index;
-      struct_element_type @:= [structType] [0] elemType;
-      struct_element @:= [structType] [0] elementOfStruct;
+      typeData.struct_element_idx @:= [structType] element_index;
+      typeData.struct_element_type @:= [structType] [0] elemType;
+      typeData.struct_element @:= [structType] [0] elementOfStruct;
     end if;
   end func;
 
@@ -4780,7 +4784,7 @@ const proc: process_ref_select_declaration (in reference: current_object,
       c_expr.expr &:= "->o_";
       create_name2(elementOfStruct, c_expr.expr);
       c_expr.expr &:= " = ";
-      c_expr.expr &:= str(struct_element_idx[structType][elementOfStruct]);
+      c_expr.expr &:= str(typeData.struct_element_idx[structType][elementOfStruct]);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -4799,13 +4803,13 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
     if length(params) >= 1 then
       sct_type := getType(params[1]);
       copyFunction @:= [sct_type] current_object;
-      typeCategory @:= [sct_type] STRUCTOBJECT;
+      typeData.typeCategory @:= [sct_type] STRUCTOBJECT;
       if isDerived(sct_type) then
         meta_type := meta(sct_type);
-        if meta_type in struct_element_idx then
-          for structIndex range 0 to pred(struct_size[meta_type]) do
-            addStructElem(sct_type, struct_element_type[meta_type][structIndex],
-                          struct_element[meta_type][structIndex]);
+        if meta_type in typeData.struct_element_idx then
+          for structIndex range 0 to pred(typeData.struct_size[meta_type]) do
+            addStructElem(sct_type, typeData.struct_element_type[meta_type][structIndex],
+                          typeData.struct_element[meta_type][structIndex]);
           end for;
         end if;
         if meta_type in interfaceOfType then
@@ -4827,7 +4831,7 @@ const proc: process_sct_create_declaration (in reference: current_object) is fun
     params := formalParams(current_object);
     object_type := getType(params[1]);
     createFunction @:= [object_type] current_object;
-    typeCategory @:= [object_type] STRUCTOBJECT;
+    typeData.typeCategory @:= [object_type] STRUCTOBJECT;
   end func;
 
 
@@ -4840,7 +4844,7 @@ const proc: process_sct_destr_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     object_type := getType(params[1]);
     destrFunction @:= [object_type] current_object;
-    typeCategory @:= [object_type] STRUCTOBJECT;
+    typeData.typeCategory @:= [object_type] STRUCTOBJECT;
   end func;
 
 
@@ -4866,7 +4870,7 @@ const proc: process_sct_select_declaration (in reference: current_object,
       c_expr.expr &:= "->o_";
       create_name2(elementOfStruct, c_expr.expr);
       c_expr.expr &:= " = ";
-      c_expr.expr &:= str(struct_element_idx[structType][elementOfStruct]);
+      c_expr.expr &:= str(typeData.struct_element_idx[structType][elementOfStruct]);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -5300,8 +5304,9 @@ const proc: addTypeCategoryForLocalVars (in reference: function) is func
       object_value := getValue(obj, reference);
       valueCategory := category(object_value);
       objectType := getType(obj);
-      if objectType = getType(object_value) and objectType not in typeCategory then
-        typeCategory @:= [objectType] valueCategory;
+      if objectType = getType(object_value) and
+          objectType not in typeData.typeCategory then
+        typeData.typeCategory @:= [objectType] valueCategory;
       end if;
     end for;
   end func;
@@ -5929,11 +5934,11 @@ const proc: write_resize_catch_stack is func
 const proc: initPollOperations (inout expr_type: c_expr) is func
 
   begin
-    if fileInterfaceType <> void then
+    if typeData.fileInterfaceType <> void then
       c_expr.expr &:= "initPollOperations((createFuncType)(&itfCreate), ";
-      process_destr_declaration(fileInterfaceType, global_c_expr);
+      process_destr_declaration(typeData.fileInterfaceType, global_c_expr);
       c_expr.expr &:= "(destrFuncType)(&destr_";
-      c_expr.expr &:= str(typeNumber(fileInterfaceType));
+      c_expr.expr &:= str(typeNumber(typeData.fileInterfaceType));
       c_expr.expr &:= "));\n";
     end if;
   end func;
@@ -7827,41 +7832,41 @@ const proc: init_systypes (in program: prog) is func
     type_ref := sysVar(prog, "type");
     if type_ref <> NIL then
       type_type := getValue(type_ref, type);
-      typeCategory @:= [type_type] TYPEOBJECT;
+      typeData.typeCategory @:= [type_type] TYPEOBJECT;
     end if;
     type_ref := sysVar(prog, "proc");
     if type_ref <> NIL then
-      proctype := getValue(type_ref, type);
+      typeData.proctype := getValue(type_ref, type);
     end if;
     type_ref := sysVar(prog, "integer");
     if type_ref <> NIL then
       int_type := getValue(type_ref, type);
-      typeCategory @:= [int_type] INTOBJECT;
+      typeData.typeCategory @:= [int_type] INTOBJECT;
     end if;
     type_ref := sysVar(prog, "bigInteger");
     if type_ref <> NIL then
       bigint_type := getValue(type_ref, type);
-      typeCategory @:= [bigint_type] BIGINTOBJECT;
+      typeData.typeCategory @:= [bigint_type] BIGINTOBJECT;
     end if;
     type_ref := sysVar(prog, "float");
     if type_ref <> NIL then
       float_type := getValue(type_ref, type);
-      typeCategory @:= [float_type] FLOATOBJECT;
+      typeData.typeCategory @:= [float_type] FLOATOBJECT;
     end if;
     type_ref := sysVar(prog, "char");
     if type_ref <> NIL then
       char_type := getValue(type_ref, type);
-      typeCategory @:= [char_type] CHAROBJECT;
+      typeData.typeCategory @:= [char_type] CHAROBJECT;
     end if;
     type_ref := sysVar(prog, "string");
     if type_ref <> NIL then
       stri_type := getValue(type_ref, type);
-      typeCategory @:= [stri_type] STRIOBJECT;
+      typeData.typeCategory @:= [stri_type] STRIOBJECT;
     end if;
     ref_to_empty := sysVar(prog, "empty");
     if ref_to_empty <> NIL then
-      voidtype := getType(ref_to_empty);
-      typeCategory @:= [voidtype] VOIDOBJECT;
+      typeData.voidtype := getType(ref_to_empty);
+      typeData.typeCategory @:= [typeData.voidtype] VOIDOBJECT;
     end if;
   end func;
 

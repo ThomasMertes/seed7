@@ -529,7 +529,8 @@ const proc: process (REF_SELECT, in reference: function,
     var type: object_type is void;
   begin
     object_type := getExprResultType(params[1]);
-    if object_type in struct_element_idx and params[3] in struct_element_idx[object_type] then
+    if object_type in typeData.struct_element_idx and
+        params[3] in typeData.struct_element_idx[object_type] then
       if category(params[1]) = REFPARAMOBJECT and isVar(params[1]) then
         c_expr.expr &:= "(*((structType *)(";
         getAnyParamToExpr(params[1], c_expr);
@@ -539,7 +540,7 @@ const proc: process (REF_SELECT, in reference: function,
         getAnyParamToExpr(params[1], c_expr);
         c_expr.expr &:= "))->stru[";
       end if;
-      c_expr.expr &:= str(struct_element_idx[object_type][params[3]]);
+      c_expr.expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       c_expr.expr &:= "/*->o_";
@@ -650,8 +651,8 @@ const proc: process (REF_TRACE, in reference: function,
     c_expr.expr &:= ", ";
     c_expr.expr &:= c_literal(str(traceParam));
     c_expr.expr &:= ");\n";
-    if object_type in typeCategory then
-      case typeCategory[object_type] of
+    if object_type in typeData.typeCategory then
+      case typeData.typeCategory[object_type] of
         when {VOIDOBJECT}:
           c_expr.expr &:= "printf(\"<VOIDOBJECT>\")";
         when {BOOLOBJECT}:
@@ -832,7 +833,7 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "printf(\"  *NULL_STRUCT* \");\n";
           c_expr.expr &:= "} else {\n";
           c_expr.expr &:= "printf(\" struct[";
-          c_expr.expr &:= str(struct_size[object_type]);
+          c_expr.expr &:= str(typeData.struct_size[object_type]);
           c_expr.expr &:= "]\");\n";
           c_expr.expr &:= "if (sct->usage_count != 0) {\n";
           c_expr.expr &:= "printf(\"<%lu>\", sct->usage_count);\n";
@@ -856,7 +857,7 @@ const proc: process (REF_TRACE, in reference: function,
         otherwise:
           c_expr.expr &:= "printf(\"< ?? >\")";
       end case;
-    elsif object_type = proctype then
+    elsif object_type = typeData.proctype then
       c_expr.expr &:= "printf(\"<CALLOBJECT> %X\", ";
       c_expr.expr &:= param1.expr;
       c_expr.expr &:= ")";

@@ -43,7 +43,7 @@ const proc: process (SCT_ALLOC, in reference: function,
     if c_param1.result_expr <> "" then
       c_expr.expr &:= c_param1.result_expr;
     else
-      typeCategory @:= [param_type] STRUCTOBJECT;
+      typeData.typeCategory @:= [param_type] STRUCTOBJECT;
       process_create_declaration(param_type, global_c_expr);
       process_create_call(param_type,
           c_param1.expr, c_expr.expr);
@@ -112,11 +112,12 @@ const proc: process (SCT_SELECT, in reference: function,
     var type: object_type is void;
   begin
     object_type := getExprResultType(params[1]);
-    if object_type in struct_element_idx and params[3] in struct_element_idx[object_type] then
+    if object_type in typeData.struct_element_idx and
+        params[3] in typeData.struct_element_idx[object_type] then
       c_expr.expr &:= "((structType)(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= "))->stru[";
-      c_expr.expr &:= str(struct_element_idx[object_type][params[3]]);
+      c_expr.expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       c_expr.expr &:= "/*->o_";

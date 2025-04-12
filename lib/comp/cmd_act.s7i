@@ -530,7 +530,7 @@ const proc: process (CMD_READ_DIR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_typed_result(array_type[getExprResultType(params[1])], c_expr);
+    prepare_typed_result(typeData.array_type[getExprResultType(params[1])], c_expr);
     c_expr.result_expr := "cmdReadDir(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";

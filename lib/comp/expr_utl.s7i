@@ -436,7 +436,8 @@ const proc: getGenericValue (in reference: current_expression,
     var string: temp_name is "";
   begin
     result_type := getExprResultType(current_expression);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+    if result_type in typeData.typeCategory and
+        typeData.typeCategory[result_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -466,7 +467,8 @@ const proc: getGenericValue (in type: variableType, in string: variableName,
   local
     var string: temp_name is "";
   begin
-    if variableType in typeCategory and typeCategory[variableType] = FLOATOBJECT or
+    if variableType in typeData.typeCategory and
+        typeData.typeCategory[variableType] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -498,7 +500,8 @@ const proc: getGenericValueOfVariableObject (in reference: variableObject,
     var string: temp_name is "";
   begin
     result_type := getType(variableObject);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+    if result_type in typeData.typeCategory and
+        typeData.typeCategory[result_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -528,7 +531,8 @@ const proc: getCreatedValueAsGeneric (in type: param_type, in expr_type: c_param
   local
     var string: temp_name is "";
   begin
-    if param_type in typeCategory and typeCategory[param_type] = FLOATOBJECT or
+    if param_type in typeData.typeCategory and
+        typeData.typeCategory[param_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -578,7 +582,8 @@ const proc: getGenericValueToResultExpr (in reference: current_expression,
     var string: temp_name is "";
   begin
     result_type := getExprResultType(current_expression);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+    if result_type in typeData.typeCategory and
+        typeData.typeCategory[result_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -608,7 +613,8 @@ const proc: getGenericTemporaryToResultExpr (in type: param_type, in expr_type: 
   local
     var string: temp_name is "";
   begin
-    if param_type in typeCategory and typeCategory[param_type] = FLOATOBJECT or
+    if param_type in typeData.typeCategory and
+        typeData.typeCategory[param_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -683,7 +689,8 @@ const proc: getTemporaryToResultExpr (in type: param_type, in expr_type: c_param
   local
     var string: temp_name is "";
   begin
-    if param_type in typeCategory and typeCategory[param_type] = FLOATOBJECT then
+    if param_type in typeData.typeCategory and
+        typeData.typeCategory[param_type] = FLOATOBJECT then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "rtlValueUnion ";
@@ -892,7 +899,7 @@ const func reference: getParameterAsVariable (in reference: param1,
       if isFunc(resultType) or isVarfunc(resultType) then
         resultType := resultType(resultType);
       end if;
-      variableObject := allocVar(resultType, typeCategory[resultType]);
+      variableObject := allocVar(resultType, typeData.typeCategory[resultType]);
       incr(c_expr.temp_num);
       c_expr.temp_decls &:= type_name(getType(variableObject));
       c_expr.temp_decls &:= " o_";
@@ -1047,7 +1054,8 @@ const func string: beginCastGeneric (in type: dest_type, inout expr_type: c_expr
     var string: temp_name is "";
   begin
     c_expr.expr &:= "(";
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+    if dest_type in typeData.typeCategory and
+        typeData.typeCategory[dest_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -1066,7 +1074,8 @@ const func string: beginCastGeneric (in type: dest_type, inout expr_type: c_expr
 const proc: endCastGeneric (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
 
   begin
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+    if dest_type in typeData.typeCategory and
+        typeData.typeCategory[dest_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       c_expr.expr &:= ",";
       c_expr.expr &:= temp_name;
@@ -1083,7 +1092,8 @@ const func string: beginCastGenericToResultExpr (in type: dest_type, inout expr_
     var string: temp_name is "";
   begin
     c_expr.result_expr &:= "(";
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+    if dest_type in typeData.typeCategory and
+        typeData.typeCategory[dest_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
@@ -1102,7 +1112,8 @@ const func string: beginCastGenericToResultExpr (in type: dest_type, inout expr_
 const proc: endCastGenericToResultExpr (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
 
   begin
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+    if dest_type in typeData.typeCategory and
+        typeData.typeCategory[dest_type] = FLOATOBJECT or
         not ccConf.LITTLE_ENDIAN_INTTYPE then
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= temp_name;

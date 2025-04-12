@@ -842,7 +842,7 @@ const proc: process (STR_CHSPLIT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_typed_result(array_type[getExprResultType(params[1])], c_expr);
+    prepare_typed_result(typeData.array_type[getExprResultType(params[1])], c_expr);
     c_expr.result_expr := "strChSplit(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
@@ -4089,7 +4089,7 @@ const proc: process (STR_SPLIT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    prepare_typed_result(array_type[getExprResultType(params[1])], c_expr);
+    prepare_typed_result(typeData.array_type[getExprResultType(params[1])], c_expr);
     if getConstant(params[2], STRIOBJECT, evaluatedParam) and
         length(getValue(evaluatedParam, string)) = 1 then
       incr(count.optimizations);

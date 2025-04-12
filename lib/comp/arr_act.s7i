@@ -199,8 +199,8 @@ const proc: process (ARR_BASELIT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if resultType(getType(function)) not in array_element then
-      array_element @:= [resultType(getType(function))] getType(params[3]);
+    if resultType(getType(function)) not in typeData.array_element then
+      typeData.array_element @:= [resultType(getType(function))] getType(params[3]);
     end if;
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit((genericType)(";
@@ -213,8 +213,8 @@ const proc: process (ARR_BASELIT2, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if resultType(getType(function)) not in array_element then
-      array_element @:= [resultType(getType(function))] getType(params[4]);
+    if resultType(getType(function)) not in typeData.array_element then
+      typeData.array_element @:= [resultType(getType(function))] getType(params[4]);
     end if;
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit2(";
@@ -267,8 +267,9 @@ const func boolean: isIntArrayOfZeros (in reference: arr) is func
     var integer: elementValue is 0;
   begin
     arrayType := getExprResultType(arr);
-    elementType := array_element[arrayType];
-    if elementType in typeCategory and typeCategory[elementType] = INTOBJECT then
+    elementType := typeData.array_element[arrayType];
+    if elementType in typeData.typeCategory and
+        typeData.typeCategory[elementType] = INTOBJECT then
       arrayList := arrayToList(arr);
       isIntArrayOfZeros := TRUE;
       for element range arrayList until not isIntArrayOfZeros do
@@ -372,9 +373,10 @@ const proc: process_arr_cpy_array_of_zeros (in reference: dest,
     statement.expr &:= "(";
     arrayType := getExprResultType(dest);
     if isNormalVariable(dest) then
-      if arrayType not in array_minIdx or arrayType not in array_maxIdx or
-          minPosition <> array_minIdx[arrayType] and
-          maxPosition <> array_maxIdx[arrayType] then
+      if arrayType not in typeData.array_minIdx or
+          arrayType not in typeData.array_maxIdx or
+          (minPosition <> typeData.array_minIdx[arrayType] and
+           maxPosition <> typeData.array_maxIdx[arrayType]) then
         statement.temp_decls &:= "memSizeType size_a = (uintType)((";
         statement.temp_decls &:= c_param1.expr;
         statement.temp_decls &:= ")->max_position - (";
@@ -414,9 +416,10 @@ const proc: process_arr_cpy_array_of_zeros (in reference: dest,
       statement.temp_decls &:= "arrayType *array_ptr=&(";
       statement.temp_decls &:= c_param1.expr;
       statement.temp_decls &:= ");\n";
-      if arrayType not in array_minIdx or arrayType not in array_maxIdx or
-          minPosition <> array_minIdx[arrayType] and
-          maxPosition <> array_maxIdx[arrayType] then
+      if arrayType not in typeData.array_minIdx or
+          arrayType not in typeData.array_maxIdx or
+          (minPosition <> typeData.array_minIdx[arrayType] and
+           maxPosition <> typeData.array_maxIdx[arrayType]) then
         statement.temp_decls &:= "memSizeType size_a = (uintType)((*array_ptr)->max_position - (*array_ptr)->min_position + 1);\n";
         statement.expr &:= "(size_a != (uintType)(";
         statement.expr &:= integerLiteral(arraySize);
@@ -452,7 +455,7 @@ const func boolean: isFixedMinIdxTimes (in reference: aParam) is func
     var reference: timesExpression is NIL;
   begin
     arrayType := getExprResultType(aParam);
-    if arrayType in array_minIdx and
+    if arrayType in typeData.array_minIdx and
         category(aParam) = CALLOBJECT and
         length(getValue(aParam, ref_list)) >= 4 and
         str(getActionParameter(aParam, 2)) = "times" and
@@ -582,8 +585,8 @@ const proc: process (ARR_CPY, in reference: function,
         getConstant(getActionParameter(getActionParameter(params[3], 3), 3), INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
       two_dimensional_times_optimization(params[1],
-          array_minIdx[arrayType], getActionParameter(params[3], 1),
-          array_minIdx[getExprResultType(getActionParameter(params[3], 3))],
+          typeData.array_minIdx[arrayType], getActionParameter(params[3], 1),
+          typeData.array_minIdx[getExprResultType(getActionParameter(params[3], 3))],
           getActionParameter(getActionParameter(params[3], 3), 1), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
@@ -625,7 +628,7 @@ const proc: process (ARR_CREATE, in reference: function,
     var type: param_type is void;
   begin
     param_type := getExprResultType(params[3]);
-    typeCategory @:= [param_type] ARRAYOBJECT;
+    typeData.typeCategory @:= [param_type] ARRAYOBJECT;
     process_create_declaration(param_type, global_c_expr);
     process_expr(params[1], c_expr);
     c_expr.expr &:= "=create_";
@@ -702,7 +705,7 @@ const proc: process (ARR_HEAD, in reference: function,
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[4], c_expr);
       c_expr.result_expr &:= "))";
-    elsif valueIsAtHeap(array_element[param_type]) then
+    elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "arrayType ";
@@ -722,7 +725,7 @@ const proc: process (ARR_HEAD, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[4], c_expr);
       c_expr.result_expr &:= "), ";
-      typeCategory @:= [param_type] ARRAYOBJECT;
+      typeData.typeCategory @:= [param_type] ARRAYOBJECT;
       process_create_declaration(param_type, global_c_expr);
       process_create_call(param_type, array_name, c_expr.result_expr);
       c_expr.result_expr &:= ")";
@@ -861,8 +864,8 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.temp_decls &:= c_param.result_decl;
       c_expr.temp_frees &:= c_param.result_free;
       c_expr.temp_to_null &:= c_param.result_to_null;
-      if resultType(getType(function)) in typeCategory and
-          typeCategory[resultType(getType(function))] in destrNecessary then
+      if resultType(getType(function)) in typeData.typeCategory and
+          typeData.typeCategory[resultType(getType(function))] in destrNecessary then
         prepare_typed_result(resultType(getType(function)), c_expr);
         c_expr.result_expr &:= "(";
         c_expr.result_expr &:= c_param.result_intro;
@@ -917,22 +920,24 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= "->arr[";
       arrayType := getExprResultType(param1);
       if config.array_index_check then
-        if arrayType in array_minIdx and arrayType in array_maxIdx then
-          if index < array_minIdx[arrayType] or
-              index > array_maxIdx[arrayType] then
+        if arrayType in typeData.array_minIdx and
+            arrayType in typeData.array_maxIdx then
+          if index < typeData.array_minIdx[arrayType] or
+              index > typeData.array_maxIdx[arrayType] then
             warning(DOES_RAISE, "INDEX_ERROR", c_expr);
             c_expr.expr &:= intRaiseError("INDEX_ERROR");
           else
             countIndexOptimizations(c_expr);
-            c_expr.expr &:= integerLiteral(index - array_minIdx[arrayType]);
+            c_expr.expr &:= integerLiteral(index - typeData.array_minIdx[arrayType]);
           end if;
-        elsif arrayType in array_minIdx and index < array_minIdx[arrayType] then
+        elsif arrayType in typeData.array_minIdx and
+            index < typeData.array_minIdx[arrayType] then
           warning(DOES_RAISE, "INDEX_ERROR", c_expr);
           c_expr.expr &:= intRaiseError("INDEX_ERROR");
         else
           incr(count.indexChecks);
           c_expr.expr &:= "(idxChk(";
-          if arrayType not in array_minIdx then
+          if arrayType not in typeData.array_minIdx then
             c_expr.expr &:= integerLiteral(index);
             c_expr.expr &:= "<";
             c_expr.expr &:= array_name;
@@ -944,8 +949,8 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
           c_expr.expr &:= "->max_position) ? ";
           c_expr.expr &:= intRaiseError("INDEX_ERROR");
           c_expr.expr &:= " : ";
-          if arrayType in array_minIdx then
-            c_expr.expr &:= integerLiteral(index - array_minIdx[arrayType]);
+          if arrayType in typeData.array_minIdx then
+            c_expr.expr &:= integerLiteral(index - typeData.array_minIdx[arrayType]);
           else
             c_expr.expr &:= integerLiteral(index);
             c_expr.expr &:= "-";
@@ -956,8 +961,8 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         end if;
       else
         incr(count.suppressedIndexChecks);
-        if arrayType in array_minIdx then
-          c_expr.expr &:= integerLiteral(index - array_minIdx[arrayType]);
+        if arrayType in typeData.array_minIdx then
+          c_expr.expr &:= integerLiteral(index - typeData.array_minIdx[arrayType]);
         else
           c_expr.expr &:= integerLiteral(index);
           c_expr.expr &:= "-";
@@ -1100,8 +1105,8 @@ const proc: process (ARR_IDX, in reference: function,
     var string: index_name is "";
     var string: result_name is "";
   begin
-    if getType(params[1]) not in array_element then
-      array_element @:= [getType(params[1])] resultType(getType(function));
+    if getType(params[1]) not in typeData.array_element then
+      typeData.array_element @:= [getType(params[1])] resultType(getType(function));
     end if;
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       process_const_arr_idx(function, evaluatedParam, params[3], c_expr);
@@ -1118,8 +1123,8 @@ const proc: process (ARR_IDX, in reference: function,
         c_expr.temp_decls &:= c_param.result_decl;
         c_expr.temp_frees &:= c_param.result_free;
         c_expr.temp_to_null &:= c_param.result_to_null;
-        if resultType(getType(function)) in typeCategory and
-            typeCategory[resultType(getType(function))] in destrNecessary then
+        if resultType(getType(function)) in typeData.typeCategory and
+            typeData.typeCategory[resultType(getType(function))] in destrNecessary then
           prepare_typed_result(resultType(getType(function)), c_expr);
           c_expr.result_expr &:= "(";
           c_expr.result_expr &:= c_param.result_intro;
@@ -1174,12 +1179,14 @@ const proc: process (ARR_IDX, in reference: function,
         arrayType := getExprResultType(params[1]);
         if config.array_index_check then
           indexRange := getIntRange(params[3]);
-          if arrayType in array_minIdx and arrayType in array_maxIdx then
+          if arrayType in typeData.array_minIdx and
+              arrayType in typeData.array_maxIdx then
             process_fixlen_array_index(params[3], indexRange,
-                array_minIdx[arrayType], array_maxIdx[arrayType], c_expr);
-          elsif arrayType in array_minIdx then
+                typeData.array_minIdx[arrayType],
+                typeData.array_maxIdx[arrayType], c_expr);
+          elsif arrayType in typeData.array_minIdx then
             process_base_array_index(array_name, params[3], indexRange,
-                array_minIdx[arrayType], c_expr);
+                typeData.array_minIdx[arrayType], c_expr);
           else
             incr(count.indexChecks);
             if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -1225,10 +1232,10 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.expr &:= "(";
           process_expr(params[3], c_expr);
           c_expr.expr &:= ")";
-          if arrayType in array_minIdx then
-            if array_minIdx[arrayType] <> 0 then
+          if arrayType in typeData.array_minIdx then
+            if typeData.array_minIdx[arrayType] <> 0 then
               c_expr.expr &:= "- ";
-              c_expr.expr &:= integerLiteral(array_minIdx[arrayType]);
+              c_expr.expr &:= integerLiteral(typeData.array_minIdx[arrayType]);
             end if;
           else
             c_expr.expr &:= "- ";
@@ -1259,8 +1266,8 @@ const proc: process (ARR_INSERT, in reference: function,
   begin
     array_type := getExprResultType(params[1]);
     element_type := getExprResultType(params[3]);
-    if array_type not in array_element then
-      array_element @:= [array_type] element_type;
+    if array_type not in typeData.array_element then
+      typeData.array_element @:= [array_type] element_type;
     end if;
     if valueIsAtHeap(element_type) then
       if config.array_index_check then
@@ -1331,7 +1338,7 @@ const proc: process (ARR_INSERT_ARRAY, in reference: function,
     var expr_type: statement is expr_type.value;
   begin
     param3_type := getExprResultType(params[3]);
-    if valueIsAtHeap(array_element[param3_type]) then
+    if valueIsAtHeap(typeData.array_element[param3_type]) then
       statement.expr &:= "arrInsertArrayTemp(&(";
       process_expr(params[1], statement);
       statement.expr &:= "), ";
@@ -1435,8 +1442,8 @@ const proc: process (ARR_PUSH, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if getType(params[1]) not in array_element then
-      array_element @:= [getType(params[1])] getType(params[3]);
+    if getType(params[1]) not in typeData.array_element then
+      typeData.array_element @:= [getType(params[1])] getType(params[3]);
     end if;
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
@@ -1489,7 +1496,7 @@ const proc: process (ARR_RANGE, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "))";
-    elsif valueIsAtHeap(array_element[param_type]) then
+    elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "arrayType ";
@@ -1511,7 +1518,7 @@ const proc: process (ARR_RANGE, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "), ";
-      typeCategory @:= [param_type] ARRAYOBJECT;
+      typeData.typeCategory @:= [param_type] ARRAYOBJECT;
       process_create_declaration(param_type, global_c_expr);
       process_create_call(param_type, array_name, c_expr.result_expr);
       c_expr.result_expr &:= ")";
@@ -1630,7 +1637,7 @@ const proc: process (ARR_SUBARR, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "))";
-    elsif valueIsAtHeap(array_element[param_type]) then
+    elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "arrayType ";
@@ -1652,7 +1659,7 @@ const proc: process (ARR_SUBARR, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "), ";
-      typeCategory @:= [param_type] ARRAYOBJECT;
+      typeData.typeCategory @:= [param_type] ARRAYOBJECT;
       process_create_declaration(param_type, global_c_expr);
       process_create_call(param_type, array_name, c_expr.result_expr);
       c_expr.result_expr &:= ")";
@@ -1692,7 +1699,7 @@ const proc: process (ARR_TAIL, in reference: function,
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= "))";
-    elsif valueIsAtHeap(array_element[param_type]) then
+    elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "arrayType ";
@@ -1712,7 +1719,7 @@ const proc: process (ARR_TAIL, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= "), ";
-      typeCategory @:= [param_type] ARRAYOBJECT;
+      typeData.typeCategory @:= [param_type] ARRAYOBJECT;
       process_create_declaration(param_type, global_c_expr);
       process_create_call(param_type, array_name, c_expr.result_expr);
       c_expr.result_expr &:= ")";
@@ -1775,7 +1782,7 @@ const proc: process (ARR_TIMES, in reference: function,
     var type: element_type is void;
   begin
     result_type := resultType(getType(function));
-    typeCategory @:= [result_type] ARRAYOBJECT;
+    typeData.typeCategory @:= [result_type] ARRAYOBJECT;
     if getConstant(params[1], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
       incr(count.optimizations);
@@ -1789,8 +1796,8 @@ const proc: process (ARR_TIMES, in reference: function,
           getActionParameter(params[3], 1), c_expr);
     else
       element_type := getType(formalParams(function)[3]);
-      if element_type in typeCategory and
-          typeCategory[element_type] in simpleValueType then
+      if element_type in typeData.typeCategory and
+          typeData.typeCategory[element_type] in simpleValueType then
         incr(count.optimizations);
         prepare_typed_result(result_type, c_expr);
         c_expr.result_expr := "arrTimes(1, ";

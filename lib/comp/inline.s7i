@@ -559,7 +559,7 @@ const proc: process_inline (in reference: function,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   begin
-    if resultType(getType(function)) <> voidtype then
+    if resultType(getType(function)) <> typeData.voidtype then
       process_inline_func(function, actual_params, c_expr);
     else
       process_inline_proc(function, actual_params, c_expr);
@@ -572,7 +572,7 @@ const proc: process_inline_param (in reference: formal_param,
   local
     var expr_type: c_body is expr_type.value;
   begin
-    if getType(formal_param) = proctype then
+    if getType(formal_param) = typeData.proctype then
       c_expr.expr &:= "/* closure o_";
       create_name2(formal_param, c_expr.expr);
       c_expr.expr &:= "*/ {\n";
