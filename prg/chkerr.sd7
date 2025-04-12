@@ -1605,7 +1605,11 @@ const func boolean: checkApostrophExpected is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("'abcde';",
+    if  checkError1("'';",
+                    APOSTROPHEXPECTED, 1, 3,
+                    "\"'\" expected found \";\"",
+                    "'';") and
+        checkError1("'abcde';",
                     APOSTROPHEXPECTED, 1, 3,
                     "\"'\" expected found \"b\"",
                     "'abcde';") and
@@ -1865,7 +1869,23 @@ const func boolean: checkWrongNumericalEscape is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("\"\\8\\\";",
+    if  checkError1("'\\8';",
+                    WRONGNUMERICALESCAPE, 1, 4,
+                    "Numerical escape sequences should end with \";\" not \"'\"",
+                    "'\\8';") and
+        checkError1("'\\8\\';",
+                    WRONGNUMERICALESCAPE, 1, 4,
+                    "Numerical escape sequences should end with \";\" not \"\\\"",
+                    "'\\8\\';") and
+        checkError1("'\\8y';",
+                    WRONGNUMERICALESCAPE, 1, 4,
+                    "Numerical escape sequences should end with \";\" not \"y\"",
+                    "'\\8y';") and
+        checkError1("\"\\8\";",
+                    WRONGNUMERICALESCAPE, 1, 4,
+                    "Numerical escape sequences should end with \";\" not \"\"\"",
+                    "\"\\8\";") and
+        checkError1("\"\\8\\\";",
                     WRONGNUMERICALESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"\\\"",
                     "\"\\8\\\";") and
