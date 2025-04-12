@@ -86,11 +86,6 @@ const type: stringLengthHash is hash [integer] integer;
 const type: lengthToStriNumHash is hash [integer] array integer;
 const type: profiledFunctionsHash is hash [integer] reference;
 
-var boolean_type_hash: generic_hashCode_declared is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
@@ -126,7 +121,7 @@ const proc: process_generic_hashCode_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in generic_hashCode_declared then
+    if object_type not in typeData.generic_hashCode_declared then
       c_expr.expr &:= "static intType generic_hashCode_";
       c_expr.expr &:= str(typeNumber(object_type));
       c_expr.expr &:= " (const genericType a)\n";
@@ -137,7 +132,7 @@ const proc: process_generic_hashCode_declaration (in reference: function,
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      generic_hashCode_declared @:= [object_type] TRUE;
+      typeData.generic_hashCode_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -146,7 +141,7 @@ const proc: process_generic_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in generic_cpy_declared then
+    if object_type not in typeData.generic_cpy_declared then
       process_cpy_declaration(object_type, c_expr);
       c_expr.expr &:= "static void generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -158,7 +153,7 @@ const proc: process_generic_cpy_declaration (in type: object_type,
           c_expr.expr);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "}\n\n";
-      generic_cpy_declared @:= [object_type] TRUE;
+      typeData.generic_cpy_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -167,7 +162,7 @@ const proc: process_generic_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in generic_create_declared then
+    if object_type not in typeData.generic_create_declared then
       process_create_declaration(object_type, c_expr);
       c_expr.expr &:= "static genericType generic_create_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -183,7 +178,7 @@ const proc: process_generic_create_declaration (in type: object_type,
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "return result.value.genericValue;\n";
       c_expr.expr &:= "}\n\n";
-      generic_create_declared @:= [object_type] TRUE;
+      typeData.generic_create_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -192,7 +187,7 @@ const proc: process_generic_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in generic_destr_declared then
+    if object_type not in typeData.generic_destr_declared then
       process_destr_declaration(object_type, c_expr);
       c_expr.expr &:= "static void generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -202,7 +197,7 @@ const proc: process_generic_destr_declaration (in type: object_type,
           "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= "}\n\n";
-      generic_destr_declared @:= [object_type] TRUE;
+      typeData.generic_destr_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -211,7 +206,7 @@ const proc: process_generic_cmp_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in generic_cmp_declared then
+    if object_type not in typeData.generic_cmp_declared then
       process_cpy_declaration(object_type, c_expr);
       c_expr.expr &:= "static intType generic_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
@@ -225,7 +220,7 @@ const proc: process_generic_cmp_declaration (in reference: function,
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      generic_cmp_declared @:= [object_type] TRUE;
+      typeData.generic_cmp_declared @:= [object_type] TRUE;
     end if;
   end func;
 
