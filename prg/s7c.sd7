@@ -4500,7 +4500,7 @@ const proc: process_arr_destr_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     if length(params) >= 1 then
       arrayType := getType(params[1]);
-      destrFunction @:= [arrayType] current_object;
+      typeData.destrFunction @:= [arrayType] current_object;
       typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
@@ -4734,7 +4734,7 @@ const proc: process_hsh_destr_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     if length(params) >= 1 then
       hashType := getType(params[1]);
-      destrFunction @:= [hashType] current_object;
+      typeData.destrFunction @:= [hashType] current_object;
       typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
@@ -4843,7 +4843,7 @@ const proc: process_sct_destr_declaration (in reference: current_object) is func
   begin
     params := formalParams(current_object);
     object_type := getType(params[1]);
-    destrFunction @:= [object_type] current_object;
+    typeData.destrFunction @:= [object_type] current_object;
     typeData.typeCategory @:= [object_type] STRUCTOBJECT;
   end func;
 

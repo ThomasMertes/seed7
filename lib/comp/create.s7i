@@ -119,7 +119,7 @@ const proc: process_arr_create_declaration (in type: object_type,
         typeData.array_maxIdx[object_type] -
         typeData.array_minIdx[object_type] < ARRAY_FREELIST_LIMIT then
       useFreelist := TRUE;
-      if object_type not in flist_declared then
+      if object_type not in typeData.flist_declared then
         # Free list might already be defined by the declaration of create_... .
         declare_free_list(object_type, diagnosticLine, c_expr);
       end if;
@@ -250,7 +250,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     for elementIndex range 0 to pred(structSize) do
       process_create_declaration(typeData.struct_element_type[object_type][elementIndex], c_expr);
     end for;
-    if config.structFreelist and object_type not in flist_declared then
+    if config.structFreelist and object_type not in typeData.flist_declared then
       # Free list might already be defined by the declaration of destr_... .
       declare_free_list(object_type, diagnosticLine, c_expr);
     end if;

@@ -263,8 +263,8 @@ const proc: process (HSH_DESTR, in reference: function,
     c_param2_3.expr &:= "), (destrFuncType)(";
     process_expr(params[3], c_param2_3);
     c_param2_3.expr &:= ")";
-    if param_type not in parametersOfHshDestr then
-      parametersOfHshDestr @:= [param_type] c_param2_3.expr;
+    if param_type not in typeData.parametersOfHshDestr then
+      typeData.parametersOfHshDestr @:= [param_type] c_param2_3.expr;
     end if;
 (*
     setDiagnosticLine(c_expr);
