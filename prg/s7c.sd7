@@ -75,7 +75,6 @@ const type: globalInitHash is hash [reference] string;
 
 var globalInitHash: globalInitalisations is globalInitHash.EMPTY_HASH;
 
-const type: interface_hash is hash [type] array type;
 const type: act_to_form_param_hash is hash [reference] reference;
 const type: params_added_hash is hash [reference] act_to_form_param_hash;
 const type: setOfCategory is set of category;
@@ -91,7 +90,6 @@ var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
-var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
 var boolean_obj_hash: definedActualFuncParams is boolean_obj_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
@@ -3755,9 +3753,9 @@ const proc: print_parameter_list (in ref_list: formal_params,
           c_expr.expr &:= " printf(\", \");\n";
         end if;
         param_type := getType(formal_param);
-        if param_type in typeData.implements then
+        if param_type in typeData.implementsInterface then
           c_expr.expr &:= " /*# ";
-          for implementationType range typeData.implements[param_type] do
+          for implementationType range typeData.implementsInterface[param_type] do
             c_expr.expr &:= type_name2(implementationType);
             c_expr.expr &:= "  ";
           end for;
@@ -4030,7 +4028,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     end if;
     create_name(formal_param, c_expr.expr);
     c_expr.expr &:= ")->type_num) {\n";
-    for implementationType range typeData.implements[param_type] do
+    for implementationType range typeData.implementsInterface[param_type] do
       if typeNumber(implementationType) not in usedCaseLabels then
         c_expr.expr &:= "case ";
         c_expr.expr &:= str(typeNumber(implementationType));
@@ -4155,7 +4153,7 @@ const proc: process_dynamic_condition (in reference: current_object,
       paramCategory := category(formal_param);
       if paramCategory <> SYMBOLOBJECT then
         param_type := getType(formal_param);
-        if param_type in typeData.implements then
+        if param_type in typeData.implementsInterface then
           process_dynamic_param_implements(current_object,
               formal_params, paramNum, param_type, c_expr);
         elsif param_type in typeData.enum_literal then
@@ -4179,7 +4177,7 @@ const proc: process_dynamic_condition (in reference: current_object,
           paramCategory := category(formal_param);
           if paramCategory <> SYMBOLOBJECT then
             param_type := getType(formal_param);
-            if param_type in typeData.implements then
+            if param_type in typeData.implementsInterface then
               c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
               if isPointerParam(formal_param) then
                 c_expr.expr &:= "((interfaceType) *o_";
@@ -4643,15 +4641,15 @@ const proc: defineParam1TypeCategory (in reference: current_object,
 const proc: addImplementationToInterface (in type: implementationType, in type: interfaceType) is func
 
   begin
-    if interfaceType in typeData.implements then
-      typeData.implements[interfaceType] &:= implementationType;
+    if interfaceType in typeData.implementsInterface then
+      typeData.implementsInterface[interfaceType] &:= implementationType;
     else
-      typeData.implements @:= [interfaceType] [] (implementationType);
+      typeData.implementsInterface @:= [interfaceType] [] (implementationType);
     end if;
-    if implementationType in interfaceOfType then
-      interfaceOfType[implementationType] &:= interfaceType;
+    if implementationType in typeData.interfaceOfType then
+      typeData.interfaceOfType[implementationType] &:= interfaceType;
     else
-      interfaceOfType @:= [implementationType] [] (interfaceType);
+      typeData.interfaceOfType @:= [implementationType] [] (interfaceType);
     end if;
   end func;
 
@@ -4807,8 +4805,8 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
                           typeData.struct_element[meta_type][structIndex]);
           end for;
         end if;
-        if meta_type in interfaceOfType then
-          for interfaceType range interfaceOfType[meta_type] do
+        if meta_type in typeData.interfaceOfType then
+          for interfaceType range typeData.interfaceOfType[meta_type] do
             addImplementationToInterface(sct_type, interfaceType);
           end for;
         end if;

@@ -350,8 +350,8 @@ const proc: process_itf_destr_declaration (in type: object_type,
     interfaceType := object_type;
     c_expr.expr &:= "switch (b->type_num) {\n";
     repeat
-      if interfaceType in typeData.implements then
-        for implementationType range typeData.implements[interfaceType] do
+      if interfaceType in typeData.implementsInterface then
+        for implementationType range typeData.implementsInterface[interfaceType] do
           if typeNumber(implementationType) not in typeNumUsed then
             c_expr.expr &:= "case ";
             c_expr.expr &:= str(typeNumber(implementationType));

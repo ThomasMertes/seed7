@@ -38,6 +38,7 @@ const type: string_type_hash is hash [type] string;
 const type: element_type_array is array type;
 const type: struct_element_type_hash is hash [type] element_type_array;
 const type: implements_hash is hash [type] array type;
+const type: interface_hash is hash [type] array type;
 
 const type: element_number_hash is hash [reference] integer;
 const type: enum_literal_hash is hash [type] element_number_hash;
@@ -88,7 +89,8 @@ const type: typeDataStruct is new struct
   var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
   var boolean_type_hash: literal_function_of_enum_used is boolean_type_hash.EMPTY_HASH;
 
-  var implements_hash: implements is implements_hash.EMPTY_HASH;
+  var implements_hash: implementsInterface is implements_hash.EMPTY_HASH;
+  var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 
   # Type variables which hold types from the program being compiled
   var type: proctype is void;
