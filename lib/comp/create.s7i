@@ -24,12 +24,6 @@
 (********************************************************************)
 
 
-var typeReferenceHash: createFunction is typeReferenceHash.EMPTY_HASH;
-var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
-var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
-var string_type_hash: parametersOfHshCreate is string_type_hash.EMPTY_HASH;
-
-
 const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
 
@@ -115,8 +109,8 @@ const proc: process_arr_create_declaration (in type: object_type,
     var string: select_value is "";
     var boolean: useFreelist is FALSE;
   begin
-    if object_type in createFunction then
-      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    if object_type in typeData.createFunction then
+      diagnosticLine := diagnosticLine(typeData.createFunction[object_type]);
     end if;
     select_value := select_value_from_rtlObjectStruct(typeData.array_element[object_type]);
     process_create_declaration(typeData.array_element[object_type], c_expr);
@@ -172,7 +166,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "\n";
-    create_declared @:= [object_type] TRUE;
+    typeData.create_declared @:= [object_type] TRUE;
   end func;
 
 
@@ -247,8 +241,8 @@ const proc: process_sct_create_declaration (in type: object_type,
     var integer: elementIndex is 0;
     var string: select_value is "";
   begin
-    if object_type in createFunction then
-      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    if object_type in typeData.createFunction then
+      diagnosticLine := diagnosticLine(typeData.createFunction[object_type]);
     end if;
     if object_type in typeData.struct_size then
       structSize := typeData.struct_size[object_type];
@@ -293,7 +287,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "\n";
-    create_declared @:= [object_type] TRUE;
+    typeData.create_declared @:= [object_type] TRUE;
   end func;
 
 
@@ -303,8 +297,8 @@ const proc: process_hsh_create_declaration (in type: object_type,
   local
     var string: diagnosticLine is "";
   begin
-    if object_type in createFunction then
-      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    if object_type in typeData.createFunction then
+      diagnosticLine := diagnosticLine(typeData.createFunction[object_type]);
     end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
@@ -318,13 +312,13 @@ const proc: process_hsh_create_declaration (in type: object_type,
     c_expr.expr &:= "{\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return hshCreate(b";
-    c_expr.expr &:= parametersOfHshCreate[object_type];
+    c_expr.expr &:= typeData.parametersOfHshCreate[object_type];
     c_expr.expr &:= ");\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "\n";
-    create_declared @:= [object_type] TRUE;
+    typeData.create_declared @:= [object_type] TRUE;
   end func;
 
 
@@ -332,7 +326,7 @@ const proc: declare_create_prototype (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in create_prototype_declared then
+    if object_type not in typeData.create_prototype_declared then
       declare_type_if_necessary(object_type, c_expr);
       c_expr.expr &:= "static ";
       c_expr.expr &:= type_name(object_type);
@@ -344,7 +338,7 @@ const proc: declare_create_prototype (in type: object_type,
       end if;
       c_expr.expr &:= type_name(object_type);
       c_expr.expr &:= ");\n\n";
-      create_prototype_declared @:= [object_type] TRUE;
+      typeData.create_prototype_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -353,7 +347,7 @@ const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in create_declared then
+    if object_type not in typeData.create_declared then
       if object_type in typeData.typeCategory then
         case typeData.typeCategory[object_type] of
           when {ARRAYOBJECT}:
@@ -365,13 +359,13 @@ const proc: process_create_declaration (in type: object_type,
           when {STRUCTOBJECT}:
             process_sct_create_declaration(object_type, c_expr);
           when {HASHOBJECT}:
-            if object_type in parametersOfHshCreate then
+            if object_type in typeData.parametersOfHshCreate then
               process_hsh_create_declaration(object_type, c_expr);
             else
               declare_create_prototype(object_type, c_expr);
             end if;
           otherwise:
-            create_declared @:= [object_type] TRUE;
+            typeData.create_declared @:= [object_type] TRUE;
         end case;
       else
         declare_create_prototype(object_type, c_expr);
@@ -385,7 +379,7 @@ const proc: declare_missing_create_declarations (inout expr_type: c_expr) is fun
   local
     var type: object_type is void;
   begin
-    for key object_type range create_prototype_declared do
+    for key object_type range typeData.create_prototype_declared do
       process_create_declaration(object_type, c_expr);
     end for;
   end func;

@@ -4475,7 +4475,7 @@ const proc: process_arr_create_declaration (in reference: current_object) is fun
     params := formalParams(current_object);
     if length(params) >= 1 then
       arrayType := getType(params[1]);
-      createFunction @:= [arrayType] current_object;
+      typeData.createFunction @:= [arrayType] current_object;
       typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
@@ -4719,7 +4719,7 @@ const proc: process_hsh_create_declaration (in reference: current_object) is fun
     params := formalParams(current_object);
     if length(params) >= 1 then
       hashType := getType(params[1]);
-      createFunction @:= [hashType] current_object;
+      typeData.createFunction @:= [hashType] current_object;
       typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
@@ -4830,7 +4830,7 @@ const proc: process_sct_create_declaration (in reference: current_object) is fun
   begin
     params := formalParams(current_object);
     object_type := getType(params[1]);
-    createFunction @:= [object_type] current_object;
+    typeData.createFunction @:= [object_type] current_object;
     typeData.typeCategory @:= [object_type] STRUCTOBJECT;
   end func;
 

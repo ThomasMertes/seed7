@@ -62,6 +62,11 @@ const type: typeDataStruct is new struct
   var struct_element_idx_hash: struct_element_idx is struct_element_idx_hash.EMPTY_HASH;
   var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
 
+  var typeReferenceHash: createFunction is typeReferenceHash.EMPTY_HASH;
+  var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
+  var string_type_hash: parametersOfHshCreate is string_type_hash.EMPTY_HASH;
+
   var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 
   var implements_hash: implements is implements_hash.EMPTY_HASH;
