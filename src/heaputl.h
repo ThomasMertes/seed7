@@ -502,10 +502,10 @@ EXTERN unsigned int sflist_allowed;
 
 
 #if ALLOW_BSTRITYPE_SLICES
-#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?((var)->mem = (var)->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
 #else
-#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE:FALSE)
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)),0)
 #endif
 
