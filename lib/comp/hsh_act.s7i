@@ -178,8 +178,8 @@ const proc: process (HSH_CPY, in reference: function,
       c_param3_6.expr &:= "), (destrFuncType)(";
       process_expr(params[6], c_param3_6);
       c_param3_6.expr &:= ")";
-      if param_type not in parametersOfHshCpy then
-        parametersOfHshCpy @:= [param_type] c_param3_6.expr;
+      if param_type not in typeData.parametersOfHshCpy then
+        typeData.parametersOfHshCpy @:= [param_type] c_param3_6.expr;
       end if;
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "hshCpy(&(";

@@ -4450,7 +4450,7 @@ const proc: process_arr_cpy_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     if length(params) >= 1 then
       arrayType := getType(params[1]);
-      copyFunction @:= [arrayType] current_object;
+      typeData.copyFunction @:= [arrayType] current_object;
       typeData.typeCategory @:= [arrayType] ARRAYOBJECT;
       elementType := base_type(arrayType);
       if elementType <> void then
@@ -4704,7 +4704,7 @@ const proc: process_hsh_cpy_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     if length(params) >= 1 then
       hashType := getType(params[1]);
-      copyFunction @:= [hashType] current_object;
+      typeData.copyFunction @:= [hashType] current_object;
       typeData.typeCategory @:= [hashType] HASHOBJECT;
     end if;
   end func;
@@ -4802,7 +4802,7 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
     params := formalParams(current_object);
     if length(params) >= 1 then
       sct_type := getType(params[1]);
-      copyFunction @:= [sct_type] current_object;
+      typeData.copyFunction @:= [sct_type] current_object;
       typeData.typeCategory @:= [sct_type] STRUCTOBJECT;
       if isDerived(sct_type) then
         meta_type := meta(sct_type);
