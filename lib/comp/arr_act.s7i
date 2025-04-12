@@ -54,8 +54,6 @@ const ACTION: ARR_SUBARR       is action "ARR_SUBARR";
 const ACTION: ARR_TAIL         is action "ARR_TAIL";
 const ACTION: ARR_TIMES        is action "ARR_TIMES";
 
-var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
-
 
 const proc: arr_prototypes (inout file: c_prog) is func
 
@@ -95,7 +93,7 @@ const proc: declare_times_prototype (in type: arrayType,
     in type: elementType, inout expr_type: c_expr) is func
 
   begin
-    if arrayType not in times_prototype_declared then
+    if arrayType not in typeData.times_prototype_declared then
       process_create_declaration(elementType, c_expr);
       # c_expr.expr &:= type_name(arrayType);
       c_expr.expr &:= "static arrayType times_";
@@ -106,7 +104,7 @@ const proc: declare_times_prototype (in type: arrayType,
       end if;
       c_expr.expr &:= type_name(elementType);
       c_expr.expr &:= ");\n\n";
-      times_prototype_declared @:= [arrayType] TRUE;
+      typeData.times_prototype_declared @:= [arrayType] TRUE;
     end if;
   end func;
 

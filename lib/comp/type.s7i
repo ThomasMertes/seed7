@@ -78,6 +78,8 @@ const type: typeDataStruct is new struct
   var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
   var string_type_hash: parametersOfHshCpy is string_type_hash.EMPTY_HASH;
 
+  var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
+
   var boolean_type_hash: generic_hashCode_declared is boolean_type_hash.EMPTY_HASH;
   var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
   var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
