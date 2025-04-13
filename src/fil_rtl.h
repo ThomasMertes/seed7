@@ -56,7 +56,7 @@ bigIntType filBigTell (fileType aFile);
 void filClose (fileType aFile);
 void filCpy (fileType *const dest, const fileType source);
 fileType filCreate (const fileType source);
-void filDestr (const fileType old_file);
+void filDestr (const fileType oldFile);
 boolType filEof (fileType inFile);
 void filFlush (fileType outFile);
 void filFree (fileType oldFile);
@@ -71,7 +71,7 @@ striType filLit (fileType aFile);
 intType filLng (fileType aFile);
 fileType filOpen (const const_striType path, const const_striType mode);
 fileType filOpenNullDevice (void);
-void filPclose (fileType aFile);
+void filPclose (fileType aPipe);
 fileType filPopen (const const_striType command,
     const const_striType parameters, const const_striType mode);
 void filPrint (const const_striType stri);

@@ -29,4 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-rtlInterfaceType itfCreate (const rtlInterfaceType interface_from);
+rtlInterfaceType itfCreate (const rtlInterfaceType source);

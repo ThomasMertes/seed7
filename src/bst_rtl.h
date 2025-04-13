@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-void bstAppend (bstriType *const bstri_to, const_bstriType bstri_from);
+void bstAppend (bstriType *const destination, const_bstriType extension);
 bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2);
 intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2);
 void bstCpy (bstriType *const dest, const const_bstriType source);

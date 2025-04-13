@@ -39,7 +39,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #endif
 striType examineSearchPath (const const_striType fileName);
 void freeRtlStriArray (rtlArrayType work_array, intType used_max_position);
-void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType arr_from);
+void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension);
 rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1);
 rtlArrayType arrBaselit (const genericType element);
 rtlArrayType arrBaselit2 (intType start_position, const genericType element);
@@ -53,7 +53,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType pos);
 void arrInsert (rtlArrayType *arr_to, intType position, genericType element);
 void arrInsertArray (rtlArrayType *arr_to, intType position, rtlArrayType elements);
 void arrInsertArrayTemp (rtlArrayType *arr_to, intType position, rtlArrayType elements);
-rtlArrayType arrMalloc (intType min_position, intType max_position);
+rtlArrayType arrMalloc (intType minPosition, intType maxPosition);
 void arrPush (rtlArrayType *const arr_variable, const genericType element);
 rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType stop);
 rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop);

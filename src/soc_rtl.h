@@ -55,7 +55,7 @@ striType socGetHostname (void);
 bstriType socGetLocalAddr (socketType sock);
 bstriType socGetPeerAddr (socketType sock);
 boolType socHasNext (socketType inSocket);
-bstriType socInetAddr (const const_striType host_name, intType port);
+bstriType socInetAddr (const const_striType hostName, intType port);
 bstriType socInetLocalAddr (intType port);
 bstriType socInetServAddr (intType port);
 boolType socInputReady (socketType sock, intType seconds, intType micro_seconds);

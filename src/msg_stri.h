@@ -26,7 +26,7 @@
 /********************************************************************/
 
 #define copyCStri(msg, cstri) *(msg) = cstri_to_stri(cstri)
-#define appendUStri(msg, ustri) appendCStri(msg, (const_cstriType) ustri)
+#define appendUStri(msg, ustri) appendCStri(msg, (const_cstriType) (ustri))
 #define appendPtr(msg, ptr) appendInt(msg, (intType) (memSizeType) (ptr))
 
 

@@ -30,10 +30,10 @@
 /********************************************************************/
 
 void conHScroll (intType startlin, intType startcol,
-                 intType stoplin, intType stopcol, intType numLines);
+                 intType stoplin, intType stopcol, intType numCols);
 void conSetpos (intType lin, intType col);
 void conVScroll (intType startlin, intType startcol,
-                 intType stoplin, intType stopcol, intType numCols);
+                 intType stoplin, intType stopcol, intType numLines);
 #ifdef CONSOLE_USES_CON_TEXT
 intType conColumn (void);
 intType conLine (void);

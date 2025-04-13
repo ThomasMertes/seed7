@@ -510,9 +510,9 @@ typedef int                socketType;
 typedef unsigned int       usocketType;
 
 /* Possible values for SOCKET_LIB: */
-#define NO_SOCKETS      -1
-#define UNIX_SOCKETS     1
-#define WINSOCK_SOCKETS  2
+#define NO_SOCKETS      (-1)
+#define UNIX_SOCKETS      1
+#define WINSOCK_SOCKETS   2
 
 #if SOCKET_LIB == UNIX_SOCKETS
 typedef int                os_socketType;
@@ -521,16 +521,16 @@ typedef unsigned int       os_socketType;
 #endif
 
 /* Possible values for DIR_LIB: */
-#define NO_DIRECTORY     -1
-#define DIRENT_DIRECTORY  1
-#define DIRECT_DIRECTORY  2
-#define DIRDOS_DIRECTORY  3
-#define DIRWIN_DIRECTORY  4
+#define NO_DIRECTORY     (-1)
+#define DIRENT_DIRECTORY   1
+#define DIRECT_DIRECTORY   2
+#define DIRDOS_DIRECTORY   3
+#define DIRWIN_DIRECTORY   4
 
 /* Possible values for BIGINT_LIBRARY: */
-#define NO_BIG_LIBRARY  -1
-#define BIG_RTL_LIBRARY  1
-#define BIG_GMP_LIBRARY  2
+#define NO_BIG_LIBRARY  (-1)
+#define BIG_RTL_LIBRARY   1
+#define BIG_GMP_LIBRARY   2
 
 typedef const char            *const_cstriType;
 typedef const unsigned char   *const_ustriType;

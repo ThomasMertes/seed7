@@ -147,7 +147,7 @@ typedef struct {
     XSQLVAR  sqlvar[1];
   } XSQLDA;
 
-#define XSQLDA_LENGTH(n)  (sizeof(XSQLDA) + (n - 1) * sizeof(XSQLVAR))
+#define XSQLDA_LENGTH(n)  (sizeof(XSQLDA) + ((n) - 1) * sizeof(XSQLVAR))
 
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL

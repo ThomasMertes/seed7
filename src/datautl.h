@@ -26,6 +26,6 @@
 /********************************************************************/
 
 const_cstriType category_cstri (objectCategory category);
-intType category_value (const const_cstriType stri);
+intType category_value (const const_cstriType catName);
 const_cstriType id_string (const_identType actual_ident);
 const_cstriType id_string2 (const_identType actual_ident);

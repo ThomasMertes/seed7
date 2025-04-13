@@ -90,9 +90,9 @@ typedef sb4 (*OCICallbackLobWrite2) (void  *ctxp, void  *bufp, oraub8 *lenp,
 
 #define OCI_CRED_RDBMS 1
 
-#define OCI_SUCCESS       0
-#define OCI_NO_DATA     100
-#define OCI_CONTINUE -24200
+#define OCI_SUCCESS        0
+#define OCI_NO_DATA      100
+#define OCI_CONTINUE (-24200)
 
 #define OCI_DURATION_SESSION (OCIDuration) 10
 

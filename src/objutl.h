@@ -110,7 +110,7 @@
 #define isit_proc(arg)      hasCategory3(arg, BLOCKOBJECT, MATCHOBJECT, ACTOBJECT)
 #define isit_prog(arg)      hasCategory(arg, PROGOBJECT)
 #define isit_reference(arg) hasCategory(arg, REFOBJECT)
-#define isit_not_null(arg)  if (unlikely(arg == NULL))                  { empty_value(arg); return NULL; }
+#define isit_not_null(arg)  if (unlikely((arg) == NULL))                { empty_value(arg); return NULL; }
 #define isit_reflist(arg)   hasCategory3(arg, REFLISTOBJECT, MATCHOBJECT, CALLOBJECT)
 #define isit_set(arg)       hasCategory(arg, SETOBJECT); \
                             if (unlikely(take_set(arg) == NULL))        { empty_value(arg); return NULL; }
@@ -229,7 +229,7 @@ objectType bld_struct_temp (structType temp_struct);
 objectType bld_type_temp (typeType temp_type);
 objectType bld_win_temp (winType temp_win);
 objectType bld_pointlist_temp (bstriType temp_pointlist);
-objectType bld_process_temp (processType temp_win);
+objectType bld_process_temp (processType temp_process);
 void dump_temp_value (objectType object);
 void dump_any_temp (objectType object);
 void dump_list (listType list);

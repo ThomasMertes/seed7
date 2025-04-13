@@ -46,7 +46,7 @@
 #endif
 
 setType setBaselit (const intType number);
-intType setCard (const const_setType set1);
+intType setCard (const const_setType aSet);
 intType setCmp (const const_setType set1, const const_setType set2);
 void setCpy (setType *const dest, const const_setType source);
 setType setCreate (const const_setType source);
@@ -65,12 +65,12 @@ void setIntersectAssign (setType *const dest, const const_setType delta);
 boolType setIsEmpty (const const_setType set1);
 boolType setIsProperSubset (const const_setType set1, const const_setType set2);
 boolType setIsSubset (const const_setType set1, const const_setType set2);
-intType setMax (const const_setType set1);
-intType setMin (const const_setType set1);
-intType setNext (const const_setType set1, const intType number);
-intType setRand (const const_setType set1);
-setType setRangelit (const intType lowerValue, const intType upperValue);
-intType setSConv (const const_setType set1);
+intType setMax (const const_setType aSet);
+intType setMin (const const_setType aSet);
+intType setNext (const const_setType aSet, const intType number);
+intType setRand (const const_setType aSet);
+setType setRangelit (const intType lowValue, const intType highValue);
+intType setSConv (const const_setType aSet);
 setType setSymdiff (const const_setType set1, const const_setType set2);
 uintType setToUInt (const const_setType set1, const intType lowestBitNum);
 setType setUnion (const const_setType set1, const const_setType set2);

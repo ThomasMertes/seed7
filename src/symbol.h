@@ -54,9 +54,9 @@ EXTERN symbolType symbol;
 #endif
 
 
-#define check_symb_length(len)              if (len == symbol.name_length) extend_symb_length()
-#define check_symb_length_delta(len, delta) if (len + delta > symbol.name_length) extend_symb_length()
-#define check_stri_length(len)              if (len == symbol.stri_max) extend_stri_length()
+#define check_symb_length(len)              if ((len) == symbol.name_length) extend_symb_length()
+#define check_symb_length_delta(len, delta) if ((len) + (delta) > symbol.name_length) extend_symb_length()
+#define check_stri_length(len)              if ((len) == symbol.stri_max) extend_stri_length()
 
 
 void extend_symb_length (void);

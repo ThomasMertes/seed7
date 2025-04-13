@@ -25,14 +25,14 @@
 /*                                                                  */
 /********************************************************************/
 
-void rflAppend (listType *const list_to, const listType list_from);
+void rflAppend (listType *const dest, const listType extension);
 listType rflCat (listType list1, const listType list2);
 intType rflCmp (const_listType list1, const_listType list2);
 void rflCpy (listType *const dest, const const_listType source);
 listType rflCreate (const const_listType source);
 void rflDestr (const listType old_list);
 boolType rflElem (const const_objectType searched_object, const_listType list_element);
-void rflElemcpy (listType list, intType position, objectType elem);
+void rflElemcpy (listType dest, intType position, objectType elem);
 boolType rflEq (const_listType list1, const_listType list2);
 listType rflHead (const listType list, intType stop);
 objectType rflIdx (const_listType list, intType position);

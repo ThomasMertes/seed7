@@ -41,9 +41,9 @@
                                       (stri)->size))
 
 
-void toLower (const strElemType *const stri, memSizeType length,
+void toLower (const strElemType *const source, memSizeType length,
     strElemType *const dest);
-void toUpper (const strElemType *const stri, memSizeType length,
+void toUpper (const strElemType *const source, memSizeType length,
     strElemType *const dest);
 striType concatPath (const const_striType absolutePath,
     const const_striType relativePath);

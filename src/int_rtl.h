@@ -90,7 +90,7 @@ intType intPowOvfChk (intType base, intType exponent);
 striType intRadix (intType number, intType base, boolType upperCase);
 striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
 intType intRand (intType low, intType high);
-intType intSqrt (intType number);
+intType intSqrt (intType radicand);
 striType intStr (intType number);
 #if ALLOW_STRITYPE_SLICES
 striType intStrToBuffer (intType number, striType buffer);

@@ -105,7 +105,7 @@ boolType openBString (bstriType inputString,
     fileNumType fileNumber, inFileType nextFile,
     boolType write_library_names, boolType write_line_numbers,
     errInfoType *err_info);
-void removeProgFiles (progType currentProg);
+void removeProgFiles (progType aProg);
 void next_file (void);
 int next_line (void);
 striType get_file_name (progType aProg, fileNumType file_num);

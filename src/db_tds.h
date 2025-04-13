@@ -89,11 +89,11 @@ typedef int (*EHANDLEFUNC) (DBPROCESS *dbproc, int severity, int dberr, int oser
 typedef int (*MHANDLEFUNC) (DBPROCESS *dbproc, DBINT msgno, int msgstate, int severity, char *msgtext, char *srvname,
                             char *proc, int line);
 
-#define NO_MORE_ROWS    -2
-#define MORE_ROWS       -1
-#define FAIL             0
-#define SUCCEED          1
-#define NO_MORE_RESULTS  2
+#define NO_MORE_ROWS    (-2)
+#define MORE_ROWS       (-1)
+#define FAIL              0
+#define SUCCEED           1
+#define NO_MORE_RESULTS   2
 
 #define INT_EXIT      0
 #define INT_CONTINUE  1

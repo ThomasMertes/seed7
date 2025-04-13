@@ -66,10 +66,10 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                     intType *minute, intType *second, intType *micro_second,
                     intType *time_zone, boolType *is_dst);
 void sqlCommit (databaseType database);
-void sqlCpyDb (databaseType *const db_to, const databaseType db_from);
-void sqlCpyStmt (sqlStmtType *const stmt_to, const sqlStmtType stmt_from);
-databaseType sqlCreateDb (const databaseType db_from);
-sqlStmtType sqlCreateStmt (const sqlStmtType stmt_from);
+void sqlCpyDb (databaseType *const dest, const databaseType source);
+void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source);
+databaseType sqlCreateDb (const databaseType source);
+sqlStmtType sqlCreateStmt (const sqlStmtType source);
 void sqlDestrDb (const databaseType old_db);
 void sqlDestrStmt (const sqlStmtType old_stmt);
 intType sqlDriver (databaseType database);
