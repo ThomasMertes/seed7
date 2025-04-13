@@ -86,6 +86,7 @@ const type: lengthToStriNumHash is hash [integer] array integer;
 const type: profiledFunctionsHash is hash [integer] reference;
 
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
+var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;

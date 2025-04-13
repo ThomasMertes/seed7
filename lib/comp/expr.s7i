@@ -60,7 +60,6 @@ const type: expr_type is new struct
 var expr_type: global_c_expr is expr_type.value;
 var ref_list: declared_types is ref_list.EMPTY;
 var boolean: write_object_declaration is TRUE;
-var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 
 
 const proc: defineVarFuncType (in type: functionType, inout expr_type: c_expr) is func

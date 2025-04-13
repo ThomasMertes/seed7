@@ -24,7 +24,7 @@
 (********************************************************************)
 
 
-var type: catchExceptionLevelType is hash [string] integer;
+const type: catchExceptionLevelType is hash [string] integer;
 
 var catchExceptionLevelType: catchExceptionLevel is catchExceptionLevelType.value;
 var integer: catchAllExceptionsLevel is 0;
