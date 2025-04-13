@@ -713,7 +713,7 @@ void heapStatistic (void)
 
 
 
-#if !DO_HEAPSIZE_COMPUTATION && DO_HEAP_STATISTIC
+#if (!DO_HEAPSIZE_COMPUTATION || DO_HEAP_CHECK) && DO_HEAP_STATISTIC
 static memSizeType compute_hs (void)
 
   {
@@ -721,58 +721,58 @@ static memSizeType compute_hs (void)
 
   /* compute_hs */
     logFunction(printf("compute_hs\n"););
-    bytes_total = 0;
-    bytes_total += count.stri * SIZ_STRI(0);
-    bytes_total += count.stri_elems * sizeof(strElemType);
-    bytes_total += count.bstri * SIZ_BSTRI(0);
-    bytes_total += count.bstri_elems * sizeof(ucharType);
-    bytes_total += count.array * SIZ_ARR(0);
-    bytes_total += count.arr_elems * SIZ_REC(objectRecord);
-    bytes_total += count.rtl_array * SIZ_RTL_ARR(0);
-    bytes_total += count.rtl_arr_elems * SIZ_REC(rtlObjectType);
-    bytes_total += count.hash * SIZ_HSH(0);
-    bytes_total += count.hsh_elems * SIZ_REC(hashElemType);
-    bytes_total += count.helem * SIZ_REC(hashElemRecord);
-    bytes_total += count.rtl_hash * SIZ_RTL_HSH(0);
-    bytes_total += count.rtl_hsh_elems * SIZ_REC(rtlHashElemType);
-    bytes_total += count.rtl_helem * SIZ_REC(rtlHashElemRecord);
-    bytes_total += count.set * SIZ_SET(0);
-    bytes_total += count.set_elems * SIZ_REC(bitSetType);
-    bytes_total += count.stru * SIZ_SCT(0);
-    bytes_total += count.sct_elems * SIZ_REC(objectRecord);
+    bytes_total =
+        (memSizeType) count.stri * SIZ_STRI(0) +
+        count.stri_elems * sizeof(strElemType) +
+        (memSizeType) count.bstri * SIZ_BSTRI(0) +
+        count.bstri_elems * sizeof(ucharType) +
+        (memSizeType) count.array * SIZ_ARR(0) +
+        count.arr_elems * SIZ_REC(objectRecord) +
+        (memSizeType) count.rtl_array * SIZ_RTL_ARR(0) +
+        count.rtl_arr_elems * SIZ_REC(rtlObjectType) +
+        (memSizeType) count.hash * SIZ_HSH(0) +
+        count.hsh_elems * SIZ_REC(hashElemType) +
+        (memSizeType) count.helem * SIZ_REC(hashElemRecord) +
+        (memSizeType) count.rtl_hash * SIZ_RTL_HSH(0) +
+        count.rtl_hsh_elems * SIZ_REC(rtlHashElemType) +
+        (memSizeType) count.rtl_helem * SIZ_REC(rtlHashElemRecord) +
+        (memSizeType) count.set * SIZ_SET(0) +
+        count.set_elems * SIZ_REC(bitSetType) +
+        (memSizeType) count.stru * SIZ_SCT(0) +
+        count.sct_elems * SIZ_REC(objectRecord) +
 #if BIGINT_LIBRARY == BIG_RTL_LIBRARY
-    bytes_total += count.big * SIZ_BIG(0);
-    bytes_total += count.big_elems * sizeof_bigDigitType;
+        (memSizeType) count.big * SIZ_BIG(0) +
+        count.big_elems * sizeof_bigDigitType +
 #endif
-    bytes_total += count.ident * SIZ_REC(identRecord);
-    bytes_total += count.idt_bytes + count.idt;
-    bytes_total += count.entity * SIZ_REC(entityRecord);
-    bytes_total += count.property * SIZ_REC(propertyRecord);
-    bytes_total += count.object * SIZ_REC(objectRecord);
-    bytes_total += count.node * SIZ_REC(nodeRecord);
-    bytes_total += count.token * SIZ_REC(tokenRecord);
-    bytes_total += count.owner * SIZ_REC(ownerRecord);
-    bytes_total += count.stack * SIZ_REC(stackRecord);
-    bytes_total += count.typelist_elems * SIZ_REC(typeListRecord);
-    bytes_total += count.type * SIZ_REC(typeRecord);
-    bytes_total += count.list_elem * SIZ_REC(listRecord);
-    bytes_total += count.block * SIZ_REC(blockRecord);
-    bytes_total += count.loclist * SIZ_REC(locListRecord);
-    bytes_total += count.infil * SIZ_REC(inFileRecord);
-    bytes_total += count.polldata * sizeof_pollRecord;
-    bytes_total += count.files * SIZ_REC(fileRecord);
-    bytes_total += count.win_bytes;
-    bytes_total += count.process * sizeof_processRecord;
-    bytes_total += count.sql_func * SIZ_REC(sqlFuncRecord);
-    bytes_total += count.database_bytes;
-    bytes_total += count.prepared_stmt_bytes;
-    bytes_total += count.fetch_data_bytes;
-    bytes_total += count.parseError * SIZ_REC(parseErrorRecord);
-    bytes_total += count.prog * SIZ_REC(progRecord);
-    bytes_total += count.fnam_bytes + count.fnam +
-        count.symb_bytes + count.symb +
+        (memSizeType) count.ident * SIZ_REC(identRecord) +
+        count.idt_bytes + (memSizeType) count.idt +
+        (memSizeType) count.entity         * SIZ_REC(entityRecord) +
+        (memSizeType) count.property       * SIZ_REC(propertyRecord) +
+        (memSizeType) count.object         * SIZ_REC(objectRecord) +
+        (memSizeType) count.node           * SIZ_REC(nodeRecord) +
+        (memSizeType) count.token          * SIZ_REC(tokenRecord) +
+        (memSizeType) count.owner          * SIZ_REC(ownerRecord) +
+        (memSizeType) count.stack          * SIZ_REC(stackRecord) +
+        (memSizeType) count.typelist_elems * SIZ_REC(typeListRecord) +
+        (memSizeType) count.type           * SIZ_REC(typeRecord) +
+        (memSizeType) count.list_elem      * SIZ_REC(listRecord) +
+        (memSizeType) count.block          * SIZ_REC(blockRecord) +
+        (memSizeType) count.loclist        * SIZ_REC(locListRecord) +
+        (memSizeType) count.infil          * SIZ_REC(inFileRecord) +
+        (memSizeType) count.parseError     * SIZ_REC(parseErrorRecord) +
+        (memSizeType) count.prog           * SIZ_REC(progRecord) +
+        (memSizeType) count.polldata       * sizeof_pollRecord +
+        count.database_bytes +
+        count.prepared_stmt_bytes +
+        count.fetch_data_bytes +
+        (memSizeType) count.sql_func       * SIZ_REC(sqlFuncRecord) +
+        (memSizeType) count.files          * SIZ_REC(fileRecord) +
+        (memSizeType) count.win_bytes +
+        (memSizeType) count.process        * sizeof_processRecord +
+        count.fnam_bytes + (memSizeType) count.fnam +
+        count.symb_bytes + (memSizeType) count.symb +
         count.byte;
-    logFunction(printf("compute_hs -->\n"););
+    logFunction(printf("compute_hs --> "FMT_U_MEM "\n", bytes_total););
     return bytes_total;
   } /* compute_hs */
 #endif
@@ -812,6 +812,7 @@ memSizeType heapsize (void)
 #else
     result = 0;
 #endif
+    logFunction(printf("heapsize --> " FMT_U_MEM "\n", result););
     return result;
   } /* heapsize */
 
@@ -942,67 +943,18 @@ void *heap_chunk (size_t size)
 void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 
   {
-    memSizeType bytes_used;
+    memSizeType bytes_total;
     /* static long last_sizediff = 0;
        static unsigned int last_line_num = 0; */
 
   /* check_heap */
     logFunction(printf("check_heap\n"););
-    bytes_used =
-        ((memSizeType) count.stri) * SIZ_STRI(0) +
-        count.stri_elems * sizeof(strElemType) +
-        ((memSizeType) count.bstri) * SIZ_BSTRI(0) +
-        count.bstri_elems * sizeof(ucharType) +
-        ((memSizeType) count.array) * SIZ_ARR(0) +
-        count.arr_elems * SIZ_REC(objectRecord) +
-        ((memSizeType) count.rtl_array) * SIZ_RTL_ARR(0) +
-        count.rtl_arr_elems * SIZ_REC(rtlObjectType) +
-        ((memSizeType) count.hash) * SIZ_HSH(0) +
-        count.hsh_elems * SIZ_REC(hashElemType) +
-        ((memSizeType) count.helem) * SIZ_REC(hashElemRecord) +
-        ((memSizeType) count.rtl_hash) * SIZ_RTL_HSH(0) +
-        count.rtl_hsh_elems * SIZ_REC(rtlHashElemType) +
-        ((memSizeType) count.rtl_helem) * SIZ_REC(rtlHashElemRecord) +
-        ((memSizeType) count.set) * SIZ_SET(0) +
-        count.set_elems * SIZ_REC(bitSetType) +
-        ((memSizeType) count.stru) * SIZ_SCT(0) +
-        count.sct_elems * SIZ_REC(objectRecord) +
-#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
-        ((memSizeType) count.big) * SIZ_BIG(0) +
-        count.big_elems * sizeof_bigDigitType +
-#endif
-        ((memSizeType) count.ident) * SIZ_REC(identRecord) +
-        count.idt_bytes + ((memSizeType) count.idt) +
-        ((memSizeType) count.entity)         * SIZ_REC(entityRecord) +
-        ((memSizeType) count.property)       * SIZ_REC(propertyRecord) +
-        ((memSizeType) count.object)         * SIZ_REC(objectRecord) +
-        ((memSizeType) count.node)           * SIZ_REC(nodeRecord) +
-        ((memSizeType) count.token)          * SIZ_REC(tokenRecord) +
-        ((memSizeType) count.owner)          * SIZ_REC(ownerRecord) +
-        ((memSizeType) count.stack)          * SIZ_REC(stackRecord) +
-        ((memSizeType) count.typelist_elems) * SIZ_REC(typeListRecord) +
-        ((memSizeType) count.type)           * SIZ_REC(typeRecord) +
-        ((memSizeType) count.list_elem)      * SIZ_REC(listRecord) +
-        ((memSizeType) count.block)          * SIZ_REC(blockRecord) +
-        ((memSizeType) count.loclist)        * SIZ_REC(locListRecord) +
-        ((memSizeType) count.infil)          * SIZ_REC(inFileRecord) +
-        ((memSizeType) count.polldata)       * sizeof_pollRecord +
-        ((memSizeType) count.files)          * SIZ_REC(fileRecord) +
-        ((memSizeType) count.win_bytes) +
-        ((memSizeType) count.process)        * sizeof_processRecord +
-        ((memSizeType) count.sql_func)       * SIZ_REC(sqlFuncRecord) +
-        ((memSizeType) count.database_bytes) +
-        ((memSizeType) count.prepared_stmt_bytes) +
-        ((memSizeType) count.fetch_data_bytes) +
-        ((memSizeType) count.parseError)     * SIZ_REC(parseErrorRecord) +
-        ((memSizeType) count.prog)           * SIZ_REC(progRecord) +
-        count.fnam_bytes + ((memSizeType) count.fnam) +
-        count.symb_bytes + ((memSizeType) count.symb) +
-        count.byte;
+#if DO_HEAP_STATISTIC
+    bytes_total = compute_hs();
 #if DO_HEAPSIZE_COMPUTATION
-    if (bytes_used != hs) {
+    if (bytes_total != hs) {
       printf("*** %s(%u)\n" FMT_U_MEM " " FMT_U_MEM " " FMT_D_MEM " %ld \n",
-          file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
+          file_name, line_num, bytes_total, hs, bytes_total - hs, sizediff);
 /*    heapStatistic();
       fflush(stdout);
       printf("should not happen\n");
@@ -1010,6 +962,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 /*  } else {
       printf("\n%lu %ld %d \n", hs, sizediff, in_file.line); */
     } /* if */
+#endif
 #endif
     /* last_sizediff = sizediff;
        last_line_num = line_num; */

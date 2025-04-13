@@ -71,6 +71,8 @@ typedef struct {
     unsigned long parseError;
     unsigned long prog;
     unsigned long polldata;
+    unsigned long database;
+    memSizeType database_bytes;
     unsigned long prepared_stmt;
     memSizeType prepared_stmt_bytes;
     unsigned long fetch_data;
@@ -79,8 +81,6 @@ typedef struct {
     unsigned long files;
     unsigned long win;
     memSizeType win_bytes;
-    unsigned long database;
-    memSizeType database_bytes;
     unsigned long process;
     unsigned long fnam;
     memSizeType fnam_bytes;
