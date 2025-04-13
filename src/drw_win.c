@@ -2394,7 +2394,7 @@ void drwText (const_winType actual_window, intType x, intType y,
   {
     wchar_t *stri_buffer;
     wchar_t *wstri;
-    strElemType *strelem;
+    const strElemType *strelem;
     memSizeType len;
 
   /* drwText */
