@@ -4508,45 +4508,45 @@ static void localtimeProperties (FILE *versionFile)
 static const char *defineMakeDir (void)
 
   {
-    const char *makeDirDefinition = NULL;
+    const char *makeDirDef = NULL;
 
   /* defineMakeDir */
     if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      makeDirDefinition = "#include <direct.h>\n"
-                          "#define makeDir(path,mode) mkdir(path)\n";
+      makeDirDef = "#include <direct.h>\n"
+                   "#define makeDir(path,mode) mkdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n"
                                 "#include <sys/stat.h>\n#include <sys/types.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
-                          "#define makeDir(path,mode) mkdir(path)\n";
+      makeDirDef = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                   "#define makeDir(path,mode) mkdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      makeDirDefinition = "#include <direct.h>\n"
-                          "#define makeDir(path,mode) _mkdir(path)\n";
+      makeDirDef = "#include <direct.h>\n"
+                   "#define makeDir(path,mode) _mkdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n"
                                 "#include <sys/stat.h>\n#include <sys/types.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
-                          "#define makeDir(path,mode) _mkdir(path)\n";
+      makeDirDef = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                   "#define makeDir(path,mode) _mkdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{mkdir(\"tmp_empty_dir1\", 0755);return 0;}\n")) {
-      makeDirDefinition = "#include <direct.h>\n"
-                          "#define makeDir(path,mode) mkdir(path,mode)\n";
+      makeDirDef = "#include <direct.h>\n"
+                   "#define makeDir(path,mode) mkdir(path,mode)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n"
                                 "#include <sys/stat.h>\n#include <sys/types.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{mkdir(\"tmp_empty_dir1\", 0755);return 0;}\n")) {
-      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
-                          "#define makeDir(path,mode) mkdir(path,mode)\n";
+      makeDirDef = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                   "#define makeDir(path,mode) mkdir(path,mode)\n";
     } /* if */
-    /* fprintf(logFile, "Internal makeDirDefinition:\n%s\n", makeDirDefinition); */
-    return makeDirDefinition;
+    /* fprintf(logFile, "defineMakeDir -->\n%s\n", makeDirDef); */
+    return makeDirDef;
   } /* defineMakeDir */
 
 
@@ -4554,37 +4554,37 @@ static const char *defineMakeDir (void)
 static const char *defineRemoveDir (void)
 
   {
-    const char *removeDirDefinition = NULL;
+    const char *removeDirDef = NULL;
 
   /* defineRemoveDir */
     if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      removeDirDefinition = "#include <direct.h>\n"
-                            "#define removeDir(path) rmdir(path)\n";
+      removeDirDef = "#include <direct.h>\n"
+                     "#define removeDir(path) rmdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      removeDirDefinition = "#include <unistd.h>\n"
-                            "#define removeDir(path) rmdir(path)\n";
+      removeDirDef = "#include <unistd.h>\n"
+                     "#define removeDir(path) rmdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{_rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      removeDirDefinition = "#include <direct.h>\n"
-                            "#define removeDir(path) _rmdir(path)\n";
+      removeDirDef = "#include <direct.h>\n"
+                     "#define removeDir(path) _rmdir(path)\n";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{_rmdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      removeDirDefinition = "#include <unistd.h>\n"
-                            "#define removeDir(path) _rmdir(path)\n";
+      removeDirDef = "#include <unistd.h>\n"
+                     "#define removeDir(path) _rmdir(path)\n";
     } /* if */
-    /* fprintf(logFile, "Internal removeDirDefinition:\n%s\n", removeDirDefinition); */
-    return removeDirDefinition;
+    /* fprintf(logFile, "defineRemoveDir -->\n%s\n", removeDirDef); */
+    return removeDirDef;
   } /* defineRemoveDir */
 
 
 
-static void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
+static void checkRemoveDir (const char *makeDirDef, FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
@@ -4595,7 +4595,7 @@ static void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
                     "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
                     "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
                     "printf(\"%%d\\n\",rmFail);return 0;}\n",
-                    makeDirDefinition);
+                    makeDirDef);
     if (compileAndLinkOk(buffer)) {
       fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
     } else {
@@ -4604,7 +4604,7 @@ static void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
                       "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
                       "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
                       "printf(\"%%d\\n\",rmFail);return 0;}\n",
-                      makeDirDefinition);
+                      makeDirDef);
       if (compileAndLinkOk(buffer)) {
         fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
       } /* if */
