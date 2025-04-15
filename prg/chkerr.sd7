@@ -1936,60 +1936,60 @@ const func boolean: checkBackslashExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("\"\\",
-                    BACKSLASHEXPECTED, 1, 2,
+                    WRONG_STRING_CONTINUATION, 1, 2,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\") and
         checkError1("\"\\ ",
-                    BACKSLASHEXPECTED, 1, 3,
+                    WRONG_STRING_CONTINUATION, 1, 3,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\ ") and
         checkError1("\"\\\n",
-                    BACKSLASHEXPECTED, 2, 3,
+                    WRONG_STRING_CONTINUATION, 2, 3,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\") and
         checkError1("\"\\\r\n",
-                    BACKSLASHEXPECTED, 2, 4,
+                    WRONG_STRING_CONTINUATION, 2, 4,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\") and
         checkError1("\"\\ \n",
-                    BACKSLASHEXPECTED, 2, 4,
+                    WRONG_STRING_CONTINUATION, 2, 4,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\ ") and
         checkError1("\"\\\t\n",
-                    BACKSLASHEXPECTED, 2, 4,
+                    WRONG_STRING_CONTINUATION, 2, 4,
                     "String continuations should end with \"\\\" not EOF",
                     "\"\\\t") and
         checkError1("\"\\\ncontinued\";",
-                    BACKSLASHEXPECTED, 2, 1,
+                    WRONG_STRING_CONTINUATION, 2, 1,
                     "String continuations should end with \"\\\" not \"c\"",
                     "continued\";") and
         checkError1("\"\\ \ncontinued\";",
-                    BACKSLASHEXPECTED, 2, 1,
+                    WRONG_STRING_CONTINUATION, 2, 1,
                     "String continuations should end with \"\\\" not \"c\"",
                     "continued\";") and
         checkError1("\"\\\t\ncontinued\";",
-                    BACKSLASHEXPECTED, 2, 1,
+                    WRONG_STRING_CONTINUATION, 2, 1,
                     "String continuations should end with \"\\\" not \"c\"",
                     "continued\";") and
         checkError1("\"\\\r\ncontinued\";",
-                    BACKSLASHEXPECTED, 2, 1,
+                    WRONG_STRING_CONTINUATION, 2, 1,
                     "String continuations should end with \"\\\" not \"c\"",
                     "continued\";") and
         checkError1("\"\\ continued\";",
-                    BACKSLASHEXPECTED, 1, 4,
+                    WRONG_STRING_CONTINUATION, 1, 4,
                     "String continuations should end with \"\\\" not \"c\"",
                     "\"\\ continued\";") and
         checkError1("\"\\\tcontinued\";",
-                    BACKSLASHEXPECTED, 1, 4,
+                    WRONG_STRING_CONTINUATION, 1, 4,
                     "String continuations should end with \"\\\" not \"c\"",
                     "\"\\\tcontinued\";") and
         checkError1("\"\\\rcontinued\";",
-                    BACKSLASHEXPECTED, 1, 4,
+                    WRONG_STRING_CONTINUATION, 1, 4,
                     "String continuations should end with \"\\\" not \"c\"",
                     "\"\\\rcontinued\";") then
       okay := TRUE;
     else
-      writeln(" *** BACKSLASHEXPECTED not reported correctly.");
+      writeln(" *** WRONG_STRING_CONTINUATION not reported correctly.");
     end if;
   end func;
 

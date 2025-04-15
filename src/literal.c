@@ -93,9 +93,9 @@ static int skip_lines (register int character)
       character = next_character();
     } else {
       if (character == EOF) {
-        err_warning(BACKSLASHEXPECTED);
+        err_warning(WRONG_STRING_CONTINUATION);
       } else {
-        err_cchar(BACKSLASHEXPECTED, character);
+        err_cchar(WRONG_STRING_CONTINUATION, character);
         if (character == '\"') {
           character = next_character();
         } /* if */
@@ -130,9 +130,9 @@ static unsigned int escape_sequence (unsigned int position)
         if (character == '\\') {
           character = next_character();
         } else if (character == EOF) {
-          err_warning(BACKSLASHEXPECTED);
+          err_warning(WRONG_STRING_CONTINUATION);
         } else {
-          err_cchar(BACKSLASHEXPECTED, character);
+          err_cchar(WRONG_STRING_CONTINUATION, character);
         } /* if */
       } /* if */
     } else if (char_class(character) == DIGITCHAR) {
@@ -174,7 +174,7 @@ static unsigned int escape_sequence (unsigned int position)
       symbol.striValue->mem[position++] = (strElemType) symbol.charValue;
       character = next_character();
     } else {
-      err_warning(BACKSLASHEXPECTED);
+      err_warning(WRONG_STRING_CONTINUATION);
     } /* if */
     in_file.character = character;
     return position;
