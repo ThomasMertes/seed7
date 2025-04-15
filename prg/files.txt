@@ -97,6 +97,7 @@ raytrace.sd7 Raytracing demo program.
 rever.sd7    Reversi game
 roman.sd7    Write roman numerals
 s7c.sd7      Seed7 compiler - Compiles Seed7 to C
+s7check.sd7  Seed7 static check - detects Seed7 errors.
 savehd7.sd7  Save a harddisk which has hardware errors.
 self.sd7     A program that writes itself (except this header)
 shisen.sd7   Shisen game

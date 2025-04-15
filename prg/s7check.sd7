@@ -1,0 +1,59 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  s7check.sd7     Static analysis of Seed7 source code file       *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*   Modified by Pierre Rouleau: modified output to comply with     *)
+(*                               Emacs compilation-mode             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+#  Note:
+#  Compile this file with s7c to create the s7check executable.
+
+
+$ include "seed7_05.s7i";
+  include "progs.s7i";
+
+const proc: main is func
+  local
+    var program: aProgram is program.value;
+    var integer: index is 0;
+    var parseError: anError is parseError.value;
+  begin
+    if length(argv(PROGRAM)) >= 1 then
+      aProgram := parseFile(argv(PROGRAM)[1]);
+      if errorCount(aProgram) = 0 then
+        writeln("No errors found");
+      else
+        for index range 1 to errorCount(aProgram) do
+          anError := getError(aProgram, index);
+          writeln(anError.fileName <&
+                  "(" <& anError.lineNumber <& "): " <&
+                  anError.error <& ": " <&
+                  anError.message);
+          writeln(anError.errorLine);
+          if anError.columnNumber <> 0 then
+            writeln("-" mult pred(anError.columnNumber) <& "^");
+          end if;
+        end for;
+      end if;
+    end if;
+  end func;
+
+# --------------------------------------------------------------------------
