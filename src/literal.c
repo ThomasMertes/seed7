@@ -149,11 +149,14 @@ static unsigned int escape_sequence (unsigned int position)
       } /* if */
       if (in_file.character != ';') {
         if (in_file.character == '\\') {
-          err_cchar(WRONGNUMERICALESCAPE, '\\');
+          err_cchar(WRONG_NUMERICAL_ESCAPE, '\\');
           character = next_character();
+        } else if (in_file.character == EOF) {
+          err_warning(WRONG_NUMERICAL_ESCAPE);
+          character = EOF;
         } else {
           character = in_file.character;
-          err_cchar(WRONGNUMERICALESCAPE, character);
+          err_cchar(WRONG_NUMERICAL_ESCAPE, character);
         } /* if */
       } else {
         character = next_character();

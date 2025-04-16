@@ -1869,33 +1869,41 @@ const func boolean: checkWrongNumericalEscape is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("'\\8';",
-                    WRONGNUMERICALESCAPE, 1, 4,
+    if  checkError1("'\\8",
+                    WRONG_NUMERICAL_ESCAPE, 1, 3,
+                    "Numerical escape sequences should end with \";\" not EOF",
+                    "'\\8") and
+        checkError1("'\\8';",
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"'\"",
                     "'\\8';") and
         checkError1("'\\8\\';",
-                    WRONGNUMERICALESCAPE, 1, 4,
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"\\\"",
                     "'\\8\\';") and
         checkError1("'\\8y';",
-                    WRONGNUMERICALESCAPE, 1, 4,
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"y\"",
                     "'\\8y';") and
+        checkError1("\"\\8",
+                    WRONG_NUMERICAL_ESCAPE, 1, 3,
+                    "Numerical escape sequences should end with \";\" not EOF",
+                    "\"\\8") and
         checkError1("\"\\8\";",
-                    WRONGNUMERICALESCAPE, 1, 4,
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"\"\"",
                     "\"\\8\";") and
         checkError1("\"\\8\\\";",
-                    WRONGNUMERICALESCAPE, 1, 4,
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"\\\"",
                     "\"\\8\\\";") and
         checkError1("\"\\8y\";",
-                    WRONGNUMERICALESCAPE, 1, 4,
+                    WRONG_NUMERICAL_ESCAPE, 1, 4,
                     "Numerical escape sequences should end with \";\" not \"y\"",
                     "\"\\8y\";") then
       okay := TRUE;
     else
-      writeln(" *** WRONGNUMERICALESCAPE not reported correctly.");
+      writeln(" *** WRONG_NUMERICAL_ESCAPE not reported correctly.");
     end if;
   end func;
 

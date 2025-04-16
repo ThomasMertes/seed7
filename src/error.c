@@ -871,6 +871,9 @@ void err_warning (errorType err)
       case CHAREXCEEDS:
         copyCStri(&error->msg, "Character literal exceeds source line");
         break;
+      case WRONG_NUMERICAL_ESCAPE:
+        copyCStri(&error->msg, "Numerical escape sequences should end with \";\" not EOF");
+        break;
       case WRONG_STRING_CONTINUATION:
         copyCStri(&error->msg, "String continuations should end with \"\\\" not EOF");
         break;
@@ -1549,7 +1552,7 @@ void err_cchar (errorType err, int character)
       case WRONG_STRING_CONTINUATION:
         copyCStri(&error->msg, "String continuations should end with \"\\\" not \"");
         break;
-      case WRONGNUMERICALESCAPE:
+      case WRONG_NUMERICAL_ESCAPE:
         copyCStri(&error->msg, "Numerical escape sequences should end with \";\" not \"");
         break;
       case STRINGESCAPE:
