@@ -267,7 +267,18 @@ const func boolean: checkGetJsonString1 is func
       okay := FALSE;
     end if;
 
-    if  not getJsonStringOkay("\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"",
+    if  not getJsonStringOkay("\"0123456789\"", "\"0123456789\"", "") or
+        not getJsonStringOkay("\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"", "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"", "") or
+        not getJsonStringOkay("\"abcdefghijklmnopqrstuvwxyz\"", "\"abcdefghijklmnopqrstuvwxyz\"", "") or
+        not getJsonStringOkay("\" !\\\"#$%&'()*+,-.\\/:;<=>?@[\\\\]^_`{|}~\"",
+                              "\" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\"", "") or
+        not getJsonStringOkay("\"¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿\"",
+                              "\"¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿\"", "") or
+        not getJsonStringOkay("\"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\"",
+                              "\"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\"", "") or
+        not getJsonStringOkay("\"àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\"",
+                              "\"àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\"", "") or
+        not getJsonStringOkay("\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"",
                               "\"\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€\"", "") then
       writeln(" ***** getJsonString() does not work as expected. (5)");
       okay := FALSE;
@@ -893,17 +904,6 @@ const proc: checkJsonDom is func
         float(     readJson("0.00000762939453125")) <> 0.00000762939453125  or
         string(    readJson("\"foo\""))             <> "foo"                then
       writeln(" ***** Converting a jsonValue to a plain value does not work correctly.(2)");
-      okay := FALSE;
-    end if;
-
-    if  void(      jsonValue(NULL))                 <> empty                or
-        boolean(   jsonValue(TRUE))                 <> TRUE                 or
-        boolean(   jsonValue(FALSE))                <> FALSE                or
-        integer(   jsonValue(              12345 )) <>               12345  or
-        bigInteger(jsonValue(9223372036854775808_)) <> 9223372036854775808_ or
-        float(     jsonValue(0.00000762939453125 )) <> 0.00000762939453125  or
-        string(    jsonValue("foo"))                <> "foo"                then
-      writeln(" ***** Converting a plain value to a jsonValue does not work correctly.");
       okay := FALSE;
     end if;
 
