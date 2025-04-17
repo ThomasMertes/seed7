@@ -75,9 +75,12 @@ static const char esc_tab[] = {
 
 
 
-static int skip_lines (register int character)
+static int skip_lines (void)
 
-  { /* skip_lines */
+  {
+    register int character;
+
+  /* skip_lines */
     do {
       SKIP_CR_SP(character);
       if (character == '#') {
@@ -114,7 +117,7 @@ static unsigned int escape_sequence (unsigned int position)
   /* escape_sequence */
     character = next_character();                               /*  0.05% */
     if (character == '\n') {
-      character = skip_lines(character);
+      character = skip_lines();
     } else if (character == ' ' || character == '\t' ||
         character == '\r') {
       SKIP_CR_SP(character);
@@ -125,7 +128,7 @@ static unsigned int escape_sequence (unsigned int position)
 #endif
       } /* if */
       if (character == '\n') {
-        character = skip_lines(character);
+        character = skip_lines();
       } else {
         if (character == '\\') {
           character = next_character();
