@@ -330,18 +330,6 @@ static unsigned int flist_allowed = 100;
                                             {HEAP_REALLOC_BIG(v1,v2,len)}else v1=NULL;
 
 
-void bigDestr (const const_bigIntType old_bigint);
-void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
-intType bigLowestSetBit (const const_bigIntType big1);
-void bigLShiftAssign (bigIntType *const big_variable, intType lshift);
-bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divisor);
-bigIntType bigRShift (const const_bigIntType big1, const intType rshift);
-void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
-bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
-void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType big2);
-striType bigStr (const const_bigIntType big1);
-
-
 
 /**
  *  Setup bigInteger computations.
