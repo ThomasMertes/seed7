@@ -544,16 +544,6 @@ static void con_normalcolour (void)
 
 
 
-void textcolumns (striType stri, intType striwidth,
-    intType *cols, intType *rest)
-
-  { /* textcolumns */
-    *cols = striwidth;
-    *rest = 0;
-  } /* textcolumns */
-
-
-
 int conHeight (void)
 
   {

@@ -1266,32 +1266,6 @@ static intType txtwidth (unsigned char *stri, intType length,
 
 
 
-void textcolumns (striType stri, intType striwidth,
-    intType *cols, intType *rest)
-
-  {
-    intType width;
-
-  /* textcolumns */
-    *cols = 0;
-    width = 0;
-    while ((*cols < stri->size) &&
-        (width + actual_scaledfont->characters[stri->mem[*cols]].xwidth + actual_scaledfont->xDist <=
-        striwidth)) {
-      width = width + actual_scaledfont->characters[stri->mem[*cols]].xwidth + actual_scaledfont->xDist;
-      (*cols)++;
-    } /* while */
-    if (*cols >= stri->size) {
-      while (width + actual_scaledfont->characters[' '].xwidth + actual_scaledfont->xDist <= striwidth) {
-        width = width + actual_scaledfont->characters[' '].xwidth + actual_scaledfont->xDist;
-        (*cols)++;
-      } /* while */
-    } /* if */
-    *rest = striwidth - width;
-  } /* textcolumns */
-
-
-
 int conHeight (void)
 
   {
