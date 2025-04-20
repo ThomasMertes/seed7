@@ -339,23 +339,6 @@ static int cur_setfont (char *fontname)
 
 
 
-intType textheigth (void)
-
-  { /* textheigth */
-    return 1;
-  } /* textheigth */
-
-
-
-intType textwidth (striType stri,
-    intType startcol, intType stopcol)
-
-  { /* textwidth */
-    return stopcol + 1 - startcol;
-  } /* textwidth */
-
-
-
 void textcolumns (striType stri, intType striwidth,
     intType *cols, intType *rest)
 

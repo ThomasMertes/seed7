@@ -378,23 +378,6 @@ static int inf_setfont (char *fontname)
 
 
 
-intType inf_textheight (void)
-
-  { /* inf_textheight */
-    return 1;
-  } /* inf_textheight */
-
-
-
-intType textwidth (striType stri,
-    intType startcol, intType stopcol)
-
-  { /* textwidth */
-    return stopcol + 1 - startcol;
-  } /* textwidth */
-
-
-
 void textcolumns (striType stri, intType striwidth,
     intType * cols, intType *rest)
 

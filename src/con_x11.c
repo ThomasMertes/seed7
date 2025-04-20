@@ -1236,14 +1236,6 @@ fflush(stdout);
 
 
 
-intType textheight (void)
-
-  { /* textheight */
-    return actual_scaledfont->yDiff;
-  } /* textheight */
-
-
-
 static intType txtwidth (unsigned char *stri, intType length,
     intType startidx, intType stopidx)
 
@@ -1271,15 +1263,6 @@ static intType txtwidth (unsigned char *stri, intType length,
     } /* if */
     return width;
   } /* txtwidth */
-
-
-
-intType textwidth (striType stri,
-    intType startcol, intType stopcol)
-
-  { /* textwidth */
-    return txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1);
-  } /* textwidth */
 
 
 
