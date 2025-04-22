@@ -589,9 +589,9 @@ boolType findTermDll (void);
 /* The computation fails if max_position is the maximum      */
 /* positive value of intType and min_position is the minimum */
 /* negative value of intType. All calls of the macros must   */
-/* assure that they are never called with this values. Since */
-/* the calls either use data from an existing array or use   */
-/* 1 as min_position this condition is fulfilled.            */
+/* assure that they are never called with these values.      */
+/* Since the calls either use data from an existing array or */
+/* use 1 as min_position this condition is fulfilled.        */
 #define arraySize(arr) (memSizeType) ((uintType) (arr)->max_position - (uintType) (arr)->min_position + 1)
 #define arraySize2(min_position,max_position) (memSizeType) ((uintType) (max_position) - (uintType) (min_position) + 1)
 #define arrayIndex(arr,pos) (memSizeType) ((uintType) (pos) - (uintType) (arr)->min_position)
