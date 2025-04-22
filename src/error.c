@@ -159,7 +159,7 @@ static void appendErrorToProg (parseErrorType error)
 
 
 
-static striType toOutputString (striType stri)
+static striType toOutputString (const const_striType stri)
 
   {
     memSizeType pos;
@@ -212,7 +212,7 @@ static striType toOutputString (striType stri)
 
 
 
-static memSizeType calculate_output_length (striType stri)
+static memSizeType calculate_output_length (const const_striType stri)
 
   {
     memSizeType pos;
@@ -318,7 +318,8 @@ static striType stri8_buffer_to_stri (const strElemType *const stri8,
 
 
 
-static memSizeType computeColumnMarkerPos (const_striType errorLine, memSizeType column)
+static memSizeType computeColumnMarkerPos (const const_striType errorLine,
+    memSizeType column)
 
   {
     memSizeType part1_len;
@@ -347,7 +348,7 @@ static memSizeType computeColumnMarkerPos (const_striType errorLine, memSizeType
 
 
 
-static void writeString (fileType errorFile, const striType stri)
+static void writeString (fileType errorFile, const const_striType stri)
 
   { /* writeString */
     if (errorFile->cFile == stdout) {
@@ -669,7 +670,7 @@ static void findLineEndAndStoreLine (parseErrorType error, FILE *sourceFile,
 
 
 static void storeLineOfOtherFile (parseErrorType error,
-    const_striType sourceFileName, lineNumType lineNumber)
+    const const_striType sourceFileName, lineNumType lineNumber)
 
   {
     os_striType os_path;
