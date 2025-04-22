@@ -513,7 +513,7 @@ objectType dcl_in1 (listType arguments)
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       created_object->value.objValue = NULL;
-      /* The case PARAM_UNDEFINED has been already covered above. */
+      /* The case PARAM_UNDEFINED has been already handled above. */
       switch (object_type->in_param_type) {
         case PARAM_VALUE:
           INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
@@ -560,7 +560,7 @@ objectType dcl_in2 (listType arguments)
         created_object = entername(prog->declaration_root, name_expr, &err_info);
         if (created_object != NULL && err_info == OKAY_NO_ERROR) {
           created_object->type_of = object_type;
-          /* The case PARAM_UNDEFINED has been already covered above. */
+          /* The case PARAM_UNDEFINED has been already handled above. */
           switch (object_type->in_param_type) {
             case PARAM_VALUE:
               INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
