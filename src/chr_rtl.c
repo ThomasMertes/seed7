@@ -437,7 +437,7 @@ static inline boolType is_nonspacing (charType ch)
 
   /* is_nonspacing */
     if (ch <= 0x00ffff) {
-      ind = nonspacing_table_ind[ch >> 9];
+      ind = (int) nonspacing_table_ind[ch >> 9];
       if (ind >= 0) {
         return (boolType) (
             (nonspacing_table_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1);
@@ -645,7 +645,7 @@ boolType chrIsLetter (charType ch)
 
   /* chrIsLetter */
     if (ch <= 0x0323ff) {
-      ind = unicode_letters_ind[ch >> 9];
+      ind = (int) unicode_letters_ind[ch >> 9];
       if (ind >= 0) {
         return (boolType) (
             (unicode_letters_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1);
