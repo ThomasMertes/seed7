@@ -1742,9 +1742,9 @@ objectType arr_times (listType arguments)
           while (position < result_size) {
             if (unlikely(!arr_elem_initialisation(element_type,
                                                   &elem_to[position], elem_to))) {
-              /* If a create fails (mostly no memory) all elements     */
-              /* created up to this point must be destroyed to recycle */
-              /* the memory correct. */
+              /* If the creation of an element fails (mostly no memory) */
+              /* all elements created up to this point must be destroyed */
+              /* to recycle the memory correct. */
               destr_array(elem_to, position);
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
