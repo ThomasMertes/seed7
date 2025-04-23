@@ -271,7 +271,7 @@ static inline void intExponent (uintType *ivalue)
         } /* while */
       } /* if */
     } else {
-      err_cchar(DIGITEXPECTED, in_file.character);
+      err_cchar(DIGIT_EXPECTED, in_file.character);
       uintValue = 0;
     } /* if */
     *ivalue = uintValue;
@@ -331,7 +331,7 @@ static inline floatType readFloat (void)
           readDecimal(position);
         } else {
           symbol.name[position] = '\0';
-          err_cchar(DIGITEXPECTED, in_file.character);
+          err_cchar(DIGIT_EXPECTED, in_file.character);
         } /* if */
       } /* if */
 #if ATOF_ACCEPTS_DENORMAL_NUMBERS
@@ -341,7 +341,7 @@ static inline floatType readFloat (void)
 #endif
     } else {
       symbol.name[position] = '\0';
-      err_cchar(DIGITEXPECTED, in_file.character);
+      err_cchar(DIGIT_EXPECTED, in_file.character);
       result = 0.0;
     } /* if */
     logFunction(printf("readFloat --> " FMT_E "\n", result););

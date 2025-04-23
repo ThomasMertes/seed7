@@ -728,52 +728,52 @@ const func boolean: checkDigitExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("2e;",
-                    DIGITEXPECTED, 1, 3,
+                    DIGIT_EXPECTED, 1, 3,
                     "Digit expected found \";\"",
                     "2e;") and
         checkError1("2e+;",
-                    DIGITEXPECTED, 1, 4,
+                    DIGIT_EXPECTED, 1, 4,
                     "Digit expected found \";\"",
                     "2e+;") and
         checkError1("2E;",
-                    DIGITEXPECTED, 1, 3,
+                    DIGIT_EXPECTED, 1, 3,
                     "Digit expected found \";\"",
                     "2E;") and
         checkError1("2E+;",
-                    DIGITEXPECTED, 1, 4,
+                    DIGIT_EXPECTED, 1, 4,
                     "Digit expected found \";\"",
                     "2E+;") and
         checkError1("2.0e;",
-                    DIGITEXPECTED, 1, 5,
+                    DIGIT_EXPECTED, 1, 5,
                     "Digit expected found \";\"",
                     "2.0e;") and
         checkError1("2.0e+;",
-                    DIGITEXPECTED, 1, 6,
+                    DIGIT_EXPECTED, 1, 6,
                     "Digit expected found \";\"",
                     "2.0e+;") and
         checkError1("2.0e-;",
-                    DIGITEXPECTED, 1, 6,
+                    DIGIT_EXPECTED, 1, 6,
                     "Digit expected found \";\"",
                     "2.0e-;") and
         checkError1("2.0E;",
-                    DIGITEXPECTED, 1, 5,
+                    DIGIT_EXPECTED, 1, 5,
                     "Digit expected found \";\"",
                     "2.0E;") and
         checkError1("2.0E+;",
-                    DIGITEXPECTED, 1, 6,
+                    DIGIT_EXPECTED, 1, 6,
                     "Digit expected found \";\"",
                     "2.0E+;") and
         checkError1("2.0E-;",
-                    DIGITEXPECTED, 1, 6,
+                    DIGIT_EXPECTED, 1, 6,
                     "Digit expected found \";\"",
                     "2.0E-;") and
         checkError1("2.;",
-                    DIGITEXPECTED, 1, 3,
+                    DIGIT_EXPECTED, 1, 3,
                     "Digit expected found \";\"",
                     "2.;") then
       okay := TRUE;
     else
-      writeln(" *** DIGITEXPECTED not reported correctly.");
+      writeln(" *** DIGIT_EXPECTED not reported correctly.");
     end if;
   end func;
 

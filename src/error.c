@@ -1541,7 +1541,7 @@ void err_cchar (errorType err, int character)
       case CHAR_ILLEGAL:
         copyCStri(&error->msg, "Illegal character in text \"");
         break;
-      case DIGITEXPECTED:
+      case DIGIT_EXPECTED:
         copyCStri(&error->msg, "Digit expected found \"");
         break;
       case EXTDIGITEXPECTED:
