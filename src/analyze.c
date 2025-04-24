@@ -244,7 +244,7 @@ static void processPragma (void)
   /* processPragma */
     logFunction(printf("processPragma\n"););
     if (symbol.sycategory != NAMESYMBOL) {
-      err_warning(NAMEEXPECTED);
+      err_warning(NAME_EXPECTED);
     } else {
       if (strcmp((cstriType) symbol.name, "library") == 0) {
         scan_symbol();

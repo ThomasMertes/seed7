@@ -887,7 +887,7 @@ void err_warning (errorType err)
       case WRONG_PATH_DELIMITER:
         copyCStri(&error->msg, "Use / instead of \\ as path delimiter");
         break;
-      case NAMEEXPECTED:
+      case NAME_EXPECTED:
         copyCStri(&error->msg, "Name expected found ");
         appendSymbol(&error->msg, &symbol);
         break;

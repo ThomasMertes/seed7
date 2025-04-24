@@ -2070,32 +2070,32 @@ const func boolean: checkNameExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("$ ();",
-                    NAMEEXPECTED, 1, 4,
+                    NAME_EXPECTED, 1, 4,
                     "Name expected found \"(\"",
                     "$ ();") and
         checkError1("$ 12345;",
-                    NAMEEXPECTED, 1, 8,
+                    NAME_EXPECTED, 1, 8,
                     "Name expected found \"12345\"",
                     "$ 12345;") and
         checkError1("$ 12345_;",
-                    NAMEEXPECTED, 1, 9,
+                    NAME_EXPECTED, 1, 9,
                     "Name expected found \"12345_\"",
                     "$ 12345_;") and
         checkError1("$ 'x';",
-                    NAMEEXPECTED, 1, 6,
+                    NAME_EXPECTED, 1, 6,
                     "Name expected found 'x'",
                     "$ 'x';") and
         checkError1("$ \"x\";",
-                    NAMEEXPECTED, 1, 6,
+                    NAME_EXPECTED, 1, 6,
                     "Name expected found \"x\"",
                     "$ \"x\";") and
         checkError1("$ 1.5;",
-                    NAMEEXPECTED, 1, 6,
+                    NAME_EXPECTED, 1, 6,
                     "Name expected found \"1.5\"",
                     "$ 1.5;") then
       okay := TRUE;
     else
-      writeln(" *** NAMEEXPECTED not reported correctly.");
+      writeln(" *** NAME_EXPECTED not reported correctly.");
     end if;
   end func;
 
