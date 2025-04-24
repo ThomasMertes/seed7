@@ -555,7 +555,7 @@ void lit_string (void)
         character = in_file.character;
       } else if (character == '\n' || character == '\r' ||
           character == EOF) {
-        err_warning(STRINGEXCEEDS);
+        err_warning(STRING_EXCEEDS);
         reading_string = FALSE;
       } else {
         if (character >= 0x80 && character <= 0xBF) {
@@ -618,7 +618,7 @@ static void lit_text (void)
           } /* if */
         } /* if */
       } else {
-        err_warning(STRINGEXCEEDS);
+        err_warning(STRING_EXCEEDS);
         reading_string = FALSE;
       } /* if */
       check_symb_length(position);

@@ -878,7 +878,7 @@ void err_warning (errorType err)
       case WRONG_STRING_CONTINUATION:
         copyCStri(&error->msg, "String continuations should end with \"\\\" not EOF");
         break;
-      case STRINGEXCEEDS:
+      case STRING_EXCEEDS:
         copyCStri(&error->msg, "String literal exceeds source line");
         break;
       case WRONG_QUOTATION_REPRESENTATION:
