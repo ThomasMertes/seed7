@@ -866,7 +866,7 @@ void err_warning (errorType err)
         copyCStri(&error->msg, "Illegal system declaration ");
         appendSymbol(&error->msg, &symbol);
         break;
-      case NEGATIVEEXPONENT:
+      case NEGATIVE_EXPONENT:
         copyCStri(&error->msg, "Negative exponent in integer literal");
         break;
       case CHAREXCEEDS:

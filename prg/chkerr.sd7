@@ -693,32 +693,32 @@ const func boolean: checkNegativeExponent is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("1e-1;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1e-1;") and
         checkError1("1e-9223372036854775807;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1e-9223372036854775807;") and
         checkError1("1e-9223372036854775808;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1e-9223372036854775808;") and
         checkError1("1E-1;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1E-1;") and
         checkError1("1E-9223372036854775807;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1E-9223372036854775807;") and
         checkError1("1E-9223372036854775808;",
-                    NEGATIVEEXPONENT, 1, 3,
+                    NEGATIVE_EXPONENT, 1, 3,
                     "Negative exponent in integer literal",
                     "1E-9223372036854775808;") then
       okay := TRUE;
     else
-      writeln(" *** NEGATIVEEXPONENT not reported correctly.");
+      writeln(" *** NEGATIVE_EXPONENT not reported correctly.");
     end if;
   end func;
 

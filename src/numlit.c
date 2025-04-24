@@ -249,7 +249,7 @@ static inline void intExponent (uintType *ivalue)
       in_file.character = next_character();
     } else {
       if (in_file.character == '-') {
-        err_warning(NEGATIVEEXPONENT);
+        err_warning(NEGATIVE_EXPONENT);
         uintValue = 0;
         in_file.character = next_character();
       } /* if */
