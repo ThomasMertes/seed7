@@ -2870,18 +2870,18 @@ const func boolean: checkObjTwiceDeclared is func
     if  checkError1("$ include \"seed7_05.s7i\";\n\
                     \const integer: num1 is 1;\n\
                     \const integer: num1 is 1;",
-                    OBJTWICEDECLARED, 3, 25,
+                    REDECLARATION, 3, 25,
                     "Redeclaration of \"num1\"",
                     "const integer: num1 is 1;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: f1 (in integer: num1) is return succ(num1);\n\
                     \const func integer: f1 (in integer: num2) is return pred(num2);",
-                    OBJTWICEDECLARED, 3, 63,
+                    REDECLARATION, 3, 63,
                     "Redeclaration of \"f1 (val integer: num1)\"",
                     "const func integer: f1 (in integer: num2) is return pred(num2);") then
       okay := TRUE;
     else
-      writeln(" *** OBJTWICEDECLARED not reported correctly.");
+      writeln(" *** REDECLARATION not reported correctly.");
     end if;
   end func;
 

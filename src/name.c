@@ -151,7 +151,7 @@ static objectType get_object (progType currentProg, entityType entity,
         entity->data.owner->decl_level == currentProg->stack_current) {
       defined_object = entity->data.owner->obj;
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
-        err_at_file_in_line(OBJTWICEDECLARED, defined_object, file_number, line);
+        err_at_file_in_line(REDECLARATION, defined_object, file_number, line);
         err_existing_obj(PREVIOUS_DECLARATION, defined_object);
         free_list(params);
         defined_object = NULL;

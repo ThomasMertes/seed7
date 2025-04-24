@@ -1685,7 +1685,7 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
           copyCStri(&error->msg, "Exception raised");
         } /* if */
         break;
-      case OBJTWICEDECLARED:
+      case REDECLARATION:
         copyCStri(&error->msg, "Redeclaration of \"");
         appendObjectWithParameters(&error->msg, obj_found);
         appendChar(&error->msg, '"');
