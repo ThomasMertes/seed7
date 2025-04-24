@@ -2216,33 +2216,33 @@ const func boolean: checkStriExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("$system 123 is fee;",
-                    STRI_EXPECTED, 1, 12,
+                    STRING_EXPECTED, 1, 12,
                     "String literal expected found \"123\"",
                     "$system 123 is fee;") and
         checkError1("$include 123;",
-                    STRI_EXPECTED, 1, 13,
+                    STRING_EXPECTED, 1, 13,
                     "String literal expected found \"123\"",
                     "$include 123;") and
         checkError1("$library 123;",
-                    STRI_EXPECTED, 1, 13,
+                    STRING_EXPECTED, 1, 13,
                     "String literal expected found \"123\"",
                     "$library 123;") and
         checkError1("$message 123;",
-                    STRI_EXPECTED, 1, 13,
+                    STRING_EXPECTED, 1, 13,
                     "String literal expected found \"123\"",
                     "$message 123;") and
         checkError1("$trace 123;",
-                    STRI_EXPECTED, 1, 11,
+                    STRING_EXPECTED, 1, 11,
                     "String literal expected found \"123\"",
                     "$trace 123;") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ const ACTION: a is $ action 123;",
-                    STRI_EXPECTED, 2, 34,
+                    STRING_EXPECTED, 2, 34,
                     "String literal expected found \"123\"",
                     "$ const ACTION: a is $ action 123;") then
       okay := TRUE;
     else
-      writeln(" *** STRI_EXPECTED not reported correctly.");
+      writeln(" *** STRING_EXPECTED not reported correctly.");
     end if;
   end func;
 

@@ -411,7 +411,7 @@ const type: errorType is new enum
     STRING_EXCEEDS,
     NAME_EXPECTED,
     CARD_EXPECTED,
-    STRI_EXPECTED,
+    STRING_EXPECTED,
     IDENT_EXPECTED,
     TYPE_EXPECTED,
     PROC_EXPECTED,

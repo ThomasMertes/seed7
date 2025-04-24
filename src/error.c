@@ -895,7 +895,7 @@ void err_warning (errorType err)
         copyCStri(&error->msg, "Integer literal expected found ");
         appendSymbol(&error->msg, &symbol);
         break;
-      case STRI_EXPECTED:
+      case STRING_EXPECTED:
         copyCStri(&error->msg, "String literal expected found ");
         appendSymbol(&error->msg, &symbol);
         break;

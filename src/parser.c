@@ -159,7 +159,7 @@ static inline void init_dollar (objectType declared_object,
         } /* if */
         scan_symbol();
       } else {
-        err_warning(STRI_EXPECTED);
+        err_warning(STRING_EXPECTED);
       } /* if */
     } else {
       err_warning(DOLLAR_VALUE_WRONG);

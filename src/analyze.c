@@ -137,7 +137,7 @@ static inline void systemVar (void)
         err_warning(WRONGSYSTEM);
       } /* if */
     } else {
-      err_warning(STRI_EXPECTED);
+      err_warning(STRING_EXPECTED);
       indexFound = -1;
     } /* if */
     scan_symbol();
@@ -220,7 +220,7 @@ static boolType includeFile (void)
         FREE_STRI(includeFileName);
       } /* if */
     } else {
-      err_warning(STRI_EXPECTED);
+      err_warning(STRING_EXPECTED);
       if (current_ident != prog->id_for.semicolon) {
         scan_symbol();
       } /* if */
@@ -259,7 +259,7 @@ static void processPragma (void)
             } /* if */
           } /* if */
         } else {
-          err_warning(STRI_EXPECTED);
+          err_warning(STRING_EXPECTED);
         } /* if */
       } else if (strcmp((cstriType) symbol.name, "message") == 0) {
         scan_symbol();
@@ -274,7 +274,7 @@ static void processPragma (void)
           fflush(stdout);
           display_compilation_info();
         } else {
-          err_warning(STRI_EXPECTED);
+          err_warning(STRING_EXPECTED);
         } /* if */
       } else if (strcmp((cstriType) symbol.name, "info") == 0) {
         scan_symbol();
@@ -309,7 +309,7 @@ static void processPragma (void)
           mapTraceFlags(symbol.striValue, &prog->option_flags);
           set_trace(prog->option_flags);
         } else {
-          err_warning(STRI_EXPECTED);
+          err_warning(STRING_EXPECTED);
         } /* if */
       } else if (strcmp((cstriType) symbol.name, "decls") == 0) {
         trace_nodes();
