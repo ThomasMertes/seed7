@@ -997,7 +997,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
         appendInt(&error->msg, (intType) num_found);
         appendCStri(&error->msg, " for dot expression");
         break;
-      case ILLEGALBASEDDIGIT:
+      case ILLEGAL_BASED_DIGIT:
         copyCStri(&error->msg, "Illegal digit \"");
         appendChar(&error->msg, (charType) num_found);
         appendCStri(&error->msg, "\" in based integer \"");

@@ -120,7 +120,7 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
       digitval = digit_value[(int) digits[position]];
       if (unlikely(digitval >= base)) {
         if (!illegalDigit) {
-          err_num_stri(ILLEGALBASEDDIGIT, (int) digits[position], (int) base, digits);
+          err_num_stri(ILLEGAL_BASED_DIGIT, (int) digits[position], (int) base, digits);
           illegalDigit = TRUE;
         } /* if */
       } else if (unlikely(uintValue > max_div_base)) {
@@ -190,7 +190,7 @@ static inline bigIntType readBigBased (uintType base)
         digitval = digit_value[(int) symbol.name[pos]];
         if (unlikely(digitval >= base)) {
           if (okay) {
-            err_num_stri(ILLEGALBASEDDIGIT,
+            err_num_stri(ILLEGAL_BASED_DIGIT,
                 (int) symbol.name[pos], (int) base, symbol.name);
             okay = FALSE;
           } /* if */

@@ -1012,280 +1012,280 @@ const func boolean: checkIllegalBaseDigit is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("2#10210;",
-                    ILLEGALBASEDDIGIT, 1, 8,
+                    ILLEGAL_BASED_DIGIT, 1, 8,
                     "Illegal digit \"2\" in based integer \"2#10210\"",
                     "2#10210;") and
         checkError1("3#1203120;",
-                    ILLEGALBASEDDIGIT, 1, 10,
+                    ILLEGAL_BASED_DIGIT, 1, 10,
                     "Illegal digit \"3\" in based integer \"3#1203120\"",
                     "3#1203120;") and
         checkError1("4#123041230;",
-                    ILLEGALBASEDDIGIT, 1, 12,
+                    ILLEGAL_BASED_DIGIT, 1, 12,
                     "Illegal digit \"4\" in based integer \"4#123041230\"",
                     "4#123041230;") and
         checkError1("5#12340512340;",
-                    ILLEGALBASEDDIGIT, 1, 14,
+                    ILLEGAL_BASED_DIGIT, 1, 14,
                     "Illegal digit \"5\" in based integer \"5#12340512340\"",
                     "5#12340512340;") and
         checkError1("6#1234506123450;",
-                    ILLEGALBASEDDIGIT, 1, 16,
+                    ILLEGAL_BASED_DIGIT, 1, 16,
                     "Illegal digit \"6\" in based integer \"6#1234506123450\"",
                     "6#1234506123450;") and
         checkError1("7#123456071234560;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"7\" in based integer \"7#123456071234560\"",
                     "7#123456071234560;") and
         checkError1("8#12345670812345670;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"8\" in based integer \"8#12345670812345670\"",
                     "8#12345670812345670;") and
         checkError1("9#1234567809123456780;",
-                    ILLEGALBASEDDIGIT, 1, 22,
+                    ILLEGAL_BASED_DIGIT, 1, 22,
                     "Illegal digit \"9\" in based integer \"9#1234567809123456780\"",
                     "9#1234567809123456780;") and
         checkError1("10#123456789a0;",
-                    ILLEGALBASEDDIGIT, 1, 15,
+                    ILLEGAL_BASED_DIGIT, 1, 15,
                     "Illegal digit \"a\" in based integer \"10#123456789a0\"",
                     "10#123456789a0;") and
         checkError1("11#123456789ab0;",
-                    ILLEGALBASEDDIGIT, 1, 16,
+                    ILLEGAL_BASED_DIGIT, 1, 16,
                     "Illegal digit \"b\" in based integer \"11#123456789ab0\"",
                     "11#123456789ab0;") and
         checkError1("12#123456789abc0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"c\" in based integer \"12#123456789abc0\"",
                     "12#123456789abc0;") and
         checkError1("13#123456789abcd0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"d\" in based integer \"13#123456789abcd0\"",
                     "13#123456789abcd0;") and
         checkError1("14#123456789abcde0;",
-                    ILLEGALBASEDDIGIT, 1, 19,
+                    ILLEGAL_BASED_DIGIT, 1, 19,
                     "Illegal digit \"e\" in based integer \"14#123456789abcde0\"",
                     "14#123456789abcde0;") and
         checkError1("15#123456789abcdef0;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"f\" in based integer \"15#123456789abcdef0\"",
                     "15#123456789abcdef0;") and
         checkError1("16#12345678abcdefg0;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"g\" in based integer \"16#12345678abcdefg0\"",
                     "16#12345678abcdefg0;") and
         checkError1("17#1234567abcdefgh0;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"h\" in based integer \"17#1234567abcdefgh0\"",
                     "17#1234567abcdefgh0;") and
         checkError1("18#123456abcdefghi0;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"i\" in based integer \"18#123456abcdefghi0\"",
                     "18#123456abcdefghi0;") and
         checkError1("19#1234abcdefghij0;",
-                    ILLEGALBASEDDIGIT, 1, 19,
+                    ILLEGAL_BASED_DIGIT, 1, 19,
                     "Illegal digit \"j\" in based integer \"19#1234abcdefghij0\"",
                     "19#1234abcdefghij0;") and
         checkError1("20#123abcdefghijk0;",
-                    ILLEGALBASEDDIGIT, 1, 19,
+                    ILLEGAL_BASED_DIGIT, 1, 19,
                     "Illegal digit \"k\" in based integer \"20#123abcdefghijk0\"",
                     "20#123abcdefghijk0;") and
         checkError1("21#12abcdefghijkl0;",
-                    ILLEGALBASEDDIGIT, 1, 19,
+                    ILLEGAL_BASED_DIGIT, 1, 19,
                     "Illegal digit \"l\" in based integer \"21#12abcdefghijkl0\"",
                     "21#12abcdefghijkl0;") and
         checkError1("22#1abcdefghijklm0;",
-                    ILLEGALBASEDDIGIT, 1, 19,
+                    ILLEGAL_BASED_DIGIT, 1, 19,
                     "Illegal digit \"m\" in based integer \"22#1abcdefghijklm0\"",
                     "22#1abcdefghijklm0;") and
         checkError1("23#1cdefghijklmn0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"n\" in based integer \"23#1cdefghijklmn0\"",
                     "23#1cdefghijklmn0;") and
         checkError1("24#1defghijklmno0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"o\" in based integer \"24#1defghijklmno0\"",
                     "24#1defghijklmno0;") and
         checkError1("25#1efghijklmnop0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"p\" in based integer \"25#1efghijklmnop0\"",
                     "25#1efghijklmnop0;") and
         checkError1("26#1fghijklmnopq0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"q\" in based integer \"26#1fghijklmnopq0\"",
                     "26#1fghijklmnopq0;") and
         checkError1("27#1ghijklmnopqr0;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"r\" in based integer \"27#1ghijklmnopqr0\"",
                     "27#1ghijklmnopqr0;") and
         checkError1("28#1ijklmnopqrs0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"s\" in based integer \"28#1ijklmnopqrs0\"",
                     "28#1ijklmnopqrs0;") and
         checkError1("29#1jklmnopqrst0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"t\" in based integer \"29#1jklmnopqrst0\"",
                     "29#1jklmnopqrst0;") and
         checkError1("30#1klmnopqrstu0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"u\" in based integer \"30#1klmnopqrstu0\"",
                     "30#1klmnopqrstu0;") and
         checkError1("31#1lmnopqrstuv0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"v\" in based integer \"31#1lmnopqrstuv0\"",
                     "31#1lmnopqrstuv0;") and
         checkError1("32#1mnopqrstuvw0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"w\" in based integer \"32#1mnopqrstuvw0\"",
                     "32#1mnopqrstuvw0;") and
         checkError1("33#1nopqrstuvwx0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"x\" in based integer \"33#1nopqrstuvwx0\"",
                     "33#1nopqrstuvwx0;") and
         checkError1("34#1opqrstuvwxy0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"y\" in based integer \"34#1opqrstuvwxy0\"",
                     "34#1opqrstuvwxy0;") and
         checkError1("35#1pqrstuvwxyz0;",
-                    ILLEGALBASEDDIGIT, 1, 17,
+                    ILLEGAL_BASED_DIGIT, 1, 17,
                     "Illegal digit \"z\" in based integer \"35#1pqrstuvwxyz0\"",
                     "35#1pqrstuvwxyz0;") and
         checkError1("2#1210_;",
-                    ILLEGALBASEDDIGIT, 1, 8,
+                    ILLEGAL_BASED_DIGIT, 1, 8,
                     "Illegal digit \"2\" in based integer \"2#1210\"",
                     "2#1210_;") and
         checkError1("3#123210_;",
-                    ILLEGALBASEDDIGIT, 1, 10,
+                    ILLEGAL_BASED_DIGIT, 1, 10,
                     "Illegal digit \"3\" in based integer \"3#123210\"",
                     "3#123210_;") and
         checkError1("4#12343210_;",
-                    ILLEGALBASEDDIGIT, 1, 12,
+                    ILLEGAL_BASED_DIGIT, 1, 12,
                     "Illegal digit \"4\" in based integer \"4#12343210\"",
                     "4#12343210_;") and
         checkError1("5#1234543210_;",
-                    ILLEGALBASEDDIGIT, 1, 14,
+                    ILLEGAL_BASED_DIGIT, 1, 14,
                     "Illegal digit \"5\" in based integer \"5#1234543210\"",
                     "5#1234543210_;") and
         checkError1("6#123456543210_;",
-                    ILLEGALBASEDDIGIT, 1, 16,
+                    ILLEGAL_BASED_DIGIT, 1, 16,
                     "Illegal digit \"6\" in based integer \"6#123456543210\"",
                     "6#123456543210_;") and
         checkError1("7#12345676543210_;",
-                    ILLEGALBASEDDIGIT, 1, 18,
+                    ILLEGAL_BASED_DIGIT, 1, 18,
                     "Illegal digit \"7\" in based integer \"7#12345676543210\"",
                     "7#12345676543210_;") and
         checkError1("8#1234567876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 20,
+                    ILLEGAL_BASED_DIGIT, 1, 20,
                     "Illegal digit \"8\" in based integer \"8#1234567876543210\"",
                     "8#1234567876543210_;") and
         checkError1("9#123456789876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 22,
+                    ILLEGAL_BASED_DIGIT, 1, 22,
                     "Illegal digit \"9\" in based integer \"9#123456789876543210\"",
                     "9#123456789876543210_;") and
         checkError1("10#123456789a9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 25,
+                    ILLEGAL_BASED_DIGIT, 1, 25,
                     "Illegal digit \"a\" in based integer \"10#123456789a9876543210\"",
                     "10#123456789a9876543210_;") and
         checkError1("11#123456789aba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 27,
+                    ILLEGAL_BASED_DIGIT, 1, 27,
                     "Illegal digit \"b\" in based integer \"11#123456789aba9876543210\"",
                     "11#123456789aba9876543210_;") and
         checkError1("12#123456789abcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 29,
+                    ILLEGAL_BASED_DIGIT, 1, 29,
                     "Illegal digit \"c\" in based integer \"12#123456789abcba9876543210\"",
                     "12#123456789abcba9876543210_;") and
         checkError1("13#123456789abcdcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 31,
+                    ILLEGAL_BASED_DIGIT, 1, 31,
                     "Illegal digit \"d\" in based integer \"13#123456789abcdcba9876543210\"",
                     "13#123456789abcdcba9876543210_;") and
         checkError1("14#123456789abcdedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 33,
+                    ILLEGAL_BASED_DIGIT, 1, 33,
                     "Illegal digit \"e\" in based integer \"14#123456789abcdedcba9876543210\"",
                     "14#123456789abcdedcba9876543210_;") and
         checkError1("15#123456789abcdefedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 35,
+                    ILLEGAL_BASED_DIGIT, 1, 35,
                     "Illegal digit \"f\" in based integer \"15#123456789abcdefedcba9876543210\"",
                     "15#123456789abcdefedcba9876543210_;") and
         checkError1("16#123456789abcdefgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 37,
+                    ILLEGAL_BASED_DIGIT, 1, 37,
                     "Illegal digit \"g\" in based integer \"16#123456789abcdefgfedcba9876543210\"",
                     "16#123456789abcdefgfedcba9876543210_;") and
         checkError1("17#123456789abcdefghgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 39,
+                    ILLEGAL_BASED_DIGIT, 1, 39,
                     "Illegal digit \"h\" in based integer \"17#123456789abcdefghgfedcba9876543210\"",
                     "17#123456789abcdefghgfedcba9876543210_;") and
         checkError1("18#123456789abcdefghihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 41,
+                    ILLEGAL_BASED_DIGIT, 1, 41,
                     "Illegal digit \"i\" in based integer \"18#123456789abcdefghihgfedcba9876543210\"",
                     "18#123456789abcdefghihgfedcba9876543210_;") and
         checkError1("19#123456789abcdefghijihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 43,
+                    ILLEGAL_BASED_DIGIT, 1, 43,
                     "Illegal digit \"j\" in based integer \"19#123456789abcdefghijihgfedcba9876543210\"",
                     "19#123456789abcdefghijihgfedcba9876543210_;") and
         checkError1("20#123456789abcdefghijkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 45,
+                    ILLEGAL_BASED_DIGIT, 1, 45,
                     "Illegal digit \"k\" in based integer \"20#123456789abcdefghijkjihgfedcba9876543210\"",
                     "20#123456789abcdefghijkjihgfedcba9876543210_;") and
         checkError1("21#123456789abcdefghijklkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 47,
+                    ILLEGAL_BASED_DIGIT, 1, 47,
                     "Illegal digit \"l\" in based integer \"21#123456789abcdefghijklkjihgfedcba9876543210\"",
                     "21#123456789abcdefghijklkjihgfedcba9876543210_;") and
         checkError1("22#123456789abcdefghijklmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 49,
+                    ILLEGAL_BASED_DIGIT, 1, 49,
                     "Illegal digit \"m\" in based integer \"22#123456789abcdefghijklmlkjihgfedcba9876543210\"",
                     "22#123456789abcdefghijklmlkjihgfedcba9876543210_;") and
         checkError1("23#123456789abcdefghijklmnmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 51,
+                    ILLEGAL_BASED_DIGIT, 1, 51,
                     "Illegal digit \"n\" in based integer \"23#123456789abcdefghijklmnmlkjihgfedcba9876543210\"",
                     "23#123456789abcdefghijklmnmlkjihgfedcba9876543210_;") and
         checkError1("24#123456789abcdefghijklmnonmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 53,
+                    ILLEGAL_BASED_DIGIT, 1, 53,
                     "Illegal digit \"o\" in based integer \"24#123456789abcdefghijklmnonmlkjihgfedcba9876543210\"",
                     "24#123456789abcdefghijklmnonmlkjihgfedcba9876543210_;") and
         checkError1("25#123456789abcdefghijklmnoponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 55,
+                    ILLEGAL_BASED_DIGIT, 1, 55,
                     "Illegal digit \"p\" in based integer \"25#123456789abcdefghijklmnoponmlkjihgfedcba9876543210\"",
                     "25#123456789abcdefghijklmnoponmlkjihgfedcba9876543210_;") and
         checkError1("26#123456789abcdefghijklmnopqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 57,
+                    ILLEGAL_BASED_DIGIT, 1, 57,
                     "Illegal digit \"q\" in based integer \"26#123456789abcdefghijklmnopqponmlkjihgfedcba9876543210\"",
                     "26#123456789abcdefghijklmnopqponmlkjihgfedcba9876543210_;") and
         checkError1("27#123456789abcdefghijklmnopqrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 59,
+                    ILLEGAL_BASED_DIGIT, 1, 59,
                     "Illegal digit \"r\" in based integer \"27#123456789abcdefghijklmnopqrqponmlkjihgfedcba9876543210\"",
                     "27#123456789abcdefghijklmnopqrqponmlkjihgfedcba9876543210_;") and
         checkError1("28#123456789abcdefghijklmnopqrsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 61,
+                    ILLEGAL_BASED_DIGIT, 1, 61,
                     "Illegal digit \"s\" in based integer \"28#123456789abcdefghijklmnopqrsrqponmlkjihgfedcba9876543210\"",
                     "28#123456789abcdefghijklmnopqrsrqponmlkjihgfedcba9876543210_;") and
         checkError1("29#123456789abcdefghijklmnopqrstsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 63,
+                    ILLEGAL_BASED_DIGIT, 1, 63,
                     "Illegal digit \"t\" in based integer \"29#123456789abcdefghijklmnopqrstsrqponmlkjihgfedcba9876543210\"",
                     "29#123456789abcdefghijklmnopqrstsrqponmlkjihgfedcba9876543210_;") and
         checkError1("30#123456789abcdefghijklmnopqrstutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 65,
+                    ILLEGAL_BASED_DIGIT, 1, 65,
                     "Illegal digit \"u\" in based integer \"30#123456789abcdefghijklmnopqrstutsrqponmlkjihgfedcba9876543210\"",
                     "30#123456789abcdefghijklmnopqrstutsrqponmlkjihgfedcba9876543210_;") and
         checkError1("31#123456789abcdefghijklmnopqrstuvutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 67,
+                    ILLEGAL_BASED_DIGIT, 1, 67,
                     "Illegal digit \"v\" in based integer \"31#123456789abcdefghijklmnopqrstuvutsrqponmlkjihgfedcba9876543210\"",
                     "31#123456789abcdefghijklmnopqrstuvutsrqponmlkjihgfedcba9876543210_;") and
         checkError1("32#123456789abcdefghijklmnopqrstuvwvutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 69,
+                    ILLEGAL_BASED_DIGIT, 1, 69,
                     "Illegal digit \"w\" in based integer \"32#123456789abcdefghijklmnopqrstuvwvutsrqponmlkjihgfedcba9876543210\"",
                     "32#123456789abcdefghijklmnopqrstuvwvutsrqponmlkjihgfedcba9876543210_;") and
         checkError1("33#123456789abcdefghijklmnopqrstuvwxwvutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 71,
+                    ILLEGAL_BASED_DIGIT, 1, 71,
                     "Illegal digit \"x\" in based integer \"33#123456789abcdefghijklmnopqrstuvwxwvutsrqponmlkjihgfedcba9876543210\"",
                     "33#123456789abcdefghijklmnopqrstuvwxwvutsrqponmlkjihgfedcba9876543210_;") and
         checkError1("34#123456789abcdefghijklmnopqrstuvwxyxwvutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 73,
+                    ILLEGAL_BASED_DIGIT, 1, 73,
                     "Illegal digit \"y\" in based integer \"34#123456789abcdefghijklmnopqrstuvwxyxwvutsrqponmlkjihgfedcba9876543210\"",
                     "34#123456789abcdefghijklmnopqrstuvwxyxwvutsrqponmlkjihgfedcba9876543210_;") and
         checkError1("35#123456789abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba9876543210_;",
-                    ILLEGALBASEDDIGIT, 1, 75,
+                    ILLEGAL_BASED_DIGIT, 1, 75,
                     "Illegal digit \"z\" in based integer \"35#123456789abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba9876543210\"",
                     "35#123456789abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba9876543210_;") then
       okay := TRUE;
     else
-      writeln(" *** ILLEGALBASEDDIGIT not reported correctly.");
+      writeln(" *** ILLEGAL_BASED_DIGIT not reported correctly.");
     end if;
   end func;
 
