@@ -88,7 +88,8 @@ const type: profiledFunctionsHash is hash [integer] reference;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
-var boolean_obj_hash: function_not_declared is boolean_obj_hash.EMPTY_HASH;
+var boolean_obj_hash: inline_function is boolean_obj_hash.EMPTY_HASH;
+var boolean_obj_hash: function_with_dcl_actions is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
@@ -1600,10 +1601,13 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     if functionCategory = ACTOBJECT then
       process_action(function, params, c_expr);
     elsif functionCategory = BLOCKOBJECT then
-      if function in function_not_declared or
+      if function in inline_function or
           (function not in prototype_declared and
            isFunctionCallingSpecialAction(function)) then
         process_inline(function, params, c_expr);
+      elsif function in function_with_dcl_actions then
+        write_object_declaration := FALSE;
+        calls_dcl_actions := TRUE;
       else
         process_func_call(function, params, c_expr);
       end if;
@@ -2538,13 +2542,18 @@ const proc: process_const_func_declaration (in reference: function,
         count_declarations(c_expr);
       else
         excl(function_declared, function);
-        function_not_declared @:= [function] TRUE;
-        c_expr.expr &:= "/* declare inline o_";
+        if calls_dcl_actions then
+          function_with_dcl_actions @:= [function] TRUE;
+          c_expr.expr &:= "/* calls dcl actions o_";
+        else
+          inline_function @:= [function] TRUE;
+          c_expr.expr &:= "/* declare inline o_";
+        end if;
         create_name2(function, c_expr.expr);
         c_expr.expr &:= "*/\n\n";
       end if;
     else
-      function_not_declared @:= [function] TRUE;
+      inline_function @:= [function] TRUE;
       c_expr.expr &:= "/* declare inline o_";
       create_name2(function, c_expr.expr);
       c_expr.expr &:= "*/\n\n";
@@ -3871,7 +3880,7 @@ const proc: process_dynamic_function_call (in reference: function,
     resultExpr.currentFile := file(interface_object);
     resultExpr.currentLine := line(interface_object);
     resultExpr.temp_num := c_expr.temp_num;
-    if function in function_not_declared then
+    if function in inline_function then
       process_inline(function, actual_params, resultExpr);
       if resultExpr.result_expr = "" then
         c_expr.expr &:= "/* copy ref_to_value */ ";
@@ -3881,6 +3890,9 @@ const proc: process_dynamic_function_call (in reference: function,
       else
         c_expr.expr &:= resultExpr.result_expr;
       end if;
+    elsif function in function_with_dcl_actions then
+      write_object_declaration := FALSE;
+      calls_dcl_actions := TRUE;
     else
       resultExpr.expr &:= "o_";
       create_name(function, resultExpr.expr);
@@ -5331,6 +5343,7 @@ const proc: process_object (in reference: current_object) is func
     var expr_type: c_expr is expr_type.value;
   begin
     write_object_declaration := TRUE;
+    calls_dcl_actions := FALSE;
     process_object_declaration(current_object, c_expr);
     write(c_prog, global_c_expr.expr);
     if write_object_declaration then
