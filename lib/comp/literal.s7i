@@ -49,6 +49,9 @@ const type: set_index_hash is hash [integer] array bitset;
 const type: type_table_hash is hash [type] integer;
 const type: type_index_hash is hash [integer] array type;
 
+const type: ref_table_hash is hash [reference] integer;
+const type: ref_index_hash is hash [integer] array reference;
+
 const type: win_table_hash is hash [PRIMITIVE_WINDOW] integer;
 const type: win_index_hash is hash [integer] array PRIMITIVE_WINDOW;
 const type: win_bstri_hash is hash [integer] integer;
@@ -73,6 +76,8 @@ const type: programConstants is new struct
     var set_table_hash: set_const is set_table_hash.EMPTY_HASH;
 
     var type_table_hash: type_const is type_table_hash.EMPTY_HASH;
+
+    var ref_table_hash: ref_const is ref_table_hash.EMPTY_HASH;
 
     var win_table_hash: win_const is win_table_hash.EMPTY_HASH;
     var win_bstri_hash: win_bstri is win_bstri_hash.EMPTY_HASH;
@@ -303,6 +308,24 @@ const func string: typeLiteral (in type: aType) is func
     expr &:= "] /* ";
     expr &:= type_name2(aType);
     expr &:= " */";
+  end func;
+
+
+const func string: referenceLiteral (in reference: aReference) is func
+
+  result
+    var string: expr is "";
+  begin
+    if aReference = NIL then
+      expr &:= "(objRefType) NULL";
+    else
+      if aReference not in constTable.ref_const then
+        constTable.ref_const @:= [aReference] length(constTable.ref_const);
+      end if;
+      expr := "ref[";
+      expr &:= str(constTable.ref_const[aReference]);
+      expr &:= "]";
+    end if;
   end func;
 
 

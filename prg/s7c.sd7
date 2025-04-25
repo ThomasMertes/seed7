@@ -5692,6 +5692,7 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "extern setType          set[];");
     writeln(c_prog, "extern typeType         typ[];");
+    writeln(c_prog, "extern objRefType       ref[];");
     writeln(c_prog, "extern double2BitsUnion nanValue[];");
     writeln(c_prog, "bigIntType             *big;");
     writeln(c_prog, "winType                *win;");
@@ -6021,6 +6022,21 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if getValue(current_object, bitset) not in constTable.set_const then
           constTable.set_const @:= [getValue(current_object, bitset)] length(constTable.set_const);
         end if;
+      elsif objectCategory = TYPEOBJECT then
+        if getValue(current_object, type) not in constTable.type_const then
+          constTable.type_const @:= [getValue(current_object, type)] length(constTable.type_const);
+        end if;
+      elsif objectCategory = REFOBJECT then
+        if getValue(current_object, reference) <> NIL then
+          if objNumber(getValue(current_object, reference)) <> 0 then
+            if getType(getValue(current_object, reference)) not in constTable.type_const then
+              constTable.type_const @:= [getType(getValue(current_object, reference))] length(constTable.type_const);
+            end if;
+          end if;
+          if getValue(current_object, reference) not in constTable.ref_const then
+            constTable.ref_const @:= [getValue(current_object, reference)] length(constTable.ref_const);
+          end if;
+        end if;
       elsif objectCategory = WINOBJECT then
         if getValue(current_object, PRIMITIVE_WINDOW) not in constTable.win_const then
           constTable.win_const @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(constTable.win_const);
@@ -6139,13 +6155,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= floatLiteral(getValue(current_object, float));
     elsif objectCategory = REFOBJECT then
       c_expr.expr &:= ".value.objRefValue=";
-      if getValue(current_object, reference) = NIL then
-        c_expr.expr &:= "NULL";
-      else
-        c_expr.expr &:= "(objRefType)(&(";
-        process_expr(getValue(current_object, reference), c_expr);
-        c_expr.expr &:= "))";
-      end if;
+      c_expr.expr &:= referenceLiteral(getValue(current_object, reference));
     elsif objectCategory = REFLISTOBJECT then
       c_expr.expr &:= ".value.listValue=NULL";
     elsif objectCategory = FILEOBJECT then
@@ -7247,6 +7257,46 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: init_ref_constants (inout expr_type: c_expr) is func
+
+  local
+    var ref_index_hash: ref_index is ref_index_hash.EMPTY_HASH;
+    var reference: ref1 is NIL;
+    var integer: min_position is 0;
+    var integer: max_position is 0;
+    var integer: number is 0;
+    var integer: elem_num is 0;
+    var integer: columnsFree is 0;
+  begin
+    ref_index := flip(constTable.ref_const);
+    for number range sort(keys(ref_index)) do
+      ref1 := ref_index[number][1];
+      c_expr.expr &:= "/* ref[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static struct objectStruct ref_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "={&typ_";
+      c_expr.expr &:= str(constTable.type_const[getType(ref1)]);
+      c_expr.expr &:= " /* ";
+      c_expr.expr &:= type_name2(getType(ref1));
+      c_expr.expr &:= " */,NULL,0,";
+      c_expr.expr &:= str(ord(category(ref1)) + ord(isVar(ref1)) * 64);
+      c_expr.expr &:= "};\n";
+    end for;
+    c_expr.expr &:= "objRefType ref[]={\n";
+    if length(constTable.ref_const) > 0 then
+      for number range sort(keys(ref_index)) do
+        c_expr.expr &:= "&ref_";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ",\n";
+      end for;
+    else
+      c_expr.expr &:= "(objRefType) NULL";
+    end if;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
 const proc: init_array_constants (in reference: const_object, inout expr_type: c_expr) is func
 
   local
@@ -7602,6 +7652,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);
     init_type_constants(c_expr);
+    init_ref_constants(c_expr);
 
     functionBreakupLimit := length(c_expr.expr) + intendedFunctionSize;
     c_expr.expr &:= "static void init_values1 (void)\n";
