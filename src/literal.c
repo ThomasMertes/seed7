@@ -468,7 +468,7 @@ void lit_char (void)
             in_file.character == EOF) {
           err_warning(CHAREXCEEDS);
         } else {
-          err_cchar(APOSTROPHEXPECTED, in_file.character);
+          err_cchar(APOSTROPHE_EXPECTED, in_file.character);
           if (symbol.charValue != '\'' || position != 0) {
             do {
               in_file.character = next_character();

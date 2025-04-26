@@ -1547,7 +1547,7 @@ void err_cchar (errorType err, int character)
       case EXTDIGITEXPECTED:
         copyCStri(&error->msg, "Extended digit expected found \"");
         break;
-      case APOSTROPHEXPECTED:
+      case APOSTROPHE_EXPECTED:
         copyCStri(&error->msg, "\"'\" expected found \"");
         break;
       case WRONG_STRING_CONTINUATION:
