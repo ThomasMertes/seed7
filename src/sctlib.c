@@ -396,6 +396,8 @@ objectType sct_incl (listType arguments)
     stru_variable->value.structValue = stru_to;
     memcpy(&stru_to->stru[stru_size], elem, sizeof(objectRecord));
     stru_to->size = stru_size + 1;
+    /* The elem->value has been moved to the struct. */
+    memset(&elem->value, 0, sizeof(valueUnion));
     return SYS_EMPTY_OBJECT;
   } /* sct_incl */
 
