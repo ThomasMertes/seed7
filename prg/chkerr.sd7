@@ -861,148 +861,148 @@ const func boolean: checkExtDigitExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("2#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "2#;") and
         checkError1("3#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "3#;") and
         checkError1("4#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "4#;") and
         checkError1("5#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "5#;") and
         checkError1("6#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "6#;") and
         checkError1("7#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "7#;") and
         checkError1("8#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "8#;") and
         checkError1("9#;",
-                    EXTDIGITEXPECTED, 1, 3,
+                    EXTENDED_DIGIT_EXPECTED, 1, 3,
                     "Extended digit expected found \";\"",
                     "9#;") and
         checkError1("10#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "10#;") and
         checkError1("11#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "11#;") and
         checkError1("12#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "12#;") and
         checkError1("13#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "13#;") and
         checkError1("14#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "14#;") and
         checkError1("15#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "15#;") and
         checkError1("16#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "16#;") and
         checkError1("17#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "17#;") and
         checkError1("18#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "18#;") and
         checkError1("19#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "19#;") and
         checkError1("20#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "20#;") and
         checkError1("21#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "21#;") and
         checkError1("22#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "22#;") and
         checkError1("23#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "23#;") and
         checkError1("24#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "24#;") and
         checkError1("25#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "25#;") and
         checkError1("26#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "26#;") and
         checkError1("27#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "27#;") and
         checkError1("28#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "28#;") and
         checkError1("29#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "29#;") and
         checkError1("30#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "30#;") and
         checkError1("31#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "31#;") and
         checkError1("32#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "32#;") and
         checkError1("33#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "33#;") and
         checkError1("34#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "34#;") and
         checkError1("35#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "35#;") and
         checkError1("36#;",
-                    EXTDIGITEXPECTED, 1, 4,
+                    EXTENDED_DIGIT_EXPECTED, 1, 4,
                     "Extended digit expected found \";\"",
                     "36#;") then
       okay := TRUE;
     else
-      writeln(" *** EXTDIGITEXPECTED not reported correctly.");
+      writeln(" *** EXTENDED_DIGIT_EXPECTED not reported correctly.");
     end if;
   end func;
 

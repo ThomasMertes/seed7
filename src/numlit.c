@@ -163,7 +163,7 @@ static inline boolType readBased (void)
           char_class(character) == LETTERCHAR);
       okay = TRUE;
     } else {
-      err_cchar(EXTDIGITEXPECTED, character);
+      err_cchar(EXTENDED_DIGIT_EXPECTED, character);
       okay = FALSE;
     } /* if */
     symbol.name[position] = '\0';
