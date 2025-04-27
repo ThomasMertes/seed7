@@ -1440,11 +1440,6 @@ void err_ustri (errorType err, const const_ustriType stri)
         appendUStri(&error->msg, stri);
         appendCStri(&error->msg, "\" too big");
         break;
-      case FILENOTFOUND:
-        copyCStri(&error->msg, "Include file \"");
-        appendUStri(&error->msg, stri);
-        appendCStri(&error->msg, "\" not found");
-        break;
       default:
         undefErr(&error->msg);
         break;
@@ -1465,7 +1460,7 @@ void err_stri (errorType err, const const_striType stri)
     setPlaceOfError(error);
     storeErrorLine(error);
     switch (err) {
-      case FILENOTFOUND:
+      case INCLUDE_FILE_NOT_FOUND:
         copyCStri(&error->msg, "Include file ");
         appendStriLiteral(&error->msg, stri);
         appendCStri(&error->msg, " not found");

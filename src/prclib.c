@@ -1007,7 +1007,7 @@ objectType prc_include (listType arguments)
           err_warning(OUT_OF_HEAP_SPACE);
         } else {
           /* FILE_ERROR or RANGE_ERROR */
-          err_stri(FILENOTFOUND, includeFileName);
+          err_stri(INCLUDE_FILE_NOT_FOUND, includeFileName);
         } /* if */
       } else if (includeResult == INCLUDE_SUCCESS) {
         scan_byte_order_mark();

@@ -354,44 +354,44 @@ const func boolean: checkFileNotFound is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("$ include \"\";",
-                    FILENOTFOUND, 1, 13,
+                    INCLUDE_FILE_NOT_FOUND, 1, 13,
                     "Include file \"\" not found",
                     "$ include \"\";") and
         checkError1("$ include \".\";",
-                    FILENOTFOUND, 1, 14,
+                    INCLUDE_FILE_NOT_FOUND, 1, 14,
                     "Include file \".\" not found",
                     "$ include \".\";") and
         checkError1("$ include \"/\";",
-                    FILENOTFOUND, 1, 14,
+                    INCLUDE_FILE_NOT_FOUND, 1, 14,
                     "Include file \"/\" not found",
                     "$ include \"/\";") and
         checkError1("$ include \"qwtry\";",
-                    FILENOTFOUND, 1, 18,
+                    INCLUDE_FILE_NOT_FOUND, 1, 18,
                     "Include file \"qwtry\" not found",
                     "$ include \"qwtry\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \include \"\";",
-                    FILENOTFOUND, 2, 11,
+                    INCLUDE_FILE_NOT_FOUND, 2, 11,
                     "Include file \"\" not found",
                     "include \"\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \include \".\";",
-                    FILENOTFOUND, 2, 12,
+                    INCLUDE_FILE_NOT_FOUND, 2, 12,
                     "Include file \".\" not found",
                     "include \".\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \include \"/\";",
-                    FILENOTFOUND, 2, 12,
+                    INCLUDE_FILE_NOT_FOUND, 2, 12,
                     "Include file \"/\" not found",
                     "include \"/\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \include \"qwtry\";",
-                    FILENOTFOUND, 2, 16,
+                    INCLUDE_FILE_NOT_FOUND, 2, 16,
                     "Include file \"qwtry\" not found",
                     "include \"qwtry\";") then
       okay := TRUE;
     else
-      writeln(" *** FILENOTFOUND not reported correctly.");
+      writeln(" *** INCLUDE_FILE_NOT_FOUND not reported correctly.");
     end if;
   end func;
 
