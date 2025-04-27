@@ -314,22 +314,22 @@ const func boolean: checkCommentOpen is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("(* Unclosed comment",
-                    COMMENTOPEN, 1, 0,
+                    UNCLOSED_COMMENT, 1, 0,
                     "Unclosed comment",
                     "(* Unclosed comment") and
         checkError1("(* a\n\
                     \(* b",
-                    COMMENTOPEN, 2, 0,
+                    UNCLOSED_COMMENT, 2, 0,
                     "Unclosed comment",
                     "(* b") and
         checkError2("(* a\n\
                     \(* b",
-                    COMMENTOPEN, 1, 0,
+                    UNCLOSED_COMMENT, 1, 0,
                     "Unclosed comment",
                     "(* a") then
       okay := TRUE;
     else
-      writeln(" *** COMMENTOPEN not reported correctly.");
+      writeln(" *** UNCLOSED_COMMENT not reported correctly.");
     end if;
   end func;
 

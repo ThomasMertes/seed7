@@ -94,7 +94,7 @@ static void scan_comment (void)
     } while (character != ')' && character != EOF);
     if (character == EOF) {
       in_file.character = EOF;
-      err_at_line(COMMENTOPEN, start_line);
+      err_at_line(UNCLOSED_COMMENT, start_line);
     } else {
       in_file.character = next_character();
     } /* if */

@@ -1632,7 +1632,7 @@ void err_at_line (errorType err, lineNumType lineNumber)
     setPlace(error, in_file.name, lineNumber);
     storePositionedErrorLine(error, in_file.file_number);
     switch (err) {
-      case COMMENTOPEN:
+      case UNCLOSED_COMMENT:
         copyCStri(&error->msg, "Unclosed comment");
         break;
       default:
