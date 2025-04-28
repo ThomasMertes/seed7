@@ -170,10 +170,10 @@ static unsigned int escape_sequence (unsigned int position)
       if (character >= (int) '\"' && character <= (int) 'v') {
         symbol.charValue = (charType) esc_tab[character - '\"'];
         if (symbol.charValue == ' ') {
-          err_cchar(STRINGESCAPE, character);
+          err_cchar(ILLEGAL_STRING_ESCAPE, character);
         } /* if */
       } else {
-        err_cchar(STRINGESCAPE, character);
+        err_cchar(ILLEGAL_STRING_ESCAPE, character);
         symbol.charValue = ' ';
       } /* if */
       check_stri_length(position);

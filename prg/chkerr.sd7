@@ -1671,196 +1671,196 @@ const func boolean: checkStringEscape is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("\"\\!\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\!\"",
                     "\"\\!\";") and
         checkError1("\"\\#\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\#\"",
                     "\"\\#\";") and
         checkError1("\"\\$\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\$\"",
                     "\"\\$\";") and
         checkError1("\"\\%\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\%\"",
                     "\"\\%\";") and
         checkError1("\"\\&\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\&\"",
                     "\"\\&\";") and
         checkError1("\"\\(\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\(\"",
                     "\"\\(\";") and
         checkError1("\"\\)\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\)\"",
                     "\"\\)\";") and
         checkError1("\"\\*\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\*\"",
                     "\"\\*\";") and
         checkError1("\"\\+\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\+\"",
                     "\"\\+\";") and
         checkError1("\"\\,\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\,\"",
                     "\"\\,\";") and
         checkError1("\"\\-\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\-\"",
                     "\"\\-\";") and
         checkError1("\"\\.\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\.\"",
                     "\"\\.\";") and
         checkError1("\"\\/\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\/\"",
                     "\"\\/\";") and
         checkError1("\"\\:\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\:\"",
                     "\"\\:\";") and
         checkError1("\"\\;\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\;\"",
                     "\"\\;\";") and
         checkError1("\"\\<\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\<\"",
                     "\"\\<\";") and
         checkError1("\"\\=\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\=\"",
                     "\"\\=\";") and
         checkError1("\"\\>\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\>\"",
                     "\"\\>\";") and
         checkError1("\"\\?\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\?\"",
                     "\"\\?\";") and
         checkError1("\"\\@\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\@\"",
                     "\"\\@\";") and
         checkError1("\"\\[\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\[\"",
                     "\"\\[\";") and
         checkError1("\"\\]\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\]\"",
                     "\"\\]\";") and
         checkError1("\"\\^\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\^\"",
                     "\"\\^\";") and
         checkError1("\"\\_\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\_\"",
                     "\"\\_\";") and
         checkError1("\"\\`\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\`\"",
                     "\"\\`\";") and
         checkError1("\"\\c\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\c\"",
                     "\"\\c\";") and
         checkError1("\"\\d\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\d\"",
                     "\"\\d\";") and
         checkError1("\"\\g\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\g\"",
                     "\"\\g\";") and
         checkError1("\"\\h\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\h\"",
                     "\"\\h\";") and
         checkError1("\"\\i\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\i\"",
                     "\"\\i\";") and
         checkError1("\"\\j\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\j\"",
                     "\"\\j\";") and
         checkError1("\"\\k\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\k\"",
                     "\"\\k\";") and
         checkError1("\"\\l\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\l\"",
                     "\"\\l\";") and
         checkError1("\"\\m\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\m\"",
                     "\"\\m\";") and
         checkError1("\"\\o\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\o\"",
                     "\"\\o\";") and
         checkError1("\"\\p\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\p\"",
                     "\"\\p\";") and
         checkError1("\"\\q\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\q\"",
                     "\"\\q\";") and
         checkError1("\"\\s\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\s\"",
                     "\"\\s\";") and
         checkError1("\"\\u\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\u\"",
                     "\"\\u\";") and
         checkError1("\"\\w\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\w\"",
                     "\"\\w\";") and
         checkError1("\"\\x\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\x\"",
                     "\"\\x\";") and
         checkError1("\"\\y\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\y\"",
                     "\"\\y\";") and
         checkError1("\"\\z\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\z\"",
                     "\"\\z\";") and
         checkError1("\"\\{\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\{\"",
                     "\"\\{\";") and
         checkError1("\"\\|\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\|\"",
                     "\"\\|\";") and
         checkError1("\"\\}\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\}\"",
                     "\"\\}\";") and
         checkError1("\"\\~\";",
-                    STRINGESCAPE, 1, 3,
+                    ILLEGAL_STRING_ESCAPE, 1, 3,
                     "Illegal string escape \"\\~\"",
                     "\"\\~\";") then
       okay := TRUE;
     else
-      writeln(" *** STRINGESCAPE not reported correctly.");
+      writeln(" *** ILLEGAL_STRING_ESCAPE not reported correctly.");
     end if;
   end func;
 

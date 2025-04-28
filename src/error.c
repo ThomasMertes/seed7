@@ -1551,7 +1551,7 @@ void err_cchar (errorType err, int character)
       case WRONG_NUMERICAL_ESCAPE:
         copyCStri(&error->msg, "Numerical escape sequences should end with \";\" not \"");
         break;
-      case STRINGESCAPE:
+      case ILLEGAL_STRING_ESCAPE:
         copyCStri(&error->msg, "Illegal string escape \"\\");
         break;
       case UTF8_CONTINUATION_BYTE_EXPECTED:
