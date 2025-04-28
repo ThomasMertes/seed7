@@ -436,7 +436,7 @@ void lit_char (void)
     if (in_file.character == '\n' || in_file.character == '\r' ||
         in_file.character == EOF) {
       symbol.charValue = ' ';
-      err_warning(CHAREXCEEDS);
+      err_warning(CHAR_EXCEEDS);
     } else {
       if (in_file.character == '\\') {
         do {
@@ -466,7 +466,7 @@ void lit_char (void)
       if (in_file.character != '\'') {
         if (in_file.character == '\n' || in_file.character == '\r' ||
             in_file.character == EOF) {
-          err_warning(CHAREXCEEDS);
+          err_warning(CHAR_EXCEEDS);
         } else {
           err_cchar(APOSTROPHE_EXPECTED, in_file.character);
           if (symbol.charValue != '\'' || position != 0) {

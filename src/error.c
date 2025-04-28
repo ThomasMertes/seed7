@@ -869,7 +869,7 @@ void err_warning (errorType err)
       case NEGATIVE_EXPONENT:
         copyCStri(&error->msg, "Negative exponent in integer literal");
         break;
-      case CHAREXCEEDS:
+      case CHAR_EXCEEDS:
         copyCStri(&error->msg, "Character literal exceeds source line");
         break;
       case WRONG_NUMERICAL_ESCAPE:
