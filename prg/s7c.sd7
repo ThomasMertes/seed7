@@ -3950,19 +3950,23 @@ const proc: process_dynamic_action_call (in reference: function,
   end func;
 
 
-const proc: process_dynamic_call (in reference: function,
+const func boolean: process_dynamic_call (in reference: function,
     in ref_list: actual_params, in reference: interface_object,
     inout expr_type: c_expr) is func
 
+  result
+    var boolean: found is FALSE;
   local
     var category: objectCategory is category.value;
     var expr_type: resultExpr is expr_type.value;
   begin
     if function = interface_object then
+      found := TRUE;
       c_expr.expr &:= "/* ENDLESS RECURSION */\n";
       c_expr.expr &:= diagnosticLine(interface_object);
       c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     elsif function <> NIL then
+      found := TRUE;
       c_expr.expr &:= diagnosticLine(interface_object);
       objectCategory := category(function);
       if objectCategory = BLOCKOBJECT then
@@ -4017,142 +4021,178 @@ const proc: process_dynamic_call (in reference: function,
   end func;
 
 
-const proc: process_dynamic_condition (in reference: current_object,
+const func boolean: process_dynamic_condition (in reference: current_object,
     inout ref_list: formal_params, in var integer: paramNum,
     inout expr_type: c_expr) is forward;
 
 
-const proc: process_dynamic_param_implements (in reference: current_object,
+const func boolean: process_dynamic_param_implements (in reference: current_object,
     inout ref_list: formal_params, in var integer: paramNum,
     in type: param_type, inout expr_type: c_expr) is func
 
+  result
+    var boolean: found is FALSE;
   local
     var reference: formal_param is NIL;
+    var expr_type: c_switch is expr_type.value;
     var type: implementationType is void;
     var bitset: usedCaseLabels is {};
   begin
     formal_param := formal_params[paramNum];
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "switch (((interfaceType) ";
+    c_switch.temp_num := c_expr.temp_num;
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "switch (((interfaceType) ";
     if isPointerParam(formal_param) then
-      c_expr.expr &:= "*o_";
+      c_switch.expr &:= "*o_";
     else
-      c_expr.expr &:= "o_";
+      c_switch.expr &:= "o_";
     end if;
-    create_name(formal_param, c_expr.expr);
-    c_expr.expr &:= ")->type_num) {\n";
+    create_name(formal_param, c_switch.expr);
+    c_switch.expr &:= ")->type_num) {\n";
     for implementationType range typeData.implementsInterface[param_type] do
       if typeNumber(implementationType) not in usedCaseLabels then
-        c_expr.expr &:= "case ";
-        c_expr.expr &:= str(typeNumber(implementationType));
-        c_expr.expr &:= "/*";
-        c_expr.expr &:= str(implementationType);
-        c_expr.expr &:= "*/";
-        c_expr.expr &:= ":\n";
+        c_switch.expr &:= "case ";
+        c_switch.expr &:= str(typeNumber(implementationType));
+        c_switch.expr &:= "/*";
+        c_switch.expr &:= str(implementationType);
+        c_switch.expr &:= "*/";
+        c_switch.expr &:= ":\n";
         setType(formal_params[paramNum], implementationType);
-        process_dynamic_condition(current_object,
-            formal_params, paramNum, c_expr);
+        if process_dynamic_condition(current_object,
+            formal_params, paramNum, c_switch) then
+          found := TRUE;
+        end if;
         setType(formal_params[paramNum], param_type);
-        c_expr.expr &:= diagnosticLine(current_object);
-        c_expr.expr &:= "break;\n";
+        c_switch.expr &:= diagnosticLine(current_object);
+        c_switch.expr &:= "break;\n";
         incl(usedCaseLabels, typeNumber(implementationType));
       end if;
     end for;
-    c_expr.expr &:= "default:\n";
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    c_switch.expr &:= "default:\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "raiseError(ACTION_ERROR);\n";
     (*
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "printf(\"type_num=%d\\n\", ";
     if isPointerParam(formal_param) then
-      c_expr.expr &:= "((interfaceType) *o_";
+      c_switch.expr &:= "((interfaceType) *o_";
     else
-      c_expr.expr &:= "((interfaceType) o_";
+      c_switch.expr &:= "((interfaceType) o_";
     end if;
-    create_name(formal_param, c_expr.expr);
-    c_expr.expr &:= ")->type_num);\n";
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "printf(\"o_";
-    create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "(\");\n";
-    c_expr.expr &:= diagnosticLine(current_object);
-    print_parameter_list(formal_params, c_expr);
-    c_expr.expr &:= "printf(\")\\n\");\n";
+    create_name(formal_param, c_switch.expr);
+    c_switch.expr &:= ")->type_num);\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "printf(\"o_";
+    create_name(current_object, c_switch.expr);
+    c_switch.expr &:= "(\");\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    print_parameter_list(formal_params, c_switch);
+    c_switch.expr &:= "printf(\")\\n\");\n";
     *)
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "break;\n";
-    c_expr.expr &:= "}\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "break;\n";
+    c_switch.expr &:= "}\n";
+    if found then
+      c_expr.temp_num     :=  c_switch.temp_num;
+      c_expr.temp_decls   &:= c_switch.temp_decls;
+      c_expr.temp_assigns &:= c_switch.temp_assigns;
+      c_expr.expr         &:= c_switch.expr;
+      c_expr.temp_frees   &:= c_switch.temp_frees;
+      c_expr.temp_to_null &:= c_switch.temp_to_null;
+    else
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    end if;
   end func;
 
 
-const proc: process_dynamic_param_enumeration (in reference: current_object,
+const func boolean: process_dynamic_param_enumeration (in reference: current_object,
     inout ref_list: formal_params, in var integer: paramNum,
     in type: param_type, inout expr_type: c_expr) is func
 
+  result
+    var boolean: found is FALSE;
   local
     var reference: formal_param is NIL;
+    var expr_type: c_switch is expr_type.value;
     var number_element_hash: enumsByIntValue is number_element_hash.value;
     var integer: intValueOfEnum is 0;
     var reference: enumLiteral is NIL;
     var reference: backupParam is NIL;
   begin
     formal_param := formal_params[paramNum];
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "switch (";
+    c_switch.temp_num := c_expr.temp_num;
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "switch (";
     if isPointerParam(formal_param) then
-      c_expr.expr &:= "*o_";
-      create_name(formal_param, c_expr.expr);
+      c_switch.expr &:= "*o_";
+      create_name(formal_param, c_switch.expr);
     else
-      c_expr.expr &:= "o_";
-      create_name(formal_param, c_expr.expr);
+      c_switch.expr &:= "o_";
+      create_name(formal_param, c_switch.expr);
     end if;
-    c_expr.expr &:= ") {\n";
+    c_switch.expr &:= ") {\n";
     enumsByIntValue := flip(typeData.enum_literal[param_type]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
-      c_expr.expr &:= diagnosticLine(current_object);
-      c_expr.expr &:= "case ";
-      c_expr.expr &:= str(intValueOfEnum);
-      c_expr.expr &:= ": {\n";
+      c_switch.expr &:= diagnosticLine(current_object);
+      c_switch.expr &:= "case ";
+      c_switch.expr &:= str(intValueOfEnum);
+      c_switch.expr &:= ": {\n";
       # If the enums are correct there will only be one per integer value
       enumLiteral := enumsByIntValue[intValueOfEnum][1];
       backupParam := formal_params[paramNum];
       formal_params @:= [paramNum] enumLiteral;
-      process_dynamic_condition(current_object,
-          formal_params, paramNum, c_expr);
+      if process_dynamic_condition(current_object,
+          formal_params, paramNum, c_switch) then
+        found := TRUE;
+      end if;
       formal_params @:= [paramNum] backupParam;
-      c_expr.expr &:= diagnosticLine(current_object);
-      c_expr.expr &:= "} break;\n";
+      c_switch.expr &:= diagnosticLine(current_object);
+      c_switch.expr &:= "} break;\n";
     end for;
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "default: {\n";
-    c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "default: {\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "raiseError(ACTION_ERROR);\n";
     (*
-    c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
+    c_switch.expr &:= "printf(\"literal_num=%d\\n\", ";
     if isPointerParam(formal_param) then
-      c_expr.expr &:= "*o_";
-      create_name(formal_param, c_expr.expr);
+      c_switch.expr &:= "*o_";
+      create_name(formal_param, c_switch.expr);
     else
-      c_expr.expr &:= "o_";
-      create_name(formal_param, c_expr.expr);
+      c_switch.expr &:= "o_";
+      create_name(formal_param, c_switch.expr);
     end if;
-    c_expr.expr &:= ");\n";
-    c_expr.expr &:= "printf(\"o_";
-    create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "(\");\n";
-    print_parameter_list(formal_params, c_expr);
-    c_expr.expr &:= "printf(\")\\n\");\n";
+    c_switch.expr &:= ");\n";
+    c_switch.expr &:= "printf(\"o_";
+    create_name(current_object, c_switch.expr);
+    c_switch.expr &:= "(\");\n";
+    print_parameter_list(formal_params, c_switch);
+    c_switch.expr &:= "printf(\")\\n\");\n";
     *)
-    c_expr.expr &:= "} break;\n";
-    c_expr.expr &:= "}\n";
+    c_switch.expr &:= "} break;\n";
+    c_switch.expr &:= "}\n";
+    if found then
+      c_expr.temp_num     :=  c_switch.temp_num;
+      c_expr.temp_decls   &:= c_switch.temp_decls;
+      c_expr.temp_assigns &:= c_switch.temp_assigns;
+      c_expr.expr         &:= c_switch.expr;
+      c_expr.temp_frees   &:= c_switch.temp_frees;
+      c_expr.temp_to_null &:= c_switch.temp_to_null;
+    else
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    end if;
   end func;
 
 
-const proc: process_dynamic_condition (in reference: current_object,
+const func boolean: process_dynamic_condition (in reference: current_object,
     inout ref_list: formal_params, in var integer: paramNum,
     inout expr_type: c_expr) is func
 
+  result
+    var boolean: found is FALSE;
   local
     var reference: formal_param is NIL;
     var category: paramCategory is category.value;
@@ -4167,17 +4207,17 @@ const proc: process_dynamic_condition (in reference: current_object,
       if paramCategory <> SYMBOLOBJECT then
         param_type := getType(formal_param);
         if param_type in typeData.implementsInterface then
-          process_dynamic_param_implements(current_object,
+          found := process_dynamic_param_implements(current_object,
               formal_params, paramNum, param_type, c_expr);
         elsif param_type in typeData.enum_literal then
-          process_dynamic_param_enumeration(current_object,
+          found := process_dynamic_param_enumeration(current_object,
               formal_params, paramNum, param_type, c_expr);
         else
-          process_dynamic_condition(current_object,
+          found := process_dynamic_condition(current_object,
               formal_params, paramNum, c_expr);
         end if;
       else
-        process_dynamic_condition(current_object,
+        found := process_dynamic_condition(current_object,
             formal_params, paramNum, c_expr);
       end if;
     else
@@ -4217,7 +4257,7 @@ const proc: process_dynamic_condition (in reference: current_object,
         end for;
       end if;
       *)
-      process_dynamic_call(matched_object, formal_params, current_object, c_expr);
+      found := process_dynamic_call(matched_object, formal_params, current_object, c_expr);
     end if;
   end func;
 
@@ -4231,6 +4271,7 @@ const proc: process_dynamic_decision (in reference: current_object,
     var type: object_type is void;
     var type: result_type is void;
     var ref_list: param_list is ref_list.EMPTY;
+    var boolean: found is FALSE;
   begin
     object_type := getType(current_object);
     if isFunc(object_type) or isVarfunc(object_type) then
@@ -4252,7 +4293,7 @@ const proc: process_dynamic_decision (in reference: current_object,
       c_expr.expr &:= ")\n";
       c_expr.expr &:= diagnosticLine(current_object);
       c_expr.expr &:= "{\n";
-      process_dynamic_condition(current_object,
+      found := process_dynamic_condition(current_object,
           param_list, 0, c_func_body);
       appendWithDiagnostic(c_param_list.temp_decls, c_expr);
       appendWithDiagnostic(c_func_body.temp_decls, c_expr);
