@@ -4013,10 +4013,6 @@ const func boolean: process_dynamic_call (in reference: function,
         c_expr.expr &:= str(objectCategory);
         c_expr.expr &:= " */\n";
       end if;
-    else
-      c_expr.expr &:= "/* NOT FOUND */\n";
-      c_expr.expr &:= diagnosticLine(interface_object);
-      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     end if;
   end func;
 
@@ -4035,6 +4031,7 @@ const func boolean: process_dynamic_param_implements (in reference: current_obje
   local
     var reference: formal_param is NIL;
     var expr_type: c_switch is expr_type.value;
+    var expr_type: c_case is expr_type.value;
     var type: implementationType is void;
     var bitset: usedCaseLabels is {};
   begin
@@ -4051,21 +4048,28 @@ const func boolean: process_dynamic_param_implements (in reference: current_obje
     c_switch.expr &:= ")->type_num) {\n";
     for implementationType range typeData.implementsInterface[param_type] do
       if typeNumber(implementationType) not in usedCaseLabels then
-        c_switch.expr &:= "case ";
-        c_switch.expr &:= str(typeNumber(implementationType));
-        c_switch.expr &:= "/*";
-        c_switch.expr &:= str(implementationType);
-        c_switch.expr &:= "*/";
-        c_switch.expr &:= ":\n";
         setType(formal_params[paramNum], implementationType);
+        c_case := expr_type.value;
+        c_case.temp_num := c_switch.temp_num;
         if process_dynamic_condition(current_object,
-            formal_params, paramNum, c_switch) then
+            formal_params, paramNum, c_case) then
           found := TRUE;
+          c_switch.expr &:= "case ";
+          c_switch.expr &:= str(typeNumber(implementationType));
+          c_switch.expr &:= "/*";
+          c_switch.expr &:= str(implementationType);
+          c_switch.expr &:= "*/";
+          c_switch.expr &:= ": {\n";
+          c_switch.temp_num := c_case.temp_num;
+          c_switch.expr &:= c_case.temp_decls;
+          c_switch.expr &:= c_case.temp_assigns;
+          c_switch.expr &:= c_case.expr;
+          c_switch.expr &:= c_case.temp_frees;
+          c_switch.expr &:= diagnosticLine(current_object);
+          c_switch.expr &:= "} break;\n";
+          incl(usedCaseLabels, typeNumber(implementationType));
         end if;
         setType(formal_params[paramNum], param_type);
-        c_switch.expr &:= diagnosticLine(current_object);
-        c_switch.expr &:= "break;\n";
-        incl(usedCaseLabels, typeNumber(implementationType));
       end if;
     end for;
     c_switch.expr &:= "default:\n";
@@ -4115,6 +4119,7 @@ const func boolean: process_dynamic_param_enumeration (in reference: current_obj
   local
     var reference: formal_param is NIL;
     var expr_type: c_switch is expr_type.value;
+    var expr_type: c_case is expr_type.value;
     var number_element_hash: enumsByIntValue is number_element_hash.value;
     var integer: intValueOfEnum is 0;
     var reference: enumLiteral is NIL;
@@ -4135,21 +4140,28 @@ const func boolean: process_dynamic_param_enumeration (in reference: current_obj
     enumsByIntValue := flip(typeData.enum_literal[param_type]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
-      c_switch.expr &:= diagnosticLine(current_object);
-      c_switch.expr &:= "case ";
-      c_switch.expr &:= str(intValueOfEnum);
-      c_switch.expr &:= ": {\n";
       # If the enums are correct there will only be one per integer value
       enumLiteral := enumsByIntValue[intValueOfEnum][1];
       backupParam := formal_params[paramNum];
       formal_params @:= [paramNum] enumLiteral;
+      c_case := expr_type.value;
+      c_case.temp_num := c_switch.temp_num;
       if process_dynamic_condition(current_object,
-          formal_params, paramNum, c_switch) then
+          formal_params, paramNum, c_case) then
         found := TRUE;
+        c_switch.expr &:= diagnosticLine(current_object);
+        c_switch.expr &:= "case ";
+        c_switch.expr &:= str(intValueOfEnum);
+        c_switch.expr &:= ": {\n";
+        c_switch.temp_num := c_case.temp_num;
+        c_switch.expr &:= c_case.temp_decls;
+        c_switch.expr &:= c_case.temp_assigns;
+        c_switch.expr &:= c_case.expr;
+        c_switch.expr &:= c_case.temp_frees;
+        c_switch.expr &:= diagnosticLine(current_object);
+        c_switch.expr &:= "} break;\n";
       end if;
       formal_params @:= [paramNum] backupParam;
-      c_switch.expr &:= diagnosticLine(current_object);
-      c_switch.expr &:= "} break;\n";
     end for;
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "default: {\n";
