@@ -57,6 +57,7 @@ include "comp/prg_act.s7i";
 include "comp/ref_act.s7i";
 include "comp/rfl_act.s7i";
 include "comp/sct_act.s7i";
+include "comp/sel_act.s7i";
 include "comp/set_act.s7i";
 include "comp/soc_act.s7i";
 include "comp/sql_act.s7i";
@@ -1607,6 +1608,20 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SCT_CPY, function, params, c_expr);
       when {"SCT_SELECT"}:
         process(SCT_SELECT, function, params, c_expr);
+      when {"SEL_CMP"}:
+        process(SEL_CMP, function, params, c_expr);
+      when {"SEL_CPY"}:
+        process(SEL_CPY, function, params, c_expr);
+      when {"SEL_EQ"}:
+        process(SEL_EQ, function, params, c_expr);
+      when {"SEL_HASHCODE"}:
+        process(SEL_HASHCODE, function, params, c_expr);
+      when {"SEL_NE"}:
+        process(SEL_NE, function, params, c_expr);
+      when {"SEL_STR"}:
+        process(SEL_STR, function, params, c_expr);
+      when {"SEL_TYPE"}:
+        process(SEL_TYPE, function, params, c_expr);
       when {"SET_ARRLIT"}:
         process(SET_ARRLIT, function, params, c_expr);
       when {"SET_BASELIT"}:

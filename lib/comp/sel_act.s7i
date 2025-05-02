@@ -1,0 +1,119 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  int_act.s7i   Generate code for structElement actions.          *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2025  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: SEL_CMP      is action "SEL_CMP";
+const ACTION: SEL_CONV1    is action "SEL_CONV1";
+const ACTION: SEL_CPY      is action "SEL_CPY";
+const ACTION: SEL_CREATE   is action "SEL_CREATE";
+const ACTION: SEL_EQ       is action "SEL_EQ";
+const ACTION: SEL_HASHCODE is action "SEL_HASHCODE";
+const ACTION: SEL_NE       is action "SEL_NE";
+const ACTION: SEL_STR      is action "SEL_STR";
+const ACTION: SEL_SYMB     is action "SEL_SYMB";
+const ACTION: SEL_TYPE     is action "SEL_TYPE";
+
+
+const proc: process (SEL_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SEL_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (SEL_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SEL_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(((memSizeType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
+  end func;
+
+
+const proc: process (SEL_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SEL_STR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "refStr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SEL_TYPE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    c_expr.expr &:= "refType(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;

@@ -864,7 +864,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_frees &:= "setDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = REFOBJECT then
+    elsif valueCategory = REFOBJECT or
+          valueCategory = STRUCTELEMOBJECT then
       c_declaration.temp_decls &:= "=";
       reference_value(getValue(object_value, reference), c_value);
       c_declaration.temp_decls &:= c_value.expr;
@@ -1648,6 +1649,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = HASHOBJECT or
           functionCategory = SETOBJECT or
           functionCategory = STRUCTOBJECT or
+          functionCategory = STRUCTELEMOBJECT or
           functionCategory = INTERFACEOBJECT or
           functionCategory = FILEOBJECT or
           functionCategory = POLLOBJECT or
@@ -1660,10 +1662,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = ENUMLITERALOBJECT or
           functionCategory = TYPEOBJECT then
       process_expr(function, c_expr);
-    elsif functionCategory = REFOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(function, c_expr.expr);
-    elsif functionCategory = REFLISTOBJECT then
+    elsif functionCategory = REFOBJECT or
+          functionCategory = REFLISTOBJECT then
       c_expr.expr &:= "o_";
       create_name(function, c_expr.expr);
     elsif functionCategory = FORWARDOBJECT then
@@ -1932,7 +1932,8 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= bitsetLiteral(getValue(current_expression, bitset));
         c_expr.expr &:= ")";
       end if;
-    elsif exprCategory = REFOBJECT then
+    elsif exprCategory = REFOBJECT or
+          exprCategory = STRUCTELEMOBJECT then
       if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
@@ -3186,13 +3187,17 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bstHashCodeGeneric";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
-    elsif action_name = "REF_CMP" then
+    elsif action_name = "REF_CMP" or
+          action_name = "SEL_CMP" then
       c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "REF_CPY" then
+    elsif action_name = "REF_CPY" or
+          action_name = "SEL_CPY" then
       c_expr.expr &:= "&ptrCpyGeneric";
-    elsif action_name = "REF_CREATE" then
+    elsif action_name = "REF_CREATE" or
+          action_name = "SEL_CREATE" then
       c_expr.expr &:= "&ptrCreateGeneric";
-    elsif action_name = "REF_HASHCODE" then
+    elsif action_name = "REF_HASHCODE" or
+          action_name = "SEL_HASHCODE" then
       c_expr.expr &:= "&ptrHashCodeGeneric";
     elsif action_name = "RFL_CMP" then
       c_expr.expr &:= "&rflCmpGeneric";
@@ -5071,6 +5076,9 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "SCT_SELECT" then
         process_sct_select_declaration(current_object, c_expr);
         count_declarations(c_expr);
+      elsif action_name = "SEL_CPY" or action_name = "SEL_CREATE" then
+        defineParam1TypeCategory(current_object, STRUCTELEMOBJECT);
+        count_declarations(c_expr);
       elsif action_name = "SET_CPY" or action_name = "SET_CREATE" then
         defineParam1TypeCategory(current_object, SETOBJECT);
         count_declarations(c_expr);
@@ -5123,7 +5131,8 @@ const proc: process_object_declaration (in reference: current_object,
       process_bstri_declaration(current_object, c_expr);
     elsif objectCategory = FLOATOBJECT then
       process_float_declaration(current_object, c_expr);
-    elsif objectCategory = REFOBJECT then
+    elsif objectCategory = REFOBJECT or
+          objectCategory = STRUCTELEMOBJECT then
       process_reference_declaration(current_object, c_expr);
     elsif objectCategory = REFLISTOBJECT then
       process_ref_list_declaration(current_object, c_expr);
@@ -6100,7 +6109,8 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         if getValue(current_object, type) not in constTable.type_const then
           constTable.type_const @:= [getValue(current_object, type)] length(constTable.type_const);
         end if;
-      elsif objectCategory = REFOBJECT then
+      elsif objectCategory = REFOBJECT or
+            objectCategory = STRUCTELEMOBJECT then
         if getValue(current_object, reference) <> NIL then
           if objNumber(getValue(current_object, reference)) <> 0 then
             if getType(getValue(current_object, reference)) not in constTable.type_const then
@@ -6227,7 +6237,8 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = FLOATOBJECT then
       c_expr.expr &:= ".value.floatValue=";
       c_expr.expr &:= floatLiteral(getValue(current_object, float));
-    elsif objectCategory = REFOBJECT then
+    elsif objectCategory = REFOBJECT or
+          objectCategory = STRUCTELEMOBJECT then
       c_expr.expr &:= ".value.objRefValue=";
       c_expr.expr &:= referenceLiteral(getValue(current_object, reference));
     elsif objectCategory = REFLISTOBJECT then
