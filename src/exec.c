@@ -766,6 +766,7 @@ objectType exec_call (objectType object)
       case ARRAYOBJECT:
       case HASHOBJECT:
       case STRUCTOBJECT:
+      case STRUCTELEMOBJECT:
       case SETOBJECT:
       case FILEOBJECT:
       case SOCKETOBJECT:
@@ -985,6 +986,7 @@ objectType exec_dynamic (listType expr_list)
           case CONSTENUMOBJECT:
           case VARENUMOBJECT:
           case INTERFACEOBJECT:
+          case STRUCTELEMOBJECT:
             element_value = actual_element->obj->value.objValue;
             break;
           default:

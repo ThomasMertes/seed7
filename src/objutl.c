@@ -593,6 +593,25 @@ objectType bld_struct_temp (structType temp_struct)
 
 
 
+objectType bld_structelem_temp (objectType temp_structelem)
+
+  {
+    register objectType result;
+
+  /* bld_structelem_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, STRUCTELEMOBJECT);
+      result->value.objValue = temp_structelem;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_structelem_temp */
+
+
+
 objectType bld_type_temp (typeType temp_type)
 
   {
@@ -692,6 +711,7 @@ void dump_temp_value (objectType object)
       case SOCKETOBJECT:
       case FLOATOBJECT:
       case REFOBJECT:
+      case STRUCTELEMOBJECT:
       case ACTOBJECT:
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:

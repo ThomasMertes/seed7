@@ -37,8 +37,8 @@ MOBJ = s7.obj
 POBJ = runerr.obj option.obj primitiv.obj
 LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj \
        drwlib.obj enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj pcslib.obj \
-       pollib.obj prclib.obj prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj sqllib.obj strlib.obj \
-       timlib.obj typlib.obj ut8lib.obj
+       pollib.obj prclib.obj prglib.obj reflib.obj rfllib.obj sctlib.obj sellib.obj setlib.obj soclib.obj sqllib.obj \
+       strlib.obj timlib.obj typlib.obj ut8lib.obj
 EOBJ = exec.obj doany.obj objutl.obj
 AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
        expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj msg_stri.obj \
@@ -63,8 +63,8 @@ MSRC = s7.c
 PSRC = runerr.c option.c primitiv.c
 LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c \
        drwlib.c enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pcslib.c \
-       pollib.c prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c sqllib.c strlib.c \
-       timlib.c typlib.c ut8lib.c
+       pollib.c prclib.c prglib.c reflib.c rfllib.c sctlib.c sellib.c setlib.c soclib.c sqllib.c \
+       strlib.c timlib.c typlib.c ut8lib.c
 ESRC = exec.c doany.c objutl.c
 ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c msg_stri.c \

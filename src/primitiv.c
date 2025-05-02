@@ -58,6 +58,7 @@
 #include "reflib.h"
 #include "rfllib.h"
 #include "sctlib.h"
+#include "sellib.h"
 #include "setlib.h"
 #include "soclib.h"
 #include "sqllib.h"
@@ -879,6 +880,17 @@ static const actEntryRecord actEntryTable[] = {
     { "SCT_LNG",                      sct_lng,                      },
     { "SCT_REFIDX",                   sct_refidx,                   },
     { "SCT_SELECT",                   sct_select,                   },
+
+    { "SEL_CMP",                      sel_cmp,                      },
+    { "SEL_CONV1",                    sel_conv1,                    },
+    { "SEL_CPY",                      sel_cpy,                      },
+    { "SEL_CREATE",                   sel_create,                   },
+    { "SEL_EQ",                       sel_eq,                       },
+    { "SEL_HASHCODE",                 sel_hashcode,                 },
+    { "SEL_NE",                       sel_ne,                       },
+    { "SEL_STR",                      sel_str,                      },
+    { "SEL_SYMB",                     sel_symb,                     },
+    { "SEL_TYPE",                     sel_type,                     },
 
     { "SET_ARRLIT",                   set_arrlit,                   },
     { "SET_BASELIT",                  set_baselit,                  },

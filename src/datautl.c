@@ -69,6 +69,7 @@ static const const_cstriType category_name[] = {
     "HASHOBJECT",        /* hashValue -   hash                      */
     "HASHELEMOBJECT",    /* hashElemValue - hash table element      */
     "STRUCTOBJECT",      /* structValue - struct                    */
+    "STRUCTELEMOBJECT",  /* objValue -    reference                 */
     "CLASSOBJECT",       /* structValue - struct                    */
     "INTERFACEOBJECT",   /* objValue -    Dynamic Object            */
     "SETOBJECT",         /* setValue -    set                       */
