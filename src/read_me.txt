@@ -1060,12 +1060,15 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbig ........... okay
     chkbool ........... okay
     chkenum ........... okay
+    chktime ........... okay
     chkscan ........... okay
     chkjson ........... okay
+    chktoml ........... okay
     chkbitdata ........... okay
     chkset ........... okay
     chkhsh ........... okay
     chkfil ........... okay
+    chkerr ........... okay
     chkexc ........... okay
 
   This verifies that interpreter and compiler work correct.

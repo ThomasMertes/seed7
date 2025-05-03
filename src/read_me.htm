@@ -122,6 +122,11 @@ a.var:link    { color: darkcyan; text-decoration: underline  }
 a.var:hover   { color: darkred }
 a.var:active  { color: gold }
 
+a.var_no_ul:visited { color: darkcyan; text-decoration: none  }
+a.var_no_ul:link    { color: darkcyan; text-decoration: none  }
+a.var_no_ul:hover   { color: darkred; text-decoration: underline }
+a.var_no_ul:active  { color: gold; text-decoration: underline }
+
 a.exception:visited { color: black; text-decoration: none }
 a.exception:link    { color: black; text-decoration: none }
 a.exception:hover   { color: blue; text-decoration: underline }
@@ -1271,12 +1276,15 @@ chkprc ........... okay
 chkbig ........... okay
 chkbool ........... okay
 chkenum ........... okay
+chktime ........... okay
 chkscan ........... okay
 chkjson ........... okay
+chktoml ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay
 chkfil ........... okay
+chkerr ........... okay
 chkexc ........... okay
 </pre><p>
   This verifies that interpreter and compiler work correct.
