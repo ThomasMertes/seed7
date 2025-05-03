@@ -46,6 +46,7 @@ objectType prgMatch (const const_progType aProg, listType curr_expr);
 objectType prgMatchExpr (const const_progType aProg, listType curr_expr);
 const_striType prgName (const const_progType aProg);
 const_striType prgPath (const const_progType aProg);
+listType prgStructElements (const const_progType aProgram);
 progType prgStrParse (const const_striType stri, const const_setType options,
     const const_rtlArrayType libraryDirs, const fileType errorFile);
 objectType prgSyobject (const progType aProg, const const_striType syobjectName);
