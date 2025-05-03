@@ -38,6 +38,7 @@
 #include "common.h"
 #include "sigutl.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
@@ -54,6 +55,7 @@
 #include "name.h"
 #include "match.h"
 #include "error.h"
+#include "prg_comp.h"
 
 #undef EXTERN
 #define EXTERN
@@ -267,8 +269,8 @@ objectType dcl_elements (listType arguments)
       prog->stack_current->object_list_insert_place = local_object_insert_place;
     } /* if */
     list_elem = element_list;
-    while (list_elem != NULL) {
-      incl_list(&prog->struct_objects, list_elem->obj, &err_info);
+    while (list_elem != NULL && err_info == OKAY_NO_ERROR) {
+      addStructElement(prog, list_elem->obj, &err_info);
       list_elem = list_elem->next;
     } /* while */
     logFunction(printf("dcl_elements --> err_info=%d\n", err_info););

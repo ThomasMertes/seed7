@@ -25,6 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
+void addStructElement (progType aProg, objectType structElement,
+    errInfoType *err_info);
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName);
 progType prgBStriParse (const bstriType bstri, const const_setType options,

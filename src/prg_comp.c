@@ -178,6 +178,46 @@ static void free_obj_and_prop (listType list)
 
 
 
+void addStructElement (progType aProg, objectType structElement,
+    errInfoType *err_info)
+
+  {
+    objectType symbObject;
+    rtlHashType structSymbolsMap;
+
+  /* addStructElement */
+    logFunction(printf("addStructElement(" FMT_X_MEM ")\n",
+                       (memSizeType) aProgram););
+    incl_list(&aProg->struct_objects, structElement, err_info);
+    if (*err_info == OKAY_NO_ERROR && HAS_ENTITY(structElement)) {
+      symbObject = GET_ENTITY(structElement)->syobject;
+      if (symbObject != NULL) {
+        if (aProg->structSymbolsMap == NULL) {
+          structSymbolsMap = hshEmpty();
+          aProg->structSymbolsMap = (void *) structSymbolsMap;
+        } else {
+          structSymbolsMap = (rtlHashType) aProg->structSymbolsMap;
+        } /* if */
+        if (!hshContains(structSymbolsMap,
+                         (genericType) (memSizeType) symbObject,
+                         (intType) ((memSizeType) symbObject) >> 6,
+                         (compareType) &genericCmp)) {
+          hshIncl(structSymbolsMap,
+                  (genericType) (memSizeType) symbObject,
+                  (genericType) 1,
+                  (intType) ((memSizeType) symbObject) >> 6,
+                  (compareType) &genericCmp,
+                  (createFuncType) &genericCreate,
+                  (createFuncType) &genericCreate,
+                  (copyFuncType) &genericCpy);
+          incl_list(&aProg->struct_symbols, symbObject, err_info);
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* addStructElement */
+
+
+
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName)
 
@@ -407,6 +447,8 @@ void prgDestr (progType old_prog)
         dump_list(old_prog->substituted_objects);
         free_obj_and_prop(old_prog->when_value_objects);
         free_obj_and_prop(old_prog->struct_objects);
+        freeGenericHash((rtlHashType) old_prog->structSymbolsMap);
+        free_list(old_prog->struct_symbols);
         freeGenericHash((rtlHashType) old_prog->objectNumberMap);
         freeGenericHash((rtlHashType) old_prog->typeNumberMap);
         removeProgFiles(old_prog);
@@ -794,11 +836,7 @@ const_striType prgPath (const const_progType aProg)
 listType prgStructElements (const const_progType aProgram)
 
   {
-    listType element;
-    objectType symbObject;
-    rtlHashType symbolsEntered;
     errInfoType err_info = OKAY_NO_ERROR;
-    listType *list_insert_place;
     listType structElements;
 
   /* prgStructElements */
@@ -810,41 +848,9 @@ listType prgStructElements (const const_progType aProgram)
       raise_error(RANGE_ERROR);
       structElements = NULL;
     } else {
-      symbolsEntered = hshEmpty();
-      if (likely(symbolsEntered != NULL)) {
-        list_insert_place = &structElements;
-        element = aProgram->struct_objects;
-        while (element != NULL && err_info == OKAY_NO_ERROR) {
-          if (HAS_ENTITY(element->obj)) {
-            symbObject = GET_ENTITY(element->obj)->syobject;
-            if (symbObject != NULL) {
-              if (!hshContains(symbolsEntered,
-                               (genericType) (memSizeType) symbObject,
-                               (intType) ((memSizeType) symbObject) >> 6,
-                               (compareType) &genericCmp)) {
-                hshIncl(symbolsEntered,
-                        (genericType) (memSizeType) symbObject,
-                        (genericType) 1,
-                        (intType) ((memSizeType) symbObject) >> 6,
-                        (compareType) &genericCmp,
-                        (createFuncType) &genericCreate,
-                        (createFuncType) &genericCreate,
-                        (copyFuncType) &genericCpy);
-                list_insert_place = append_element_to_list(list_insert_place,
-                    symbObject, &err_info);
-              } /* if */
-            } /* if */
-          } /* if */
-          element = element->next;
-        } /* while */
-        hshDestr(symbolsEntered,
-                 (destrFuncType) &genericDestr,
-                 (destrFuncType) &genericDestr);
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          free_list(structElements);
-          raise_error(MEMORY_ERROR);
-          structElements = NULL;
-        } /* if */
+      structElements = copy_list(aProgram->struct_symbols, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
     return structElements;
