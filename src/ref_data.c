@@ -1370,6 +1370,7 @@ objectType refValue (const const_objectType aReference)
     if (likely(aReference != NULL &&
                (CATEGORY_OF_OBJ(aReference) == FWDREFOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == REFOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == STRUCTELEMOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == REFPARAMOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == RESULTOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == LOCALVOBJECT ||
