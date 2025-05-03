@@ -1036,27 +1036,34 @@ objectType exec_dynamic (listType expr_list)
               trace1(match_result);
             } /* if */
 #endif
-            result = exec_call(match_result);
-            if (fail_flag) {
-              errInfoType ignored_err_info;
+            if (match_result->value.listValue->obj != dynamic_call_obj->value.listValue->obj) {
+              result = exec_call(match_result);
+              if (fail_flag) {
+                errInfoType ignored_err_info;
 
-              if (fail_stack->obj == match_result) {
-                pop_list(&fail_stack);
+                if (fail_stack->obj == match_result) {
+                  pop_list(&fail_stack);
+                } /* if */
+                /* Since an exception has already been     */
+                /* raised ignored_err_info is not checked. */
+                incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
               } /* if */
-              /* Since an exception has already been     */
-              /* raised ignored_err_info is not checked. */
-              incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
-            } /* if */
 
 #ifdef WITH_PROTOCOL
-            if (trace.dynamic) {
-              if (trace.heapsize) {
-                prot_cstri(" ");
-                prot_heapsize();
+              if (trace.dynamic) {
+                if (trace.heapsize) {
+                  prot_cstri(" ");
+                  prot_heapsize();
+                } /* if */
+                prot_nl();
               } /* if */
-              prot_nl();
-            } /* if */
 #endif
+            } else {
+              logError(printf("exec_dynamic: Endless recursion.\n");
+                       trace1(match_expr);
+                       printf("\n"););
+              err_info = ACTION_ERROR;
+            } /* if */
           } else {
             logError(printf("exec_dynamic: match_object() failed.\n");
                      trace1(match_expr);
