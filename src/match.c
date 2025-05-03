@@ -214,7 +214,14 @@ errInfoType substitute_params (const_objectType expr_object)
           printf("\n");
 #endif
           current_element = current_element->value.objValue;
-          if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT ||
+          if (CATEGORY_OF_OBJ(current_element) == STRUCTELEMOBJECT &&
+              current_element->value.objValue != NULL) {
+            current_element = current_element->value.objValue;
+            if (HAS_ENTITY(current_element) &&
+                GET_ENTITY(current_element)->syobject != NULL) {
+              created_object = GET_ENTITY(current_element)->syobject;
+            } /* if */
+          } else if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT ||
               CATEGORY_OF_OBJ(current_element) == CALLOBJECT ||
               CATEGORY_OF_OBJ(current_element) == MATCHOBJECT ||
               CATEGORY_OF_OBJ(current_element) == LISTOBJECT) {
