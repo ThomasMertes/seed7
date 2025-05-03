@@ -780,7 +780,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRG_OWN_NAME",                 prg_own_name,                 },
     { "PRG_OWN_PATH",                 prg_own_path,                 },
     { "PRG_PATH",                     prg_path,                     },
-    { "PRG_STRUCT_ELEMENTS",          prg_struct_elements,          },
+    { "PRG_STRUCT_SYMBOLS",           prg_struct_symbols,           },
     { "PRG_STR_PARSE",                prg_str_parse,                },
     { "PRG_SYOBJECT",                 prg_syobject,                 },
     { "PRG_SYSVAR",                   prg_sysvar,                   },

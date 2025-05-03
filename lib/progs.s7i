@@ -500,7 +500,7 @@ const func parseError: getError (in program: aProgram, in integer: errorIndex) i
 const func ref_list: globalObjects (in program: aProgram)                is action "PRG_GLOBAL_OBJECTS";
 
 
-const func ref_list: structElements (in program: aProgram)               is action "PRG_STRUCT_ELEMENTS";
+const func ref_list: structSymbols (in program: aProgram)                is action "PRG_STRUCT_SYMBOLS";
 
 
 (**

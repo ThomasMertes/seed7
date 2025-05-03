@@ -469,13 +469,13 @@ objectType prg_path (listType arguments)
 
 
 
-objectType prg_struct_elements (listType arguments)
+objectType prg_struct_symbols (listType arguments)
 
-  { /* prg_struct_elements */
+  { /* prg_struct_symbols */
     isit_prog(arg_1(arguments));
-    return bld_reflist_temp(prgStructElements(
+    return bld_reflist_temp(prgStructSymbols(
         take_prog(arg_1(arguments))));
-  } /* prg_struct_elements */
+  } /* prg_struct_symbols */
 
 
 

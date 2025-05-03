@@ -833,17 +833,17 @@ const_striType prgPath (const const_progType aProg)
 
 
 
-listType prgStructElements (const const_progType aProgram)
+listType prgStructSymbols (const const_progType aProgram)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType structElements;
 
-  /* prgStructElements */
-    logFunction(printf("prgStructElements(" FMT_X_MEM ")\n",
+  /* prgStructSymbols */
+    logFunction(printf("prgStructSymbols(" FMT_X_MEM ")\n",
                        (memSizeType) aProgram););
     if (unlikely(aProgram == NULL)) {
-      logError(printf("prgStructElements(" FMT_X_MEM "): "
+      logError(printf("prgStructSymbols(" FMT_X_MEM "): "
                       "Program empty.\n", (memSizeType) aProgram););
       raise_error(RANGE_ERROR);
       structElements = NULL;
@@ -854,7 +854,7 @@ listType prgStructElements (const const_progType aProgram)
       } /* if */
     } /* if */
     return structElements;
-  } /* prgStructElements */
+  } /* prgStructSymbols */
 
 
 
