@@ -469,6 +469,16 @@ objectType prg_path (listType arguments)
 
 
 
+objectType prg_struct_elements (listType arguments)
+
+  { /* prg_struct_elements */
+    isit_prog(arg_1(arguments));
+    return bld_reflist_temp(prgStructElements(
+        take_prog(arg_1(arguments))));
+  } /* prg_struct_elements */
+
+
+
 /**
  *  Parse the given string 'stri/arg_1'.
  *  @param stri/arg_1 'String' to be parsed.

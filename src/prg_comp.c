@@ -627,7 +627,6 @@ listType prgGlobalObjects (const const_progType aProgram)
       result = copy_list(aProgram->stack_global->local_object_list, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
       } /* if */
     } else {
       result = NULL;
@@ -789,6 +788,67 @@ const_striType prgPath (const const_progType aProg)
                        striAsUnquotedCStri(path)););
     return path;
   } /* prgPath */
+
+
+
+listType prgStructElements (const const_progType aProgram)
+
+  {
+    listType element;
+    objectType symbObject;
+    rtlHashType symbolsEntered;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType *list_insert_place;
+    listType structElements;
+
+  /* prgStructElements */
+    logFunction(printf("prgStructElements(" FMT_X_MEM ")\n",
+                       (memSizeType) aProgram););
+    if (unlikely(aProgram == NULL)) {
+      logError(printf("prgStructElements(" FMT_X_MEM "): "
+                      "Program empty.\n", (memSizeType) aProgram););
+      raise_error(RANGE_ERROR);
+      structElements = NULL;
+    } else {
+      symbolsEntered = hshEmpty();
+      if (likely(symbolsEntered != NULL)) {
+        list_insert_place = &structElements;
+        element = aProgram->struct_objects;
+        while (element != NULL && err_info == OKAY_NO_ERROR) {
+          if (HAS_ENTITY(element->obj)) {
+            symbObject = GET_ENTITY(element->obj)->syobject;
+            if (symbObject != NULL) {
+              if (!hshContains(symbolsEntered,
+                               (genericType) (memSizeType) symbObject,
+                               (intType) ((memSizeType) symbObject) >> 6,
+                               (compareType) &genericCmp)) {
+                hshIncl(symbolsEntered,
+                        (genericType) (memSizeType) symbObject,
+                        (genericType) 1,
+                        (intType) ((memSizeType) symbObject) >> 6,
+                        (compareType) &genericCmp,
+                        (createFuncType) &genericCreate,
+                        (createFuncType) &genericCreate,
+                        (copyFuncType) &genericCpy);
+                list_insert_place = append_element_to_list(list_insert_place,
+                    symbObject, &err_info);
+              } /* if */
+            } /* if */
+          } /* if */
+          element = element->next;
+        } /* while */
+        hshDestr(symbolsEntered,
+                 (destrFuncType) &genericDestr,
+                 (destrFuncType) &genericDestr);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          free_list(structElements);
+          raise_error(MEMORY_ERROR);
+          structElements = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    return structElements;
+  } /* prgStructElements */
 
 
 
