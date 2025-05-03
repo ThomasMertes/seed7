@@ -92,6 +92,7 @@ var boolean_obj_hash: inline_function is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_with_dcl_actions is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
+var array stri_table_hash: elementNameTable is [0 .. -1] times stri_table_hash.value;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
 var boolean_obj_hash: definedActualFuncParams is boolean_obj_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
@@ -4204,6 +4205,128 @@ const func boolean: process_dynamic_param_enumeration (in reference: current_obj
   end func;
 
 
+const func boolean: process_dynamic_param_struct_elem (in reference: current_object,
+    inout ref_list: formal_params, in var integer: paramNum,
+    in type: param_type, inout expr_type: c_expr) is func
+
+  result
+    var boolean: found is FALSE;
+  local
+    var reference: formal_param is NIL;
+    var expr_type: c_switch is expr_type.value;
+    var expr_type: c_case is expr_type.value;
+    var integer: symbolTempNum is 0;
+    var integer: numOfElementNameTable is 0;
+    var integer: labelNumber is 0;
+    var stri_table_hash: nameToLabelNumber is stri_table_hash.value;
+    var ref_list: elements is ref_list.value;
+    var reference: structSymbol is NIL;
+    var reference: backupParam is NIL;
+  begin
+    formal_param := formal_params[paramNum];
+    numOfElementNameTable := length(elementNameTable);
+    c_switch.temp_num := c_expr.temp_num;
+    incr(c_switch.temp_num);
+    symbolTempNum := c_switch.temp_num;
+    c_switch.temp_decls := diagnosticLine(current_object);
+    c_switch.temp_decls &:= "objRefType sym_";
+    c_switch.temp_decls &:= str(symbolTempNum);
+    c_switch.temp_decls &:= ";\n";
+    c_switch.temp_decls &:= diagnosticLine(current_object);
+    c_switch.temp_decls &:= "ustriType name_";
+    c_switch.temp_decls &:= str(symbolTempNum);
+    c_switch.temp_decls &:= ";\n";
+    c_switch.expr := diagnosticLine(current_object);
+    c_switch.expr &:= "sym_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= "=";
+    if isPointerParam(formal_param) then
+      c_switch.expr &:= "*o_";
+    else
+      c_switch.expr &:= "o_";
+    end if;
+    create_name(formal_param, c_switch.expr);
+    c_switch.expr &:= ";\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "if (HAS_ENTITY(sym_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= ")) {\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "  name_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= "=GET_ENTITY(sym_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= ")->ident->name;\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "} else {\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "  name_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= "=\"\";\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "}\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "switch (";
+    if not ccConf.SWITCH_WORKS_FOR_INT64TYPE then
+      c_switch.expr &:= "(int32Type) ";
+    end if;
+    c_switch.expr &:= "hshIdxDefault0(elementNameLabels[";
+    c_switch.expr &:= str(numOfElementNameTable);
+    c_switch.expr &:= "], (genericType) name_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= ", ustriHash(name_";
+    c_switch.expr &:= str(symbolTempNum);
+    c_switch.expr &:= "), (compareType)(&strcmp))) {\n";
+    elements := structSymbols(prog);
+    for structSymbol range elements do
+      backupParam := formal_params[paramNum];
+      formal_params @:= [paramNum] structSymbol;
+      c_case := expr_type.value;
+      c_case.temp_num := c_switch.temp_num;
+      if process_dynamic_condition(current_object,
+          formal_params, paramNum, c_case) then
+        found := TRUE;
+        incr(labelNumber);
+        nameToLabelNumber @:= [str(structSymbol)] labelNumber;
+        c_switch.expr &:= diagnosticLine(current_object);
+        c_switch.expr &:= "case ";
+        c_switch.expr &:= str(labelNumber);
+        c_switch.expr &:= " /* ";
+        c_switch.expr &:= str(structSymbol);
+        c_switch.expr &:= " */: {\n";
+        c_switch.temp_num := c_case.temp_num;
+        c_switch.expr &:= c_case.temp_decls;
+        c_switch.expr &:= c_case.temp_assigns;
+        c_switch.expr &:= c_case.expr;
+        c_switch.expr &:= c_case.temp_frees;
+        c_switch.expr &:= diagnosticLine(current_object);
+        c_switch.expr &:= "} break;\n";
+      end if;
+      formal_params @:= [paramNum] backupParam;
+    end for;
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "default: {\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "raiseError(ACTION_ERROR);\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "} break;\n";
+    c_switch.expr &:= diagnosticLine(current_object);
+    c_switch.expr &:= "}\n";
+    if found then
+      elementNameTable &:= nameToLabelNumber;
+      c_expr.temp_num     :=  c_switch.temp_num;
+      c_expr.temp_decls   &:= c_switch.temp_decls;
+      c_expr.temp_assigns &:= c_switch.temp_assigns;
+      c_expr.expr         &:= c_switch.expr;
+      c_expr.temp_frees   &:= c_switch.temp_frees;
+      c_expr.temp_to_null &:= c_switch.temp_to_null;
+    else
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    end if;
+  end func;
+
+
 const func boolean: process_dynamic_condition (in reference: current_object,
     inout ref_list: formal_params, in var integer: paramNum,
     inout expr_type: c_expr) is func
@@ -4228,6 +4351,10 @@ const func boolean: process_dynamic_condition (in reference: current_object,
               formal_params, paramNum, param_type, c_expr);
         elsif param_type in typeData.enum_literal then
           found := process_dynamic_param_enumeration(current_object,
+              formal_params, paramNum, param_type, c_expr);
+        elsif param_type in typeData.typeCategory and
+            typeData.typeCategory[param_type] = STRUCTELEMOBJECT then
+          found := process_dynamic_param_struct_elem(current_object,
               formal_params, paramNum, param_type, c_expr);
         else
           found := process_dynamic_condition(current_object,
@@ -5611,6 +5738,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  objRefType    objRefValue;");
     writeln(c_prog, "  listType      listValue;");
     writeln(c_prog, "  actType       actValue;");
+    writeln(c_prog, "  ustriType     ustriValue;");
     writeln(c_prog, "} rtlValueUnion;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  genericType         genericValue;");
@@ -5759,6 +5887,11 @@ const proc: write_file_head is func
     else
       writeln(c_prog, "#define bitset_pos(number) ((number)<0?~(~(number)>>bitset_shift):(number)>>bitset_shift)");
     end if;
+    writeln(c_prog, "#define POSINFO_MASK ((categoryType)  512)");
+    writeln(c_prog, "#define HAS_POSINFO(O)  ((O)->objcategory & POSINFO_MASK)");
+    writeln(c_prog, "#define HAS_PROPERTY(O) (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)");
+    writeln(c_prog, "#define HAS_ENTITY(O)   (HAS_PROPERTY(O) && (O)->descriptor.property->entity != NULL)");
+    writeln(c_prog, "#define GET_ENTITY(O)   ((O)->descriptor.property->entity)");
     writeln(c_prog, "striType          arg_0;");
     writeln(c_prog, "striType          programName;");
     writeln(c_prog, "striType          programPath;");
@@ -5785,6 +5918,7 @@ const proc: write_file_head is func
     writeln(c_prog, "hashType               *hsh;");
     writeln(c_prog, "interfaceType          *itf;");
     writeln(c_prog, "hashType               *caseLabels;");
+    writeln(c_prog, "hashType               *elementNameLabels;");
     writeln(c_prog, "rtlValueUnion           flt2int;");
     writeln(c_prog, "extern memSizeType hs;");
     writeln(c_prog);
@@ -5867,6 +6001,8 @@ const proc: write_file_head is func
     writeln(c_prog, "size_t max_catch_stack;");
     writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
+    writeln(c_prog, "genericType ustrCreateGeneric (const genericType source);");
+    writeln(c_prog, "intType ustriHash (const const_ustriType stri);");
     if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
       writeln(c_prog, "static unsigned int profile_size;");
@@ -7701,6 +7837,51 @@ const proc: initCaseLabels (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
+    in stri_table_hash: nameToLabelNumber, inout expr_type: c_expr) is func
+
+  local
+    var integer: labelNumber is 0;
+    var string: name is "";
+  begin
+    c_expr.expr &:= "elementNameLabels[";
+    c_expr.expr &:= str(numOfElementNameTable);
+    c_expr.expr &:= "]=hshEmpty();\n";
+    for labelNumber key name range nameToLabelNumber do
+      c_expr.expr &:= "hash_key.value.ustriValue=";
+      c_expr.expr &:= c_literal(name);
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= "hshIncl(elementNameLabels[";
+      c_expr.expr &:= str(numOfElementNameTable);
+      c_expr.expr &:= "], hash_key.value.genericValue, ";
+      c_expr.expr &:= str(labelNumber);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= str(hashCode(name));
+      c_expr.expr &:= ", (compareType)(&strcmp), (createFuncType)(&ustrCreateGeneric)";
+      c_expr.expr &:= ", (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+    end for;
+  end func;
+
+
+const proc: initElementNameLabels (inout expr_type: c_expr) is func
+
+  local
+    var integer: numOfElementNameTable is 0;
+  begin
+    c_expr.expr &:= "void initElementNameLabelsOfSwitch () {\n";
+    if length(elementNameTable) <> 0 then
+      c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "elementNameLabels = (hashType *)(malloc(";
+      c_expr.expr &:= str(length(elementNameTable));
+      c_expr.expr &:= " * sizeof(hashType)));\n";
+      for key numOfElementNameTable range elementNameTable do
+        initElementNameLabelsOfCase(numOfElementNameTable, elementNameTable[numOfElementNameTable], c_expr);
+      end for;
+    end if;
+    c_expr.expr &:= "}\n\n";
+  end func;
+
+
 const proc: init_values (inout expr_type: c_expr) is func
 
   local
@@ -7817,6 +7998,7 @@ const proc: init_values (inout expr_type: c_expr) is func
       c_expr.expr &:= "();\n";
     end for;
     c_expr.expr &:= "  initCaseLabelsOfSwitch();\n";
+    c_expr.expr &:= "  initElementNameLabelsOfSwitch();\n";
     c_expr.expr &:= "}\n\n";
     init_nan_constants(c_expr);
   end func;
@@ -7958,6 +8140,7 @@ const proc: process_global_declarations (in program: prog) is func
     declare_missing_create_declarations(c_expr);
     declare_missing_destr_declarations(c_expr);
     initCaseLabels(c_expr);
+    initElementNameLabels(c_expr);
     init_values(c_expr);
     init_globals(c_expr);
     if config.profile_function then
