@@ -40,6 +40,7 @@ const ACTION: PRG_NE              is action "PRG_NE";
 const ACTION: PRG_OWN_NAME        is action "PRG_OWN_NAME";
 const ACTION: PRG_OWN_PATH        is action "PRG_OWN_PATH";
 const ACTION: PRG_PATH            is action "PRG_PATH";
+const ACTION: PRG_STRUCT_ELEMENTS is action "PRG_STRUCT_ELEMENTS";
 const ACTION: PRG_STR_PARSE       is action "PRG_STR_PARSE";
 const ACTION: PRG_SYOBJECT        is action "PRG_SYOBJECT";
 const ACTION: PRG_SYSVAR          is action "PRG_SYSVAR";
@@ -63,6 +64,7 @@ const proc: prg_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "objRefType  prgMatchExpr (const const_progType, listType);");
     declareExtern(c_prog, "const_striType prgName (const const_progType);");
     declareExtern(c_prog, "const_striType prgPath (const const_progType);");
+    declareExtern(c_prog, "listType    prgStructElements (const const_progType);");
     declareExtern(c_prog, "progType    prgStrParse (const const_striType, const const_setType, const const_arrayType, fileType);");
     declareExtern(c_prog, "objRefType  prgSyobject (const progType, const const_striType);");
     declareExtern(c_prog, "objRefType  prgSysvar (const const_progType, const const_striType);");
@@ -311,6 +313,18 @@ const proc: process (PRG_PATH, in reference: function,
     c_expr.expr &:= "prgPath(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_STRUCT_ELEMENTS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compilerLibrary := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "prgStructElements(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

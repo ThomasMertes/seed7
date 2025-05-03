@@ -1464,6 +1464,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRG_OWN_PATH, function, params, c_expr);
       when {"PRG_PATH"}:
         process(PRG_PATH, function, params, c_expr);
+      when {"PRG_STRUCT_ELEMENTS"}:
+        process(PRG_STRUCT_ELEMENTS, function, params, c_expr);
       when {"PRG_STR_PARSE"}:
         process(PRG_STR_PARSE, function, params, c_expr);
       when {"PRG_SYOBJECT"}:
