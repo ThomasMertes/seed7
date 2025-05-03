@@ -55,6 +55,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     enumType := subtype ENUMERATION;
     IN_PARAM_IS_VALUE(enumType);
     elem_list := expr_to_list(elem_expr);
+    const boolean: isEnumType (attr enumType)                        is TRUE;
     const proc: (ref enumType: dest) ::= (in enumType: source)       is action "ENU_CREATE";
     const proc: (ref enumType: dest) ::= enumlit                     is action "ENU_GENLIT";
     const proc: destroy (ref enumType: aValue)                       is action "GEN_DESTR";
