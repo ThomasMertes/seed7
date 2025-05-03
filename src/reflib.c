@@ -609,7 +609,7 @@ trace2(refe_to);
 
 
 /**
- *  Check if two references are equal.
+ *  Check if two references are not equal.
  *  @return FALSE if both references are equal,
  *          TRUE otherwise.
  */
