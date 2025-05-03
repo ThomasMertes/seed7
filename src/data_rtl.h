@@ -131,8 +131,9 @@ typedef union {
 /*    actType          actValue;       ** ACTOBJECT */
 /*    progType         progValue;      ** PROGOBJECT */
 #if WITH_FLOAT
-    floatType      floatValue;   /* FLOATOBJECT */
+    floatType        floatValue;   /* FLOATOBJECT */
 #endif
+    ustriType        ustriValue;
   } rtlValueUnion;
 
 typedef struct rtlObjectStruct {

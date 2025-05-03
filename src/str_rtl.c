@@ -144,6 +144,57 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
 
 
 
+genericType ustrCreateGeneric (const genericType source)
+
+  {
+    ustriType ustri;
+    memSizeType length;
+    rtlObjectType result;
+
+  /* ustrCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
+    ustri = ((const_rtlObjectType *) &source)->value.ustriValue;
+    logFunction(printf("ustrCreateGeneric(\"%s\")\n",
+                       ustri == NULL ? (ustriType) "\\ ** NULL_USTRI "
+                                     : ustri););
+    if (likely(ustri != NULL)) {
+      length = strlen((cstriType) ustri);
+      if (ALLOC_USTRI(result.value.ustriValue, length)) {
+        memcpy(result.value.ustriValue, ustri, length + NULL_TERMINATION_LEN);
+      } /* if */
+    } /* if */
+    logFunction(printf("ustrCreateGeneric --> " FMT_U "\n",
+                       result.value.genericValue););
+    return result.value.genericValue;
+  } /* ustrCreateGeneric */
+
+
+
+intType ustriHash (const const_ustriType ustri)
+
+  {
+    memSizeType length;
+    intType hashCode;
+
+  /* ustriHash */
+    logFunction(printf("ustriHash(\"%s\")\n",
+                       ustri == NULL ? (ustriType) "\\ ** NULL_USTRI "
+                                     : ustri););
+    if (ustri == NULL || ustri[0] == '\0') {
+      hashCode = 0;
+    } else {
+      length = strlen((const_cstriType) ustri);
+      hashCode = (intType) ((uintType) (ustri[0]) << 5 ^
+                            (uintType) (ustri[length >> 1]) << 3 ^
+                            (uintType) (ustri[length - 1]) << 1 ^
+                            length);
+    } /* if */
+    logFunction(printf("ustriHash --> " FMT_D "\n", hashCode););
+    return hashCode;
+  } /* ustriHash */
+
+
+
 /**
  *  Copy 'source' character array to 'dest' as lower case characters.
  *  The conversion uses the default Unicode case mapping,
