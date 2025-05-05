@@ -154,7 +154,7 @@ static inline void init_dollar (objectType declared_object,
         SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
         declared_object->value.actValue = findAction(symbol.striValue);
         if (unlikely(declared_object->value.actValue == NULL)) {
-          err_stri(WRONGACTION, symbol.striValue);
+          err_stri(UNDEFINED_ACTION, symbol.striValue);
           declared_object->value.actValue = getActIllegal();
         } /* if */
         scan_symbol();

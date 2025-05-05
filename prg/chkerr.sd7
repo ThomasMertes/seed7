@@ -480,12 +480,12 @@ const func boolean: checkWrongAction is func
   begin
     if  checkError1("$ include \"syntax.s7i\";\n\
                     \$ const ACTION: a is $ action \"z\";",
-                    WRONGACTION, 2, 34,
-                    "Illegal action \"z\"",
+                    UNDEFINED_ACTION, 2, 34,
+                    "Undefined action \"z\"",
                     "$ const ACTION: a is $ action \"z\";") then
       okay := TRUE;
     else
-      writeln(" *** WRONGACTION not reported correctly.");
+      writeln(" *** UNDEFINED_ACTION not reported correctly.");
     end if;
   end func;
 

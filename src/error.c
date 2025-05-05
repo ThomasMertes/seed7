@@ -1465,8 +1465,8 @@ void err_stri (errorType err, const const_striType stri)
         appendStriLiteral(&error->msg, stri);
         appendCStri(&error->msg, " not found");
         break;
-      case WRONGACTION:
-        copyCStri(&error->msg, "Illegal action ");
+      case UNDEFINED_ACTION:
+        copyCStri(&error->msg, "Undefined action ");
         appendStriLiteral(&error->msg, stri);
         break;
       case WRONG_PATH_DELIMITER:
