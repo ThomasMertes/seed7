@@ -468,7 +468,7 @@ void decl_syntax (void)
     } /* if */
     scan_symbol();
     if (symbol.sycategory != INTLITERAL) {
-      err_warning(CARD_EXPECTED);
+      err_warning(INTEGER_EXPECTED);
       scan_symbol();
     } else {
       if (symbol.intValue > WEAKEST_PRIORITY) {
@@ -484,7 +484,7 @@ void decl_syntax (void)
           } else if (current_ident == prog->id_for.lbrack) {
             scan_symbol();
             if (symbol.sycategory != INTLITERAL) {
-              err_warning(CARD_EXPECTED);
+              err_warning(INTEGER_EXPECTED);
             } else {
               token_list_end->token_category = SELECT_ELEMENT_FROM_LIST_SYNTAX;
               token_list_end->token_value.select = symbol.intValue;

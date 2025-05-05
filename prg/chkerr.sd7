@@ -2105,108 +2105,108 @@ const func boolean: checkCardExpected is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("\"\\1_\";",
-                    CARD_EXPECTED, 1, 5,
+                    INTEGER_EXPECTED, 1, 5,
                     "Integer literal expected found \"1_\"",
                     "\"\\1_\";") and
         checkError1("\"\\1.5;\";",
-                    CARD_EXPECTED, 1, 6,
+                    INTEGER_EXPECTED, 1, 6,
                     "Integer literal expected found \"1.5\"",
                     "\"\\1.5;\";") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> x;",
-                    CARD_EXPECTED, 2, 26,
+                    INTEGER_EXPECTED, 2, 26,
                     "Integer literal expected found \"x\"",
                     "$ syntax expr: l2 is -> x;") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> 1_;",
-                    CARD_EXPECTED, 2, 27,
+                    INTEGER_EXPECTED, 2, 27,
                     "Integer literal expected found \"1_\"",
                     "$ syntax expr: l2 is -> 1_;") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> 1.5;",
-                    CARD_EXPECTED, 2, 28,
+                    INTEGER_EXPECTED, 2, 28,
                     "Integer literal expected found \"1.5\"",
                     "$ syntax expr: l2 is -> 1.5;") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> 'x';",
-                    CARD_EXPECTED, 2, 28,
+                    INTEGER_EXPECTED, 2, 28,
                     "Integer literal expected found 'x'",
                     "$ syntax expr: l2 is -> 'x';") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> \"x\";",
-                    CARD_EXPECTED, 2, 28,
+                    INTEGER_EXPECTED, 2, 28,
                     "Integer literal expected found \"x\"",
                     "$ syntax expr: l2 is -> \"x\";") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: l2 is -> (x);",
-                    CARD_EXPECTED, 2, 26,
+                    INTEGER_EXPECTED, 2, 26,
                     "Integer literal expected found \"(\"",
                     "$ syntax expr: l2 is -> (x);") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50[x];",
-                    CARD_EXPECTED, 2, 38,
+                    INTEGER_EXPECTED, 2, 38,
                     "Integer literal expected found \"x\"",
                     "$ syntax expr: .().postfix is <- 50[x];") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50[1_];",
-                    CARD_EXPECTED, 2, 39,
+                    INTEGER_EXPECTED, 2, 39,
                     "Integer literal expected found \"1_\"",
                     "$ syntax expr: .().postfix is <- 50[1_];") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50[1.5];",
-                    CARD_EXPECTED, 2, 40,
+                    INTEGER_EXPECTED, 2, 40,
                     "Integer literal expected found \"1.5\"",
                     "$ syntax expr: .().postfix is <- 50[1.5];") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50['x'];",
-                    CARD_EXPECTED, 2, 40,
+                    INTEGER_EXPECTED, 2, 40,
                     "Integer literal expected found 'x'",
                     "$ syntax expr: .().postfix is <- 50['x'];") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50[\"x\"];",
-                    CARD_EXPECTED, 2, 40,
+                    INTEGER_EXPECTED, 2, 40,
                     "Integer literal expected found \"x\"",
                     "$ syntax expr: .().postfix is <- 50[\"x\"];") and
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ syntax expr: .().postfix is <- 50[(x)];",
-                    CARD_EXPECTED, 2, 38,
+                    INTEGER_EXPECTED, 2, 38,
                     "Integer literal expected found \"(\"",
                     "$ syntax expr: .().postfix is <- 50[(x)];") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \syntax expr: .prefix.() is -> x;",
-                    CARD_EXPECTED, 2, 0,
+                    INTEGER_EXPECTED, 2, 0,
                     "Integer literal expected found \"x\"",
                     "syntax expr: .prefix.() is -> x;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"bigint.s7i\";\n\
                     \syntax expr: .prefix.() is -> 1_;",
-                    CARD_EXPECTED, 3, 0,
+                    INTEGER_EXPECTED, 3, 0,
                     "Integer literal expected found \"constant bigInteger: 1\"",
                     "syntax expr: .prefix.() is -> 1_;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"float.s7i\";\n\
                     \syntax expr: .prefix.() is -> 1.5;",
-                    CARD_EXPECTED, 3, 0,
+                    INTEGER_EXPECTED, 3, 0,
                     "Integer literal expected found \"constant float: 1.5\"",
                     "syntax expr: .prefix.() is -> 1.5;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \syntax expr: .prefix.() is -> 'x';",
-                    CARD_EXPECTED, 2, 0,
+                    INTEGER_EXPECTED, 2, 0,
                     "Integer literal expected found \"constant char: 'x'\"",
                     "syntax expr: .prefix.() is -> 'x';") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \syntax expr: .prefix.() is -> \"x\";",
-                    CARD_EXPECTED, 2, 0,
+                    INTEGER_EXPECTED, 2, 0,
                     "Integer literal expected found constant string: \"x\"",
                     "syntax expr: .prefix.() is -> \"x\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \syntax expr: .().postfix is <- 50[x];",
-                    CARD_EXPECTED, 2, 0,
+                    INTEGER_EXPECTED, 2, 0,
                     "Integer literal expected found \"({50 [ x ] })\"",
                     "syntax expr: .().postfix is <- 50[x];") then
       okay := TRUE;
     else
-      writeln(" *** CARD_EXPECTED not reported correctly.");
+      writeln(" *** INTEGER_EXPECTED not reported correctly.");
     end if;
   end func;
 

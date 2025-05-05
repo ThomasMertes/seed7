@@ -891,7 +891,7 @@ void err_warning (errorType err)
         copyCStri(&error->msg, "Name expected found ");
         appendSymbol(&error->msg, &symbol);
         break;
-      case CARD_EXPECTED:
+      case INTEGER_EXPECTED:
         copyCStri(&error->msg, "Integer literal expected found ");
         appendSymbol(&error->msg, &symbol);
         break;
@@ -1259,7 +1259,7 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         appendObjectWithParameters(&error->msg, obj_found);
         appendCStri(&error->msg, "\" failed");
         break;
-      case CARD_EXPECTED:
+      case INTEGER_EXPECTED:
         if (obj_found == NULL) {
           copyCStri(&error->msg, "Integer literal expected");
         } else {

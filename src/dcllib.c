@@ -959,7 +959,7 @@ objectType dcl_syntax (listType arguments)
     } /* if */
     if (priorityObject == NULL ||
         CATEGORY_OF_OBJ(priorityObject) != INTOBJECT) {
-      err_expr_obj(CARD_EXPECTED, curr_exec_object, priorityObject);
+      err_expr_obj(INTEGER_EXPECTED, curr_exec_object, priorityObject);
       okay = FALSE;
     } else if (priorityObject->value.intValue < STRONGEST_PRIORITY ||
                priorityObject->value.intValue > WEAKEST_PRIORITY) {

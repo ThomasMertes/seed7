@@ -142,7 +142,7 @@ static unsigned int escape_sequence (unsigned int position)
       in_file.character = character;
       lit_number();
       if (symbol.sycategory != INTLITERAL) {
-        err_warning(CARD_EXPECTED);
+        err_warning(INTEGER_EXPECTED);
         symbol.charValue = ' ';
       } else if (symbol.intValue > INT32TYPE_MAX) {
         err_integer(NUMERICAL_ESCAPE_TOO_BIG, symbol.intValue);
