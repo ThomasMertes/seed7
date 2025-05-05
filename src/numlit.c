@@ -92,7 +92,7 @@ static uintType decimalValue (const const_ustriType digits)
       position++;
     } /* while */
     if (unlikely(tooBig || uintValue > (uintType) INTTYPE_MAX)) {
-      err_ustri(CARD_DECIMAL_TOO_BIG, digits);
+      err_ustri(INTEGER_TOO_BIG, digits);
       uintValue = 0;
     } /* if */
     logFunction(printf("decimalValue --> " FMT_U "\n",

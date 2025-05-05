@@ -1435,7 +1435,7 @@ void err_ustri (errorType err, const const_ustriType stri)
         appendCStri(&error->msg, "\" expected found ");
         appendSymbol(&error->msg, &symbol);
         break;
-      case CARD_DECIMAL_TOO_BIG:
+      case INTEGER_TOO_BIG:
         copyCStri(&error->msg, "Integer \"");
         appendUStri(&error->msg, stri);
         appendCStri(&error->msg, "\" too big");

@@ -634,56 +634,56 @@ const func boolean: checkCardDecimalTooBig is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("9223372036854775808;",
-                    CARD_DECIMAL_TOO_BIG, 1, 20,
+                    INTEGER_TOO_BIG, 1, 20,
                     "Integer \"9223372036854775808\" too big",
                     "9223372036854775808;") and
         checkError1("9223372036854775809;",
-                    CARD_DECIMAL_TOO_BIG, 1, 20,
+                    INTEGER_TOO_BIG, 1, 20,
                     "Integer \"9223372036854775809\" too big",
                     "9223372036854775809;") and
         checkError1("9223372036854775810;",
-                    CARD_DECIMAL_TOO_BIG, 1, 20,
+                    INTEGER_TOO_BIG, 1, 20,
                     "Integer \"9223372036854775810\" too big",
                     "9223372036854775810;") and
         checkError1("99999999999999999999999999999999;",
-                    CARD_DECIMAL_TOO_BIG, 1, 33,
+                    INTEGER_TOO_BIG, 1, 33,
                     "Integer \"99999999999999999999999999999999\" too big",
                     "99999999999999999999999999999999;") and
         checkError1("\"\\9223372036854775808;\";",
-                    CARD_DECIMAL_TOO_BIG, 1, 22,
+                    INTEGER_TOO_BIG, 1, 22,
                     "Integer \"9223372036854775808\" too big",
                     "\"\\9223372036854775808;\";") and
         checkError1("\"\\9223372036854775809;\";",
-                    CARD_DECIMAL_TOO_BIG, 1, 22,
+                    INTEGER_TOO_BIG, 1, 22,
                     "Integer \"9223372036854775809\" too big",
                     "\"\\9223372036854775809;\";") and
         checkError1("\"\\9223372036854775810;\";",
-                    CARD_DECIMAL_TOO_BIG, 1, 22,
+                    INTEGER_TOO_BIG, 1, 22,
                     "Integer \"9223372036854775810\" too big",
                     "\"\\9223372036854775810;\";") and
         checkError1("\"\\99999999999999999999999999999999;\";",
-                    CARD_DECIMAL_TOO_BIG, 1, 35,
+                    INTEGER_TOO_BIG, 1, 35,
                     "Integer \"99999999999999999999999999999999\" too big",
                     "\"\\99999999999999999999999999999999;\";") and
         checkError1("1e9223372036854775808;",
-                    CARD_DECIMAL_TOO_BIG, 1, 22,
+                    INTEGER_TOO_BIG, 1, 22,
                     "Integer \"9223372036854775808\" too big",
                     "1e9223372036854775808;") and
         checkError1("1e+9223372036854775808;",
-                    CARD_DECIMAL_TOO_BIG, 1, 23,
+                    INTEGER_TOO_BIG, 1, 23,
                     "Integer \"9223372036854775808\" too big",
                     "1e+9223372036854775808;") and
         checkError1("1E9223372036854775808;",
-                    CARD_DECIMAL_TOO_BIG, 1, 22,
+                    INTEGER_TOO_BIG, 1, 22,
                     "Integer \"9223372036854775808\" too big",
                     "1E9223372036854775808;") and
         checkError1("1E+9223372036854775808;",
-                    CARD_DECIMAL_TOO_BIG, 1, 23,
+                    INTEGER_TOO_BIG, 1, 23,
                     "Integer \"9223372036854775808\" too big",
                     "1E+9223372036854775808;") then
       okay := TRUE;
     else
-      writeln(" *** CARD_DECIMAL_TOO_BIG not reported correctly.");
+      writeln(" *** INTEGER_TOO_BIG not reported correctly.");
     end if;
   end func;
 
