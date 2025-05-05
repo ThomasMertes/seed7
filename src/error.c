@@ -1013,7 +1013,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
         appendUStri(&error->msg, stri);
         appendCStri(&error->msg, "\" too big");
         break;
-      case CARD_WITH_EXPONENT_TOO_BIG:
+      case INTEGER_WITH_EXPONENT_TOO_BIG:
         copyCStri(&error->msg, "Integer \"");
         appendInt(&error->msg, (intType) num_expected);
         appendChar(&error->msg, 'E');

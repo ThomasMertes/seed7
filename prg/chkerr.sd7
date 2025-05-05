@@ -783,40 +783,40 @@ const func boolean: checkCardWithExponentTooBig is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("1e19;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 5,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 5,
                     "Integer \"1E19\" too big",
                     "1e19;") and
         checkError1("1e9223372036854775807;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 22,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 22,
                     "Integer \"1E9223372036854775807\" too big",
                     "1e9223372036854775807;") and
         checkError1("1e+19;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 6,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 6,
                     "Integer \"1E19\" too big",
                     "1e+19;") and
         checkError1("1e+9223372036854775807;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 23,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 23,
                     "Integer \"1E9223372036854775807\" too big",
                     "1e+9223372036854775807;") and
         checkError1("1E19;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 5,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 5,
                     "Integer \"1E19\" too big",
                     "1E19;") and
         checkError1("1E9223372036854775807;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 22,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 22,
                     "Integer \"1E9223372036854775807\" too big",
                     "1E9223372036854775807;") and
         checkError1("1E+19;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 6,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 6,
                     "Integer \"1E19\" too big",
                     "1E+19;") and
         checkError1("1E+9223372036854775807;",
-                    CARD_WITH_EXPONENT_TOO_BIG, 1, 23,
+                    INTEGER_WITH_EXPONENT_TOO_BIG, 1, 23,
                     "Integer \"1E9223372036854775807\" too big",
                     "1E+9223372036854775807;") then
       okay := TRUE;
     else
-      writeln(" *** CARD_WITH_EXPONENT_TOO_BIG not reported correctly.");
+      writeln(" *** INTEGER_WITH_EXPONENT_TOO_BIG not reported correctly.");
     end if;
   end func;
 

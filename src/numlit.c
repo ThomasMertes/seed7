@@ -263,7 +263,7 @@ static inline void intExponent (uintType *ivalue)
           if (uintValue <= MAX_DIV_10) {
             uintValue *= 10;
           } else {
-            err_num_stri(CARD_WITH_EXPONENT_TOO_BIG,
+            err_num_stri(INTEGER_WITH_EXPONENT_TOO_BIG,
                 0, (int) *ivalue, &symbol.name[0]);
             exponent = 0;
             uintValue = 0;
