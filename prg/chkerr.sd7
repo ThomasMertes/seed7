@@ -1295,288 +1295,288 @@ const func boolean: checkCardBasedTooBig is func
     var boolean: okay is FALSE;
   begin
     if  checkError1("2#1000000000000000000000000000000000000000000000000000000000000000;",
-                    CARD_BASED_TOO_BIG, 1, 67,
+                    BASED_INTEGER_TOO_BIG, 1, 67,
                     "Based integer \"2#1000000000000000000000000000000000000000000000000000000000000000\" too big",
                     "2#1000000000000000000000000000000000000000000000000000000000000000;") and
         checkError1("3#2021110011022210012102010021220101220222;",
-                    CARD_BASED_TOO_BIG, 1, 43,
+                    BASED_INTEGER_TOO_BIG, 1, 43,
                     "Based integer \"3#2021110011022210012102010021220101220222\" too big",
                     "3#2021110011022210012102010021220101220222;") and
         checkError1("4#20000000000000000000000000000000;",
-                    CARD_BASED_TOO_BIG, 1, 35,
+                    BASED_INTEGER_TOO_BIG, 1, 35,
                     "Based integer \"4#20000000000000000000000000000000\" too big",
                     "4#20000000000000000000000000000000;") and
         checkError1("5#1104332401304422434310311213;",
-                    CARD_BASED_TOO_BIG, 1, 31,
+                    BASED_INTEGER_TOO_BIG, 1, 31,
                     "Based integer \"5#1104332401304422434310311213\" too big",
                     "5#1104332401304422434310311213;") and
         checkError1("6#1540241003031030222122212;",
-                    CARD_BASED_TOO_BIG, 1, 28,
+                    BASED_INTEGER_TOO_BIG, 1, 28,
                     "Based integer \"6#1540241003031030222122212\" too big",
                     "6#1540241003031030222122212;") and
         checkError1("7#22341010611245052052301;",
-                    CARD_BASED_TOO_BIG, 1, 26,
+                    BASED_INTEGER_TOO_BIG, 1, 26,
                     "Based integer \"7#22341010611245052052301\" too big",
                     "7#22341010611245052052301;") and
         checkError1("8#1000000000000000000000;",
-                    CARD_BASED_TOO_BIG, 1, 25,
+                    BASED_INTEGER_TOO_BIG, 1, 25,
                     "Based integer \"8#1000000000000000000000\" too big",
                     "8#1000000000000000000000;") and
         checkError1("9#67404283172107811828;",
-                    CARD_BASED_TOO_BIG, 1, 23,
+                    BASED_INTEGER_TOO_BIG, 1, 23,
                     "Based integer \"9#67404283172107811828\" too big",
                     "9#67404283172107811828;") and
         checkError1("10#9223372036854775808;",
-                    CARD_BASED_TOO_BIG, 1, 23,
+                    BASED_INTEGER_TOO_BIG, 1, 23,
                     "Based integer \"10#9223372036854775808\" too big",
                     "10#9223372036854775808;") and
         checkError1("11#1728002635214590698;",
-                    CARD_BASED_TOO_BIG, 1, 23,
+                    BASED_INTEGER_TOO_BIG, 1, 23,
                     "Based integer \"11#1728002635214590698\" too big",
                     "11#1728002635214590698;") and
         checkError1("12#41a792678515120368;",
-                    CARD_BASED_TOO_BIG, 1, 22,
+                    BASED_INTEGER_TOO_BIG, 1, 22,
                     "Based integer \"12#41a792678515120368\" too big",
                     "12#41a792678515120368;") and
         checkError1("13#10b269549075433c38;",
-                    CARD_BASED_TOO_BIG, 1, 22,
+                    BASED_INTEGER_TOO_BIG, 1, 22,
                     "Based integer \"13#10b269549075433c38\" too big",
                     "13#10b269549075433c38;") and
         checkError1("14#4340724c6c71dc7a8;",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"14#4340724c6c71dc7a8\" too big",
                     "14#4340724c6c71dc7a8;") and
         checkError1("15#160e2ad3246366808;",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"15#160e2ad3246366808\" too big",
                     "15#160e2ad3246366808;") and
         checkError1("16#8000000000000000;",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"16#8000000000000000\" too big",
                     "16#8000000000000000;") and
         checkError1("17#33d3d8307b214009;",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"17#33d3d8307b214009\" too big",
                     "17#33d3d8307b214009;") and
         checkError1("18#16agh595df825fa8;",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"18#16agh595df825fa8\" too big",
                     "18#16agh595df825fa8;") and
         checkError1("19#ba643dci0ffeehi;",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"19#ba643dci0ffeehi\" too big",
                     "19#ba643dci0ffeehi;") and
         checkError1("20#5cbfjia3fh26ja8;",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"20#5cbfjia3fh26ja8\" too big",
                     "20#5cbfjia3fh26ja8;") and
         checkError1("21#2heiciiie82dh98;",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"21#2heiciiie82dh98\" too big",
                     "21#2heiciiie82dh98;") and
         checkError1("22#1adaibb21dckfa8;",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"22#1adaibb21dckfa8\" too big",
                     "22#1adaibb21dckfa8;") and
         checkError1("23#i6k448cf4192c3;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"23#i6k448cf4192c3\" too big",
                     "23#i6k448cf4192c3;") and
         checkError1("24#acd772jnc9l0l8;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"24#acd772jnc9l0l8\" too big",
                     "24#acd772jnc9l0l8;") and
         checkError1("25#64ie1focnn5g78;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"25#64ie1focnn5g78\" too big",
                     "25#64ie1focnn5g78;") and
         checkError1("26#3igoecjbmca688;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"26#3igoecjbmca688\" too big",
                     "26#3igoecjbmca688;") and
         checkError1("27#27c48l5b37oaoq;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"27#27c48l5b37oaoq\" too big",
                     "27#27c48l5b37oaoq;") and
         checkError1("28#1bk39f3ah3dmq8;",
-                    CARD_BASED_TOO_BIG, 1, 18,
+                    BASED_INTEGER_TOO_BIG, 1, 18,
                     "Based integer \"28#1bk39f3ah3dmq8\" too big",
                     "28#1bk39f3ah3dmq8;") and
         checkError1("29#q1se8f0m04isc;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"29#q1se8f0m04isc\" too big",
                     "29#q1se8f0m04isc;") and
         checkError1("30#hajppbc1fc208;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"30#hajppbc1fc208\" too big",
                     "30#hajppbc1fc208;") and
         checkError1("31#bm03i95hia438;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"31#bm03i95hia438\" too big",
                     "31#bm03i95hia438;") and
         checkError1("32#8000000000000;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"32#8000000000000\" too big",
                     "32#8000000000000;") and
         checkError1("33#5hg4ck9jd4u38;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"33#5hg4ck9jd4u38\" too big",
                     "33#5hg4ck9jd4u38;") and
         checkError1("34#3tdtk1v8j6tpq;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"34#3tdtk1v8j6tpq\" too big",
                     "34#3tdtk1v8j6tpq;") and
         checkError1("35#2pijmikexrxp8;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"35#2pijmikexrxp8\" too big",
                     "35#2pijmikexrxp8;") and
         checkError1("36#1y2p0ij32e8e8;",
-                    CARD_BASED_TOO_BIG, 1, 17,
+                    BASED_INTEGER_TOO_BIG, 1, 17,
                     "Based integer \"36#1y2p0ij32e8e8\" too big",
                     "36#1y2p0ij32e8e8;") and
         checkError1("\"\\2#1000000000000000000000000000000000000000000000000000000000000000;\";",
-                    CARD_BASED_TOO_BIG, 1, 69,
+                    BASED_INTEGER_TOO_BIG, 1, 69,
                     "Based integer \"2#1000000000000000000000000000000000000000000000000000000000000000\" too big",
                     "\"\\2#1000000000000000000000000000000000000000000000000000000000000000;\";") and
         checkError1("\"\\3#2021110011022210012102010021220101220222;\";",
-                    CARD_BASED_TOO_BIG, 1, 45,
+                    BASED_INTEGER_TOO_BIG, 1, 45,
                     "Based integer \"3#2021110011022210012102010021220101220222\" too big",
                     "\"\\3#2021110011022210012102010021220101220222;\";") and
         checkError1("\"\\4#20000000000000000000000000000000;\";",
-                    CARD_BASED_TOO_BIG, 1, 37,
+                    BASED_INTEGER_TOO_BIG, 1, 37,
                     "Based integer \"4#20000000000000000000000000000000\" too big",
                     "\"\\4#20000000000000000000000000000000;\";") and
         checkError1("\"\\5#1104332401304422434310311213;\";",
-                    CARD_BASED_TOO_BIG, 1, 33,
+                    BASED_INTEGER_TOO_BIG, 1, 33,
                     "Based integer \"5#1104332401304422434310311213\" too big",
                     "\"\\5#1104332401304422434310311213;\";") and
         checkError1("\"\\6#1540241003031030222122212;\";",
-                    CARD_BASED_TOO_BIG, 1, 30,
+                    BASED_INTEGER_TOO_BIG, 1, 30,
                     "Based integer \"6#1540241003031030222122212\" too big",
                     "\"\\6#1540241003031030222122212;\";") and
         checkError1("\"\\7#22341010611245052052301;\";",
-                    CARD_BASED_TOO_BIG, 1, 28,
+                    BASED_INTEGER_TOO_BIG, 1, 28,
                     "Based integer \"7#22341010611245052052301\" too big",
                     "\"\\7#22341010611245052052301;\";") and
         checkError1("\"\\8#1000000000000000000000;\";",
-                    CARD_BASED_TOO_BIG, 1, 27,
+                    BASED_INTEGER_TOO_BIG, 1, 27,
                     "Based integer \"8#1000000000000000000000\" too big",
                     "\"\\8#1000000000000000000000;\";") and
         checkError1("\"\\9#67404283172107811828;\";",
-                    CARD_BASED_TOO_BIG, 1, 25,
+                    BASED_INTEGER_TOO_BIG, 1, 25,
                     "Based integer \"9#67404283172107811828\" too big",
                     "\"\\9#67404283172107811828;\";") and
         checkError1("\"\\10#9223372036854775808;\";",
-                    CARD_BASED_TOO_BIG, 1, 25,
+                    BASED_INTEGER_TOO_BIG, 1, 25,
                     "Based integer \"10#9223372036854775808\" too big",
                     "\"\\10#9223372036854775808;\";") and
         checkError1("\"\\11#1728002635214590698;\";",
-                    CARD_BASED_TOO_BIG, 1, 25,
+                    BASED_INTEGER_TOO_BIG, 1, 25,
                     "Based integer \"11#1728002635214590698\" too big",
                     "\"\\11#1728002635214590698;\";") and
         checkError1("\"\\12#41a792678515120368;\";",
-                    CARD_BASED_TOO_BIG, 1, 24,
+                    BASED_INTEGER_TOO_BIG, 1, 24,
                     "Based integer \"12#41a792678515120368\" too big",
                     "\"\\12#41a792678515120368;\";") and
         checkError1("\"\\13#10b269549075433c38;\";",
-                    CARD_BASED_TOO_BIG, 1, 24,
+                    BASED_INTEGER_TOO_BIG, 1, 24,
                     "Based integer \"13#10b269549075433c38\" too big",
                     "\"\\13#10b269549075433c38;\";") and
         checkError1("\"\\14#4340724c6c71dc7a8;\";",
-                    CARD_BASED_TOO_BIG, 1, 23,
+                    BASED_INTEGER_TOO_BIG, 1, 23,
                     "Based integer \"14#4340724c6c71dc7a8\" too big",
                     "\"\\14#4340724c6c71dc7a8;\";") and
         checkError1("\"\\15#160e2ad3246366808;\";",
-                    CARD_BASED_TOO_BIG, 1, 23,
+                    BASED_INTEGER_TOO_BIG, 1, 23,
                     "Based integer \"15#160e2ad3246366808\" too big",
                     "\"\\15#160e2ad3246366808;\";") and
         checkError1("\"\\16#8000000000000000;\";",
-                    CARD_BASED_TOO_BIG, 1, 22,
+                    BASED_INTEGER_TOO_BIG, 1, 22,
                     "Based integer \"16#8000000000000000\" too big",
                     "\"\\16#8000000000000000;\";") and
         checkError1("\"\\17#33d3d8307b214009;\";",
-                    CARD_BASED_TOO_BIG, 1, 22,
+                    BASED_INTEGER_TOO_BIG, 1, 22,
                     "Based integer \"17#33d3d8307b214009\" too big",
                     "\"\\17#33d3d8307b214009;\";") and
         checkError1("\"\\18#16agh595df825fa8;\";",
-                    CARD_BASED_TOO_BIG, 1, 22,
+                    BASED_INTEGER_TOO_BIG, 1, 22,
                     "Based integer \"18#16agh595df825fa8\" too big",
                     "\"\\18#16agh595df825fa8;\";") and
         checkError1("\"\\19#ba643dci0ffeehi;\";",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"19#ba643dci0ffeehi\" too big",
                     "\"\\19#ba643dci0ffeehi;\";") and
         checkError1("\"\\20#5cbfjia3fh26ja8;\";",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"20#5cbfjia3fh26ja8\" too big",
                     "\"\\20#5cbfjia3fh26ja8;\";") and
         checkError1("\"\\21#2heiciiie82dh98;\";",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"21#2heiciiie82dh98\" too big",
                     "\"\\21#2heiciiie82dh98;\";") and
         checkError1("\"\\22#1adaibb21dckfa8;\";",
-                    CARD_BASED_TOO_BIG, 1, 21,
+                    BASED_INTEGER_TOO_BIG, 1, 21,
                     "Based integer \"22#1adaibb21dckfa8\" too big",
                     "\"\\22#1adaibb21dckfa8;\";") and
         checkError1("\"\\23#i6k448cf4192c3;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"23#i6k448cf4192c3\" too big",
                     "\"\\23#i6k448cf4192c3;\";") and
         checkError1("\"\\24#acd772jnc9l0l8;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"24#acd772jnc9l0l8\" too big",
                     "\"\\24#acd772jnc9l0l8;\";") and
         checkError1("\"\\25#64ie1focnn5g78;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"25#64ie1focnn5g78\" too big",
                     "\"\\25#64ie1focnn5g78;\";") and
         checkError1("\"\\26#3igoecjbmca688;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"26#3igoecjbmca688\" too big",
                     "\"\\26#3igoecjbmca688;\";") and
         checkError1("\"\\27#27c48l5b37oaoq;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"27#27c48l5b37oaoq\" too big",
                     "\"\\27#27c48l5b37oaoq;\";") and
         checkError1("\"\\28#1bk39f3ah3dmq8;\";",
-                    CARD_BASED_TOO_BIG, 1, 20,
+                    BASED_INTEGER_TOO_BIG, 1, 20,
                     "Based integer \"28#1bk39f3ah3dmq8\" too big",
                     "\"\\28#1bk39f3ah3dmq8;\";") and
         checkError1("\"\\29#q1se8f0m04isc;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"29#q1se8f0m04isc\" too big",
                     "\"\\29#q1se8f0m04isc;\";") and
         checkError1("\"\\30#hajppbc1fc208;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"30#hajppbc1fc208\" too big",
                     "\"\\30#hajppbc1fc208;\";") and
         checkError1("\"\\31#bm03i95hia438;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"31#bm03i95hia438\" too big",
                     "\"\\31#bm03i95hia438;\";") and
         checkError1("\"\\32#8000000000000;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"32#8000000000000\" too big",
                     "\"\\32#8000000000000;\";") and
         checkError1("\"\\33#5hg4ck9jd4u38;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"33#5hg4ck9jd4u38\" too big",
                     "\"\\33#5hg4ck9jd4u38;\";") and
         checkError1("\"\\34#3tdtk1v8j6tpq;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"34#3tdtk1v8j6tpq\" too big",
                     "\"\\34#3tdtk1v8j6tpq;\";") and
         checkError1("\"\\35#2pijmikexrxp8;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"35#2pijmikexrxp8\" too big",
                     "\"\\35#2pijmikexrxp8;\";") and
         checkError1("\"\\36#1y2p0ij32e8e8;\";",
-                    CARD_BASED_TOO_BIG, 1, 19,
+                    BASED_INTEGER_TOO_BIG, 1, 19,
                     "Based integer \"36#1y2p0ij32e8e8\" too big",
                     "\"\\36#1y2p0ij32e8e8;\";") then
       okay := TRUE;
     else
-      writeln(" *** CARD_BASED_TOO_BIG not reported correctly.");
+      writeln(" *** BASED_INTEGER_TOO_BIG not reported correctly.");
     end if;
   end func;
 

@@ -1006,7 +1006,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
         appendUStri(&error->msg, stri);
         appendChar(&error->msg, '"');
         break;
-      case CARD_BASED_TOO_BIG:
+      case BASED_INTEGER_TOO_BIG:
         copyCStri(&error->msg, "Based integer \"");
         appendInt(&error->msg, (intType) num_expected);
         appendChar(&error->msg, '#');

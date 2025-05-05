@@ -133,7 +133,7 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
     if (unlikely(illegalDigit)) {
       uintValue = 0;
     } else if (unlikely(tooBig || uintValue > (uintType) INTTYPE_MAX)) {
-      err_num_stri(CARD_BASED_TOO_BIG, 0, (int) base, digits);
+      err_num_stri(BASED_INTEGER_TOO_BIG, 0, (int) base, digits);
       uintValue = 0;
     } /* if */
     logFunction(printf("basedValue --> " FMT_D "\n",
