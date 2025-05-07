@@ -187,7 +187,7 @@ void addStructElement (progType aProg, objectType structElement,
 
   /* addStructElement */
     logFunction(printf("addStructElement(" FMT_X_MEM ")\n",
-                       (memSizeType) aProgram););
+                       (memSizeType) aProg););
     incl_list(&aProg->struct_objects, structElement, err_info);
     if (*err_info == OKAY_NO_ERROR && HAS_ENTITY(structElement)) {
       symbObject = GET_ENTITY(structElement)->syobject;

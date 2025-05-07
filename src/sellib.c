@@ -37,6 +37,7 @@
 #include "data.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "ref_data.h"
 #include "runerr.h"
 

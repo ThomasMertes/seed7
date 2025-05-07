@@ -895,7 +895,8 @@ static listType eval_name_list (listType matched_name_list,
       free_form_param_list(name_list);
       name_list = NULL;
     } /* if */
-    logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d) --> ",
+    logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d) --> "
+                       FMT_U_MEM "\n",
                        (memSizeType) matched_name_list,
                        file_number, line, *err_info,
                        (memSizeType) name_list););
