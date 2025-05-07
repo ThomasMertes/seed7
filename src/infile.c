@@ -232,7 +232,14 @@ boolType openInfile (const_striType sourceFileName,
           *err_info = MEMORY_ERROR;
         } else {
           name_ustri = (ustriType) stri_to_cstri8(sourceFileName, err_info);
-          if (name_ustri != NULL) {
+          if (unlikely(name_ustri == NULL)) {
+            logError(printf("openInfile: "
+                            "stri_to_cstri8(\"%s\") failed:\n"
+                            "err_info=%d\n",
+                            striAsUnquotedCStri(sourceFileName),
+                            *err_info););
+            fclose(in_fil);
+          } else {
             logMessage(printf("openInfile: name_ustri: \"%s\"\n",
                               name_ustri););
             name_length = strlen((cstriType) name_ustri);
@@ -244,45 +251,43 @@ boolType openInfile (const_striType sourceFileName,
             if (resized_name_ustri != NULL) {
               name_ustri = resized_name_ustri;
             } /* if */
-          } /* if */
-          if (name_ustri == NULL) {
-            fclose(in_fil);
-          } else if ((in_name = copy_stri(sourceFileName)) == NULL) {
-            free_cstri8(name_ustri, sourceFileName);
-            fclose(in_fil);
-            *err_info = MEMORY_ERROR;
-          } else {
-            if (in_file.curr_infile != NULL) {
-              memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
-            } /* if */
-            in_file.fil = in_fil;
-            if (!speedup()) {
-              fclose(in_file.fil);
+            if ((in_name = copy_stri(sourceFileName)) == NULL) {
               free_cstri8(name_ustri, sourceFileName);
-              FREE_STRI(in_name);
-              if (in_file.curr_infile != NULL) {
-                memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
-              } else {
-                in_file.fil = NULL;
-              } /* if */
-              logError(printf("openInfile: speedup() failed.\n"
-                              "os_path: \"" FMT_S_OS "\"\n", os_path););
-              *err_info = FILE_ERROR;
+              fclose(in_fil);
+              *err_info = MEMORY_ERROR;
             } else {
-              COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-              in_file.name_ustri = name_ustri;
-              in_file.name = in_name;
-              in_file.path = absolutePath;
-              in_file.character = next_character();
-              in_file.line = 1;
-              in_file.file_number = fileNumber;
-              open_compilation_info(write_library_names, write_line_numbers);
-              in_file.end_of_file = FALSE;
-              in_file.up_infile = in_file.curr_infile;
-              in_file.curr_infile = new_file;
-              in_file.next = nextFile;
-              memcpy(new_file, &in_file, sizeof(inFileRecord));
-              isOpen = TRUE;
+              if (in_file.curr_infile != NULL) {
+                memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
+              } /* if */
+              in_file.fil = in_fil;
+              if (!speedup()) {
+                fclose(in_file.fil);
+                free_cstri8(name_ustri, sourceFileName);
+                FREE_STRI(in_name);
+                if (in_file.curr_infile != NULL) {
+                  memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
+                } else {
+                  in_file.fil = NULL;
+                } /* if */
+                logError(printf("openInfile: speedup() failed.\n"
+                                "os_path: \"" FMT_S_OS "\"\n", os_path););
+                *err_info = FILE_ERROR;
+              } else {
+                COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
+                in_file.name_ustri = name_ustri;
+                in_file.name = in_name;
+                in_file.path = absolutePath;
+                in_file.character = next_character();
+                in_file.line = 1;
+                in_file.file_number = fileNumber;
+                open_compilation_info(write_library_names, write_line_numbers);
+                in_file.end_of_file = FALSE;
+                in_file.up_infile = in_file.curr_infile;
+                in_file.curr_infile = new_file;
+                in_file.next = nextFile;
+                memcpy(new_file, &in_file, sizeof(inFileRecord));
+                isOpen = TRUE;
+              } /* if */
             } /* if */
           } /* if */
         } /* if */
@@ -299,7 +304,7 @@ void closeInfile (void)
 
   { /* closeInfile */
     logFunction(printf("closeInfile (name=\"%s\")\n",
-                       in_file.name););
+                       striAsUnquotedCStri(in_file.name)););
 #if WITH_COMPILATION_INFO
     if (in_file.write_line_numbers) {
       NL_LIN_INFO();
