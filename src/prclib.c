@@ -1733,7 +1733,7 @@ objectType prc_while (listType arguments)
            CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
         FREE_OBJECT(cond_value);
       } /* if */
-      while (cond && !fail_flag) {
+      while (!fail_flag && cond) {
         evaluate(statement);
         if (likely(!fail_flag)) {
           cond_value = evaluate(condition);
@@ -1774,6 +1774,6 @@ objectType prc_while_noop (listType arguments)
           FREE_OBJECT(cond_value);
         } /* if */
       } /* if */
-    } while (cond && !fail_flag);
+    } while (!fail_flag && cond);
     return SYS_EMPTY_OBJECT;
   } /* prc_while_noop */
