@@ -1733,7 +1733,7 @@ objectType prc_while (listType arguments)
            CATEGORY_OF_OBJ(cond_value) == VARENUMOBJECT)) {
         FREE_OBJECT(cond_value);
       } /* if */
-      while (!fail_flag && cond) {
+      while (cond && !fail_flag) {
         evaluate(statement);
         if (likely(!fail_flag)) {
           cond_value = evaluate(condition);
