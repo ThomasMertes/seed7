@@ -31,7 +31,7 @@ objectType sel_cpy      (listType arguments);
 objectType sel_create   (listType arguments);
 objectType sel_eq       (listType arguments);
 objectType sel_hashcode (listType arguments);
+objectType sel_name     (listType arguments);
 objectType sel_ne       (listType arguments);
-objectType sel_str      (listType arguments);
 objectType sel_symb     (listType arguments);
 objectType sel_type     (listType arguments);

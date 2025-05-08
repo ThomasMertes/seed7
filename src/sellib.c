@@ -166,6 +166,20 @@ objectType sel_hashcode (listType arguments)
 
 
 /**
+ *  Get the name of a struct element.
+ *  @return the name of the struct element obj_arg/arg_1.
+ */
+objectType sel_name (listType arguments)
+
+  { /* sel_name */
+    isit_structelem(arg_1(arguments));
+    return bld_stri_temp(refStr(
+        take_structelem(arg_1(arguments))));
+  } /* sel_name */
+
+
+
+/**
  *  Check if two struct element objects are not equal.
  *  @return FALSE if both struct elements are equal,
  *          TRUE otherwise.
@@ -182,16 +196,6 @@ objectType sel_ne (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* sel_ne */
-
-
-
-objectType sel_str (listType arguments)
-
-  { /* sel_str */
-    isit_structelem(arg_1(arguments));
-    return bld_stri_temp(refStr(
-        take_structelem(arg_1(arguments))));
-  } /* sel_str */
 
 
 

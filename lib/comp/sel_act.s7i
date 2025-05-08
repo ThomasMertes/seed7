@@ -30,8 +30,8 @@ const ACTION: SEL_CPY      is action "SEL_CPY";
 const ACTION: SEL_CREATE   is action "SEL_CREATE";
 const ACTION: SEL_EQ       is action "SEL_EQ";
 const ACTION: SEL_HASHCODE is action "SEL_HASHCODE";
+const ACTION: SEL_NAME     is action "SEL_NAME";
 const ACTION: SEL_NE       is action "SEL_NE";
-const ACTION: SEL_STR      is action "SEL_STR";
 const ACTION: SEL_SYMB     is action "SEL_SYMB";
 const ACTION: SEL_TYPE     is action "SEL_TYPE";
 
@@ -84,6 +84,18 @@ const proc: process (SEL_HASHCODE, in reference: function,
   end func;
 
 
+const proc: process (SEL_NAME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "refStr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process (SEL_NE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -93,18 +105,6 @@ const proc: process (SEL_NE, in reference: function,
     c_expr.expr &:= ") != (";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (SEL_STR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    programUses.compDataLibrary := TRUE;
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "refStr(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
   end func;
 
 

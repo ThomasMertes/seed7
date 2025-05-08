@@ -1618,10 +1618,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SEL_EQ, function, params, c_expr);
       when {"SEL_HASHCODE"}:
         process(SEL_HASHCODE, function, params, c_expr);
+      when {"SEL_NAME"}:
+        process(SEL_NAME, function, params, c_expr);
       when {"SEL_NE"}:
         process(SEL_NE, function, params, c_expr);
-      when {"SEL_STR"}:
-        process(SEL_STR, function, params, c_expr);
       when {"SEL_TYPE"}:
         process(SEL_TYPE, function, params, c_expr);
       when {"SET_ARRLIT"}:

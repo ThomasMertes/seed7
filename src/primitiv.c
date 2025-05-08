@@ -888,8 +888,8 @@ static const actEntryRecord actEntryTable[] = {
     { "SEL_CREATE",                   sel_create,                   },
     { "SEL_EQ",                       sel_eq,                       },
     { "SEL_HASHCODE",                 sel_hashcode,                 },
+    { "SEL_NAME",                     sel_name,                     },
     { "SEL_NE",                       sel_ne,                       },
-    { "SEL_STR",                      sel_str,                      },
     { "SEL_SYMB",                     sel_symb,                     },
     { "SEL_TYPE",                     sel_type,                     },
 
