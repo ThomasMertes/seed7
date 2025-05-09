@@ -788,7 +788,7 @@ charType kbdGetc (void)
           /* an encoded key. Therefore a single escape character */
           /* cannot be part of a larger escape sequence. If      */
           /* escape sequences can be ripped apart this function  */
-          /* will not work correct.                              */
+          /* will not work correctly.                            */
           result = K_ESC;
           key_buffer_size = 0;
         } else if (key_buffer[1] == '\033') {

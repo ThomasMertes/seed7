@@ -3299,7 +3299,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* function OCIDateTimeConstruct() fails. This is avoided by    */
           /* setting time_zone to zero. For the minimum allowed time      */
           /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not    */
-          /* work correct, if the time_zone is greater than zero.         */
+          /* work correctly, if the time_zone is greater than zero.       */
           time_zone = 0;
           /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",

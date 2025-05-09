@@ -1744,7 +1744,7 @@ objectType arr_times (listType arguments)
                                                   &elem_to[position], elem_to))) {
               /* If the creation of an element fails (mostly no memory) */
               /* all elements created up to this point must be destroyed */
-              /* to recycle the memory correct. */
+              /* to recycle the memory correctly. */
               destr_array(elem_to, position);
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
