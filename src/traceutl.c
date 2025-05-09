@@ -1543,8 +1543,8 @@ void trace1 (const_objectType traceobject)
           case LOCALVOBJECT:
             /* prot_ptr(traceobject);
                prot_cstri(" "); */
-            prot_ptr(traceobject->value.objValue);
-            prot_nl();
+            /* prot_ptr(traceobject->value.objValue);
+               prot_nl(); */
             prot_cstri("  ");
             trace1(traceobject->value.objValue);
             break;

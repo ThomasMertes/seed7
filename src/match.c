@@ -46,6 +46,7 @@
 #include "traceutl.h"
 #include "executl.h"
 #include "objutl.h"
+#include "infile.h"
 #include "name.h"
 #include "error.h"
 #include "prclib.h"
@@ -186,15 +187,12 @@ errInfoType substitute_params (const_objectType expr_object)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* substitute_params */
-    logFunction(printf("substitute_params\n"););
+    logFunction(printf("substitute_params(");
+                trace1(expr_object);
+                printf(")\n"););
     expr_list = expr_object->value.listValue;
     while (expr_list != NULL && err_info == OKAY_NO_ERROR) {
       current_element = expr_list->obj;
-      if (HAS_ENTITY(current_element) &&
-          GET_ENTITY(current_element)->data.owner != NULL) {
-        expr_list->obj = GET_ENTITY(current_element)->data.owner->obj;
-        current_element = expr_list->obj;
-      } /* if */
       if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
         substitute_params(current_element);
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
@@ -208,8 +206,6 @@ errInfoType substitute_params (const_objectType expr_object)
             prot_cstri(")");
           }
           printf("Parameter already has value: ");
-          prot_int((intType) current_element);
-          prot_cstri(" ");
           trace1(current_element);
           printf("\n");
 #endif
@@ -254,8 +250,6 @@ errInfoType substitute_params (const_objectType expr_object)
             expr_list->obj = created_object;
 #if TRACE_SUBSTITUTE_PARAMS
             printf("Value is now: ");
-            prot_int((intType) expr_list->obj);
-            prot_cstri(" ");
             trace1(expr_list->obj);
             printf("\n");
 #endif
@@ -271,10 +265,15 @@ errInfoType substitute_params (const_objectType expr_object)
             } /* if */
           } /* if */
         } /* if */
+      } else if (HAS_ENTITY(current_element) &&
+          GET_ENTITY(current_element)->data.owner != NULL) {
+        expr_list->obj = GET_ENTITY(current_element)->data.owner->obj;
       } /* if */
       expr_list = expr_list->next;
     } /* while */
-    logFunction(printf("substitute_params --> %d\n", err_info););
+    logFunction(printf("substitute_params(");
+                trace1(expr_object);
+                printf(") --> %d\n", err_info););
     return err_info;
   } /* substitute_params */
 
