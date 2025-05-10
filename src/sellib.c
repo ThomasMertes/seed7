@@ -202,27 +202,37 @@ objectType sel_ne (listType arguments)
 objectType sel_symb (listType arguments)
 
   {
+    objectType obj_arg;
     objectType symb_object;
 
   /* sel_symb */
     isit_structelem(arg_2(arguments));
-    symb_object = take_structelem(arg_2(arguments));
+    obj_arg = take_structelem(arg_2(arguments));
     logFunction(printf("sel_symb(" FMT_U_MEM " ",
-                       (memSizeType) GET_ENTITY(symb_object));
-                trace1(symb_object);
+                       obj_arg != NULL && HAS_ENTITY(obj_arg) ?
+                           (memSizeType) GET_ENTITY(obj_arg) :
+                           (memSizeType) 0);
+                trace1(obj_arg);
                 printf(")\n"););
-    if (HAS_ENTITY(symb_object) &&
-        GET_ENTITY(symb_object)->syobject != NULL) {
-      symb_object = GET_ENTITY(symb_object)->syobject;
-    } else {
+    if (unlikely(obj_arg == NULL)) {
+      logError(printf("sel_symb: Null argument.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(!HAS_ENTITY(obj_arg) ||
+                        GET_ENTITY(obj_arg)->syobject == NULL)) {
       logError(printf("ref symb (" FMT_U_MEM " ",
-                      (memSizeType) GET_ENTITY(symb_object));
-               trace1(symb_object);
+                      obj_arg != NULL && HAS_ENTITY(obj_arg) ?
+                          (memSizeType) GET_ENTITY(obj_arg) :
+                          (memSizeType) 0);
+               trace1(obj_arg);
                printf("): Error\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      symb_object = GET_ENTITY(obj_arg)->syobject;
     } /* if */
     logFunction(printf("sel_symb --> " FMT_U_MEM " ",
-                       (memSizeType) GET_ENTITY(symb_object));
+                       symb_object != NULL && HAS_ENTITY(symb_object) ?
+                           (memSizeType) GET_ENTITY(symb_object) :
+                           (memSizeType) 0);
                 trace1(symb_object);
                 printf("\n"););
     return bld_param_temp(symb_object);
@@ -242,10 +252,16 @@ objectType sel_type (listType arguments)
   /* sel_type */
     isit_structelem(arg_1(arguments));
     obj_arg = take_structelem(arg_1(arguments));
-    if (obj_arg == NULL) {
-      logError(printf("sel_type(0): Null argument.\n"););
+    logFunction(printf("sel_type(" FMT_U_MEM " ",
+                       obj_arg != NULL && HAS_ENTITY(obj_arg) ?
+                           (memSizeType) GET_ENTITY(obj_arg) :
+                           (memSizeType) 0);
+                trace1(obj_arg);
+                printf(")\n"););
+    if (unlikely(obj_arg == NULL)) {
+      logError(printf("sel_type: Null argument.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else if (obj_arg->type_of == NULL) {
+    } else if (unlikely(obj_arg->type_of == NULL)) {
       logError(printf("sel_type(" FMT_U_MEM "): Type is null.\n",
                       (memSizeType) obj_arg););
       return raise_exception(SYS_RNG_EXCEPTION);
