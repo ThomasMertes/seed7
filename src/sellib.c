@@ -199,6 +199,11 @@ objectType sel_ne (listType arguments)
 
 
 
+/**
+ *  Convert a 'structElement' into a symbol parameter.
+ *  @return a symbol parameter which corresponds to obj_arg/arg_1.
+ *  @exception RANGE_ERROR If obj_arg/arg_1 is structElement.value.
+ */
 objectType sel_symb (listType arguments)
 
   {
@@ -243,6 +248,7 @@ objectType sel_symb (listType arguments)
 /**
  *  Get the type of a struct element.
  *  @return the type of the struct element obj_arg/arg_1.
+ *  @exception RANGE_ERROR If obj_arg/arg_1 is structElement.value.
  */
 objectType sel_type (listType arguments)
 
