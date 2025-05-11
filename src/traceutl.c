@@ -1636,6 +1636,7 @@ void trace1 (const_objectType traceobject)
             prot_cstri(")");
             break;
           default:
+            prot_int(traceobject->value.intValue);
             break;
         } /* switch */
       } /* if */
