@@ -460,6 +460,41 @@ objectType dcl_getobj (listType arguments)
 
 
 
+static listType extractCurrentlyDeclaredObject (void)
+
+  {
+    listType lastElement;
+    listType nextToLast = NULL;
+    listType elementWithDeclaredObject = NULL;
+
+  /* extractCurrentlyDeclaredObject */
+    lastElement = prog->stack_global->local_object_list;
+    if (lastElement != NULL) {
+      while (lastElement->next != NULL) {
+        nextToLast = lastElement;
+        lastElement = lastElement->next;
+      } /* while */
+      if (CATEGORY_OF_OBJ(lastElement->obj) == DECLAREDOBJECT) {
+        /* The currently declared object is removed together with  */
+        /* its list element from the local_object_list. It is      */
+        /* added back to the end of the local_object_list after    */
+        /* the declarations from the statement have been inserted. */
+        elementWithDeclaredObject = lastElement;
+        if (nextToLast != NULL) {
+          nextToLast->next = NULL;
+          prog->stack_global->object_list_insert_place = &nextToLast->next;
+        } else {
+          prog->stack_global->local_object_list = NULL;
+          prog->stack_global->object_list_insert_place =
+              &prog->stack_global->local_object_list;
+        } /* if */
+      } /* if */
+    } /* if */
+    return elementWithDeclaredObject;
+  } /* extractCurrentlyDeclaredObject */
+
+
+
 objectType dcl_global (listType arguments)
 
   {
@@ -467,6 +502,7 @@ objectType dcl_global (listType arguments)
     stackType stack_data_backup;
     stackType stack_current_backup;
     stackType stack_upward_backup;
+    listType currentlyDeclaredObject = NULL;
 
   /* dcl_global */
     logFunction(printf("dcl_global\n"););
@@ -476,9 +512,19 @@ objectType dcl_global (listType arguments)
     stack_upward_backup = prog->stack_global->upward;
     prog->stack_data = prog->stack_global;
     prog->stack_current = prog->stack_global;
+    currentlyDeclaredObject = extractCurrentlyDeclaredObject();
 
     evaluate(statement);
 
+    if (currentlyDeclaredObject != NULL) {
+      /* If a currently declared object exists it is moved from */
+      /* the old end of the local_object_list to the new end of */
+      /* the local_object_list. This assures that the function  */
+      /* close_current_stack() can use destructor functions     */
+      /* from types introduced in a local variable declaration. */
+      *prog->stack_global->object_list_insert_place = currentlyDeclaredObject;
+      prog->stack_global->object_list_insert_place = &currentlyDeclaredObject->next;
+    } /* if */
     prog->stack_data = stack_data_backup;
     prog->stack_current = stack_current_backup;
     if (prog->stack_global->upward != NULL) {
