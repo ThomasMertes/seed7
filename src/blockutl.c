@@ -59,10 +59,9 @@ static void free_locobj (const_locObjType locobj)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* free_locobj */
-    /* prot_heapsize();
-    prot_cstri(" free_locobj ");
-    trace1(locobj->object);
-    prot_nl(); */
+    logFunction(printf("free_locobj(");
+                trace1(locobj->object);
+                printf(")\n"););
     if (locobj->object != NULL) {
       if (CATEGORY_OF_OBJ(locobj->object) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(locobj->object) == REFPARAMOBJECT ||
@@ -74,8 +73,7 @@ static void free_locobj (const_locObjType locobj)
                CATEGORY_OF_OBJ(locobj->init_value)); */
             free_expression(locobj->init_value);
           } else {
-            /* prot_heapsize();
-            prot_cstri(" free_locobj value ");
+            /* prot_cstri("free_locobj value ");
             prot_int((intType) locobj->init_value);
             prot_cstri(" ");
             trace1(locobj->init_value);
@@ -115,15 +113,15 @@ void free_loclist (locListType loclist)
     locListType old_loclist;
 
   /* free_loclist */
-    /* prot_heapsize();
-    prot_cstri(" free_loclist");
-    prot_nl(); */
+    logFunction(printf("free_loclist(" FMT_U_MEM ")\n",
+                       (memSizeType) loclist););
     while (loclist != NULL) {
       free_locobj(&loclist->local);
       old_loclist = loclist;
       loclist = loclist->next;
       FREE_RECORD(old_loclist, locListRecord, count.loclist);
     } /* while */
+    logFunction(printf("free_loclist -->\n"););
   } /* free_loclist */
 
 
@@ -156,13 +154,16 @@ void free_local_consts (listType list)
 void free_block (blockType block)
 
   { /* free_block */
-    logFunction(printf("free_block(" FMT_U_MEM ")\n", (memSizeType) block););
+    logFunction(printf("free_block(" FMT_U_MEM ")\n",
+                       (memSizeType) block););
     free_expression(block->body);
     free_loclist(block->params);
     free_locobj(&block->result);
     free_loclist(block->local_vars);
     free_local_consts(block->local_consts);
     FREE_RECORD(block, blockRecord, count.block);
+    logFunction(printf("free_block(" FMT_U_MEM ") -->\n",
+                       (memSizeType) block););
   } /* free_block */
 
 
