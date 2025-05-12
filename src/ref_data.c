@@ -986,8 +986,52 @@ striType refStr (const const_objectType aReference)
 
 
 /**
+ *  Convert a 'reference' into a symbol parameter.
+ *  @return a symbol parameter which corresponds to aReference.
+ *  @exception RANGE_ERROR If aReference is NIL or
+ *                         it has no symbol object.
+ */
+objectType refSymb (const const_objectType aReference)
+
+  {
+    objectType symb_object;
+
+  /* ref_symb */
+    logFunction(printf("refSymb(" FMT_U_MEM " ",
+                       (memSizeType) aReference);
+                trace1(aReference);
+                printf(")\n"););
+    if (unlikely(aReference == NULL)) {
+      logError(printf("refSymb: Null argument.\n"););
+      raise_error(RANGE_ERROR);
+      symb_object = NULL;
+    } else if (unlikely(!HAS_ENTITY(aReference) ||
+                        GET_ENTITY(aReference)->syobject == NULL)) {
+      logError(printf("refSymb(" FMT_U_MEM " ",
+                      (memSizeType) aReference);
+               trace1(aReference);
+               printf("): No symbol object.\n"););
+      raise_error(RANGE_ERROR);
+      symb_object = NULL;
+    } else {
+      symb_object = GET_ENTITY(aReference)->syobject;
+    } /* if */
+    logFunction(printf("refSymb --> " FMT_U_MEM " ",
+                       symb_object != NULL && HAS_ENTITY(symb_object) ?
+                           (memSizeType) GET_ENTITY(symb_object) :
+                           (memSizeType) 0);
+                trace1(symb_object);
+                printf("\n"););
+    return symb_object;
+  } /* ref_symb */
+
+
+
+/**
  *  Get the type of the referenced object.
  *  @return the type of the object referenced by 'aReference'.
+ *  @exception RANGE_ERROR If aReference is NIL or
+ *                         the type is NULL.
  */
 typeType refType (const const_objectType aReference)
 
