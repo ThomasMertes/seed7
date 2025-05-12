@@ -49,6 +49,7 @@
 #include "traceutl.h"
 #include "executl.h"
 #include "exec.h"
+#include "actutl.h"
 #include "dcllib.h"
 #include "findid.h"
 #include "match.h"
@@ -595,6 +596,8 @@ static void close_current_stack (progType currentProg)
                    trace1(list_element->obj);
                    printf("\n"););
         dump_temp_value(list_element->obj);
+        SET_CATEGORY_OF_OBJ(list_element->obj, ACTOBJECT);
+        list_element->obj->value.actValue = getActIllegal();
         pop_object(currentProg, list_element->obj);
       } /* if */
       list_element = list_element->next;

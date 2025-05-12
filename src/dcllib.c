@@ -502,7 +502,7 @@ objectType dcl_global (listType arguments)
     stackType stack_data_backup;
     stackType stack_current_backup;
     stackType stack_upward_backup;
-    listType currentlyDeclaredObject = NULL;
+    listType currentlyDeclaredObject;
 
   /* dcl_global */
     logFunction(printf("dcl_global\n"););
