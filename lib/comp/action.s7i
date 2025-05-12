@@ -1622,6 +1622,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SEL_NAME, function, params, c_expr);
       when {"SEL_NE"}:
         process(SEL_NE, function, params, c_expr);
+      when {"SEL_SYMB"}:
+        process(SEL_SYMB, function, params, c_expr);
       when {"SEL_TYPE"}:
         process(SEL_TYPE, function, params, c_expr);
       when {"SET_ARRLIT"}:

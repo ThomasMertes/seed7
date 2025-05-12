@@ -108,6 +108,17 @@ const proc: process (SEL_NE, in reference: function,
   end func;
 
 
+const proc: process (SEL_SYMB, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    c_expr.expr &:= "refSymb(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process (SEL_TYPE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
