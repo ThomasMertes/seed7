@@ -956,30 +956,40 @@ objectType ref_str (listType arguments)
 
 
 
+/**
+ *  Convert a 'reference' into a symbol parameter.
+ *  @return a symbol parameter which corresponds to obj_arg/arg_2.
+ *  @exception RANGE_ERROR If obj_arg/arg_2 is NIL or
+ *                         it has no symbol object.
+ */
 objectType ref_symb (listType arguments)
 
   {
+    objectType obj_arg;
     objectType symb_object;
 
   /* ref_symb */
     isit_reference(arg_2(arguments));
-    symb_object = take_reference(arg_2(arguments));
-    logFunction(printf("ref_symb(" FMT_U_MEM " ",
-                       (memSizeType) GET_ENTITY(symb_object));
-                trace1(symb_object);
+    obj_arg = take_reference(arg_2(arguments));
+    logFunction(printf("ref_symb(");
+                trace1(obj_arg);
                 printf(")\n"););
-    if (HAS_ENTITY(symb_object) &&
-        GET_ENTITY(symb_object)->syobject != NULL) {
-      symb_object = GET_ENTITY(symb_object)->syobject;
-    } else {
-      logError(printf("ref symb (" FMT_U_MEM " ",
-                      (memSizeType) GET_ENTITY(symb_object));
-               trace1(symb_object);
-               printf("): Error\n"););
+    if (unlikely(obj_arg == NULL)) {
+      logError(printf("ref_symb: Null argument.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(!HAS_ENTITY(obj_arg) ||
+                        GET_ENTITY(obj_arg)->syobject == NULL)) {
+      logError(printf("ref symb(");
+               trace1(obj_arg);
+               printf("): No symbol object.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      symb_object = GET_ENTITY(obj_arg)->syobject;
     } /* if */
     logFunction(printf("ref_symb --> " FMT_U_MEM " ",
-                       (memSizeType) GET_ENTITY(symb_object));
+                       symb_object != NULL && HAS_ENTITY(symb_object) ?
+                           (memSizeType) GET_ENTITY(symb_object) :
+                           (memSizeType) 0);
                 trace1(symb_object);
                 printf("\n"););
     return bld_param_temp(symb_object);
@@ -998,7 +1008,9 @@ objectType ref_trace (listType arguments)
 
 /**
  *  Get the type of the referenced object.
- *  @return the type of the object referenced by aReference/arg_1.
+ *  @return the type of the object referenced by obj_arg/arg_1.
+ *  @exception RANGE_ERROR If obj_arg/arg_1 is NIL or
+ *                         the type is NULL.
  */
 objectType ref_type (listType arguments)
 
@@ -1008,10 +1020,13 @@ objectType ref_type (listType arguments)
   /* ref_type */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL) {
-      logError(printf("ref_type(0): Null argument.\n"););
+    logFunction(printf("ref_type(");
+                trace1(obj_arg);
+                printf(")\n"););
+    if (unlikely(obj_arg == NULL)) {
+      logError(printf("ref_type: Null argument.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else if (obj_arg->type_of == NULL) {
+    } else if (unlikely(obj_arg->type_of == NULL)) {
       logError(printf("ref_type(" FMT_U_MEM "): Type is null.\n",
                       (memSizeType) obj_arg););
       return raise_exception(SYS_RNG_EXCEPTION);

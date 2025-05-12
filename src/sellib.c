@@ -201,8 +201,9 @@ objectType sel_ne (listType arguments)
 
 /**
  *  Convert a 'structElement' into a symbol parameter.
- *  @return a symbol parameter which corresponds to obj_arg/arg_1.
- *  @exception RANGE_ERROR If obj_arg/arg_1 is structElement.value.
+ *  @return a symbol parameter which corresponds to obj_arg/arg_2.
+ *  @exception RANGE_ERROR If obj_arg/arg_2 is structElement.value or
+ *                         it has no symbol object.
  */
 objectType sel_symb (listType arguments)
 
@@ -213,10 +214,7 @@ objectType sel_symb (listType arguments)
   /* sel_symb */
     isit_structelem(arg_2(arguments));
     obj_arg = take_structelem(arg_2(arguments));
-    logFunction(printf("sel_symb(" FMT_U_MEM " ",
-                       obj_arg != NULL && HAS_ENTITY(obj_arg) ?
-                           (memSizeType) GET_ENTITY(obj_arg) :
-                           (memSizeType) 0);
+    logFunction(printf("sel_symb(");
                 trace1(obj_arg);
                 printf(")\n"););
     if (unlikely(obj_arg == NULL)) {
@@ -224,12 +222,9 @@ objectType sel_symb (listType arguments)
       return raise_exception(SYS_RNG_EXCEPTION);
     } else if (unlikely(!HAS_ENTITY(obj_arg) ||
                         GET_ENTITY(obj_arg)->syobject == NULL)) {
-      logError(printf("ref symb (" FMT_U_MEM " ",
-                      obj_arg != NULL && HAS_ENTITY(obj_arg) ?
-                          (memSizeType) GET_ENTITY(obj_arg) :
-                          (memSizeType) 0);
+      logError(printf("sel_symb(");
                trace1(obj_arg);
-               printf("): Error\n"););
+               printf("): No symbol object.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       symb_object = GET_ENTITY(obj_arg)->syobject;
@@ -248,7 +243,8 @@ objectType sel_symb (listType arguments)
 /**
  *  Get the type of a struct element.
  *  @return the type of the struct element obj_arg/arg_1.
- *  @exception RANGE_ERROR If obj_arg/arg_1 is structElement.value.
+ *  @exception RANGE_ERROR If obj_arg/arg_1 is structElement.value or
+ *                         the type is NULL.
  */
 objectType sel_type (listType arguments)
 
@@ -258,10 +254,7 @@ objectType sel_type (listType arguments)
   /* sel_type */
     isit_structelem(arg_1(arguments));
     obj_arg = take_structelem(arg_1(arguments));
-    logFunction(printf("sel_type(" FMT_U_MEM " ",
-                       obj_arg != NULL && HAS_ENTITY(obj_arg) ?
-                           (memSizeType) GET_ENTITY(obj_arg) :
-                           (memSizeType) 0);
+    logFunction(printf("sel_type(");
                 trace1(obj_arg);
                 printf(")\n"););
     if (unlikely(obj_arg == NULL)) {
