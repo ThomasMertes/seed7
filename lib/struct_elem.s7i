@@ -1,0 +1,128 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  struct_elem.s7i  Type to describe an element of a struct.       *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Type to describe an element of a struct.
+ *)
+const type: structElement is newtype;
+
+IN_PARAM_IS_REFERENCE(structElement);
+
+const proc: (ref structElement: dest) ::= (in structElement: source)           is action "SEL_CREATE";
+const proc: destroy (ref structElement: anElement)                             is action "GEN_DESTR";
+const proc: (inout structElement: dest) := (in structElement: source)          is action "SEL_CPY";
+
+
+(**
+ *  Convert a [[reference]] to a ''structElement''.
+ *  @return the result of the conversion.
+ *)
+const func structElement: structElement (in reference: aReference)             is action "SEL_CONV1";
+
+
+(**
+ *  Default value of ''structElement'' (NIL).
+ *)
+const structElement: (attr structElement) . value                              is structElement(NIL);
+
+
+(**
+ *  Check if two ''structElement'' values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in structElement: elem1) = (in structElement: elem2)      is action "SEL_EQ";
+
+
+(**
+ *  Check if two ''structElement'' values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in structElement: elem1) <> (in structElement: elem2)     is action "SEL_NE";
+
+
+(**
+ *  Compare two ''structElement'' values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in structElement: elem1, in structElement: elem2) is action "SEL_CMP";
+
+
+(**
+ *  Compute the hash value of a ''structElement''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in structElement: anElement)                     is action "SEL_HASHCODE";
+
+
+(**
+ *  Get the name of a ''structElement''.
+ *   getName(elements(rational)[1])   returns "numerator"
+ *   getName(elements(rational)[2])   returns "denominator"
+ *   getName(elements(null_file)[1])  returns "bufferChar"
+ *  @return the the name of the given ''structElement''.
+ *)
+const func string: getName (in structElement: anElement)                       is action "SEL_NAME";
+
+
+(**
+ *  Get the type of a ''structElement''.
+ *   getType(elements(rational)[1])   returns integer
+ *   getType(elements(null_file)[1])  returns char
+ *   getType(structElement.value)     raises RANGE_ERROR
+ *  @return the type of the given ''structElement''.
+ *)
+const func type: getType (in structElement: anElement)                         is action "SEL_TYPE";
+
+
+(**
+ *  Convert a ''structElement'' into a symbol parameter.
+ *  This can be used to declare a function for a specific struct element:
+ *   const func string: toJson (in dataType: dataStruct, symb anElement) is
+ *     return toJson(dataStruct.element);
+ *  @return a symbol parameter which corresponds to ''anElement''.
+ *  @exception RANGE_ERROR If the parameter is structElement.value.
+ *)
+const func f_param: symb (in structElement: anElement)                         is action "SEL_SYMB";
+
+
+(**
+ *  Array of ''structElement''.
+ *)
+const type: structElementArray     is array [1 ..] structElement;
+
+
+(**
+ *  Get all struct elements from the given struct type ''aType''.
+ *   elements(rational)  returns an array with two struct elements
+ *   elements(boolean)   raises ILLEGAL_ACTION
+ *  @return an array ''structElement'' describing all elements of the struct.
+ *  @exception ILLEGAL_ACTION The type ''aType'' is not a struct type.
+ *)
+const func structElementArray: elements (in type: aType) is DYNAMIC;
