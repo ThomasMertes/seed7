@@ -194,6 +194,8 @@ test:
 	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
 
+check: test
+
 install: setwpath.exe
 	.\setwpath.exe add ..\bin
 

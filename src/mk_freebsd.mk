@@ -128,7 +128,7 @@ sql_srv.o: sql_srv.c
 all: depend
 	$(MAKE) -f mk_freebsd.mk s7 s7c
 
-.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
+.PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	rm -f *.o $(ALL_S7_LIBS) ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h chkccomp wrdepend levelup next_lvl
@@ -143,6 +143,8 @@ distclean: clean clean_utils
 
 test:
 	../bin/s7 -l ../lib ../prg/chk_all build
+
+check: test
 
 strip:
 	strip ../bin/s7

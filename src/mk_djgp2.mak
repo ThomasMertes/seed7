@@ -175,6 +175,8 @@ distclean: clean clean_utils
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
+check: test
+
 strip:
 	strip ..\bin\s7.exe
 

@@ -128,7 +128,7 @@ all: depend
 	$(MAKE) -f mk_mingc.mak s7
 	$(MAKE) -f mk_mingc.mak s7c
 
-.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
+.PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	del *.o
@@ -180,6 +180,8 @@ distclean: clean clean_utils
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
+
+check: test
 
 install: setwpath.exe sudo.exe
 	.\sudo.exe .\setwpath.exe add ..\bin

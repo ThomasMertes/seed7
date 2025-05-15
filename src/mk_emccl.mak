@@ -139,7 +139,7 @@ sql_ifx.o: sql_ifx.c
 sql_srv.o: sql_srv.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
 
-.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
+.PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	rm -f *.o $(ALL_S7_LIBS) ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
@@ -168,6 +168,8 @@ test:
 	@echo
 	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
 	@echo
+
+check: test
 
 install:
 	@echo

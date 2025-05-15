@@ -145,7 +145,7 @@ all: depend
 	$(MAKE) -f mk_msys.mak s7
 	$(MAKE) -f mk_msys.mak s7c
 
-.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
+.PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	rm -f *.o $(ALL_S7_LIBS) ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe setwpath.exe wrdepend.exe sudo.exe levelup.exe next_lvl
@@ -170,6 +170,8 @@ test:
 	@echo "  Or open a console as administrator, go to the directory seed7/src"
 	@echo "  and use 'make install' (with your make command) to install Seed7."
 	@echo
+
+check: test
 
 install: setwpath.exe
 	./setwpath.exe add ../bin

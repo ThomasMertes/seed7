@@ -136,7 +136,7 @@ all: depend
 	$(MAKE) -f mk_tcc_l.mak s7
 	$(MAKE) -f mk_tcc_l.mak s7c
 
-.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
+.PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	rm -f *.o $(ALL_S7_LIBS) ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h chkccomp levelup next_lvl
@@ -157,6 +157,8 @@ test:
 	@echo
 	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
 	@echo
+
+check: test
 
 install:
 	cd ../bin; ln -fs `pwd`/s7 /usr/local/bin
