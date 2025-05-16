@@ -373,7 +373,11 @@ const string: chkjson_output is "\n\
   \The function getJsonString works correctly.\n\
   \The function getJsonNumber works correctly.\n\
   \The function getJsonSymbol works correctly.\n\
-  \JSON DOM functions work correctly.\n";
+  \JSON DOM functions work correctly.\n\
+  \The struct element functions work correctly.\n\
+  \The function parseJson works correctly.\n\
+  \The function fromJson works correctly.\n\
+  \The function toJson works correctly.\n";
 
 const string: chktoml_output is "\n\
   \The function getTomlSymbol works correctly with strings.\n\

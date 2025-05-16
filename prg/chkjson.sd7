@@ -26,6 +26,73 @@ $ include "seed7_05.s7i";
   include "strifile.s7i";
   include "scanjson.s7i";
   include "json.s7i";
+  include "json_serde.s7i";
+  include "rational.s7i";
+  include "bigrat.s7i";
+  include "complex.s7i";
+
+
+const type: directionType is new enum
+    STAY, UP, DOWN, LEFT, RIGHT
+  end enum;
+
+declare_json_serde(directionType);
+
+declare_json_serde(array string);
+declare_json_serde(array integer);
+declare_json_serde(array float);
+declare_json_serde(array boolean);
+
+const type: stringArray2   is array array string;
+const type: integerArray2  is array array integer;
+const type: floatArray2    is array array float;
+
+declare_json_serde(stringArray2);
+declare_json_serde(integerArray2);
+declare_json_serde(floatArray2);
+
+const type: stringStringHash      is hash [string] string;
+const type: stringCharHash        is hash [string] char;
+const type: stringIntegerHash     is hash [string] integer;
+const type: stringFloatHash       is hash [string] float;
+
+declare_json_serde(stringStringHash);
+declare_json_serde(stringCharHash);
+declare_json_serde(stringIntegerHash);
+declare_json_serde(stringFloatHash);
+
+const type: arrayOfStringStringHash  is array stringStringHash;
+const type: arrayOfStringIntegerHash is array stringIntegerHash;
+const type: arrayOfStringFloatHash   is array stringFloatHash;
+
+declare_json_serde(arrayOfStringStringHash);
+declare_json_serde(arrayOfStringIntegerHash);
+declare_json_serde(arrayOfStringFloatHash);
+
+declare_json_serde(bitset);
+declare_json_serde(set of string);
+
+declare_json_serde(rational);
+declare_json_serde(bigRational);
+declare_json_serde(complex);
+
+declare_json_serde(array rational);
+declare_json_serde(array complex);
+
+const type: stringIntegerStruct2 is new struct
+    var string: name is "";
+    var integer: number is 0;
+  end struct;
+
+const func string: mapJsonElementName (attr stringIntegerStruct2,
+    in string: jsonName) is
+  return jsonName = "for" ? "name" : jsonName;
+
+const func string: mapStructElementName (attr stringIntegerStruct2,
+    in string: structName) is
+  return structName = "name" ? "for" : structName;
+
+declare_json_serde(stringIntegerStruct2);
 
 
 const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
@@ -51,6 +118,22 @@ const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
 DECLARE_RAISES_RANGE_ERROR(string);
 DECLARE_RAISES_RANGE_ERROR(integer);
 DECLARE_RAISES_RANGE_ERROR(float);
+DECLARE_RAISES_RANGE_ERROR(boolean);
+DECLARE_RAISES_RANGE_ERROR(directionType);
+DECLARE_RAISES_RANGE_ERROR(type);
+
+
+const func boolean: raisesRangeError (in proc: statement) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
 
 
 const proc: DECLARE_RAISES_ILLEGAL_ACTION (in type: aType) is func
@@ -77,6 +160,7 @@ DECLARE_RAISES_ILLEGAL_ACTION(string);
 DECLARE_RAISES_ILLEGAL_ACTION(integer);
 DECLARE_RAISES_ILLEGAL_ACTION(bigInteger);
 DECLARE_RAISES_ILLEGAL_ACTION(float);
+DECLARE_RAISES_ILLEGAL_ACTION(structElementArray);
 
 
 const func file: initScan (in string: content) is func
@@ -1073,6 +1157,610 @@ const proc: checkJsonDom is func
   end func;
 
 
+const proc: checkStructElementFunctions is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  getName(elements(rational)[1])    <> "numerator" or
+        getName(elements(rational)[2])    <> "denominator" or
+        getName(elements(bigRational)[1]) <> "numerator" or
+        getName(elements(bigRational)[2]) <> "denominator" or
+        getName(elements(complex)[1])     <> "re" or
+        getName(elements(complex)[2])     <> "im" or
+        getName(elements(null_file)[1])   <> "bufferChar" then
+      writeln(" ***** The function getName does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  getType(elements(rational)[1])    <> integer or
+        getType(elements(bigRational)[1]) <> bigInteger or
+        getType(elements(complex)[1])     <> float or
+        getType(elements(null_file)[1])   <> char then
+      writeln(" ***** The function getType does not work correctly.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIllegalAction(elements(boolean)) or
+        not raisesIllegalAction(elements(integer)) then
+      writeln(" ***** The function elements does not raise ILLEGAL_ACTION.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(getType(structElement.value)) then
+      writeln(" ***** The function getType does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(ignore(symb structElement.value)) then
+      writeln(" ***** The symb operator does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The struct element functions work correctly.");
+    end if;
+  end func;
+
+
+const proc: DECLARE_CHECK_PARSE_JSON (in type: dataType) is func
+  begin
+
+    const func boolean: checkParseJson (in string: initialStri, in dataType: expectedData,
+        in string: finalSymbol) is func
+      result
+        var boolean: okay is TRUE;
+      local
+        var string: stri is "";
+        var file: aFile is STD_NULL;
+        var string: symbol is "";
+        var dataType: dataParsed is dataType.value;
+      begin
+        stri := initialStri;
+        symbol := getJsonSymbol(stri);
+        dataParsed := parseJson(symbol, stri, dataType);
+        if dataParsed <> expectedData then
+          writeln(" ***** parseJson(string) with " <&
+                  literal(initialStri) <& " does not return " <& literal(expectedData) <& ".");
+          okay := FALSE;
+        elsif symbol <> finalSymbol then
+          writeln(" ***** parseJson(string) with " <&
+                  literal(initialStri) <& " does not have " <& literal(finalSymbol) <& " afterwards.");
+          okay := FALSE;
+        else
+          aFile := initScan(initialStri);
+          symbol := getJsonSymbol(aFile);
+          dataParsed := parseJson(symbol, aFile, dataType);
+          if dataParsed <> expectedData then
+            writeln(" ***** parseJson(file) with " <&
+                    literal(initialStri) <& " does not return " <& literal(expectedData) <& ".");
+            okay := FALSE;
+          elsif symbol <> finalSymbol then
+            writeln(" ***** parseJson(file) with " <&
+                    literal(initialStri) <& " does not have " <& literal(finalSymbol) <& " afterwards.");
+            okay := FALSE;
+          end if;
+        end if;
+      end func;
+
+    const func boolean: parseJsonRaisesRangeError (in string: initialStri, attr dataType) is func
+      result
+        var boolean: okay is TRUE;
+      local
+        var string: stri is "";
+        var file: aFile is STD_NULL;
+        var string: symbol is "";
+        var dataType: dataParsed is dataType.value;
+      begin
+        stri := initialStri;
+        symbol := getJsonSymbol(stri);
+        if not raisesRangeError(parseJson(symbol, stri, dataType)) then
+          writeln(" ***** parseJson(string) with " <&
+                  literal(initialStri) <& " does not raise RANGE_ERROR.");
+          okay := FALSE;
+        else
+          aFile := initScan(initialStri);
+          symbol := getJsonSymbol(aFile);
+          if not raisesRangeError(parseJson(symbol, aFile, dataType)) then
+            writeln(" ***** getJsonNumber(file) with " <&
+                    literal(initialStri) <& " does not raise RANGE_ERROR.");
+            okay := FALSE;
+          end if;
+        end if;
+      end func;
+
+  end func;
+
+
+# Declare file parsing functions:
+
+declare_parse_json(string, file);
+declare_parse_json(integer, file);
+declare_parse_json(float, file);
+declare_parse_json(boolean, file);
+declare_parse_json(directionType, file);
+
+# declare_parse_json(x, string) has been invoked by declare_from_json(x).
+
+DECLARE_CHECK_PARSE_JSON(string);
+DECLARE_CHECK_PARSE_JSON(integer);
+DECLARE_CHECK_PARSE_JSON(float);
+DECLARE_CHECK_PARSE_JSON(boolean);
+DECLARE_CHECK_PARSE_JSON(directionType);
+
+
+const proc: checkParseJson is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "";
+  begin
+    if  not checkParseJson(" 0,",     "0",     ",") or
+        not checkParseJson(" 0,",     0,       ",") or
+        not checkParseJson(" 0,",     0.0,     ",") or
+        not checkParseJson(" 1.0,",   "1.0",   ",") or
+        not checkParseJson(" 1.0,",   1.0,     ",") or
+        not checkParseJson(" 1e10,",  "1e10",  ",") or
+        not checkParseJson(" 1e10,",  1.0e10,  ",") or
+        not checkParseJson(" 1e-10,", "1e-10", ",") or
+        not checkParseJson(" 1e-10,", 1.0e-10, ",") or
+        not checkParseJson(" true,",  TRUE,    ",") or
+        not checkParseJson(" false,", FALSE,   ",") or
+        not checkParseJson(" 0,",     STAY,    ",") or
+        not checkParseJson(" 1,",     UP,      ",") or
+        not checkParseJson(" 2,",     DOWN,    ",") or
+        not checkParseJson(" 3,",     LEFT,    ",") or
+        not checkParseJson(" 4,",     RIGHT,   ",") then
+      writeln(" ***** parseJson() does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not checkParseJson(" \"0\",",     0,       ",") or
+        not checkParseJson(" \"0\",",     0.0,     ",") or
+        not checkParseJson(" \"1.0\",",   1.0,     ",") or
+        not checkParseJson(" \"1e10\",",  1.0e10,  ",") or
+        not checkParseJson(" \"1e-10\",", 1.0e-10, ",") or
+        not checkParseJson(" \"true\",",  TRUE,    ",") or
+        not checkParseJson(" \"false\",", FALSE,   ",") or
+        not checkParseJson(" TRUE,",      TRUE,    ",") or
+        not checkParseJson(" FALSE,",     FALSE,   ",") or
+        not checkParseJson(" True,",      TRUE,    ",") or
+        not checkParseJson(" False,",     FALSE,   ",") then
+      writeln(" ***** parseJson() does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not parseJsonRaisesRangeError(" 1.0,",   integer)       or
+        not parseJsonRaisesRangeError(" 1e10,",  integer)       or
+        not parseJsonRaisesRangeError(" 1e-10,", integer)       or
+        not parseJsonRaisesRangeError(" null,",  boolean)       or
+        not parseJsonRaisesRangeError(" -1,",    directionType) or
+        not parseJsonRaisesRangeError(" 5,",     directionType) then
+      writeln(" ***** parseJson() does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function parseJson works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkFromJson is func
+  local
+    var boolean: okay is TRUE;
+    var stringIntegerStruct2: testStruct is stringIntegerStruct2.value;
+  begin
+    if  fromJson("\"\"",        string) <> "" or
+        fromJson("\"\\\"\"",    string) <> "\"" or
+        fromJson("\"\\\\\"",    string) <> "\\" or
+        fromJson("\"\\/\"",     string) <> "/" or
+        fromJson("\"\\b\"",     string) <> "\b" or
+        fromJson("\"\\f\"",     string) <> "\f" or
+        fromJson("\"\\n\"",     string) <> "\n" or
+        fromJson("\"\\r\"",     string) <> "\r" or
+        fromJson("\"\\t\"",     string) <> "\t" or
+        fromJson("\"\\u0000\"", string) <> "\0;" or
+        fromJson("\"\\u001f\"", string) <> "\31;" or
+        fromJson("\"\\u007f\"", string) <> "\127;" or
+        fromJson("\"\\u0080\"", string) <> "\128;" or
+        fromJson("\"\\u009f\"", string) <> "\159;" or
+        fromJson("\" \"",       string) <> " " or
+        fromJson("\"!\"",       string) <> "!" or
+        fromJson("\"0\"",       string) <> "0" or
+        fromJson("\"A\"",       string) <> "A" or
+        fromJson("\"a\"",       string) <> "a" or
+        fromJson("\"~\"",       string) <> "~" or
+        fromJson("\"\160;\"",   string) <> "\160;" or
+        fromJson("\"ÿ\"",       string) <> "ÿ" or
+        fromJson("\"€\"",       string) <> "€" then
+      writeln(" ***** fromJson(aString, string) does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("\"0123456789\"", string) <> "0123456789" or
+        fromJson("\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"", string) <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ" or
+        fromJson("\"abcdefghijklmnopqrstuvwxyz\"", string) <> "abcdefghijklmnopqrstuvwxyz" or
+        fromJson("\" !\\\"#$%&'()*+,-.\\/:;<=>?@[\\\\]^_`{|}~\"", string) <>
+                              " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" or
+        fromJson("\"¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿\"", string) <>
+                              "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿" or
+        fromJson("\"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\"", string) <>
+                              "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß" or
+        fromJson("\"àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\"", string) <>
+                              "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ" or
+        fromJson("\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"", string) <>
+                 "\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€" then
+      writeln(" ***** fromJson(aString, string) does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("\"\\\"\"",    char) <> '\"' or
+        fromJson("\"\\\\\"",    char) <> '\\' or
+        fromJson("\"\\/\"",     char) <> '/' or
+        fromJson("\"\\b\"",     char) <> '\b' or
+        fromJson("\"\\f\"",     char) <> '\f' or
+        fromJson("\"\\n\"",     char) <> '\n' or
+        fromJson("\"\\r\"",     char) <> '\r' or
+        fromJson("\"\\t\"",     char) <> '\t' or
+        fromJson("\"\\u0000\"", char) <> '\0;' or
+        fromJson("\"\\u001f\"", char) <> '\31;' or
+        fromJson("\"\\u007f\"", char) <> '\127;' or
+        fromJson("\"\\u0080\"", char) <> '\128;' or
+        fromJson("\"\\u009f\"", char) <> '\159;' or
+        fromJson("\" \"",       char) <> ' ' or
+        fromJson("\"!\"",       char) <> '!' or
+        fromJson("\"0\"",       char) <> '0' or
+        fromJson("\"A\"",       char) <> 'A' or
+        fromJson("\"a\"",       char) <> 'a' or
+        fromJson("\"~\"",       char) <> '~' or
+        fromJson("\"\160;\"",   char) <> '\160;' or
+        fromJson("\"ÿ\"",       char) <> 'ÿ' or
+        fromJson("\"€\"",       char) <> '€' then
+      writeln(" ***** fromJson(aString, char) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("-9223372036854775808", integer) <>        integer.first or
+        fromJson("-9223372036854775807", integer) <> -9223372036854775807 or
+        fromJson(           "-12345678", integer) <>            -12345678 or
+        fromJson(                  "-1", integer) <>                   -1 or
+        fromJson(                  "-0", integer) <>                    0 or
+        fromJson(                   "0", integer) <>                    0 or
+        fromJson(            "12345678", integer) <>             12345678 or
+        fromJson( "9223372036854775807", integer) <>  9223372036854775807 then
+      writeln(" ***** fromJson(aString, integer) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("-9223372036854775809", bigInteger) <> -9223372036854775809_ or
+        fromJson("-9223372036854775808", bigInteger) <> -9223372036854775808_ or
+        fromJson("-9223372036854775807", bigInteger) <> -9223372036854775807_ or
+        fromJson(           "-12345678", bigInteger) <>            -12345678_ or
+        fromJson(                  "-1", bigInteger) <>                   -1_ or
+        fromJson(                  "-0", bigInteger) <>                    0_ or
+        fromJson(                   "0", bigInteger) <>                    0_ or
+        fromJson(            "12345678", bigInteger) <>             12345678_ or
+        fromJson( "9223372036854775807", bigInteger) <>  9223372036854775807_ or
+        fromJson( "9223372036854775808", bigInteger) <>  9223372036854775808_ then
+      writeln(" ***** fromJson(aString, bigInteger) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson( "0",      float) <>  0.0     or
+        fromJson( "0.0",    float) <>  0.0     or
+        fromJson( "1.2345", float) <>  1.2345  or
+        fromJson( "-0",     float) <>  0.0     or
+        fromJson( "-0.0",   float) <>  0.0     or
+        fromJson("-1.2345", float) <> -1.2345  or
+        fromJson( "3.1415", float) <>  3.1415  or
+        fromJson( "1e10",   float) <>  1.0e10  or
+        fromJson( "1e-10",  float) <>  1.0e-10 then
+      writeln(" ***** fromJson(aString, float) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("false", boolean) <> FALSE or
+        fromJson("true",  boolean) <> TRUE  then
+      writeln(" ***** fromJson(aString, boolean) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("0", directionType) <> STAY  or
+        fromJson("1", directionType) <> UP    or
+        fromJson("2", directionType) <> DOWN  or
+        fromJson("3", directionType) <> LEFT  or
+        fromJson("4", directionType) <> RIGHT then
+      writeln(" ***** fromJson(aString, enumeration) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("[]",                    array string)  <> 0 times ""      or
+        fromJson("[\"a\", \"b\"]",        array string)  <> [] ("a", "b")   or
+        fromJson("[\"\\r\", \"\\n\"]",    array string)  <> [] ("\r", "\n") or
+        fromJson("[]",                    array integer) <> 0 times 0       or
+        fromJson("[1, 2, 3]",             array integer) <> [] (1, 2, 3)    or
+        fromJson("[\"1\", \"2\", \"3\"]", array integer) <> [] (1, 2, 3)    or
+        fromJson("[]",                    array float)   <> 0 times 0.0     or
+        fromJson("[1.2, 3.4]",            array float)   <> [] (1.2, 3.4)   or
+        fromJson("[\"1.2\", \"3.4\"]",    array float)   <> [] (1.2, 3.4)   or
+        fromJson("[[\"a\", \"b\"], [\"c\", \"d\"]]",      stringArray2)  <> [] ([] ("a", "b"), [] ("c", "d"))             or
+        fromJson("[[\"\\b\",\"\\t\"],[\"\\r\",\"\\n\"]]", stringArray2)  <> [] ([] ("\b", "\t"), [] ("\r", "\n"))         or
+        fromJson("[[1, 2, 3], [4, 5, 6], [7, 8, 9]]",     integerArray2) <> [] ([] (1, 2, 3), [] (4, 5, 6), [] (7, 8, 9)) or
+        fromJson("[[\"1\", \"2\"], [\"3\", \"4\"]]",      integerArray2) <> [] ([] (1, 2), [] (3, 4))                     or
+        fromJson("[[1.2, 3.4], [5.6, 7.8]]",              floatArray2)   <> [] ([] (1.2, 3.4), [] (5.6, 7.8))             or
+        fromJson("[[\"1\", \"2\"], [\"3\", \"4\"]]",      floatArray2)   <> [] ([] (1.0, 2.0), [] (3.0, 4.0))             then
+      writeln(" ***** fromJson does not work as expected. (3)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("{\"one\":\"1\",\"three\":\"3\",\"two\":\"2\"}", stringStringHash)  <> [] (["one" : "1"], ["two" : "2"], ["three" : "3"]) or
+        fromJson("{\"one\":1,\"three\":3,\"two\":2}",             stringIntegerHash) <> [] (["one" : 1],   ["two" : 2],   ["three" : 3])   or
+        fromJson("{\"one\":1.0,\"three\":3.0,\"two\":2.0}",       stringFloatHash)   <> [] (["one" : 1.0], ["two" : 2.0], ["three" : 3.0]) then
+      writeln(" ***** fromJson does not work as expected. (4)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("[]",     bitset) <> {}  or
+        fromJson("[1]",    bitset) <> {1} or
+        fromJson("[1, 2]", bitset) <> {1, 2} then
+      writeln(" ***** fromJson does not work as expected. (5)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("[]",             set of string) <> (set of string).value or
+        fromJson("[\"1\"]",        set of string) <> {"1"} or
+        fromJson("[\"1\", \"2\"]", set of string) <> {"1", "2"} then
+      writeln(" ***** fromJson does not work as expected. (6)");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("{\"numerator\":1,\"denominator\":3}",  rational) <>  1 / 3 or
+        fromJson("{\"numerator\":3,\"denominator\":5}",  rational) <>  3 / 5 or
+        fromJson("{\"numerator\":1,\"denominator\":0}",  rational) <>  1 / 0 or
+        fromJson("{\"numerator\":-1,\"denominator\":0}", rational) <> -1 / 0 or
+        fromJson("{\"numerator\":0,\"denominator\":0}",  rational) <>  0 / 0 then
+      writeln(" ***** fromJson(x, rational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("{\"numerator\":1,\"denominator\":3}", bigRational) <> 1_ / 3_ or
+        fromJson("{\"numerator\":3,\"denominator\":5}", bigRational) <> 3_ / 5_ then
+      writeln(" ***** fromJson(x, bigRational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("{\"re\":0.0,\"im\":0.0}",   complex) <> complex( 0.0,  0.0) or
+        fromJson("{\"re\":1.2,\"im\":3.4}",   complex) <> complex( 1.2,  3.4) or
+        fromJson("{\"re\":-1.2,\"im\":-3.4}", complex) <> complex(-1.2, -3.4) then
+      writeln(" ***** fromJson(x, complex) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("[{\"numerator\":1,\"denominator\":3},{\"numerator\":3,\"denominator\":5}]", array rational) <> [] (1 / 3, 3 / 5) then
+      writeln(" ***** fromJson(x, array rational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  fromJson("[{\"re\":1.2,\"im\":3.4},{\"re\":5.6,\"im\":7.8}]", array complex) <> [] (complex(1.2, 3.4), complex(5.6, 7.8)) then
+      writeln(" ***** fromJson(x, array complex) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    testStruct := fromJson("{\"for\":\"testName\",\"number\":987654321}", stringIntegerStruct2);
+    if testStruct.name <> "testName" or testStruct.number <> 987654321 then
+      writeln(" ***** fromJson(x, stringIntegerStruct2) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function fromJson works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkToJson is func
+  local
+    var boolean: okay is TRUE;
+    var stringIntegerStruct2: testStruct is stringIntegerStruct2.value;
+  begin
+    if  toJson("")      <> "\"\"" or
+        toJson("\"")    <> "\"\\\"\"" or
+        toJson("\\")    <> "\"\\\\\"" or
+        toJson("/")     <> "\"\\/\"" or
+        toJson("\b")    <> "\"\\b\"" or
+        toJson("\f")    <> "\"\\f\"" or
+        toJson("\n")    <> "\"\\n\"" or
+        toJson("\r")    <> "\"\\r\"" or
+        toJson("\t")    <> "\"\\t\"" or
+        toJson("\0;")   <> "\"\\u0000\"" or
+        toJson("\31;")  <> "\"\\u001f\"" or
+        toJson("\127;") <> "\"\\u007f\"" or
+        toJson("\128;") <> "\"\\u0080\"" or
+        toJson("\159;") <> "\"\\u009f\"" or
+        toJson(" ")     <> "\" \"" or
+        toJson("!")     <> "\"!\"" or
+        toJson("0")     <> "\"0\"" or
+        toJson("A")     <> "\"A\"" or
+        toJson("a")     <> "\"a\"" or
+        toJson("~")     <> "\"~\"" or
+        toJson("\160;") <> "\"\160;\"" or
+        toJson("ÿ")     <> "\"ÿ\"" or
+        toJson("€")     <> "\"€\"" then
+      writeln(" ***** toJson(aString) does not work as expected. (1)");
+      okay := FALSE;
+    end if;
+
+    if  toJson("0123456789") <> "\"0123456789\"" or
+        toJson("ABCDEFGHIJKLMNOPQRSTUVWXYZ") <> "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"" or
+        toJson("abcdefghijklmnopqrstuvwxyz") <> "\"abcdefghijklmnopqrstuvwxyz\"" or
+        toJson(" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~") <>
+               "\" !\\\"#$%&'()*+,-.\\/:;<=>?@[\\\\]^_`{|}~\"" or
+        toJson("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿") <>
+               "\"¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿\"" or
+        toJson("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß") <>
+               "\"ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\"" or
+        toJson("àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ") <>
+               "\"àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\"" or
+        toJson("\"\\/\b\f\n\r\t\0;\31;\127;\128;\159; !0Aa~\160;ÿ€") <>
+               "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\\u0080\\u009f !0Aa~\160;ÿ€\"" then
+      writeln(" ***** toJson(aString) does not work as expected. (2)");
+      okay := FALSE;
+    end if;
+
+    if  toJson('\"')    <> "\"\\\"\"" or
+        toJson('\\')    <> "\"\\\\\"" or
+        toJson('/')     <> "\"\\/\"" or
+        toJson('\b')    <> "\"\\b\"" or
+        toJson('\f')    <> "\"\\f\"" or
+        toJson('\n')    <> "\"\\n\"" or
+        toJson('\r')    <> "\"\\r\"" or
+        toJson('\t')    <> "\"\\t\"" or
+        toJson('\0;')   <> "\"\\u0000\"" or
+        toJson('\31;')  <> "\"\\u001f\"" or
+        toJson('\127;') <> "\"\\u007f\"" or
+        toJson('\128;') <> "\"\\u0080\"" or
+        toJson('\159;') <> "\"\\u009f\"" or
+        toJson(' ')     <> "\" \"" or
+        toJson('!')     <> "\"!\"" or
+        toJson('0')     <> "\"0\"" or
+        toJson('A')     <> "\"A\"" or
+        toJson('a')     <> "\"a\"" or
+        toJson('~')     <> "\"~\"" or
+        toJson('\160;') <> "\"\160;\"" or
+        toJson('ÿ')     <> "\"ÿ\"" or
+        toJson('€')     <> "\"€\"" then
+      writeln(" ***** toJson(aChar) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(       integer.first) <> "-9223372036854775808" or
+        toJson(-9223372036854775807) <> "-9223372036854775807" or
+        toJson(           -12345678) <>            "-12345678" or
+        toJson(                  -1) <>                   "-1" or
+        toJson(                   0) <>                    "0" or
+        toJson(            12345678) <>             "12345678" or
+        toJson( 9223372036854775807) <>  "9223372036854775807" then
+      writeln(" ***** toJson(anInteger) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(-9223372036854775809_) <> "-9223372036854775809" or
+        toJson(-9223372036854775808_) <> "-9223372036854775808" or
+        toJson(-9223372036854775807_) <> "-9223372036854775807" or
+        toJson(           -12345678_) <>            "-12345678" or
+        toJson(                  -1_) <>                   "-1" or
+        toJson(                   0_) <>                    "0" or
+        toJson(            12345678_) <>             "12345678" or
+        toJson( 9223372036854775807_) <>  "9223372036854775807" or
+        toJson( 9223372036854775808_) <>  "9223372036854775808" then
+      writeln(" ***** toJson(aBigInteger) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson( 0.0   ) <>  "0.0"    or
+        toJson( 1.2345) <>  "1.2345" or
+        toJson(-1.2345) <> "-1.2345" or
+        toJson(3.1415)   <> "3.1415" then
+      writeln(" ***** toJson(aFloat) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(FALSE) <> "false" or
+        toJson(TRUE)  <> "true" then
+      writeln(" ***** toJson(aBoolean) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(STAY)  <> "0" or
+        toJson(UP)    <> "1" or
+        toJson(DOWN)  <> "2" or
+        toJson(LEFT)  <> "3" or
+        toJson(RIGHT) <> "4" then
+      writeln(" ***** toJson(enumeration) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson([] ("a", "b"))    <> "[\"a\",\"b\"]"     or
+        toJson([] ("\r", "\n"))  <> "[\"\\r\",\"\\n\"]" or
+        toJson([] (1, 2, 3))     <> "[1,2,3]"           or
+        toJson([] (1.2, 3.4))    <> "[1.2,3.4]"         or
+        toJson([] (FALSE, TRUE)) <> "[false,true]"      or
+        toJson([] ([] ("a", "b"), [] ("c", "d")))             <> "[[\"a\",\"b\"],[\"c\",\"d\"]]"         or
+        toJson([] ([] ("\b", "\t"), [] ("\r", "\n")))         <> "[[\"\\b\",\"\\t\"],[\"\\r\",\"\\n\"]]" or
+        toJson([] ([] (1, 2, 3), [] (4, 5, 6), [] (7, 8, 9))) <> "[[1,2,3],[4,5,6],[7,8,9]]"             or
+        toJson([] ([] (1.2, 3.4), [] (5.6, 7.8)))             <> "[[1.2,3.4],[5.6,7.8]]"                 then
+      writeln(" ***** toJson does not work as expected. (3)");
+      okay := FALSE;
+    end if;
+
+    if  toJson([] (["one" : "1"], ["two" : "2"], ["three" : "3"])) <> "{\"one\":\"1\",\"three\":\"3\",\"two\":\"2\"}" or
+        toJson([] (["one" : '1'], ["two" : '2'], ["three" : '3'])) <> "{\"one\":\"1\",\"three\":\"3\",\"two\":\"2\"}" or
+        toJson([] (["one" : 1],   ["two" : 2],   ["three" : 3]))   <> "{\"one\":1,\"three\":3,\"two\":2}"             or
+        toJson([] (["one" : 1.0], ["two" : 2.0], ["three" : 3.0])) <> "{\"one\":1.0,\"three\":3.0,\"two\":2.0}"       then
+      writeln(" ***** toJson(hash[string]) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if   toJson({})     <> "[]"     or
+         toJson({1})    <> "[1]"    or
+        (toJson({1, 2}) <> "[1,2]"  and
+         toJson({1, 2}) <> "[2,1]") then
+      writeln(" ***** toJson(bitset) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if   toJson((set of string).value) <> "[]"             or
+         toJson({"1"})                 <> "[\"1\"]"        or
+        (toJson({"1", "2"})            <> "[\"1\",\"2\"]"  and
+         toJson({"1", "2"})            <> "[\"2\",\"1\"]") then
+      writeln(" ***** toJson(set of string) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(1 / 3)  <> "{\"numerator\":1,\"denominator\":3}"  or
+        toJson(3 / 5)  <> "{\"numerator\":3,\"denominator\":5}"  or
+        toJson(1 / 0)  <> "{\"numerator\":1,\"denominator\":0}"  or
+        toJson(-1 / 0) <> "{\"numerator\":-1,\"denominator\":0}" or
+        toJson(0 / 0)  <> "{\"numerator\":0,\"denominator\":0}"  then
+      writeln(" ***** toJson(rational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(1_ / 3_) <> "{\"numerator\":1,\"denominator\":3}" or
+        toJson(3_ / 5_) <> "{\"numerator\":3,\"denominator\":5}" then
+      writeln(" ***** toJson(bigRational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson(complex(0.0, 0.0))   <> "{\"re\":0.0,\"im\":0.0}"   or
+        toJson(complex(1.2, 3.4))   <> "{\"re\":1.2,\"im\":3.4}"   or
+        toJson(complex(-1.2, -3.4)) <> "{\"re\":-1.2,\"im\":-3.4}" then
+      writeln(" ***** toJson(complex) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson([] (1 / 3, 3 / 5)) <> "[{\"numerator\":1,\"denominator\":3},{\"numerator\":3,\"denominator\":5}]" then
+      writeln(" ***** toJson(array rational) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if  toJson([] (complex(1.2, 3.4), complex(5.6, 7.8))) <> "[{\"re\":1.2,\"im\":3.4},{\"re\":5.6,\"im\":7.8}]" then
+      writeln(" ***** toJson(array complex) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    testStruct.name := "testName";
+    testStruct.number := 987654321;
+    if toJson(testStruct) <> "{\"for\":\"testName\",\"number\":987654321}" then
+      writeln(" ***** toJson(x, stringIntegerStruct2) does not work as expected.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The function toJson works correctly.");
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -1080,4 +1768,8 @@ const proc: main is func
     checkGetJsonNumber;
     checkGetJsonSymbol;
     checkJsonDom;
+    checkStructElementFunctions;
+    checkParseJson;
+    checkFromJson;
+    checkToJson;
   end func;
