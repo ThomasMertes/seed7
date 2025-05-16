@@ -1,0 +1,782 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  json_serde.s7i  Serializer and deserializer for JSON.           *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanjson.s7i";
+include "bigint.s7i";
+include "float.s7i";
+
+
+const func type: key_type (in type: aType) is DYNAMIC;
+const func type: base_type (in type: aType) is DYNAMIC;
+
+
+(**
+ *  Convert a [[string]] into a JSON string literal.
+ *)
+const func string: toJson (in string: stri) is func
+  result
+    var string: jsonString is "\"";
+  local
+    var char: character is ' ';
+  begin
+    for character range stri do
+      case character of
+        when {'"', '\\', '/'}:
+          jsonString &:= "\\" & str(character);
+        when control_char:
+          case character of
+            when {'\b'}: jsonString &:= "\\b";
+            when {'\f'}: jsonString &:= "\\f";
+            when {'\n'}: jsonString &:= "\\n";
+            when {'\r'}: jsonString &:= "\\r";
+            when {'\t'}: jsonString &:= "\\t";
+            otherwise:   jsonString &:= "\\u" <& ord(character) radix 16 lpad0 4;
+          end case;
+        otherwise: jsonString &:= character;
+      end case;
+    end for;
+    jsonString &:= "\"";
+  end func;
+
+
+(**
+ *  Convert a [[char]] into a JSON string literal.
+ *)
+const func string: toJson (in char: ch) is
+  return toJson(str(ch));
+
+
+(**
+ *  Convert a [[boolean]] into a JSON boolean literal.
+ *)
+const func string: toJson (in boolean: okay) is
+  return lower(str(okay));
+
+
+const proc: DECLARE_TO_JSON_ARRAY (in type: dataType) is forward;
+const proc: DECLARE_TO_JSON_HASH (in type: dataType) is forward;
+const proc: DECLARE_TO_JSON_SET (in type: dataType) is forward;
+const proc: DECLARE_TO_JSON_ENUM (in type: dataType) is forward;
+const proc: DECLARE_TO_JSON_STRUCT (in type: dataType) is forward;
+
+
+(**
+ *  Template function to declare the function ''toJson'' for ''dataType''.
+ *  @param dataType Argument type of the function ''toJson''.
+ *)
+const proc: declare_to_json (in type: dataType) is func
+  begin
+    if getobj(toJson(in dataType: data)) = NIL then
+      if getobj(isArrayType(attr dataType)) <> NIL then
+        DECLARE_TO_JSON_ARRAY(dataType);
+      elsif getobj(isHashType(attr dataType)) <> NIL then
+        DECLARE_TO_JSON_HASH(dataType);
+      elsif getobj(isSetType(attr dataType)) <> NIL then
+        DECLARE_TO_JSON_SET(dataType);
+      elsif getobj(isEnumType(attr dataType)) <> NIL then
+        DECLARE_TO_JSON_ENUM(dataType);
+      elsif getobj(isStructType(attr dataType)) <> NIL then
+        DECLARE_TO_JSON_STRUCT(dataType);
+      else
+        const func string: toJson (in dataType: data) is
+          return str(data);
+      end if;
+    end if;
+  end func;
+
+declare_to_json(integer);
+declare_to_json(bigInteger);
+declare_to_json(float);
+
+
+const proc: DECLARE_TO_JSON_ARRAY (in type: dataType) is func
+  begin
+    declare_to_json(base_type(dataType));
+
+    (**
+     *  Convert an [[array]] into a JSON array value.
+     *)
+    const func string: toJson (in dataType: dataArray) is func
+      result
+        var string: stri is "[";
+      local
+        var integer: index is 0;
+        var boolean: firstElement is TRUE;
+      begin
+        for key index range dataArray do
+          if firstElement then
+            firstElement := FALSE;
+          else
+            stri &:= ",";
+          end if;
+          stri &:= toJson(dataArray[index]);
+        end for;
+        stri &:= "]";
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_TO_JSON_HASH (in type: dataType) is func
+  begin
+    declare_to_json(key_type(dataType));
+    declare_to_json(base_type(dataType));
+
+    (**
+     *  Convert a [[hash]] into a JSON object value.
+     *)
+    const func string: toJson (in dataType: dataHash) is func
+      result
+        var string: stri is "{";
+      local
+        var string: hashKey is "";
+        var boolean: firstElement is TRUE;
+      begin
+        for hashKey range sort(keys(dataHash)) do
+          if firstElement then
+            firstElement := FALSE;
+          else
+            stri &:= ",";
+          end if;
+          stri &:= toJson(hashKey);
+          stri &:= ":";
+          stri &:= toJson(dataHash[hashKey]);
+        end for;
+        stri &:= "}";
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_TO_JSON_SET (in type: dataType) is func
+  begin
+    declare_to_json(base_type(dataType));
+
+    (**
+     *  Convert a [[set]] into a JSON array value.
+     *)
+    const func string: toJson (in dataType: dataSet) is func
+      result
+        var string: stri is "[";
+      local
+        var base_type(dataType): element is base_type(dataType).value;
+        var boolean: firstElement is TRUE;
+      begin
+        for element range dataSet do
+          if firstElement then
+            firstElement := FALSE;
+          else
+            stri &:= ",";
+          end if;
+          stri &:= toJson(element);
+        end for;
+        stri &:= "]";
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_TO_JSON_ENUM (in type: dataType) is func
+  begin
+    (**
+     *  Convert an [[enumeration]] into a JSON integer literal.
+     *)
+    const func string: toJson (in dataType: dataEnum) is
+      return str(ord(dataEnum));
+
+  end func;
+
+
+const proc: DECLARE_STRUCT_TO_JSON (in type: dataType, in structElement: element) is func
+  begin
+    if getobj(toJson (in getType(element): dataElement)) = NIL then
+      declare_to_json(getType(element));
+    end if;
+
+    const func string: toJson (in dataType: dataStruct, symb element) is
+      return toJson(dataStruct.element);
+
+  end func;
+
+
+const proc: DECLARE_TO_JSON_STRUCT (in type: dataType) is func
+  local
+    var structElement: element is structElement.value;
+  begin
+    const func string: toJson (in dataType: dataStruct, in structElement: element) is DYNAMIC;
+
+    for element range elements(dataType) do
+      DECLARE_STRUCT_TO_JSON(dataType, element);
+    end for;
+
+    if getobj(mapStructElementName (attr dataType, in string: jsonName)) = NIL then
+      const func string: mapStructElementName (attr dataType, in string: structName) is
+          return structName;
+    end if;
+
+    (**
+     *  Convert a [[struct]] into a JSON object value.
+     *)
+    const func string: toJson (in dataType: dataStruct) is func
+      result
+        var string: stri is "{";
+      local
+        var structElement: element is structElement.value;
+        var boolean: firstElement is TRUE;
+      begin
+        for element range elements(dataType) do
+          if firstElement then
+            firstElement := FALSE;
+          else
+            stri &:= ",";
+          end if;
+          stri &:= toJson(mapStructElementName(dataType, getName(element)));
+          stri &:= ":";
+          stri &:= toJson(dataStruct, element);
+        end for;
+        stri &:= "}";
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_ARRAY (in type: dataType, in type: parseType) is forward;
+const proc: DECLARE_PARSE_JSON_HASH (in type: dataType, in type: parseType) is forward;
+const proc: DECLARE_PARSE_JSON_SET (in type: dataType, in type: parseType) is forward;
+const proc: DECLARE_PARSE_JSON_ENUM (in type: dataType, in type: parseType) is forward;
+const proc: DECLARE_PARSE_JSON_STRUCT (in type: dataType, in type: parseType) is forward;
+
+
+const proc: DECLARE_PARSE_JSON_BOOLEAN (in type: dataType, in type: parseType) is func
+  begin
+
+    (**
+     *  Parse a JSON boolean literal into a [[boolean]].
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the [[boolean]] obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+         inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      begin
+        if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+          aResult := dataType parse upper(symbol[2 .. pred(length(symbol))]);
+        else
+          aResult := dataType parse upper(symbol);
+        end if;
+        symbol := getJsonSymbol(jsonData);
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_OTHER (in type: dataType, in type: parseType) is func
+  begin
+
+    (**
+     *  Parse a JSON ''dataType'' value into a ''dataType'' value.
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the ''dataType'' value obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+         inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      begin
+        if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+          aResult := dataType parse (symbol[2 .. pred(length(symbol))]);
+        else
+          aResult := dataType parse symbol;
+        end if;
+        symbol := getJsonSymbol(jsonData);
+      end func;
+
+  end func;
+
+
+(**
+ *  Template function to declare the function ''parseJson'' for ''dataType''.
+ *  @param dataType Result type of the function ''parseJson''.
+ *  @param parseType Type specifying the source for reading symbols.
+ *                   Symbols can be read from a ''string'' or ''file''.
+ *)
+const proc: declare_parse_json (in type: dataType, in type: parseType) is func
+  begin
+    if getobj(parseJson(inout string: symbol, inout parseType: jsonData, attr dataType)) = NIL then
+      if getobj(isArrayType(attr dataType)) <> NIL then
+        DECLARE_PARSE_JSON_ARRAY(dataType, parseType);
+      elsif getobj(isHashType(attr dataType)) <> NIL then
+        DECLARE_PARSE_JSON_HASH(dataType, parseType);
+      elsif getobj(isSetType(attr dataType)) <> NIL then
+        DECLARE_PARSE_JSON_SET(dataType, parseType);
+      elsif getobj(isEnumType(attr dataType)) <> NIL then
+        DECLARE_PARSE_JSON_ENUM(dataType, parseType);
+      elsif getobj(isStructType(attr dataType)) <> NIL then
+        DECLARE_PARSE_JSON_STRUCT(dataType, parseType);
+      elsif dataType = boolean then
+        DECLARE_PARSE_JSON_BOOLEAN(dataType, parseType);
+      else
+        DECLARE_PARSE_JSON_OTHER(dataType, parseType);
+      end if;
+    end if;
+  end func;
+
+declare_parse_json(string, string);
+declare_parse_json(string, file);
+declare_parse_json(char, string);
+declare_parse_json(char, file);
+declare_parse_json(integer, string);
+declare_parse_json(integer, file);
+declare_parse_json(float, string);
+declare_parse_json(float, file);
+declare_parse_json(boolean, string);
+declare_parse_json(boolean, file);
+
+
+const proc: DECLARE_PARSE_JSON_ARRAY (in type: dataType, in type: parseType) is func
+  begin
+    declare_parse_json(base_type(dataType), parseType);
+
+    (**
+     *  Parse a JSON array value into an [[array]].
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the array obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+         inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      local
+        var boolean: noMoreElement is FALSE;
+      begin
+        if symbol = "[" then
+          symbol := getJsonSymbol(jsonData);
+          if symbol <> "]" then
+            repeat
+              aResult &:= parseJson(symbol, jsonData, base_type(dataType));
+              if symbol = "," then
+                symbol := getJsonSymbol(jsonData);
+              else
+                noMoreElement := TRUE;
+              end if;
+            until noMoreElement;
+            if symbol = "]" then
+              symbol := getJsonSymbol(jsonData);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            symbol := getJsonSymbol(jsonData);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_HASH (in type: dataType, in type: parseType) is func
+  begin
+
+    declare_parse_json(key_type(dataType), parseType);
+    declare_parse_json(base_type(dataType), parseType);
+
+    (**
+     *  Parse a JSON object value into a [[hash]].
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the [[hash]] obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+         inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      local
+        var string: hashKey is "";
+        var boolean: noMoreElement is FALSE;
+      begin
+        if symbol = "{" then
+          symbol := getJsonSymbol(jsonData);
+          if symbol <> "}" then
+            repeat
+              if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+                hashKey := symbol[2 .. pred(length(symbol))];
+                symbol := getJsonSymbol(jsonData);
+                if symbol = ":" then
+                  symbol := getJsonSymbol(jsonData);
+                  aResult @:= [hashKey] parseJson(symbol, jsonData, base_type(dataType));
+                  if symbol = "," then
+                    symbol := getJsonSymbol(jsonData);
+                  else
+                    noMoreElement := TRUE;
+                  end if;
+                else
+                  raise RANGE_ERROR;
+                end if;
+              else
+                raise RANGE_ERROR;
+              end if;
+            until noMoreElement;
+            if symbol = "}" then
+              symbol := getJsonSymbol(jsonData);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_SET (in type: dataType, in type: parseType) is func
+  begin
+
+    declare_parse_json(base_type(dataType), parseType);
+
+    (**
+     *  Parse a JSON array value into a [[set]].
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the [[set]] obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+         inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      local
+        var boolean: noMoreElement is FALSE;
+      begin
+        if symbol = "[" then
+          symbol := getJsonSymbol(jsonData);
+          if symbol <> "]" then
+            repeat
+              incl(aResult, parseJson(symbol, jsonData, base_type(dataType)));
+              if symbol = "," then
+                symbol := getJsonSymbol(jsonData);
+              else
+                noMoreElement := TRUE;
+              end if;
+            until noMoreElement;
+            if symbol = "]" then
+              symbol := getJsonSymbol(jsonData);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            symbol := getJsonSymbol(jsonData);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_ENUM (in type: dataType, in type: parseType) is func
+  begin
+    if getobj((attr dataType) parse (in string: stri)) <> NIL then
+
+      (**
+       *  Parse a JSON integer or string literal into an [[enumeration]].
+       *  @param symbol The current symbol to be parsed.
+       *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+       *  @return the [[enumeration]] value obtained from ''symbol'' and ''jsonData''.
+       *)
+      const func dataType: parseJson (inout string: symbol,
+           inout parseType: jsonData, attr dataType) is func
+        result
+          var dataType: aResult is dataType.value;
+        local
+          var boolean: noMoreElement is FALSE;
+        begin
+          if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+            aResult := dataType parse (symbol[2 .. pred(length(symbol))]);
+          else
+            aResult := dataType conv (integer parse symbol);
+          end if;
+          symbol := getJsonSymbol(jsonData);
+        end func;
+
+    else
+
+      const func dataType: parseJson (inout string: symbol,
+           inout parseType: jsonData, attr dataType) is func
+        result
+          var dataType: aResult is dataType.value;
+        local
+          var boolean: noMoreElement is FALSE;
+        begin
+          aResult := dataType conv (integer parse symbol);
+          symbol := getJsonSymbol(jsonData);
+        end func;
+
+    end if;
+  end func;
+
+
+const type: mapStringToStructElement is hash [string] structElement;
+
+
+const proc: DECLARE_PARSE_STRUCT_ELEMENT_JSON (in type: dataType, in type: elemType,
+    in structElement: element, in type: parseType) is func
+  begin
+    if getobj(parseJson (inout string: symbol,
+        inout parseType: jsonData, attr elemType)) = NIL then
+      declare_parse_json(elemType, parseType);
+    end if;
+
+    const proc: parseStructElementJson (inout dataType: dataStruct, symb element,
+        inout string: symbol, inout parseType: jsonData) is func
+      begin
+        dataStruct.element := parseJson(symbol, jsonData, elemType);
+      end func;
+  end func;
+
+
+const proc: DECLARE_PARSE_JSON_STRUCT (in type: dataType, in type: parseType) is func
+  local
+    var structElement: element is structElement.value;
+  begin
+    const proc: parseStructElementJson (inout dataType: dataStruct, in structElement: element,
+        inout string: symbol, inout parseType: jsonData) is DYNAMIC;
+
+    for element range elements(dataType) do
+      DECLARE_PARSE_STRUCT_ELEMENT_JSON(dataType, getType(element), element, parseType);
+    end for;
+
+    if getobj(mapStructElementName (attr dataType, in string: jsonName)) = NIL then
+      const func string: mapStructElementName (attr dataType, in string: structName) is
+          return structName;
+    end if;
+
+    if getobj(mapJsonElementName (attr dataType)) = NIL then
+      const func mapStringToStructElement: genMapJsonElementName (attr dataType) is func
+        result
+          var mapStringToStructElement: nameToStructElement is mapStringToStructElement.value;
+        local
+          var structElement: element is structElement.value;
+          var string: elemName is "";
+        begin
+          for element range elements(dataType) do
+            elemName := mapStructElementName(dataType, getName(element));
+            nameToStructElement @:= [elemName] element;
+          end for;
+        end func;
+
+      const mapStringToStructElement: mapJsonElementName (attr dataType) is genMapJsonElementName(dataType);
+    end if;
+
+    (**
+     *  Parse a JSON object value into a [[struct]].
+     *  @param symbol The current symbol to be parsed.
+     *  @param jsonData Source from which getJsonSymbol obtains the next symbols.
+     *  @return the [[struct]] obtained from ''symbol'' and ''jsonData''.
+     *)
+    const func dataType: parseJson (inout string: symbol,
+        inout parseType: jsonData, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      local
+        var integer: index is 0;
+        var string: elementName is "";
+        var structElement: element is structElement.value;
+        var boolean: noMoreElement is FALSE;
+      begin
+        if symbol = "{" then
+          symbol := getJsonSymbol(jsonData);
+          if symbol <> "}" then
+            repeat
+              if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+                elementName := symbol[2 .. pred(length(symbol))];
+                if elementName in mapJsonElementName(dataType) then
+                  element := mapJsonElementName(dataType)[elementName];
+                end if;
+                if element = structElement.value then
+                  writeln(" *** The type " <& str(dataType) <&
+                          " does not have an element named " <& elementName);
+                end if;
+                symbol := getJsonSymbol(jsonData);
+                if symbol = ":" then
+                  symbol := getJsonSymbol(jsonData);
+                  parseStructElementJson(aResult, element, symbol, jsonData);
+                  if symbol = "," then
+                    symbol := getJsonSymbol(jsonData);
+                  else
+                    noMoreElement := TRUE;
+                  end if;
+                else
+                  raise RANGE_ERROR;
+                end if;
+              else
+                raise RANGE_ERROR;
+              end if;
+            until noMoreElement;
+            if symbol = "}" then
+              symbol := getJsonSymbol(jsonData);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  end func;
+
+
+(**
+ *  Convert a JSON string literal into a [[string]].
+ *)
+const func string: fromJson (in var string: stri, attr string) is func
+  result
+    var string: resultStri is "";
+  local
+    var string: symbol is "";
+  begin
+    symbol := getJsonString(stri);
+    if startsWith(symbol, "\"") and endsWith(symbol, "\"") and stri = "" then
+      resultStri := symbol[2 .. pred(length(symbol))];
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a JSON string literal into a [[char]].
+ *)
+const func char: fromJson (in var string: stri, attr char) is func
+  result
+    var char: ch is ' ';
+  local
+    var string: symbol is "";
+  begin
+    symbol := getJsonString(stri);
+    if length(symbol) = 3 and
+        startsWith(symbol, "\"") and endsWith(symbol, "\"") and stri = "" then
+      ch := symbol[2];
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a JSON boolean literal into a [[boolean]].
+ *)
+const func boolean: fromJson (in var string: stri, attr boolean) is func
+  result
+    var boolean: okay is FALSE;
+  local
+    var string: symbol is "";
+  begin
+    symbol := getJsonSymbol(stri);
+    if stri = "" then
+      okay := boolean parse upper(symbol);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: DECLARE_FROM_JSON_OTHER (in type: dataType) is func
+  begin
+
+    (**
+     *  Convert a JSON number literal into an [[integer]], [[bigInteger]] or [[float]].
+     *)
+    const func dataType: fromJson (in string: symbol, attr dataType) is func
+      result
+        var dataType: aResult is dataType.value;
+      begin
+        if startsWith(symbol, "\"") and endsWith(symbol, "\"") then
+          aResult := dataType parse (symbol[2 .. pred(length(symbol))]);
+        else
+          aResult := dataType parse symbol;
+        end if;
+      end func;
+  end func;
+
+
+DECLARE_FROM_JSON_OTHER(integer);
+DECLARE_FROM_JSON_OTHER(bigInteger);
+DECLARE_FROM_JSON_OTHER(float);
+
+
+(**
+ *  Template function to declare the function ''fromJson'' for ''dataType''.
+ *  @param dataType Result type of the function ''fromJson''.
+ *)
+const proc: declare_from_json (in type: dataType) is func
+  begin
+    if getobj(fromJson (in var string: stri, attr dataType)) = NIL then
+
+      if getobj(parseJson(inout string: symbol, inout string: jsonData, attr dataType)) = NIL then
+        declare_parse_json(dataType, string);
+      end if;
+
+      (**
+       *  Convert a JSON value into a ''dataType'' value.
+       *)
+      const func dataType: fromJson (in var string: stri, attr dataType) is func
+        result
+          var dataType: aResult is dataType.value;
+        local
+          var string: symbol is "";
+        begin
+          symbol := getJsonSymbol(stri);
+          aResult := parseJson(symbol, stri, dataType);
+          if symbol <> "" then
+            raise RANGE_ERROR;
+          end if;
+        end func;
+
+    end if;
+  end func;
+
+
+(**
+ *  Template function to declare the functions ''toJson'' and ''fromJson''.
+ *  @param dataType Argument type of the function ''toJson'' and
+ *                  result type of the function ''fromJson''.
+ *)
+const proc: declare_json_serde (in type: dataType) is func
+  begin
+    declare_from_json(dataType);
+    declare_to_json(dataType)
+  end func;
