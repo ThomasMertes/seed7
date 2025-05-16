@@ -122,6 +122,11 @@ a.var:link    { color: darkcyan; text-decoration: underline  }
 a.var:hover   { color: darkred }
 a.var:active  { color: gold }
 
+a.var_no_ul:visited { color: darkcyan; text-decoration: none  }
+a.var_no_ul:link    { color: darkcyan; text-decoration: none  }
+a.var_no_ul:hover   { color: darkred; text-decoration: underline }
+a.var_no_ul:active  { color: gold; text-decoration: underline }
+
 a.exception:visited { color: black; text-decoration: none }
 a.exception:link    { color: black; text-decoration: none }
 a.exception:hover   { color: blue; text-decoration: underline }
@@ -306,6 +311,7 @@ pre.indent {
 <li><a class="link" href="#types_category"><b>category</b></a></li>
 <li><a class="link" href="#types_reference"><b>reference</b></a></li>
 <li><a class="link" href="#types_ref_list"><b>ref_list</b></a></li>
+<li><a class="link" href="#types_structElement"><b>structElement</b></a></li>
 <li><a class="link" href="#types_program"><b>program</b></a></li>
 <li><a class="link" href="#types_ptr"><b>ptr</b></a></li>
 <li><a class="link" href="#types_func"><b>func</b></a></li>
@@ -1694,7 +1700,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   Return type overloading is not supported. Therefore
   the attempt above results in the <a class="link" href="#errors_Parsing_errors">compile-time error</a>:
 </p><pre class="indent">
-*** tst344.sd7(5):34: <a class="link" href="#errors_OBJTWICEDECLARED">Redeclaration of "addOne (val integer: num)"</a>
+*** tst344.sd7(5):34: <a class="link" href="#errors_REDECLARATION">Redeclaration of "addOne (val integer: num)"</a>
 const func float:   addOne (in integer: num) is return float(num) + 1.0;
 ------------------------------------------------------------------------^
 *** tst344.sd7(4):35: <a class="link" href="#errors_PREVIOUS_DECLARATION">Previous declaration of "addOne (val integer: num)"
@@ -4874,14 +4880,17 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   be represented by preceding them with a backslash ( \" ).
   Additionally there is the following possibility:
 </p><ul>
-    <li>Two backslashes with a sequence of blanks, horizontal tabs,
-      carriage returns and new lines between them are completely
-      ignored. The ignored characters are not part of the string.
-      This can be used to continue a string in the following line.
-      Note that in this case the leading spaces in the new line
-      are not part of the string. Although this possibility exists
-      also for character literals it is mentioned here, since it
-      makes more sense to use it with string literals</li>
+    <li><a name="types_string_continuation">Two backslashes with a sequence of blanks, horizontal tabs,
+      carriage returns, new lines and <a class="link" href="#tokens_Line_comments">line comments</a> between them
+      are completely ignored. The ignored characters are not part
+      of the string. This can be used to continue a string in the
+      following line. Note that in this case the leading spaces
+      in the new line are not part of the string. It is an <a class="link" href="#errors_WRONG_STRING_CONTINUATION">error</a>
+      if a backslash is followed by a sequence of white-space and
+      there is not a second backslash which ends the sequence.
+      Although this possibility exists also for character literals
+      it is mentioned here, since it makes more sense to use it
+      with string literals</li>
 </ul><p>
   Examples of string literals are:
 </p><pre class="box">
@@ -6382,6 +6391,13 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="var">GRAPH_KEYBOARD</span>    Keyboard file describing the graphic keyboard.
       <span class="var">KEYBOARD</span>  Variable describing the keyboard.
                   ( <span class="var">KEYBOARD</span> is initialized with <span class="var">CONSOLE_KEYBOARD</span> )
+    Elements:
+      <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: bufferChar <span class="keywd">is</span> <span class="stri">'\n'</span>;
+                The <span class="var">bufferChar</span> variable is inherited from <span class="type">null_file</span>.
+                <span class="func">getTerminatedString</span>, <span class="func">getwd</span> and <span class="func">getln</span> store the termination character in <span class="var">bufferChar</span>.
+                <a class="keywd" href="#file_Scanning_a_file">Scanner functions</a> use the <span class="var">bufferChar</span> variable to store the current character.
+                If <span class="var">bufferChar</span> contains a digit the scanner will assume that a number follows
+                and if <span class="var">bufferChar</span> contains a <span class="stri">"</span> a string literal follows, etc.
     Implementation types of the <span class="type">file</span> interface:
       <span class="type">null_file</span>      Base implementation type for the file interface
       <span class="type">external_file</span>  Files of the operating system
@@ -6503,9 +6519,14 @@ enable_output(<span class="type">anEnumType</span>);
                     Type of argument B: <a class="type" href="#types_file">file</a>,
                     Type of result: <a class="type" href="#types_string">string</a>,
                     gets(A, -1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      <span class="func">getwd</span>(A)  Get one word from <a class="type" href="#types_file">file</a> A
+      <span class="func">getTerminatedString</span>(A, B)  Read a string from A until the character B is found.
+                The string terminating character is assigned to A.bufferChar.
                   ( Type of result: <a class="type" href="#types_string">string</a> )
-      <span class="func">getln</span>(A)  Get one line from <a class="type" href="#types_file">file</a> A
+      <span class="func">getwd</span>(A)  Get one word from <a class="type" href="#types_file">file</a> A.
+                The word ending character is assigned to A.bufferChar.
+                  ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">getln</span>(A)  Get one line from <a class="type" href="#types_file">file</a> A.
+                The line ending character is assigned to A.bufferChar.
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       eoln(A)   End of line
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
@@ -7260,7 +7281,73 @@ enable_output(<span class="type">anEnumType</span>);
                     Type of argument statements: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_program"><h3>5.30 program</h3></a>
+<a name="types_structElement"><h3>5.30 structElement</h3></a>
+<p>
+    The type <tt><span class="type">structElement</span></tt> describes an element of a <tt><a class="type" href="#types_struct">struct</a></tt>.
+  A <tt><span class="type">structElement</span></tt> value has two properties:
+</p><ul>
+    <li>The <tt><a class="type" href="#types_type">type</a></tt> of the struct element (this can be obtained with <tt><span class="func">getType</span></tt>).
+    <li>The name of the struct element (this can be obtained with <tt><span class="func">getName</span></tt>).
+</ul><p>
+  The function <tt><span class="func">elements</span></tt> returns a <tt><span class="type">structElement</span></tt> array, which
+  describes the elements of a <tt><a class="type" href="#types_struct">struct</a></tt>:
+</p><pre class="indent">
+<span class="func">elements</span>(aStructType)
+</pre><p>
+  The program below writes the types and names of <tt><span class="type">exampleStruct</span></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: exampleStruct is <span class="keywd">new</span> <span class="keywd">struct</span>
+    <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: aKey <span class="keywd">is</span> "";
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+  <span class="keywd">end</span> <span class="keywd">struct</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">structElement</span>: anElement <span class="keywd">is</span> <span class="type">structElement</span>.<span class="var">value</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> anElement <span class="keywd">range</span> <span class="func">elements</span>(exampleStruct) <span class="keywd">do</span>
+      writeln(str(<span class="func">getType</span>(anElement)) <& ": " <& <span class="func">getName</span>(anElement));
+    <span class="keywd">end for</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  The output of this program is:
+</p><pre class="indent">
+string: aKey
+integer: number
+</pre><p>
+  Element descriptions can be used in templates. The JSON
+  serialization and de-serialization in the <span class="stri">"<span class="lib">json_serde.s7i</span>"</span> library
+  uses <tt><span class="type">structElement</span></tt>. The <tt><span class="type">structElement</span></tt> functions are defined in
+  the library <span class="stri">"<span class="lib">struct_elem.s7i</span>"</span>.
+</p><pre class="tt">
+    Constants:
+      <span class="type">structElement</span>.<span class="var">value</span>  Empty struct element.
+    Prefix operators:
+      <span class="op">symb</span>    Convert into a <a class="link" href="#params_Symbol_parameter">symbol parameter</a>
+                  ( Type of result: <span class="type">f_param</span>,
+		    <span class="op_no_ul">symb</span> <span class="type_no_ul">structElement</span>.<span class="var_no_ul">value</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+    Relations:
+      <span class="op">=</span>, <span class="op">&lt;></span>
+    Functions:
+      <span class="func">getName</span>(A) Name of a struct element
+                  ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">getType</span>(A) Type of a struct element
+                  ( Type of result: <a class="type" href="#types_type">type</a> )
+      <span class="func">elements</span>(A) Get all struct elements from a struct type
+                  ( Type of argument A: <a class="type" href="#types_type">type</a>,
+                    Type of result: <span class="type">structElementArray</span>,
+                    <span class="func">elements</span>(<a class="type" href="#types_boolean">boolean</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a> )
+      <span class="func">structElement</span>(A) Convert a <a class="type" href="#types_reference">reference</a> to a <span class="type">structElement</span>
+                  ( Type of argument A: <a class="type" href="#types_reference">reference</a> )
+      <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+</pre><p></p>
+
+<a name="types_program"><h3>5.31 program</h3></a>
 <p>
     The type <tt><span class="type">program</span></tt> describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -7300,7 +7387,7 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ptr"><h3>5.31 ptr</h3></a>
+<a name="types_ptr"><h3>5.32 ptr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_ptr">ptr</a> <span class="type">baseType</span></tt> describes a pointer to an object
   of a <tt><span class="type">baseType</span></tt>. With
@@ -7327,7 +7414,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument <span class="type">ptrType</span>: <a class="type" href="#types_type">type</a> )
 </pre><p></p>
 
-<a name="types_func"><h3>5.32 func</h3></a>
+<a name="types_func"><h3>5.33 func</h3></a>
 <p>
     The type <tt><a class="type" href="#types_func">func</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt>. For example: <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a></tt> describes an <tt><a class="type" href="#types_integer">integer</a></tt>
@@ -7416,7 +7503,7 @@ enable_output(<span class="type">anEnumType</span>);
   parameter is <tt><span class="var">TRUE</span></tt>.
 </p>
 
-<a name="types_varfunc"><h3>5.33 varfunc</h3></a>
+<a name="types_varfunc"><h3>5.34 varfunc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_varfunc">varfunc</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt> variable. For example: A function which returns an
@@ -7449,17 +7536,17 @@ enable_output(<span class="type">anEnumType</span>);
   and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
-<a name="types_void"><h3>5.34 void</h3></a>
+<a name="types_void"><h3>5.35 void</h3></a>
 <p>
     The type <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
 </p><pre class="tt">
     Value:
-      empty     This is the only value of the type <a class="type" href="#types_void">void</a>.
+      <a name="types_empty">empty</a>     This is the only value of the type <a class="type" href="#types_void">void</a>.
     Constants:
       <a class="type" href="#types_void">void</a>.<span class="var">value</span>  Default value of <a class="type" href="#types_void">void</a> (empty)
 </pre><p></p>
 
-<a name="types_proc"><h3>5.35 proc</h3></a>
+<a name="types_proc"><h3>5.36 proc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_proc">proc</a></tt> describes procedures. The type <tt><a class="type" href="#types_proc">proc</a></tt>
   is defined as <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt>.
@@ -7496,7 +7583,7 @@ enable_output(<span class="type">anEnumType</span>);
                     Type of result: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_type"><h3>5.36 type</h3></a>
+<a name="types_type"><h3>5.37 type</h3></a>
 <p>
     The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
 </p><pre class="indent">
@@ -7605,7 +7692,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_object"><h3>5.37 object</h3></a>
+<a name="types_object"><h3>5.38 object</h3></a>
 <p>
     The type <tt><a class="type" href="#types_object">object</a></tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7618,7 +7705,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="types_expr"><h3>5.38 expr</h3></a>
+<a name="types_expr"><h3>5.39 expr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_expr">expr</a></tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -8019,9 +8106,23 @@ possiblyDo(<span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens
 
 <a name="params_Symbol_parameter"><h3>6.7 Symbol parameter</h3></a>
 <p>
-  Some functions need symbols at fixed places in the parameter
-  list. The following IF-statement requests the keywords <tt>'<span class="keywd">THEN</span>'</tt>,
-  <tt>'<span class="keywd">END</span>'</tt> and <tt>'<span class="keywd">IF</span>'</tt> at specific places:
+  Some functions use keywords at fixed places in the parameter
+  list. These keywords in the parameter list are symbol parameters.
+  The symbol parameters can be used to distinguish two versions of
+  a function. E.g.:
+</p><ul>
+<li>The function <tt><span class="func">getc</span>(aFile)</tt> waits until it can read a character.</li>
+<li>The function <tt><span class="func">getc</span>(KEYBOARD, NO_WAIT)</tt> does not wait.</li>
+</ul><p>
+  The function <tt><span class="func">getc</span>(KEYBOARD, NO_WAIT)</tt> is declared as:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_char">char</a>: getc (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a></tt> <a class="type_no_ul" href="#types_file">file</a>: inFile, NO_WAIT) <span class="keywd">is</span>
+  <span class="keywd">return</span> <span class="func_no_ul">inputReady</span>(inFile) ? <span class="func_no_ul">getc</span>(inFile) : <a class="var_no_ul" href="#file_KEY_NONE">KEY_NONE</a>;
+</pre><p>
+  In this case <tt>NO_WAIT</tt> is a symbol parameter. Symbol parameters
+  can be used as keywords in statements as well. The following
+  IF-statement requests the keywords <tt>'<span class="keywd">THEN</span>'</tt> <tt>'<span class="keywd">END</span>'</tt> and <tt>'<span class="keywd">IF</span>'</tt> at
+  specific places:
 </p><pre class="indent">
 <span class="keywd">IF</span> condition <span class="keywd">THEN</span>
   statement
@@ -8051,11 +8152,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">END IF</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
-    Symbol parameters must be defined in a syntax definition and in
-    a corresponding semantic definition. In the semantic definition
-    symbol parameters are written outside of the parentheses.
-    In the actual parameter list the corresponding symbol of the
-    formal parameter list must be written.
+    If a symbol parameter is part of a function call only a
+    semantic definition is needed. If a symbol parameter is not
+    part of a function call it must be defined in a syntax
+    definition and in a corresponding semantic definition. In the
+    actual parameter list the corresponding symbol of the formal
+    parameter list must be written.
 </dd></dl>
 <dl><dt>
   Syntax:
@@ -9454,10 +9556,10 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_ALT_A</tt> to <tt>KEY_ALT_Z</tt></td>     <td>The alternate keys alt-a to alt-z</td></tr>
     <tr><td><tt>KEY_CTL_0</tt> to <tt>KEY_CTL_9</tt></td>     <td>The control keys ctrl-0 to ctrl-9</td></tr>
     <tr><td><tt>KEY_ALT_0</tt> to <tt>KEY_ALT_9</tt></td>     <td>The alternate keys alt-0 to alt-9</td></tr>
-    <tr><td><tt>KEY_F1</tt> to <tt>KEY_F10</tt></td>          <td>Function keys F1 to F10</td></tr>
-    <tr><td><tt>KEY_SFT_F1</tt> to <tt>KEY_SFT_F10</tt></td>  <td>Shifted function keys F1 to F10</td></tr>
-    <tr><td><tt>KEY_CTL_F1</tt> to <tt>KEY_CTL_F10</tt></td>  <td>Control function keys F1 to F10</td></tr>
-    <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
+    <tr><td><tt>KEY_F1</tt> to <tt>KEY_F12</tt></td>          <td>Function keys F1 to F12</td></tr>
+    <tr><td><tt>KEY_SFT_F1</tt> to <tt>KEY_SFT_F12</tt></td>  <td>Shifted function keys F1 to F12</td></tr>
+    <tr><td><tt>KEY_CTL_F1</tt> to <tt>KEY_CTL_F12</tt></td>  <td>Control function keys F1 to F12</td></tr>
+    <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F12</tt></td>  <td>Alternate function keys F1 to F12</td></tr>
     <tr><td><tt><a name="file_KEY_LEFT">KEY_LEFT</a></tt></td>                   <td>Cursor left</td></tr>
     <tr><td><tt><a name="file_KEY_RIGHT">KEY_RIGHT</a></tt></td>                  <td>Cursor right</td></tr>
     <tr><td><tt><a name="file_KEY_UP">KEY_UP</a></tt></td>                     <td>Cursor up</td></tr>
@@ -11445,7 +11547,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   If a comment is not closed at the end of the main file a <a class="link" href="#errors_Parsing_errors">parsing error</a>
   is triggered:
 </p><pre class="indent">
-*** tst256.sd7(2):4: <a name="tokens_COMMENTOPEN_example"<</a><a class="link" href="#errors_COMMENTOPEN">Unclosed comment</a>
+*** tst256.sd7(2):4: <a name="tokens_UNCLOSED_COMMENT_example"<</a><a class="link" href="#errors_UNCLOSED_COMMENT">Unclosed comment</a>
 (* Unclosed comment
 </pre>
 
@@ -11615,28 +11717,28 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 </dl></tt></dd></dl><p>
   If an integer literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a> is triggered:
 </p><pre class="indent">
-*** tst256.sd7(2):14: <a name="tokens_CARD_DECIMAL_TOO_BIG_example"></a><a class="link" href="#errors_CARD_DECIMAL_TOO_BIG">Integer "12345678901234567890" too big</a>
+*** tst256.sd7(2):14: <a name="tokens_INTEGER_TOO_BIG_example"></a><a class="link" href="#errors_INTEGER_TOO_BIG">Integer "12345678901234567890" too big</a>
 const integer: tooBig is 12345678901234567890;
 ---------------------------------------------^
-*** tst256.sd7(3):15: <a name="tokens_NEGATIVEEXPONENT_example"></a><a class="link" href="#errors_NEGATIVEEXPONENT">Negative exponent in integer literal</a>
+*** tst256.sd7(3):15: <a name="tokens_NEGATIVE_EXPONENT_example"></a><a class="link" href="#errors_NEGATIVE_EXPONENT">Negative exponent in integer literal</a>
 const integer: negativeExponent is 1e-1;
 -------------------------------------^
-*** tst256.sd7(4):16: <a name="tokens_DIGITEXPECTED_example"></a><a class="link" href="#errors_DIGITEXPECTED">Digit expected found ";"</a>
+*** tst256.sd7(4):16: <a name="tokens_DIGIT_EXPECTED_example"></a><a class="link" href="#errors_DIGIT_EXPECTED">Digit expected found ";"</a>
 const integer: digitExpected is 1e;
 ----------------------------------^
-*** tst256.sd7(5):17 <a name="tokens_CARD_WITH_EXPONENT_TOO_BIG_example"></a><a class="link" href="#errors_CARD_WITH_EXPONENT_TOO_BIG">Integer "1E20" too big</a>
+*** tst256.sd7(5):17 <a name="tokens_INTEGER_WITH_EXPONENT_TOO_BIG_example"></a><a class="link" href="#errors_INTEGER_WITH_EXPONENT_TOO_BIG">Integer "1E20" too big</a>
 const integer: integerWithExponentTooBig is 1e20;
 ------------------------------------------------^
 *** tst256.sd7(6):18: <a name="tokens_BASE2TO36ALLOWED_example"></a><a class="link" href="#errors_BASE2TO36ALLOWED">Integer base "37" not between 2 and 36</a>
 const integer: baseNotBetween2To36 is 37#0;
 ----------------------------------------^
-*** tst256.sd7(7):19: <a name="tokens_EXTDIGITEXPECTED_example"></a><a class="link" href="#errors_EXTDIGITEXPECTED">Extended digit expected found ";"</a>
+*** tst256.sd7(7):19: <a name="tokens_EXTENDED_DIGIT_EXPECTED_example"></a><a class="link" href="#errors_EXTENDED_DIGIT_EXPECTED">Extended digit expected found ";"</a>
 const integer: extendedDigitExpected is 16#;
 -------------------------------------------^
-*** tst256.sd7(8):20: <a name="tokens_ILLEGALBASEDDIGIT_example"></a><a class="link" href="#errors_ILLEGALBASEDDIGIT">Illegal digit "G" in based integer "16#G"</a>
+*** tst256.sd7(8):20: <a name="tokens_ILLEGAL_BASED_DIGIT_example"></a><a class="link" href="#errors_ILLEGAL_BASED_DIGIT">Illegal digit "G" in based integer "16#G"</a>
 const integer: illegalBasedDigit is 16#G;
 ----------------------------------------^
-*** tst256.sd7(9):21: <a name="tokens_CARD_BASED_TOO_BIG_example"></a><a class="link" href="#errors_CARD_BASED_TOO_BIG">Based integer "16#ffffffffffffffff" too big</a>
+*** tst256.sd7(9):21: <a name="tokens_BASED_INTEGER_TOO_BIG_example"></a><a class="link" href="#errors_BASED_INTEGER_TOO_BIG">Based integer "16#ffffffffffffffff" too big</a>
 const integer: basedIntegerTooBig is 16#ffffffffffffffff;
 --------------------------------------------------------^
 </pre>
@@ -11704,12 +11806,14 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
 </table></dd></dl><p>
   Additionally there are the following possibilities:
 </p><ul>
-    <li>Two backslashes with a sequence of blanks, horizontal tabs,
-      carriage returns and new lines between them are completely
-      ignored. The ignored characters are not part of the string.
-      This can be used to continue a string in the following line.
-      Note that in this case the leading spaces in the new line
-      are not part of the string.</li>
+    <li><a name="tokens_string_continuation">Two backslashes with a sequence of blanks, horizontal tabs,
+      carriage returns, new lines and <a class="link" href="#tokens_Line_comments">line comments</a> between them
+      are completely ignored. The ignored characters are not part
+      of the string. This can be used to continue a string in the
+      following line. Note that in this case the leading spaces
+      in the new line are not part of the string. It is an <a class="link" href="#errors_WRONG_STRING_CONTINUATION">error</a>
+      if a backslash is followed by a sequence of white-space and
+      there is not a second backslash which ends the sequence.</li>
 
     <li>A backslash followed by an integer literal and a semicolon
       is interpreted as character with the specified ordinal number.
@@ -11740,7 +11844,7 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
     <dt><a name="tokens_ebnf_escape_sequence">escape_sequence</a> ::=</dt><dd>
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |<br />
       '\\' | '\''' | '\"' | '\' <a class="ebnf" href="#tokens_ebnf_upper_case_letter">upper_case_letter</a> |<br />
-      '\' { <a class="ebnf" href="#tokens_ebnf_space">space</a> } '\' | '\' <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> ';' .</dd>
+      '\' { <a class="ebnf" href="#tokens_ebnf_space">space</a> | <a class="ebnf" href="#tokens_ebnf_line_comment">line_comment</a> } '\' | '\' <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> ';' .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_apostrophe">apostrophe</a> ::=</dt><dd>
       ''' .</dd>
@@ -11750,22 +11854,22 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
 *** tst256.sd7(2):24: <a name="tokens_WRONG_QUOTATION_REPRESENTATION_example"></a><a class="link" href="#errors_WRONG_QUOTATION_REPRESENTATION">Use \" instead of "" to represent " in a string</a>
 const string: wrongQuotationRepresentation is "double "" quotations";
 -------------------------------------------------------^
-*** tst256.sd7(3):25: <a name="tokens_STRINGESCAPE_example"></a><a class="link" href="#errors_STRINGESCAPE">Illegal string escape "\z"</a>
+*** tst256.sd7(3):25: <a name="tokens_ILLEGAL_STRING_ESCAPE_example"></a><a class="link" href="#errors_ILLEGAL_STRING_ESCAPE">Illegal string escape "\z"</a>
 const string: illegalStringEscape is "\z";
 ---------------------------------------^
-*** tst256.sd7(4):26: <a name="tokens_WRONGNUMERICALESCAPE_example"></a><a class="link" href="#errors_WRONGNUMERICALESCAPE">Numerical escape sequences should end with ";" not "x"</a>
+*** tst256.sd7(4):26: <a name="tokens_WRONG_NUMERICAL_ESCAPE_example"></a><a class="link" href="#errors_WRONG_NUMERICAL_ESCAPE">Numerical escape sequences should end with ";" not "x"</a>
 const string: wrongNumericEscape is "\1234xyz";
 ------------------------------------------^
 *** tst256.sd7(5):27: <a name="tokens_NUMERICAL_ESCAPE_TOO_BIG_example"></a><a class="link" href="#errors_NUMERICAL_ESCAPE_TOO_BIG">The numerical escape sequence "\1234678123467892346;" is too big</a>
 const string: numericEscapeTooBig is "asd\1234678123467892346;dfdfg";
 -------------------------------------------------------------^
-*** tst256.sd7(6):28: <a name="tokens_BACKSLASHEXPECTED_example"></a><a class="link" href="#errors_BACKSLASHEXPECTED">String continuations should end with "\" not "c"</a>
+*** tst256.sd7(6):28: <a name="tokens_WRONG_STRING_CONTINUATION_example"></a><a class="link" href="#errors_WRONG_STRING_CONTINUATION">String continuations should end with "\" not "c"</a>
 const string: backslashExpected is "string \      continuation";
 --------------------------------------------------^
-*** tst256.sd7(7):29: <a name="tokens_STRINGEXCEEDS_example"></a><a class="link" href="#errors_STRINGEXCEEDS">String literal exceeds source line</a>
+*** tst256.sd7(7):29: <a name="tokens_STRING_EXCEEDS_example"></a><a class="link" href="#errors_STRING_EXCEEDS">String literal exceeds source line</a>
 const string: exceedsSourceLine is "abc
 ---------------------------------------^
-*** tst256.sd7(8):31: <a name="tokens_CARD_EXPECTED_example"></a><a class="link" href="#errors_CARD_EXPECTED">Integer literal expected found "1.5"</a>
+*** tst256.sd7(8):31: <a name="tokens_INTEGER_EXPECTED_example"></a><a class="link" href="#errors_INTEGER_EXPECTED">Integer literal expected found "1.5"</a>
 const string: integerExpected is "\1.5;";
 --------------------------------------^
 </pre>
@@ -11791,10 +11895,10 @@ const string: integerExpected is "\1.5;";
 </dl></tt></dd></dl><p>
   If a char literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a> is triggered:
 </p><pre class="indent">
-*** tst256.sd7(2):22: <a name="tokens_APOSTROPHEXPECTED_example"></a><a class="link" href="#errors_APOSTROPHEXPECTED">"'" expected found ";"</a>
+*** tst256.sd7(2):22: <a name="tokens_APOSTROPHE_EXPECTED_example"></a><a class="link" href="#errors_APOSTROPHE_EXPECTED">"'" expected found ";"</a>
 const char: apostropheExpected is 'x;
 ------------------------------------^
-*** tst256.sd7(3):23: <a name="tokens_CHAREXCEEDS_example"></a><a class="link" href="#errors_CHAREXCEEDS">Character literal exceeds source line</a>
+*** tst256.sd7(3):23: <a name="tokens_CHAR_EXCEEDS_example"></a><a class="link" href="#errors_CHAR_EXCEEDS">Character literal exceeds source line</a>
 const char: charExceeds is '
 ----------------------------^
 </pre>
@@ -16529,35 +16633,35 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right"> 1:</td> <td width="10"></td><td><a name="errors_OUT_OF_HEAP_SPACE"                >Fatal Error: Out of heap space</a></td></tr>
     <tr><td align="right"> 2:</td> <td width="10"></td><td><a name="errors_EOF_ENCOUNTERED"                  >"END OF FILE" encountered</a></td></tr>
     <tr><td align="right"> 3:</td> <td width="10"></td><td><a name="errors_CHAR_ILLEGAL"                     ></a><a class="link" href="#tokens_CHAR_ILLEGAL_example"                     >Illegal character in text "%s" (U+%04x)</a></td></tr>
-    <tr><td align="right"> 4:</td> <td width="10"></td><td><a name="errors_COMMENTOPEN"                      ></a><a class="link" href="#tokens_COMMENTOPEN_example"                      >Unclosed comment</a></td></tr>
-    <tr><td align="right"> 5:</td> <td width="10"></td><td><a name="errors_FILENOTFOUND"                     >Include file "%s" not found</a></td></tr>
+    <tr><td align="right"> 4:</td> <td width="10"></td><td><a name="errors_UNCLOSED_COMMENT"                 ></a><a class="link" href="#tokens_UNCLOSED_COMMENT_example"                      >Unclosed comment</a></td></tr>
+    <tr><td align="right"> 5:</td> <td width="10"></td><td><a name="errors_INCLUDE_FILE_NOT_FOUND"           >Include file "%s" not found</a></td></tr>
     <tr><td align="right"> 6:</td> <td width="10"></td><td><a name="errors_WRONG_PATH_DELIMITER"             >Use / instead of \\ as path delimiter</a></td></tr>
     <tr><td align="right"> 7:</td> <td width="10"></td><td><a name="errors_ESSENTIAL_INCLUDE_FAILED"         >Failed to include essential file. Parsing terminated.</a></td></tr>
     <tr><td align="right"> 8:</td> <td width="10"></td><td><a name="errors_ILLEGALPRAGMA"                    ></a><a class="link" href="#decls_ILLEGALPRAGMA_example"                     >Illegal pragma "%s"</a></td></tr>
-    <tr><td align="right"> 9:</td> <td width="10"></td><td><a name="errors_WRONGACTION"                      >Illegal action "%s"</a></td></tr>
+    <tr><td align="right"> 9:</td> <td width="10"></td><td><a name="errors_UNDEFINED_ACTION"                 >Undefined action "%s"</a></td></tr>
     <tr><td align="right">10:</td> <td width="10"></td><td><a name="errors_WRONGSYSTEM"                      >Illegal system declaration "%s"</a></td></tr>
     <tr><td align="right">11:</td> <td width="10"></td><td><a name="errors_DOLLAR_VALUE_WRONG"               >"newtype", "subtype", "func", "enumlit" or "action" expected found "%s"</a></td></tr>
     <tr><td align="right">12:</td> <td width="10"></td><td><a name="errors_DOLLAR_TYPE_WRONG"                >"func" or "type" expected found "%s"</a></td></tr>
     <tr><td align="right">13:</td> <td width="10"></td><td><a name="errors_SYSTEM_MAIN_MISSING"              >System declaration for main missing</a></td></tr>
-    <tr><td align="right">14:</td> <td width="10"></td><td><a name="errors_CARD_DECIMAL_TOO_BIG"             ></a><a class="link" href="#tokens_CARD_DECIMAL_TOO_BIG_example"             >Integer "%s" too big</a></td></tr>
-    <tr><td align="right">15:</td> <td width="10"></td><td><a name="errors_NEGATIVEEXPONENT"                 ></a><a class="link" href="#tokens_NEGATIVEEXPONENT_example"                 >Negative exponent in integer literal</a></td></tr>
-    <tr><td align="right">16:</td> <td width="10"></td><td><a name="errors_DIGITEXPECTED"                    ></a><a class="link" href="#tokens_DIGITEXPECTED_example"                    >Digit expected found "%s"</a></td></tr>
-    <tr><td align="right">17:</td> <td width="10"></td><td><a name="errors_CARD_WITH_EXPONENT_TOO_BIG"       ></a><a class="link" href="#tokens_CARD_WITH_EXPONENT_TOO_BIG_example"       >Integer "%dE%s" too big</a></td></tr>
+    <tr><td align="right">14:</td> <td width="10"></td><td><a name="errors_INTEGER_TOO_BIG"                  ></a><a class="link" href="#tokens_INTEGER_TOO_BIG_example"             >Integer "%s" too big</a></td></tr>
+    <tr><td align="right">15:</td> <td width="10"></td><td><a name="errors_NEGATIVE_EXPONENT"                ></a><a class="link" href="#tokens_NEGATIVE_EXPONENT_example"                 >Negative exponent in integer literal</a></td></tr>
+    <tr><td align="right">16:</td> <td width="10"></td><td><a name="errors_DIGIT_EXPECTED"                   ></a><a class="link" href="#tokens_DIGIT_EXPECTED_example"                    >Digit expected found "%s"</a></td></tr>
+    <tr><td align="right">17:</td> <td width="10"></td><td><a name="errors_INTEGER_WITH_EXPONENT_TOO_BIG"    ></a><a class="link" href="#tokens_INTEGER_WITH_EXPONENT_TOO_BIG_example"       >Integer "%dE%s" too big</a></td></tr>
     <tr><td align="right">18:</td> <td width="10"></td><td><a name="errors_BASE2TO36ALLOWED"                 ></a><a class="link" href="#tokens_BASE2TO36ALLOWED_example"                 >Integer base "%ld" not between 2 and 36</a></td></tr>
-    <tr><td align="right">19:</td> <td width="10"></td><td><a name="errors_EXTDIGITEXPECTED"                 ></a><a class="link" href="#tokens_EXTDIGITEXPECTED_example"                 >Extended digit expected found "%s"</a></td></tr>
-    <tr><td align="right">20:</td> <td width="10"></td><td><a name="errors_ILLEGALBASEDDIGIT"                ></a><a class="link" href="#tokens_ILLEGALBASEDDIGIT_example"                >Illegal digit "%c" in based integer "%d#%s"</a></td></tr>
-    <tr><td align="right">21:</td> <td width="10"></td><td><a name="errors_CARD_BASED_TOO_BIG"               ></a><a class="link" href="#tokens_CARD_BASED_TOO_BIG_example"               >Based integer "%d#%s" too big</a></td></tr>
-    <tr><td align="right">22:</td> <td width="10"></td><td><a name="errors_APOSTROPHEXPECTED"                ></a><a class="link" href="#tokens_APOSTROPHEXPECTED_example"                >"'" expected found "%s"</a></td></tr>
-    <tr><td align="right">23:</td> <td width="10"></td><td><a name="errors_CHAREXCEEDS"                      ></a><a class="link" href="#tokens_CHAREXCEEDS_example"                      >Character literal exceeds source line</a></td></tr>
+    <tr><td align="right">19:</td> <td width="10"></td><td><a name="errors_EXTENDED_DIGIT_EXPECTED"          ></a><a class="link" href="#tokens_EXTENDED_DIGIT_EXPECTED_example"                 >Extended digit expected found "%s"</a></td></tr>
+    <tr><td align="right">20:</td> <td width="10"></td><td><a name="errors_ILLEGAL_BASED_DIGIT"              ></a><a class="link" href="#tokens_ILLEGAL_BASED_DIGIT_example"                >Illegal digit "%c" in based integer "%d#%s"</a></td></tr>
+    <tr><td align="right">21:</td> <td width="10"></td><td><a name="errors_BASED_INTEGER_TOO_BIG"            ></a><a class="link" href="#tokens_BASED_INTEGER_TOO_BIG_example"               >Based integer "%d#%s" too big</a></td></tr>
+    <tr><td align="right">22:</td> <td width="10"></td><td><a name="errors_APOSTROPHE_EXPECTED"              ></a><a class="link" href="#tokens_APOSTROPHE_EXPECTED_example"                >"'" expected found "%s"</a></td></tr>
+    <tr><td align="right">23:</td> <td width="10"></td><td><a name="errors_CHAR_EXCEEDS"                     ></a><a class="link" href="#tokens_CHAR_EXCEEDS_example"                      >Character literal exceeds source line</a></td></tr>
     <tr><td align="right">24:</td> <td width="10"></td><td><a name="errors_WRONG_QUOTATION_REPRESENTATION"   ></a><a class="link" href="#tokens_WRONG_QUOTATION_REPRESENTATION_example"   >Use \" instead of "" to represent " in a string</a></td></tr>
-    <tr><td align="right">25:</td> <td width="10"></td><td><a name="errors_STRINGESCAPE"                     ></a><a class="link" href="#tokens_STRINGESCAPE_example"                     >Illegal string escape "\%s"</a></td></tr>
-    <tr><td align="right">26:</td> <td width="10"></td><td><a name="errors_WRONGNUMERICALESCAPE"             ></a><a class="link" href="#tokens_WRONGNUMERICALESCAPE_example"             >Numerical escape sequences should end with ";" not "%s"</a></td></tr>
+    <tr><td align="right">25:</td> <td width="10"></td><td><a name="errors_ILLEGAL_STRING_ESCAPE"            ></a><a class="link" href="#tokens_ILLEGAL_STRING_ESCAPE_example"                     >Illegal string escape "\%s"</a></td></tr>
+    <tr><td align="right">26:</td> <td width="10"></td><td><a name="errors_WRONG_NUMERICAL_ESCAPE"           ></a><a class="link" href="#tokens_WRONG_NUMERICAL_ESCAPE_example"             >Numerical escape sequences should end with ";" not "%s"</a></td></tr>
     <tr><td align="right">27:</td> <td width="10"></td><td><a name="errors_NUMERICAL_ESCAPE_TOO_BIG"         ></a><a class="link" href="#tokens_NUMERICAL_ESCAPE_TOO_BIG_example"         >The numerical escape sequence "\%u;" is too big</a></td></tr>
-    <tr><td align="right">28:</td> <td width="10"></td><td><a name="errors_BACKSLASHEXPECTED"                ></a><a class="link" href="#tokens_BACKSLASHEXPECTED_example"                >String continuations should end with "\" not "%s"</a></td></tr>
-    <tr><td align="right">29:</td> <td width="10"></td><td><a name="errors_STRINGEXCEEDS"                    ></a><a class="link" href="#tokens_STRINGEXCEEDS_example"                    >String literal exceeds source line</a></td></tr>
-    <tr><td align="right">30:</td> <td width="10"></td><td><a name="errors_NAMEEXPECTED"                     >Name expected found "%s"</a></td></tr>
-    <tr><td align="right">31:</td> <td width="10"></td><td><a name="errors_CARD_EXPECTED"                    ></a><a class="link" href="#tokens_CARD_EXPECTED_example"                    >Integer literal expected found "%s"</a></td></tr>
-    <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_STRI_EXPECTED"                    >String literal expected found "%s"</a></td></tr>
+    <tr><td align="right">28:</td> <td width="10"></td><td><a name="errors_WRONG_STRING_CONTINUATION"        ></a><a class="link" href="#tokens_WRONG_STRING_CONTINUATION_example"                >String continuations should end with "\" not "%s"</a></td></tr>
+    <tr><td align="right">29:</td> <td width="10"></td><td><a name="errors_STRING_EXCEEDS"                   ></a><a class="link" href="#tokens_STRING_EXCEEDS_example"                    >String literal exceeds source line</a></td></tr>
+    <tr><td align="right">30:</td> <td width="10"></td><td><a name="errors_NAME_EXPECTED"                    >Name expected found "%s"</a></td></tr>
+    <tr><td align="right">31:</td> <td width="10"></td><td><a name="errors_INTEGER_EXPECTED"                 ></a><a class="link" href="#tokens_INTEGER_EXPECTED_example"                    >Integer literal expected found "%s"</a></td></tr>
+    <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_STRING_EXPECTED"                  >String literal expected found "%s"</a></td></tr>
     <tr><td align="right">33:</td> <td width="10"></td><td><a name="errors_IDENT_EXPECTED"                   >Identifier expected found "%s"</a></td></tr>
     <tr><td align="right">34:</td> <td width="10"></td><td><a name="errors_TYPE_EXPECTED"                    >Type expected found %s</a></td></tr>
     <tr><td align="right">35:</td> <td width="10"></td><td><a name="errors_PROC_EXPECTED"                    >Procedure expected found %s expression</a></td></tr>
@@ -16568,7 +16672,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">40:</td> <td width="10"></td><td><a name="errors_EXPECTED_SYMBOL"                  ></a><span class="link">"%s" expected found "%s"</span></td></tr>
     <tr><td align="right">41:</td> <td width="10"></td><td><a name="errors_PARAM_DECL_FAILED"                >Declaration of parameter %s failed</a></td></tr>
     <tr><td align="right">42:</td> <td width="10"></td><td><a name="errors_DECL_FAILED"                      ></a><a class="link" href="#decls_DECL_FAILED_example"                       >Declaration of "%s" failed</a></td></tr>
-    <tr><td align="right">43:</td> <td width="10"></td><td><a name="errors_OBJTWICEDECLARED"                 ></a><span class="link">Redeclaration of "%s"</span></td></tr>
+    <tr><td align="right">43:</td> <td width="10"></td><td><a name="errors_REDECLARATION"                    ></a><span class="link">Redeclaration of "%s"</span></td></tr>
     <tr><td align="right">44:</td> <td width="10"></td><td><a name="errors_PREVIOUS_DECLARATION"             ></a><span class="link">Previous declaration of "%s"</span></td></tr>
     <tr><td align="right">45:</td> <td width="10"></td><td><a name="errors_EXCEPTION_RAISED"                 >Exception "%s" raised</a></td></tr>
     <tr><td align="right">46:</td> <td width="10"></td><td><a name="errors_ILLEGAL_ASSOCIATIVITY"            >Associativity expected found "%s"</a></td></tr>

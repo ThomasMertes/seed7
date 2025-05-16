@@ -1,3 +1,265 @@
+20250516:
+- Pierre Rouleau created a seed7-mode for Emacs (see:
+  https://github.com/pierre-rouleau/seed7-mode/tree/main).
+- The build of Seed7 with graphics on MacOS, the keyboard drivers,
+  chk_all.sd7, lander.sd7 and eliza.sd7 have been fixed. Many thanks
+  to Pierre Rouleau for pointing out errors in these components.
+- The example program s7check.sd7 has been added. This program is
+  used by the seed7-mode of Emacs.
+- In s7.c the main() function has been changed to assure that the
+  program exit code is 1, when the program terminates due to an
+  exception. Many thanks to Pierre Rouleau for pointing out that
+  the exit code was 0.
+- Pierre Rouleau added a .gitignore file.
+- Support for JSON serialization / deserialization has been added
+  with the new library json_serde.s7i.
+- An explanation, how Seed7 syntax highlighting can be introduced to
+  editors, has been added to the FAQ.
+- The new library struct_elem.s7i with structElement functions has
+  been added. The type structElement describes an element of a
+  struct. The function elements(aStructType) returns an array
+  structElement.
+- In the library struct.s7i the flag isStructType() and the function
+  elements() have been added for all struct types.
+- In the library enumeration.s7i the flag isEnumType() has been
+  added for all enumeration types.
+- A chapter about structElement has been added to the manual.
+- The chapter about symbol parameters in the manual has been
+  improved.
+- The french characters Œ, œ and Ÿ have been added to bitmap- and
+  vector-fonts.
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - The option -h has been added (it has the same meaning as -?).
+    Pierre Rouleau pointed out that under zsh, the -? option of s7
+    and s7c is intercepted by the zsh shell and not passed to the
+    Seed7 commands.
+  - Support for the compilation of DYNAMIC functions with
+    STRUCTELEMOBJECT has been added (this is used by the
+    serialization / deserialization library).
+  - Unnecessary switch statements and unnecessary switch case parts
+    have been removed from dynamic decisions.
+  - Support for reference and structElement constants has been
+    added.
+  - Support for str(aType) in compiled programs has been added.
+  - In case of an exception nothing is appended to c_expr.expr. Some
+    callers use c_expr.result_expr instead of c_expr.expr and
+    appending to c_expr.expr can confuse them.
+  - In lib/comp/int_act.s7i the condition for the inlining of random
+    functions has been corrected.
+  - The boolean flag calls_dcl_actions and the hash maps
+    function_with_dcl_actions and function_not_declared have been
+    added. The two new hash maps replace the hash map
+    function_not_declared, which has been removed.
+  - The compiler version number has been raised to 3.4.
+- The Seed7 compiler (s7c.sd7) has been refactored:
+  - Tables of constants have been moved into the programConstants
+    struct.
+  - Flags for used libraries have been moved into then
+    programUsesLibrary struct.
+  - Statistical counters have been moved into the compilerStatistic
+    struct.
+  - Configuration data has been moved into the compilerConfig
+    struct.
+  - Type related hash tables have been moved into typeDataStruct.
+  - The hash tables interfaceOfType, literal_function_of_enum_used,
+    times_prototype_declared and times_prototype_declared have been
+    moved into typeDataStruct.
+  - Hash tables related to the copy, destr and create operations
+    have been moved into typeDataStruct.
+- The program lander.sd7 has been improved to avoid an exception if
+  's' is typed during a landing operation.
+- The program eliza.sd7 has been improved to avoid an infinite loop
+  after ctrl-D has been pressed.
+- In calc7.sd7 the error position for Unicode and double width
+  characters has been improved. An unnecessary line continuation at
+  the end of a string literal has been removed as well.
+- The function startPipe() has been added to the process.s7i
+  library.
+- In chkerr.sd7 tests for APOSTROPHE_EXPECTED and
+  WRONG_NUMERICAL_ESCAPE have been added.
+- In chkjson.sd7 tests for getJsonString(), structElement functions
+  and for JSON serialization / deserialization have been added.
+  The program chk_all.sd7 has has been adjusted to consider the
+  changes in chkjson.sd7.
+- The function path(), which returns the absolute file path of a
+  referenced object, has been added to the progs.s7i library.
+- The function structSymbols() has been added to the progs.s7i
+  library.
+- The library editline.s7i has been improved to avoid calls of
+  write() and moveLeft() with an empty string.
+- In pixmap_file.s7i the management of fontFile.column has been
+  improved.
+- In window.s7i the function moveLeft() has been changed to call
+  moveLeft() for the underlying out_file.
+- In category.s7i the new object category STRUCTELEMOBJECT has been
+  introduced.
+- In seed7_05.s7i support for ignore() with an f_param parameter has
+  been added.
+- In stdfont8.s7i, stdfont9.s7i, stdfont20.s7i and cronos16.s7i
+  character images have been improved.
+- Interpreter and compiler have been improved to support the actions
+  PCS_START_PIPE, PRG_STRUCT_SYMBOLS, REF_PATH, SEL_CMP, SEL_CONV1,
+  SEL_CPY, SEL_CREATE, SEL_EQ, SEL_HASHCODE, SEL_NAME, SEL_NE,
+  SEL_SYMB and SEL_TYPE.
+- The program chk_all.sd7 has been improved to use startPipe()
+  instead of pipe2().
+- In analyze.c the function analyzeProg() has been improved to
+  assure that errorFile is not a closed file.
+- In analyze.c the function analyzeFile() has been improved to
+  determine the absolute path and to avoid that 'isOpen' is used
+  uninitialized.
+- Support for absolute paths in inFileStruct has been added:
+  - In infile.c the parameter absolutePath has been added to the
+    function openInfile(). Calls of openInfile() in analyze.c and
+    libpath.c have been adjusted.
+  - In infile.c the functions get_file_path() and objectFilePath()
+    have been added.
+  - In infile.c the function openBString() has been improved to
+    initialize in_file.path.
+- In literal.c a parameter has been removed from skip_lines().
+- In name.c the function close_current_stack() has been improved to
+  change a freed BLOCKOBJECT to ACTOBJECT with ACT_ILLEGAL.
+- In dcllib.c the function dcl_global() has been improved to move
+  the currently declared object to the end of the local_object_list.
+  This assures that the function close_current_stack() can use
+  destructor functions from types introduced in a local variable
+  declaration.
+- In match.c the function substitute_params() has been improved:
+  - A substitution for STRUCTELEMOBJECT objects has been added.
+  - For EXPROBJECT, VALUEPARAMOBJECT and REFPARAMOBJECT objects
+    the substitution with the data.owner object has been removed.
+- In error.c several function declarations have been changed to
+  define parameters with 'const const_striType' instead of
+  'striType'.
+- In msg_stri.c the error handling in appendChar() has been fixed.
+- In heaputl.h and other files the heap statistic has been improved:
+  - The macro FREE_STRI() has been renamed to FREE_STRI2() and
+    a new FREE_STRI() macro with one parameter has been introduced.
+  - The macro HEAP_FREE_STRI has been changed such that it works if
+    WITH_STRI_CAPACITY is 0.
+  - The heap statistic of the string reallocation has been
+    refactored. The macros REALLOC_STRI_SIZE_SMALLER,
+    REALLOC_STRI_CHECK_SIZE and REALLOC_STRI_SIZE_OK have been
+    renamed to REALLOC_STRI_SIZE_SMALLER2, REALLOC_STRI_CHECK_SIZE2
+    and REALLOC_STRI_SIZE_OK2 respectively. The new macros
+    REALLOC_STRI_SIZE_SMALLER, REALLOC_STRI_CHECK_SIZE and
+    REALLOC_STRI_SIZE_OK without l1 parameter have been introduced.
+  - Except for heaputl.h all calls of the macro COUNT3_STRI have
+    been removed.
+  - In some heaputl.h macros 'len' parameters have been renamed to
+    'unused'.
+  - In some heaputl.h and big_rtl.c macro definitions the actual
+    macro parameters have been changed to '**not-used**'.
+- In flistutl.c the function compute_hs() has been refactored.
+- Changes have been done in cmd_rtl.c and str_rtl.c to allow that
+  WITH_STRI_CAPACITY is 0.
+- In exec.c the interpreter has been improved to raise ACTION_ERROR
+  if an endless recursion in a DYNAMIC function occurs.
+- In ref_data.c the functions refPath() and refSymb() have been
+  added.
+- In ref_data.c the function refValue() has been improved to work
+  for STRUCTELEMOBJECT.
+- In reflib.c the function ref_path() has been added.
+- The files sellib.c and sellib.h have been added.
+- In flt_rtl.c, fil_rtl.c and numutl.c the number of C compiler
+  warnings has been reduced.
+- In prclib.c a condition in the function prc_while_noop() has been
+  changed to avoid a possible use of the uninitialized variable
+  cond.
+- In sctlib.c the function sct_incl() has been changed to set
+  elem->value to zero after it has been moved to the struct.
+- In prglib.c the function prg_struct_symbols() has been added.
+- In prg_comp.c the functions addStructElement() and
+  prgStructSymbols() have been added. The function
+  addStructElement() is called from dcl_elements() in dcllib.c.
+- In striutl.c the function copy_stri() has been added. This
+  function is used in analyze.c and infile.c.
+- In con_emc.c, emc_utl.c, emc_utl.h and gkb_emc.c the browser
+  keyboard support has been refactored:
+  - KEY_ID_... macros have been introduced.
+  - Support for the keys f13 to f24 has been added.
+  - If a non-control key is pressed a possible set altKey flag is
+    ignored.
+- In big_rtl.c redundant prototype declarations have been removed.
+- In kbd_inf.c and kbd_poll.c the function kbd_init() has been
+  improved:
+  - The IXON flag is cleared (the XON/XOFF flow control is
+    disabled).
+  - The ISIG flag is cleared (no signal is sent on INTR, QUIT, SUSP,
+    or DSUSP).
+  - The IEXTEN flag is cleared (no implementation-defined input
+    processing takes place).
+  - The VDISCARD character is set to -1.
+- In kbd_inf.c in the function read_utf8_key() the comparisons have
+  been simplified.
+- The program chkccomp.c has been improved:
+  - Now it searches in /opt/homebrew/include for X11/X.h.
+  - The search for the Xrender library has been improved.
+  - The test program for Xrender has been changed to unconditionally
+    return 1.
+  - If X11_LIBRARY_PATH is defined absolute library paths are now
+    added to the X11_DLL and X11_XRENDER_DLL macros.
+  - The function describeLibrary() has been added to describe
+    statically linked dynamic libraries.
+  - Local variables and parameters have been renamed to avoid
+    warnings about shadowing of global variables.
+- The makefiles mk_osx.mak and mk_osxcl.mak have been changed to
+  allow the replacement of system headers (e.g. the include file
+  for Xrender).
+- In all makefiles the target 'check' has been added. The targets
+  'check' and 'test' both run the test suite.
+- In str_rtl.c the functions ustrCreateGeneric() and ustriHash()
+  have been added. These functions are used in the compiler
+  (s7c.sd7) to handle DYNAMIC function decisions by structElement.
+- In tim_unx.c and tim_win.c a check that micro_sec is in the
+  allowed range has been added.
+- In pcs_unx.c and pcs_win.c checks for process == NULL have been
+  added to pcsExitValue(), pcsIsAlive() and pcsWaitFor().
+- In pcs_unx.c and pcs_win.c code to close and free process pipline
+  files (stdin, stdout and stderr) has been added to pcsFree(). The
+  corresponding code in pcsDestr() (in pcs_rtl.c) has been removed.
+- The function drawClose() has been added to drw_dos.c, drw_emc.c,
+  drw_win.c and drw_x11.c.
+- In common.h the macro unsignedFitsInIntType() has been introduced.
+  The macro is used in prg_comp.c and sql_lite.c to silence a
+  warning.
+- The files read_me.txt and read_me.htm have been updated.
+- Parameter names in the header files arr_rtl.h, bst_rtl.h,
+  cmd_rtl.h, common.h, con_rtl.h, datautl.h, db_fire.h, db_oci.h,
+  db_tds.h, error.h, fil_rtl.h, hsh_rtl.h, infile.h, int_rtl.h,
+  itf_rtl.h, msg_stri.h, objutl.h, rfl_data.h, set_rtl.h, soc_rtl.h,
+  sql_rtl.h, str_rtl.h, symbol.h and typ_data.h have been changed to
+  fit to the prototypes in the corresponding C source files.
+- Logging functions have been improved in blockutl.c, drw_x11.c,
+  exec.c, fil_rtl.c, flt_rtl.c, fwd_term.c, fwd_x11.c, infile.c,
+  name.c, pcslib.c, pcs_rtl.c, pcs_unx.c, pcs_win.c, prg_comp.c,
+  reflib.c, soc_rtl.c, tim_rtl.c and ut8_rtl.c.
+- In hsh_rtl.c, infile.c, prclib.c and prg_comp.c commented out
+  printf() calls have been removed.
+- In con_inf.c the functions inf_beep(), inf_standardcolour() and
+  inf_setfont() are deactivated as OUT_OF_ORDER.
+- The unused functions textcolumns(), textheight() and textwidth()
+  have been removed from con_cap.c, con_con.c, con_cur.c, con_dos.c,
+  con_inf.c, con_tcp.c, con_wat.c, con_win.c and con_x11.c.
+- In error.h and and progs.s7i the parsing errors COMMENTOPEN,
+  FILENOTFOUND, WRONGACTION, CARD_DECIMAL_TOO_BIG, NEGATIVEEXPONENT,
+  DIGITEXPECTED, CARD_WITH_EXPONENT_TOO_BIG, EXTDIGITEXPECTED,
+  ILLEGALBASEDDIGIT, CARD_BASED_TOO_BIG, APOSTROPHEXPECTED,
+  CHAREXCEEDS, STRINGESCAPE, WRONGNUMERICALESCAPE,
+  BACKSLASHEXPECTED, STRINGEXCEEDS, NAMEEXPECTED, CARD_EXPECTED,
+  STRI_EXPECTED and OBJTWICEDECLARED have been renamed to
+  UNCLOSED_COMMENT, INCLUDE_FILE_NOT_FOUND, UNDEFINED_ACTION,
+  INTEGER_TOO_BIG, NEGATIVE_EXPONENT, DIGIT_EXPECTED,
+  INTEGER_WITH_EXPONENT_TOO_BIG, EXTENDED_DIGIT_EXPECTED,
+  ILLEGAL_BASED_DIGIT, BASED_INTEGER_TOO_BIG, APOSTROPHE_EXPECTED,
+  CHAR_EXCEEDS, ILLEGAL_STRING_ESCAPE, WRONG_NUMERICAL_ESCAPE,
+  WRONG_STRING_CONTINUATION, STRING_EXCEEDS, NAME_EXPECTED,
+  INTEGER_EXPECTED, STRING_EXPECTED and REDECLARATION respectively.
+  The program chkerr.sd7, the manual and the homepage have been
+  adjusted to use the new error names.
+- Documentation comments have been improved in float.s7i,
+  reference.s7i, stdio.s7i, string.s7i and reflib.c.
+
 20250325:
 - The compilation with s7c has been fixed. Many thanks to
   Cheap-Ad9743 for pointing out that the linker issued the error
@@ -5,7 +267,7 @@
 - An answer concerning the minimum array index has been added to the
   FAQ.
 - The new test program chkerr.sd7, which checks for parsing errors,
-  has been added. The program chk_all.sd7 has has been adjusted to
+  has been added. The program chk_all.sd7 has been adjusted to
   consider the new program chkerr.sd7.
 - The library zip.s7i has been improved to use code page 437 if the
   flag ZIP_FILE_NAME_IS_UTF8 is not set.

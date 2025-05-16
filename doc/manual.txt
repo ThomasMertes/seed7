@@ -95,15 +95,16 @@ CONTENTS
   5.27    category
   5.28    reference
   5.29    ref_list
-  5.30    program
-  5.31    ptr
-  5.32    func
-  5.33    varfunc
-  5.34    void
-  5.35    proc
-  5.36    type
-  5.37    object
-  5.38    expr
+  5.30    structElement
+  5.31    program
+  5.32    ptr
+  5.33    func
+  5.34    varfunc
+  5.35    void
+  5.36    proc
+  5.37    type
+  5.38    object
+  5.39    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -4664,13 +4665,16 @@ CONTENTS
   Additionally there is the following possibility:
 
     - Two backslashes with a sequence of blanks, horizontal tabs,
-      carriage returns and new lines between them are completely
-      ignored. The ignored characters are not part of the string.
-      This can be used to continue a string in the following line.
-      Note that in this case the leading spaces in the new line
-      are not part of the string. Although this possibility exists
-      also for character literals it is mentioned here, since it
-      makes more sense to use it with string literals
+      carriage returns, new lines and line comments between them
+      are completely ignored. The ignored characters are not part
+      of the string. This can be used to continue a string in the
+      following line. Note that in this case the leading spaces
+      in the new line are not part of the string. It is an error
+      if a backslash is followed by a sequence of white-space and
+      there is not a second backslash which ends the sequence.
+      Although this possibility exists also for character literals
+      it is mentioned here, since it makes more sense to use it
+      with string literals
 
   Examples of string literals are:
 
@@ -6171,6 +6175,13 @@ CONTENTS
       GRAPH_KEYBOARD    Keyboard file describing the graphic keyboard.
       KEYBOARD  Variable describing the keyboard.
                   ( KEYBOARD is initialized with CONSOLE_KEYBOARD )
+    Elements:
+      var char: bufferChar is '\n';
+                The bufferChar variable is inherited from null_file.
+                getTerminatedString, getwd and getln store the termination character in bufferChar.
+                Scanner functions use the bufferChar variable to store the current character.
+                If bufferChar contains a digit the scanner will assume that a number follows
+                and if bufferChar contains a " a string literal follows, etc.
     Implementation types of the file interface:
       null_file      Base implementation type for the file interface
       external_file  Files of the operating system
@@ -6292,9 +6303,14 @@ CONTENTS
                     Type of argument B: file,
                     Type of result: string,
                     gets(A, -1) => EXCEPTION RANGE_ERROR )
-      getwd(A)  Get one word from file A
+      getTerminatedString(A, B)  Read a string from A until the character B is found.
+                The string terminating character is assigned to A.bufferChar.
                   ( Type of result: string )
-      getln(A)  Get one line from file A
+      getwd(A)  Get one word from file A.
+                The word ending character is assigned to A.bufferChar.
+                  ( Type of result: string )
+      getln(A)  Get one line from file A.
+                The line ending character is assigned to A.bufferChar.
                   ( Type of result: string )
       eoln(A)   End of line
                   ( Type of result: boolean )
@@ -7049,7 +7065,73 @@ CONTENTS
                     Type of argument statements: proc )
 
 
-5.30 program
+5.30 structElement
+
+    The type 'structElement' describes an element of a 'struct'.
+  A 'structElement' value has two properties:
+
+    - The 'type' of the struct element (this can be obtained with getType).
+    - The name of the struct element (this can be obtained with getName).
+
+  The function 'elements' returns a 'structElement' array, which
+  describes the elements of a 'struct':
+
+    elements(aStructType)
+
+  The program below writes the types and names of 'exampleStruct':
+
+    $ include "seed7_05.s7i";
+
+    const type: exampleStruct is new struct
+        var string: aKey is "";
+        var integer: number is 0;
+      end struct;
+
+    const proc: main is func
+      local
+        var structElement: anElement is structElement.value;
+      begin
+        for anElement range elements(exampleStruct) do
+          writeln(str(getType(anElement)) <& ": " <& getName(anElement));
+        end for;
+      end func;
+
+  The output of this program is:
+
+    string: aKey
+    integer: number
+
+  Element descriptions can be used in templates. The JSON
+  serialization and de-serialization in the "json_serde.s7i" library
+  uses 'structElement'. The 'structElement' functions are defined in
+  the library "struct_elem.s7i".
+
+    Constants:
+      structElement.value  Empty struct element.
+    Prefix operators:
+      symb    Convert into a symbol parameter
+                  ( Type of result: f_param,
+		    symb structElement.value => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>
+    Functions:
+      getName(A) Name of a struct element
+                  ( Type of result: string )
+      getType(A) Type of a struct element
+                  ( Type of result: type )
+      elements(A) Get all struct elements from a struct type
+                  ( Type of argument A: type,
+                    Type of result: structElementArray,
+                    elements(boolean) => EXCEPTION ILLEGAL_ACTION )
+      structElement(A) Convert a reference to a structElement
+                  ( Type of argument A: reference )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+
+
+5.31 program
 
     The type 'program' describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -7089,7 +7171,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.31 ptr
+5.32 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -7116,7 +7198,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.32 func
+5.33 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -7205,7 +7287,7 @@ CONTENTS
   parameter is TRUE.
 
 
-5.33 varfunc
+5.34 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -7238,7 +7320,7 @@ CONTENTS
   and structs can be used in the usual way.
 
 
-5.34 void
+5.35 void
 
     The type 'void' describes the empty type.
 
@@ -7248,7 +7330,7 @@ CONTENTS
       void.value  Default value of void (empty)
 
 
-5.35 proc
+5.36 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -7285,7 +7367,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.36 type
+5.37 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -7394,7 +7476,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.37 object
+5.38 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7407,7 +7489,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.38 expr
+5.39 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -7808,9 +7890,23 @@ CONTENTS
 
 6.7 Symbol parameter
 
-  Some functions need symbols at fixed places in the parameter
-  list. The following IF-statement requests the keywords 'THEN',
-  'END' and 'IF' at specific places:
+  Some functions use keywords at fixed places in the parameter
+  list. These keywords in the parameter list are symbol parameters.
+  The symbol parameters can be used to distinguish two versions of
+  a function. E.g.:
+
+    - The function 'getc(aFile)' waits until it can read a character.
+    - The function 'getc(KEYBOARD, NO_WAIT)' does not wait.
+
+  The function 'getc(KEYBOARD, NO_WAIT)' is declared as:
+
+    const func char: getc (inout file: inFile, NO_WAIT) is
+      return inputReady(inFile) ? getc(inFile) : KEY_NONE;
+
+  In this case 'NO_WAIT' is a symbol parameter. Symbol parameters
+  can be used as keywords in statements as well. The following
+  IF-statement requests the keywords 'THEN' 'END' and 'IF' at
+  specific places:
 
     IF condition THEN
       statement
@@ -7840,11 +7936,12 @@ CONTENTS
     END IF;
 
   Semantics:
-    Symbol parameters must be defined in a syntax definition and in
-    a corresponding semantic definition. In the semantic definition
-    symbol parameters are written outside of the parentheses.
-    In the actual parameter list the corresponding symbol of the
-    formal parameter list must be written.
+    If a symbol parameter is part of a function call only a
+    semantic definition is needed. If a symbol parameter is not
+    part of a function call it must be defined in a syntax
+    definition and in a corresponding semantic definition. In the
+    actual parameter list the corresponding symbol of the formal
+    parameter list must be written.
 
 
   Syntax:
@@ -9243,10 +9340,10 @@ CONTENTS
     KEY_ALT_A to KEY_ALT_Z     The alternate keys alt-a to alt-z
     KEY_CTL_0 to KEY_CTL_9     The control keys ctrl-0 to ctrl-9
     KEY_ALT_0 to KEY_ALT_9     The alternate keys alt-0 to alt-9
-    KEY_F1 to KEY_F10          Function keys F1 to F10
-    KEY_SFT_F1 to KEY_SFT_F10  Shifted function keys F1 to F10
-    KEY_CTL_F1 to KEY_CTL_F10  Control function keys F1 to F10
-    KEY_ALT_F1 to KEY_ALT_F10  Alternate function keys F1 to F10
+    KEY_F1 to KEY_F12          Function keys F1 to F12
+    KEY_SFT_F1 to KEY_SFT_F12  Shifted function keys F1 to F12
+    KEY_CTL_F1 to KEY_CTL_F12  Control function keys F1 to F12
+    KEY_ALT_F1 to KEY_ALT_F12  Alternate function keys F1 to F12
     KEY_LEFT                   Cursor left
     KEY_RIGHT                  Cursor right
     KEY_UP                     Cursor up
@@ -11494,11 +11591,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   Additionally there are the following possibilities:
 
     - Two backslashes with a sequence of blanks, horizontal tabs,
-      carriage returns and new lines between them are completely
-      ignored. The ignored characters are not part of the string.
-      This can be used to continue a string in the following line.
-      Note that in this case the leading spaces in the new line
-      are not part of the string.
+      carriage returns, new lines and line comments between them
+      are completely ignored. The ignored characters are not part
+      of the string. This can be used to continue a string in the
+      following line. Note that in this case the leading spaces
+      in the new line are not part of the string. It is an error
+      if a backslash is followed by a sequence of white-space and
+      there is not a second backslash which ends the sequence.
 
     - A backslash followed by an integer literal and a semicolon
       is interpreted as character with the specified ordinal number.
@@ -11529,7 +11628,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     escape_sequence ::=
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
       '\\' | '\''' | '\"' | '\' upper_case_letter |
-      '\' { space } '\' | '\' integer_literal ';' .
+      '\' { space | line_comment } '\' | '\' integer_literal ';' .
 
     apostrophe ::=
       ''' .
@@ -16323,7 +16422,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
      6: Use / instead of \\ as path delimiter
      7: Failed to include essential file. Parsing terminated.
      8: Illegal pragma "%s"
-     9: Illegal action "%s"
+     9: Undefined action "%s"
     10: Illegal system declaration "%s"
     11: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
     12: "func" or "type" expected found "%s"

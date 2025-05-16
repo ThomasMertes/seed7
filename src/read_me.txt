@@ -1071,7 +1071,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkerr ........... okay
     chkexc ........... okay
 
-  This verifies that interpreter and compiler work correct.
+  This verifies that interpreter and compiler work correctly.
 
 
 HOW TO USE THE GMP LIBRARY?

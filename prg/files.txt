@@ -97,7 +97,7 @@ raytrace.sd7 Raytracing demo program.
 rever.sd7    Reversi game
 roman.sd7    Write roman numerals
 s7c.sd7      Seed7 compiler - Compiles Seed7 to C
-s7check.sd7  Seed7 static check - detects Seed7 errors.
+s7check.sd7  Static analysis of Seed7 source code file
 savehd7.sd7  Save a harddisk which has hardware errors.
 self.sd7     A program that writes itself (except this header)
 shisen.sd7   Shisen game
@@ -229,6 +229,7 @@ integer.s7i  Integer support library
 iobuffer.s7i Implementation type for a buffered file.
 jpeg.s7i     Support for the JPEG image file format
 json.s7i     Reading and processing JSON data with a JSON DOM.
+json_serde.s7i Serializer and deserializer for JSON.
 keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
 leb128.s7i   Convert integers to and from LEB128 encoding.
@@ -300,6 +301,7 @@ strifile.s7i Implementation type for files stored in a string
 string.s7i   String support library
 stritext.s7i string text library (uses an array string)
 struct.s7i   Struct support library
+struct_elem.s7i Type to describe an element of a struct.
 subfile.s7i  Open part of an existing file as read only file.
 subrange.s7i Subrange support library
 syntax.s7i   Syntax definition of the standard Seed7 library

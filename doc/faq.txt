@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-03-25 the number of lines is:
+than 400000 lines of Seed7. For version 2025-05-16 the number of lines is:
 
-  188316  C source files (*.c)
-   14009  C header files (*.h)
-  272719  Seed7 source files (*.sd7)
-  198222  Seed7 library/include files (*.s7i)
+  189119  C source files (*.c)
+   14179  C header files (*.h)
+  273860  Seed7 source files (*.sd7)
+  200310  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -693,6 +693,7 @@ information from the interpreter):
   chkset ........... okay
   chkhsh ........... okay
   chkfil ........... okay
+  chkerr ........... okay
   chkexc ........... okay
 
 This verifies that interpreter and compiler work correctly.
@@ -801,7 +802,7 @@ is not intended for human readers. The Seed7 compiler can be called with:
 
 Possible options are
 
-  -?   Write Seed7 compiler usage.
+  -? or -h  Write Seed7 compiler usage.
   -On  Tell the C compiler to optimize with level n (n is between 1 and 3).
   -O   Equivalent to -O1
   -S   Specify the stack size of the executable (e.g.: -S 16777216).
@@ -876,9 +877,86 @@ Syntax highlighting is available for several editors:
    Copy the file seed7/doc/seed7.uew to the directory for wordfiles.
    Afterwards Seed7 can be found under Coding => Add another language...
  - For Textpad there is seed7/doc/seed7.syn.
+ - The TEA Editor by Peter Semiletov has syntax highlighting for Seed7.
+
+
+How to add Seed7 syntax highlighting to an editor?
+==================================================
+
+How this is done depends on the editor, but there are some things to consider.
+
+Seed7 allows introducing new keywords with syntax declarations. This feature
+is used in the standard libraries. Programs usually do not introduce new
+keywords. So the list of keywords defined in the standard libraries can be used.
+
+ - Keywords are: array begin block case catch const do downto else elsif end
+   enum exception for forward func global hash if in include inout is local
+   new of otherwise param raise range ref repeat result return set step struct
+   sub syntax system then to until val var when while
+ - Keywords which introduce statements are: block case for global if include
+   raise repeat syntax system while
+ - Keywords which are used in the middle of statements are: catch do downto
+   else elsif end exception of otherwise range step then to until when
+ - Keywords which introduce declarations are: const in inout ref val var
+ - Keywords which are used in the function body are: begin end func local
+   result return
+ - Keywords which are used in type expression are: array enum hash new of set
+   struct sub
+ - Keywords which are used as operator symbols are: and conj conv digits div
+   exp in lpad lapd0 mdiv mod mult not or parse radix RADIX rem rpad sci times
+   varConv
+ - Special identifiers like := are sequences of special characters.
+ - Predefined assignment operators are: := +:= -:= *:= /:= <<:= >>:= &:= |:=
+   ><:= @:=
+ - Predefined comparison operators are: = <> < <= > >=
+ - Other predefined operators are: + - * / ** ! << >> & | >< <& ?
+ - Predefined types are: array bigInteger bigRational bin32 bin64 bitset
+   boolean bstring category char clib_file color complex database duration
+   enum expr file fileSys float func hash integer object proc process program
+   rational reference ref_list set sqlStatement string struct text time type
+   void PRIMITIVE_WINDOW
+ - Predefined constants are: E empty EOF FALSE Infinity NaN NIL PI TRUE
+ - Predefined variables are: CONSOLE_KEYBOARD GRAPH_KEYBOARD IN KEYBOARD OUT
+   STD_CONSOLE STD_ERR STD_IN STD_NULL STD_OUT
+ - Predefined exceptions are: DATABASE_ERROR FILE_ERROR GRAPHIC_ERROR
+   ILLEGAL_ACTION INDEX_ERROR MEMORY_ERROR NUMERIC_ERROR OVERFLOW_ERROR
+   RANGE_ERROR
+ - The syntax of literals and comments is described with the Backus Naur Form.
+   Note that the character # is used for line comments and inside of
+   based integer literals (e.g.: 16#beef).
+ - A $ is used to introduce syntax- and system-declarations as well as pragmas.
+
+Note that the list above is a simplification for editors. There are no
+reserved words in Seed7 and the Seed7 parser works with syntax declarations.
+The term keyword is used here to describe names which are used in
+syntax declarations. In Seed7 syntactic parsing is separated from semantic
+parsing so there is no need to categorize keywords.
+
+Some keywords are used twice. There is the type 'func'. E.g.:
+
+     const func boolean: flipCoin is
+       return rand(FALSE, TRUE);
+
+And there is the 'func ... end func' construct (which is used as function body).
+E.g.:
+
+     func
+     local
+       var integer: number is 0;
+     begin
+       writeln(number);
+     end func;
+
+A 'func ... end func' construct is always preceeded by the keyword 'is' (as part of
+a function declaration) and the keyword 'func' is followed by one of the keywords
+'result', 'local' or 'begin'. In this case it is not the type 'func'. This can
+be used as heuristic.
+
+The keyword 'in' can introduce the declaration of an in-parameter. But 'in' is
+also used as infix operator to check for 'set' membership.
 
 The file 'seed7/prg/syntaxhl.sd7' has been created to test syntax highlighting.
-Hopefully, this allows creating syntax highlighting files for more editors.
+Hopefully, this supports the creation of syntax highlighting files for more editors.
 
 
 Can I debug Seed7 programs with Eclipse?
