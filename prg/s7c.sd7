@@ -6092,7 +6092,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
     declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
     declareExtern("void        triggerSigfpe (void);");
-    declareExtern("void        rtlRaiseError (int, const char *, int) NORETURN;");
+    declareExtern("NORETURN void rtlRaiseError (int, const char *, int);");
     writeln(c_prog, "#define raiseError(num) rtlRaiseError(num, __FILE__, __LINE__)");
     writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)");
     writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
