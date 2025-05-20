@@ -162,13 +162,13 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
 
     const func func aType: return (ref aType param)                   is action "PRC_RETURN";
     const func func aType: return (ref func aType param)              is action "PRC_RETURN";
-    const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
-    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
+    const func varfunc aType: return var (inout aType param)          is action "PRC_RETURN_VAR";
+    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_RETURN_VAR";
 
     const func func aType: (attr aType) return (ref aType param)                is action "PRC_RETURN2";
     const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
-    const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
-    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
+    const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_RETURN_VAR2";
+    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_RETURN_VAR2";
 
     const func func func aType: return (ref func func aType param)              is action "PRC_RETURN";
     const func func func aType: (attr aType) return (ref func func aType param) is action "PRC_RETURN2";
@@ -255,8 +255,8 @@ const func type: subtype (in type: baseType) is func
 
     const func func aType: (attr aType) return (ref func baseType param)           is action "PRC_RETURN2";
     const func func aType: (attr aType) return (ref baseType param)                is action "PRC_RETURN2";
-    const func varfunc aType: (attr aType) return var (ref varfunc baseType param) is action "PRC_VARFUNC2";
-    const func varfunc aType: (attr aType) return var (inout baseType param)       is action "PRC_VARFUNC2";
+    const func varfunc aType: (attr aType) return var (ref varfunc baseType param) is action "PRC_RETURN_VAR2";
+    const func varfunc aType: (attr aType) return var (inout baseType param)       is action "PRC_RETURN_VAR2";
 
 (*  TRACE(aType);
     PRINT("\n"); *)

@@ -1563,6 +1563,132 @@ objectType prc_return2 (listType arguments)
 
 
 
+objectType prc_return_var (listType arguments)
+
+  {
+    objectType block_body;
+    objectType block_body_list = NULL;
+    objectType proc_exec_object;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
+
+  /* prc_return_var */
+    logFunction(printf("prc_return_var\n"););
+    block_body = arg_3(arguments);
+    proc_exec_object = curr_exec_object;
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
+      block_body_list = block_body;
+      block_body = block_body->value.listValue->obj;
+    } /* if */
+    block_body = copy_expression(block_body, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("prc_return_var: No memory\n"););
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     proc_exec_object, arguments);
+    } else {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var: error - err_info: %d\n", err_info););
+        return raise_with_obj_and_args(prog->sys_var[err_info],
+                                       proc_exec_object, arguments);
+      } else if (unlikely(block_body == NULL)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var: Create error\n"););
+        return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                       proc_exec_object, arguments);
+      } else if (unlikely((block =
+          new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var: No memory\n"););
+        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                       proc_exec_object, arguments);
+      } else {
+        logFunction(printf("prc_return_var -->\n"););
+        return bld_block_temp(block);
+      } /* if */
+    } /* if */
+  } /* prc_return_var */
+
+
+
+objectType prc_return_var2 (listType arguments)
+
+  {
+    objectType block_body;
+    objectType block_body_list = NULL;
+    objectType proc_exec_object;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
+
+  /* prc_return_var2 */
+    logFunction(printf("prc_return_var2\n"););
+    block_body = arg_4(arguments);
+    proc_exec_object = curr_exec_object;
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
+      block_body_list = block_body;
+      block_body = block_body->value.listValue->obj;
+    } /* if */
+    block_body = copy_expression(block_body, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("prc_return_var2: No memory\n"););
+      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                     proc_exec_object, arguments);
+    } else {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        if (match_expression(block_body) == NULL) {
+          free_expression(block_body);
+          block_body = NULL;
+        } /* if */
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var2: error - err_info: %d\n", err_info););
+        return raise_with_obj_and_args(prog->sys_var[err_info],
+                                       proc_exec_object, arguments);
+      } else if (unlikely(block_body == NULL)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var2: Create error\n"););
+        return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
+                                       proc_exec_object, arguments);
+      } else if (unlikely((block =
+          new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
+        free_expression(block_body);
+        logError(printf("prc_return_var2: No memory\n"););
+        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                       proc_exec_object, arguments);
+      } else {
+        logFunction(printf("prc_return_var2 -->\n"););
+        return bld_block_temp(block);
+      } /* if */
+    } /* if */
+  } /* prc_return_var2 */
+
+
+
 objectType prc_settrace (listType arguments)
 
   { /* prc_settrace */
@@ -1584,132 +1710,6 @@ objectType prc_trace (listType arguments)
     } /* while */
     return SYS_EMPTY_OBJECT;
   } /* prc_trace */
-
-
-
-objectType prc_varfunc (listType arguments)
-
-  {
-    objectType block_body;
-    objectType block_body_list = NULL;
-    objectType proc_exec_object;
-    errInfoType err_info = OKAY_NO_ERROR;
-    blockType block;
-
-  /* prc_varfunc */
-    logFunction(printf("prc_varfunc\n"););
-    block_body = arg_3(arguments);
-    proc_exec_object = curr_exec_object;
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listValue != NULL &&
-        block_body->value.listValue->next == NULL) {
-      block_body_list = block_body;
-      block_body = block_body->value.listValue->obj;
-    } /* if */
-    block_body = copy_expression(block_body, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      logError(printf("prc_varfunc: No memory\n"););
-      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                     proc_exec_object, arguments);
-    } else {
-      push_stack();
-      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-        update_owner(block_body);
-        if (match_expression(block_body) == NULL) {
-          free_expression(block_body);
-          block_body = NULL;
-        } /* if */
-      } /* if */
-      if (block_body != NULL) {
-        block_body = match_object(block_body);
-        fix_posinfo(block_body, block_body_list);
-      } /* if */
-      pop_stack();
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc: error - err_info: %d\n", err_info););
-        return raise_with_obj_and_args(prog->sys_var[err_info],
-                                       proc_exec_object, arguments);
-      } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc: Create error\n"););
-        return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
-                                       proc_exec_object, arguments);
-      } else if (unlikely((block =
-          new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc: No memory\n"););
-        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                       proc_exec_object, arguments);
-      } else {
-        logFunction(printf("prc_varfunc -->\n"););
-        return bld_block_temp(block);
-      } /* if */
-    } /* if */
-  } /* prc_varfunc */
-
-
-
-objectType prc_varfunc2 (listType arguments)
-
-  {
-    objectType block_body;
-    objectType block_body_list = NULL;
-    objectType proc_exec_object;
-    errInfoType err_info = OKAY_NO_ERROR;
-    blockType block;
-
-  /* prc_varfunc2 */
-    logFunction(printf("prc_varfunc2\n"););
-    block_body = arg_4(arguments);
-    proc_exec_object = curr_exec_object;
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listValue != NULL &&
-        block_body->value.listValue->next == NULL) {
-      block_body_list = block_body;
-      block_body = block_body->value.listValue->obj;
-    } /* if */
-    block_body = copy_expression(block_body, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      logError(printf("prc_varfunc2: No memory\n"););
-      return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                     proc_exec_object, arguments);
-    } else {
-      push_stack();
-      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-        update_owner(block_body);
-        if (match_expression(block_body) == NULL) {
-          free_expression(block_body);
-          block_body = NULL;
-        } /* if */
-      } /* if */
-      if (block_body != NULL) {
-        block_body = match_object(block_body);
-        fix_posinfo(block_body, block_body_list);
-      } /* if */
-      pop_stack();
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc2: error - err_info: %d\n", err_info););
-        return raise_with_obj_and_args(prog->sys_var[err_info],
-                                       proc_exec_object, arguments);
-      } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc2: Create error\n"););
-        return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
-                                       proc_exec_object, arguments);
-      } else if (unlikely((block =
-          new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
-        logError(printf("prc_varfunc2: No memory\n"););
-        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                       proc_exec_object, arguments);
-      } else {
-        logFunction(printf("prc_varfunc2 -->\n"););
-        return bld_block_temp(block);
-      } /* if */
-    } /* if */
-  } /* prc_varfunc2 */
 
 
 

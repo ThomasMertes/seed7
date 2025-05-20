@@ -754,10 +754,10 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_RES_LOCAL",                prc_res_local,                },
     { "PRC_RETURN",                   prc_return,                   },
     { "PRC_RETURN2",                  prc_return2,                  },
+    { "PRC_RETURN_VAR",               prc_return_var,               },
+    { "PRC_RETURN_VAR2",              prc_return_var2,              },
     { "PRC_SETTRACE",                 prc_settrace,                 },
     { "PRC_TRACE",                    prc_trace,                    },
-    { "PRC_VARFUNC",                  prc_varfunc,                  },
-    { "PRC_VARFUNC2",                 prc_varfunc2,                 },
     { "PRC_WHILE",                    prc_while,                    },
     { "PRC_WHILE_NOOP",               prc_while_noop,               },
 
