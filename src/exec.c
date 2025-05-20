@@ -996,21 +996,30 @@ objectType exec_dynamic (listType expr_list)
         logMessage(printf("element_value ");
                    trace1(element_value);
                    printf("\n"););
-        if (TEMP_OBJECT(element_value)) {
-          /* The function exec_dynamic() is called indirectly from  */
-          /* exec_action(). Further below the call of exec_call()   */
-          /* could also lead to a call of exec_action(). At its end */
-          /* exec_action() frees temporary objects. This could lead */
-          /* to double frees of temporary values. To avoid that the */
-          /* TEMP flag must be cleared here.                        */
-          CLEAR_TEMP_FLAG(element_value);
-          temp_insert_place = append_element_to_list(temp_insert_place,
-              element_value, &err_info);
-        } /* if */
-        if (likely(err_info == OKAY_NO_ERROR)) {
-          list_insert_place = append_element_to_list(list_insert_place,
-              element_value, &err_info);
-          actual_element = actual_element->next;
+        if (unlikely(element_value == NULL)) {
+          logError(printf("exec_dynamic(");
+                   prot_list(expr_list);
+                   printf("): element_value == NULL.\n");
+                   trace1(actual_element);
+                   printf("\n"););
+          err_info = ACTION_ERROR;
+        } else {
+          if (TEMP_OBJECT(element_value)) {
+            /* The function exec_dynamic() is called indirectly from  */
+            /* exec_action(). Further below the call of exec_call()   */
+            /* could also lead to a call of exec_action(). At its end */
+            /* exec_action() frees temporary objects. This could lead */
+            /* to double frees of temporary values. To avoid that the */
+            /* TEMP flag must be cleared here.                        */
+            CLEAR_TEMP_FLAG(element_value);
+            temp_insert_place = append_element_to_list(temp_insert_place,
+                element_value, &err_info);
+          } /* if */
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            list_insert_place = append_element_to_list(list_insert_place,
+                element_value, &err_info);
+            actual_element = actual_element->next;
+          } /* if */
         } /* if */
       } /* while */
       if (likely(err_info == OKAY_NO_ERROR)) {
