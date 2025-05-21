@@ -196,7 +196,7 @@ const proc: fillBuffer (inout lsbInBitStream: inBitStream) is func
  *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
  *)
-const func lsbInBitStream: openLsbInBitStream (in file: inFile) is func
+const func lsbInBitStream: openLsbInBitStream (inout file: inFile) is func
   result
     var lsbInBitStream: inBitStream is lsbInBitStream.value;
   begin
@@ -207,7 +207,7 @@ const func lsbInBitStream: openLsbInBitStream (in file: inFile) is func
 
 
 # The function openLsbBitStream(file) is deprecated. Use openLsbInBitStream(file) instead.
-const func lsbInBitStream: openLsbBitStream (in file: inFile) is
+const func lsbInBitStream: openLsbBitStream (inout file: inFile) is
   return openLsbInBitStream(inFile);
 
 
@@ -564,7 +564,7 @@ const proc: fillBuffer (inout msbInBitStream: inBitStream) is func
  *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
  *)
-const func msbInBitStream: openMsbInBitStream (in file: inFile) is func
+const func msbInBitStream: openMsbInBitStream (inout file: inFile) is func
   result
     var msbInBitStream: inBitStream is msbInBitStream.value;
   begin
@@ -575,7 +575,7 @@ const func msbInBitStream: openMsbInBitStream (in file: inFile) is func
 
 
 # The function openMsbBitStream(file) is deprecated. Use openMsbInBitStream(file) instead.
-const func msbInBitStream: openMsbBitStream (in file: inFile) is
+const func msbInBitStream: openMsbBitStream (inout file: inFile) is
   return openMsbInBitStream(inFile);
 
 
