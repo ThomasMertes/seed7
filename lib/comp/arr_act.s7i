@@ -1363,6 +1363,8 @@ const proc: process (ARR_LNG, in reference: function,
   local
     var reference: evaluatedParam is NIL;
     var string: array_name is "";
+    var type: arrayType is void;
+    var integer: minIdx is 0;
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(count.optimizations);
@@ -1375,12 +1377,37 @@ const proc: process (ARR_LNG, in reference: function,
         c_expr.expr &:= " /* length(array) */";
       end if;
     else
-      c_expr.expr &:= "(";
-      array_name := getParameterAsVariable("const_arrayType", "tmp_", params[1], c_expr);
-      c_expr.expr &:= array_name;
-      c_expr.expr &:= "->max_position - ";
-      c_expr.expr &:= array_name;
-      c_expr.expr &:= "->min_position + 1)";
+      arrayType := getExprResultType(params[1]);
+      if arrayType in typeData.array_minIdx then
+        minIdx := typeData.array_minIdx[arrayType];
+        if arrayType in typeData.array_maxIdx then
+          c_expr.expr &:= integerLiteral(typeData.array_maxIdx[arrayType] - minIdx + 1);
+        else
+          c_expr.expr &:= "(";
+          getAnyParamToExpr(params[1], c_expr);
+          c_expr.expr &:= ")->max_position";
+          if minIdx > 1 then
+            c_expr.expr &:= "- ";
+            c_expr.expr &:= integerLiteral(pred(minIdx));
+          elsif minIdx < 1 then
+            if minIdx > integer.first then
+              c_expr.expr &:= "+ ";
+              c_expr.expr &:= integerLiteral(succ(-minIdx));
+            else
+              c_expr.expr &:= "- ";
+              c_expr.expr &:= integerLiteral(integer.first);
+              c_expr.expr &:= " + 1";
+            end if;
+          end if;
+        end if;
+      else
+        c_expr.expr &:= "(";
+        array_name := getParameterAsVariable("const_arrayType", "tmp_", params[1], c_expr);
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->max_position - ";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->min_position + 1)";
+      end if;
     end if;
   end func;
 
@@ -1390,6 +1417,7 @@ const proc: process (ARR_MAXIDX, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
+    var type: arrayType is void;
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(count.optimizations);
@@ -1402,9 +1430,14 @@ const proc: process (ARR_MAXIDX, in reference: function,
         c_expr.expr &:= " /* maxIdx(array) */";
       end if;
     else
-      c_expr.expr &:= "(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ")->max_position";
+      arrayType := getExprResultType(params[1]);
+      if arrayType in typeData.array_maxIdx then
+        c_expr.expr &:= integerLiteral(typeData.array_maxIdx[arrayType]);
+      else
+        c_expr.expr &:= "(";
+        getAnyParamToExpr(params[1], c_expr);
+        c_expr.expr &:= ")->max_position";
+      end if;
     end if;
   end func;
 
@@ -1414,6 +1447,7 @@ const proc: process (ARR_MINIDX, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
+    var type: arrayType is void;
   begin
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(count.optimizations);
@@ -1426,9 +1460,14 @@ const proc: process (ARR_MINIDX, in reference: function,
         c_expr.expr &:= " /* minIdx(array) */";
       end if;
     else
-      c_expr.expr &:= "(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ")->min_position";
+      arrayType := getExprResultType(params[1]);
+      if arrayType in typeData.array_minIdx then
+        c_expr.expr &:= integerLiteral(typeData.array_minIdx[arrayType]);
+      else
+        c_expr.expr &:= "(";
+        getAnyParamToExpr(params[1], c_expr);
+        c_expr.expr &:= ")->min_position";
+      end if;
     end if;
   end func;
 
