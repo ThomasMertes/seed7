@@ -162,7 +162,7 @@ clean:
 
 clean_utils:
 	rm -f ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7
-	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/s7check ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 distclean: clean clean_utils
 	rm -f level_bk.h level.h
@@ -191,6 +191,7 @@ install:
 	cd ../bin; ln -fs `pwd`/make7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/portfwd7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/pv7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/s7check /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sql7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sydir7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/tar7 /usr/local/bin
@@ -211,6 +212,7 @@ uninstall:
 	rm -f /usr/local/bin/make7
 	rm -f /usr/local/bin/portfwd7
 	rm -f /usr/local/bin/pv7
+	rm -f /usr/local/bin/s7check
 	rm -f /usr/local/bin/sql7
 	rm -f /usr/local/bin/sydir7
 	rm -f /usr/local/bin/tar7
@@ -333,6 +335,7 @@ ide7: ../bin/ide7
 make7: ../bin/make7
 portfwd7: ../bin/portfwd7
 pv7: ../bin/pv7
+s7check: ../bin/s7check
 sql7: ../bin/sql7
 sydir7: ../bin/sydir7
 tar7: ../bin/tar7
@@ -341,8 +344,8 @@ which: ../bin/which
 
 utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
        ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
-       ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 \
-       ../bin/tar7 ../bin/toutf8 ../bin/which
+       ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/s7check ../bin/sql7 \
+       ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)
 	@echo SRC:

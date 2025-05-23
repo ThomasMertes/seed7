@@ -185,6 +185,7 @@ clean_utils:
 	del ..\bin\make7.js
 	del ..\bin\portfwd7.js
 	del ..\bin\pv7.js
+	del ..\bin\s7check.js
 	del ..\bin\sql7.js
 	del ..\bin\sydir7.js
 	del ..\bin\tar7.js
@@ -206,6 +207,7 @@ clean_utils:
 	del ..\bin\make7.wasm
 	del ..\bin\portfwd7.wasm
 	del ..\bin\pv7.wasm
+	del ..\bin\s7check.wasm
 	del ..\bin\sql7.wasm
 	del ..\bin\sydir7.wasm
 	del ..\bin\tar7.wasm
@@ -428,6 +430,11 @@ depend: version.h setwpath.exe wrdepend.exe sudo.exe
 	copy ..\prg\pv7.js ..\bin /Y
 	del ..\prg\pv7.js
 
+..\bin\s7check.js: ..\prg\s7check.sd7 ..\bin\s7c.js
+	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\s7check
+	copy ..\prg\s7check.js ..\bin /Y
+	del ..\prg\s7check.js
+
 ..\bin\sql7.js: ..\prg\sql7.sd7 ..\bin\s7c.js
 	node --stack-size=8192 ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sql7
 	copy ..\prg\sql7.js ..\bin /Y
@@ -469,6 +476,7 @@ ide7: ..\bin\ide7.js
 make7: ..\bin\make7.js
 portfwd7: ..\bin\portfwd7.js
 pv7: ..\bin\pv7.js
+s7check: ..\bin\s7check.js
 sql7: ..\bin\sql7.js
 sydir7: ..\bin\sydir7.js
 tar7: ..\bin\tar7.js
@@ -477,8 +485,8 @@ which: ..\bin\which.js
 
 utils: ..\bin\bas7.js ..\bin\bigfiles.js ..\bin\calc7.js ..\bin\cat.js ..\bin\comanche.js \
        ..\bin\diff7.js ..\bin\find7.js ..\bin\findchar.js ..\bin\ftp7.js ..\bin\ftpserv.js ..\bin\hd.js \
-       ..\bin\make7.js ..\bin\portfwd7.js ..\bin\pv7.js ..\bin\sql7.js ..\bin\sydir7.js \
-       ..\bin\tar7.js ..\bin\toutf8.js ..\bin\which.js
+       ..\bin\make7.js ..\bin\portfwd7.js ..\bin\pv7.js ..\bin\s7check.js ..\bin\sql7.js \
+       ..\bin\sydir7.js ..\bin\tar7.js ..\bin\toutf8.js ..\bin\which.js
 
 wc: $(SRC)
 	@echo SRC:

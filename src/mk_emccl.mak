@@ -150,14 +150,14 @@ clean:
 	@echo
 
 clean_utils:
-	rm -f ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js
-	rm -f ../bin/db7.js ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js
-	rm -f ../bin/ftpserv.js ../bin/hd.js ../bin/ide7.js ../bin/make7.js ../bin/portfwd.js ../bin/pv7.js
-	rm -f ../bin/sql7.js ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
-	rm -f ../bin/bas7.wasm ../bin/bigfiles.wasm ../bin/calc7.wasm ../bin/cat.wasm ../bin/comanche.wasm
-	rm -f ../bin/db7.wasm ../bin/diff7.wasm ../bin/find7.wasm ../bin/findchar.wasm ../bin/ftp7.wasm
-	rm -f ../bin/ftpserv.wasm ../bin/hd.wasm ../bin/ide7.wasm ../bin/make7.wasm ../bin/portfwd.wasm ../bin/pv7.wasm
-	rm -f ../bin/sql7.wasm ../bin/sydir7.wasm ../bin/tar7.wasm ../bin/toutf8.wasm ../bin/which.wasm
+	rm -f ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js ../bin/db7.js
+	rm -f ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js ../bin/ftpserv.js ../bin/hd.js
+	rm -f ../bin/ide7.js ../bin/make7.js ../bin/portfwd7.js ../bin/pv7.js ../bin/s7check.js ../bin/sql7.js
+	rm -f ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
+	rm -f ../bin/bas7.wasm ../bin/bigfiles.wasm ../bin/calc7.wasm ../bin/cat.wasm ../bin/comanche.wasm ../bin/db7.wasm
+	rm -f ../bin/diff7.wasm ../bin/find7.wasm ../bin/findchar.wasm ../bin/ftp7.wasm ../bin/ftpserv.wasm ../bin/hd.wasm
+	rm -f ../bin/ide7.wasm ../bin/make7.wasm ../bin/portfwd7.wasm ../bin/pv7.wasm ../bin/s7check.wasm ../bin/sql7.wasm
+	rm -f ../bin/sydir7.wasm ../bin/tar7.wasm ../bin/toutf8.wasm ../bin/which.wasm
 
 distclean: clean clean_utils
 	rm -f level_bk.h level.h
@@ -309,6 +309,7 @@ ide7: ../bin/ide7.js
 make7: ../bin/make7.js
 portfwd7: ../bin/portfwd7.js
 pv7: ../bin/pv7.js
+s7check: ../bin/s7check.js
 sql7: ../bin/sql7.js
 sydir7: ../bin/sydir7.js
 tar7: ../bin/tar7.js
@@ -317,8 +318,8 @@ which: ../bin/which.js
 
 utils: ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js \
        ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js ../bin/ftpserv.js ../bin/hd.js \
-       ../bin/make7.js ../bin/portfwd7.js ../bin/pv7.js ../bin/sql7.js ../bin/sydir7.js \
-       ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
+       ../bin/make7.js ../bin/portfwd7.js ../bin/pv7.js ../bin/s7check.js ../bin/sql7.js \
+       ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
 
 wc: $(SRC)
 	@echo SRC:

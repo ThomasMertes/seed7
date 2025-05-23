@@ -156,10 +156,10 @@ clean:
 	@echo
 
 clean_utils:
-	rm -f ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe
-	rm -f ../bin/db7.exe ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe
-	rm -f ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe
-	rm -f ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+	rm -f ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/db7.exe
+	rm -f ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe
+	rm -f ../bin/ide7.exe ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe ../bin/s7check.exe ../bin/sql7.exe
+	rm -f ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 distclean: clean clean_utils
 	rm -f level_bk.h level.h
@@ -188,6 +188,7 @@ install:
 	cd ../bin; ln -fs `pwd`/make7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/portfwd7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/pv7.exe /usr/local/bin
+	cd ../bin; ln -fs `pwd`/s7check.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sql7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sydir7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/tar7.exe /usr/local/bin
@@ -208,6 +209,7 @@ uninstall:
 	rm -f /usr/local/bin/make7.exe
 	rm -f /usr/local/bin/portfwd7.exe
 	rm -f /usr/local/bin/pv7.exe
+	rm -f /usr/local/bin/s7check.exe
 	rm -f /usr/local/bin/sql7.exe
 	rm -f /usr/local/bin/sydir7.exe
 	rm -f /usr/local/bin/tar7.exe
@@ -328,16 +330,17 @@ ide7: ../bin/ide7.exe
 make7: ../bin/make7.exe
 portfwd7: ../bin/portfwd7.exe
 pv7: ../bin/pv7.exe
+s7check: ../bin/s7check.exe
 sql7: ../bin/sql7.exe
 sydir7: ../bin/sydir7.exe
 tar7: ../bin/tar7.exe
 toutf8: ../bin/toutf8.exe
 which: ../bin/which.exe
 
-utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe \
+utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/db7.exe \
        ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe \
-       ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe ../bin/sql7.exe ../bin/sydir7.exe \
-       ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+       ../bin/ide7.exe ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe ../bin/s7check.exe ../bin/sql7.exe \
+       ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 wc: $(SRC)
 	@echo SRC:
