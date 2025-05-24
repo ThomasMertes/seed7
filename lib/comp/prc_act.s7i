@@ -626,7 +626,8 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           statement.expr &:= ") {\n";
         end if;
       end if;
-      if category(variable) = LOCALVOBJECT and
+      if (category(variable) = LOCALVOBJECT or
+            category(variable) = REFPARAMOBJECT) and
           (constant_start_value or constant_end_value) and
           not varChangedInStatements(variable, statements) then
         if constant_start_value then
@@ -645,9 +646,24 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
         end if;
         # write(file(statements) <& "(" <& line(statements) <& ") ");
         # writeln("for variable range: " <& variableRange.minValue <& ".." <& variableRange.maxValue);
-        intRangeOfVariable @:= [variable] variableRange;
-        process_call_by_name_expr(statements, statement);
-        excl(intRangeOfVariable, variable);
+        if category(variable) = LOCALVOBJECT then
+          intRangeOfVariable @:= [variable] variableRange;
+          process_call_by_name_expr(statements, statement);
+          excl(intRangeOfVariable, variable);
+        elsif category(variable) = REFPARAMOBJECT and
+            variable in inlineParam and
+            inlineParam[variable][1].actualParam <> NIL and
+            not varChangedInStatements(inlineParam[variable][1].actualParam, statements) and
+            (statements not in inlineParam or
+	      inlineParam[statements][1].actualParam = NIL or
+              not varChangedInStatements(inlineParam[variable][1].actualParam,
+                                         inlineParam[statements][1].actualParam)) then
+          intRangeOfVariable @:= [inlineParam[variable][1].actualParam] variableRange;
+          process_call_by_name_expr(statements, statement);
+          excl(intRangeOfVariable, inlineParam[variable][1].actualParam);
+        else
+          process_call_by_name_expr(statements, statement);
+        end if
       else
         process_call_by_name_expr(statements, statement);
       end if;
