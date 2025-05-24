@@ -294,7 +294,32 @@ const proc: check_based_integer_literal is func
       writeln("Based integer literals do not work correctly. (6)");
       okay := FALSE;
     end if;
-
+    if  1000000 <> 14#1c0608 or
+        1000000 <> 15#14b46a or
+        1000000 <> 16#f4240 or
+        1000000 <> 17#bg939 or
+        1000000 <> 18#9987a or
+        1000000 <> 19#7cf1b or
+        1000000 <> 20#65000 or
+        1000000 <> 21#52kc1 or
+        1000000 <> 22#45k2c or
+        1000000 <> 23#3d486 or
+        1000000 <> 24#3082g or
+        1000000 <> 25#2e000 or
+        1000000 <> 26#24n7e or
+        1000000 <> 27#1nlk1 or
+        1000000 <> 28#1hfe8 or
+        1000000 <> 29#1c01m or
+        1000000 <> 30#1713a or
+        1000000 <> 31#12hi2 or
+        1000000 <> 32#ugi0 or
+        1000000 <> 33#rr91 or
+        1000000 <> 34#pf1q or
+        1000000 <> 35#nbBf or
+        1000000 <> 36#lfls then
+      writeln("Based integer literals do not work correctly. (7)");
+      okay := FALSE;
+    end if;
     if  integer.last <> 2#111111111111111111111111111111111111111111111111111111111111111 or
         integer.last <> 3#2021110011022210012102010021220101220221 or
         integer.last <> 4#13333333333333333333333333333333 or
@@ -330,7 +355,7 @@ const proc: check_based_integer_literal is func
         integer.last <> 34#3tdtk1v8j6tpp or
         integer.last <> 35#2pijmikexrxp7 or
         integer.last <> 36#1y2p0ij32e8e7 then
-      writeln("Based integer literals do not work correctly. (7)");
+      writeln("Based integer literals do not work correctly. (8)");
       okay := FALSE;
     end if;
 
