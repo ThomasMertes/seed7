@@ -32,12 +32,20 @@ $ include "seed7_05.s7i";
 
 const proc: main is func
   local
+    var string: fileName is "";
     var program: aProgram is program.value;
     var integer: index is 0;
     var parseError: anError is parseError.value;
   begin
     if length(argv(PROGRAM)) >= 1 then
-      aProgram := parseFile(argv(PROGRAM)[1]);
+      fileName := argv(PROGRAM)[1];
+      if endsWith(fileName, ".s7i") then
+        aProgram := parseStri("$ include \"seed7_05.s7i\";\n\
+                              \  include " <& literal(fileName) <& ";\n\
+                              \const proc: main is func begin noop; end func;\n");
+      else
+        aProgram := parseFile(fileName);
+      end if;
       if errorCount(aProgram) = 0 then
         writeln("No errors found");
       else
