@@ -137,7 +137,7 @@ const func array integer: createMd5Table is func
     var integer: index is 0;
   begin
     for index range 1 to 64 do
-      k[index] := trunc(abs(sin(flt(index))) * 2.0 ** 32);
+      k[index] := trunc(abs(sin(float(index))) * 2.0 ** 32);
     end for;
   end func;
 

@@ -88,7 +88,7 @@ const func complex: complex (in integer: re) is func
   result
     var complex: aComplex is complex.value;
   begin
-    aComplex.re := flt(re);
+    aComplex.re := float(re);
     aComplex.im := 0.0;
   end func;
 
@@ -101,7 +101,7 @@ const func complex: (attr complex) conv (in integer: re) is func
   result
     var complex: aComplex is complex.value;
   begin
-    aComplex.re := flt(re);
+    aComplex.re := float(re);
     aComplex.im := 0.0;
   end func;
 
@@ -309,7 +309,7 @@ const func complex: (in complex: base) ** (in integer: exponent) is func
     var float: phi is 0.0;
   begin
     r := abs(base) ** exponent;
-    phi := arg(base) * flt(exponent);
+    phi := arg(base) * float(exponent);
     power.re := r * cos(phi);
     power.im := r * sin(phi);
   end func;

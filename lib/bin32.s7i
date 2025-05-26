@@ -439,7 +439,7 @@ const func float: mbfBits2Float (in bin32: bits) is func
     exponent := ord(bits >> succ(mantissaBits));
     if exponent <> 0 then
       # Ignore sign bit and set implicit leading one bit of mantissa instead.
-      aFloat := flt(ord(mantissaSign | bits & mantissaMask));
+      aFloat := float(ord(mantissaSign | bits & mantissaMask));
       # Check sign bit.
       if ord(bits & mantissaSign) <> 0 then
         aFloat := -aFloat;

@@ -160,8 +160,8 @@ const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
     in integer: length, in float: angle, in color: col) is func
   begin
     DRAW_PLINE(win, x, y,
-        x + round(flt(length) * sin(angle)),
-        y + round(flt(length) * -cos(angle)), colorPixel(col));
+        x + round(float(length) * sin(angle)),
+        y + round(float(length) * -cos(angle)), colorPixel(col));
   end func;
 
 
@@ -174,8 +174,8 @@ const proc: lineToAngle (in integer: x, in integer: y,
     in integer: length, in float: angle, in color: col) is func
   begin
     DRAW_PLINE(curr_win, x, y,
-        x + round(flt(length) * sin(angle)),
-        y + round(flt(length) * -cos(angle)), colorPixel(col));
+        x + round(float(length) * sin(angle)),
+        y + round(float(length) * -cos(angle)), colorPixel(col));
   end func;
 
 

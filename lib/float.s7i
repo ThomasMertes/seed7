@@ -101,7 +101,7 @@ const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DI
 (**
  *  Compute the floating-point remainder of a division.
  *  The remainder has the same sign as the dividend.
- *  The remainder is dividend - flt(trunc(dividend / divisor)) * divisor
+ *  The remainder is dividend - float(trunc(dividend / divisor)) * divisor
  *  The remainder is computed without a conversion to integer.
  *    A        rem NaN       returns NaN
  *    NaN      rem B         returns NaN
