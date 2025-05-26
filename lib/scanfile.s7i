@@ -1263,13 +1263,13 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
           symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
-        symbol := str(chr(integer(symbol, 16)));
+        symbol := str(char(integer(symbol, 16)));
       else
         while inFile.bufferChar in digit_char do
           symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
-        symbol := str(chr(integer(symbol)));
+        symbol := str(char(integer(symbol)));
       end if;
     else
       while inFile.bufferChar <> ';' and inFile.bufferChar <> EOF do

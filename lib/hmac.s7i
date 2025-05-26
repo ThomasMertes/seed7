@@ -50,7 +50,7 @@ const func string: (in string: stri1) >< (in string: stri2) is func
     else
       xorResult := "\0;" mult length(stri1);
       for index range 1 to length(stri1) do
-        xorResult @:= [index] chr(ord(bin32(stri1[index]) >< bin32(stri2[index])));
+        xorResult @:= [index] char(ord(bin32(stri1[index]) >< bin32(stri2[index])));
       end for;
     end if;
   end func;
@@ -129,7 +129,7 @@ const func string: keyBlockFunction (in string: secret, in string: random,
   begin
     while length(keyBlock) < length do
       keyBlock &:= md5(secret &
-                       sha1(str(chr(ord('A') + count - 1)) mult count &
+                       sha1(str(char(ord('A') + count - 1)) mult count &
                             secret & random));
       incr(count);
     end while;

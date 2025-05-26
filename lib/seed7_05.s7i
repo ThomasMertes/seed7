@@ -511,7 +511,7 @@ const func string: literal (in char: ch) is func
   begin
     if ch = ''' then
       stri := "'\\''";
-    elsif ch <= chr(255) then
+    elsif ch <= char(255) then
       stri := literal(str(ch));
       stri := "'" & stri[2 .. length(stri) - 1] & "'";
     else

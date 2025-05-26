@@ -219,7 +219,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PGM) is func
                            0.114 * float(col.blueLight));
         luminance := luminance < 0 ? 0 :
                      luminance > 65535 ? 65535 : luminance;
-        stri &:= chr(luminance mdiv 256);
+        stri &:= char(luminance mdiv 256);
       end for;
     end for;
   end func;

@@ -219,9 +219,9 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
     for line range 1 to height do
       for pix range image[line] do
         col := pixelToColor(pix);
-        stri &:= chr(col.redLight   mdiv 256);
-        stri &:= chr(col.greenLight mdiv 256);
-        stri &:= chr(col.blueLight  mdiv 256);
+        stri &:= char(col.redLight   mdiv 256);
+        stri &:= char(col.greenLight mdiv 256);
+        stri &:= char(col.blueLight  mdiv 256);
       end for;
     end for;
   end func;

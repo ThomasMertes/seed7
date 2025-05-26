@@ -54,8 +54,8 @@ const func string: readPropertyNameOrValue (inout file: inFile, in set of char: 
           when {'n'}: nameOrValue &:= '\n';
           when {'f'}: nameOrValue &:= '\f';
           when {'r'}: nameOrValue &:= '\r';
-          when {'u'}: nameOrValue &:= chr(integer(gets(inFile, 4), 16));
-          when {'U'}: nameOrValue &:= chr(integer(gets(inFile, 6), 16));
+          when {'u'}: nameOrValue &:= char(integer(gets(inFile, 4), 16));
+          when {'U'}: nameOrValue &:= char(integer(gets(inFile, 6), 16));
           when {'\r'}: inFile.bufferChar := getc(inFile);
                        if inFile.bufferChar = '\n' then
                          inFile.bufferChar := getc(inFile);

@@ -477,7 +477,7 @@ const func ecPoint: multAddFast (in ellipticCurve: curve, in var ecPoint: p1, in
  *  Encode an ecPoint in compressed form.
  *)
 const func string: ecPointCompress (in ellipticCurve: curve, in ecPoint: point) is
-  return str(chr(2 + ord(odd(point.y)))) & bytes(point.x, UNSIGNED, BE, getSizeInBytes(curve));
+  return str(char(2 + ord(odd(point.y)))) & bytes(point.x, UNSIGNED, BE, getSizeInBytes(curve));
 
 
 (**

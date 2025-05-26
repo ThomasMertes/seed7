@@ -1109,8 +1109,8 @@ const func string: encode (inout aesState: state, in string: plaintext) is func
     for index range 1 to length(plaintext) step blockSize(AES) do
       dataBlock := "";
       for subIndex range 1 to blockSize(AES) do
-        dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        dataBlock &:= char(ord(bin32(plaintext[pred(index + subIndex)]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       cipherBlock := encodeAesBlock(state.encryptionSubKey, state.rounds, dataBlock);
       state.cipherBlock := cipherBlock;
@@ -1137,8 +1137,8 @@ const func string: decode (inout aesState: state, in string: encoded) is func
       cipherBlock := encoded[index fixLen blockSize(AES)];
       dataBlock := decodeAesBlock(state.decryptionSubKey, state.rounds, cipherBlock);
       for subIndex range 1 to blockSize(AES) do
-        plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        plaintext &:= char(ord(bin32(dataBlock[subIndex]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       state.cipherBlock := cipherBlock;
     end for;

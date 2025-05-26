@@ -67,7 +67,7 @@ const func arc4State: setArc4Key (in string: arc4Key) is func
     var char: ch is ' ';
   begin
     for i range 0 to 255 do
-      state.s[i] := chr(i);
+      state.s[i] := char(i);
     end for;
     for i range 0 to 255 do
       ch := arc4Key[succ(i mod length(arc4Key))];
@@ -121,7 +121,7 @@ const func string: encode (inout arc4State: state, in string: plaintext) is func
   begin
     for ch range plaintext do
       keystreamChar := getArc4PseudoRandomByte(state);
-      encoded &:= chr(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
+      encoded &:= char(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
     end for;
   end func;
 
@@ -139,6 +139,6 @@ const func string: decode (inout arc4State: state, in string: encoded) is func
   begin
     for ch range encoded do
       keystreamChar := getArc4PseudoRandomByte(state);
-      plaintext &:= chr(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
+      plaintext &:= char(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
     end for;
   end func;

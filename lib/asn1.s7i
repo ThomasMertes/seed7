@@ -136,19 +136,19 @@ const func string: encodeObjectIdentifier (in array integer: oid) is func
     var integer: subId is 0;
     var string: subIdStri is "";
   begin
-    encodedOid := str(chr(oid[1] * 40 + oid[2]));
+    encodedOid := str(char(oid[1] * 40 + oid[2]));
     while pos <= length(oid) do
       subId := oid[pos];
       if subId < 0 then
         raise RANGE_ERROR;
       elsif subId <= 127 then
         # Encode in one byte
-        encodedOid &:= chr(subId);
+        encodedOid &:= char(subId);
       else
-        subIdStri := str(chr(subId mod 128));
+        subIdStri := str(char(subId mod 128));
         subId := subId mdiv 128;
         repeat
-          subIdStri := str(chr(subId mod 128 + 128)) & subIdStri;
+          subIdStri := str(char(subId mod 128 + 128)) & subIdStri;
           subId := subId mdiv 128;
         until subId = 0;
         encodedOid &:= subIdStri;
@@ -290,11 +290,11 @@ const func string: genAsn1Length (in integer: length) is func
   begin
     if length <= 127 then
       # Short form
-      asn1 &:= chr(length);
+      asn1 &:= char(length);
     else
       # Long form
       lengthAsBytes := bytes(length, UNSIGNED, BE);
-      asn1 &:= chr(128 + length(lengthAsBytes));
+      asn1 &:= char(128 + length(lengthAsBytes));
       asn1 &:= lengthAsBytes;
     end if;
   end func;
@@ -338,7 +338,7 @@ const func string: genAsn1Element (in asn1TagType: tagType, in string: data) is 
   result
     var string: asn1 is "";
   begin
-    asn1 &:= chr(ord(tagType));
+    asn1 &:= char(ord(tagType));
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;
@@ -354,7 +354,7 @@ const func string: genAsn1Integer (in string: data) is func
   result
     var string: asn1 is "";
   begin
-    asn1 &:= chr(ord(tagInteger));
+    asn1 &:= char(ord(tagInteger));
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;
@@ -394,7 +394,7 @@ const func string: genAsn1Sequence (in string: data) is func
     var string: asn1 is "";
   begin
     # A sequence is universal (0) and constructed (32).
-    asn1 &:= chr(ord(tagSequence) + 32);
+    asn1 &:= char(ord(tagSequence) + 32);
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;
@@ -410,7 +410,7 @@ const func string: genAsn1Set (in string: data) is func
     var string: asn1 is "";
   begin
     # A set is universal (0) and constructed (32).
-    asn1 &:= chr(ord(tagSet) + 32);
+    asn1 &:= char(ord(tagSet) + 32);
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;
@@ -425,7 +425,7 @@ const func string: genExplicitAsn1Tag (in integer: tagNumber, in string: data) i
     var string: asn1 is "";
   begin
     # A tag is context-specific (128) and constructed (32).
-    asn1 &:= chr(tagNumber + 160);
+    asn1 &:= char(tagNumber + 160);
     asn1 &:= genAsn1Length(length(data));
     asn1 &:= data;
   end func;

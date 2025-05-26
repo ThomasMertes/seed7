@@ -459,7 +459,7 @@ const proc: decodeLiteral (inout lzmaDecoder: lzma, in integer: state, in intege
     while symbol < 16#100 do
       symbol := (symbol << 1) + getBit(lzma.rangeDec, lzma.litProbs[litState][symbol]);
     end while;
-    lzma.uncompressed &:= chr(symbol - 16#100);
+    lzma.uncompressed &:= char(symbol - 16#100);
   end func;
 
 

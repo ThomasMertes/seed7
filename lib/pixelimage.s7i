@@ -69,9 +69,9 @@ const func PRIMITIVE_WINDOW: getPixmap (ref pixelImage: image) is action "DRW_GE
  *   for line range 1 to height do
  *     for pix range image[line] do
  *       col := pixelToColor(pix);
- *       stri &:= chr(col.redLight   mdiv 256);
- *       stri &:= chr(col.greenLight mdiv 256);
- *       stri &:= chr(col.blueLight  mdiv 256);
+ *       stri &:= char(col.redLight   mdiv 256);
+ *       stri &:= char(col.greenLight mdiv 256);
+ *       stri &:= char(col.blueLight  mdiv 256);
  *     end for;
  *   end for;
  *  @param aWindow Window or pixmap source to create the array of pixels.

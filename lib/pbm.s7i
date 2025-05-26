@@ -205,13 +205,13 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PBM) is func
         if bitNumber > 0 then
           decr(bitNumber);
         else
-          stri &:= chr(currentByte);
+          stri &:= char(currentByte);
           currentByte := 0;
           bitNumber := 7;
         end if;
       end for;
       if bitNumber <> 7 then
-        stri &:= chr(currentByte);
+        stri &:= char(currentByte);
       end if;
     end for;
   end func;

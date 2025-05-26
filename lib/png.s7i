@@ -212,53 +212,53 @@ const proc: filterPngData (in pngHeader: header, inout string: uncompressed) is 
           noop;
         when {1}:
           for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
-            uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                           ord(uncompressed[column - header.bytesPerPixel])) mod 256);
+            uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                            ord(uncompressed[column - header.bytesPerPixel])) mod 256);
           end for;
         when {2}:
           if line <> 0 then
             for column range byteIndex to byteIndex + header.bytesPerScanline - 2 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             ord(uncompressed[column - header.bytesPerScanline])) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              ord(uncompressed[column - header.bytesPerScanline])) mod 256);
             end for;
           end if;
         when {3}:
           if line = 0 then
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             ord(uncompressed[column - header.bytesPerPixel]) mdiv 2) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              ord(uncompressed[column - header.bytesPerPixel]) mdiv 2) mod 256);
             end for;
           else
             for column range byteIndex to byteIndex + header.bytesPerPixel - 1 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             ord(uncompressed[column - header.bytesPerScanline]) mdiv 2) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              ord(uncompressed[column - header.bytesPerScanline]) mdiv 2) mod 256);
             end for;
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                            (ord(uncompressed[column - header.bytesPerPixel]) +
-                                             ord(uncompressed[column - header.bytesPerScanline])) mdiv 2) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                             (ord(uncompressed[column - header.bytesPerPixel]) +
+                                              ord(uncompressed[column - header.bytesPerScanline])) mdiv 2) mod 256);
             end for;
           end if;
         when {4}:
           if line = 0 then
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
-                                                            0, 0)) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
+                                                             0, 0)) mod 256);
             end for;
           else
             for column range byteIndex to byteIndex + header.bytesPerPixel - 1 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             paethPredictor(0,
-                                                            ord(uncompressed[column - header.bytesPerScanline]),
-                                                            0)) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              paethPredictor(0,
+                                                             ord(uncompressed[column - header.bytesPerScanline]),
+                                                             0)) mod 256);
             end for;
             deltaUpLeft := header.bytesPerScanline + header.bytesPerPixel;
             for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
-              uncompressed @:= [column] chr((ord(uncompressed[column]) +
-                                             paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
-                                                            ord(uncompressed[column - header.bytesPerScanline]),
-                                                            ord(uncompressed[column - deltaUpLeft]))) mod 256);
+              uncompressed @:= [column] char((ord(uncompressed[column]) +
+                                              paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
+                                                             ord(uncompressed[column - header.bytesPerScanline]),
+                                                             ord(uncompressed[column - deltaUpLeft]))) mod 256);
             end for;
           end if;
       end case;
@@ -771,9 +771,9 @@ const func string: imageToPixelData (in pixelImage: image) is func
       pixelData &:= '\0;';  # Set filterType to none
       for pix range image[line] do
         col := pixelToColor(pix);
-        pixelData &:= chr(col.redLight   mdiv 256);
-        pixelData &:= chr(col.greenLight mdiv 256);
-        pixelData &:= chr(col.blueLight  mdiv 256);
+        pixelData &:= char(col.redLight   mdiv 256);
+        pixelData &:= char(col.greenLight mdiv 256);
+        pixelData &:= char(col.blueLight  mdiv 256);
       end for;
     end for;
   end func;
@@ -805,7 +805,7 @@ const proc: doFilter1 (in pngHeader: header, inout string: scanline1,
     for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
       delta := (ord(scanline1[column]) -
                 ord(scanline1[column - header.bytesPerPixel])) mod 256;
-      scanline1 @:= [column] chr(delta);
+      scanline1 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -824,7 +824,7 @@ const proc: doFilter2 (in pngHeader: header, in string: upperScanline,
     for column range 1 to pred(header.bytesPerScanline) do
       delta := (ord(scanline2[column]) -
                 ord(upperScanline[column])) mod 256;
-      scanline2 @:= [column] chr(delta);
+      scanline2 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -843,7 +843,7 @@ const proc: doFilter3 (in pngHeader: header, inout string: scanline3,
     for column range pred(header.bytesPerScanline) downto succ(header.bytesPerPixel) do
       delta := (ord(scanline3[column]) -
                 ord(scanline3[column - header.bytesPerPixel]) mdiv 2) mod 256;
-      scanline3 @:= [column] chr(delta);
+      scanline3 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -863,7 +863,7 @@ const proc: doFilter3 (in pngHeader: header, in string: upperScanline,
       delta := (ord(scanline3[column]) -
                 (ord(scanline3[column - header.bytesPerPixel]) +
                  ord(upperScanline[column])) mdiv 2) mod 256;
-      scanline3 @:= [column] chr(delta);
+      scanline3 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -873,7 +873,7 @@ const proc: doFilter3 (in pngHeader: header, in string: upperScanline,
     for column range header.bytesPerPixel downto 1 do
       delta := (ord(scanline3[column]) -
                 ord(upperScanline[column]) mdiv 2) mod 256;
-      scanline3 @:= [column] chr(delta);
+      scanline3 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -893,7 +893,7 @@ const proc: doFilter4 (in pngHeader: header, inout string: scanline4,
       delta := (ord(scanline4[column]) -
                 paethPredictor(ord(scanline4[column - header.bytesPerPixel]),
                                0, 0)) mod 256;
-      scanline4 @:= [column] chr(delta);
+      scanline4 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -914,7 +914,7 @@ const proc: doFilter4 (in pngHeader: header, in string: upperScanline,
                 paethPredictor(ord(scanline4[column - header.bytesPerPixel]),
                                ord(upperScanline[column]),
                                ord(upperScanline[column - header.bytesPerPixel]))) mod 256;
-      scanline4 @:= [column] chr(delta);
+      scanline4 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else
@@ -926,7 +926,7 @@ const proc: doFilter4 (in pngHeader: header, in string: upperScanline,
                 paethPredictor(0,
                                ord(upperScanline[column]),
                                0)) mod 256;
-      scanline4 @:= [column] chr(delta);
+      scanline4 @:= [column] char(delta);
       if delta >= 128 then
         sumOfDifferences +:= 256 - delta;
       else

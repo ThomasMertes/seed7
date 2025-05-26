@@ -782,9 +782,9 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
     for line range height downto 1 do
       for pix range image[line] do
         col := pixelToColor(pix);
-        stri &:= chr(col.blueLight  mdiv 256);
-        stri &:= chr(col.greenLight mdiv 256);
-        stri &:= chr(col.redLight   mdiv 256);
+        stri &:= char(col.blueLight  mdiv 256);
+        stri &:= char(col.greenLight mdiv 256);
+        stri &:= char(col.redLight   mdiv 256);
       end for;
       stri &:= "\0;" mult padding;
     end for;

@@ -167,8 +167,8 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
       stri := "\0;\0;\                              # Must always be 0
               \\1;\0;\                              # Image type: 1 for icon
               \\1;\0;" &                            # Number of images in the file: 1
-              str(chr(width mod 256)) &             # A width of 0 means 256.
-              str(chr(height mod 256)) &            # A height of 0 means 256.
+              str(char(width mod 256)) &            # A width of 0 means 256.
+              str(char(height mod 256)) &           # A height of 0 means 256.
               "\0;\                                 # Number of palette colors, 0 for no palette.
               \\0;" &                               # Reserved
               bytes( 1,         UNSIGNED, LE, 2) &  # color planes
@@ -191,9 +191,9 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
       for line range height downto 1 do
         for pix range image[line] do
           col := pixelToColor(pix);
-          stri &:= chr(col.blueLight  mdiv 256);
-          stri &:= chr(col.greenLight mdiv 256);
-          stri &:= chr(col.redLight   mdiv 256);
+          stri &:= char(col.blueLight  mdiv 256);
+          stri &:= char(col.greenLight mdiv 256);
+          stri &:= char(col.redLight   mdiv 256);
         end for;
         stri &:= "\0;" mult padding;
       end for;

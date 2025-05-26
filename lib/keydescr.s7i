@@ -46,7 +46,7 @@ const func keyDescriptionType: genKeyDescription is func
         "KEY_CTL_P", "KEY_CTL_Q", "KEY_CTL_R", "KEY_CTL_S", "KEY_CTL_T",
         "KEY_CTL_U", "KEY_CTL_V", "KEY_CTL_W", "KEY_CTL_X", "KEY_CTL_Y",
         "KEY_CTL_Z", "KEY_ESC") do
-      keyDescription @:= [chr(index)] description;
+      keyDescription @:= [char(index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_A", "KEY_ALT_B", "KEY_ALT_C", "KEY_ALT_D", "KEY_ALT_E",
@@ -55,130 +55,130 @@ const func keyDescriptionType: genKeyDescription is func
         "KEY_ALT_P", "KEY_ALT_Q", "KEY_ALT_R", "KEY_ALT_S", "KEY_ALT_T",
         "KEY_ALT_U", "KEY_ALT_V", "KEY_ALT_W", "KEY_ALT_X", "KEY_ALT_Y",
         "KEY_ALT_Z") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_A)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_A)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CTL_0", "KEY_CTL_1", "KEY_CTL_2", "KEY_CTL_3", "KEY_CTL_4",
         "KEY_CTL_5", "KEY_CTL_6", "KEY_CTL_7", "KEY_CTL_8", "KEY_CTL_9") do
-      keyDescription @:= [chr(pred(ord(KEY_CTL_0)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CTL_0)) + index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_0", "KEY_ALT_1", "KEY_ALT_2", "KEY_ALT_3", "KEY_ALT_4",
         "KEY_ALT_5", "KEY_ALT_6", "KEY_ALT_7", "KEY_ALT_8", "KEY_ALT_9") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_0)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_0)) + index)] description;
     end for;
     for description key index range [](
         "KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5",
         "KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10",
         "KEY_F11", "KEY_F12") do
-      keyDescription @:= [chr(pred(ord(KEY_F1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_F1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SFT_F1", "KEY_SFT_F2", "KEY_SFT_F3", "KEY_SFT_F4", "KEY_SFT_F5",
         "KEY_SFT_F6", "KEY_SFT_F7", "KEY_SFT_F8", "KEY_SFT_F9", "KEY_SFT_F10",
         "KEY_SFT_F11", "KEY_SFT_F12") do
-      keyDescription @:= [chr(pred(ord(KEY_SFT_F1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SFT_F1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CTL_F1", "KEY_CTL_F2", "KEY_CTL_F3", "KEY_CTL_F4", "KEY_CTL_F5",
         "KEY_CTL_F6", "KEY_CTL_F7", "KEY_CTL_F8", "KEY_CTL_F9", "KEY_CTL_F10",
         "KEY_CTL_F11", "KEY_CTL_F12") do
-      keyDescription @:= [chr(pred(ord(KEY_CTL_F1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CTL_F1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_F1", "KEY_ALT_F2", "KEY_ALT_F3", "KEY_ALT_F4", "KEY_ALT_F5",
         "KEY_ALT_F6", "KEY_ALT_F7", "KEY_ALT_F8", "KEY_ALT_F9", "KEY_ALT_F10",
         "KEY_ALT_F11", "KEY_ALT_F12") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_F1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_F1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
         "KEY_HOME", "KEY_END", "KEY_PGUP", "KEY_PGDN",
         "KEY_INS", "KEY_DEL", "KEY_PAD_CENTER") do
-      keyDescription @:= [chr(pred(ord(KEY_LEFT)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_LEFT)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SFT_LEFT", "KEY_SFT_RIGHT", "KEY_SFT_UP", "KEY_SFT_DOWN",
         "KEY_SFT_HOME", "KEY_SFT_END", "KEY_SFT_PGUP", "KEY_SFT_PGDN",
         "KEY_SFT_INS", "KEY_SFT_DEL", "KEY_SFT_PAD_CENTER") do
-      keyDescription @:= [chr(pred(ord(KEY_SFT_LEFT)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SFT_LEFT)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CTL_LEFT", "KEY_CTL_RIGHT", "KEY_CTL_UP", "KEY_CTL_DOWN",
         "KEY_CTL_HOME", "KEY_CTL_END", "KEY_CTL_PGUP", "KEY_CTL_PGDN",
         "KEY_CTL_INS", "KEY_CTL_DEL", "KEY_CTL_PAD_CENTER") do
-      keyDescription @:= [chr(pred(ord(KEY_CTL_LEFT)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CTL_LEFT)) + index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_LEFT", "KEY_ALT_RIGHT", "KEY_ALT_UP", "KEY_ALT_DOWN",
         "KEY_ALT_HOME", "KEY_ALT_END", "KEY_ALT_PGUP", "KEY_ALT_PGDN",
         "KEY_ALT_INS", "KEY_ALT_DEL", "KEY_ALT_PAD_CENTER") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_LEFT)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_LEFT)) + index)] description;
     end for;
     for description key index range [](
         "KEY_MENU", "KEY_PRINT", "KEY_PAUSE") do
-      keyDescription @:= [chr(pred(ord(KEY_MENU)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_MENU)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SFT_NL", "KEY_SFT_BS", "KEY_BACKTAB", "KEY_SFT_ESC",
         "KEY_SFT_MENU", "KEY_SFT_PRINT", "KEY_SFT_PAUSE") do
-      keyDescription @:= [chr(pred(ord(KEY_SFT_NL)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SFT_NL)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CTL_NL", "KEY_CTL_BS", "KEY_CTL_TAB", "KEY_CTL_ESC",
         "KEY_CTL_MENU", "KEY_CTL_PRINT", "KEY_CTL_PAUSE") do
-      keyDescription @:= [chr(pred(ord(KEY_CTL_NL)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CTL_NL)) + index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_NL", "KEY_ALT_BS", "KEY_ALT_TAB", "KEY_ALT_ESC",
         "KEY_ALT_MENU", "KEY_ALT_PRINT", "KEY_ALT_PAUSE") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_NL)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_NL)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SCRLUP", "KEY_SCRLDN", "KEY_INSLN", "KEY_DELLN", "KEY_ERASE",
         "KEY_NULCHAR", "KEY_NULLCMD", "KEY_REDRAW") do
-      keyDescription @:= [chr(pred(ord(KEY_SCRLUP)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SCRLUP)) + index)] description;
     end for;
     for description key index range [](
         "KEY_MOUSE1", "KEY_MOUSE2", "KEY_MOUSE3", "KEY_MOUSE4",
         "KEY_MOUSE5", "KEY_MOUSE_FWD", "KEY_MOUSE_BACK") do
-      keyDescription @:= [chr(pred(ord(KEY_MOUSE1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_MOUSE1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SFT_MOUSE1", "KEY_SFT_MOUSE2", "KEY_SFT_MOUSE3", "KEY_SFT_MOUSE4",
         "KEY_SFT_MOUSE5", "KEY_SFT_MOUSE_FWD", "KEY_SFT_MOUSE_BACK") do
-      keyDescription @:= [chr(pred(ord(KEY_SFT_MOUSE1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SFT_MOUSE1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CTL_MOUSE1", "KEY_CTL_MOUSE2", "KEY_CTL_MOUSE3", "KEY_CTL_MOUSE4",
         "KEY_CTL_MOUSE5", "KEY_CTL_MOUSE_FWD", "KEY_CTL_MOUSE_BACK") do
-      keyDescription @:= [chr(pred(ord(KEY_CTL_MOUSE1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CTL_MOUSE1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_ALT_MOUSE1", "KEY_ALT_MOUSE2", "KEY_ALT_MOUSE3", "KEY_ALT_MOUSE4",
         "KEY_ALT_MOUSE5", "KEY_ALT_MOUSE_FWD", "KEY_ALT_MOUSE_BACK") do
-      keyDescription @:= [chr(pred(ord(KEY_ALT_MOUSE1)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_ALT_MOUSE1)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SHIFT", "KEY_LEFT_SHIFT", "KEY_RIGHT_SHIFT",
         "KEY_CONTROL", "KEY_LEFT_CONTROL", "KEY_RIGHT_CONTROL",
         "KEY_ALT", "KEY_LEFT_ALT", "KEY_RIGHT_ALT",
         "KEY_SUPER", "KEY_LEFT_SUPER", "KEY_RIGHT_SUPER") do
-      keyDescription @:= [chr(pred(ord(KEY_SHIFT)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SHIFT)) + index)] description;
     end for;
     for description key index range [](
         "KEY_SHIFT_LOCK", "KEY_SHIFT_LOCK_ON",
         "KEY_NUM_LOCK", "KEY_NUM_LOCK_ON",
         "KEY_SCROLL_LOCK", "KEY_SCROLL_LOCK_ON") do
-      keyDescription @:= [chr(pred(ord(KEY_SHIFT_LOCK)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_SHIFT_LOCK)) + index)] description;
     end for;
     for description key index range [](
         "KEY_CLOSE", "KEY_RESIZE") do
-      keyDescription @:= [chr(pred(ord(KEY_CLOSE)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_CLOSE)) + index)] description;
     end for;
     for description key index range [](
         "KEY_UNDEF", "KEY_NONE") do
-      keyDescription @:= [chr(pred(ord(KEY_UNDEF)) + index)] description;
+      keyDescription @:= [char(pred(ord(KEY_UNDEF)) + index)] description;
     end for;
   end func;
 

@@ -743,7 +743,7 @@ const func string: getCStringLiteralText (inout string: stri) is func
               else
                 charValue := integer(stri[pred(pos) fixLen 1], 8);
               end if;
-              symbol &:= chr(charValue);
+              symbol &:= char(charValue);
             when {'x'}:
               incr(pos);
               if pos <= leng and stri[pos] in hexdigit_char then
@@ -754,7 +754,7 @@ const func string: getCStringLiteralText (inout string: stri) is func
                 else
                   charValue := integer(stri[pred(pos) fixLen 1], 16);
                 end if;
-                symbol &:= chr(charValue);
+                symbol &:= char(charValue);
               else
                 symbol &:= "\\x";
               end if;

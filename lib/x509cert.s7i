@@ -834,7 +834,7 @@ const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate)
     var integer: index is 0;
     var string: extensions is "";
   begin
-    version := genAsn1Integer(str(chr(tbsCertificate.version)));
+    version := genAsn1Integer(str(char(tbsCertificate.version)));
     asn1 := genExplicitAsn1Tag(0, version);
     asn1 &:= genAsn1Integer(tbsCertificate.serialNumber);
     asn1 &:= genAlgorithmIdentifier(tbsCertificate.signature);

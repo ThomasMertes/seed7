@@ -409,8 +409,8 @@ const func string: encode (inout desState: state, in string: plaintext) is func
     for index range 1 to length(plaintext) step blockSize(DES) do
       dataBlock := "";
       for subIndex range 1 to blockSize(DES) do
-        dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        dataBlock &:= char(ord(bin32(plaintext[pred(index + subIndex)]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       cipherBlock := processDesBlock(state.encryptionSubKey, dataBlock);
       state.cipherBlock := cipherBlock;
@@ -437,8 +437,8 @@ const func string: decode (inout desState: state, in string: encoded) is func
       cipherBlock := encoded[index fixLen blockSize(DES)];
       dataBlock := processDesBlock(state.decryptionSubKey, cipherBlock);
       for subIndex range 1 to blockSize(DES) do
-        plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        plaintext &:= char(ord(bin32(dataBlock[subIndex]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       state.cipherBlock := cipherBlock;
     end for;

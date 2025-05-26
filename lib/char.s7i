@@ -181,14 +181,14 @@ const varfunc char: (attr char) varConv (inout integer: number) is action "TYP_V
 
 (**
  *  Successor of a character.
- *  @return chr(ord(ch) + 1)
+ *  @return char(ord(ch) + 1)
  *)
 const func char: succ (in char: ch)                           is action "CHR_SUCC";
 
 
 (**
  *  Predecessor of a character.
- *  @return chr(ord(ch) - 1)
+ *  @return char(ord(ch) - 1)
  *)
 const func char: pred (in char: ch)                           is action "CHR_PRED";
 
@@ -290,14 +290,14 @@ const func string: c_literal (in char: ch)                    is action "CHR_CLI
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  *)
 const func char: rand (in char: low, in char: high) is
-  return chr(rand(ord(low), ord(high)));
+  return char(rand(ord(low), ord(high)));
 
 
 (**
  *  Character representing end-of-file.
  *  EOF is not an Unicode character.
  *)
-const char: EOF is chr(-1);
+const char: EOF is char(-1);
 
 
 (**

@@ -120,9 +120,9 @@ const func string: fromBase64 (in string: base64) is func
           end if;
           fourBytes := (fourBytes << 6) + number;
         end for;
-        threeBytes @:= [1] chr( fourBytes >> 16);
-        threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
-        threeBytes @:= [3] chr( fourBytes        mod 256);
+        threeBytes @:= [1] char( fourBytes >> 16);
+        threeBytes @:= [2] char((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] char( fourBytes        mod 256);
         decoded &:= threeBytes;
         index +:= 4;
       elsif base64[index] = '\n' or base64[index] = '\r' then
@@ -226,7 +226,7 @@ const func string: fromQuotedPrintable (in string: quoted) is func
         twoChars := quoted[succ(equalSignPos) fixLen 2];
         if twoChars[1] in hexdigit_char and
             twoChars[2] in hexdigit_char then
-          decoded &:= chr(integer(twoChars, 16));
+          decoded &:= char(integer(twoChars, 16));
         elsif twoChars <> "\r\n" then
           raise RANGE_ERROR;
         end if;
@@ -266,7 +266,7 @@ const func string: toUuencoded (in string: byteStri) is func
   begin
     if length(byteStri) <> 0 then
       if length(byteStri) < 45 then
-        uuencoded &:= chr(32 + length(byteStri));
+        uuencoded &:= char(32 + length(byteStri));
       else
         uuencoded &:= "M";
       end if;
@@ -282,14 +282,14 @@ const func string: toUuencoded (in string: byteStri) is func
             threeBytes +:= ord(ch);
           end if;
         end for;
-        fourBytes @:= [1] chr(32 + (threeBytes >> 18));
-        fourBytes @:= [2] chr(32 + (threeBytes >> 12) mod 64);
-        fourBytes @:= [3] chr(32 + (threeBytes >>  6) mod 64);
-        fourBytes @:= [4] chr(32 +  threeBytes        mod 64);
+        fourBytes @:= [1] char(32 + (threeBytes >> 18));
+        fourBytes @:= [2] char(32 + (threeBytes >> 12) mod 64);
+        fourBytes @:= [3] char(32 + (threeBytes >>  6) mod 64);
+        fourBytes @:= [4] char(32 +  threeBytes        mod 64);
         uuencoded &:= fourBytes;
         if index = posToAddNewline and length(byteStri) > index + 2 then
           if length(byteStri) - index - 2 < 45 then
-            uuencoded &:= "\n" <& chr(32 + length(byteStri) - index - 2);
+            uuencoded &:= "\n" <& char(32 + length(byteStri) - index - 2);
           else
             uuencoded &:= "\nM";
           end if;
@@ -333,9 +333,9 @@ const func string: fromUuencoded (in string: uuencoded) is func
           end if;
           fourBytes := (fourBytes << 6) + number;
         end for;
-        threeBytes @:= [1] chr( fourBytes >> 16);
-        threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
-        threeBytes @:= [3] chr( fourBytes        mod 256);
+        threeBytes @:= [1] char( fourBytes >> 16);
+        threeBytes @:= [2] char((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] char( fourBytes        mod 256);
         decoded &:= threeBytes[ .. lineLength];
         lineLength -:= 3;
         index +:= 4;
@@ -475,7 +475,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
           urlEncoded[succ(pos)] in hexdigit_char and
           urlEncoded[pos + 2] in hexdigit_char then
         decoded &:= urlEncoded[start .. pred(pos)];
-        decoded &:= chr(integer(urlEncoded[succ(pos) fixLen 2], 16));
+        decoded &:= char(integer(urlEncoded[succ(pos) fixLen 2], 16));
         start := pos + 3;
       elsif ch = '+' then
         decoded &:= urlEncoded[start .. pred(pos)];
@@ -519,7 +519,7 @@ const func string: toAscii85 (in string: byteStri) is func
         ascii85 &:= 'z';
       else
         for subIndex range 5 downto 1 do
-          fiveBytes @:= [subIndex] chr(ord('!') + fourBytes rem 85);
+          fiveBytes @:= [subIndex] char(ord('!') + fourBytes rem 85);
           fourBytes := fourBytes div 85;
         end for;
         ascii85 &:= fiveBytes;
@@ -532,7 +532,7 @@ const func string: toAscii85 (in string: byteStri) is func
                              "\0;" mult 4 - partialGroupSize,
                              UNSIGNED, BE);
       for subIndex range 5 downto 1 do
-        fiveBytes @:= [subIndex] chr(ord('!') + fourBytes rem 85);
+        fiveBytes @:= [subIndex] char(ord('!') + fourBytes rem 85);
         fourBytes := fourBytes div 85;
       end for;
       ascii85 &:= fiveBytes[.. succ(partialGroupSize)];

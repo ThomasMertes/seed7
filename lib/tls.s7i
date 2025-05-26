@@ -1233,7 +1233,7 @@ const func string: genClientHello (inout tlsParameters: parameters, in string: s
                    "\0;\0;\0;" &                  # Length: filled later
                    parameters.tls_version &       # Version: 3.1
                    parameters.client_random &     # Random - random_bytes
-                   str(chr(length(sessionId))) &  # SessionId length
+                   str(char(length(sessionId))) & # SessionId length
                    sessionId &                    # SessionId
                    bytes(2 * length(supportedCiphers), UNSIGNED, BE, 2);  # Number of Ciphers in bytes
     for cipher range supportedCiphers do
@@ -1269,7 +1269,7 @@ const func string: genServerHello (inout tlsParameters: parameters) is func
                    "\0;\0;\0;" &               # Length: filled later
                    parameters.tls_version &    # Version: take version from client_hello.
                    parameters.server_random &  # Random
-                   str(chr(SESSION_ID_LEN)) &  # SessionId length
+                   str(char(SESSION_ID_LEN)) & # SessionId length
                    parameters.session_id &     # SessionId
                    bytes(ord(parameters.cipher_suite), UNSIGNED, BE, 2) &
                    "\0;";                      # CompressionMethod: 0
@@ -1329,7 +1329,7 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
       pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
       serverParams &:= str(NAMED_CURVE) &
                        bytes(getEllipticCurveNumber(parameters.curve), UNSIGNED, BE, 2) &
-                       str(chr(length(pointData))) & pointData;
+                       str(char(length(pointData))) & pointData;
       signatureStri := genSignature(parameters.client_random &
                                     parameters.server_random &
                                     serverParams, parameters);
@@ -1425,7 +1425,7 @@ const func string: genClientKeyExchange (inout tlsParameters: parameters) is fun
     elsif parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
       parameters.ownEccKeyPair := genEccKeyPair(parameters.curve);
       pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
-      clientKeyExchange &:= str(chr(length(pointData))) & pointData;
+      clientKeyExchange &:= str(char(length(pointData))) & pointData;
       sharedSecretEcPoint := multFast(parameters.curve, parameters.publicEccKeyOfServer,
                                       parameters.ownEccKeyPair.privateKey);
       # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
@@ -1566,7 +1566,7 @@ const func string: tlsEncryptRecord (inout tlsParameters: parameters, in string:
       padding_length := parameters.block_size - 1 -
                         (length(content) + length(mac)) mod parameters.block_size;
       # writeln("padding_length: " <& padding_length);
-      padding := str(chr(padding_length)) mult succ(padding_length);
+      padding := str(char(padding_length)) mult succ(padding_length);
     end if;
     # writeln("bulk_cipher_algorithm: " <& ord(parameters.bulk_cipher_algorithm));
     # writeln("data: " <& hex(content));
@@ -1607,7 +1607,7 @@ const func boolean: tlsDecryptRecord (inout tlsParameters: parameters, inout tls
       padding_length := ord(decoded[length(decoded)]);
       if padding_length < length(decoded) and
           decoded[length(decoded) - padding_length ..] =
-          str(chr(padding_length)) mult succ(padding_length) then
+          str(char(padding_length)) mult succ(padding_length) then
         decoded := decoded[.. length(decoded) - succ(padding_length)];
         if version >= TLS_1_1 then
           # writeln("iv: " <& hex(decoded[.. parameters.block_size]));

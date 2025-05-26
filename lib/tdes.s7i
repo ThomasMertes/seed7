@@ -104,8 +104,8 @@ const func string: encode (inout tdesState: state, in string: plaintext) is func
     for index range 1 to length(plaintext) step blockSize(TDES) do
       dataBlock := "";
       for subIndex range 1 to blockSize(TDES) do
-        dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        dataBlock &:= char(ord(bin32(plaintext[pred(index + subIndex)]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       cipherBlock := processDesBlock(state.encryptionSubKey3,
                      processDesBlock(state.decryptionSubKey2,
@@ -136,8 +136,8 @@ const func string: decode (inout tdesState: state, in string: encoded) is func
                    processDesBlock(state.encryptionSubKey2,
                    processDesBlock(state.decryptionSubKey3, cipherBlock)));
       for subIndex range 1 to blockSize(TDES) do
-        plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
-                              bin32(state.cipherBlock[subIndex])));
+        plaintext &:= char(ord(bin32(dataBlock[subIndex]) ><
+                               bin32(state.cipherBlock[subIndex])));
       end for;
       state.cipherBlock := cipherBlock;
     end for;
