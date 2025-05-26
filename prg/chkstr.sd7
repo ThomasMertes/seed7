@@ -39,7 +39,7 @@ const func integer: intExpr (in integer: number) is
 
 
 const func char: charExpr (in char: ch) is
-  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+  return char(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
 const func boolean: boolExpr (in boolean: okay) is
@@ -25344,48 +25344,48 @@ const func boolean: check_string_append_3 is func
     var array string: arr is []("");
     var char: ch is '6';
   begin
-    stri := "12345"; stri &:=                   ch;    ok := ok and stri = "123456";
-    stri := "12345"; stri &:=                  '6';    ok := ok and stri = "123456";
-    stri := "12345"; stri &:=              chr( 48);   ok := ok and stri = "123450";
-    stri := "12345"; stri &:=     charExpr(    '6' );  ok := ok and stri = "123456";
-    stri := "12345"; stri &:=     charExpr(chr( 48));  ok := ok and stri = "123450";
+    stri := "12345"; stri &:=                    ch;    ok := ok and stri = "123456";
+    stri := "12345"; stri &:=                   '6';    ok := ok and stri = "123456";
+    stri := "12345"; stri &:=              char( 48);   ok := ok and stri = "123450";
+    stri := "12345"; stri &:=     charExpr(     '6' );  ok := ok and stri = "123456";
+    stri := "12345"; stri &:=     charExpr(char( 48));  ok := ok and stri = "123450";
 
-    stri := "12345"; stri &:= str(              ch  ); ok := ok and stri = "123456";
-    stri := "12345"; stri &:= str(             '6'  ); ok := ok and stri = "123456";
-    stri := "12345"; stri &:= str(         chr( 48) ); ok := ok and stri = "123450";
-    stri := "12345"; stri &:= str(charExpr(    '6' )); ok := ok and stri = "123456";
-    stri := "12345"; stri &:= str(charExpr(chr( 48))); ok := ok and stri = "123450";
+    stri := "12345"; stri &:= str(               ch  ); ok := ok and stri = "123456";
+    stri := "12345"; stri &:= str(              '6'  ); ok := ok and stri = "123456";
+    stri := "12345"; stri &:= str(         char( 48) ); ok := ok and stri = "123450";
+    stri := "12345"; stri &:= str(charExpr(     '6' )); ok := ok and stri = "123456";
+    stri := "12345"; stri &:= str(charExpr(char( 48))); ok := ok and stri = "123450";
 
-    stri := "12345"; stri &:= "456"         & str('6');     ok := ok and stri = "123454566";
-    stri := "12345"; stri &:= str('6')      & "456";        ok := ok and stri = "123456456";
-    stri := "12345"; stri &:= str('6')      & str('6');     ok := ok and stri = "1234566";
-    stri := "12345"; stri &:= "456"         & str(chr(48)); ok := ok and stri = "123454560";
-    stri := "12345"; stri &:= str(chr(48))  & "456";        ok := ok and stri = "123450456";
-    stri := "12345"; stri &:= str(chr(48))  & str(chr(48)); ok := ok and stri = "1234500";
+    stri := "12345"; stri &:= "456"         & str('6');      ok := ok and stri = "123454566";
+    stri := "12345"; stri &:= str('6')      & "456";         ok := ok and stri = "123456456";
+    stri := "12345"; stri &:= str('6')      & str('6');      ok := ok and stri = "1234566";
+    stri := "12345"; stri &:= "456"         & str(char(48)); ok := ok and stri = "123454560";
+    stri := "12345"; stri &:= str(char(48)) & "456";         ok := ok and stri = "123450456";
+    stri := "12345"; stri &:= str(char(48)) & str(char(48)); ok := ok and stri = "1234500";
     if not ok then
       writeln(" ***** String append does not work correctly. (8)");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    arr[1] := "12345"; arr[1] &:=                   ch;    ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:=                  '6';    ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:=              chr( 48);   ok := ok and arr[1] = "123450";
-    arr[1] := "12345"; arr[1] &:=     charExpr(    '6' );  ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:=     charExpr(chr( 48));  ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:=                    ch;    ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=                   '6';    ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=              char( 48);   ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:=     charExpr(     '6' );  ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:=     charExpr(char( 48));  ok := ok and arr[1] = "123450";
 
-    arr[1] := "12345"; arr[1] &:= str(              ch  ); ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:= str(             '6'  ); ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:= str(         chr( 48) ); ok := ok and arr[1] = "123450";
-    arr[1] := "12345"; arr[1] &:= str(charExpr(    '6' )); ok := ok and arr[1] = "123456";
-    arr[1] := "12345"; arr[1] &:= str(charExpr(chr( 48))); ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:= str(               ch  ); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(              '6'  ); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(         char( 48) ); ok := ok and arr[1] = "123450";
+    arr[1] := "12345"; arr[1] &:= str(charExpr(     '6' )); ok := ok and arr[1] = "123456";
+    arr[1] := "12345"; arr[1] &:= str(charExpr(char( 48))); ok := ok and arr[1] = "123450";
 
-    arr[1] := "12345"; arr[1] &:= "456"         & str('6');     ok := ok and arr[1] = "123454566";
-    arr[1] := "12345"; arr[1] &:= str('6')      & "456";        ok := ok and arr[1] = "123456456";
-    arr[1] := "12345"; arr[1] &:= str('6')      & str('6');     ok := ok and arr[1] = "1234566";
-    arr[1] := "12345"; arr[1] &:= "456"         & str(chr(48)); ok := ok and arr[1] = "123454560";
-    arr[1] := "12345"; arr[1] &:= str(chr(48))  & "456";        ok := ok and arr[1] = "123450456";
-    arr[1] := "12345"; arr[1] &:= str(chr(48))  & str(chr(48)); ok := ok and arr[1] = "1234500";
+    arr[1] := "12345"; arr[1] &:= "456"         & str('6');      ok := ok and arr[1] = "123454566";
+    arr[1] := "12345"; arr[1] &:= str('6')      & "456";         ok := ok and arr[1] = "123456456";
+    arr[1] := "12345"; arr[1] &:= str('6')      & str('6');      ok := ok and arr[1] = "1234566";
+    arr[1] := "12345"; arr[1] &:= "456"         & str(char(48)); ok := ok and arr[1] = "123454560";
+    arr[1] := "12345"; arr[1] &:= str(char(48)) & "456";         ok := ok and arr[1] = "123450456";
+    arr[1] := "12345"; arr[1] &:= str(char(48)) & str(char(48)); ok := ok and arr[1] = "1234500";
     if not ok then
       writeln(" ***** String append does not work correctly. (9)");
       okay := FALSE;

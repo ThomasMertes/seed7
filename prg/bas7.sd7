@@ -1828,7 +1828,7 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := str(chr(round(num1)));
+        exprResult := str(char(round(num1)));
         writeln(log, "CHR$(" <& num1 <& ") -> " <& literal(exprResult));
       when {"COMMAND$"}:
         symbol := get_symbol(line);
@@ -1970,18 +1970,18 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect("(", symbol, line);
         index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        exprResult := str(chr(index1          mod 256)) &
-                      str(chr(index1 mdiv 256 mod 256));
+        exprResult := str(char(index1          mod 256)) &
+                      str(char(index1 mdiv 256 mod 256));
         writeln(log, "MKI$(" <& index1 <& ") -> " <& literal(exprResult));
       when {"MKL$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
         index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        exprResult := str(chr(index1               mod 256)) &
-                      str(chr(index1 mdiv      256 mod 256)) &
-                      str(chr(index1 mdiv    65536 mod 256)) &
-                      str(chr(index1 mdiv 16777216 mod 256));
+        exprResult := str(char(index1               mod 256)) &
+                      str(char(index1 mdiv      256 mod 256)) &
+                      str(char(index1 mdiv    65536 mod 256)) &
+                      str(char(index1 mdiv 16777216 mod 256));
         writeln(log, "MKL$(" <& index1 <& ") -> " <& literal(exprResult));
       when {"MKS$"}:
         symbol := get_symbol(line);
@@ -2100,7 +2100,7 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
                 ") -> " <& literal(exprResult));
           else
             num2 := exec_expr(symbol, line);
-            exprResult := str(chr(round(num2))) mult index1;
+            exprResult := str(char(round(num2))) mult index1;
             writeln(log, "STRING$(" <& num1 <& ", " <& num2 <&
                 ") -> " <& literal(exprResult));
           end if;
@@ -6763,7 +6763,7 @@ const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: b
         ch := getc(aFile);
         incr(byteIndex);
         if ch >= '\128;' then
-          ch := chr(ord(ch) - 128);
+          ch := char(ord(ch) - 128);
         end if;
         bloadName &:= str(ch);
       end for;
@@ -7842,7 +7842,7 @@ const proc: exec_call_char (inout string: symbol, inout string: line) is func
     expect(",", symbol, line);
     patternArgument := exec_str_expr(symbol, line, unused_name);
     expect(")", symbol, line);
-    patternChar := chr(character_code);
+    patternChar := char(character_code);
     repeat
       pattern := patternArgument[patternStartPos len 16];
       patternLine := 1;
@@ -7942,7 +7942,7 @@ const proc: exec_call_hchar (inout string: symbol, inout string: line) is func
     expect(")", symbol, line);
     for repetition do
       setPos(win, row, column);
-      write(win, chr(character_code));
+      write(win, char(character_code));
       if column < 32 then
         incr(column);
       else
@@ -8038,7 +8038,7 @@ const proc: exec_call_vchar (inout string: symbol, inout string: line) is func
     expect(")", symbol, line);
     for repetition do
       setPos(win, row, column);
-      write(win, chr(character_code));
+      write(win, char(character_code));
       if row < 24 then
         incr(row);
       else

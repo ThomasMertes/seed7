@@ -1084,7 +1084,7 @@ const func itemType: (attr itemType) conv (in char: ch) is func
 
 
 const func char: (attr char) conv (in itemType: anItem) is
-  return chr(pred(ord('a') + ord(anItem)));
+  return char(pred(ord('a') + ord(anItem)));
 
 
 const proc: initItem (

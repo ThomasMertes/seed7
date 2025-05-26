@@ -141,7 +141,7 @@ const proc: count_fields (in field_array: board) is func
 const proc: write_move (in integer: line, in integer: column) is func
 
   begin
-    write(chr(ord('A') + column - 2) <& str(pred(line)));
+    write(char(ord('A') + column - 2) <& str(pred(line)));
   end func;
 
 

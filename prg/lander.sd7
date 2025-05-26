@@ -410,7 +410,7 @@ const proc: delay (in integer: duration) is func
 
 const proc: doBeep is func
   begin (* doBeep *)
-    write(chr(7));
+    write(char(7));
   end func; (* doBeep *)
 
 

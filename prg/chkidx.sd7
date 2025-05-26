@@ -36,7 +36,7 @@ const func integer: intExpr (in integer: number) is
 
 
 const func char: charExpr (in char: ch) is
-  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+  return char(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
 const func boolean: raisesIndexError (in proc: statement) is func
