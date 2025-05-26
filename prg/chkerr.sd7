@@ -3339,7 +3339,7 @@ const func boolean: checkNoMatch is func
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func boolean: isOkay is func\n\
                     \  result\n\
-                    \    var boolean: result is FALSE;\n\
+                    \    var boolean: okay is FALSE;\n\
                     \  local\n\
                     \    const integer: number is 0;\n\
                     \  begin\n\
@@ -3351,7 +3351,7 @@ const func boolean: checkNoMatch is func
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func boolean: isOkay is func\n\
                     \  result\n\
-                    \    var boolean: result is FALSE;\n\
+                    \    var boolean: okay is FALSE;\n\
                     \  local\n\
                     \    var integer: number is 0;\n\
                     \  begin\n\
