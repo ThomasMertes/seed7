@@ -57,7 +57,7 @@ const proc: rand_test_2 is func
       for num range 1 to 1000 do
         number := rand(0, 1000000);
         incr(counter);
-        mean := mean + (flt(number) - mean) / flt(counter);
+        mean := mean + (float(number) - mean) / float(counter);
       end for;
       write(mean <& " " <& counter <& " \r");
       flush(OUT);
@@ -78,7 +78,7 @@ const proc: rand_test_3 is func
         sum +:= rand(-1.0, 1.0);
       end for;
       counter +:= 1000;
-      write(sum / flt(counter) digits 28 lpad 31 <& " " <& counter <& " " <& sum <& "    \r");
+      write(sum / float(counter) digits 28 lpad 31 <& " " <& counter <& " " <& sum <& "    \r");
       flush(OUT);
     end while;
   end func;

@@ -38,7 +38,7 @@ const integer: X_MAXIMUM            is 639;
 const integer: Y_MINIMUM            is   0;
 const integer: Y_MAXIMUM            is 399;
 const float:   X_START_POSITION     is  15.0;
-const float:   Y_START_POSITION     is flt(Y_MAXIMUM - 199 + 15);
+const float:   Y_START_POSITION     is float(Y_MAXIMUM - 199 + 15);
 const integer: SHIP_Y_MIN           is   7;
 const float:   SHIP_DIAMETER        is   7.0;
 const integer: NO_TILT              is   1;
@@ -136,7 +136,7 @@ const func integer: frequency (in integer: frequencyNumber) is func
       # frequency := 0;
       frequency := 32767;
     else
-      frequency := trunc(36.8 * (2.0 ** (1.0 / 12.0)) ** (flt(frequencyNumber) - 6.0));
+      frequency := trunc(36.8 * (2.0 ** (1.0 / 12.0)) ** (float(frequencyNumber) - 6.0));
     end if;
   end func;
 
@@ -636,7 +636,7 @@ const proc: addNoiseToLandscape (inout array point: landscape) is func
     var integer: number is 0;
   begin (* addNoiseToLandscape *)
     for number range 1 to SIZE_LANDSCAPE do
-      landscape[number].y +:= round(sqrt(flt(landscape[number].y)) * rand(-0.5, 0.5));
+      landscape[number].y +:= round(sqrt(float(landscape[number].y)) * rand(-0.5, 0.5));
       if  landscape[number].x > leftOfLandingPad and
           landscape[number].x < leftOfLandingPad + 30 then
         landscape[number].y := Y_MAXIMUM - 1; (* landing field *)
@@ -654,8 +654,8 @@ const proc: load is func
     var integer: number is 0;
   begin (* load *)
     for number range NO_TILT to MAX_TILT do
-      COS_ANG[number] := cos(3.1415 * flt(15 * pred(number)) / 180.0);
-      SIN_ANG[number] := sin(3.1415 * flt(15 * pred(number)) / 180.0);
+      COS_ANG[number] := cos(3.1415 * float(15 * pred(number)) / 180.0);
+      SIN_ANG[number] := sin(3.1415 * float(15 * pred(number)) / 180.0);
     end for;
     ship := 8 times lineCoordinates.value;
     ship[1] := genLine( 3.0,  3.0,  0.0,  7.0);
@@ -774,7 +774,7 @@ const proc: load is func
       landscape[number].x := (number * X_MAXIMUM) div SIZE_LANDSCAPE;
       advanced_landscape[number].x := landscape[number].x;
       advanced_landscape[number].y := Y_MAXIMUM - 199 + round(194.0 *
-          abs(cos(3.1415 * flt(advanced_landscape[number].x - leftOfLandingPad - 15) / 400.0)));
+          abs(cos(3.1415 * float(advanced_landscape[number].x - leftOfLandingPad - 15) / 400.0)));
     end for;
     addNoiseToLandscape(advanced_landscape);
     advancedLander := FALSE;
@@ -787,8 +787,8 @@ const proc: calculate_height is func
     var integer: number is 0;
   begin
     rocket.height := 999999;
-    for number range round((rocket.x_pos - SHIP_DIAMETER) / flt(LANDSCAPE_X_UNIT)) + 1 to
-        round((rocket.x_pos + SHIP_DIAMETER) / flt(LANDSCAPE_X_UNIT)) - 1 do
+    for number range round((rocket.x_pos - SHIP_DIAMETER) / float(LANDSCAPE_X_UNIT)) + 1 to
+        round((rocket.x_pos + SHIP_DIAMETER) / float(LANDSCAPE_X_UNIT)) - 1 do
       if landscape[number].y - round(rocket.y_pos) - SHIP_Y_MIN < rocket.height then
         rocket.height := landscape[number].y - round(rocket.y_pos) - SHIP_Y_MIN;
       end if;
@@ -895,7 +895,7 @@ const proc: setup is func
     rocket.height := 200;
     rocket.background := PRIMITIVE_WINDOW.value;
     fuel_max := rocket.fuel;
-    gravity := 10.0 + flt(score) / 100.0;
+    gravity := 10.0 + float(score) / 100.0;
     if gravity > 15.0 then
       gravity := 15.0;
     end if;
@@ -908,9 +908,9 @@ const proc: setup is func
     (* lander picture *)
     leftOfLandingPad := rand(30, X_MAXIMUM - 30);
     for number range 1 to SIZE_LANDSCAPE do
-      landscape[number].y := Y_MAXIMUM - 159 + round(flt(154) *
-          abs(cos(3.1415 * (1.0 + flt(score) / 600.0) *
-          flt(landscape[number].x - leftOfLandingPad - 15) / 400.0)));
+      landscape[number].y := Y_MAXIMUM - 159 + round(float(154) *
+          abs(cos(3.1415 * (1.0 + float(score) / 600.0) *
+          float(landscape[number].x - leftOfLandingPad - 15) / 400.0)));
     end for;
     addNoiseToLandscape(landscape);
     drawLandscape;
@@ -986,7 +986,7 @@ const proc: display_gauges is func
     end if;
     setPos(panel, 1, 20);
     write(panel, trunc(rocket.y_speed) lpad 4);
-    new_fall_value := 5 + trunc(rocket.y_speed / (2.8 + flt(ord(score > ADLAND))));
+    new_fall_value := 5 + trunc(rocket.y_speed / (2.8 + float(ord(score > ADLAND))));
     if new_fall_value < 0 then
       new_fall_value := 0;
     else
@@ -1046,7 +1046,7 @@ const proc: display_ship is func
     display_gauges;
 (*
     setPos(panel, 1, 53);
-    write(panel, rocket.x_pos - flt(leftOfLandingPad) digits 0 lpad 4);
+    write(panel, rocket.x_pos - float(leftOfLandingPad) digits 0 lpad 4);
 *)
 (*  if rocket.fuel = 0 then
       nosound;
@@ -1118,7 +1118,7 @@ const proc: setupAdvancedLander is func
     end for;
     drawLogo;
     rocket.x_pos := 90.0;
-    rocket.y_pos := flt(Y_MAXIMUM - 169);
+    rocket.y_pos := float(Y_MAXIMUM - 169);
     rocket.old_x_pos := rocket.x_pos;
     rocket.old_y_pos := rocket.y_pos;
     rocket.fuel := rocket.fuel + 1000;
@@ -1174,8 +1174,8 @@ const proc: revise_control is func
     var integer: J is 0;
     var integer: frequency is 0;
   begin (* revise_control *)
-    rocket.y_speed +:= gravity - flt(rocket.thrust) * COS_ANG[rocket.tilt];
-    rocket.x_speed := 0.9 * rocket.x_speed - flt(rocket.thrust) * SIN_ANG[rocket.tilt];
+    rocket.y_speed +:= gravity - float(rocket.thrust) * COS_ANG[rocket.tilt];
+    rocket.x_speed := 0.9 * rocket.x_speed - float(rocket.thrust) * SIN_ANG[rocket.tilt];
     (* rocket.x_speed has air drag. *)
 (*  if rocket.y_speed < -10 then
       rocket.y_speed := -10;
@@ -1186,15 +1186,15 @@ const proc: revise_control is func
       rocket.y_pos := 0.0;
       too_high;
     end if;
-    if rocket.y_pos > flt(Y_MAXIMUM) then
-      rocket.y_pos := flt(Y_MAXIMUM);
+    if rocket.y_pos > float(Y_MAXIMUM) then
+      rocket.y_pos := float(Y_MAXIMUM);
     end if;
-    if rocket.x_pos - SHIP_DIAMETER < flt(X_MINIMUM) then
-      rocket.x_pos := flt(X_MINIMUM) + SHIP_DIAMETER;
+    if rocket.x_pos - SHIP_DIAMETER < float(X_MINIMUM) then
+      rocket.x_pos := float(X_MINIMUM) + SHIP_DIAMETER;
       outside_operating_area;
     end if;
-    if rocket.x_pos + SHIP_DIAMETER > flt(X_MAXIMUM) then
-      rocket.x_pos := flt(X_MAXIMUM) - SHIP_DIAMETER;
+    if rocket.x_pos + SHIP_DIAMETER > float(X_MAXIMUM) then
+      rocket.x_pos := float(X_MAXIMUM) - SHIP_DIAMETER;
       outside_operating_area;
     end if;
     if flying then
@@ -1339,7 +1339,7 @@ const proc: crash_sound is func
       end while;
     end for;
     nosound;
-(*! score := trunc(flt(score) * 0.7); *)
+(*! score := trunc(float(score) * 0.7); *)
   end func; (* crash_sound *)
 
 
@@ -1499,17 +1499,17 @@ const proc: crash_test is func
   begin (* crash_test *)
     calculate_height;
     if rocket.height <= 0 then
-      if  rocket.x_pos > flt(leftOfLandingPad + 5) and
-          rocket.x_pos < flt(leftOfLandingPad + 26) then
+      if  rocket.x_pos > float(leftOfLandingPad + 5) and
+          rocket.x_pos < float(leftOfLandingPad + 26) then
         ground_contact;
       else
         crash_landing;
       end if;
     end if;
     if flying and score >= ADLAND and not advancedLander then
-      if  rocket.y_pos > flt(Y_MAXIMUM - 26) and
-          rocket.x_pos > flt(leftOfLandingPad - 5) and
-          rocket.x_pos < flt(leftOfLandingPad + 36) and
+      if  rocket.y_pos > float(Y_MAXIMUM - 26) and
+          rocket.x_pos > float(leftOfLandingPad - 5) and
+          rocket.x_pos < float(leftOfLandingPad + 36) and
           round(rocket.y_speed) <= 10 then
         setupAdvancedLander;
       end if;

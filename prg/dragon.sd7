@@ -34,7 +34,7 @@ var integer: y is 220;
 
 const proc: turn (in integer: degrees) is func
   begin
-    angle +:= flt(degrees) * PI / 180.0
+    angle +:= float(degrees) * PI / 180.0
   end func;
 
 const proc: forward (in float: length) is func

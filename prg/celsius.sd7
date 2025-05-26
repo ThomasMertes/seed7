@@ -35,7 +35,7 @@ const proc: main is func
     var float: celsius is 0.0;
   begin
     for fahr range lower to upper step increment do
-      celsius := flt(5 * (fahr - 32)) / 9.0;
+      celsius := float(5 * (fahr - 32)) / 9.0;
       writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
     end for;
   end func;

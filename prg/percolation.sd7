@@ -197,7 +197,7 @@ const proc: delay (in float: secs) is func
 	begin
 		start_time := time(NOW);
 		seconds := trunc(secs);
-		micro_seconds := round((secs - flt(seconds)) * 1000000.0);
+		micro_seconds := round((secs - float(seconds)) * 1000000.0);
 		await(start_time + seconds . SECONDS + micro_seconds . MICRO_SECONDS);
 	end func;
 
@@ -214,15 +214,15 @@ const proc: draw_update(in percolation: model) is func
 	begin
     N := dimensions(model);
 		(* set X scale [0..N] and Y scale [0..N] *)
-		tile_size := flt(AREA_LENGTH) / flt(N);
+		tile_size := float(AREA_LENGTH) / float(N);
 		(* loop row from 1 to N *)
 		for row range 1 to N do
 			(* loop col from 1 to N *)
 			for col range 1 to N do
-				x1 := trunc(tile_size * flt(col - 1)) + 1;
-				x2 := trunc(tile_size * flt(col)) - 1;
-				y1 := trunc(tile_size * flt(row - 1)) + 1;
-				y2 := trunc(tile_size * flt(row)) - 1;
+				x1 := trunc(tile_size * float(col - 1)) + 1;
+				x2 := trunc(tile_size * float(col)) - 1;
+				y1 := trunc(tile_size * float(row - 1)) + 1;
+				y2 := trunc(tile_size * float(row)) - 1;
         (* if isFull draw light blue rectangle in this position *)
 				if isFull(model, row, col) then
 					rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1, dark_blue);
@@ -266,7 +266,7 @@ const func string: build_stats(in array float: data) is func
       for k range data do
         total +:= k;
       end for;
-      stri &:= "" <& (total/flt(length(data))) digits 2 <& "% avg for "
+      stri &:= "" <& (total/float(length(data))) digits 2 <& "% avg for "
           <& length(data) <& " round(s)";
     end if;
   end func;
@@ -307,7 +307,7 @@ const proc: main is func
 				open_random(grid, num_open);
 				draw_update(grid);
         setPos(info_sheet, 2, 12);
-        pct_open := flt(num_open)*100.0/flt(num_blocks*num_blocks);
+        pct_open := float(num_open)*100.0/float(num_blocks*num_blocks);
         write(info_sheet, "" <& pct_open digits 2 <& "% is open ");
         delay(DELAY);
 			until percolates(grid);

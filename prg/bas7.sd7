@@ -293,7 +293,7 @@ const proc: delay (in float: secs) is func
   begin
     start_time := time(NOW);
     seconds := trunc(secs);
-    micro_seconds := round((secs - flt(seconds)) * 1000000.0);
+    micro_seconds := round((secs - float(seconds)) * 1000000.0);
     await(start_time + seconds . SECONDS + micro_seconds . MICRO_SECONDS);
   end func;
 
@@ -2313,7 +2313,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(")", symbol, line);
         if stri1 <> "" then
-          exprResult := flt(ord(stri1[1]));
+          exprResult := float(ord(stri1[1]));
           writeln(log, "ASC(" <& literal(stri1) <& ") -> " <& exprResult);
         else
           error_marker;
@@ -2337,14 +2337,14 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := flt(round(num1));
+        exprResult := float(round(num1));
         writeln(log, "CINT(" <& num1 <& ") -> " <& exprResult);
       when {"CLNG"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := flt(round(num1));
+        exprResult := float(round(num1));
         writeln(log, "CLNG(" <& num1 <& ") -> " <& exprResult);
       when {"COS"}:
         symbol := get_symbol(line);
@@ -2361,7 +2361,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         writeln(log, "CSNG(" <& exprResult <& ") -> " <& exprResult);
       when {"CSRLIN"}:
         symbol := get_symbol(line);
-        exprResult := flt(line(win));
+        exprResult := float(line(win));
         writeln(log, "CSRLIN -> " <& exprResult);
       when {"CVD"}:
         symbol := get_symbol(line);
@@ -2396,9 +2396,9 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect(")", symbol, line);
         if length(stri1) >= 2 then
           if ord(stri1[2]) >= 128 then
-            exprResult := flt((ord(stri1[2]) - 256) * 256 + ord(stri1[1]));
+            exprResult := float((ord(stri1[2]) - 256) * 256 + ord(stri1[1]));
           else
-            exprResult := flt(ord(stri1[2]) * 256 + ord(stri1[1]));
+            exprResult := float(ord(stri1[2]) * 256 + ord(stri1[1]));
           end if;
           writeln(log, "CVI(" <& literal(stri1) <& ") -> " <& exprResult);
         else
@@ -2413,10 +2413,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect(")", symbol, line);
         if length(stri1) >= 4 then
           if ord(stri1[4]) >= 128 then
-            exprResult := flt((((ord(stri1[4]) - 256)  * 256 + ord(stri1[3])) * 256 +
+            exprResult := float((((ord(stri1[4]) - 256)  * 256 + ord(stri1[3])) * 256 +
                 ord(stri1[2])) * 256 + ord(stri1[1]));
           else
-            exprResult := flt(((ord(stri1[4]) * 256 + ord(stri1[3])) * 256 +
+            exprResult := float(((ord(stri1[4]) * 256 + ord(stri1[3])) * 256 +
                 ord(stri1[2])) * 256 + ord(stri1[1]));
           end if;
           writeln(log, "CVL(" <& literal(stri1) <& ") -> " <& exprResult);
@@ -2472,14 +2472,14 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       when {"ERL"}:
         symbol := get_symbol(line);
         if error_linenum <> "" and error_linenum[1] in digit_char then
-          exprResult := flt(integer(error_linenum));
+          exprResult := float(integer(error_linenum));
         else
           exprResult := 0.0;
         end if;
         writeln(log, "ERL -> " <& exprResult);
       when {"ERR"}:
         symbol := get_symbol(line);
-        exprResult := flt(error_code);
+        exprResult := float(error_code);
         writeln(log, "ERR -> " <& exprResult);
       when {"EXP"}:
         symbol := get_symbol(line);
@@ -2493,7 +2493,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := flt(trunc(num1));
+        exprResult := float(trunc(num1));
         writeln(log, "FIX(" <& num1 <& ") -> " <& exprResult);
       when {"FN"}:
         variable_name := get_name(symbol, line);
@@ -2522,7 +2522,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         while getFileValue(index1) <> STD_NULL do
           incr(index1);
         end while;
-        exprResult := flt(index1);
+        exprResult := float(index1);
         writeln(log, "FREEFILE -> " <& exprResult);
       when {"INP"}:
         symbol := get_symbol(line);
@@ -2532,12 +2532,12 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         case index1 of
           when {16#60}:  # &H60/96    Get keyboard scan code
             if inputReady(KEYBOARD) then
-              exprResult := flt(keyboardScanCode(getc(KEYBOARD)));
+              exprResult := float(keyboardScanCode(getc(KEYBOARD)));
             else
               exprResult := 128.0; # This is a key release code
             end if;
           when {16#3DA}: # &H3DA/986  Indicate vertical retrace
-            exprResult := flt(rand(0, 1) * 8);
+            exprResult := float(rand(0, 1) * 8);
           otherwise:
             exprResult := 0.0;
         end case;
@@ -2556,7 +2556,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         stri2 := exec_str_expr(symbol, line, unused_name);
         expect(")", symbol, line);
         if index1 >= 1 then
-          exprResult := flt(pos(stri1, stri2, index1));
+          exprResult := float(pos(stri1, stri2, index1));
           write(log, "INSTR(");
           if index1 <> 1 then
             write(log, index1 <& ", ");
@@ -2586,14 +2586,14 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           index1 := 1;
         end if;
         expect(")", symbol, line);
-        exprResult := flt(exec_lbound(variable_name, index1));
+        exprResult := float(exec_lbound(variable_name, index1));
         writeln(log, "LBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& exprResult);
       when {"LEN"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(")", symbol, line);
-        exprResult := flt(length(stri1));
+        exprResult := float(length(stri1));
         writeln(log, "LEN(" <& literal(stri1) <& ") -> " <& exprResult);
       when {"LOF"}:
         symbol := get_symbol(line);
@@ -2602,7 +2602,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect(")", symbol, line);
         aFile := getFileValue(index1);
         if aFile <> STD_NULL then
-          exprResult := flt(length(aFile));
+          exprResult := float(length(aFile));
           writeln(log, "LOF(" <& index1 <& ") -> " <& exprResult);
         else
           error_marker;
@@ -2633,8 +2633,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           when {16#6c}: # &H6c contains the low order tick count of 0-255
             time_now := time(NOW);
             since_midnight := time_now - truncToDay(time_now);
-            exprResult := 18.2 * (flt(toSeconds(since_midnight)) +
-                flt(since_midnight.micro_second) / 1000000.0);
+            exprResult := 18.2 * (float(toSeconds(since_midnight)) +
+                float(since_midnight.micro_second) / 1000000.0);
             exprResult -:= floor(exprResult / 256.0) * 256.0;
             index1 := round(exprResult);
             if index1 < 0 then
@@ -2642,7 +2642,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
             elsif index1 > 255 then
               exprResult := 255.0;
             else
-              exprResult := flt(index1);
+              exprResult := float(index1);
             end if;
           when {49152, -16384}: # Read keyboard
             if inputReady(KEYBOARD) then
@@ -2653,7 +2653,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
                 current_key := '\0;';
               end if;
               # Return value >= 128 if a key has been pressed.
-              exprResult := flt(ord(current_key) + 128);
+              exprResult := float(ord(current_key) + 128);
             else
               exprResult := 0.0;
             end if;
@@ -2681,7 +2681,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := flt(column(win));
+        exprResult := float(column(win));
         writeln(log, "POS -> " <& exprResult);
       when {"RND"}:
         symbol := get_symbol(line);
@@ -2778,8 +2778,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         symbol := get_symbol(line);
         time_now := time(NOW);
         since_midnight := time_now - truncToDay(time_now);
-        exprResult := flt(toSeconds(since_midnight)) +
-            flt(since_midnight.micro_second) / 1000000.0;
+        exprResult := float(toSeconds(since_midnight)) +
+            float(since_midnight.micro_second) / 1000000.0;
         writeln(log, "TIMER -> " <& exprResult);
       when {"UBOUND"}:
         symbol := get_symbol(line);
@@ -2793,7 +2793,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           index1 := 1;
         end if;
         expect(")", symbol, line);
-        exprResult := flt(exec_ubound(variable_name, index1));
+        exprResult := float(exec_ubound(variable_name, index1));
         writeln(log, "UBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& exprResult);
       when {"VAL"}:
         symbol := get_symbol(line);
@@ -2818,7 +2818,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         variable_name := get_name(symbol, line);
         expect(")", symbol, line);
-        exprResult := flt(varptr(variable_name));
+        exprResult := float(varptr(variable_name));
         writeln(log, "VARPTR(" <& variable_name <& ") -> " <& exprResult);
       when {"("}:
         symbol := get_symbol(line);
@@ -2901,7 +2901,7 @@ const func float: exec_exponentation (inout string: symbol, inout string: line) 
     if symbol = "^" then
       symbol := get_symbol(line);
       num := exec_primary(symbol, line);
-      if flt(round(num)) = num then
+      if float(round(num)) = num then
         exprResult := exprResult ** round(num);
       else
         exprResult := exprResult ** num;
@@ -2950,9 +2950,9 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
               raise NUMERIC_ERROR;
             end if;
           elsif op = "\\" then
-            exprResult := flt(round(num1) div round(num2));
+            exprResult := float(round(num1) div round(num2));
           elsif op = "MOD" then
-            exprResult := flt(round(num1) rem round(num2));
+            exprResult := float(round(num1) rem round(num2));
           end if;
         exception
           catch NUMERIC_ERROR:
@@ -3022,17 +3022,17 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol := get_symbol(line);
         stri2 := exec_str_expr(symbol, line, unused_name);
         if op = "=" then
-           exprResult := flt(-ord(stri1 = stri2));
+           exprResult := float(-ord(stri1 = stri2));
         elsif op = "<>" then
-           exprResult := flt(-ord(stri1 <> stri2));
+           exprResult := float(-ord(stri1 <> stri2));
         elsif op = "<" then
-           exprResult := flt(-ord(stri1 < stri2));
+           exprResult := float(-ord(stri1 < stri2));
         elsif op = ">" then
-           exprResult := flt(-ord(stri1 > stri2));
+           exprResult := float(-ord(stri1 > stri2));
         elsif op = "<=" then
-           exprResult := flt(-ord(stri1 <= stri2));
+           exprResult := float(-ord(stri1 <= stri2));
         elsif op = ">=" then
-           exprResult := flt(-ord(stri1 >= stri2));
+           exprResult := float(-ord(stri1 >= stri2));
         end if;
       else
         error_marker;
@@ -3047,17 +3047,17 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol := get_symbol(line);
         num := exec_addsub(symbol, line);
         if op = "=" then
-           exprResult := flt(-ord(exprResult = num));
+           exprResult := float(-ord(exprResult = num));
         elsif op = "<>" then
-           exprResult := flt(-ord(exprResult <> num));
+           exprResult := float(-ord(exprResult <> num));
         elsif op = "<" then
-           exprResult := flt(-ord(exprResult < num));
+           exprResult := float(-ord(exprResult < num));
         elsif op = ">" then
-           exprResult := flt(-ord(exprResult > num));
+           exprResult := float(-ord(exprResult > num));
         elsif op = "<=" then
-           exprResult := flt(-ord(exprResult <= num));
+           exprResult := float(-ord(exprResult <= num));
         elsif op = ">=" then
-           exprResult := flt(-ord(exprResult >= num));
+           exprResult := float(-ord(exprResult >= num));
         end if;
       end if;
     end if;
@@ -3073,7 +3073,7 @@ const func float: exec_cond_not (inout string: symbol, inout string: line) is fu
     if symbol = "NOT" then
       symbol := get_symbol(line);
       num := exec_comparison(symbol, line);
-      exprResult := flt(-ord(num = 0.0));
+      exprResult := float(-ord(num = 0.0));
     else
       exprResult := exec_comparison(symbol, line);
     end if;
@@ -3112,7 +3112,7 @@ const func float: exec_cond_and (inout string: symbol, inout string: line) is fu
       number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_not(symbol, line));
-      exprResult := flt(binary_and(number1, number2));
+      exprResult := float(binary_and(number1, number2));
       if startsWith(symbol, "AND") then
         line := symbol[4 ..] & line;
         symbol := "AND";
@@ -3172,9 +3172,9 @@ const func float: exec_cond_or (inout string: symbol, inout string: line) is fun
       symbol := get_symbol(line);
       number2 := round(exec_cond_and(symbol, line));
       if op = "OR" then
-        exprResult := flt(binary_or(number1, number2));
+        exprResult := float(binary_or(number1, number2));
       elsif op = "XOR" then
-        exprResult := flt(binary_xor(number1, number2));
+        exprResult := float(binary_xor(number1, number2));
       end if;
       if startsWith(symbol, "OR") then
         line := symbol[3 ..] & line;
@@ -3212,7 +3212,7 @@ const func float: exec_cond_eqv (inout string: symbol, inout string: line) is fu
       number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_or(symbol, line));
-      exprResult := flt(binary_eqv(number1, number2));
+      exprResult := float(binary_eqv(number1, number2));
     end while;
   end func;
 
@@ -3245,7 +3245,7 @@ const func float: exec_expr (inout string: symbol, inout string: line) is func
       number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_eqv(symbol, line));
-      exprResult := flt(binary_imp(number1, number2));
+      exprResult := float(binary_imp(number1, number2));
     end while;
   end func;
 
@@ -6847,8 +6847,8 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
               end if;
             end if;
             number := ord(getc(aFile)) + 256 * ord(getc(aFile));
-            setNumericVar(name_start & str(intIndex) & name_end, flt(number));
-            # writeln(log, name_start & str(intIndex) & name_end <& "=" <& flt(number));
+            setNumericVar(name_start & str(intIndex) & name_end, float(number));
+            # writeln(log, name_start & str(intIndex) & name_end <& "=" <& float(number));
             incr(intIndex);
           end for;
         end if;
@@ -7972,7 +7972,7 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     status_variable := get_name(symbol, line);
     expect(")", symbol, line);
     if inputReady(KEYBOARD) then
-      setNumericVar(return_variable, flt(ord(getc(KEYBOARD))));
+      setNumericVar(return_variable, float(ord(getc(KEYBOARD))));
       setNumericVar(status_variable, 1.0);
     else
       setNumericVar(return_variable, -1.0);

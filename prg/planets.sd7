@@ -164,15 +164,15 @@ const func float: atan2D (in float: y, in float: x) is
 
 
 const func float: frac (in float: x) is
-  return x - flt(trunc(x));
+  return x - float(trunc(x));
 
 
 (* Astronomy functions *)
 
 
 const func float: julianDay (in time: aTime) is
-  return flt(julianDayNumber(aTime)) +
-      ((flt(aTime.second) / 60.0 + flt(aTime.minute)) / 60.0 + flt(aTime.hour - 12)) / 24.0;
+  return float(julianDayNumber(aTime)) +
+      ((float(aTime.second) / 60.0 + float(aTime.minute)) / 60.0 + float(aTime.hour - 12)) / 24.0;
 
 
 const func integer: minutes (in float: time) is
@@ -322,11 +322,11 @@ const func float: localSiderealToCivilTime (in float: localSiderealTime,
     end if;
     t := (julianDay(truncToYear(aTime) - 1 . DAYS) - 2415020.0) / 36525.0;
     b := 24.0 - 6.6460656 - (2400.051262 * t) - (0.00002581 * t * t) +
-        flt(24 * (aTime.year - 1900));
-    t := greenwichSiderealTime - flt(dayOfYear(aTime)) * 0.0657098 + b;
+        float(24 * (aTime.year - 1900));
+    t := greenwichSiderealTime - float(dayOfYear(aTime)) * 0.0657098 + b;
     hoursToRange(t);
     greenwichMeanTime := t * 0.99727;
-    localCivilTime := greenwichMeanTime + flt(aTime.timeZone) / 60.0;
+    localCivilTime := greenwichMeanTime + float(aTime.timeZone) / 60.0;
   end func;
 
 
@@ -377,11 +377,11 @@ const func float: calculateGreenwichMeanSiderealTime (in time: gmTime) is func
     var integer: t is 0;
   begin
     d := julianDay(gmTime) - julianDayOfEpoch;
-    d0 := flt(julianDayNumber(gmTime)) + 0.5 - julianDayOfEpoch;
-    h := (flt(gmTime.second) / 60.0 + flt(gmTime.minute)) / 60.0 + flt(gmTime.hour);
+    d0 := float(julianDayNumber(gmTime)) + 0.5 - julianDayOfEpoch;
+    h := (float(gmTime.second) / 60.0 + float(gmTime.minute)) / 60.0 + float(gmTime.hour);
     t := round(d) div 36525;
     greenwichMeanSiderealTime := 6.697374558 + 0.06570982441908 * d0 +
-                                 1.00273790935 * h + 0.000026 * flt(t * t);
+                                 1.00273790935 * h + 0.000026 * float(t * t);
     hoursToRange(greenwichMeanSiderealTime);
   end func;
 
@@ -453,7 +453,7 @@ const proc: plotPlanet (in integer: planetNumber, in integer: scale) is func
     const func float: computeRadiusVector (in heliocentricPlanetType: planet, in integer: angle) is
       return planet.axis *
              (1.0 - planet.eccentricity * planet.eccentricity) /
-             (1.0 + planet.eccentricity * cosD(flt(angle) - planet.longitudeOfPerihelion));
+             (1.0 + planet.eccentricity * cosD(float(angle) - planet.longitudeOfPerihelion));
 
     var heliocentricPlanetType: planet is heliocentricPlanetType.value;
     var integer: oldX is 0;
@@ -463,23 +463,23 @@ const proc: plotPlanet (in integer: planetNumber, in integer: scale) is func
     var integer: angle is 0;
   begin
     planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[planetNumber]);
-    newY := round(flt(scale) * planet.radiusVector * sinD(planet.heliocentricLongitude)) +
+    newY := round(float(scale) * planet.radiusVector * sinD(planet.heliocentricLongitude)) +
             centerY;
-    newX := round(flt(scale) * planet.radiusVector * cosD(planet.heliocentricLongitude) *
+    newX := round(float(scale) * planet.radiusVector * cosD(planet.heliocentricLongitude) *
             screenAspect) + centerX;
     fcircle(newX, windowHeight - newY, 3, light_cyan);
     setPosXY(scr, newX + 4, windowHeight - newY);
     write(scr, orbitDescr[planetNumber].name);
 
-    newX := centerX + round(computeRadiusVector(planet, 0) * flt(scale) * screenAspect);
+    newX := centerX + round(computeRadiusVector(planet, 0) * float(scale) * screenAspect);
     newY := windowHeight - centerY;
     for angle range 1 to 60 do
       oldX := newX;
       oldY := newY;
-      newX := round(computeRadiusVector(planet, angle * 6) * flt(scale) * screenAspect
-              * cosD(flt(angle * 6))) + centerX;
+      newX := round(computeRadiusVector(planet, angle * 6) * float(scale) * screenAspect
+              * cosD(float(angle * 6))) + centerX;
       newY := windowHeight -
-              (round(computeRadiusVector(planet, angle * 6) * flt(scale) * sinD(flt(angle * 6)))
+              (round(computeRadiusVector(planet, angle * 6) * float(scale) * sinD(float(angle * 6)))
               + centerY);
       lineTo(oldX, oldY, newX, newY, light_cyan);
     end for;
@@ -816,7 +816,7 @@ const proc: drawHorizont is func
     for azimuth range 0 to 360 do
       if azimuth rem 90 = 0 then
         length := 12;
-        setPosXY(scr, panoramaXPos(flt(azimuth)) - 12, panoramaHorizont + 25);
+        setPosXY(scr, panoramaXPos(float(azimuth)) - 12, panoramaHorizont + 25);
         writeln(scr, name[pos]);
         incr(pos);
       elsif azimuth rem 45 = 0 then
@@ -830,7 +830,7 @@ const proc: drawHorizont is func
       else
         length := 2;
       end if;
-      line(panoramaXPos(flt(azimuth)), panoramaHorizont, 0, length, white);
+      line(panoramaXPos(float(azimuth)), panoramaHorizont, 0, length, white);
     end for;
   end func;
 

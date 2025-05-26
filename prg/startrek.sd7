@@ -408,8 +408,8 @@ const func float: klingon_distance (in integer: number) is func
   result
     var float: distance is 0.0;
   begin
-    distance := sqrt(flt((klingonRow[number] - sectorRow) ** 2 +
-                         (klingonColumn[number] - sectorColumn) ** 2));
+    distance := sqrt(float((klingonRow[number] - sectorRow) ** 2 +
+                           (klingonColumn[number] - sectorColumn) ** 2));
   end func;  (* klingon_distance *)
 
 
@@ -466,8 +466,8 @@ const proc: move_ship (in float: course, in float: warp_factor,
   begin
     row := sectorRow;
     column := sectorColumn;
-    x1 := flt(column) + 0.5;
-    y1 := flt(row) + 0.5;
+    x1 := float(column) + 0.5;
+    y1 := float(row) + 0.5;
     angle := (course - 1.0) * 0.785398;
     delta_x := cos(angle);
     delta_y := -sin(angle);
@@ -507,8 +507,8 @@ const proc: move_ship (in float: course, in float: warp_factor,
       sectorColumn := column;
       sect[sectorRow][sectorColumn] := 2;
     else  (* Out of quadrant -- move to new quadrant *)
-      quadrantRow := trunc(flt(quadrantRow) + warp_factor * delta_y + (flt(sectorRow) - 0.5) / 8.0);
-      quadrantColumn := trunc(flt(quadrantColumn) + warp_factor * delta_x + (flt(sectorColumn) - 0.5) / 8.0);
+      quadrantRow := trunc(float(quadrantRow) + warp_factor * delta_y + (float(sectorRow) - 0.5) / 8.0);
+      quadrantColumn := trunc(float(quadrantColumn) + warp_factor * delta_x + (float(sectorColumn) - 0.5) / 8.0);
       if quadrantRow < 1 then
         quadrantRow := 1;
       elsif quadrantRow > 8 then
@@ -647,7 +647,7 @@ const proc: warp_engines is func
           end if;
         end for;
         distance := trunc(warp_factor * 8.0);
-        energy := energy - flt(distance) - flt(distance) + 0.5;
+        energy := energy - float(distance) - float(distance) + 0.5;
         incr(stardate);
         sect[sectorRow][sectorColumn] := 1;
         if energy > 0.0 and stardate <= endStardate then
@@ -729,7 +729,7 @@ const proc: phasers is func
       until phaser_energy <= 0.0 or phaser_energy <= energy;
       if phaser_energy > 0.0 then
         energy := energy - phaser_energy;
-        y3 := flt(klingons_in_quadrant);
+        y3 := float(klingons_in_quadrant);
         for number range 1 to 8 do
           if klingonEnergy[number] > 0.0 then
             unit_hit := phaser_energy / (y3 * klingon_distance(number) ** 0.4);
@@ -764,8 +764,8 @@ const proc: torpedo_track (in float: course) is func
     var float: delta_x is 0.0;
     var float: delta_y is 0.0;
   begin
-    x1 := flt(sectorColumn) + 0.5;
-    y1 := flt(sectorRow) + 0.5;
+    x1 := float(sectorColumn) + 0.5;
+    y1 := float(sectorRow) + 0.5;
     angle := (course - 1.0) * 0.785398;
     delta_x := cos(angle);
     delta_y := -sin(angle);

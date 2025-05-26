@@ -38,7 +38,7 @@ $ include "seed7_05.s7i";
 
 const integer: pix is 200;
 const integer: max_iter is 256;
-var float: startZoom is 1.3 / flt(pix);
+var float: startZoom is 1.3 / float(pix);
 var complex: startCenter is complex(-0.75, 0.0);
 
 var float: zoom is startZoom;
@@ -72,7 +72,7 @@ const proc: displayMandelbrotSet (in complex: center, in float: zoom) is func
   begin
     for x range -pix to pix do
       for y range -pix to pix do
-        z0 := center + complex(flt(x) * zoom, flt(y) * zoom);
+        z0 := center + complex(float(x) * zoom, float(y) * zoom);
         point(x + pix, y + pix, colorTable[iterate(z0)]);
       end for;
     end for;
@@ -139,12 +139,12 @@ const proc: doCommand (inout char: ch) is func
   begin
     case upper(ch) of
       when {KEY_MOUSE1}:
-        center := complex(center.re + zoom * flt(clickedXPos(KEYBOARD) - pix),
-                          center.im + zoom * flt(clickedYPos(KEYBOARD) - pix));
+        center := complex(center.re + zoom * float(clickedXPos(KEYBOARD) - pix),
+                          center.im + zoom * float(clickedYPos(KEYBOARD) - pix));
         zoom := zoom / 2.0;
       when {KEY_MOUSE2}:
-        center := complex(center.re + zoom * flt(clickedXPos(KEYBOARD) - pix),
-                          center.im + zoom * flt(clickedYPos(KEYBOARD) - pix));
+        center := complex(center.re + zoom * float(clickedXPos(KEYBOARD) - pix),
+                          center.im + zoom * float(clickedYPos(KEYBOARD) - pix));
       when {KEY_MOUSE3}:
         zoom := zoom * 2.0;
       when {'R'}:

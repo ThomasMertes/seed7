@@ -31,9 +31,9 @@ $ include "seed7_05.s7i";
 
 
 const func color: (in color: col) * (in float: num) is
-  return color(round(flt(col.redLight)   * num),
-               round(flt(col.greenLight) * num),
-               round(flt(col.blueLight)  * num));
+  return color(round(float(col.redLight)   * num),
+               round(float(col.greenLight) * num),
+               round(float(col.blueLight)  * num));
 
 const func string: str (in color: col) is
   return "(" & str(col.redLight) & ", " & str(col.greenLight) & ", " & str(col.greenLight) & ")";
@@ -479,14 +479,14 @@ const type: rayTraceCanvas is sub canvas struct
         aCanvas.ambientIntensity := amb;
         aCanvas.lightSource := li;
 
-        yscale := flt(pred(aCanvas.height)) / -2.0 *
-                 flt(aView.height) / flt(aCanvas.height);
-        dxscale := flt(aView.width) / flt(aCanvas.width);
-        dyscale := flt(aView.height) / flt(aCanvas.height);
+        yscale := float(pred(aCanvas.height)) / -2.0 *
+                  float(aView.height) / float(aCanvas.height);
+        dxscale := float(aView.width) / float(aCanvas.width);
+        dyscale := float(aView.height) / float(aCanvas.height);
 
         for y range pred(aCanvas.height) downto 0 do
-          xscale := flt(pred(aCanvas.width)) / -2.0 *
-              flt(aView.width) / flt(aCanvas.width);
+          xscale := float(pred(aCanvas.width)) / -2.0 *
+                    float(aView.width) / float(aCanvas.width);
           for x range 0 to pred(aCanvas.width) do
             aRay := ray(aView.pos, calcDirection(aView, xscale, yscale));
             col := trace(aCanvas, aRay, maxRayDepth);
@@ -517,7 +517,7 @@ const proc: main is func
                          vector3d(0.0,  1.0, 0.0));
     scene &:= [] (obj);
     obj := sphere(shiny(color(0, 0, 65535)),
-                  vector3d(flt(xPos) (*0.0*), 40.0, 20.0), 10.0);
+                  vector3d(float(xPos) (*0.0*), 40.0, 20.0), 10.0);
     scene &:= [] (obj);
     obj := sphere(dull(color(65535, 0, 32768)),
                   vector3d(-15.0, 30.0, 20.0), 5.0);
