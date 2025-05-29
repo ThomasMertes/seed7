@@ -91,7 +91,7 @@ const func float: (in float: factor1) * (in float: factor2)    is action "FLT_MU
 (**
  *  Compute the division of two ''float'' numbers.
  *   A / 0.0    returns  Infinity  for A > 0.0
- *   A / 0.0    returns -Infinity  for A &lt; 0.0
+ *   A / 0.0    returns -Infinity  for A < 0.0
  *   0.0 / 0.0  returns NaN
  *  @return the quotient of the division.
  *)
@@ -108,7 +108,7 @@ const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DI
  *    A        rem 0.0       returns NaN
  *    Infinity rem B         returns NaN
  *   -Infinity rem B         returns NaN
- *    0.0      rem B         returns 0.0  for B &lt;> 0.0
+ *    0.0      rem B         returns 0.0  for B <> 0.0
  *    A        rem Infinity  returns A
  *  @return the floating-point remainder of the division.
  *)
@@ -124,7 +124,7 @@ const func float: (in float: dividend) rem (in float: divisor) is action "FLT_RE
  *    A        mod  0.0       returns  NaN
  *    Infinity mod  B         returns  NaN
  *   -Infinity mod  B         returns  NaN
- *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
+ *    0.0      mod  B         returns  0.0         for B <> 0.0
  *    A        mod  Infinity  returns  A           for A > 0
  *    A        mod  Infinity  returns  Infinity    for A < 0
  *    A        mod -Infinity  returns  A           for A < 0
