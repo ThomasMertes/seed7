@@ -4212,7 +4212,7 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.temp_decls &:= str(symbolTempNum);
     c_switch.temp_decls &:= ";\n";
     c_switch.temp_decls &:= diagnosticLine(current_object);
-    c_switch.temp_decls &:= "ustriType name_";
+    c_switch.temp_decls &:= "rtlObjectType name_";
     c_switch.temp_decls &:= str(symbolTempNum);
     c_switch.temp_decls &:= ";\n";
     c_switch.expr := diagnosticLine(current_object);
@@ -4233,7 +4233,7 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "  name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= "=GET_ENTITY(sym_";
+    c_switch.expr &:= ".value.ustriValue=GET_ENTITY(sym_";
     c_switch.expr &:= str(symbolTempNum);
     c_switch.expr &:= ")->ident->name;\n";
     c_switch.expr &:= diagnosticLine(current_object);
@@ -4241,7 +4241,7 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "  name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= "=\"\";\n";
+    c_switch.expr &:= ".value.ustriValue=\"\";\n";
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "}\n";
     c_switch.expr &:= diagnosticLine(current_object);
@@ -4251,11 +4251,11 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     end if;
     c_switch.expr &:= "hshIdxDefault0(elementNameLabels[";
     c_switch.expr &:= str(numOfElementNameTable);
-    c_switch.expr &:= "], (genericType) name_";
+    c_switch.expr &:= "], name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ", ustriHash(name_";
+    c_switch.expr &:= ".value.genericValue, ustriHash(name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= "), (compareType)(&strcmp))) {\n";
+    c_switch.expr &:= ".value.ustriValue), (compareType)(&ustriCmpGeneric))) {\n";
     elements := structSymbols(prog);
     for structSymbol range elements do
       backupParam := formal_params[paramNum];
@@ -5980,6 +5980,7 @@ const proc: write_file_head is func
     writeln(c_prog, "size_t max_catch_stack;");
     writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
+    writeln(c_prog, "intType ustriCmpGeneric (const genericType value1, const genericType value2);");
     writeln(c_prog, "genericType ustriCreateGeneric (const genericType source);");
     writeln(c_prog, "intType ustriHash (const const_ustriType stri);");
     if config.profile_function then
@@ -7836,7 +7837,7 @@ const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
       c_expr.expr &:= str(labelNumber);
       c_expr.expr &:= ", ";
       c_expr.expr &:= str(hashCode(name));
-      c_expr.expr &:= ", (compareType)(&strcmp), (createFuncType)(&ustriCreateGeneric)";
+      c_expr.expr &:= ", (compareType)(&ustriCmpGeneric), (createFuncType)(&ustriCreateGeneric)";
       c_expr.expr &:= ", (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
     end for;
   end func;

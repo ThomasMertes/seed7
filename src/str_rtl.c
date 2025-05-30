@@ -144,6 +144,26 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
 
 
 
+intType ustriCmpGeneric (const genericType value1, const genericType value2)
+
+  {
+    intType signumValue;
+
+  /* ustriCmpGeneric */
+    signumValue = strcmp(((const_rtlObjectType *) &value1)->value.ustriValue,
+                         ((const_rtlObjectType *) &value2)->value.ustriValue);
+#if !STRCMP_RETURNS_SIGNUM
+    if (signumValue < -1) {
+      signumValue = -1;
+    } else if (signumValue > 1) {
+      signumValue = 1;
+    } /* if */
+#endif
+    return signumValue;
+  } /* ustriCmpGeneric */
+
+
+
 genericType ustriCreateGeneric (const genericType source)
 
   {
