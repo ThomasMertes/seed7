@@ -144,17 +144,17 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
 
 
 
-genericType ustrCreateGeneric (const genericType source)
+genericType ustriCreateGeneric (const genericType source)
 
   {
     ustriType ustri;
     memSizeType length;
     rtlObjectType result;
 
-  /* ustrCreateGeneric */
+  /* ustriCreateGeneric */
     INIT_GENERIC_PTR(result.value.genericValue);
     ustri = ((const_rtlObjectType *) &source)->value.ustriValue;
-    logFunction(printf("ustrCreateGeneric(\"%s\")\n",
+    logFunction(printf("ustriCreateGeneric(\"%s\")\n",
                        ustri == NULL ? (ustriType) "\\ ** NULL_USTRI "
                                      : ustri););
     if (likely(ustri != NULL)) {
@@ -163,10 +163,10 @@ genericType ustrCreateGeneric (const genericType source)
         memcpy(result.value.ustriValue, ustri, length + NULL_TERMINATION_LEN);
       } /* if */
     } /* if */
-    logFunction(printf("ustrCreateGeneric --> " FMT_U "\n",
+    logFunction(printf("ustriCreateGeneric --> " FMT_U "\n",
                        result.value.genericValue););
     return result.value.genericValue;
-  } /* ustrCreateGeneric */
+  } /* ustriCreateGeneric */
 
 
 

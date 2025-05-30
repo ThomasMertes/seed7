@@ -5980,7 +5980,7 @@ const proc: write_file_head is func
     writeln(c_prog, "size_t max_catch_stack;");
     writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
-    writeln(c_prog, "genericType ustrCreateGeneric (const genericType source);");
+    writeln(c_prog, "genericType ustriCreateGeneric (const genericType source);");
     writeln(c_prog, "intType ustriHash (const const_ustriType stri);");
     if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
@@ -7836,7 +7836,7 @@ const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
       c_expr.expr &:= str(labelNumber);
       c_expr.expr &:= ", ";
       c_expr.expr &:= str(hashCode(name));
-      c_expr.expr &:= ", (compareType)(&strcmp), (createFuncType)(&ustrCreateGeneric)";
+      c_expr.expr &:= ", (compareType)(&strcmp), (createFuncType)(&ustriCreateGeneric)";
       c_expr.expr &:= ", (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
     end for;
   end func;
