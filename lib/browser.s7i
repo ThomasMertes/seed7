@@ -30,6 +30,7 @@ include "osfiles.s7i";
 include "process.s7i";
 include "listener.s7i";
 include "cgi.s7i";
+include "cgidialog.s7i";
 
 
 (**
