@@ -6299,7 +6299,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       writeln(log);
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
-      end while
+      end while;
     elsif on_error_label <> "" then
       error_code := 52; # Bad file number
       line_marker;
@@ -6413,7 +6413,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       writeln(log);
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
-      end while
+      end while;
     elsif on_error_label <> "" then
       error_code := 52; # Bad file number
       line_marker;
