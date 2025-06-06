@@ -546,53 +546,65 @@ static void storeLineOfCurrentFile (parseErrorType error, lineNumType lineNumber
     boolType searching;
     int areaSize;
     int areaPos;
+    int ch;
 
   /* storeLineOfCurrentFile */
-    logFunction(printf("storeLineOfCurrentFile(%u) in_file.line=%u\n",
-                       lineNumber, in_file.line););
+    logFunction(printf("storeLineOfCurrentFile(%u) "
+                       "in_file.line=%u in_file.name=\"%s\"\n",
+                       lineNumber, in_file.line, in_file.name_ustri););
     if (in_file.curr_infile != NULL &&
         (currentPosition = IN_FILE_TELL()) >= 0L) {
       /* printf("currentPosition=%lu in_file.character=%d\n",
          currentPosition, in_file.character); */
-      tableSize = in_file.line - lineNumber + 1;
-      if (ALLOC_TABLE(nlTable, long, tableSize)) {
-        if (in_file.character == EOF) {
-          bufferStartPosition = currentPosition;
-        } else {
-          bufferStartPosition = currentPosition - 1;
-        } /* if */
-        tablePos = 0;
-        searching = TRUE;
-        do {
-          if (bufferStartPosition >= MAX_AREA_SIZE) {
-            areaSize = MAX_AREA_SIZE;
-          } else {
-            areaSize = (int) bufferStartPosition;
-          } /* if */
-          bufferStartPosition -= areaSize;
-          /* printf("bufferStartPosition=%ld\n", bufferStartPosition); */
-          tableStart = tablePos;
-          IN_FILE_SEEK(bufferStartPosition);
-          areaPos = 0;
-          while (areaPos < areaSize) {
-            if (next_character() == '\n') {
-              nlTable[tablePos] = IN_FILE_TELL();
-              tablePos++;
-              if (tablePos >= tableSize) {
-                tablePos = tableStart;
-                searching = FALSE;
-              } /* if */
-            } /* if */
-            areaPos++;
-          } /* while */
-        } while (searching && bufferStartPosition > 0);
-        if (!searching) {
-          IN_FILE_SEEK(nlTable[tablePos]);
-        } else {
-          IN_FILE_SEEK(0);
-        } /* if */
+      if (in_file.line < lineNumber) {
+	do {
+          SKIP_TO_NL(ch);
+          lineNumber--;
+	} while (in_file.line < lineNumber);
         error->errorLine = readLineFromCurrentFile();
-        FREE_TABLE(nlTable, long, tableSize);
+      } else {
+        tableSize = in_file.line - lineNumber + 1;
+        if (ALLOC_TABLE(nlTable, long, tableSize)) {
+          if (in_file.character == EOF) {
+            bufferStartPosition = currentPosition;
+          } else {
+            bufferStartPosition = currentPosition - 1;
+          } /* if */
+          tablePos = 0;
+          searching = TRUE;
+          do {
+            if (bufferStartPosition >= MAX_AREA_SIZE) {
+              areaSize = MAX_AREA_SIZE;
+            } else {
+              areaSize = (int) bufferStartPosition;
+            } /* if */
+            bufferStartPosition -= areaSize;
+            /* printf("bufferStartPosition=%ld\n", bufferStartPosition); */
+            tableStart = tablePos;
+            IN_FILE_SEEK(bufferStartPosition);
+            areaPos = 0;
+            while (areaPos < areaSize) {
+              if (next_character() == '\n') {
+                printf("tableSize: %u\n", tableSize);
+                printf("tablePos: %u\n", tablePos);
+                nlTable[tablePos] = IN_FILE_TELL();
+                tablePos++;
+                if (tablePos >= tableSize) {
+                  tablePos = tableStart;
+                  searching = FALSE;
+                } /* if */
+              } /* if */
+              areaPos++;
+            } /* while */
+          } while (searching && bufferStartPosition > 0);
+          if (!searching) {
+            IN_FILE_SEEK(nlTable[tablePos]);
+          } else {
+            IN_FILE_SEEK(0);
+          } /* if */
+          error->errorLine = readLineFromCurrentFile();
+          FREE_TABLE(nlTable, long, tableSize);
+        } /* if */
       } /* if */
       IN_FILE_SEEK(currentPosition);
     } /* if */
