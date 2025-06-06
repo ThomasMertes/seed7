@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "float.s7i";
+include "math.s7i";
+
+
 (**
  *  3D vectors represented with [[float]] values for the three dimensions.
  *  3D vector literals do not exist.

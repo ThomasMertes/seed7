@@ -27,6 +27,7 @@
 
 
 include "bytedata.s7i";
+include "filesys.s7i";
 
 
 const string: ELF_MAGIC is "\127;ELF";

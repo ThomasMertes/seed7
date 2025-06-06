@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "text.s7i";
+include "keybd.s7i";
+
+
 const type: field_file is sub null_file struct
     var file: in_file is STD_NULL;
     var text: out_file is STD_NULL;

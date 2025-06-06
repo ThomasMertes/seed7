@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-include "stdio.s7i";
+include "socket.s7i";
 
 
 var file: gtk_sock is socket.value;

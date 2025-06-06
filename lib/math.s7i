@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "float.s7i";
+
+
 (**
  *  Mathematical constant &pi;.
  *  ''PI'' is the ratio of any circle's circumference to its diameter.

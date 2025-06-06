@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "sql_base.s7i";
+
+
 const func set of char: forbiddenInFieldName (in dbCategory: databaseKind) is func
   result
     var set of char: forbidden is (set of char).EMPTY_SET;

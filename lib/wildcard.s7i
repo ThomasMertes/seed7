@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "osfiles.s7i";
+
+
 (**
  *  Check if the [[string]] stri matches with ''pattern''.
  *  The pattern may contain wildcard characters.

@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+include "draw.s7i";
+include "font.s7i";
+
+
 const type: pixmapHashType is hash [char] PRIMITIVE_WINDOW;
 
 const type: activeFont is sub object interface;

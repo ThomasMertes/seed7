@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "float.s7i";
+
+
 (**
  *  Type do describe information about a star.
  *  It contains name, right ascension, declination and V magnitude.
