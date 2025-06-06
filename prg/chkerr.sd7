@@ -153,7 +153,7 @@ const func boolean: checkEofEncountered is func
                     "\"END OF FILE\" encountered",
                     "  ") and
         checkError1("\n",
-                    EOF_ENCOUNTERED, 1, 1,
+                    EOF_ENCOUNTERED, 2, 1,
                     "\"END OF FILE\" encountered",
                     "") and
         checkError1("\n ",
