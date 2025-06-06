@@ -585,8 +585,6 @@ static void storeLineOfCurrentFile (parseErrorType error, lineNumType lineNumber
             areaPos = 0;
             while (areaPos < areaSize) {
               if (next_character() == '\n') {
-                printf("tableSize: %u\n", tableSize);
-                printf("tablePos: %u\n", tablePos);
                 nlTable[tablePos] = IN_FILE_TELL();
                 tablePos++;
                 if (tablePos >= tableSize) {
@@ -734,7 +732,8 @@ static void storePositionedErrorLine (parseErrorType error,
     fileNumType fileNumber)
 
   { /* storePositionedErrorLine */
-    logFunction(printf("storePositionedErrorLine(%u) in_file.file_number=%u in_file.line=%u\n",
+    logFunction(printf("storePositionedErrorLine(%u) "
+                       "in_file.file_number=%u in_file.line=%u\n",
                        fileNumber, in_file.file_number, in_file.line););
     if (in_file.name != NULL) {
       error->columnNumber = 0;
@@ -811,6 +810,8 @@ static void setPlace (parseErrorType error, const const_striType name,
     const lineNumType lineNumber)
 
   { /* setPlace */
+    logFunction(printf("setPlace(*, \"%s\", %d) in_file.line=%u\n",
+                       striAsUnquotedCStri(name), lineNumber, in_file.line););
     error->fileName = name;
     error->lineNumber = lineNumber;
   } /* setPlace */
