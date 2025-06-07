@@ -72,13 +72,21 @@ objectType sct_alloc (listType arguments)
       result = stru_from;
       arg_1(arguments) = NULL;
     } else {
-      if (ALLOC_OBJECT(result)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
+        logError(printf("sct_alloc: ALLOC_OBJECT() failed.\n"););
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
         new_size = take_struct(stru_from)->size;
-        if (ALLOC_STRUCT(new_stru, new_size)) {
+        if (unlikely(!ALLOC_STRUCT(new_stru, new_size))) {
+          logError(printf("sct_alloc: ALLOC_STRUCT() failed.\n"););
+          FREE_OBJECT(result);
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
           new_stru->usage_count = 1;
           new_stru->size = new_size;
-          if (!crea_struct(new_stru->stru,
-              take_struct(stru_from)->stru, new_size)) {
+          if (unlikely(!crea_struct(new_stru->stru,
+                                    take_struct(stru_from)->stru,
+                                    new_size))) {
             logError(printf("sct_alloc: crea_struct() failed.\n"););
             FREE_OBJECT(result);
             FREE_STRUCT(new_stru, new_size);
@@ -90,14 +98,7 @@ objectType sct_alloc (listType arguments)
           /* Copies the POSINFO flag (and all other flags): */
           INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
           result->value.structValue = new_stru;
-        } else {
-          logError(printf("sct_alloc: ALLOC_STRUCT() failed.\n"););
-          FREE_OBJECT(result);
-          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-      } else {
-        logError(printf("sct_alloc: ALLOC_OBJECT() failed.\n"););
-        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     return bld_reference_temp(result);
@@ -128,24 +129,27 @@ objectType sct_cat (listType arguments)
     result_size = stru1_size + stru2->size;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = REALLOC_STRUCT(stru1, stru1_size, result_size);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         logError(printf("sct_cat: REALLOC_STRUCT() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        COUNT3_STRUCT(stru1_size, result_size);
+        result->size = result_size;
+        arg_1(arguments)->value.structValue = NULL;
       } /* if */
-      COUNT3_STRUCT(stru1_size, result_size);
-      result->size = result_size;
-      arg_1(arguments)->value.structValue = NULL;
     } else {
-      if (!ALLOC_STRUCT(result, result_size)) {
+      if (unlikely(!ALLOC_STRUCT(result, result_size))) {
         logError(printf("sct_cat: ALLOC_STRUCT() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
-      } /* if */
-      result->usage_count = 1;
-      result->size = result_size;
-      if (!crea_struct(result->stru, stru1->stru, stru1_size)) {
-        logError(printf("sct_cat: crea_struct() failed.\n"););
-        FREE_STRUCT(result, result_size);
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+      } else {
+        result->usage_count = 1;
+        result->size = result_size;
+        if (unlikely(!crea_struct(result->stru, stru1->stru,
+                                  stru1_size))) {
+          logError(printf("sct_cat: crea_struct() failed.\n"););
+          FREE_STRUCT(result, result_size);
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        } /* if */
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
@@ -154,8 +158,8 @@ objectType sct_cat (listType arguments)
       FREE_STRUCT(stru2, stru2->size);
       arg_3(arguments)->value.structValue = NULL;
     } else {
-      if (!crea_struct(&result->stru[stru1_size], stru2->stru,
-          stru2->size)) {
+      if (unlikely(!crea_struct(&result->stru[stru1_size],
+                                stru2->stru, stru2->size))) {
         logError(printf("sct_cat: crea_struct() failed.\n"););
         destr_struct(result->stru, stru1_size);
         FREE_STRUCT(result, result_size);
@@ -188,18 +192,20 @@ objectType sct_conv (listType arguments)
       arg_3(arguments) = NULL;
     } else {
       stru1 = take_struct(stru_arg);
-      if (!ALLOC_STRUCT(result_struct, stru1->size)) {
+      if (unlikely(!ALLOC_STRUCT(result_struct, stru1->size))) {
         logError(printf("sct_conv: ALLOC_STRUCT() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result_struct->usage_count = 1;
+        result_struct->size = stru1->size;
+        if (unlikely(!crea_struct(result_struct->stru,
+                                  stru1->stru, stru1->size))) {
+          logError(printf("sct_conv: crea_struct() failed.\n"););
+          FREE_STRUCT(result_struct, stru1->size);
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        } /* if */
+        result = bld_struct_temp(result_struct);
       } /* if */
-      result_struct->usage_count = 1;
-      result_struct->size = stru1->size;
-      if (!crea_struct(result_struct->stru, stru1->stru, stru1->size)) {
-        logError(printf("sct_conv: crea_struct() failed.\n"););
-        FREE_STRUCT(result_struct, stru1->size);
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } /* if */
-      result = bld_struct_temp(result_struct);
     } /* if */
     logFunction(printf("sct_conv -->\n"););
     return result;
@@ -239,14 +245,15 @@ objectType sct_cpy (listType arguments)
     } else {
       source_size = take_struct(source)->size;
       if (dest_struct->size != source_size) {
-        if (!ALLOC_STRUCT(dest_struct, source_size)) {
+        if (unlikely(!ALLOC_STRUCT(dest_struct, source_size))) {
           logError(printf("sct_cpy: ALLOC_STRUCT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           dest_struct->usage_count = 1;
           dest_struct->size = source_size;
-          if (!crea_struct(dest_struct->stru,
-              take_struct(source)->stru, source_size)) {
+          if (unlikely(!crea_struct(dest_struct->stru,
+                                    take_struct(source)->stru,
+                                    source_size))) {
             logError(printf("sct_cpy: crea_struct() failed.\n"););
             FREE_STRUCT(dest_struct, source_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -306,7 +313,7 @@ printf("create: pointer assignment\n");
       source->value.structValue = NULL;
     } else {
       new_size = take_struct(source)->size;
-      if (!ALLOC_STRUCT(new_stru, new_size)) {
+      if (unlikely(!ALLOC_STRUCT(new_stru, new_size))) {
         logError(printf("sct_create: ALLOC_STRUCT() failed.\n"););
         dest->value.structValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -314,8 +321,9 @@ printf("create: pointer assignment\n");
         new_stru->usage_count = 1;
         new_stru->size = new_size;
         dest->value.structValue = new_stru;
-        if (!crea_struct(new_stru->stru,
-            take_struct(source)->stru, new_size)) {
+        if (unlikely(!crea_struct(new_stru->stru,
+                                  take_struct(source)->stru,
+                                  new_size))) {
           logError(printf("sct_create: crea_struct() failed.\n"););
           FREE_STRUCT(new_stru, new_size);
           dest->value.structValue = NULL;
@@ -381,7 +389,7 @@ objectType sct_empty (listType arguments)
     structType result;
 
   /* sct_empty */
-    if (!ALLOC_STRUCT(result, 0)) {
+    if (unlikely(!ALLOC_STRUCT(result, 0))) {
       logError(printf("sct_empty: ALLOC_STRUCT() failed.\n"););
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
@@ -418,7 +426,7 @@ objectType sct_incl (listType arguments)
                 printf(")\n"););
     stru_size = stru_to->size;
     stru_to = REALLOC_STRUCT(stru_to, stru_size, stru_size + 1);
-    if (stru_to == NULL) {
+    if (unlikely(stru_to == NULL)) {
       logError(printf("sct_incl: REALLOC_STRUCT() failed.\n"););
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
@@ -519,7 +527,7 @@ printf("\n");
 */
             /* The struct will be destroyed after selecting. */
             /* A copy is necessary here to avoid a crash !!!!! */
-            if (!ALLOC_OBJECT(result)) {
+            if (unlikely(!ALLOC_OBJECT(result))) {
               logError(printf("sct_select: ALLOC_OBJECT() failed.\n"););
               result = raise_exception(SYS_MEM_EXCEPTION);
             } else {
