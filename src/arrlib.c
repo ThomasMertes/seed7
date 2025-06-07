@@ -901,6 +901,9 @@ objectType arr_head (listType arguments)
         } /* if */
       } /* if */
     } else if (unlikely(stop < arr1->min_position - 1)) {
+      logError(printf("arr_head(arr1, " FMT_D "): "
+                      "Stop index out of range (" FMT_D " .. " FMT_D ").\n",
+                      stop, arr1->min_position, arr1->max_position););
       return raise_exception(SYS_IDX_EXCEPTION);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_head(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
@@ -1330,6 +1333,9 @@ objectType arr_range (listType arguments)
     stop = take_int(arg_5(arguments));
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
+      logError(printf("arr_range(arr1, " FMT_D ", " FMT_D "): "
+                      "Start index out of range (" FMT_D " .. " FMT_D ").\n",
+                      start, stop, arr1->min_position, arr1->max_position + 1););
       return raise_exception(SYS_IDX_EXCEPTION);
     } else if (stop >= start && start <= arr1->max_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
@@ -1360,6 +1366,9 @@ objectType arr_range (listType arguments)
         } /* if */
       } /* if */
     } else if (unlikely(stop < start - 1)) {
+      logError(printf("arr_range(arr1, " FMT_D ", " FMT_D "): "
+                      "Stop index less than start index minus one.\n",
+                      start, stop););
       return raise_exception(SYS_IDX_EXCEPTION);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_range(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
@@ -1638,6 +1647,9 @@ objectType arr_subarr (listType arguments)
     start = take_int(arg_3(arguments));
     length = take_int(arg_5(arguments));
     if (unlikely(start < arr1->min_position || length < 0)) {
+      logError(printf("arr_subarr(arr1, " FMT_D ", " FMT_D "): "
+                      "Start index out of range (" FMT_D " .. " FMT_D ").\n",
+                      start, length, arr1->min_position, arr1->max_position + 1););
       return raise_exception(SYS_IDX_EXCEPTION);
     } /* if */
     arr1_size = arraySize(arr1);
@@ -1709,6 +1721,9 @@ objectType arr_tail (listType arguments)
     start = take_int(arg_3(arguments));
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
+      logError(printf("arr_tail(arr1, " FMT_D "): "
+                      "Start index out of range (" FMT_D " .. " FMT_D ").\n",
+                      start, arr1->min_position, arr1->max_position + 1););
       return raise_exception(SYS_IDX_EXCEPTION);
     } else if (start <= arr1->max_position && arr1_size >= 1) {
       result_size = arraySize2(start, arr1->max_position);
