@@ -398,6 +398,10 @@ objectType raise_with_obj_and_args (objectType exception,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* raise_with_obj_and_args */
+    logFunction(printf("raise_with_obj_and_args(");
+                trace1(exception);
+                printf(", " FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) object, (memSizeType) list););
 #ifdef WITH_PROTOCOL
     if (list == curr_argument_list) {
       if (object != NULL &&
@@ -445,6 +449,7 @@ objectType raise_with_obj_and_args (objectType exception,
       prot_nl(); */
     } /* if */
     set_fail_flag(TRUE);
+    logFunction(printf("raise_with_obj_and_args -->\n"););
     return exception;
   } /* raise_with_obj_and_args */
 
@@ -453,6 +458,8 @@ objectType raise_with_obj_and_args (objectType exception,
 objectType raise_with_arguments (objectType exception, listType list)
 
   { /* raise_with_arguments */
+    logFunction(printf("raise_with_arguments(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) exception, (memSizeType) list););
     return raise_with_obj_and_args(exception, curr_exec_object, list);
   } /* raise_with_arguments */
 
@@ -461,6 +468,8 @@ objectType raise_with_arguments (objectType exception, listType list)
 objectType raise_exception (objectType exception)
 
   { /* raise_exception */
+    logFunction(printf("raise_exception(" FMT_U_MEM ")\n",
+                       (memSizeType) exception););
     return raise_with_obj_and_args(exception, curr_exec_object,
                                    curr_argument_list);
   } /* raise_exception */
@@ -470,6 +479,8 @@ objectType raise_exception (objectType exception)
 void interprRaiseError (int exception_num, const_cstriType filename, int line)
 
   { /* interprRaiseError */
+    logFunction(printf("interprRaiseError(%d, \"%s\", %d)\n",
+                       exception_num, filename, line););
     (void) raise_exception(prog->sys_var[exception_num]);
   } /* interprRaiseError */
 
@@ -567,6 +578,7 @@ void show_signal (void)
 void run_error (objectCategory required, objectType argument)
 
   { /* run_error */
+    logFunction(printf("run_error(%d)\n", required););
     if (!fail_flag) {
 #ifdef WITH_PROTOCOL
       if (trace.exceptions) {
@@ -604,6 +616,7 @@ void run_error (objectCategory required, objectType argument)
 void empty_value (objectType argument)
 
   { /* empty_value */
+    logFunction(printf("empty_value(*)\n"););
     if (!fail_flag) {
 #ifdef WITH_PROTOCOL
       if (trace.exceptions) {

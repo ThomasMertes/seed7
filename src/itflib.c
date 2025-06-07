@@ -142,6 +142,7 @@ objectType itf_cpy (listType arguments)
       if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
           CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
         if (!ALLOC_OBJECT(new_value)) {
+          logError(printf("itf_cpy: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_cpy: memcpy %lu %lu %lu ",
@@ -222,6 +223,7 @@ objectType itf_cpy2 (listType arguments)
     if (CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
       if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
         if (!ALLOC_OBJECT(new_value)) {
+          logError(printf("itf_cpy2: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_cpy2: memcpy %lu %lu %lu ",
@@ -292,6 +294,7 @@ objectType itf_create (listType arguments)
       if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
           CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
         if (!ALLOC_OBJECT(new_value)) {
+          logError(printf("itf_create: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_create: memcpy %lu %lu %lu ",
@@ -340,6 +343,7 @@ objectType itf_create2 (listType arguments)
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
         if (!ALLOC_OBJECT(new_value)) {
+          logError(printf("itf_create2: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           /* printf("itf_create2: memcpy %lu %lu %lu ",
@@ -428,6 +432,7 @@ objectType itf_destr (listType arguments)
     } /* if */
     arg_1(arguments)->value.objValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
+    logFunction(printf("itf_destr -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* itf_destr */
 
@@ -505,11 +510,13 @@ objectType itf_new (listType arguments)
     } else {
       stru1 = take_struct(stru_arg);
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
+        logError(printf("itf_new: ALLOC_STRUCT() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_struct->usage_count = 1;
       result_struct->size = stru1->size;
       if (!crea_struct(result_struct->stru, stru1->stru, stru1->size)) {
+        logError(printf("itf_new: crea_struct() failed.\n"););
         FREE_STRUCT(result_struct, stru1->size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -588,6 +595,7 @@ objectType itf_to_interface (listType arguments)
                 printf(")\n"););
     isit_struct(stru_arg);
     if (!ALLOC_OBJECT(new_value)) {
+      logError(printf("itf_to_interface: ALLOC_OBJECT() failed.\n"););
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       memcpy(new_value, stru_arg, sizeof(objectRecord));

@@ -1326,6 +1326,7 @@ void destr_struct (objectType old_elem, memSizeType old_size)
       } /* switch */
       old_elem++;
     } /* for */
+    logFunction(printf("destr_struct -->\n"););
   } /* destr_struct */
 
 
@@ -1338,6 +1339,8 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
     boolType okay = TRUE;
 
   /* crea_struct */
+    logFunction(printf("crea_struct(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM ")\n",
+			(memSizeType) elem_to, (memSizeType) elem_from, new_size););
     while (position < new_size && okay) {
       if (!sct_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
         /* If the creation of an element fails (mostly no memory) */
@@ -1349,6 +1352,7 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
         position++;
       } /* if */
     } /* for */
+    logFunction(printf("crea_struct --> %d\n", okay););
     return okay;
   } /* crea_struct */
 
