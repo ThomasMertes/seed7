@@ -80,10 +80,10 @@ typedef HINSTANCE__ *HINSTANCE;
 
 
 
-void raise_error2 (int exception_num, const_cstriType filename, int line)
+void raise_error2 (int exception_num, const_cstriType fileName, int line)
 
   { /* raise_error2 */
-    /* printf("raise_error2(%d, %s, %d)\n", exception_num, filename, line); */
+    /* printf("raise_error2(%d, %s, %d)\n", exception_num, fileName, line); */
     if (prog != NULL) {
       (void) raise_exception(prog->sys_var[exception_num]);
     } else {

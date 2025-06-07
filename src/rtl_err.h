@@ -32,7 +32,7 @@
 #define raise_error(num) raise_error2(num, __FILE__, __LINE__)
 
 
-void raise_error2 (int exception_num, const_cstriType filename, int line);
+void raise_error2 (int exception_num, const_cstriType fileName, int line);
 #if !HAS_SNPRINTF
 int snprintf (char *buffer, size_t bufsize, const char *fmt, ...);
 #endif
