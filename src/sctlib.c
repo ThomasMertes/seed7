@@ -60,6 +60,7 @@ objectType sct_alloc (listType arguments)
 
   {
     objectType stru_from;
+    objectType struct_exec_object;
     memSizeType new_size;
     structType new_stru;
     objectType result;
@@ -82,6 +83,7 @@ objectType sct_alloc (listType arguments)
           FREE_OBJECT(result);
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
+          struct_exec_object = curr_exec_object;
           new_stru->usage_count = 1;
           new_stru->size = new_size;
           if (unlikely(!crea_struct(new_stru->stru,
@@ -90,7 +92,9 @@ objectType sct_alloc (listType arguments)
             logError(printf("sct_alloc: crea_struct() failed.\n"););
             FREE_OBJECT(result);
             FREE_STRUCT(new_stru, new_size);
-            return raise_exception(SYS_MEM_EXCEPTION);
+            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           struct_exec_object,
+                                           arguments);
           } /* if */
           result->type_of = stru_from->type_of;
           memcpy(&result->descriptor, &stru_from->descriptor,
@@ -112,6 +116,7 @@ objectType sct_cat (listType arguments)
     structType stru1;
     structType stru2;
     memSizeType stru1_size;
+    objectType struct_exec_object;
     memSizeType result_size;
     structType result;
 
@@ -126,6 +131,7 @@ objectType sct_cat (listType arguments)
     stru1 = take_struct(arg_1(arguments));
     stru2 = take_struct(arg_3(arguments));
     stru1_size = stru1->size;
+    struct_exec_object = curr_exec_object;
     result_size = stru1_size + stru2->size;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = REALLOC_STRUCT(stru1, stru1_size, result_size);
@@ -148,7 +154,9 @@ objectType sct_cat (listType arguments)
                                   stru1_size))) {
           logError(printf("sct_cat: crea_struct() failed.\n"););
           FREE_STRUCT(result, result_size);
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         struct_exec_object,
+                                         arguments);
         } /* if */
       } /* if */
     } /* if */
@@ -163,7 +171,9 @@ objectType sct_cat (listType arguments)
         logError(printf("sct_cat: crea_struct() failed.\n"););
         destr_struct(result->stru, stru1_size);
         FREE_STRUCT(result, result_size);
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+        return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                       struct_exec_object,
+                                       arguments);
       } /* if */
     } /* if */
     logFunction(printf("sct_cat -->\n"););
@@ -177,6 +187,7 @@ objectType sct_conv (listType arguments)
   {
     objectType stru_arg;
     structType stru1;
+    objectType struct_exec_object;
     structType result_struct;
     objectType result;
 
@@ -196,13 +207,16 @@ objectType sct_conv (listType arguments)
         logError(printf("sct_conv: ALLOC_STRUCT() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
+        struct_exec_object = curr_exec_object;
         result_struct->usage_count = 1;
         result_struct->size = stru1->size;
         if (unlikely(!crea_struct(result_struct->stru,
                                   stru1->stru, stru1->size))) {
           logError(printf("sct_conv: crea_struct() failed.\n"););
           FREE_STRUCT(result_struct, stru1->size);
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         struct_exec_object,
+                                         arguments);
         } /* if */
         result = bld_struct_temp(result_struct);
       } /* if */
@@ -222,6 +236,7 @@ objectType sct_cpy (listType arguments)
   {
     objectType dest;
     objectType source;
+    objectType struct_exec_object;
     memSizeType source_size;
     structType dest_struct;
 
@@ -249,6 +264,7 @@ objectType sct_cpy (listType arguments)
           logError(printf("sct_cpy: ALLOC_STRUCT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
+          struct_exec_object = curr_exec_object;
           dest_struct->usage_count = 1;
           dest_struct->size = source_size;
           if (unlikely(!crea_struct(dest_struct->stru,
@@ -256,7 +272,9 @@ objectType sct_cpy (listType arguments)
                                     source_size))) {
             logError(printf("sct_cpy: crea_struct() failed.\n"););
             FREE_STRUCT(dest_struct, source_size);
-            return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           struct_exec_object,
+                                           arguments);
           } /* if */
           destr_struct(take_struct(dest)->stru,
               take_struct(dest)->size);
@@ -289,6 +307,7 @@ objectType sct_create (listType arguments)
   {
     objectType dest;
     objectType source;
+    objectType struct_exec_object;
     memSizeType new_size;
     structType new_stru;
 
@@ -318,6 +337,7 @@ printf("create: pointer assignment\n");
         dest->value.structValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
+        struct_exec_object = curr_exec_object;
         new_stru->usage_count = 1;
         new_stru->size = new_size;
         dest->value.structValue = new_stru;
@@ -327,7 +347,9 @@ printf("create: pointer assignment\n");
           logError(printf("sct_create: crea_struct() failed.\n"););
           FREE_STRUCT(new_stru, new_size);
           dest->value.structValue = NULL;
-          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                         struct_exec_object,
+                                         arguments);
         } /* if */
       } /* if */
     } /* if */
