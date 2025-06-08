@@ -556,14 +556,16 @@ void init_stack (progType currentProg, errInfoType *err_info)
 static void close_current_stack (progType currentProg)
 
   {
-    listType reversed_list = NULL;
+    listType list_end;
+    listType reversed_list;
     listType list_element;
 
   /* close_current_stack */
     logFunction(printf("close_current_stack %d\n", data_depth););
-    /* The list of objects is reversed to free the objects in    */
-    /* the opposite way of their definition.                     */
-    reversed_list = reverse_list(currentProg->stack_data->local_object_list);
+    /* The list of objects is reversed to free the objects in */
+    /* the opposite way of their definition.                  */
+    list_end = currentProg->stack_current->local_object_list;
+    reversed_list = reverse_list(list_end);
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
@@ -591,20 +593,22 @@ static void close_current_stack (progType currentProg)
       list_element = list_element->next;
     } /* while */
     list_element = reversed_list;
-    /* Freeing objects in an extra loop avoids accessing freed   */
-    /* object data. In case of forward declared objects the      */
-    /* category of a freed object would be accessed.             */
+    /* Freeing objects in an extra loop avoids accessing      */
+    /* freed object data. In case of forward declared objects */
+    /* the category of a freed object would be accessed.      */
     while (list_element != NULL) {
       if (HAS_PROPERTY(list_element->obj) &&
-          list_element->obj->descriptor.property != currentProg->property.literal) {
-        /* In itf_destr() the STRUCTOBJECT value of an interface is */
-        /* freed when usage_count reaches zero. STRUCTOBJECT values */
-        /* with properties are treated special by itf_destr(). In   */
-        /* this case the struct value of the STRUCTOBJECT is freed  */
-        /* and set to NULL but the STRUCTOBJECT and its properties  */
-        /* are left intact. In this case sct_destr() just sets the  */
-        /* UNUSED flag of the STRUCTOBJECT. The object and the      */
-        /* descriptor.property are freed here.                      */
+          list_element->obj->descriptor.property !=
+          currentProg->property.literal) {
+        /* In itf_destr() the STRUCTOBJECT value of an        */
+        /* interface is freed when usage_count reaches zero.  */
+        /* STRUCTOBJECT values  with properties are treated   */
+        /* special by itf_destr(). In this case the struct    */
+        /* value of the STRUCTOBJECT is freed and set to NULL */
+        /* but the STRUCTOBJECT and its properties are left   */
+        /* intact. In this case sct_destr() just sets the     */
+        /* UNUSED flag of the STRUCTOBJECT. The object and    */
+        /* the descriptor.property are freed here.            */
         free_params(currentProg,
                     list_element->obj->descriptor.property->params);
         FREE_PROPERTY(list_element->obj->descriptor.property);
@@ -612,7 +616,7 @@ static void close_current_stack (progType currentProg)
       FREE_OBJECT(list_element->obj);
       list_element = list_element->next;
     } /* while */
-    free_list(reversed_list);
+    free_list2(reversed_list, list_end);
     currentProg->stack_current->local_object_list = NULL;
     logFunction(printf("close_current_stack %d -->\n", data_depth););
   } /* close_current_stack */
