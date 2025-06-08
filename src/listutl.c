@@ -100,6 +100,31 @@ memSizeType list_length (const_listType list)
 
 
 
+listType reverse_list (listType list_element)
+
+  {
+    listType next_elem;
+    listType reversed_list;
+
+  /* reverse_list */
+    if (list_element != NULL) {
+      reversed_list = list_element;
+      list_element = list_element->next;
+      reversed_list->next = NULL;
+      while (list_element != NULL) {
+        next_elem = list_element->next;
+        list_element->next = reversed_list;
+        reversed_list = list_element;
+        list_element = next_elem;
+      } /* while */
+    } else {
+      reversed_list = NULL;
+    } /* if */
+    return reversed_list;
+  } /* reverse_list */
+
+
+
 listType *append_element_to_list (listType *list_insert_place, objectType object,
     errInfoType *err_info)
 
