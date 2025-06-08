@@ -51,6 +51,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "fatal.h"
+#include "infile.h"
 #include "scanner.h"
 #include "object.h"
 #include "symbol.h"
@@ -322,6 +323,12 @@ void decl_const (nodeType node_level, errInfoType *err_info)
       typeof_object = decl_type(&is_dollar_type, err_info);
       declared_object = decl_name(node_level, err_info);
       if (declared_object != NULL && *err_info == OKAY_NO_ERROR) {
+        if (HAS_PROPERTY(declared_object) &&
+            declared_object->descriptor.property->file_number == 0 &&
+            declared_object->descriptor.property->line == 0) {
+          declared_object->descriptor.property->file_number = in_file.file_number;
+          declared_object->descriptor.property->line = in_file.line;
+	} /* if */
         decl_value(typeof_object, declared_object, is_dollar_type, err_info);
       } /* if */
       shrink_stack();
