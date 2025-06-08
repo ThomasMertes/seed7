@@ -407,6 +407,7 @@ progType prgCreate (const progType source)
 void prgDestr (progType old_prog)
 
   {
+    boolType backup_interpreter_exception;
     progType progBackup;
 
   /* prgDestr */
@@ -417,6 +418,8 @@ void prgDestr (progType old_prog)
     if (old_prog != NULL) {
       old_prog->usage_count--;
       if (old_prog->usage_count == 0) {
+        backup_interpreter_exception = interpreter_exception;
+        interpreter_exception = TRUE;
         progBackup = prog;
         prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
@@ -454,6 +457,7 @@ void prgDestr (progType old_prog)
         removeProgFiles(old_prog);
         FREE_RECORD(old_prog, progRecord, count.prog);
         prog = progBackup;
+        interpreter_exception = backup_interpreter_exception;
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
       } /* if */
