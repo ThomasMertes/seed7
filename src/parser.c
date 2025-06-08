@@ -322,43 +322,7 @@ void decl_const (nodeType node_level, errInfoType *err_info)
       typeof_object = decl_type(&is_dollar_type, err_info);
       declared_object = decl_name(node_level, err_info);
       if (declared_object != NULL && *err_info == OKAY_NO_ERROR) {
-/*        printf("decl_name ");
-        trace_entity(GET_ENTITY(declared_object)); */
-#ifdef OUT_OF_ORDER
-        printf("type before: <%lx> ", typeof_object);
-        trace1(typeof_object);
-        printf("\n");
-        if (GET_ENTITY(typeof_object)->objects != NULL) {
-          typeof_object = GET_ENTITY(typeof_object)->objects->obj;
-          printf("type after: <%lx> ", typeof_object);
-          trace1(typeof_object);
-          printf("\n");
-        } /* if */
-#endif
-/*        printf("object: ");
-        trace1(declared_object);
-        printf("\n"); */
-        /* printf("before decl_value\n");
-          printf("typeof_object: <%lx> ", typeof_object);
-          trace1(typeof_object);
-          printf("\n");
-          printf("declared_object: <%lx> ", declared_object);
-          trace1(declared_object);
-          printf("\n");
-          printf("declared_object->type_of: <%lx> ", declared_object->type_of);
-          printtype(declared_object->type_of);
-          printf("\n"); */
         decl_value(typeof_object, declared_object, is_dollar_type, err_info);
-        /* printf("after decl_value\n");
-          printf("typeof_object: <%lx> ", typeof_object);
-          trace1(typeof_object);
-          printf("\n");
-          printf("declared_object: <%lx> ", declared_object);
-          trace1(declared_object);
-          printf("\n");
-          printf("declared_object->type_of: <%lx> ", declared_object->type_of);
-          printtype(declared_object->type_of);
-          printf("\n"); */
       } /* if */
       shrink_stack();
     } /* if */
