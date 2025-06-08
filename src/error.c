@@ -43,6 +43,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "datautl.h"
+#include "traceutl.h"
 #include "infile.h"
 #include "info.h"
 #include "symbol.h"
@@ -557,10 +558,10 @@ static void storeLineOfCurrentFile (parseErrorType error, lineNumType lineNumber
       /* printf("currentPosition=%lu in_file.character=%d\n",
          currentPosition, in_file.character); */
       if (in_file.line < lineNumber) {
-	do {
+        do {
           SKIP_TO_NL(ch);
           lineNumber--;
-	} while (in_file.line < lineNumber);
+        } while (in_file.line < lineNumber);
         error->errorLine = readLineFromCurrentFile();
       } else {
         tableSize = in_file.line - lineNumber + 1;
@@ -832,6 +833,8 @@ static void setPlaceForFileNumber (parseErrorType error,
     fileNumType fileNumber, lineNumType lineNumber)
 
   { /* setPlaceForFileNumber */
+    logFunction(printf("setPlaceForFileNumber(*, %u, %u)\n",
+                       fileNumber, lineNumber););
     setPlace(error, get_file_name(prog, fileNumber), lineNumber);
   } /* setPlaceForFileNumber */
 
@@ -861,6 +864,7 @@ void err_warning (errorType err)
     parseErrorType error;
 
   /* err_warning */
+    logFunction(printf("err_warning(%d)\n", err););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -965,6 +969,8 @@ void err_num_stri (errorType err, int num_found, int num_expected,
     parseErrorType error;
 
   /* err_num_stri */
+    logFunction(printf("err_num_stri(%d, %d, %d \"%s\")\n",
+                       err, num_found, num_expected, stri););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1049,6 +1055,8 @@ void err_ident (errorType err, const_identType ident)
     parseErrorType error;
 
   /* err_ident */
+    logFunction(printf("err_ident(%d, " FMT_U_MEM ")\n",
+                       err, (memSizeType) ident););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1080,6 +1088,9 @@ void err_object (errorType err, const_objectType obj_found)
     parseErrorType error;
 
   /* err_object */
+    logFunction(printf("err_object(%d, ", err);
+                trace1(obj_found);
+                printf(")\n"););
     error = newError(err);
     if (obj_found != NULL && HAS_POSINFO(obj_found)) {
       setPlaceForObject(error, obj_found);
@@ -1187,6 +1198,8 @@ void err_type (errorType err, const_typeType type_found)
     parseErrorType error;
 
   /* err_type */
+    logFunction(printf("err_type(%d, " FMT_U_MEM ")\n",
+                       err, (memSizeType) type_found););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1214,6 +1227,11 @@ void err_expr_type (errorType err, const_objectType expr_object,
     parseErrorType error;
 
   /* err_expr_type */
+    logFunction(printf("err_expr_type(%d, ", err);
+                trace1(expr_object);
+                printf(", ");
+                printtype(type_found);
+                printf(")\n"););
     error = newError(err);
     if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
@@ -1249,6 +1267,11 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     parseErrorType error;
 
   /* err_expr_obj */
+    logFunction(printf("err_expr_obj(%d, ", err);
+                trace1(expr_object);
+                printf(", ");
+                trace1(obj_found);
+                printf(")\n"););
     error = newError(err);
     if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
@@ -1327,6 +1350,11 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
     parseErrorType error;
 
   /* err_expr_obj_stri */
+    logFunction(printf("err_expr_obj_stri(%d, ", err);
+                trace1(expr_object);
+                printf(", ");
+                trace1(obj_found);
+                printf(", \"%s\")\n", stri););
     error = newError(err);
     if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
@@ -1391,6 +1419,9 @@ void err_match (errorType err, objectType obj_found)
     parseErrorType error;
 
   /* err_match */
+    logFunction(printf("err_match(%d, ", err);
+                trace1(obj_found);
+                printf(")\n"););
     if (!contains_match_err_flag(obj_found)) {
       error = newError(err);
       if (HAS_POSINFO(obj_found)) {
@@ -1431,6 +1462,7 @@ void err_ustri (errorType err, const const_ustriType stri)
     parseErrorType error;
 
   /* err_ustri */
+    logFunction(printf("err_ustri(%d, \"%s\")\n", err, stri););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1469,6 +1501,8 @@ void err_stri (errorType err, const const_striType stri)
     parseErrorType error;
 
   /* err_stri */
+    logFunction(printf("err_stri(%d, \"%s\")\n", err,
+                       striAsUnquotedCStri(stri)););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1502,6 +1536,8 @@ void err_integer (errorType err, intType number)
     parseErrorType error;
 
   /* err_integer */
+    logFunction(printf("err_integer(%d, " FMT_D ")\n",
+                       err, number););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1542,6 +1578,8 @@ void err_cchar (errorType err, int character)
     parseErrorType error;
 
   /* err_cchar */
+    logFunction(printf("err_cchar(%d, %d)\n",
+                       err, character););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1596,6 +1634,8 @@ void err_char (errorType err, charType character)
     parseErrorType error;
 
   /* err_char */
+    logFunction(printf("err_char(%d, " FMT_U32 ")\n",
+                       err, character););
     error = newError(err);
     setPlaceOfError(error);
     storeErrorLine(error);
@@ -1641,6 +1681,8 @@ void err_at_line (errorType err, lineNumType lineNumber)
     parseErrorType error;
 
   /* err_at_line */
+    logFunction(printf("err_at_line(%d, %u)\n",
+                       err, lineNumber););
     error = newError(err);
     setPlace(error, in_file.name, lineNumber);
     storePositionedErrorLine(error, in_file.file_number);
@@ -1665,8 +1707,9 @@ void err_at_file_in_line (errorType err, const_objectType obj_found,
     parseErrorType error;
 
   /* err_at_file_in_line */
-    logFunction(printf("err_at_file_in_line(%d, " FMT_U_MEM ", %u, %u)\n",
-                       err, (memSizeType) obj_found, fileNumber, lineNumber););
+    logFunction(printf("err_at_file_in_line(%d, ", err);
+                trace1(obj_found);
+                printf(", %u, %u)\n", fileNumber, lineNumber););
     error = newError(err);
     if (fileNumber != 0 && lineNumber != 0) {
       setPlaceForFileNumber(error, fileNumber, lineNumber);
@@ -1716,6 +1759,9 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     parseErrorType error;
 
   /* err_existing_obj */
+    logFunction(printf("err_existing_obj(%d, ", err);
+                trace1(obj_found);
+                printf(")\n"););
     error = newError(err);
     fileNumber = obj_found->descriptor.property->file_number;
     lineNumber = obj_found->descriptor.property->line;
