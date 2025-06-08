@@ -738,7 +738,9 @@ static void storePositionedErrorLine (parseErrorType error,
                        fileNumber, in_file.file_number, in_file.line););
     if (in_file.name != NULL) {
       error->columnNumber = 0;
-      if (fileNumber == in_file.file_number) {
+      if (fileNumber == 0) {
+        copyCStri(&error->errorLine, "");
+      } else if (fileNumber == in_file.file_number) {
         storeLineOfCurrentFile(error, error->lineNumber);
       } else {
         storeLineOfOtherFile(error, error->fileName, error->lineNumber);
