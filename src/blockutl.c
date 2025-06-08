@@ -129,15 +129,17 @@ void free_loclist (locListType loclist)
 void free_local_consts (listType list)
 
   {
-    listType list_element;
     listType list_end;
+    listType reversed_list;
+    listType list_element;
 
   /* free_local_consts */
     logFunction(printf("free_local_consts(" FMT_U_MEM ")\n",
                        (memSizeType) list););
     if (list != NULL) {
       list_end = list;
-      list_element = reverse_list(list);
+      reversed_list= reverse_list(list);
+      list_element = reversed_list;
       do {
         if (HAS_PROPERTY(list_element->obj) &&
            list_element->obj->descriptor.property != prog->property.literal) {
@@ -147,7 +149,7 @@ void free_local_consts (listType list)
         dump_any_temp(list_element->obj);
         list_element = list_element->next;
       } while (list_element != NULL);
-      free_list2(list, list_end);
+      free_list2(reversed_list, list_end);
     } /* if */
   } /* free_local_consts */
 
