@@ -133,8 +133,11 @@ void free_local_consts (listType list)
     listType list_end;
 
   /* free_local_consts */
+    logFunction(printf("free_local_consts(" FMT_U_MEM ")\n",
+                       (memSizeType) list););
     if (list != NULL) {
-      list_element = list;
+      list_end = list;
+      list_element = reverse_list(list);
       do {
         if (HAS_PROPERTY(list_element->obj) &&
            list_element->obj->descriptor.property != prog->property.literal) {
@@ -142,7 +145,6 @@ void free_local_consts (listType list)
         } /* if */
         list_element->obj->descriptor.property = NULL;
         dump_any_temp(list_element->obj);
-        list_end = list_element;
         list_element = list_element->next;
       } while (list_element != NULL);
       free_list2(list, list_end);
