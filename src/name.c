@@ -557,25 +557,13 @@ static void close_current_stack (progType currentProg)
 
   {
     listType reversed_list = NULL;
-    listType next_elem;
     listType list_element;
 
   /* close_current_stack */
     logFunction(printf("close_current_stack %d\n", data_depth););
     /* The list of objects is reversed to free the objects in    */
     /* the opposite way of their definition.                     */
-    list_element = currentProg->stack_data->local_object_list;
-    if (list_element != NULL) {
-      reversed_list = list_element;
-      list_element = list_element->next;
-      reversed_list->next = NULL;
-      while (list_element != NULL) {
-        next_elem = list_element->next;
-        list_element->next = reversed_list;
-        reversed_list = list_element;
-        list_element = next_elem;
-      } /* while */
-    } /* if */
+    reversed_list = reverse_list(currentProg->stack_data->local_object_list);
     list_element = reversed_list;
     while (list_element != NULL) {
       if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
