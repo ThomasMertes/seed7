@@ -31,13 +31,14 @@ EXTERN objectType curr_exec_object;
 EXTERN listType curr_argument_list;
 EXTERN boolType fail_flag;
 EXTERN objectType fail_value;
-EXTERN listType fail_expression;
 EXTERN listType fail_stack;
 
 #ifdef DO_INIT
+listType fail_expression = NULL;
 fileNumType fail_file_number = 0;
 lineNumType fail_line_number = 0;
 #else
+EXTERN listType fail_expression;
 EXTERN fileNumType fail_file_number;
 EXTERN lineNumType fail_line_number;
 #endif

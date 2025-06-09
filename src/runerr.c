@@ -436,6 +436,9 @@ objectType raise_with_obj_and_args (objectType exception,
     incl_list(&fail_stack, object, &err_info);
     if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
+      if (fail_expression != NULL) {
+        free_list(fail_expression);
+      } /* if */
       fail_expression = copy_list(list, &err_info);
       if (object != NULL && HAS_POSINFO(object)){
         fail_file_number = GET_FILE_NUM(object);
