@@ -107,36 +107,6 @@ static void pop_owner (ownerType *owner)
 
 
 
-static void free_params (progType currentProg, listType params)
-
-  {
-    listType param_elem;
-    objectType param;
-
-  /* free_params */
-    logFunction(printf("free_params\n"););
-    param_elem = params;
-    while (param_elem != NULL) {
-      param = param_elem->obj;
-      if (CATEGORY_OF_OBJ(param) == VALUEPARAMOBJECT ||
-          CATEGORY_OF_OBJ(param) == REFPARAMOBJECT) {
-        logMessage(printf("free_params " FMT_U_MEM ": ",
-                          (memSizeType) param);
-                   trace1(param);
-                   printf("\n"););
-        if (HAS_PROPERTY(param) && param->descriptor.property != currentProg->property.literal) {
-          FREE_PROPERTY(param->descriptor.property);
-        } /* if */
-        FREE_OBJECT(param);
-      } /* if */
-      param_elem = param_elem->next;
-    } /* while */
-    free_list(params);
-    logFunction(printf("free_params -->\n"););
-  } /* free_params */
-
-
-
 static objectType get_object (progType currentProg, entityType entity,
     listType params, fileNumType file_number, lineNumType line,
     errInfoType *err_info)
@@ -565,59 +535,61 @@ static void close_current_stack (progType currentProg)
     /* The list of objects is reversed to free the objects in */
     /* the opposite way of their definition.                  */
     list_end = currentProg->stack_current->local_object_list;
-    reversed_list = reverse_list(list_end);
-    list_element = reversed_list;
-    while (list_element != NULL) {
-      if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
-        logMessage(printf(FMT_U_MEM " ",
-                          (memSizeType) list_element->obj);
-                   trace1(list_element->obj);
-                   printf("\n"););
-        dump_temp_value(list_element->obj);
-        pop_object(currentProg, list_element->obj);
-      } /* if */
-      list_element = list_element->next;
-    } /* while */
-    list_element = reversed_list;
-    while (list_element != NULL) {
-      if (CATEGORY_OF_OBJ(list_element->obj) == BLOCKOBJECT) {
-        logMessage(printf(FMT_U_MEM " ",
-                          (memSizeType) list_element->obj);
-                   trace1(list_element->obj);
-                   printf("\n"););
-        dump_temp_value(list_element->obj);
-        SET_CATEGORY_OF_OBJ(list_element->obj, ACTOBJECT);
-        list_element->obj->value.actValue = getActIllegal();
-        pop_object(currentProg, list_element->obj);
-      } /* if */
-      list_element = list_element->next;
-    } /* while */
-    list_element = reversed_list;
-    /* Freeing objects in an extra loop avoids accessing      */
-    /* freed object data. In case of forward declared objects */
-    /* the category of a freed object would be accessed.      */
-    while (list_element != NULL) {
-      if (HAS_PROPERTY(list_element->obj) &&
-          list_element->obj->descriptor.property !=
-          currentProg->property.literal) {
-        /* In itf_destr() the STRUCTOBJECT value of an        */
-        /* interface is freed when usage_count reaches zero.  */
-        /* STRUCTOBJECT values  with properties are treated   */
-        /* special by itf_destr(). In this case the struct    */
-        /* value of the STRUCTOBJECT is freed and set to NULL */
-        /* but the STRUCTOBJECT and its properties are left   */
-        /* intact. In this case sct_destr() just sets the     */
-        /* UNUSED flag of the STRUCTOBJECT. The object and    */
-        /* the descriptor.property are freed here.            */
-        free_params(currentProg,
-                    list_element->obj->descriptor.property->params);
-        FREE_PROPERTY(list_element->obj->descriptor.property);
-      } /* if */
-      FREE_OBJECT(list_element->obj);
-      list_element = list_element->next;
-    } /* while */
-    free_list2(reversed_list, list_end);
-    currentProg->stack_current->local_object_list = NULL;
+    if (list_end != NULL) {
+      reversed_list = reverse_list(list_end);
+      list_element = reversed_list;
+      while (list_element != NULL) {
+        if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
+          logMessage(printf(FMT_U_MEM " ",
+                            (memSizeType) list_element->obj);
+                     trace1(list_element->obj);
+                     printf("\n"););
+          dump_temp_value(list_element->obj);
+          pop_object(currentProg, list_element->obj);
+        } /* if */
+        list_element = list_element->next;
+      } /* while */
+      list_element = reversed_list;
+      while (list_element != NULL) {
+        if (CATEGORY_OF_OBJ(list_element->obj) == BLOCKOBJECT) {
+          logMessage(printf(FMT_U_MEM " ",
+                            (memSizeType) list_element->obj);
+                     trace1(list_element->obj);
+                     printf("\n"););
+          dump_temp_value(list_element->obj);
+          SET_CATEGORY_OF_OBJ(list_element->obj, ACTOBJECT);
+          list_element->obj->value.actValue = getActIllegal();
+          pop_object(currentProg, list_element->obj);
+        } /* if */
+        list_element = list_element->next;
+      } /* while */
+      list_element = reversed_list;
+      /* Freeing objects in an extra loop avoids accessing      */
+      /* freed object data. In case of forward declared objects */
+      /* the category of a freed object would be accessed.      */
+      while (list_element != NULL) {
+        if (HAS_PROPERTY(list_element->obj) &&
+            list_element->obj->descriptor.property !=
+            currentProg->property.literal) {
+          /* In itf_destr() the STRUCTOBJECT value of an        */
+          /* interface is freed when usage_count reaches zero.  */
+          /* STRUCTOBJECT values with properties are treated    */
+          /* special by itf_destr(). In this case the struct    */
+          /* value of the STRUCTOBJECT is freed and set to NULL */
+          /* but the STRUCTOBJECT and its properties are left   */
+          /* intact. In this case sct_destr() just sets the     */
+          /* UNUSED flag of the STRUCTOBJECT. The object and    */
+          /* the descriptor.property are freed here.            */
+          free_params(currentProg,
+                      list_element->obj->descriptor.property->params);
+          FREE_PROPERTY(list_element->obj->descriptor.property);
+        } /* if */
+        FREE_OBJECT(list_element->obj);
+        list_element = list_element->next;
+      } /* while */
+      free_list2(reversed_list, list_end);
+      currentProg->stack_current->local_object_list = NULL;
+    } /* if */
     logFunction(printf("close_current_stack %d -->\n", data_depth););
   } /* close_current_stack */
 

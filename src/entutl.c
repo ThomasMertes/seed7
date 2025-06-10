@@ -385,6 +385,36 @@ static entityType new_entity (identType id)
 
 
 
+void free_params (progType currentProg, listType params)
+
+  {
+    listType param_elem;
+    objectType param;
+
+  /* free_params */
+    logFunction(printf("free_params\n"););
+    param_elem = params;
+    while (param_elem != NULL) {
+      param = param_elem->obj;
+      if (CATEGORY_OF_OBJ(param) == VALUEPARAMOBJECT ||
+          CATEGORY_OF_OBJ(param) == REFPARAMOBJECT) {
+        logMessage(printf("free_params " FMT_U_MEM ": ",
+                          (memSizeType) param);
+                   trace1(param);
+                   printf("\n"););
+        if (HAS_PROPERTY(param) && param->descriptor.property != currentProg->property.literal) {
+          FREE_PROPERTY(param->descriptor.property);
+        } /* if */
+        FREE_OBJECT(param);
+      } /* if */
+      param_elem = param_elem->next;
+    } /* while */
+    free_list(params);
+    logFunction(printf("free_params -->\n"););
+  } /* free_params */
+
+
+
 /**
  *  Copy formal value and reference parameter objects.
  *  The parameters are allocated first in a list and later assigned.

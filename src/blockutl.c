@@ -90,7 +90,9 @@ static void free_locobj (const_locObjType locobj)
         } * if */
         if (CATEGORY_OF_OBJ(locobj->object) != VALUEPARAMOBJECT &&
             CATEGORY_OF_OBJ(locobj->object) != REFPARAMOBJECT) {
-          /* Parameters are freed by the function free_params (in name.c). */
+          /* Parameters are freed by the function free_params() */
+          /* which is called from close_current_stack() and     */
+          /* free_local_consts().                               */
           if (HAS_PROPERTY(locobj->object) &&
               locobj->object->descriptor.property != prog->property.literal) {
             FREE_PROPERTY(locobj->object->descriptor.property);
@@ -141,12 +143,28 @@ void free_local_consts (listType list)
       reversed_list= reverse_list(list);
       list_element = reversed_list;
       do {
+        dump_temp_value(list_element->obj);
+        list_element = list_element->next;
+      } while (list_element != NULL);
+      list_element = reversed_list;
+      do {
         if (HAS_PROPERTY(list_element->obj) &&
-           list_element->obj->descriptor.property != prog->property.literal) {
+            list_element->obj->descriptor.property !=
+            prog->property.literal) {
+          /* In itf_destr() the STRUCTOBJECT value of an        */
+          /* interface is freed when usage_count reaches zero.  */
+          /* STRUCTOBJECT values with properties are treated    */
+          /* special by itf_destr(). In this case the struct    */
+          /* value of the STRUCTOBJECT is freed and set to NULL */
+          /* but the STRUCTOBJECT and its properties are left   */
+          /* intact. In this case sct_destr() just sets the     */
+          /* UNUSED flag of the STRUCTOBJECT. The object and    */
+          /* the descriptor.property are freed here.            */
+          free_params(prog,
+                      list_element->obj->descriptor.property->params);
           FREE_PROPERTY(list_element->obj->descriptor.property);
         } /* if */
-        list_element->obj->descriptor.property = NULL;
-        dump_any_temp(list_element->obj);
+        FREE_OBJECT(list_element->obj);
         list_element = list_element->next;
       } while (list_element != NULL);
       free_list2(reversed_list, list_end);

@@ -30,6 +30,7 @@ nodeType find_node (register nodeType node_tree,
 void init_declaration_root (progType currentProg, errInfoType *err_info);
 void close_declaration_root (progType currentProg);
 void free_entity (const_progType currentProg, entityType old_entity);
+void free_params (progType currentProg, listType params);
 entityType get_entity (nodeType declaration_base, listType name_list);
 entityType find_entity (nodeType declaration_base, listType name_list);
 entityType search_entity (const_nodeType start_node, const_listType name_list);
