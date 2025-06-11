@@ -821,7 +821,7 @@ static listType eval_name_list (listType matched_name_list,
     name_elem = matched_name_list;
     name_list = NULL;
     list_insert_place = &name_list;
-    while (name_elem != NULL) {
+    while (name_elem != NULL && *err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
         if (name_elem->obj->type_of->result_type != take_type(SYS_F_PARAM_TYPE)) {
           err_object(PARAM_DECL_FAILED, name_elem->obj);
