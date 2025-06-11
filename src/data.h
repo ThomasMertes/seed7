@@ -451,6 +451,7 @@ typedef struct progStruct {
     listType struct_symbols;
     listType when_value_objects;
     listType when_set_objects;
+    listType match_expr_objects;
   } progRecord;
 
 typedef struct inFileStruct {

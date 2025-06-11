@@ -178,6 +178,27 @@ static void free_obj_and_prop (listType list)
 
 
 
+static void free_list_objects (listType list)
+
+  {
+    listType list_elem;
+    listType list_end;
+
+  /* free_list_objects */
+    if (list != NULL) {
+      list_elem = list;
+      do {
+        free_list(list_elem->obj->value.listValue);
+        FREE_OBJECT(list_elem->obj);
+        list_end = list_elem;
+        list_elem = list_elem->next;
+      } while (list_elem != NULL);
+      free_list2(list, list_end);
+    } /* if */
+  } /* free_list_objects */
+
+
+
 void addStructElement (progType aProg, objectType structElement,
     errInfoType *err_info)
 
@@ -450,6 +471,7 @@ void prgDestr (progType old_prog)
         dump_list(old_prog->substituted_objects);
         free_obj_and_prop(old_prog->when_value_objects);
         free_obj_and_prop(old_prog->struct_objects);
+        free_list_objects(old_prog->match_expr_objects);
         freeGenericHash((rtlHashType) old_prog->structSymbolsMap);
         free_list(old_prog->struct_symbols);
         freeGenericHash((rtlHashType) old_prog->objectNumberMap);
@@ -733,6 +755,7 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
+    objectType expr_object;
     objectType result;
 
   /* prgMatchExpr */
@@ -748,26 +771,33 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (unlikely(!ALLOC_OBJECT(result))) {
+      if (unlikely(!ALLOC_OBJECT(expr_object))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->type_of = NULL;
-        result->descriptor.property = NULL;
-        INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
-        result->value.listValue = copy_list(curr_expr, &err_info);
+        expr_object->type_of = NULL;
+        expr_object->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
+        incl_list(&aProg->match_expr_objects, expr_object, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
+          FREE_OBJECT(expr_object);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          result = match_prog_expression(aProg->declaration_root, result);
-          /* printf("result == %lx\n", result);
-          trace1(result);
-          printf("\n");
-          prot_list(curr_expr);
-          printf("\n");
-          prot_list(result->value.listValue);
-          printf("\n"); */
+          expr_object->value.listValue = copy_list(curr_expr, &err_info);
+          if (unlikely(err_info != OKAY_NO_ERROR)) {
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = match_prog_expression(aProg->declaration_root, expr_object);
+            /* printf("result == %lx\n", result);
+            trace1(result);
+            printf("\n");
+            prot_list(curr_expr);
+            printf("\n");
+            prot_list(result->value.listValue);
+            printf("\n"); */
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
