@@ -182,6 +182,7 @@ winType find_window (Window sys_window);
 void enter_window (winType curr_window, Window sys_window);
 void remove_window (Window sys_window);
 void gkbInitKeyboard (void);
+void gkbCloseKeyboard (void);
 
 
 
@@ -484,6 +485,7 @@ void drawClose (void)
         emptyWindow = NULL;
       } /* if */
       XCloseDisplay(mydisplay);
+      gkbCloseKeyboard();
     } /* if */
   } /* drawClose */
 

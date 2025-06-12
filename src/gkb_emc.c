@@ -1819,6 +1819,17 @@ void gkbInitKeyboard (void)
 
 
 
+void gkbCloseKeyboard (void)
+
+  { /* gkbCloseKeyboard */
+    if (window_hash != NULL) {
+      freeGenericHash(window_hash);
+      window_hash = NULL;
+    } /* if */
+  } /* gkbCloseKeyboard */
+
+
+
 boolType gkbButtonPressed (charType button)
 
   {

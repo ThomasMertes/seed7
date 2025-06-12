@@ -117,6 +117,7 @@ void remove_window (int windowId);
 void setClosePopupState (int windowId, int state);
 void setupEventCallbacksForWindow (int windowId);
 void gkbInitKeyboard (void);
+void gkbCloseKeyboard (void);
 void synchronizeTimAwaitWithGraphicKeyboard (void);
 extern intType pointerX;
 extern intType pointerY;
@@ -338,6 +339,7 @@ void drawClose (void)
       FREE_RECORD2(emptyWindow, emc_winRecord, count.win, count.win_bytes);
       emptyWindow = NULL;
     } /* if */
+    gkbCloseKeyboard();
   } /* drawClose */
 
 

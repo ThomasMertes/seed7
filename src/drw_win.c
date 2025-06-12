@@ -141,6 +141,7 @@ winType find_window (HWND sys_window);
 void enter_window (winType curr_window, HWND sys_window);
 void remove_window (HWND sys_window);
 void gkbInitKeyboard (void);
+void gkbCloseKeyboard (void);
 
 
 
@@ -465,6 +466,7 @@ void drawClose (void)
       FREE_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes);
       emptyWindow = NULL;
     } /* if */
+    gkbCloseKeyboard();
   } /* drawClose */
 
 
