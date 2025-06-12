@@ -253,7 +253,8 @@ objectType arr_append (listType arguments)
             if (arr_to == extension) {
               extension = new_arr;
             } /* if */
-            if (unlikely(!crea_array(&new_arr->arr[arr_to_size], extension->arr,
+            if (unlikely(!crea_array(&new_arr->arr[arr_to_size],
+                                     extension->arr,
                                      extension_size))) {
               logError(printf("arr_append: crea_array() failed.\n"););
               if (unlikely(!REALLOC_ARRAY(arr_to, new_arr, arr_to_size))) {
@@ -316,7 +317,8 @@ objectType arr_arrlit (listType arguments)
         array_exec_object = curr_exec_object;
         result_array->min_position = 1;
         result_array->max_position = (intType) result_size;
-        if (unlikely(!crea_array(result_array->arr, arr1->arr, result_size))) {
+        if (unlikely(!crea_array(result_array->arr, arr1->arr,
+                                 result_size))) {
           logError(printf("arr_arrlit: crea_array() failed.\n"););
           FREE_ARRAY(result_array, result_size);
           return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
@@ -1376,7 +1378,8 @@ objectType arr_push (listType arguments)
         } else {
           array_exec_object = curr_exec_object;
           if (unlikely(!arr_elem_initialisation(element_type,
-                                                &new_arr->arr[dest_size], element))) {
+                                                &new_arr->arr[dest_size],
+                                                element))) {
             logError(printf("arr_push: arr_elem_initialisation() failed.\n"););
             if (unlikely(!REALLOC_ARRAY(dest, new_arr, dest_size))) {
               logError(printf("arr_push: REALLOC_ARRAY() failed.\n"););
