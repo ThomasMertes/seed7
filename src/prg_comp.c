@@ -207,8 +207,10 @@ void addStructElement (progType aProg, objectType structElement,
     rtlHashType structSymbolsMap;
 
   /* addStructElement */
-    logFunction(printf("addStructElement(" FMT_X_MEM ")\n",
-                       (memSizeType) aProg););
+    logFunction(printf("addStructElement(" FMT_X_MEM ", ",
+                       (memSizeType) aProg);
+                trace1(structElement);
+                printf(", %d)\n", *err_info););
     incl_list(&aProg->struct_objects, structElement, err_info);
     if (*err_info == OKAY_NO_ERROR && HAS_ENTITY(structElement)) {
       symbObject = GET_ENTITY(structElement)->syobject;
