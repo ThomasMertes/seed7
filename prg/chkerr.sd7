@@ -2538,17 +2538,7 @@ const func boolean: checkProcExpected is func
                     \  begin \"a\"; end func;",
                     PROC_EXPECTED, 7, 22,
                     "Procedure expected found type string expression",
-                    "  begin \"a\"; end func;") and
-        checkError1("$ include \"seed7_05.s7i\";\n\
-                    \const type: aStruct is new struct raise RANGE_ERROR; end struct;",
-                    PROC_EXPECTED, 2, 64,
-                    "Procedure expected found RANGE_ERROR expression",
-                    "const type: aStruct is new struct raise RANGE_ERROR; end struct;") and
-        checkError1("$ include \"seed7_05.s7i\";\n\
-                    \$ const type: aStruct is new struct raise RANGE_ERROR; end struct;",
-                    PROC_EXPECTED, 2, 66,
-                    "Procedure expected found RANGE_ERROR expression",
-                    "$ const type: aStruct is new struct raise RANGE_ERROR; end struct;") then
+                    "  begin \"a\"; end func;") then
       okay := TRUE;
     else
       writeln(" *** PROC_EXPECTED not reported correctly.");
@@ -2867,7 +2857,18 @@ const func boolean: checkObjTwiceDeclared is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError1("$ include \"seed7_05.s7i\";\n\
+    if  checkError1("$ const $ type: type   is $ newtype;\n\
+                    \$ const $ type: type   is $ newtype;\n",
+                    REDECLARATION, 2, 26,
+                    "Redeclaration of \"type\"",
+                    "$ const $ type: type   is $ newtype;") and
+        checkError1("$ const $ type: type   is $ newtype;\n\
+                    \$ const type: void     is $ newtype;\n\
+                    \$ const type: void     is $ newtype;\n",
+                    REDECLARATION, 3, 26,
+                    "Redeclaration of \"void\"",
+                    "$ const type: void     is $ newtype;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
                     \const integer: num1 is 1;\n\
                     \const integer: num1 is 1;",
                     REDECLARATION, 3, 25,
@@ -2890,7 +2891,18 @@ const func boolean: checkPreviousDeclaration is func
   result
     var boolean: okay is FALSE;
   begin
-    if  checkError2("$ include \"seed7_05.s7i\";\n\
+    if  checkError2("$ const $ type: type   is $ newtype;\n\
+                    \$ const $ type: type   is $ newtype;\n",
+                    PREVIOUS_DECLARATION, 1, 0,
+                    "Previous declaration of \"type\"",
+                    "$ const $ type: type   is $ newtype;") and
+        checkError2("$ const $ type: type   is $ newtype;\n\
+                    \$ const type: void     is $ newtype;\n\
+                    \$ const type: void     is $ newtype;\n",
+                    PREVIOUS_DECLARATION, 2, 0,
+                    "Previous declaration of \"void\"",
+                    "$ const type: void     is $ newtype;") and
+        checkError2("$ include \"seed7_05.s7i\";\n\
                     \const integer: num1 is 1;\n\
                     \const integer: num1 is 1;",
                     PREVIOUS_DECLARATION, 2, 0,
@@ -2959,7 +2971,17 @@ const func boolean: checkExceptionRaised is func
                     \var char: j3 is 1;",
                     EXCEPTION_RAISED, 3, 0,
                     "Exception \"NUMERIC_ERROR\" raised",
-                    "  return raise NUMERIC_ERROR;") then
+                    "  return raise NUMERIC_ERROR;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const type: aStruct is new struct raise RANGE_ERROR; end struct;",
+                    EXCEPTION_RAISED, 2, 64,
+                    "Exception \"RANGE_ERROR\" raised",
+                    "const type: aStruct is new struct raise RANGE_ERROR; end struct;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \$ const type: aStruct is new struct raise RANGE_ERROR; end struct;",
+                    EXCEPTION_RAISED, 2, 66,
+                    "Exception \"RANGE_ERROR\" raised",
+                    "$ const type: aStruct is new struct raise RANGE_ERROR; end struct;") then
       okay := TRUE;
     else
       writeln(" *** EXCEPTION_RAISED not reported correctly.");

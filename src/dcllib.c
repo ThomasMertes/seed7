@@ -255,7 +255,18 @@ objectType dcl_elements (listType arguments)
     local_object_insert_place = get_local_object_insert_place();
     decl_res = evaluate(local_decls);
     if (decl_res != SYS_EMPTY_OBJECT) {
-      err_object(PROC_EXPECTED, decl_res);
+      if (fail_flag) {
+        if (fail_file_number != 0) {
+          err_at_file_in_line(EXCEPTION_RAISED, fail_value,
+                              fail_file_number, fail_line_number);
+        } else {
+          err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                       fail_value);
+        } /* if */
+        set_fail_flag(FALSE);
+      } else {
+        err_object(PROC_EXPECTED, decl_res);
+      } /* if */
     } /* if */
     if (can_push_stack) {
       element_list = copy_list(*local_object_insert_place, &err_info);
