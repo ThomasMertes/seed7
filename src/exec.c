@@ -617,6 +617,12 @@ static objectType exec_action (const_objectType act_object,
         logError(printf("evaluate: illegal action\n"););
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
             evaluated_act_params);
+      } else if (unlikely(getActEntry(act_object->value.actValue)->action ==
+                          actTable.table[0].action)) {
+        logError(printf("evaluate: illegal action " FMT_U_MEM "\n",
+                        (memSizeType) act_object->value.actValue););
+        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
+            evaluated_act_params);
       } /* if */
     } /* if */
 #endif
