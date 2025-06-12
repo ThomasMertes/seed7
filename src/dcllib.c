@@ -102,16 +102,13 @@ objectType dcl_const (listType arguments)
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
     decl_exec_object = curr_exec_object;
-    logFunction(printf("dcl_const\n"););
-#if TRACE_DCL_CONST
-    printf("decl const object_type = ");
-    trace1(object_type->match_obj);
-    printf("\ndecl const name_expr = ");
-    trace1(name_expr);
-    printf("\ndecl const value_expr = ");
-    trace1(value_expr);
-    printf("\n");
-#endif
+    logFunction(printf("dcl_const(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(", ");
+                trace1(value_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
@@ -1142,16 +1139,13 @@ objectType dcl_var (listType arguments)
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
     decl_exec_object = curr_exec_object;
-    logFunction(printf("dcl_var\n"););
-#if TRACE_DCL_VAR
-    printf("decl var object_type = ");
-    trace1(object_type->match_obj);
-    printf("\ndecl var name_expr = ");
-    trace1(name_expr);
-    printf("\ndecl var value_expr = ");
-    trace1(value_expr);
-    printf("\n");
-#endif
+    logFunction(printf("dcl_var(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(", ");
+                trace1(value_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
