@@ -2981,7 +2981,13 @@ const func boolean: checkExceptionRaised is func
                     \$ const type: aStruct is new struct raise RANGE_ERROR; end struct;",
                     EXCEPTION_RAISED, 2, 66,
                     "Exception \"RANGE_ERROR\" raised",
-                    "$ const type: aStruct is new struct raise RANGE_ERROR; end struct;") then
+                    "$ const type: aStruct is new struct raise RANGE_ERROR; end struct;") and
+        checkError2("$ include \"seed7_05.s7i\";\n\
+                    \const type: timeStruct is new struct var time: aTime is time.value; end struct;\n\
+                    \const type: aStruct is new struct var timeStruct: validity is timeStuct.value; end struct;\n",
+                    EXCEPTION_RAISED, 3, 91,
+                    "Exception \"ILLEGAL_ACTION\" raised",
+                    "const type: aStruct is new struct var timeStruct: validity is timeStuct.value; end struct;") then
       okay := TRUE;
     else
       writeln(" *** EXCEPTION_RAISED not reported correctly.");
