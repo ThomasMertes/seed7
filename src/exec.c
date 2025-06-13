@@ -416,7 +416,9 @@ static inline void res_restore (const_locObjType block_result,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* res_restore */
-    logFunction(printf("res_restore\n"););
+    logFunction(printf("res_restore(" FMT_U_MEM ")\n",
+                       block_result->object != NULL ?
+                           ((memSizeType) block_result->object->value.objValue) : 0););
     if (block_result->object != NULL) {
       if (fail_flag) {
         dump_any_temp(block_result->object->value.objValue);
