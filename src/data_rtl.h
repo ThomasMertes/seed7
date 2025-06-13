@@ -134,6 +134,7 @@ typedef union {
     floatType        floatValue;   /* FLOATOBJECT */
 #endif
     ustriType        ustriValue;
+    cstriType        cstriValue;
   } rtlValueUnion;
 
 typedef struct rtlObjectStruct {

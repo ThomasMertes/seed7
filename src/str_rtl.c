@@ -150,8 +150,8 @@ intType ustriCmpGeneric (const genericType value1, const genericType value2)
     intType signumValue;
 
   /* ustriCmpGeneric */
-    signumValue = strcmp(((const_rtlObjectType *) &value1)->value.ustriValue,
-                         ((const_rtlObjectType *) &value2)->value.ustriValue);
+    signumValue = strcmp(((const_rtlObjectType *) &value1)->value.cstriValue,
+                         ((const_rtlObjectType *) &value2)->value.cstriValue);
 #if !STRCMP_RETURNS_SIGNUM
     if (signumValue < -1) {
       signumValue = -1;
