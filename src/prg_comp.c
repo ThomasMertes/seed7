@@ -753,7 +753,7 @@ objectType prgMatch (const const_progType aProg, listType curr_expr)
 
 
 
-objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
+objectType prgMatchExpr (const progType aProg, listType curr_expr)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;

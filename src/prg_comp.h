@@ -45,7 +45,7 @@ void prgGetError (const const_progType aProg, intType errorIndex,
     intType *columnNumber, striType *msg, striType *errorLine);
 listType prgGlobalObjects (const const_progType aProg);
 objectType prgMatch (const const_progType aProg, listType curr_expr);
-objectType prgMatchExpr (const const_progType aProg, listType curr_expr);
+objectType prgMatchExpr (const progType aProg, listType curr_expr);
 const_striType prgName (const const_progType aProg);
 const_striType prgPath (const const_progType aProg);
 listType prgStructSymbols (const const_progType aProgram);

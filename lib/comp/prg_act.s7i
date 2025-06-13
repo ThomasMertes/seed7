@@ -61,7 +61,7 @@ const proc: prg_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        prgGetError (const const_progType, intType, intType *, striType *, intType *, intType *, striType *, striType *);");
     declareExtern(c_prog, "listType    prgGlobalObjects (const const_progType);");
     declareExtern(c_prog, "objRefType  prgMatch (const const_progType, listType);");
-    declareExtern(c_prog, "objRefType  prgMatchExpr (const const_progType, listType);");
+    declareExtern(c_prog, "objRefType  prgMatchExpr (const progType, listType);");
     declareExtern(c_prog, "const_striType prgName (const const_progType);");
     declareExtern(c_prog, "const_striType prgPath (const const_progType);");
     declareExtern(c_prog, "listType    prgStructSymbols (const const_progType);");
