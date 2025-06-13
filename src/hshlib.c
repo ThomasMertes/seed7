@@ -250,6 +250,8 @@ static hashType create_hash (hashType source_hash,
         } /* while */
       } /* if */
     } /* if */
+    logFunction(printf("create_hash --> " FMT_X_MEM "\n",
+                       (memSizeType) dest_hash););
     return dest_hash;
   } /* create_hash */
 
@@ -745,9 +747,14 @@ objectType hsh_create (listType arguments)
     isit_not_null(key_destr_func);
     isit_not_null(data_create_func);
     isit_not_null(data_destr_func);
-    /* printf("hsh_create(%lX, %lX, %lX, %lX, %lX, %lX)\n",
-        dest, source, key_create_func, key_destr_func,
-        data_create_func, data_destr_func); */
+    logFunction(printf("hsh_create(" FMT_U_MEM ", " FMT_X_MEM ", "
+                       FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_X_MEM ")\n",
+                       (memSizeType) dest, (memSizeType) hsh_source,
+                       (memSizeType) key_create_func,
+                       (memSizeType) key_destr_func,
+                       (memSizeType) data_create_func,
+                       (memSizeType) data_destr_func););
     SET_CATEGORY_OF_OBJ(dest, HASHOBJECT);
     if (TEMP2_OBJECT(source)) {
       dest->value.hashValue = hsh_source;
@@ -763,6 +770,8 @@ objectType hsh_create (listType arguments)
                                        hash_exec_object, arguments);
       } /* if */
     } /* if */
+    logFunction(printf("hsh_create --> " FMT_X_MEM "\n",
+                       (memSizeType) dest->value.hashValue););
     return SYS_EMPTY_OBJECT;
   } /* hsh_create */
 
@@ -787,6 +796,11 @@ objectType hsh_destr (listType arguments)
     data_destr_func = take_reference(arg_3(arguments));
     isit_not_null(key_destr_func);
     isit_not_null(data_destr_func);
+    logFunction(printf("hsh_destr(" FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_X_MEM ")\n",
+                       (memSizeType) old_hash,
+                       (memSizeType) key_destr_func,
+                       (memSizeType) data_destr_func););
     free_hash(old_hash, key_destr_func, data_destr_func);
     arg_1(arguments)->value.hashValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
