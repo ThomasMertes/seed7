@@ -5156,14 +5156,15 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
                        bigHexCStri(big1), bits););
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
-      FREE_BIG(big1);
       if (unlikely(bits != 0)) {
         logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
                         "Number of bits is negative.\n",
                         bigHexCStri(big1), bits););
+        FREE_BIG(big1);
         raise_error(NUMERIC_ERROR);
         result = NULL;
       } else {
+        FREE_BIG(big1);
         if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {

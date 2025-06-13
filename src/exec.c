@@ -1008,7 +1008,7 @@ objectType exec_dynamic (listType expr_list)
           logError(printf("exec_dynamic(");
                    prot_list(expr_list);
                    printf("): element_value == NULL.\n");
-                   trace1(actual_element);
+                   trace1(actual_element->obj);
                    printf("\n"););
           err_info = ACTION_ERROR;
         } else {
