@@ -479,11 +479,11 @@ objectType raise_exception (objectType exception)
 
 
 
-void interprRaiseError (int exception_num, const_cstriType filename, int line)
+void interprRaiseError (int exception_num, const_cstriType fileName, int line)
 
   { /* interprRaiseError */
     logFunction(printf("interprRaiseError(%d, \"%s\", %d)\n",
-                       exception_num, filename, line););
+                       exception_num, fileName, line););
     (void) raise_exception(prog->sys_var[exception_num]);
   } /* interprRaiseError */
 
