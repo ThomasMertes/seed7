@@ -179,10 +179,10 @@ void free_block (blockType block)
     logFunction(printf("free_block(" FMT_U_MEM ")\n",
                        (memSizeType) block););
     free_expression(block->body);
+    free_local_consts(block->local_consts);
     free_loclist(block->params);
     free_locobj(&block->result);
     free_loclist(block->local_vars);
-    free_local_consts(block->local_consts);
     FREE_RECORD(block, blockRecord, count.block);
     logFunction(printf("free_block(" FMT_U_MEM ") -->\n",
                        (memSizeType) block););
@@ -200,6 +200,7 @@ blockType new_block (locListType block_params, const_locObjType block_result,
   /* new_block */
     logFunction(printf("new_block(" FMT_U_MEM ")\n", (memSizeType) block_params););
     if (ALLOC_RECORD(created_block, blockRecord, count.block)) {
+      created_block->usage_count = 1;
       created_block->params = block_params;
       if (block_result == NULL) {
         created_block->result.object           = NULL;
