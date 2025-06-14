@@ -58,6 +58,7 @@
 #include "exec.h"
 #include "runerr.h"
 #include "blockutl.h"
+#include "actutl.h"
 #include "scanner.h"
 #include "libpath.h"
 #include "error.h"
@@ -657,47 +658,122 @@ objectType prc_cpy (listType arguments)
   {
     objectType dest;
     objectType source;
-    objectType block_value;
-    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block_source;
+    blockType old_block;
 
   /* prc_cpy */
     dest = arg_1(arguments);
-    isit_proc(dest);
-    isit_proc(arg_3(arguments));
     source = arg_3(arguments);
-    /* printf("\nprc_cpy src (" FMT_U_MEM "): ", (memSizeType) source);
-    trace1(source);
-    printf("\n");
-    printf("prc_cpy dst (" FMT_U_MEM "): ", (memSizeType) dest);
-    trace1(dest);
-    printf("\n"); */
+    isit_proc(dest);
+    isit_proc(source);
+    logFunction(printf("prc_cpy(");
+                if (CATEGORY_OF_OBJ(take_act_obj(dest)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "), ",
+                         (memSizeType) take_block(take_act_obj(dest)),
+                         take_block(take_act_obj(dest)) != NULL ?
+                             take_block(take_act_obj(dest))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
+                  printf("action \"%s\", ",
+                         getActEntry(take_action(dest))->name);
+                } else {
+                  printf("category %u, ", CATEGORY_OF_OBJ(dest));
+                }
+                if (CATEGORY_OF_OBJ(take_act_obj(source)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "))\n",
+                         (memSizeType) take_block(take_act_obj(source)),
+                         take_block(take_act_obj(source)) != NULL ?
+                             take_block(take_act_obj(source))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
+                  printf("action \"%s\")\n",
+                         getActEntry(take_action(source))->name);
+                } else {
+                  printf("category %u)\n", CATEGORY_OF_OBJ(source));
+                });
     if (CATEGORY_OF_OBJ(dest) == MATCHOBJECT) {
-      if (unlikely(dest->value.listValue->next != 0)) {
+      if (unlikely(dest->value.listValue->next != NULL)) {
         return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
         dest = dest->value.listValue->obj;
       } /* if */
     } /* if */
     is_variable(dest);
-    if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
-      if (likely(ALLOC_OBJECT(block_value))) {
-        memcpy(block_value, source, sizeof(objectRecord));
-        SET_CATEGORY_OF_OBJ(dest, MATCHOBJECT);
-        dest->value.listValue = NULL;
-        incl_list(&dest->value.listValue, block_value, &err_info);
-        if (TEMP_OBJECT(source)) {
-          source->value.blockValue = NULL;
-        } /* if */
+    if (CATEGORY_OF_OBJ(source) == MATCHOBJECT) {
+      if (unlikely(source->value.listValue->next != NULL)) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
-        return raise_exception(SYS_MEM_EXCEPTION);
+        source = source->value.listValue->obj;
       } /* if */
-    } else {
-      SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
-      dest->value = source->value;
     } /* if */
-    /* printf("prc_cpy dst (" FMT_U_MEM "): ", (memSizeType) dest);
-    trace1(dest);
-    printf("\n"); */
+    if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
+      block_source = take_block(source);
+      if (TEMP_OBJECT(source)) {
+        source->value.blockValue = NULL;
+      } else {
+        if (block_source != NULL && block_source->usage_count != 0) {
+          block_source->usage_count++;
+        } /* if */
+      } /* if */
+      if (CATEGORY_OF_OBJ(dest) == BLOCKOBJECT) {
+        old_block = take_block(dest);
+        if (old_block != NULL && old_block->usage_count != 0) {
+          old_block->usage_count--;
+          if (old_block->usage_count == 0) {
+            free_block(old_block);
+          } /* if */
+        } /* if */
+      } else if (CATEGORY_OF_OBJ(dest) == ACTOBJECT) {
+        SET_CATEGORY_OF_OBJ(dest, BLOCKOBJECT);
+      } else {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } /* if */
+      dest->value.blockValue = block_source;
+    } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
+      if (CATEGORY_OF_OBJ(dest) == BLOCKOBJECT) {
+        old_block = take_block(dest);
+        if (old_block != NULL && old_block->usage_count != 0) {
+          old_block->usage_count--;
+          if (old_block->usage_count == 0) {
+            free_block(old_block);
+          } /* if */
+        } /* if */
+        SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+      } else if (CATEGORY_OF_OBJ(dest) != ACTOBJECT) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } /* if */
+      dest->value.actValue = source->value.actValue;
+    } else {
+      logError(printf("prc_cpy: source category %d neither "
+                       "BLOCKOBJECT nor ACTOBJECT.\n",
+                       CATEGORY_OF_OBJ(source)););
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } /* if */
+    logFunction(printf("prc_cpy(");
+                if (CATEGORY_OF_OBJ(take_act_obj(dest)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "), ",
+                         (memSizeType) take_block(take_act_obj(dest)),
+                         take_block(take_act_obj(dest)) != NULL ?
+                             take_block(take_act_obj(dest))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
+                  printf("action \"%s\", ",
+                         getActEntry(take_action(dest))->name);
+                } else {
+                  printf("category %u, ", CATEGORY_OF_OBJ(dest));
+                }
+                if (CATEGORY_OF_OBJ(take_act_obj(source)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM ")) -->\n",
+                         (memSizeType) take_block(take_act_obj(source)),
+                         take_block(take_act_obj(source)) != NULL ?
+                             take_block(take_act_obj(source))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
+                  printf("action \"%s\") -->\n",
+                         getActEntry(take_action(source))->name);
+                } else {
+                  printf("category %u) -->\n", CATEGORY_OF_OBJ(source));
+                });
     return SYS_EMPTY_OBJECT;
   } /* prc_cpy */
 
@@ -714,22 +790,70 @@ objectType prc_create (listType arguments)
   {
     objectType dest;
     objectType source;
+    blockType block_value;
 
   /* prc_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
-    /* printf("\nprc_create src (" FMT_U_MEM "): ", (memSizeType) source);
-    trace1(source);
-    printf("\n"); */
-    isit_proc(source);
-    SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
-    dest->value = source->value;
-    if (TEMP_OBJECT(source)) {
-      source->value.blockValue = NULL;
+    logFunction(printf("prc_create(" FMT_U_MEM ", ",
+                        (memSizeType) dest);
+                if (CATEGORY_OF_OBJ(take_act_obj(source)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "))\n",
+                         (memSizeType) take_block(take_act_obj(source)),
+                         take_block(take_act_obj(source)) != NULL ?
+                             take_block(take_act_obj(source))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
+                  printf("action \"%s\")\n",
+                         getActEntry(take_action(source))->name);
+                } else {
+                  printf("category %u)\n", CATEGORY_OF_OBJ(source));
+                });
+    if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
+      SET_CATEGORY_OF_OBJ(dest, BLOCKOBJECT);
+      block_value = take_block(source);
+      dest->value.blockValue = block_value;
+      if (TEMP_OBJECT(source)) {
+        source->value.blockValue = NULL;
+      } else {
+        if (block_value != NULL && block_value->usage_count != 0) {
+          block_value->usage_count++;
+        } /* if */
+      } /* if */
+    } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
+      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+      dest->value.actValue = source->value.actValue;
+    } else {
+      logError(printf("prc_create: source category %d neither "
+                       "BLOCKOBJECT nor ACTOBJECT.\n",
+                       CATEGORY_OF_OBJ(source)););
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
     } /* if */
-    /* printf("prc_create dst (" FMT_U_MEM "): ", (memSizeType) dest);
-    trace1(dest);
-    printf("\n"); */
+    logFunction(printf("prc_create(");
+                if (CATEGORY_OF_OBJ(take_act_obj(dest)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "), ",
+                         (memSizeType) take_block(take_act_obj(dest)),
+                         take_block(take_act_obj(dest)) != NULL ?
+                             take_block(take_act_obj(dest))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
+                  printf("action \"%s\", ",
+                         getActEntry(take_action(dest))->name);
+                } else {
+                  printf("category %u, ", CATEGORY_OF_OBJ(dest));
+                }
+                if (CATEGORY_OF_OBJ(take_act_obj(source)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM ")) -->\n",
+                         (memSizeType) take_block(take_act_obj(source)),
+                         take_block(take_act_obj(source)) != NULL ?
+                             take_block(take_act_obj(source))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
+                  printf("action \"%s\") -->\n",
+                         getActEntry(take_action(source))->name);
+                } else {
+                  printf("category %u) -->\n", CATEGORY_OF_OBJ(source));
+                });
     return SYS_EMPTY_OBJECT;
   } /* prc_create */
 

@@ -824,11 +824,15 @@ void dump_temp_value (objectType object)
         SET_UNUSED_FLAG(object);
         break;
       case BLOCKOBJECT:
-        if (object->value.blockValue != NULL) {
+        if (object->value.blockValue != NULL &&
+            object->value.blockValue->usage_count != 0) {
           /* printf("free_block: ");
           trace1(object);
           printf("\n"); */
-          free_block(object->value.blockValue);
+          object->value.blockValue->usage_count--;
+          if (object->value.blockValue->usage_count == 0) {
+            free_block(object->value.blockValue);
+          } /* if */
         } /* if */
         SET_UNUSED_FLAG(object);
         break;

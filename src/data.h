@@ -313,6 +313,7 @@ typedef struct locListStruct {
   } locListRecord;
 
 typedef struct blockStruct {
+    memSizeType usage_count;
     locListType params;
     locObjRecord result;
     locListType local_vars;
