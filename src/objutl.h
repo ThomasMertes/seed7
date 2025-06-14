@@ -73,13 +73,13 @@
 #define take_process(arg)    (arg)->value.processValue
 
 #if WITH_TYPE_CHECK
-#define run_exception(c,arg) { run_error(c, arg); return NULL; }
-#define hasCategory(arg,cat)             if (unlikely(CATEGORY_OF_OBJ(arg) != (cat))) run_exception(cat, arg)
+#define expected_category(c,arg) { category_required(c, arg); return NULL; }
+#define hasCategory(arg,cat)             if (unlikely(CATEGORY_OF_OBJ(arg) != (cat))) expected_category(cat, arg)
 #define hasCategory2(arg,cat1,cat2)      if (unlikely(CATEGORY_OF_OBJ(arg) != (cat1) && \
-                                                      CATEGORY_OF_OBJ(arg) != (cat2))) run_exception(cat1, arg)
+                                                      CATEGORY_OF_OBJ(arg) != (cat2))) expected_category(cat1, arg)
 #define hasCategory3(arg,cat1,cat2,cat3) if (unlikely(CATEGORY_OF_OBJ(arg) != (cat1) && \
                                                       CATEGORY_OF_OBJ(arg) != (cat2) && \
-                                                      CATEGORY_OF_OBJ(arg) != (cat3))) run_exception(cat1, arg)
+                                                      CATEGORY_OF_OBJ(arg) != (cat3))) expected_category(cat1, arg)
 #define isit_action(arg)     hasCategory(take_act_obj(arg), ACTOBJECT)
 #define isit_array(arg)      hasCategory(arg, ARRAYOBJECT); \
                              if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return NULL; }
@@ -88,7 +88,7 @@
 #define isit_block(arg)      hasCategory(arg, BLOCKOBJECT)
 #define isit_bool(arg)       if (take_bool(arg) != SYS_TRUE_OBJECT && \
                                  take_bool(arg) != SYS_FALSE_OBJECT) { \
-                               run_exception(ENUMLITERALOBJECT, arg); \
+                               expected_category(ENUMLITERALOBJECT, arg); \
                              }
 #define isit_bstri(arg)      hasCategory(arg, BSTRIOBJECT); \
                              if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return NULL; }
@@ -129,7 +129,7 @@
                              if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return NULL; }
 #define isit_process(arg)    hasCategory(arg, PROCESSOBJECT)
 #define is_variable(arg)     if (unlikely(!VAR_OBJECT(arg)))             { var_required(arg); return NULL; }
-#define isit_int2(arg)       if (unlikely(CATEGORY_OF_OBJ(arg) != INTOBJECT)) run_error(INTOBJECT, arg)
+#define isit_int2(arg)       if (unlikely(CATEGORY_OF_OBJ(arg) != INTOBJECT)) category_required(INTOBJECT, arg)
 #define just_interface(arg)  hasCategory(arg, INTERFACEOBJECT); \
                              if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return NULL; }
 #else

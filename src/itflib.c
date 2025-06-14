@@ -157,7 +157,7 @@ objectType itf_cpy (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, source);
+      expected_category(INTERFACEOBJECT, source);
     } /* if */
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
@@ -180,7 +180,7 @@ objectType itf_cpy (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(old_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(old_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, old_value);
+      expected_category(INTERFACEOBJECT, old_value);
     } /* if */
     logFunction(printf("itf_cpy(");
                 trace1(dest);
@@ -238,7 +238,7 @@ objectType itf_cpy2 (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(source) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(source) != FORWARDOBJECT) {
-      run_exception(STRUCTOBJECT, source);
+      expected_category(STRUCTOBJECT, source);
     } /* if */
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
@@ -261,7 +261,7 @@ objectType itf_cpy2 (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(old_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(old_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, old_value);
+      expected_category(INTERFACEOBJECT, old_value);
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* itf_cpy2 */
@@ -311,7 +311,7 @@ objectType itf_create (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(INTERFACEOBJECT, source);
+      expected_category(INTERFACEOBJECT, source);
     } /* if */
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
@@ -358,7 +358,7 @@ objectType itf_create2 (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
-      run_exception(STRUCTOBJECT, source);
+      expected_category(STRUCTOBJECT, source);
     } /* if */
     dest->value.objValue = new_value;
     CLEAR_TEMP_FLAG(new_value);
@@ -393,7 +393,7 @@ objectType itf_destr (listType arguments)
       logError(printf("itf_destr(");
                trace1(arg_1(arguments));
                printf("): Category of value is not STRUCTOBJECT.\n"););
-      run_error(STRUCTOBJECT, old_value);
+      expected_category(STRUCTOBJECT, old_value);
     } else {
       old_struct = take_struct(old_value);
       if (old_struct != NULL) {

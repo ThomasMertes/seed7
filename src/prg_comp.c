@@ -739,7 +739,7 @@ objectType prgMatch (const const_progType aProg, listType curr_expr)
           expr_object.value.listValue->next = NULL;
           free_list(expr_object.value.listValue);
         } else {
-          run_error(MATCHOBJECT, result);
+          expected_category(MATCHOBJECT, result);
         } /* if */
       } /* if */
       /* printf("result == %lx\n", result);

@@ -578,10 +578,12 @@ void show_signal (void)
 
 
 
-void run_error (objectCategory required, objectType argument)
+void categoryRequired (objectCategory required, objectType argument,
+                       const_cstriType fileName, int line)
 
-  { /* run_error */
-    logFunction(printf("run_error(%d)\n", required););
+  { /* categoryRequired */
+    logFunction(printf("categoryRequired(%d, " FMT_U_MEM ", \"%s\", %d)\n",
+                       required, (memSizeType) argument, fileName, line););
     if (!fail_flag) {
 #ifdef WITH_PROTOCOL
       if (trace.exceptions) {
@@ -612,14 +614,16 @@ void run_error (objectCategory required, objectType argument)
 #endif
       raise_error(ACTION_ERROR);
     } /* if */
-  } /* run_error */
+  } /* categoryRequired */
 
 
 
-void empty_value (objectType argument)
+void emptyValue (objectType argument,
+                 const_cstriType fileName, int line)
 
-  { /* empty_value */
-    logFunction(printf("empty_value(*)\n"););
+  { /* emptyValue */
+    logFunction(printf("emptyValue(" FMT_U_MEM ", \"%s\", %d)\n",
+                       (memSizeType) argument, fileName, line););
     if (!fail_flag) {
 #ifdef WITH_PROTOCOL
       if (trace.exceptions) {
@@ -644,13 +648,16 @@ void empty_value (objectType argument)
 #endif
       raise_error(ACTION_ERROR);
     } /* if */
-  } /* empty_value */
+  } /* emptyValue */
 
 
 
-void var_required (objectType argument)
+void varRequired (objectType argument,
+                  const_cstriType fileName, int line)
 
-  { /* var_required */
+  { /* varRequired */
+    logFunction(printf("varRequired(" FMT_U_MEM ", \"%s\", %d)\n",
+                       (memSizeType) argument, fileName, line););
     if (!fail_flag) {
 #ifdef WITH_PROTOCOL
       if (trace.exceptions) {
@@ -677,4 +684,4 @@ void var_required (objectType argument)
 #endif
       raise_error(ACTION_ERROR);
     } /* if */
-  } /* var_required */
+  } /* varRequired */

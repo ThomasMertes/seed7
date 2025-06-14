@@ -895,7 +895,7 @@ objectType rfl_set_value (listType arguments)
         } /* if */
       } /* if */
     } else {
-      run_error(REFLISTOBJECT, list_to);
+      expected_category(REFLISTOBJECT, list_to);
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* rfl_set_value */

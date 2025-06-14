@@ -63,7 +63,7 @@ static genericType incrUsageCount (const genericType pollFile)
   /* incrUsageCount */
     fileObject = (objectType) (memSizeType) pollFile;
     if (CATEGORY_OF_OBJ(fileObject) != STRUCTOBJECT) {
-      run_error(STRUCTOBJECT, fileObject);
+      category_required(STRUCTOBJECT, fileObject);
       return 0;
     } else {
       fileStruct = take_struct(fileObject);

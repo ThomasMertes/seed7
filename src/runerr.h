@@ -62,9 +62,16 @@ typedef struct {
   } failStateStruct;
 
 
-void run_error (objectCategory required, objectType argument);
-void empty_value (objectType argument);
-void var_required (objectType argument);
+#define category_required(cat,arg) categoryRequired(cat, arg, __FILE__, __LINE__)
+#define empty_value(arg) emptyValue(arg, __FILE__, __LINE__)
+#define var_required(arg) varRequired(arg, __FILE__, __LINE__)
+
+void categoryRequired (objectCategory required, objectType argument,
+                       const_cstriType fileName, int line);
+void emptyValue (objectType argument,
+                  const_cstriType fileName, int line);
+void varRequired (objectType argument,
+                  const_cstriType fileName, int line);
 void write_call_stack (const_listType stack_elem);
 void uncaught_exception (progType aProg);
 void write_exception_info (void);

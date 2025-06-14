@@ -86,7 +86,7 @@ void isit_bool (objectType argument)
       printf("\n-----------\n");
       trace1(arg);
       printf("\n-----------\n");
-      run_error(ENUMLITERALOBJECT, argument);
+      category_required(ENUMLITERALOBJECT, argument);
     } /* if */
   } /* isit_bool */
 #endif
@@ -100,7 +100,7 @@ void isit_enum (objectType argument)
     if ((CATEGORY_OF_OBJ(argument) != ENUMLITERALOBJECT &&
         CATEGORY_OF_OBJ(argument) != CONSTENUMOBJECT &&
         CATEGORY_OF_OBJ(argument) != VARENUMOBJECT)) {
-      run_error(CONSTENUMOBJECT, argument);
+      category_required(CONSTENUMOBJECT, argument);
     } /* if */
   } /* isit_enum */
 
@@ -111,7 +111,7 @@ void isit_list (objectType argument)
   { /* isit_list */
     if (CATEGORY_OF_OBJ(argument) != LISTOBJECT &&
         CATEGORY_OF_OBJ(argument) != EXPROBJECT) {
-      run_error(LISTOBJECT, argument);
+      category_required(LISTOBJECT, argument);
     } /* if */
   } /* isit_list */
 #endif
