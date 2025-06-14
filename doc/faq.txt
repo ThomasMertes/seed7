@@ -863,6 +863,9 @@ Syntax highlighting is available for several editors:
 
    For the Mac platform this is described at:
      https://www.vaughnemiller.com/2014/01/03/enabling-syntax-highlighting-for-vim-in-mac-os-x
+ - For Emacs, the seed7-mode major mode (at https://github.com/pierre-rouleau/seed7-mode)
+   provides syntax highlighting, automatic indentation, specialized navigation
+   and several other features.
  - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
    this file to '/usr/share/nano' (you might need superuser privileges to do that).
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
@@ -3891,4 +3894,3 @@ in different branches.
 The capability to boot a language can be used to allow slightly different
 future versions of Seed7 to coexist with the current version. This is also the
 reason why the file seed7_05.s7i contains a version number (05).
-
