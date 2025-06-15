@@ -1366,41 +1366,59 @@ type variables and type expressions are used in the Seed7 compiler.
 Why does Seed7 not use type inference?
 ======================================
 
-Seed7 has a basic principle that would break if type inference would be used:
-
-   The type of every expression (and sub expression) is independent of the context.
-
-To explain this principle consider the expression:
+Consider the expression:
 
   a + b
 
-If the types of a and b are known and the definition of + applies, then the
-type of the expression a + b is also known. In this example a and b may be
-constants, variables or even sub-expressions. If one of the types of a or b
-is not known then the type of a + b cannot be determined. Now assume that a + b
-is part of a bigger expression:
+In Seed7 the type information moves from the bottom to the top. If the
+types of a and b are known and the definition of + applies, then the
+type of the expression a + b is also known. If the type of e.g. a is
+unknown the type of the expression a + b is also unknown. In this case
+Seed7 triggers the error:
 
-  c = (a + b)
+    *** tst441.sd7(7):57: Match for {a + b } failed
+        a + b
 
-In theory you could deduce the type of a + b if you know the type of c and
-how = works. But in this case the context of a + b would have to be taken into
-account. The basic principle mentioned above rules that out. According to it
-the context around an expression has no influence on the type of the expression.
-In Seed7 the type information moves inside out from sub-expressions to
-expressions. Within the syntax tree it moves from the bottom to the top. This
-rule simplifies type checking a lot. This is one of the reasons why the
-interpreter can process several hundred thousand lines per second.
+Now assume we use a different language. The + could be an addition or
+a string concatenetion. So we need to know the type of a to determine
+what the + does. We can check occurances of a for hints. Now assume
+that the only other occurance is
 
-For type inference, it would be necessary that type information also moves into
-the other direction. You can see: This would violate the basic principle
-mentioned above. As long as this principle holds you need to know the global
-and local declarations to find out the result type of an expression. With type
-inference it would be necessary to take other expressions in the local
-function and even expressions in other functions into account. I do not say
-that this is not possible (for sure it is an interesting challenge to invent
-an algorithm to do this). But a human reader would also need to apply this
-algorithm when reading the program. You must consider that a program is
-more often read than written.
+  a := aFunction();
+
+so we need to look for the definition of aFunction which is in a
+different file. In the definition of aFunction is no hint which type
+is returned except for the line
+
+  return bFunction();
+
+And the journey goes on to different functions in different files.
+
+Of course an IDE could provide you the type information. But what
+about code from the internet or from a book. In this case you would
+need to copy the code to your IDE in order to understand it.
+
+Natural languages don't work that way. If you know the language you
+can read a message. You don't need a tool which gathers information
+from the surrounding and adds it to the message. The message alone
+contains enough information.
+
+As already mentioned in Seed7 the type information moves from the
+bottom to the top (e.g. from a and b to a + b).
+
+   The type of every expression is independent from the place of the expression.
+
+You just need to know the global and local declarations to find out
+the result type of an expression. Type inferencing can only work if
+you break the rule above and allow type information to move in any
+direction.
+
+With type inference it is necessary to take other expressions and
+even other functions into account. Type inference is not simple.
+Some compilers spend most of their time on type inference. And a
+human reader would also need to apply this algorithm when reading
+the program. You must consider that a program is more often read
+than written.
 
 
 Why does a local type declaration trigger an error?
@@ -1622,7 +1640,7 @@ the context of the call. Thus type checking expressions can become arbitrary
 complex. Remember that the human reader has to do the same. Omitting return
 type overloading simplifies type checking a lot. This way the following holds:
 
-   The type of every expression (and sub expression) is independent of the context.
+   The type of every expression is independent from the place of the expression.
 
 Consider this expression with operators (also applying to functions):
 
@@ -1965,22 +1983,33 @@ or
 
   [0 len 5] times 123
 
-The minimum index and the size of 'array' types like 'array integer' may be
-changed at run-time. Functions like minIdx, maxIdx and length can be used to
-determine the current properties of an array value.
+The minimum index and the size of 'array' types like 'array integer' may
+change at run-time. Functions like 'minIdx', 'maxIdx' and 'length' can be
+used to determine the current properties of an array value.
 
 In base idx 'arrays' the minimum index is part of the type. E.g.:
 
   const type: nameList is array [1 ..] string;            # minimum index is 1
   const type: huffmanSymbolArray is array [0 ..] integer; # minimum index is 0
 
-The size of a base idx 'array' may be changed at run-time.
+The minimum index of a base idx 'array' is encoded in the type and cannot
+change at run-time. The minimum index can be obtained with 'minIdx(nameList)'
+or 'minIdx(aNameListValue)'. The size of a base idx 'array' can change at
+run-time. The current length and maximum index can be obtained with 'length'
+respectively 'maxIdx'.
 
 In fixed size 'arrays' the minimum index and the size are part
 of the type. E.g.:
 
   const type: dataBlockType is array [64] integer;      # minimum index is 1 and maximum index is 64
   const type: keccakStateType is array [0 .. 24] bin64; # minimum index is 0 and maximum index is 24
+
+Neither minimum index nor maximum index nor the size of a fixed size
+'array' can change at run-time. The minumum index can be obtained with
+'minIdx(dataBlockType)' or 'minIdx(aDataBlockValue)'. The maximum index
+can be obtained with 'maxIdx(dataBlockType)' or 'maxIdx(aDataBlockValue)'.
+The length can be obtained with 'length(dataBlockType)' or
+'length(aDataBlockValue)'.
 
 Finally, there are indexed 'arrays' where the index may be any type that
 can be converted to an integer. E.d:
@@ -2172,8 +2201,8 @@ some advantages:
  - It opens the opportunity to use / for a different purpose. The library
    rational.s7i defines / to create a rational number.
  - An integer division truncates the result. In the common case the result is not
-   equal to that of a floating point division (E.g.: flt(4 div 3) returns 1.0,
-   but flt(4) / flt(3) returns 1.333333). This difference is emphasized by using
+   equal to that of a floating point division (E.g.: float(4 div 3) returns 1.0,
+   but float(4) / float(3) returns 1.333333). This difference is emphasized by using
    different operator symbols.
  - A negative result of a division can be rounded towards zero or towards minus
    infinite. Seed7 provides both possibilities with the two integer division
@@ -2715,14 +2744,14 @@ The declarations of the converting '+' operators are:
     result
       var Float: sum is Float.value;
     begin
-      sum.data := flt(a.data) + b.data;
+      sum.data := float(a.data) + b.data;
     end func;
 
   const func Float: (in Float: a) + (in Integer: b) is func
     result
       var Float: sum is Float.value;
     begin
-      sum.data := a.data + flt(b.data);
+      sum.data := a.data + float(b.data);
     end func;
 
 The declarations of the normal '+' operators (which do not convert) are:

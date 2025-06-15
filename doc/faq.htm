@@ -1301,7 +1301,7 @@ and searched for that file.
 </p><p>
 The following options are recognized by s7:
 </p><ul>
-  <li><b>-?</b> or <b>-h</b>  Write Seed7 interpreter usage.</li>
+  <li><a name="faq_interpreter_option-question_mark"><b>-?</b></a> or <a name="faq_interpreter_option-h"><b>-h</b></a>  Write Seed7 interpreter usage.</li>
   <li><a name="faq_interpreter_option-a"><b>-a</b></a>   Analyze only and suppress the execution phase.</li>
   <li><a name="faq_interpreter_option-d"><b>-d</b><span class="keywd">x</span></a>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
@@ -1919,41 +1919,59 @@ type variables and type expressions are used in the <span class="link">Seed7 com
 <div><br /><a name="faq_type_inference"><h3>Why does Seed7 not use type inference?
 </h3></a><hr />
 <p>
-Seed7 has a basic principle that would break if type inference would be used:
-</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;The type of every expression (and sub expression) is independent of the context.
-</td></tr></table></dd></dl><p>
-To explain this principle consider the expression:
+Consider the expression:
 </p><pre class="indent">
 <span class="var">a</span> + <span class="var">b</span>
 </pre><p>
-If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> applies, then the
-type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> may be
-constants, variables or even sub-expressions. If one of the types of <tt><span class="var">a</span></tt> or <tt><span class="var">b</span></tt>
-is not known then the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
-is part of a bigger expression:
+In Seed7 the type information moves from the bottom to the top. If the
+types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> applies, then the
+type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. If the type of e.g. <tt><span class="var">a</span></tt> is
+unknown the type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also unknown. In this case
+Seed7 triggers the error:
 </p><pre class="indent">
-<span class="var">c</span> = (<span class="var">a</span> + <span class="var">b</span>)
+*** tst441.sd7(7):57: <span class="link">Match for {a + b } failed</span>
+    a + b
 </pre><p>
-In theory you could deduce the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> if you know the type of <tt><span class="var">c</span></tt> and
-how <tt>=</tt> works. But in this case the context of <tt><span class="var">a</span> + <span class="var">b</span></tt> would have to be taken into
-account. The basic principle mentioned above rules that out. According to it
-the context around an expression has no influence on the type of the expression.
-In Seed7 the type information moves inside out from sub-expressions to
-expressions. Within the syntax tree it moves from the bottom to the top. This
-rule simplifies type checking a lot. This is one of the reasons why the
-interpreter can process several hundred thousand lines per second.
+Now assume we use a different language. The <tt><span class="op">+</span></tt> could be an addition or
+a string concatenetion. So we need to know the type of <tt><span class="var">a</span></tt> to determine
+what the <tt><span class="op">+</span></tt> does. We can check occurances of <tt><span class="var">a</span></tt> for hints. Now assume
+that the only other occurance is
+</p><pre class="indent">
+<span class="var">a</span> <span class="op">:=</span> <span class="func">aFunction</span>();
+</pre><p>
+so we need to look for the definition of <tt><span class="func">aFunction</span></tt> which is in a
+different file. In the definition of <tt><span class="func">aFunction</span></tt> is no hint which type
+is returned except for the line
+</p><pre class="indent">
+return bFunction();
+</pre><p>
+And the journey goes on to different functions in different files.
 </p><p>
-For type inference, it would be necessary that type information also moves into
-the other direction. You can see: This would violate the basic principle
-mentioned above. As long as this principle holds you need to know the global
-and local declarations to find out the result type of an expression. With type
-inference it would be necessary to take other expressions in the local
-function and even expressions in other functions into account. I do not say
-that this is not possible (for sure it is an interesting challenge to invent
-an algorithm to do this). But a human reader would also need to apply this
-algorithm when reading the program. You must consider that a program is
-more often read than written.
+Of course an IDE could provide you the type information. But what
+about code from the internet or from a book. In this case you would
+need to copy the code to your IDE in order to understand it.
+</p><p>
+Natural languages don't work that way. If you know the language you
+can read a message. You don't need a tool which gathers information
+from the surrounding and adds it to the message. The message alone
+contains enough information.
+</p><p>
+As already mentioned in Seed7 the type information moves from the
+bottom to the top (e.g. from <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> to <tt><span class="var">a</span> + <span class="var">b</span></tt>).
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+  &nbsp;The type of every expression is independent from the place of the expression.
+</td></tr></table></dd></dl><p>
+You just need to know the global and local declarations to find out
+the result type of an expression. Type inferencing can only work if
+you break the rule above and allow type information to move in any
+direction.
+</p><p>
+With type inference it is necessary to take other expressions and
+even other functions into account. Type inference is not simple.
+Some compilers spend most of their time on type inference. And a
+human reader would also need to apply this algorithm when reading
+the program. You must consider that a program is more often read
+than written.
 </p></div>
 
 <div><br /><a name="faq_local_type_declaration"><h3>Why does a local type declaration trigger an error?
@@ -2175,7 +2193,7 @@ the context of the call. Thus type checking expressions can become arbitrary
 complex. Remember that the human reader has to do the same. Omitting return
 type overloading simplifies type checking a lot. This way the following holds:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;The type of every expression (and sub expression) is independent of the context.
+  &nbsp;The type of every expression is independent from the place of the expression.
 </td></tr></table></dd></dl><p>
 Consider this expression with operators (also applying to functions):
 </p><pre class="indent">
@@ -2518,16 +2536,20 @@ or
 </p><pre class="indent">
 [0 <span class="op">len</span> 5] <span class="op">times</span> 123
 </pre><p>
-The minimum index and the size of <tt><span class="type">array</span></tt> types like <tt><span class="type">array</span> <span class="type">integer</span></tt> may be
-changed at run-time. Functions like <span class="func">minIdx</span>, <span class="func">maxIdx</span> and <span class="func">length</span> can be used to
-determine the current properties of an array value.
+The minimum index and the size of <tt><span class="type">array</span></tt> types like <tt><span class="type">array</span> <span class="type">integer</span></tt> may
+change at run-time. Functions like <tt><span class="func">minIdx</span></tt>, <tt><span class="func">maxIdx</span></tt> and <tt><span class="func">length</span></tt> can be
+used to determine the current properties of an array value.
 </p><p>
 In base idx <tt><span class="type">arrays</span></tt> the minimum index is part of the type. E.g.:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: nameList <span class="keywd">is</span> <span class="type">array</span> [1 ..] <span class="type">string</span>;            <span class="comment"># minimum index is 1</span>
 <span class="keywd">const</span> <span class="type">type</span>: huffmanSymbolArray <span class="keywd">is</span> <span class="type">array</span> [0 ..] <span class="type">integer</span>; <span class="comment"># minimum index is 0</span>
 </pre><p>
-The size of a base idx <tt><span class="type">array</span></tt> may be changed at run-time.
+The minimum index of a base idx <tt><span class="type">array</span></tt> is encoded in the type and cannot
+change at run-time. The minimum index can be obtained with <tt><span class="func">minIdx</span>(<span class="type">nameList</span>)</tt>
+or <tt><span class="func">minIdx</span>(aNameListValue)</tt>. The size of a base idx <tt><span class="type">array</span></tt> can change at
+run-time. The current length and maximum index can be obtained with <tt><span class="func">length</span></tt>
+respectively <tt><span class="func">maxIdx</span></tt>.
 </p><p>
 In fixed size <tt><span class="type">arrays</span></tt> the minimum index and the size are part
 of the type. E.g.:
@@ -2535,6 +2557,13 @@ of the type. E.g.:
 <span class="keywd">const</span> <span class="type">type</span>: dataBlockType <span class="keywd">is</span> <span class="type">array</span> [64] <span class="type">integer</span>;      <span class="comment"># minimum index is 1 and maximum index is 64</span>
 <span class="keywd">const</span> <span class="type">type</span>: keccakStateType <span class="keywd">is</span> <span class="type">array</span> [0 .. 24] <span class="type">bin64</span>; <span class="comment"># minimum index is 0 and maximum index is 24</span>
 </pre><p>
+Neither minimum index nor maximum index nor the size of a fixed size
+<tt><span class="type">array</span></tt> can change at run-time. The minumum index can be obtained with
+<tt><span class="func">minIdx</span>(<span class="type">dataBlockType</span>)</tt> or <tt><span class="func">minIdx</span>(aDataBlockValue)</tt>. The maximum index
+can be obtained with <tt><span class="func">maxIdx</span>(<span class="type">dataBlockType</span>)</tt> or <tt><span class="func">maxIdx</span>(aDataBlockValue)</tt>.
+The length can be obtained with <tt><span class="func">length</span>(<span class="type">dataBlockType</span>)</tt> or
+<tt><span class="func">length</span>(aDataBlockValue)</tt>.
+</p><p>
 Finally, there are indexed <tt><span class="type">arrays</span></tt> where the index may be any type that
 can be converted to an integer. E.d:
 </p><pre class="indent">
@@ -2725,8 +2754,8 @@ some advantages:
 <li>It opens the opportunity to use <tt>/</tt> for a different purpose. The library
    <span class="lib">rational.s7i</span> defines <tt><span class="op">/</span></tt> to create a rational number.</li>
 <li>An integer division truncates the result. In the common case the result is not
-   equal to that of a floating point division (E.g.: <tt><span class="func">flt</span>(4 <span class="op">div</span> 3)</tt> returns <tt>1.0</tt>,
-   but <tt><span class="func">flt</span>(4) <span class="op">/</span> <span class="func">flt</span>(3)</tt> returns <tt>1.333333</tt>). This difference is emphasized by using
+   equal to that of a floating point division (E.g.: <tt><span class="func">float</span>(4 <span class="op">div</span> 3)</tt> returns <tt>1.0</tt>,
+   but <tt><span class="func">float</span>(4) <span class="op">/</span> <span class="func">float</span>(3)</tt> returns <tt>1.333333</tt>). This difference is emphasized by using
    different operator symbols.</li>
 <li>A negative result of a division can be rounded towards zero or towards minus
    infinite. Seed7 provides both possibilities with the two integer division
@@ -3268,14 +3297,14 @@ The declarations of the converting <tt>'+'</tt> operators are:
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> <span class="func">flt</span>(a.data) + b.data;
+    sum.data <span class="op_no_ul">:=</span> <span class="func">float</span>(a.data) + b.data;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> a.data + <span class="func">flt</span>(b.data);
+    sum.data <span class="op_no_ul">:=</span> a.data + <span class="func">float</span>(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
