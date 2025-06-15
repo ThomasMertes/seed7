@@ -179,7 +179,16 @@ static objectType evaluate_local_decls (objectType local_decls,
 objectType prc_args (listType arguments)
 
   { /* prc_args */
-    return prog->arg_v;
+    logFunction(printf("prc_args\n"););
+    if (unlikely(prog->arg_v == NULL)) {
+      logError(printf("prc_args: Argument vector is NULL.\n"););
+      return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+    } else {
+      logFunction(printf("prc_args --> ");
+                  trace1(prog->arg_v);
+                  printf("\n"););
+      return prog->arg_v;
+    } /* if */
   } /* prc_args */
 
 
