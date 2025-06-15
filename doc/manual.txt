@@ -873,7 +873,7 @@ CONTENTS
         var float: celsius is 0.0;
       begin
         for fahr range lower to upper step increment do
-          celsius := flt(5 * (fahr - 32)) / 9.0;
+          celsius := float(5 * (fahr - 32)) / 9.0;
           writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
         end for;
       end func;
@@ -887,21 +887,21 @@ CONTENTS
   to a step of 1:
 
     for fahr range lower to upper do
-      celsius := flt(5 * (fahr - 32)) / 9.0;
+      celsius := float(5 * (fahr - 32)) / 9.0;
       writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
     end for;
 
   The keyword 'downto' can be used to run the for-loop backward:
 
     for fahr range upper downto lower do
-      celsius := flt(5 * (fahr - 32)) / 9.0;
+      celsius := float(5 * (fahr - 32)) / 9.0;
       writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
     end for;
 
   Since Seed7 is strong typed 'integer' and 'float' values
   cannot be mixed in expressions. Therefore the 'integer'
   expression '5 * (fahr - 32)' is converted to 'float' with
-  the function 'flt'. For the same reason a '/' division and
+  the function 'float'. For the same reason a '/' division and
   the value '9.0' must be used. The '<&' operator is used to
   concatenate elements before writing. If the right operand of
   the '<&' operator has not the type 'string' it is converted to
@@ -3225,13 +3225,13 @@ CONTENTS
       -         Subtraction
       *         Multiplication
       div       Integer division truncated towards zero
-                  ( A div B => trunc(flt(A) / flt(B)),
+                  ( A div B => trunc(float(A) / float(B)),
                     A div 0 => EXCEPTION NUMERIC_ERROR )
       rem       Reminder of integer division div
                   ( A rem B => A - (A div B) * B,
                     A rem 0 => EXCEPTION NUMERIC_ERROR )
       mdiv      Integer division truncated towards negative infinity
-                  ( A mdiv B => round(floor(flt(A) / flt(B))),
+                  ( A mdiv B => round(floor(float(A) / float(B))),
                     A mdiv 0 => EXCEPTION NUMERIC_ERROR )
       mod       Reminder of integer division mdiv
                   ( A mod B => A - (A mdiv B) * B,
@@ -3386,7 +3386,7 @@ CONTENTS
                     bytes2Int("\210;\2;\150;I", UNSIGNED, LE) => 1234567890 )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0,
-                    sqrt(A) => trunc(sqrt(flt(A))),
+                    sqrt(A) => trunc(sqrt(float(A))),
                     sqrt(-1) => EXCEPTION NUMERIC_ERROR )
       log10(A)  Truncated base 10 logarithm
                   ( log10(A) is defined for A >= 0,
@@ -3728,7 +3728,7 @@ CONTENTS
                     bytes2BigInt("\210;\2;\150;I", UNSIGNED, LE) => 1234567890_ )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
-                    sqrt(A) => trunc(sqrt(flt(A))),
+                    sqrt(A) => trunc(sqrt(float(A))),
                     sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
       modInverse(A, B) Compute the modular multiplicative inverse of A modulo B
       modPow(A, B, C) Compute the modular exponentiation of A ** B
@@ -4477,7 +4477,7 @@ CONTENTS
                     FALSE ? a : b => b )
       complex conv A   Conversion of integer to complex
                   ( Type of argument A: integer,
-                    complex conv A => complex(flt(A)) )
+                    complex conv A => complex(float(A)) )
       complex conv A   Conversion of float to complex
                   ( Type of argument A: float,
                     complex conv A => complex(A) )
@@ -6785,13 +6785,15 @@ CONTENTS
 
     Literals:
       SYMBOLOBJECT, DECLAREDOBJECT, FORWARDOBJECT, FWDREFOBJECT, BLOCKOBJECT,
-      CALLOBJECT,MATCHOBJECT, TYPEOBJECT, FORMPARAMOBJECT, INTOBJECT,
+      CALLOBJECT, MATCHOBJECT, TYPEOBJECT, FORMPARAMOBJECT, INTOBJECT,
       BIGINTOBJECT, CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT,
-      HASHOBJECT, STRUCTOBJECT, CLASSOBJECT, INTERFACEOBJECT, SETOBJECT,
-      FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
-      ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT, REFOBJECT,
-      REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
-      RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
+      HASHOBJECT, HASHELEMOBJECT, STRUCTOBJECT, STRUCTELEMOBJECT,
+      CLASSOBJECT, INTERFACEOBJECT, SETOBJECT, FILEOBJECT, SOCKETOBJECT,
+      POLLOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT, POINTLISTOBJECT,
+      PROCESSOBJECT, ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT,
+      REFOBJECT, REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT,
+      REFPARAMOBJECT, RESULTOBJECT, LOCALVOBJECT, DATABASEOBJECT,
+      SQLSTMTOBJECT, PROGOBJECT,
     Constants:
       category.value  Default value of category (SYMBOLOBJECT)
     Infix operators:
@@ -6904,6 +6906,9 @@ CONTENTS
       file(A)   File name of the referenced object
                   ( Type of result: string,
                     file(NIL) => EXCEPTION RANGE_ERROR )
+      path(A)   Absolute file path of the referenced object
+                  ( Type of result: string,
+                    path(NIL) => EXCEPTION RANGE_ERROR )
       line(A)   Line number of the referenced object
                   ( Type of result: integer,
                     line(NIL) => EXCEPTION RANGE_ERROR )
@@ -8355,14 +8360,14 @@ CONTENTS
       result
         var Float: sum is Float.value;
       begin
-        sum.data := flt(a.data) + b.data;
+        sum.data := float(a.data) + b.data;
       end func;
 
     const func Float: (in Float: a) + (in Integer: b) is func
       result
         var Float: sum is Float.value;
       begin
-        sum.data := a.data + flt(b.data);
+        sum.data := a.data + float(b.data);
       end func;
 
   The declarations of the normal '+' operators (which do not convert) are:

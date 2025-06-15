@@ -148,6 +148,12 @@ span.func    { color: purple }
 span.var     { color: darkcyan }
 span.input   { color: green }
 
+span.type_no_ul  { color: red }
+span.keywd_no_ul { color: blue }
+span.op_no_ul    { color: blue }
+span.func_no_ul  { color: purple }
+span.var_no_ul   { color: darkcyan }
+
 span.navigation { color: gainsboro; text-decoration: none; background-color: gainsboro }
 
 span.box {
@@ -1089,7 +1095,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_float">float</a>: celsius <span class="keywd">is</span> 0.0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-step-statement">for</a> fahr <a class="keywd_no_ul" href="#stats_for-step-statement">range</a> lower <a class="keywd_no_ul" href="#stats_for-step-statement">to</a> upper <a class="keywd_no_ul" href="#stats_for-step-statement">step</a> increment <a class="keywd_no_ul" href="#stats_for-step-statement">do</a>
-      celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+      celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">float</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
       <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
     <a class="keywd_no_ul" href="#stats_for-step-statement">end for</a>;
   <span class="keywd">end func</span>;
@@ -1103,21 +1109,21 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <
   to a step of 1:
 </p><pre class="indent">
 <span class="keywd">for</span> fahr <span class="keywd">range</span> lower <span class="keywd">to</span> upper <span class="keywd">do</span>
-  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">float</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
   <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
 <span class="keywd">end for</span>;
 </pre><p>
   The keyword <tt><span class="keywd">downto</span></tt> can be used to run the <tt><a class="link" href="#stats_for-statement">for-loop</a></tt> backward:
 </p><pre class="indent">
 <span class="keywd">for</span> fahr <span class="keywd">range</span> upper <span class="keywd">downto</span> lower <span class="keywd">do</span>
-  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
+  celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">float</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
   <span class="func_no_ul">writeln</span>(fahr <span class="op_no_ul">lpad</span> 3 <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a> <span class="op_no_ul">&lt;&amp;</span> celsius <span class="op_no_ul">digits</span> 2 <span class="op_no_ul">lpad</span> 6);
 <span class="keywd">end for</span>;
 </pre><p>
   Since Seed7 is strong typed <tt><a class="type" href="#types_integer">integer</a></tt> and <tt><a class="type" href="#types_float">float</a></tt> values
   cannot be mixed in expressions. Therefore the <tt><a class="type" href="#types_integer">integer</a></tt>
   expression <tt>'5 * (fahr - 32)'</tt> is converted to <tt><a class="type" href="#types_float">float</a></tt> with
-  the function <tt><span class="func">flt</span></tt>. For the same reason a <tt>'<span class="func">/</span>'</tt> division and
+  the function <tt><span class="func">float</span></tt>. For the same reason a <tt>'<span class="func">/</span>'</tt> division and
   the value <tt>'9.0'</tt> must be used. The <tt><span class="op">&lt;&amp;</span></tt> operator is used to
   concatenate elements before writing. If the right operand of
   the <tt><span class="op">&lt;&amp;</span></tt> operator has not the type <tt><a class="type" href="#types_string">string</a></tt> it is converted to
@@ -1607,15 +1613,15 @@ reset(8);
   access right (constant or variable) into account we get
   the following table:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    
+
     <tr><th> parameter </th><th>  call by  </th><th> access right </th></tr>
-    
+
     <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a></tt>       </td><td align="center">   value   </td><td> const        </td></tr>
     <tr><td> <tt><a class="keywd_no_ul" href="#params_ref_parameter">ref</a></tt>       </td><td align="center"> reference </td><td> const        </td></tr>
     <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a></tt>        </td><td align="center"> val / ref </td><td> const        </td></tr>
     <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a></tt>    </td><td align="center">   value   </td><td> var          </td></tr>
     <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a></tt>     </td><td align="center"> reference </td><td> var          </td></tr>
-    
+
 </table><p>
   Additionally to the parameters we already know this table
   describes also <tt>'<a class="keywd_no_ul" href="#params_val_parameter">val</a>'</tt> and <tt>'<a class="keywd_no_ul" href="#params_ref_parameter">ref</a>'</tt> parameters which use
@@ -1853,9 +1859,9 @@ FOR_DECLS(<span class="type">boolean</span>);
   common pattern. The keyword is followed by a type<!--(*--> (in example code <span class="type">red</span> is used for types)<!--*)-->. In the table
   below <tt><span class="type"><b><i>aType</i></b></span></tt> is a placeholder for any <a class="link" href="#types_file_start">type</a>.
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Declaration                              </th><th> Comment                                 </th></tr>
-  
+
   <tr><td> <tt><a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>                   </td><td> A <a class="link" href="#decls_Variable_declarations">variable declaration</a>                  </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>                 </td><td> A <a class="link" href="#decls_Constant_declarations">constant declaration</a>                  </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                          </td><td> Declaration of a <a class="link" href="#params_val_parameter">value-parameter</a>        </td></tr>
@@ -1870,7 +1876,7 @@ FOR_DECLS(<span class="type">boolean</span>);
   <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>             </td><td> Declaration of an <a class="link" href="#decls_Abstract_data_type">abstract data type</a>    </td></tr>
   <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: name (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type"><b><i>aType</i></b></span>) <span class="keywd">is</span> ...</tt> </td><td> Declaration of a <a class="link" href="#decls_Template">template</a>               </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#decls_Syntax_declarations">syntax</a> <a class="type_no_ul" href="#types_expr">expr</a>: pattern <span class="keywd">is</span> ...</tt>              </td><td> A <a class="link" href="#decls_Syntax_declarations">syntax declaration</a>                    </td></tr>
-  
+
 </table></dd></dl><p></p>
 
 <a name="decls_Variable_declarations"><h3>3.1 Variable declarations</h3></a>
@@ -2241,16 +2247,16 @@ $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class
   sign ($) followed by the name of the pragma. The following
   pragmas exist:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> pragma    </th><th> parameter        </th><th> comment                                       </th></tr>
-  
+
   <tr><td> <tt>$ <span class="keywd">library</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Specify additional directory for *.s7i files. </td></tr>
   <tr><td> <tt>$ <span class="keywd">message</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Writes a message during parsing.              </td></tr>
   <tr><td> <tt>$ <span class="keywd">info</span></tt>    </td><td> <tt><span class="keywd">on</span></tt> or <tt><span class="keywd">off</span></tt>        </td><td> Switch compilation info on or off.            </td></tr>
   <tr><td> <tt>$ <span class="keywd">trace</span></tt>   </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Sets compile-time tracing flags.              </td></tr>
   <tr><td> <tt>$ <span class="keywd">decls</span></tt>   </td><td> -                </td><td> Traces the declarations.                      </td></tr>
   <tr><td> <tt>$ <span class="keywd">names</span></tt>   </td><td> <tt><span class="keywd">unicode</span></tt> or <tt><span class="keywd">ascii</span></tt> </td><td> Allows Unicode (or Ascii) identifiers.        </td></tr>
-  
+
 </table></dd></dl><p>
   An unknown pragma results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
 </p><pre class="indent">
@@ -3362,38 +3368,38 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </p><p>
   Table for the behavior of different boolean expressions:
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
-    <tr><th rowspan="2"> Expression                  </th><th align="center" colspan="2">  Result when the first  
+
+    <tr><th rowspan="2"> Expression                  </th><th align="center" colspan="2">  Result when the first
       operand evaluates to   </th></tr>
-    
+
     <tr><th align="center">   <span class="var">FALSE</span>    </th><th align="center">    <span class="var">TRUE</span>    </th></tr>
-    
+
     <tr><td> <span class="op">not</span> A                       </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
-    
-    <tr><td> A <span class="op">and</span> B  <b>respectively</b><br />       
+
+    <tr><td> A <span class="op">and</span> B  <b>respectively</b><br />
      <span class="op">not</span>((<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B))       </td><td align="center">   <span class="var">FALSE</span>    </td><td align="center">     B      </td></tr>
-    
-    <tr><td> A <span class="op">or</span>  B  <b>respectively</b><br />       
+
+    <tr><td> A <span class="op">or</span>  B  <b>respectively</b><br />
      <span class="op">not</span>((<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B))      </td><td align="center">     B      </td><td align="center">    <span class="var">TRUE</span>    </td></tr>
-    
-    <tr><td> A >  B  <b>respectively</b><br />        
+
+    <tr><td> A >  B  <b>respectively</b><br />
      A <span class="op">and</span>(<span class="op">not</span> B)                </td><td align="center">   <span class="var">FALSE</span>    </td><td align="center">   <span class="op">not</span> B    </td></tr>
-    
-    <tr><td> A >= B  <b>respectively</b><br />        
+
+    <tr><td> A >= B  <b>respectively</b><br />
      A <span class="op">or</span>(<span class="op">not</span> B)                 </td><td align="center">   <span class="op">not</span> B    </td><td align="center">    <span class="var">TRUE</span>    </td></tr>
-    
-    <tr><td> A &lt;  B  <b>respectively</b><br />        
+
+    <tr><td> A &lt;  B  <b>respectively</b><br />
      (<span class="op">not</span> A)<span class="op">and</span> B                </td><td align="center">     B      </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
-    
-    <tr><td> A &lt;= B  <b>respectively</b><br />        
+
+    <tr><td> A &lt;= B  <b>respectively</b><br />
      (<span class="op">not</span> A)<span class="op">or</span> B                 </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">     B      </td></tr>
-    
-    <tr><td> <span class="op">not</span> (A <span class="op">and</span> B)  <b>respectively</b><br /> 
+
+    <tr><td> <span class="op">not</span> (A <span class="op">and</span> B)  <b>respectively</b><br />
      (<span class="op">not</span> A)<span class="op">or</span>(<span class="op">not</span> B)            </td><td align="center">    <span class="var">TRUE</span>    </td><td align="center">   <span class="op">not</span> B    </td></tr>
-    
-    <tr><td> <span class="op">not</span> (A <span class="op">or</span> B)  <b>respectively</b><br />  
+
+    <tr><td> <span class="op">not</span> (A <span class="op">or</span> B)  <b>respectively</b><br />
      (<span class="op">not</span> A)<span class="op">and</span>(<span class="op">not</span> B)           </td><td align="center">   <span class="op">not</span> B    </td><td align="center">   <span class="var">FALSE</span>    </td></tr>
-    
+
 </table></dd></dl><p>
 
   Optimizing boolean expressions:
@@ -3441,13 +3447,13 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="op">-</span>         Subtraction
       <span class="op">*</span>         Multiplication
       <span class="op">div</span>       Integer division truncated towards zero
-                  ( A <span class="op">div</span> B <b>&rArr;</b> trunc(flt(A) / flt(B)),
+                  ( A <span class="op">div</span> B <b>&rArr;</b> trunc(float(A) / float(B)),
                     A <span class="op">div</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">rem</span>       Reminder of integer division <span class="op">div</span>
                   ( A <span class="op">rem</span> B <b>&rArr;</b> A - (A <span class="op">div</span> B) * B,
                     A <span class="op">rem</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">mdiv</span>      Integer division truncated towards negative infinity
-                  ( A <span class="op">mdiv</span> B <b>&rArr;</b> round(floor(flt(A) / flt(B))),
+                  ( A <span class="op">mdiv</span> B <b>&rArr;</b> round(floor(float(A) / float(B))),
                     A <span class="op">mdiv</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">mod</span>       Reminder of integer division <span class="op">mdiv</span>
                   ( A <span class="op">mod</span> B <b>&rArr;</b> A - (A <span class="op">mdiv</span> B) * B,
@@ -3602,7 +3608,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     bytes2Int("\210;\2;\150;I", UNSIGNED, LE) <b>&rArr;</b> 1234567890 )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0,
-                    sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
+                    sqrt(A) <b>&rArr;</b> trunc(sqrt(float(A))),
                     sqrt(-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">log10</span>(A)  Truncated base 10 logarithm
                   ( log10(A) is defined for A >= 0,
@@ -3700,9 +3706,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
   <a name="types_div_rem_mdiv_mod_tables"></a>Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt>:
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
-    
+
     <tr><td align="center">  5  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    2    </td><td align="center">     1    </td><td align="center">    2    </td></tr>
     <tr><td align="center">  4  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    1    </td><td align="center">     1    </td><td align="center">    1    </td></tr>
     <tr><td align="center">  3  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td></tr>
@@ -3714,11 +3720,11 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     <tr><td align="center"> -3  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td></tr>
     <tr><td align="center"> -4  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -1    </td><td align="center">    -2    </td><td align="center">    2    </td></tr>
     <tr><td align="center"> -5  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -2    </td><td align="center">    -2    </td><td align="center">    1    </td></tr>
-    
+
 </table></dd></dl><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
-    
+
     <tr><td align="center">  5  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    2    </td><td align="center">    -2    </td><td align="center">   -1    </td></tr>
     <tr><td align="center">  4  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    1    </td><td align="center">    -2    </td><td align="center">   -2    </td></tr>
     <tr><td align="center">  3  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td></tr>
@@ -3730,38 +3736,38 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     <tr><td align="center"> -3  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td></tr>
     <tr><td align="center"> -4  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -1    </td><td align="center">     1    </td><td align="center">   -1    </td></tr>
     <tr><td align="center"> -5  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -2    </td><td align="center">     1    </td><td align="center">   -2    </td></tr>
-    
+
 </table></dd></dl><p>
 
   <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op">!</span></tt> (Binomial coefficient):
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th rowspan="2" colspan="2"> n ! k  </th><th colspan="11">                           k                             </th></tr>
-    
+
     <tr><th> -5 </th><th> -4 </th><th> -3 </th><th> -2 </th><th> -1 </th><th>  0 </th><th>  1 </th><th>  2 </th><th>   3 </th><th>  4 </th><th>    5 </th></tr>
-    
+
     <tr><td rowspan="11"><b> n </b></td><td align="center"><b> -5 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -5 </td><td align="center"> 15 </td><td align="center"> -35 </td><td align="center"> 70 </td><td align="center"> -126 </td></tr>
-    
+
     <tr><td align="center"><b> -4 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -4 </td><td align="center"> 10 </td><td align="center"> -20 </td><td align="center"> 35 </td><td align="center">  -56 </td></tr>
-    
+
     <tr><td align="center"><b> -3 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -3 </td><td align="center">  6 </td><td align="center"> -10 </td><td align="center"> 15 </td><td align="center">  -21 </td></tr>
-    
+
     <tr><td align="center"><b> -2 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -2 </td><td align="center">  3 </td><td align="center">  -4 </td><td align="center">  5 </td><td align="center">   -6 </td></tr>
-    
+
     <tr><td align="center"><b> -1 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -1 </td><td align="center"> -1 </td><td align="center">  -1 </td><td align="center"> -1 </td><td align="center">   -1 </td></tr>
-    
+
     <tr><td align="center"><b>  0 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
-    
+
     <tr><td align="center"><b>  1 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  1 </td><td align="center">  0 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
-    
+
     <tr><td align="center"><b>  2 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  2 </td><td align="center">  1 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
-    
+
     <tr><td align="center"><b>  3 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  3 </td><td align="center">  3 </td><td align="center">   1 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
-    
+
     <tr><td align="center"><b>  4 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  4 </td><td align="center">  6 </td><td align="center">   4 </td><td align="center">  1 </td><td align="center">    0 </td></tr>
-    
+
     <tr><td align="center"><b>  5 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  5 </td><td align="center"> 10 </td><td align="center">  10 </td><td align="center">  5 </td><td align="center">    1 </td></tr>
-    
+
 </table></dd></dl><p>
 
   For the <tt><span class="func">sqrt</span></tt> function holds (when A >= 0):</p><pre class="box">
@@ -3944,7 +3950,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     bytes2BigInt("\210;\2;\150;I", UNSIGNED, LE) <b>&rArr;</b> 1234567890_ )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
-                    sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
+                    sqrt(A) <b>&rArr;</b> trunc(sqrt(float(A))),
                     sqrt(-1_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">modInverse</span>(A, B) Compute the modular multiplicative inverse of A modulo B
       <span class="func">modPow</span>(A, B, C) Compute the modular exponentiation of A ** B
@@ -4050,9 +4056,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
   Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt>:
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
-    
+
     <tr><td align="center">  5_ </td><td align="center">  3_ </td><td align="center">    1_   </td><td align="center">    2_   </td><td align="center">     1_   </td><td align="center">    2_   </td></tr>
     <tr><td align="center">  4_ </td><td align="center">  3_ </td><td align="center">    1_   </td><td align="center">    1_   </td><td align="center">     1_   </td><td align="center">    1_   </td></tr>
     <tr><td align="center">  3_ </td><td align="center">  3_ </td><td align="center">    1_   </td><td align="center">    0_   </td><td align="center">     1_   </td><td align="center">    0_   </td></tr>
@@ -4064,11 +4070,11 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     <tr><td align="center"> -3_ </td><td align="center">  3_ </td><td align="center">   -1_   </td><td align="center">    0_   </td><td align="center">    -1_   </td><td align="center">    0_   </td></tr>
     <tr><td align="center"> -4_ </td><td align="center">  3_ </td><td align="center">   -1_   </td><td align="center">   -1_   </td><td align="center">    -2_   </td><td align="center">    2_   </td></tr>
     <tr><td align="center"> -5_ </td><td align="center">  3_ </td><td align="center">   -1_   </td><td align="center">   -2_   </td><td align="center">    -2_   </td><td align="center">    1_   </td></tr>
-    
+
 </table></dd></dl><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
-    
+
     <tr><td align="center">  5_ </td><td align="center"> -3_ </td><td align="center">   -1_   </td><td align="center">    2_   </td><td align="center">    -2_   </td><td align="center">   -1_   </td></tr>
     <tr><td align="center">  4_ </td><td align="center"> -3_ </td><td align="center">   -1_   </td><td align="center">    1_   </td><td align="center">    -2_   </td><td align="center">   -2_   </td></tr>
     <tr><td align="center">  3_ </td><td align="center"> -3_ </td><td align="center">   -1_   </td><td align="center">    0_   </td><td align="center">    -1_   </td><td align="center">    0_   </td></tr>
@@ -4080,38 +4086,38 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     <tr><td align="center"> -3_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">    0_   </td><td align="center">     1_   </td><td align="center">    0_   </td></tr>
     <tr><td align="center"> -4_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">   -1_   </td><td align="center">     1_   </td><td align="center">   -1_   </td></tr>
     <tr><td align="center"> -5_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">   -2_   </td><td align="center">     1_   </td><td align="center">   -2_   </td></tr>
-    
+
 </table></dd></dl><p>
 
   <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op">!</span></tt> (Binomial coefficient):
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
-    
+
     <tr><th rowspan="2" colspan="2"> n ! k   </th><th colspan="11">                                k                                   </th></tr>
-    
+
     <tr><th> -5_ </th><th> -4_ </th><th> -3_ </th><th> -2_ </th><th> -1_ </th><th>  0_ </th><th>  1_ </th><th>  2_ </th><th>   3_ </th><th>  4_ </th><th>    5_ </th></tr>
-    
+
     <tr><td rowspan="11"><b> n </b></td><td align="center"><b> -5_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -5_ </td><td align="center"> 15_ </td><td align="center"> -35_ </td><td align="center"> 70_ </td><td align="center"> -126_ </td></tr>
-    
+
     <tr><td align="center"><b> -4_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -4_ </td><td align="center"> 10_ </td><td align="center"> -20_ </td><td align="center"> 35_ </td><td align="center">  -56_ </td></tr>
-    
+
     <tr><td align="center"><b> -3_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -3_ </td><td align="center">  6_ </td><td align="center"> -10_ </td><td align="center"> 15_ </td><td align="center">  -21_ </td></tr>
-    
+
     <tr><td align="center"><b> -2_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -2_ </td><td align="center">  3_ </td><td align="center">  -4_ </td><td align="center">  5_ </td><td align="center">   -6_ </td></tr>
-    
+
     <tr><td align="center"><b> -1_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -1_ </td><td align="center"> -1_ </td><td align="center">  -1_ </td><td align="center"> -1_ </td><td align="center">   -1_ </td></tr>
-    
+
     <tr><td align="center"><b>  0_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
-    
+
     <tr><td align="center"><b>  1_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  1_ </td><td align="center">  0_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
-    
+
     <tr><td align="center"><b>  2_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  2_ </td><td align="center">  1_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
-    
+
     <tr><td align="center"><b>  3_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  3_ </td><td align="center">  3_ </td><td align="center">   1_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
-    
+
     <tr><td align="center"><b>  4_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  4_ </td><td align="center">  6_ </td><td align="center">   4_ </td><td align="center">  1_ </td><td align="center">    0_ </td></tr>
-    
+
     <tr><td align="center"><b>  5_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  5_ </td><td align="center"> 10_ </td><td align="center">  10_ </td><td align="center">  5_ </td><td align="center">    1_ </td></tr>
-    
+
 </table></dd></dl><p>
 
   For the <tt><span class="func">sqrt</span></tt> function holds (when A >= 0_):</p><pre class="box">
@@ -4693,7 +4699,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
       <span class="type">complex</span> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <span class="type">complex</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
-                    <span class="type">complex</span> <span class="op">conv</span> A <b>&rArr;</b> complex(flt(A)) )
+                    <span class="type">complex</span> <span class="op">conv</span> A <b>&rArr;</b> complex(float(A)) )
       <span class="type">complex</span> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_float">float</a> to <span class="type">complex</span>
                   ( Type of argument A: <a class="type" href="#types_float">float</a>,
                     <span class="type">complex</span> <span class="op">conv</span> A <b>&rArr;</b> complex(A) )
@@ -5074,23 +5080,23 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">replace2</span>(A,B,C,D) Search A for occurrences of B followed by C and
                 replace them with D.
                   ( replace2(<span class="stri">"x := (*ord*) y;"</span>, <span class="stri">"(*"</span>, <span class="stri">"*)"</span>, <span class="stri">""</span>) <b>&rArr;</b> <span class="stri">"x :=  y;"</span> )
-      split(A,B) Split A into strings delimited by B
+      <a name="types_split(in_string,in_char)">split</a>(A,B) Split A into strings delimited by B
                   ( Type of argument B: <a class="type" href="#types_char">char</a>,
                     Type of result: <a class="type" href="#types_array">array</a> <span class="type">string</span>,
                     split(<span class="stri">""</span>, <span class="stri">':'</span>) <b>&rArr;</b> [](<span class="stri">""</span>),
                     split(<span class="stri">":"</span>, <span class="stri">':'</span>) <b>&rArr;</b> [](<span class="stri">""</span>, <span class="stri">""</span>),
                     split(<span class="stri">"15:30"</span>, <span class="stri">':'</span>) <b>&rArr;</b> [](<span class="stri">"15"</span>, <span class="stri">"30"</span>) )
-      split(A,B) Split A into strings delimited by B
+      <a name="types_split(in_string,in_string)">split</a>(A,B) Split A into strings delimited by B
                   ( Type of result: <a class="type" href="#types_array">array</a> <span class="type">string</span>,
                     split(<span class="stri">""</span>, <span class="stri">""</span>) <b>&rArr;</b> [](<span class="stri">""</span>),
                     split(<span class="stri">"ABC"</span>, <span class="stri">""</span>) <b>&rArr;</b> [](<span class="stri">"ABC"</span>),
                     split(<span class="stri">""</span>, <span class="stri">"; "</span>) <b>&rArr;</b> [](<span class="stri">""</span>),
                     split(<span class="stri">"writeln; readln;"</span>, <span class="stri">"; "</span>) <b>&rArr;</b> [](<span class="stri">"writeln"</span>, <span class="stri">"readln;"</span>) )
-      join(A,B) Join the elements of A together with B's between them
+      <a name="types_join(in_array_string,in_char)">join</a>(A,B) Join the elements of A together with B's between them
                   ( Type of argument A: <a class="type" href="#types_array">array</a> <span class="type">string</span>,
                     Type of argument B: <a class="type" href="#types_char">char</a>,
                     join([](<span class="stri">"This"</span>, <span class="stri">"is"</span>, <span class="stri">"a"</span>, <span class="stri">"test"</span>), <span class="stri">' '</span>) <b>&rArr;</b> <span class="stri">"This is a test"</span> )
-      join(A,B) Join the elements of A together with B's between them
+      <a name="types_join(in_array_string,in_string)">join</a>(A,B) Join the elements of A together with B's between them
                   ( Type of argument A: <a class="type" href="#types_array">array</a> <span class="type">string</span>,
                     Type of argument B: <span class="type">string</span>,
                     join([](<span class="stri">"pro"</span>, <span class="stri">"gram"</span>), <span class="stri">""</span>) <b>&rArr;</b> <span class="stri">"program"</span> )
@@ -7000,14 +7006,16 @@ enable_output(<span class="type">anEnumType</span>);
   The <tt><span class="type">category</span></tt> functions are defined in the library <span class="stri">"<span class="lib">category.s7i</span>"</span>.
 </p><pre class="tt">
     Literals:
-      SYMBOLOBJECT, DECLAREDOBJECT, FORWARDOBJECT, FWDREFOBJECT, BLOCKOBJECT,
-      CALLOBJECT,MATCHOBJECT, TYPEOBJECT, FORMPARAMOBJECT, INTOBJECT,
-      BIGINTOBJECT, CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT,
-      HASHOBJECT, STRUCTOBJECT, CLASSOBJECT, INTERFACEOBJECT, SETOBJECT,
-      FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
-      ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT, REFOBJECT,
-      REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
-      RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
+      <a name="types_category_SYMBOLOBJECT">SYMBOLOBJECT</a>, <a name="types_category_DECLAREDOBJECT">DECLAREDOBJECT</a>, <a name="types_category_FORWARDOBJECT">FORWARDOBJECT</a>, <a name="types_category_FWDREFOBJECT">FWDREFOBJECT</a>, <a name="types_category_BLOCKOBJECT">BLOCKOBJECT</a>,
+      <a name="types_category_CALLOBJECT">CALLOBJECT</a>, <a name="types_category_MATCHOBJECT">MATCHOBJECT</a>, <a name="types_category_TYPEOBJECT">TYPEOBJECT</a>, <a name="types_category_FORMPARAMOBJECT">FORMPARAMOBJECT</a>, <a name="types_category_INTOBJECT">INTOBJECT</a>,
+      <a name="types_category_BIGINTOBJECT">BIGINTOBJECT</a>, <a name="types_category_CHAROBJECT">CHAROBJECT</a>, <a name="types_category_STRIOBJECT">STRIOBJECT</a>, <a name="types_category_BSTRIOBJECT">BSTRIOBJECT</a>, <a name="types_category_ARRAYOBJECT">ARRAYOBJECT</a>,
+      <a name="types_category_HASHOBJECT">HASHOBJECT</a>, <a name="types_category_HASHELEMOBJECT">HASHELEMOBJECT</a>, <a name="types_category_STRUCTOBJECT">STRUCTOBJECT</a>, <a name="types_category_STRUCTELEMOBJECT">STRUCTELEMOBJECT</a>,
+      <a name="types_category_CLASSOBJECT">CLASSOBJECT</a>, <a name="types_category_INTERFACEOBJECT">INTERFACEOBJECT</a>, <a name="types_category_SETOBJECT">SETOBJECT</a>, <a name="types_category_FILEOBJECT">FILEOBJECT</a>, <a name="types_category_SOCKETOBJECT">SOCKETOBJECT</a>,
+      <a name="types_category_POLLOBJECT">POLLOBJECT</a>, <a name="types_category_LISTOBJECT">LISTOBJECT</a>, <a name="types_category_FLOATOBJECT">FLOATOBJECT</a>, <a name="types_category_WINOBJECT">WINOBJECT</a>, <a name="types_category_POINTLISTOBJECT">POINTLISTOBJECT</a>,
+      <a name="types_category_PROCESSOBJECT">PROCESSOBJECT</a>, <a name="types_category_ENUMLITERALOBJECT">ENUMLITERALOBJECT</a>, <a name="types_category_CONSTENUMOBJECT">CONSTENUMOBJECT</a>, <a name="types_category_VARENUMOBJECT">VARENUMOBJECT</a>,
+      <a name="types_category_REFOBJECT">REFOBJECT</a>, <a name="types_category_REFLISTOBJECT">REFLISTOBJECT</a>, <a name="types_category_EXPROBJECT">EXPROBJECT</a>, <a name="types_category_ACTOBJECT">ACTOBJECT</a>, <a name="types_category_VALUEPARAMOBJECT">VALUEPARAMOBJECT</a>,
+      <a name="types_category_REFPARAMOBJECT">REFPARAMOBJECT</a>, <a name="types_category_RESULTOBJECT">RESULTOBJECT</a>, <a name="types_category_LOCALVOBJECT">LOCALVOBJECT</a>, <a name="types_category_DATABASEOBJECT">DATABASEOBJECT</a>,
+      <a name="types_category_SQLSTMTOBJECT">SQLSTMTOBJECT</a>, <a name="types_category_PROGOBJECT">PROGOBJECT</a>,
     Constants:
       <span class="type">category</span>.<span class="var">value</span>  Default value of <span class="type">category</span> (SYMBOLOBJECT)
     Infix operators:
@@ -7120,6 +7128,9 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">file</span>(A)   File name of the referenced object
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     file(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">path</span>(A)   Absolute file path of the referenced object
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    path(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">line</span>(A)   Line number of the referenced object
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     line(NIL) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
@@ -7642,33 +7653,33 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     Relations:
       =, &lt;>
     Functions:
-      str(A)    Conversion to <a class="type" href="#types_string">string</a>
+      <a name="types_str(in_type)">str</a>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
-      newtype   Create a new type
-      gentype   Generate a type
-      gensub(A) Generate a subtype
+      <a name="types_newtype">newtype</a>   Create a new type
+      <a name="types_gentype">gentype</a>   Generate a type
+      <a name="types_gensub(in_type">gensub</a>(A) Generate a subtype
       typeof(A) Get the type of an expression
                   ( Type of argument A: Defined for all types,
                     typeof(1) <b>&rArr;</b> <a class="type" href="#types_integer">integer</a>,
                     typeof(<span class="stri">"asdf"</span>) <b>&rArr;</b> <a class="type" href="#types_string">string</a> )
-      isFunc(A)  Is this type a <a class="type" href="#types_func">func</a> type
+      <a name="types_isFunc(in_type)">isFunc</a>(A)  Is this type a <a class="type" href="#types_func">func</a> type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     isFunc(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">TRUE</span>,
                     isFunc(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">FALSE</span> )
                     isFunc(<a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">FALSE</span> )
-      isVarfunc(A)  Is this type a <a class="type" href="#types_varfunc">varfunc</a> type
+      <a name="types_isVarfunc(in_type)">isVarfunc</a>(A)  Is this type a <a class="type" href="#types_varfunc">varfunc</a> type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     isVarfunc(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">FALSE</span>,
                     isVarfunc(<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">TRUE</span>,
                     isVarfunc(<a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">FALSE</span> )
-      resultType(A)  Get the result type of a <a class="type" href="#types_func">func</a> or <a class="type" href="#types_varfunc">varfunc</a> type
+      <a name="types_resultType(in_type)">resultType</a>(A)  Get the result type of a <a class="type" href="#types_func">func</a> or <a class="type" href="#types_varfunc">varfunc</a> type
                   ( resultType(<a class="type" href="#types_func">func</a> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <a class="type" href="#types_char">char</a>,
                     resultType(<a class="type" href="#types_proc">proc</a>) <b>&rArr;</b> <a class="type" href="#types_void">void</a>,
                     resultType(<a class="type" href="#types_integer">integer</a>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      isDerived(A)  Is this type derived from another type
+      <a name="types_isDerived(in_type)">isDerived</a>(A)  Is this type derived from another type
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     isDerived(<font color=red>subtype</font> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <span class="var">TRUE</span> )
-      meta(A)       Get the type from which type A is derived
+      <a name="types_meta(in_type)">meta</a>(A)       Get the type from which type A is derived
                   ( meta(<font color=red>subtype</font> <a class="type" href="#types_char">char</a>) <b>&rArr;</b> <a class="type" href="#types_char">char</a> )
       base_type(A)  Get the base type of an array, pointer or
                     set type
@@ -7679,9 +7690,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       typeObject(A)  Get a unique object (match object) of a type
                   ( Type of result: <a class="type" href="#types_reference">reference</a> )
-      compare(A, B) Compare function
+      <a name="types_compare(in_type,in_type)">compare</a>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
-      hashCode(A) Hash function
+      <a name="types_hashCode(in_type)">hashCode</a>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       addInterface(A, B)  Adds the interface type B to the implementation type A
@@ -7724,16 +7735,16 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     The following sub-chapters introduce the parameter types of
   Seed7.
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Parameter           </th><th> Evaluation strategy </th><th> Assignment to formal parameter          </th></tr>
-  
+
   <tr><td> <tt><a class="keywd_no_ul" href="#params_val_parameter">val</a> <span class="type"><b><i>aType</i></b></span>: name</tt>     </td><td align="center">    call-by-value    </td><td> forbidden                               </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <span class="type"><b><i>aType</i></b></span>: name</tt>     </td><td align="center">  call-by-reference  </td><td> forbidden                               </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type"><b><i>aType</i></b></span>: name</tt>      </td><td align="center"> depends on the type </td><td> forbidden                               </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <span class="type"><b><i>aType</i></b></span>: name</tt>  </td><td align="center">    call-by-value    </td><td> allowed (no effect on actual parameter) </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type"><b><i>aType</i></b></span>: name</tt>   </td><td align="center">  call-by-reference  </td><td> allowed (changes actual parameter)      </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name</tt> </td><td align="center">    <a class="link" href="#params_call_by_name_parameter">call-by-name</a>     </td><td> forbidden                               </td></tr>
-  
+
 </table></dd></dl><p></p>
 
 <a name="params_val_parameter"><h3>6.1 'val' parameter</h3></a>
@@ -8033,7 +8044,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   are a call-by-name parameters. The actual call-by-name parameter
   is not evaluated before the function is called. When the
   function is executed the call-by-name parameter might be executed
-  once, many times or not at all. 
+  once, many times or not at all.
 </p><p>
   For normal (not call-by-name) parameters the following holds:
   When the function is called the actual parameter expressions
@@ -8080,13 +8091,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><p>
   Examples of normal and call-by-name parameters:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Normal parameter </th><th> Call-by-name parameter </th></tr>
-  
+
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: name</tt> </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: name</tt>  </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: name</tt> </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: name</tt>  </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: name</tt>  </td><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: name</tt>   </td></tr>
-  
+
 </table></dd></dl><p>
   The type <tt><a class="type_no_ul" href="#types_proc">proc</a></tt> can also be used to define a call-by-name
   parameter:
@@ -8571,14 +8582,14 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data := flt(a.data) + b.data;
+    sum.data := float(a.data) + b.data;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data := a.data + flt(b.data);
+    sum.data := a.data + float(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
   The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
@@ -10893,20 +10904,20 @@ A - B - C
   and is described with the associativity <tt><a class="op_no_ul" href="#syntax_left_associative">-></a></tt> . Generally four
   associativities are possible:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-    
+
     <tr><th align="left"> Associativity                             </th><th> Symbol </th></tr>
-    
+
     <tr><td> <a name="syntax_left_associative">Binding from left to right</a>                </td><td align="center">   <tt><span class="op">-></span></tt>   </td></tr>
-    
+
     <tr><td> <a name="syntax_right_associative">Binding from right to left</a>                </td><td align="center">   <tt><span class="op">&lt;-</span></tt>   </td></tr>
-    
-    <tr><td> Neither the left nor the right parameter          
+
+    <tr><td> Neither the left nor the right parameter
      are allowed to have the same priority     </td><td align="center">   <tt><span class="op">&lt;-></span></tt>  </td></tr>
-    
-    <tr><td> At the left side there is a binding from          
-     left to right and at the right side there         
+
+    <tr><td> At the left side there is a binding from
+     left to right and at the right side there
      is a binding from right to left           </td><td align="center">  <tt><span class="op">->&lt;-</span></tt>  </td></tr>
-    
+
 </table></dd></dl><p>
   The last two possibilities give no legal interpretation in the
   subtraction example. The third kind of associativity ( <tt><span class="op">&lt;-></span></tt> ) is
@@ -10940,18 +10951,18 @@ A = B = C
 </p><p>
   Table for the possibilities of associativity:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-    
+
     <tr><th rowspan="2"> associativity </th><th align="center" colspan="2">             The priority of the              </th></tr>
-    
+
     <tr><th align="center"> left operand must be </th><th align="center"> right operand must be </th></tr>
-    
+
     <tr><td align="center">      <tt><a class="op_no_ul" href="#syntax_left_associative">-></a></tt>       </td><td align="center">          <tt><span class="op">&lt;=</span></tt>          </td><td align="center">          <tt><span class="op">&lt;</span></tt>            </td></tr>
     <tr><td align="center">      <tt><a class="op_no_ul" href="#syntax_right_associative">&lt;-</a></tt>       </td><td align="center">          <tt><span class="op">&lt;</span></tt>           </td><td align="center">          <tt><span class="op">&lt;=</span></tt>           </td></tr>
     <tr><td align="center">      <tt><span class="op">&lt;-></span></tt>      </td><td align="center">          <tt><span class="op">&lt;</span></tt>           </td><td align="center">          <tt><span class="op">&lt;</span></tt>            </td></tr>
     <tr><td align="center">     <tt><span class="op">->&lt;-</span></tt>      </td><td align="center">          <tt><span class="op">&lt;=</span></tt>          </td><td align="center">          <tt><span class="op">&lt;=</span></tt>           </td></tr>
-    
+
     <tr><td>&nbsp;              </td><td align="center" colspan="2">          than that of the operator           </td></tr>
-    
+
 </table></dd></dl><p>
   The parameter before the operator symbol is called left operand.
   The parameter after the last symbol of a construct is called
@@ -12116,12 +12127,12 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
   size cannot be changed directly. Other properties may be
   changed. For these properties getters and setters are provided.
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Property  </th><th> Getter      </th><th> Setter      </th><th> Comment                                                     </th></tr>
-  
-  <tr><td> file type </td><td> <tt><a class="func" href="#os_fileType">fileType</a></tt><br />    
+
+  <tr><td> file type </td><td> <tt><a class="func" href="#os_fileType">fileType</a></tt><br />
    <tt><a class="func" href="#os_fileType">fileTypeSL</a></tt>  </td><td>             </td><td> <!--(*-->For possible values see function <tt><a class="func" href="#os_fileType">fileType</a></tt><br /><!--*)-->Among others <tt><a href="#os_FILE_REGULAR">FILE_REGULAR</a></tt> and <tt><a href="#os_FILE_DIR">FILE_DIR</a></tt> are file types       </td></tr>
-  <tr><td> size      </td><td> <tt><a class="func" href="#os_fileSize">fileSize</a></tt><br />    
+  <tr><td> size      </td><td> <tt><a class="func" href="#os_fileSize">fileSize</a></tt><br />
    <tt><a class="func" href="#os_fileSize">bigFileSize</a></tt> </td><td>             </td><td> <!--(*-->The size of a file in bytes<!--*)-->                                                            </td></tr>
   <tr><td> mode      </td><td> <tt><a class="func" href="#os_getFileMode">getFileMode</a></tt> </td><td> <tt><a class="func" href="#os_setFileMode">setFileMode</a></tt> </td><td> Permissions. For possible values see function <tt><a class="func" href="#os_getFileMode">getFileMode</a></tt> </td></tr>
   <tr><td> aTime     </td><td> <tt><a class="func" href="#os_getATime">getATime</a></tt>    </td><td> <tt><a class="func" href="#os_setATime">setATime</a></tt>    </td><td> Time of last access                                         </td></tr>
@@ -12129,7 +12140,7 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
   <tr><td> mTime     </td><td> <tt><a class="func" href="#os_getMTime">getMTime</a></tt>    </td><td> <tt><a class="func" href="#os_setMTime">setMTime</a></tt>    </td><td> Time of last modification of content                        </td></tr>
   <tr><td> owner     </td><td> <tt><a class="func" href="#os_getOwner">getOwner</a></tt>    </td><td> <tt><a class="func" href="#os_setOwner">setOwner</a></tt>    </td><td> The user name of the file owner                             </td></tr>
   <tr><td> group     </td><td> <tt><a class="func" href="#os_getGroup">getGroup</a></tt>    </td><td> <tt><a class="func" href="#os_setGroup">setGroup</a></tt>    </td><td> The name of the group the file belongs to                   </td></tr>
-  
+
 </table></dd></dl><p></p>
 
 <a name="os_fileType"><h4>12.2.1 fileType</h4></a>
@@ -12475,10 +12486,10 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
   a symbolic link again. Afterwards the function is applied to
   this final path.
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th align="center" colspan="2"> Functions that follow symlinks              </th><th align="center" colspan="2"> Functions that work only on symlinks and don't follow them </th></tr>
   <tr><td colspan="2"> A dangling symlink raises <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt>.       </td><td colspan="2"> <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt> is raised if 'path' is not a symlink.            </td></tr>
-  
+
   <tr><td> <tt><a class="func" href="#os_fileSize">fileSize</a>(path)</tt>    </td><td>                         </td><td>                            </td><td>                               </td></tr>
   <tr><td> <tt><a class="func" href="#os_fileSize">bigFileSize</a>(path)</tt> </td><td>                         </td><td>                            </td><td>                               </td></tr>
   <tr><td> <tt><a class="func" href="#os_getFileMode">getFileMode</a>(path)</tt> </td><td> <tt><a class="func" href="#os_setFileMode">setFileMode</a>(path, mode)</tt> </td><td> <tt><a class="func" href="#os_getFileMode_SYMLINK">getFileMode</a>(path, SYMLINK)</tt> </td><td>                               </td></tr>
@@ -12489,18 +12500,18 @@ $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class
   <tr><td> <tt><a class="func" href="#os_getGroup">getGroup</a>(path)</tt>    </td><td> <tt><a class="func" href="#os_setGroup">setGroup</a>(path, name)</tt>    </td><td> <tt><a class="func" href="#os_getGroup_SYMLINK">getGroup</a>(path, SYMLINK)</tt>    </td><td> <tt><a class="func" href="#os_setGroup_SYMLINK">setGroup</a>(path, name, SYMLINK)</tt> </td></tr>
   <tr><td>                   </td><td>                         </td><td> <tt><a class="func" href="#os_readLink">readLink</a>(path)</tt>             </td><td>                               </td></tr>
   <tr><td>                   </td><td>                         </td><td> <tt><a class="func" href="#os_readLink">readLink</a>(path, ABSOLUTE)</tt>   </td><td>                               </td></tr>
-  
+
 </table></dd></dl><p>
   Functions that do not follow symbolic links:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Function                </th><th> Comment                               </th></tr>
-  
+
   <tr><td> <tt><a class="func" href="#os_removeFile">removeFile</a>(path)</tt>        </td><td> Can be used to remove a symbolic link </td></tr>
   <tr><td> <tt><a class="func" href="#os_removeTree">removeTree</a>(path)</tt>        </td><td> Can be used to remove a symbolic link </td></tr>
   <tr><td> <tt><a class="func" href="#os_cloneFile">cloneFile</a>(source, dest)</tt> </td><td> Can be used to copy a symbolic link   </td></tr>
   <tr><td> <tt><a class="func" href="#os_moveFile">moveFile</a>(source, dest)</tt>  </td><td> Can be used to rename a symbolic link </td></tr>
-  
+
 </table></dd></dl><p></p>
 
 <a name="os_readLink"><h4>12.3.1 readLink</h4></a>
@@ -13297,7 +13308,7 @@ my_dir := homeDir;
   be used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Database Type </th><th> Driver        </th><th> Default port </th><th> Comment</th></tr>
-  
+
   <tr><td>MySQL         </td><td> DB_MYSQL      </td><td>   3306       </td><td></td></tr>
   <tr><td>MariaDB       </td><td> DB_MYSQL      </td><td>   3306       </td><td></td></tr>
   <tr><td>SQLLite       </td><td> DB_SQLITE     </td><td>              </td><td> Host must be <tt><span class="stri">""</span></tt> and port must be 0.</td></tr>
@@ -13785,7 +13796,7 @@ end while;
   following default values are used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Type        </th><th> Default value</th></tr>
-  
+
   <tr><td><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt>  </td><td> <tt>0_</tt></td></tr>
   <tr><td><tt><a class="type" href="#types_bigRational">bigRational</a></tt> </td><td> <tt>0_/1_</tt></td></tr>
   <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt>     </td><td> <tt><span class="var">FALSE</span></tt></td></tr>
@@ -15367,7 +15378,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
   used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>File         </th><th> Function    </th><th> Comment</th></tr>
-  
+
   <tr><td>superlib.a   </td><td> <tt><a class="func" href="#ffi_doWurx1">doWurx1</a></tt>     </td><td> External library (the extension may vary)</td></tr>
   <tr><td>superlib.h   </td><td> <tt><a class="func" href="#ffi_doWurx1">doWurx1</a></tt>     </td><td> Prototype of the external C function</td></tr>
   <tr><td>sup_rtl.c    </td><td> <tt><a class="func" href="#ffi_supDoWurx1">supDoWurx1</a></tt>  </td><td> Wrapper function</td></tr>
@@ -16707,7 +16718,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   be specified with the option <span class="link"><tt><b>-w</b><span class="keywd">n</span></tt></span>
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Level </th><th> Warning</th></tr>
-    
+
     <tr><td>2     </td><td> Comparison with %s always evaluates to %s.</td></tr>
     <tr><td>2     </td><td> Expression raises "%s".</td></tr>
     <tr><td>1     </td><td> Catch of "%s" although the checks are suppressed.</td></tr>
@@ -17175,7 +17186,7 @@ Program received signal SIGFPE, Arithmetic exception.
   handled by Seed7:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without <span class="link"><tt><b>-ts</b></tt></span>   </th><th> Behavior with <span class="link"><tt><b>-ts</b></tt></span></th></tr>
-  
+
   <tr><td><a name="errors_SIGABRT">SIGABRT</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
   <tr><td><a name="errors_SIGILL">SIGILL</a>  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
   <tr><td><a name="errors_SIGTRAP">SIGTRAP</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
