@@ -675,7 +675,7 @@ The design principles are:
 <dt>Comprehensive libraries:</dt><dd>
    The <span class="link">libraries</span> of Seed7 cover many areas.</dd>
 
-<dt>Own implementations of libraries:</dt><dd>   
+<dt>Own implementations of libraries:</dt><dd>
    Many languages have no own implementation for essential library
    functions. Instead C, C++ or Java libraries are used. In Seed7
    most of the libraries are written in Seed7. This reduces the
@@ -817,7 +817,7 @@ by its cover. Seed7 is neither limited to Pascal's features, nor is it
 implemented like Pascal. Notable differences are:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Feature            </th><th> Standard Pascal             </th><th> Seed7</th></tr>
-  
+
   <tr><td>syntax             </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
   <tr><td>statements         </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
   <tr><td>operators          </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
@@ -839,7 +839,7 @@ compilers could be used to implement Seed7.
 Several features of Seed7 are missing in Java:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Features missing in Java                  </th><th> Comment</th></tr>
-  
+
   <tr><td>Stand alone functions                     </td><td> Singletons must be used instead </td></tr>
   <tr><td>Call-by-reference parameters              </td><td> All parameters are call-by-value </td></tr>
   <tr><td><a class="link" href="#faq_call_by_name">Call-by-name</a> parameters                   </td><td> All parameters are call-by-value </td></tr>
@@ -1065,7 +1065,7 @@ For other cases, several makefiles are prepared for various combinations of
 operating system, make utility, C compiler and shell:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>C compiler  </th><th>shell</th></tr>
-  
+
   <tr><td>mk_linux.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_icc.mak   </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> icc        </td><td> sh</td></tr>
@@ -1416,6 +1416,8 @@ cp sd7.vim ~/.vim/ftdetect
 syntax on
 </pre>
    For the Mac platform this is described <!--(*--><span class="link">here</span>.<!--*)--></li>
+<li>For Emacs, the <a class="link" href="https://github.com/pierre-rouleau/seed7-mode"> seed7-mode major-mode</a>
+  provides syntax highlighting, automatic indentation, specialized navigation and several other features.</li>
 <li>For the Nano editor there is <span class="link">seed7/doc/seed7.nanorc</span>. You can copy
    this file to <nobr><span class="lib">/usr/share/nano</span></nobr> (you might need superuser privileges to do that).</li>
 <li>For Notepad++ there is <span class="link">seed7/doc/seed7udl.xml</span>. Start Notepad++ and
@@ -1703,7 +1705,7 @@ In a block with several declarations the type can be recognized easily:
 Programmers used to dynamically typed languages may be confused by the
 colon. Those languages use something like <tt>name: type</tt> with the type
 annotation being optional. In Seed7 the specification of the type is
-mandatory. 
+mandatory.
 </p></div>
 
 <div><br /><a name="faq_readability"><h3>What makes code readable?
@@ -2593,23 +2595,23 @@ less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
 defines a total order over the values of a type even if <tt><span class="op">&lt;</span></tt> has not been defined
 or if <tt><span class="op">&lt;</span></tt> does not define a total order. E.g.:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> type       </th><th> comparisons    </th><th> compare </th><th> comment                                </th></tr>
-  
-  <tr><td> <tt><span class="type">float</span></tt>      </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> According to IEEE 754 a <tt><span class="var">NaN</span></tt> is neither 
-                                        less than, equal to, nor greater than  
-                                        any value, including itself.           
-                                        Float <tt><span class="func">compare</span>(A, B)</tt> considers all      
+
+  <tr><td> <tt><span class="type">float</span></tt>      </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> According to IEEE 754 a <tt><span class="var">NaN</span></tt> is neither
+                                        less than, equal to, nor greater than
+                                        any value, including itself.
+                                        Float <tt><span class="func">compare</span>(A, B)</tt> considers all
                                         <tt><span class="var">NaN</span></tt> values as greater than <tt><span class="var">Infinity</span></tt>.   </td></tr>
-  
+
   <tr><td> <tt><span class="type">complex</span></tt>    </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt>           </td><td> <tt><span class="func">compare</span></tt> </td><td> Compares real and imaginary part.      </td></tr>
-  
-  <tr><td> <tt><span class="type">bitset</span></tt>     </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> The comparisons <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> check for    
-                                        subsets and supersets.                 
-                                        Bitset <tt><span class="func">compare</span>(A, B)</tt> compares by       
-                                        determining the biggest element that   
+
+  <tr><td> <tt><span class="type">bitset</span></tt>     </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> The comparisons <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> check for
+                                        subsets and supersets.
+                                        Bitset <tt><span class="func">compare</span>(A, B)</tt> compares by
+                                        determining the biggest element that
                                         is not present or absent in both sets. </td></tr>
-  
+
 </table></dd></dl><p>
 Hash tables use <tt><span class="func">compare</span>(A, B)</tt> to manage their elements.
 </p></div>
@@ -2858,14 +2860,14 @@ There are call-by-value and call-by-reference parameters. The formal parameter
 can be constant or variable. The combination of these features allows four types
 of parameters:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> parameter </th><th> evaluation strategy </th><th> access right </th></tr>
-  
+
   <tr><td> <tt><span class="keywd">val</span></tt>       </td><td align="center">    call-by-value    </td><td> const        </td></tr>
   <tr><td> <tt><span class="keywd">ref</span></tt>       </td><td align="center">  call-by-reference  </td><td> const        </td></tr>
   <tr><td> <tt><span class="keywd">in var</span></tt>    </td><td align="center">    call-by-value    </td><td> var          </td></tr>
   <tr><td> <tt><span class="keywd">inout</span></tt>     </td><td align="center">  call-by-reference  </td><td> var          </td></tr>
-  
+
 </table></dd></dl><p>
 For call-by-value parameters (<tt><span class="keywd">val</span></tt> and <tt><span class="keywd">in var</span></tt>) the actual parameter value
 is copied, when the function is called. For call-by-refererence parameters
@@ -3813,7 +3815,7 @@ are used).
 Just like <tt>goto</tt> statements, <tt>break</tt> and <tt>continue</tt> violate the concept of
 structured programming. A programmer should imagine loops as:
 </p><pre class="indent">
-<span class="keywd_no_ul">while</span> primaryCondition <span class="op_no_ul">and</span> 
+<span class="keywd_no_ul">while</span> primaryCondition <span class="op_no_ul">and</span>
       loopCount <span class="op_no_ul">&lt;=</span> 1000 <span class="op_no_ul">and</span>
       seconds <span class="op_no_ul">&lt;=</span> 3600 <span class="keywd_no_ul">do</span>
   <span class="keywd_no_ul">if</span> data <span class="op_no_ul">&lt;></span> <span class="stri">"undefined"</span> <span class="op_no_ul">and</span>
@@ -4046,13 +4048,13 @@ make depend
 </pre><p>
 your specific makefile writes three configuration files:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> config file </th><th> included by </th><th> copied to </th></tr>
-  
+
   <tr><td> <span class="lib">chkccomp.h</span>  </td><td align="center"> chkccomp.c  </td><td>           </td></tr>
   <tr><td> <span class="lib">base.h</span>      </td><td align="center"> chkccomp.c  </td><td> version.h </td></tr>
   <tr><td> <span class="lib">settings.h</span>  </td><td align="center">             </td><td> version.h </td></tr>
-  
+
 </table></dd></dl><p>
 These files contain C preprocessor macros with configuration values
 that are specific for the OS and the C compiler. The command <tt>make depend</tt>
@@ -4078,14 +4080,14 @@ make S7_LIB_DIR=&lt;lib-dir-path&gt; SEED7_LIBRARY=&lt;library-path&gt; LINK_TIM
 Each of the options <tt><span class="link">S7_LIB_DIR</span></tt>, <tt><span class="link">SEED7_LIBRARY</span></tt> and <tt><span class="link">LINK_TIME</span></tt> can be ommited.
 The following environment variables are defined by <span class="lib">chkccomp</span>:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Variable           </th><th> Comment                                          </th></tr>
-  
+
   <tr><td> S7_LIB_DIR         </td><td> Absolute path to directory with static libraries </td></tr>
   <tr><td> SEED7_LIBRARY      </td><td> Absolute path of directory with *.s7i libraries  </td></tr>
   <tr><td> CC_ENVIRONMENT_INI </td><td> Name of environment ini file in the S7_LIB_DIR   </td></tr>
   <tr><td> LINK_TIME          </td><td> Link libraries at 'BUILD' time or at 'RUN' time  </td></tr>
-  
+
 </table></dd></dl><p>
 When a package is created the option <tt><span class="link">LINK_TIME</span></tt> can be set to <tt><span class="link">BUILD</span></tt>. This means
 that all libraries must be present when an executable is invoked. In this
@@ -4160,13 +4162,13 @@ A binary Seed7 package needs to install four groups of files:
 </ul><p>
 The table below shows the suggested directories for Linux/Unix/BSD:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Directory             </th><th> Macro         </th><th> Group of files          </th></tr>
-  
+
   <tr><td> /usr/bin              </td><td> -             </td><td> Executables (s7 + s7c)  </td></tr>
   <tr><td> /usr/lib64/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
   <tr><td> /usr/lib64/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
-  
+
 </table></dd></dl><p>
 The macros must be defined, when the interpreter is compiled. This can be done
 by calling <a class="link" href="#faq_make_depend">make depend</a> with:
@@ -4210,9 +4212,9 @@ the macros for the connector library names are provided in the columns
 <b>Static lib macro</b> and <b>Dynamic lib macro</b> below. The list below lists the
 currently supported databases:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Database   </th><th> DB include </th><th> Other *.h </th><th> DB driver  </th><th> Static lib macro </th><th> Dynamic lib macro </th></tr>
-  
+
   <tr><td> MySQL      </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
   <tr><td> MariaDB    </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
   <tr><td> SQLLite    </td><td> sqlite3.h  </td><td> db_lite.h </td><td> sql_lite.c </td><td> SQLITE_LIBS      </td><td> SQLITE_DLL        </td></tr>
@@ -4225,15 +4227,15 @@ currently supported databases:
   <tr><td> SQL Server </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_srv.c  </td><td> SQL_SERVER_LIBS  </td><td> SQL_SERVER_DLL    </td></tr>
   <tr><td> ODBC       </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_odbc.c </td><td> ODBC_LIBS        </td><td> ODBC_DLL          </td></tr>
   <tr><td> TDS        </td><td> sybdb.h    </td><td> db_tds.h  </td><td> sql_tds.c  </td><td>                  </td><td> TDS_DLL           </td></tr>
-  
+
 </table></dd></dl><p>
 If no static library is provided in the makefile (by writing it to
 <tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
 value differs between Linux, macOS and Windows:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Static lib macro </th><th> Linux connector lib </th><th> macOS connector lib </th><th> Windows connector lib                </th></tr>
-  
+
   <tr><td> MYSQL_LIBS       </td><td> -lmysqlclient       </td><td> -lmysqlclient       </td><td> mariadbclient.lib or mysqlclient.lib </td></tr>
   <tr><td> SQLITE_LIBS      </td><td> -lsqlite3           </td><td> -lsqlite3           </td><td> sqlite3.lib                          </td></tr>
   <tr><td> POSTGRESQL_LIBS  </td><td> -lpq                </td><td> -lpq                </td><td> libpq.lib                            </td></tr>
@@ -4243,15 +4245,15 @@ value differs between Linux, macOS and Windows:
   <tr><td> INFORMIX_LIBS    </td><td> iclit09b.a          </td><td> iclit09b.a          </td><td> iclit09b.lib                         </td></tr>
   <tr><td> SQL_SERVER_LIBS  </td><td>                     </td><td>                     </td><td>                                      </td></tr>
   <tr><td> ODBC_LIBS        </td><td> -lodbc              </td><td> -liodbc             </td><td> -lodbc32 or odbc32.lib               </td></tr>
-  
+
 </table></dd></dl><p>
 If no dynamic library is provided in the makefile (by writing it to
 <tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
 value differs between Linux, macOS and Windows:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
+
   <tr><th> Dynamic lib macro </th><th> Linux connector lib    </th><th> macOS connector lib  </th><th> Windows connector lib          </th></tr>
-  
+
   <tr><td> MYSQL_DLL         </td><td> libmysqlclient.so      </td><td> libmysqlclient.dylib </td><td> libmariadb.dll or libmysql.dll </td></tr>
   <tr><td> SQLITE_DLL        </td><td> libsqlite3.so          </td><td> libsqlite3.dylib     </td><td> sqlite3.dll                    </td></tr>
   <tr><td> POSTGRESQL_DLL    </td><td> libpq.so or libpq.so.5 </td><td> libpq.dylib          </td><td> libpq.dll                      </td></tr>
@@ -4262,7 +4264,7 @@ value differs between Linux, macOS and Windows:
   <tr><td> SQL_SERVER_DLL    </td><td> libtdsodbc.so          </td><td> libtdsodbc.dylib     </td><td> sqlsrv32.dll                   </td></tr>
   <tr><td> ODBC_DLL          </td><td> libodbc.so             </td><td> libiodbc.dylib       </td><td> odbc32.dll                     </td></tr>
   <tr><td> TDS_DLL           </td><td> libsybdb.so            </td><td> libsybdb.dylib       </td><td> sybdb.dll                      </td></tr>
-  
+
 </table></dd></dl><p>
 For Oracle it is assumed that the environment variable ORACLE_HOME has
 been set. Static libraries are preferred over dynamic libraries. When
