@@ -3923,3 +3923,4 @@ in different branches.
 The capability to boot a language can be used to allow slightly different
 future versions of Seed7 to coexist with the current version. This is also the
 reason why the file seed7_05.s7i contains a version number (05).
+
