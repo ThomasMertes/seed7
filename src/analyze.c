@@ -207,7 +207,8 @@ static boolType includeFile (void)
                 /* FILE_ERROR or RANGE_ERROR */
                 err_stri(INCLUDE_FILE_NOT_FOUND, includeFileName);
               } /* if */
-              if (SYS_MAIN_OBJECT == NULL) {
+              if (SYS_MAIN_OBJECT == NULL ||
+                  CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) == ILLEGALOBJECT) {
                 err_warning(ESSENTIAL_INCLUDE_FAILED);
                 okay = FALSE;
               } /* if */
@@ -539,7 +540,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         prog = resultProg;
         scan_byte_order_mark();
         declAny(resultProg->declaration_root);
-        if (MAIN_OBJECT(resultProg) == NULL) {
+        if (MAIN_OBJECT(resultProg) == NULL ||
+            CATEGORY_OF_OBJ(MAIN_OBJECT(resultProg)) == ILLEGALOBJECT) {
           err_warning(SYSTEM_MAIN_MISSING);
         } else {
           resultProg->main_object = MAIN_OBJECT(resultProg);

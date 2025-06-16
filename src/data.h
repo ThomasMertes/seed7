@@ -81,7 +81,8 @@ typedef enum {
     LOCALVOBJECT,        /* objValue -    Local variable            */
     DATABASEOBJECT,      /* databaseValue - Database                */
     SQLSTMTOBJECT,       /* sqlStmtValue -  SQL statement           */
-    PROGOBJECT           /* progValue -   Program                   */
+    PROGOBJECT,          /* progValue -   Program                   */
+    ILLEGALOBJECT
   } objectCategory;
 
 typedef enum {

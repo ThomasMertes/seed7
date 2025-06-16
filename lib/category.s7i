@@ -153,6 +153,7 @@ const category: LOCALVOBJECT      is category("LOCALVOBJECT");
 const category: DATABASEOBJECT    is category("DATABASEOBJECT");
 const category: SQLSTMTOBJECT     is category("SQLSTMTOBJECT");
 const category: PROGOBJECT        is category("PROGOBJECT");
+const category: ILLEGALOBJECT     is category("ILLEGALOBJECT");
 
 
 (**

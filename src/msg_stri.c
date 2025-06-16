@@ -486,7 +486,7 @@ void appendCategory (striType *const msg, const objectCategory category)
   { /* appendCategory */
     logFunction(printf("appendSymbol(\"%s\", %u)\n",
                        striAsUnquotedCStri(*msg), category););
-    if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
+    if (category >= SYMBOLOBJECT && category <= ILLEGALOBJECT) {
       appendCStri(msg, category_cstri(category));
     } else {
       appendInt(msg, (intType) category);

@@ -8172,36 +8172,36 @@ const proc: init_systypes (in program: prog) is func
     var type: stri_type is void;
   begin
     type_ref := sysVar(prog, "type");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       type_type := getValue(type_ref, type);
       typeData.typeCategory @:= [type_type] TYPEOBJECT;
     end if;
     type_ref := sysVar(prog, "proc");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       typeData.proctype := getValue(type_ref, type);
     end if;
     type_ref := sysVar(prog, "integer");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       int_type := getValue(type_ref, type);
       typeData.typeCategory @:= [int_type] INTOBJECT;
     end if;
     type_ref := sysVar(prog, "bigInteger");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       bigint_type := getValue(type_ref, type);
       typeData.typeCategory @:= [bigint_type] BIGINTOBJECT;
     end if;
     type_ref := sysVar(prog, "float");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       float_type := getValue(type_ref, type);
       typeData.typeCategory @:= [float_type] FLOATOBJECT;
     end if;
     type_ref := sysVar(prog, "char");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       char_type := getValue(type_ref, type);
       typeData.typeCategory @:= [char_type] CHAROBJECT;
     end if;
     type_ref := sysVar(prog, "string");
-    if type_ref <> NIL then
+    if type_ref <> NIL and category(type_ref) = TYPEOBJECT then
       stri_type := getValue(type_ref, type);
       typeData.typeCategory @:= [stri_type] STRIOBJECT;
     end if;

@@ -95,7 +95,8 @@ static const const_cstriType category_name[] = {
     "LOCALVOBJECT",      /* objValue -    Local variable            */
     "DATABASEOBJECT",    /* databaseValue - Database                */
     "SQLSTMTOBJECT",     /* sqlStmtValue -  SQL statement           */
-    "PROGOBJECT"         /* progValue -   Program                   */
+    "PROGOBJECT",        /* progValue -   Program                   */
+    "ILLEGALOBJECT"
   };
 
 
@@ -111,7 +112,7 @@ const_cstriType category_cstri (objectCategory aCategory)
     const_cstriType result;
 
   /* category_cstri */
-    if (aCategory >= SYMBOLOBJECT && aCategory <= PROGOBJECT) {
+    if (aCategory >= SYMBOLOBJECT && aCategory <= ILLEGALOBJECT) {
       result = category_name[(int) aCategory];
     } else {
       result = "*UNKNOWN*";
@@ -133,7 +134,7 @@ intType category_value (const const_cstriType catName)
     intType category;
 
   /* category_value */
-    for (category = SYMBOLOBJECT; category <= PROGOBJECT; category++) {
+    for (category = SYMBOLOBJECT; category <= ILLEGALOBJECT; category++) {
       if (strcmp(catName, category_name[category]) == 0) {
         return category;
       } /* if */

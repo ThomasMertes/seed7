@@ -81,7 +81,7 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "main",
   };
 
-static objectRecord dummy_expr_type;
+static objectRecord dummy_object;
 
 
 
@@ -126,15 +126,12 @@ void init_sysvar (progType aProgram)
 
   /* init_sysvar */
     logFunction(printf("init_sysvar\n"););
+    dummy_object.type_of = NULL;
+    dummy_object.descriptor.property = NULL;
+    INIT_CATEGORY_OF_OBJ(&dummy_object, ILLEGALOBJECT);
+    memset(&dummy_object.value, 0, sizeof(valueUnion));
     for (number = 0; number < NUMBER_OF_SYSVARS; number++) {
-      aProgram->sys_var[number] = NULL;
+      aProgram->sys_var[number] = &dummy_object;
     } /* for */
-    /* Initialize SYS_EXPR_TYPE (EXPR_TYPE) to avoid an */
-    /* error, if the source has no include directive.   */
-    dummy_expr_type.type_of = NULL;
-    dummy_expr_type.descriptor.property = NULL;
-    INIT_CATEGORY_OF_OBJ(&dummy_expr_type, TYPEOBJECT);
-    dummy_expr_type.value.typeValue = NULL;
-    EXPR_TYPE(aProgram) = &dummy_expr_type;
     logFunction(printf("init_sysvar -->\n"););
   } /* init_sysvar */

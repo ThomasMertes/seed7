@@ -126,7 +126,8 @@ static objectType gen_literal_object (const_objectType typeof_object,
         literal_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2055));
       } else {
-        if (typeof_object == NULL) {
+        if (typeof_object == NULL ||
+            CATEGORY_OF_OBJ(typeof_object) != TYPEOBJECT) {
           err_warning(LITERAL_TYPE_UNDEFINED);
           literal_object->type_of = NULL;
         } else {
