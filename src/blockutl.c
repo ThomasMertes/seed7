@@ -109,19 +109,46 @@ static void free_locobj (const_locObjType locobj)
 
 
 
+static locListType reverse_loclist (locListType loclist_element)
+
+  {
+    locListType next_elem;
+    locListType reversed_loclist;
+
+  /* reverse_loclist */
+    if (loclist_element != NULL) {
+      reversed_loclist = loclist_element;
+      loclist_element = loclist_element->next;
+      reversed_loclist->next = NULL;
+      while (loclist_element != NULL) {
+        next_elem = loclist_element->next;
+        loclist_element->next = reversed_loclist;
+        reversed_loclist = loclist_element;
+        loclist_element = next_elem;
+      } /* while */
+    } else {
+      reversed_loclist = NULL;
+    } /* if */
+    return reversed_loclist;
+  } /* reverse_loclist */
+
+
+
 void free_loclist (locListType loclist)
 
   {
-    locListType old_loclist;
+    locListType reversed_loclist;
+    locListType old_elem;
 
   /* free_loclist */
     logFunction(printf("free_loclist(" FMT_U_MEM ")\n",
                        (memSizeType) loclist););
-    while (loclist != NULL) {
-      free_locobj(&loclist->local);
-      old_loclist = loclist;
-      loclist = loclist->next;
-      FREE_RECORD(old_loclist, locListRecord, count.loclist);
+    reversed_loclist = reverse_loclist(loclist);
+    while (reversed_loclist != NULL) {
+      free_locobj(&reversed_loclist->local);
+      old_elem = reversed_loclist;
+      reversed_loclist = reversed_loclist->next;
+      FREE_RECORD(old_elem, locListRecord, count.loclist);
     } /* while */
     logFunction(printf("free_loclist -->\n"););
   } /* free_loclist */
