@@ -79,27 +79,14 @@ objectType ref_addr (listType arguments)
 
 objectType ref_alloc (listType arguments)
 
-  {
-    objectType obj1;
-    objectType created_object;
-
-  /* ref_alloc */
+  { /* ref_alloc */
     isit_reference(arg_1(arguments));
-    obj1 = take_reference(arg_1(arguments));
-    logFunction(printf("ref_alloc(");
-                trace1(obj1);
+    logFunction(printf("ref_alloc(" FMT_U_MEM " ",
+                       (memSizeType) take_reference(arg_1(arguments)));
+                trace1(take_reference(arg_1(arguments)));
                 printf(")\n"););
-    if (ALLOC_OBJECT(created_object)) {
-      created_object->type_of = obj1->type_of;
-      memcpy(&created_object->descriptor, &obj1->descriptor,
-          sizeof(descriptorUnion));
-      /* Copies the POSINFO flag (and all other flags): */
-      INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
-      created_object->value.objValue = NULL;
-      return bld_reference_temp(created_object);
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } /* if */
+    return bld_reference_temp(
+        refAlloc(take_reference(arg_1(arguments))));
   } /* ref_alloc */
 
 

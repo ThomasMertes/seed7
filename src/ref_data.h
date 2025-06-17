@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType refAlloc (const const_objectType aReference);
+objectType refAlloc (const const_objectType obj1);
 objectType refAllocInt (boolType isVar, typeType aType,
                         const intType number);
 objectType refAllocStri (boolType isVar, typeType aType,
