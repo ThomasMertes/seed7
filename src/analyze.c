@@ -365,7 +365,7 @@ static inline void declAny (nodeType objects)
           } /* if */
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
-          fatal_memory_error(SOURCE_POSITION(2112));
+          err_object(EXCEPTION_RAISED, prog->sys_var[err_info]);
         } /* if */
       } else {
 #if TRACE_DECL_ANY
