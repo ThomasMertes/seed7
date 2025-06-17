@@ -53,7 +53,7 @@
 
 
 
-static void free_locobj (const_locObjType locobj)
+void free_locobj (const_locObjType locobj)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;

@@ -25,6 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
+void free_locobj (const_locObjType locobj);
 void free_loclist (locListType loclist);
 void free_local_consts (listType list);
 void free_block (blockType block);

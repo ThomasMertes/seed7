@@ -1360,6 +1360,7 @@ objectType prc_res_begin (listType arguments)
     } else {
       push_stack();
       grow_stack(&err_info);
+      memset(&result_var, 0, sizeof(locObjRecord));
       if (err_info == OKAY_NO_ERROR) {
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
@@ -1390,20 +1391,20 @@ objectType prc_res_begin (listType arguments)
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_expression(block_body);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(result_var.object == NULL || block_body == NULL)) {
         free_expression(block_body);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_begin: Create error\n"););
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL)) {
         free_expression(block_body);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_begin: No memory\n"););
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
@@ -1457,6 +1458,7 @@ objectType prc_res_local (listType arguments)
     } else {
       push_stack();
       grow_stack(&err_info);
+      memset(&result_var, 0, sizeof(locObjRecord));
       if (err_info == OKAY_NO_ERROR) {
         result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
         shrink_stack();
@@ -1498,7 +1500,7 @@ objectType prc_res_local (listType arguments)
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_local: error - err_info: %d\n", err_info););
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
@@ -1506,7 +1508,7 @@ objectType prc_res_local (listType arguments)
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_local: Create error\n"););
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
@@ -1515,7 +1517,7 @@ objectType prc_res_local (listType arguments)
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        free_name(result_var.object);
+        free_locobj(&result_var);
         logError(printf("prc_res_local: No memory\n"););
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
