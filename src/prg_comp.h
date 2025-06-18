@@ -36,6 +36,7 @@ progType prgCreate (const progType source);
 void prgDestr (progType old_prog);
 intType prgErrorCount (const const_progType aProg);
 objectType prgEval (progType aProgram, objectType anExpression);
+objectType prgEvalWithArgs (progType aProgram, objectType object, listType args);
 void prgExec (const const_progType aProgram, const const_rtlArrayType parameters,
     const const_setType options, const const_striType protFileName);
 progType prgFilParse (const const_striType fileName, const const_setType options,

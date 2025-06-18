@@ -254,6 +254,20 @@ objectType prg_eval (listType arguments)
 
 
 
+objectType prg_eval_with_args (listType arguments)
+
+  { /* prg_eval_with_args */
+    isit_prog(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    isit_reflist(arg_3(arguments));
+    return bld_reference_temp(
+        prgEvalWithArgs(take_prog(arg_1(arguments)),
+                        take_reference(arg_2(arguments)),
+                        take_reflist(arg_3(arguments))));
+  } /* prg_eval_with_args */
+
+
+
 /**
  *  Execute the program referred by 'aProgram/arg_1'.
  */

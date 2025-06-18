@@ -329,6 +329,16 @@ const func reference: evaluate (in program: aProgram,
 
 
 (**
+ *  Evaluate ''anObject'' which is part of ''aProgram'' with ''args''.
+ *  The original argument list of ''anObject'' ist replaced with ''args''.
+ *  @return the result of the evaluation.
+ *)
+const func reference: evaluate (in program: aProgram,
+                                in reference: anObject,
+                                in ref_list: args)                       is action "PRG_EVAL_WITH_ARGS";
+
+
+(**
  *  Execute ''aProgram'' with the given ''parameters'', ''options'' and ''protFileName''.
  *)
 const proc: execute (in program: aProgram, in array string: parameters,

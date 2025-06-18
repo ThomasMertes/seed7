@@ -548,6 +548,56 @@ objectType prgEval (progType aProgram, objectType anExpression)
 
 
 
+objectType prgEvalWithArgs (progType aProgram, objectType object,
+    listType args)
+
+  {
+    objectRecord call_object;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* prgEvalWithArgs */
+    logFunction(printf("prgEvalWithArgs(" FMT_X_MEM ", ",
+                       (memSizeType) aProgram);
+                trace1(object);
+                printf(", ");
+                prot_list(args);
+                printf(")\n"););
+    if (CATEGORY_OF_OBJ(object) == MATCHOBJECT ||
+        CATEGORY_OF_OBJ(object) == CALLOBJECT ||
+        CATEGORY_OF_OBJ(object) == REFLISTOBJECT) {
+      call_object.type_of = object->type_of;
+      call_object.descriptor.property = NULL;
+      call_object.value.listValue = args;
+      INIT_CATEGORY_OF_OBJ(&call_object, CATEGORY_OF_OBJ(object));
+      result = exec_expr(aProgram, &call_object, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("prgEvalWithArgs: exec_expr() failed.\n"
+                        "err_info=%d\n", err_info););
+        raise_error(err_info);
+        result = NULL;
+      } /* if */
+    } else if (args != NULL) {
+      logError(printf("prgEvalWithArgs: Args not NULL. \n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result = exec_expr(aProgram, object, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("prgEvalWithArgs: exec_expr() failed.\n"
+                        "err_info=%d\n", err_info););
+        raise_error(err_info);
+        result = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("prgEvalWithArgs --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* prgEvalWithArgs */
+
+
+
 /**
  *  Execute the program referred by 'aProgram'.
  */

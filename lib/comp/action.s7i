@@ -1442,6 +1442,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRG_ERROR_COUNT, function, params, c_expr);
       when {"PRG_EVAL"}:
         process(PRG_EVAL, function, params, c_expr);
+      when {"PRG_EVAL_WITH_ARGS"}:
+        process(PRG_EVAL_WITH_ARGS, function, params, c_expr);
       when {"PRG_EXEC"}:
         process(PRG_EXEC, function, params, c_expr);
       when {"PRG_FIL_PARSE"}:

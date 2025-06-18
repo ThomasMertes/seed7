@@ -29,6 +29,7 @@ const ACTION: PRG_CPY             is action "PRG_CPY";
 const ACTION: PRG_EQ              is action "PRG_EQ";
 const ACTION: PRG_ERROR_COUNT     is action "PRG_ERROR_COUNT";
 const ACTION: PRG_EVAL            is action "PRG_EVAL";
+const ACTION: PRG_EVAL_WITH_ARGS  is action "PRG_EVAL_WITH_ARGS";
 const ACTION: PRG_EXEC            is action "PRG_EXEC";
 const ACTION: PRG_FIL_PARSE       is action "PRG_FIL_PARSE";
 const ACTION: PRG_GET_ERROR       is action "PRG_GET_ERROR";
@@ -56,6 +57,7 @@ const proc: prg_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        prgDestr (progType);");
     declareExtern(c_prog, "intType     prgErrorCount (const const_progType);");
     declareExtern(c_prog, "objRefType  prgEval (progType, objRefType);");
+    declareExtern(c_prog, "objRefType  prgEvalWithArgs (progType, objRefType, listType);");
     declareExtern(c_prog, "void        prgExec (const const_progType, const const_arrayType, const const_setType, const const_striType);");
     declareExtern(c_prog, "progType    prgFilParse (const const_striType, const const_setType, const const_arrayType, fileType);");
     declareExtern(c_prog, "void        prgGetError (const const_progType, intType, intType *, striType *, intType *, intType *, striType *, striType *);");
@@ -164,6 +166,21 @@ const proc: process (PRG_EVAL, in reference: function,
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_EVAL_WITH_ARGS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compilerLibrary := TRUE;
+    c_expr.expr &:= "prgEvalWithArgs(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

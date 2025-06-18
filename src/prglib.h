@@ -33,6 +33,7 @@ objectType prg_empty          (listType arguments);
 objectType prg_eq             (listType arguments);
 objectType prg_error_count    (listType arguments);
 objectType prg_eval           (listType arguments);
+objectType prg_eval_with_args (listType arguments);
 objectType prg_exec           (listType arguments);
 objectType prg_fil_parse      (listType arguments);
 objectType prg_get_error      (listType arguments);
