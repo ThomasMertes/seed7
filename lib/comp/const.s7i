@@ -351,28 +351,6 @@ const func boolean: isConstantExpr (in reference: current_expression) is func
   end func;
 
 
-const func reference: evaluate (in reference: current_expression,
-    in ref_list: arguments) is func
-  result
-    var reference: evaluatedExpr is NIL;
-  local
-    var reference: currExpr is NIL;
-  begin
-    currExpr := alloc(current_expression);
-    setValue(currExpr, arguments);
-    block
-      evaluatedExpr := evaluate(prog, currExpr);
-    exception
-      catch NUMERIC_ERROR:  noop;
-      catch OVERFLOW_ERROR: noop;
-      catch RANGE_ERROR:    noop;
-      catch INDEX_ERROR:    noop;
-      catch FILE_ERROR:     noop;
-      catch DATABASE_ERROR: noop;
-    end block;
-  end func;
-
-
 const func boolean: canEvaluateSpecialAction (in reference: current_expression,
     inout reference: evaluatedExpr) is func
 
@@ -414,7 +392,7 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
             end if;
           end for;
           if inlineParamFound then
-            evaluatedExpr := evaluate(current_expression, new_actual_params);
+            evaluatedExpr := evaluate(prog, current_expression, new_actual_params);
             if evaluatedExpr <> NIL then
               if category(evaluatedExpr) in basicExpressionCategories then
                 incr(count.evaluations);
