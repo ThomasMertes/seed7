@@ -836,6 +836,10 @@ static void printformparam (const_objectType aParam)
           prot_cstri("attr ");
           printtype(aParam->type_of);
           break;
+        case SYMBOLOBJECT:
+          prot_cstri("symb ");
+          printobject(aParam);
+          break;
         default:
           prot_cstri("unknown ");
           printobject(aParam);
