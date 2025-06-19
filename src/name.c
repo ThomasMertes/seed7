@@ -976,7 +976,14 @@ static objectType inst_object_expr (const_nodeType declaration_base,
             /* printf("param_obj ");
             trace1(param_obj);
             printf("\n"); */
-            defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
+            if (HAS_PROPERTY(param_obj)) {
+              defined_object = inst_object(declaration_base, param_obj,
+                  param_obj->descriptor.property->file_number,
+                  param_obj->descriptor.property->line, err_info);
+            } else {
+              defined_object = inst_object(declaration_base, param_obj,
+                  0, 0, err_info);
+            } /* if */
           } /* if */
         } else {
           err_object(IDENT_EXPECTED, object_name);
