@@ -117,7 +117,9 @@ static objectType get_object (progType currentProg, entityType entity,
     propertyType defined_property;
 
   /* get_object */
-    logFunction(printf("get_object\n"););
+    logFunction(printf("get_object(");
+                prot_list(params);
+                printf(", %d, %d, %d)\n", file_number, line, *err_info););
     if (entity->data.owner != NULL &&
         entity->data.owner->decl_level == currentProg->stack_current) {
       defined_object = entity->data.owner->obj;
@@ -921,7 +923,7 @@ static objectType inst_object (const_nodeType declaration_base, objectType name_
   /* inst_object */
     logFunction(printf("inst_object(");
                 trace1(name_object);
-                printf(")\n"););
+                printf(", %d, %d, %d)\n", file_number, line, *err_info););
     if (name_object->descriptor.property == prog->property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
