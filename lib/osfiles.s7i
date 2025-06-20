@@ -791,7 +791,13 @@ const func string: toAbsPath (in string: basePath, in string: path) is func
   end func;
 
 
-const func string: parentDir (in string: path) is func
+(**
+ *  Determine the parent directory of the given ''path''.
+ *  @param path Absolute or relative path in the standard path
+ *         representation.
+ *  @return the path of the parent directory.
+ *)
+const func string: getParentDir (in string: path) is func
   result
     var string: parentDir is "";
   local
