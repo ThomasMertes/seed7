@@ -815,6 +815,27 @@ const func string: getParentDir (in string: path) is func
 
 
 (**
+ *  Determine the file name used in the given ''path''.
+ *  @param path Absolute or relative path in the standard path
+ *         representation.
+ *  @return the file name used in ''path''.
+ *)
+const func string: getFileName (in string: path) is func
+  result
+    var string: fileName is "";
+  local
+    var integer: slashPos is 0;
+  begin
+    slashPos := rpos(path, '/');
+    if slashPos = 0 then
+      fileName := path;
+    else
+      fileName := path[succ(slashPos) ..];
+    end if;
+  end func;
+
+
+(**
  *  Create the parent directories of the given ''filePath''.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath'' to
  *             the system path type.
