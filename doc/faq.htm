@@ -513,6 +513,9 @@ Implementation
 <li><a class="link" href="#faq_how_parsed"><b>
 How is Seed7 parsed?
 </b></a></li>
+<li><a class="link" href="#faq_documentation_comment_format"><b>
+Which format is used by the Seed7 documentation comments?
+</b></a></li>
 <li><a class="link" href="#faq_lto"><b>
 What is link time optimization?
 </b></a></li>
@@ -1496,7 +1499,7 @@ parsing so there is no need to categorize keywords.
 </p><p>
 Some keywords are used twice. There is the type <tt><span class="type_no_ul">func</span></tt>. E.g.:
 <pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span>
   <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">rand</span>(<span class="var_no_ul">FALSE</span>, <span class="var_no_ul">TRUE</span>);
 </pre><p>
 And there is the <tt><span class="keywd">func</span> ... <span class="keywd">end</span> <span class="keywd">func</span></tt> construct (which is used as function body).
@@ -1504,7 +1507,7 @@ E.g.:
 <pre class="indent">
 <span class="keywd">func</span>
 <span class="keywd">local</span>
-  <span class="keywd">var</span> <span class="type_no_ul">integer</span>: number <span class="keywd">is</span> 0;
+  <span class="keywd_no_ul">var</span> <span class="type_no_ul">integer</span>: number <span class="keywd">is</span> 0;
 <span class="keywd">begin</span>
   writeln(number);
 <span class="keywd">end</span> <span class="keywd">func</span>;
@@ -1687,27 +1690,27 @@ is used. Constant declarations often look like this:
 <span class="keywd">const</span> <span class="type">int</span> x = 888;
 </pre><p>
 The Seed7 declaration syntax is oriented towards these examples. Variable
-declarations are introduced with <tt><span class="keywd">var</span></tt> and constant declarations are
-introduced with <tt><span class="keywd">const</span></tt>. The equals sign is replaced with <tt><span class="keywd">is</span></tt> and
+declarations are introduced with <tt><span class="keywd_no_ul">var</span></tt> and constant declarations are
+introduced with <tt><span class="keywd_no_ul">const</span></tt>. The equals sign is replaced with <tt><span class="keywd">is</span></tt> and
 a colon is used as separator between type and name. This leads to:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">integer</span>: x <span class="keywd">is</span> 42;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">integer</span>: x <span class="keywd">is</span> 42;
 </pre><p>
 Writing the type before the name offers the opportunity to have a type
 declaration that is easy to recognize and uses the same syntax:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">type</span>: stack <span class="keywd">is</span> <span class="type_no_ul">array</span> <span class="type_no_ul">integer</span>;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">type</span>: stack <span class="keywd">is</span> <span class="type_no_ul">array</span> <span class="type_no_ul">integer</span>;
 </pre><p>
 It is also easy to recognize function declarations. They use the same
 syntax:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">integer</span>: computeSomething <span class="keywd">is</span> ...
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">integer</span>: computeSomething <span class="keywd">is</span> ...
 </pre><p>
 In a block with several declarations the type can be recognized easily:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type_no_ul">integer</span>: index <span class="keywd">is</span> 1;
-<span class="keywd">var</span> <span class="type_no_ul">integer</span>: paramValue <span class="keywd">is</span> 0;
-<span class="keywd">var</span> <span class="type_no_ul">bigInteger</span>: bigSum <span class="keywd">is</span> 0_;
+<span class="keywd_no_ul">var</span> <span class="type_no_ul">integer</span>: index <span class="keywd">is</span> 1;
+<span class="keywd_no_ul">var</span> <span class="type_no_ul">integer</span>: paramValue <span class="keywd">is</span> 0;
+<span class="keywd_no_ul">var</span> <span class="type_no_ul">bigInteger</span>: bigSum <span class="keywd">is</span> 0_;
 </pre><p>
 Programmers used to dynamically typed languages may be confused by the
 colon. Those languages use something like <tt>name: type</tt> with the type
@@ -1776,7 +1779,7 @@ For example:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: while (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
               (<span class="keywd_no_ul">in</span> <span class="type">proc</span>: statement)
             end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -1988,10 +1991,10 @@ than written.
 <p>
   A function declaration like:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
-    <span class="keywd">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
+    <span class="keywd_no_ul">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
+    <span class="keywd_no_ul">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
   ...
 </pre><p>
   triggers the error:
@@ -2004,11 +2007,11 @@ than written.
   are not defined during the parsing. This errors are avoided, if <tt><span class="type">type</span></tt>
   declarations are made at the top level. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
+    <span class="keywd_no_ul">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
   <span class="keywd">begin</span>
     <span class="func">writeln</span>(<span class="func">length</span>(arr));
   <span class="keywd">end func</span>;
@@ -2019,9 +2022,9 @@ than written.
 <p>
   A function declaration like:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
+    <span class="keywd_no_ul">var</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
   ...
 </pre><p>
   triggers the error:
@@ -2033,11 +2036,11 @@ const func array array string: test (in string: value) is func
   as two different types. This error can be avoided by defining a named <tt><span class="type">type</span></tt>
   for the two dimensional array at the top level:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: stringArray2D <span class="keywd">is</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: stringArray2D <span class="keywd">is</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">stringArray2D</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">stringArray2D</span>: test (<span class="keywd_no_ul">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">stringArray2D</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
+    <span class="keywd_no_ul">var</span> <span class="type">stringArray2D</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
   ...
 </pre></div>
 
@@ -2102,30 +2105,30 @@ analyzing expressions with undeclared functions overly complex.
 Forward declarations help, if something needs to be used before it can be declared
 fully:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is forward</span>;
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is forward</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: getString (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: getString (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd_no_ul">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'('</span> <span class="keywd">then</span>
+    <span class="keywd_no_ul">if</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'('</span> <span class="keywd_no_ul">then</span>
       <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
       stri <span class="op_no_ul">:=</span> concatenate(inFile);    <span class="comment"># Call of forward declared function</span>
       <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
-    <span class="keywd">elsif</span> inFile.bufferChar = <span class="stri">'"'</span> <span class="keywd">then</span>
+    <span class="keywd_no_ul">elsif</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'"'</span> <span class="keywd_no_ul">then</span>
       stri <span class="op_no_ul">:=</span> <span class="func">getQuotedText</span>(inFile);
-    <span class="keywd">end if</span>;
+    <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">if</span>;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd_no_ul">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     stri <span class="op_no_ul">:=</span> getString(inFile);
-    <span class="keywd">while</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'&'</span> <span class="keywd">do</span>
+    <span class="keywd_no_ul">while</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'&'</span> <span class="keywd_no_ul">do</span>
       <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
       stri <span class="op_no_ul">&amp;:=</span> getString(inFile);
-    <span class="keywd">end while</span>;
+    <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">while</span>;
   <span class="keywd">end func</span>;
 </pre></div>
 
@@ -2134,9 +2137,9 @@ fully:
 <p>
 Yes, functions, operators and statements can be overloaded. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">float</span>: amount)      <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> amount <span class="op_no_ul">/</span> 10.0;
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: amount)    <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">bigRational</span>: tenPercent (<span class="keywd_no_ul">in</span> <span class="type">bigInteger</span>: amount) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> amount <span class="op_no_ul">/</span> 10_;
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">float</span>: amount)      <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> amount <span class="op_no_ul">/</span> 10.0;
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">float</span>:       tenPercent (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: amount)    <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">bigRational</span>: tenPercent (<span class="keywd_no_ul">in</span> <span class="type">bigInteger</span>: amount) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> amount <span class="op_no_ul">/</span> 10_;
 </pre><p>
 These functions can be used with:
 </p><pre class="indent">
@@ -2146,7 +2149,7 @@ These functions can be used with:
 </pre><p>
 Existing operators like <tt><span class="op">+</span></tt> can be overloaded with:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">float</span>: (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: summand1) + (<span class="keywd_no_ul">in</span> <span class="type">float</span>: summand2) <span class="keywd">is</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">float</span>: (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: summand1) + (<span class="keywd_no_ul">in</span> <span class="type">float</span>: summand2) <span class="keywd">is</span>
     <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">float</span>(summand1) <span class="op_no_ul">+</span> summand2;
 </pre><p>
 Note that the declaration above identifies the <tt><span class="op">+</span></tt> operator with:
@@ -2184,8 +2187,8 @@ necessary to define the syntax before defining the semantic.
 No, return type overloading is not supported. The example below shows
 what happens if the function <tt>f</tt> is overloaded with different result types:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">ord</span>(x);
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">string</span>:  f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">str</span>(x);
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">integer</span>: f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">ord</span>(x);
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>:  f (<span class="keywd_no_ul">in</span> <span class="type">char</span>: x) <span class="keywd">is</span> <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> <span class="func">str</span>(x);
 </pre><p>
 This overloading of the result type triggers compile-time errors:
 </p><pre class="indent">
@@ -2249,9 +2252,9 @@ some problems:
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd_no_ul">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: print_list (<span class="keywd_no_ul">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> number <span class="keywd">range</span> arr <span class="keywd">do</span>
       writeln(number);
@@ -2269,7 +2272,7 @@ print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
 The decision to use the keyword <tt><span class="keywd">is</span></tt> relates to the <span class="link">Structured Syntax
 Definition</span> of Seed7. A variable declaration in Seed7 looks like:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">integer</span><span class="op">:</span> number <span class="keywd">is</span> 42
+<span class="keywd_no_ul">var</span> <span class="type">integer</span><span class="op">:</span> number <span class="keywd">is</span> 42
 </pre><p>
 The syntax of this variable declaration is defined in the file <span class="lib">syntax.s7i</span>.
 A variable declaration with <tt><span class="op">:=</span></tt> would need a different syntax definition.
@@ -2299,12 +2302,12 @@ In case of the variable declaration, this parameter is situated in
 between <tt><span class="op">:</span></tt> and <tt><span class="op">:=</span></tt>. Such a middle parameter allows the much weaker
 priority 127. Code like
 </p><pre class="indent">
-  <span class="keywd">var</span> integer <span class="op">:</span> number <span class="op">:=</span> 42;
+  <span class="keywd"">var</span> <span class="type_no_ul">integer</span> <span class="op">:</span> number <span class="op">:=</span> 42;
 <span class="keywd">begin</span>
 </pre><p>
 would be interpreted as
 </p><pre class="indent">
-<span class="keywd">var</span> integer <span class="op">:</span> (number <span class="op">:=</span> 42;) <span class="keywd">begin</span>
+<span class="keywd"">var</span> <span class="type_no_ul">integer</span> <span class="op">:</span> (number <span class="op">:=</span> 42;) <span class="keywd">begin</span>
 </pre><p>
 Since the syntax pattern would expect a <tt><span class="op">:=</span></tt> after <tt>number <span class="op">:=</span> 42;</tt> this
 would lead to the error:
@@ -2336,20 +2339,20 @@ This usually rules out user defined functions (or it is restricted in other ways
 Seed7 allows arbitrary expressions (including user defined functions) in
 initializations of constants and variables:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">integer</span>: limit <span class="keywd">is</span> 1000 ** 2 * 10;
+<span class="keywd_no_ul">const</span> <span class="type">integer</span>: limit <span class="keywd">is</span> 1000 ** 2 * 10;
 
-<span class="keywd">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
+<span class="keywd_no_ul">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd_no_ul">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd_no_ul">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
     <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> split(<span class="func">lower</span>(<span class="func">getf</span>(fileName)), <span class="stri">"\n"</span>);
 
-<span class="keywd">var</span> <span class="type">array</span> <span class="type">string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
+<span class="keywd_no_ul">var</span> <span class="type">array</span> <span class="type">string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
 
-<span class="keywd">const</span> <span class="type">set</span> <span class="type">of</span> <span class="type">integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
+<span class="keywd_no_ul">const</span> <span class="type">set</span> <span class="type">of</span> <span class="type">integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
 
-<span class="keywd">const</span> <span class="type">PRIMITIVE_WINDOW</span>: pic <span class="keywd">is</span> <span class="func">readBmp</span>(<span class="stri">"head3.bmp"</span>);
+<span class="keywd_no_ul">const</span> <span class="type">PRIMITIVE_WINDOW</span>: pic <span class="keywd">is</span> <span class="func">readBmp</span>(<span class="stri">"head3.bmp"</span>);
 
-<span class="keywd">const</span> <span class="type">array</span> <span class="type">integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
+<span class="keywd_no_ul">const</span> <span class="type">array</span> <span class="type">integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
 </pre><p>
 A nice example is the initialization of the table <span class="var">stars</span> with
 the function <span class="func">genStarDescr</span> in the library <span class="lib">stars.s7i</span>.
@@ -2551,8 +2554,8 @@ used to determine the current properties of an array value.
 </p><p>
 In base idx <tt><span class="type">arrays</span></tt> the minimum index is part of the type. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: nameList <span class="keywd">is</span> <span class="type">array</span> [1 ..] <span class="type">string</span>;            <span class="comment"># minimum index is 1</span>
-<span class="keywd">const</span> <span class="type">type</span>: huffmanSymbolArray <span class="keywd">is</span> <span class="type">array</span> [0 ..] <span class="type">integer</span>; <span class="comment"># minimum index is 0</span>
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: nameList <span class="keywd">is</span> <span class="type">array</span> [1 ..] <span class="type">string</span>;            <span class="comment"># minimum index is 1</span>
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: huffmanSymbolArray <span class="keywd">is</span> <span class="type">array</span> [0 ..] <span class="type">integer</span>; <span class="comment"># minimum index is 0</span>
 </pre><p>
 The minimum index of a base idx <tt><span class="type">array</span></tt> is encoded in the type and cannot
 change at run-time. The minimum index can be obtained with <tt><span class="func">minIdx</span>(<span class="type">nameList</span>)</tt>
@@ -2563,8 +2566,8 @@ respectively <tt><span class="func">maxIdx</span></tt>.
 In fixed size <tt><span class="type">arrays</span></tt> the minimum index and the size are part
 of the type. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: dataBlockType <span class="keywd">is</span> <span class="type">array</span> [64] <span class="type">integer</span>;      <span class="comment"># minimum index is 1 and maximum index is 64</span>
-<span class="keywd">const</span> <span class="type">type</span>: keccakStateType <span class="keywd">is</span> <span class="type">array</span> [0 .. 24] <span class="type">bin64</span>; <span class="comment"># minimum index is 0 and maximum index is 24</span>
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: dataBlockType <span class="keywd">is</span> <span class="type">array</span> [64] <span class="type">integer</span>;      <span class="comment"># minimum index is 1 and maximum index is 64</span>
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: keccakStateType <span class="keywd">is</span> <span class="type">array</span> [0 .. 24] <span class="type">bin64</span>; <span class="comment"># minimum index is 0 and maximum index is 24</span>
 </pre><p>
 Neither minimum index nor maximum index nor the size of a fixed size
 <tt><span class="type">array</span></tt> can change at run-time. The minumum index can be obtained with
@@ -2576,7 +2579,7 @@ The length can be obtained with <tt><span class="func">length</span>(<span class
 Finally, there are indexed <tt><span class="type">arrays</span></tt> where the index may be any type that
 can be converted to an integer. E.d:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: charIndexArray <span class="keywd">is</span> <span class="type">array</span> [char] <span class="type">bigInteger</span>;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: charIndexArray <span class="keywd">is</span> <span class="type">array</span> [char] <span class="type">bigInteger</span>;
 </pre><p>
 A <tt><span class="type">hash</span></tt> can be used if the index type does not map to an <tt><span class="type">integer</span></tt>.
 </p></div>
@@ -2635,11 +2638,11 @@ databases. Databases can also be accessed via the ODBC interface. How the
 database independent API of Seed7 works can be seen in the following
 example:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">database</span>: currDb <span class="keywd">is</span> <span class="type">database</span>.value;
-    <span class="keywd">var</span> <span class="type">sqlStatement</span>: statement <span class="keywd">is</span> <span class="type">sqlStatement</span>.value;
-    <span class="keywd">var</span> <span class="type">integer</span>: index <span class="keywd">is</span> 0;
+    <span class="keywd_no_ul">var</span> <span class="type">database</span>: currDb <span class="keywd">is</span> <span class="type">database</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">sqlStatement</span>: statement <span class="keywd">is</span> <span class="type">sqlStatement</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     currDb <span class="op_no_ul">:=</span> <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
     <span class="keywd_no_ul">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd_no_ul">then</span>
@@ -2733,7 +2736,7 @@ Practically no compiler uses regular expressions to parse a program.
 The example below uses scanner functions to read a key-value pair from
 a file:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd_no_ul">inout</span> <span class="type">file</span>: inFile,
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd_no_ul">inout</span> <span class="type">file</span>: inFile,
     <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyName, <span class="keywd_no_ul">inout</span> <span class="type">string</span>: propertyValue) <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">begin</span>
     <span class="func">skipWhiteSpace</span>(inFile);
@@ -2917,16 +2920,16 @@ their behavior differs. This is shown with the following example:
 </p><pre class="indent">
 $ include <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">var</span> <span class="type">integer</span>: aGlobal <span class="keywd">is</span> 1;
+<span class="keywd_no_ul">var</span> <span class="type">integer</span>: aGlobal <span class="keywd">is</span> 1;
 
-<span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd_no_ul">val</span> <span class="type">integer</span>: valParam, <span class="keywd_no_ul">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: aFunc (<span class="keywd_no_ul">val</span> <span class="type">integer</span>: valParam, <span class="keywd_no_ul">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
     aGlobal <span class="op_no_ul">:=</span> 2;
     writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     aFunc(aGlobal, aGlobal);
   <span class="keywd">end func</span>;
@@ -2975,10 +2978,10 @@ the call-by-name expression is evaluated every time the formal call-by-name
 parameter is used. A <tt>'conditional'</tt> function (similar to the <span class="op">?:</span> ternary operator)
 is defined with:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd_no_ul">in</span> <span class="type">boolean</span>: condition,
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd_no_ul">in</span> <span class="type">boolean</span>: condition,
     <span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">integer</span>: trueValue, <span class="keywd_no_ul">ref</span> <span class="type">func</span> <span class="type">integer</span>: falseValue) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">if</span> condition <span class="keywd_no_ul">then</span>
       conditionalResult <span class="op_no_ul">:=</span> trueValue;
@@ -3002,7 +3005,7 @@ is assigned to <tt>'result'</tt>.
 <p>
 A function declaration like
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">boolean</span>: isZero (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: number) <span class="keywd">is</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">boolean</span>: isZero (<span class="keywd_no_ul">in</span> <span class="type">integer</span>: number) <span class="keywd">is</span>
   <a class="keywd_no_ul" href="#faq_no_return_statement">return</a> number <span class="op_no_ul">=</span> 0;
 </pre><p>
 uses <tt><span class="keywd">const</span></tt>, because the body of the function
@@ -3013,7 +3016,7 @@ will not change at run-time. So <tt><span class="func">isZero</span></tt> will n
 compute something else. For the same reason, procedures are also
 defined with <tt><span class="keywd">const</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: procedureName ...
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: procedureName ...
 </pre></div>
 
 <div><br /><a name="faq_functions_declared_without_const"><h3>Are there functions declared without const?
@@ -3022,7 +3025,7 @@ defined with <tt><span class="keywd">const</span></tt>:
 There are function declarations that are not introduced with <tt><span class="keywd">const</span></tt>.
 Below is a <a class="link" href="#faq_call_by_name">call-by-name parameter</a> declared with <tt><span class="keywd">in</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: whileTrueDo (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: callByNameParam) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: whileTrueDo (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: callByNameParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">while</span> callByNameParam <span class="keywd">do</span>
       <span class="func_no_ul">noop</span>;
@@ -3238,6 +3241,11 @@ process.
 <div><br /><a name="faq_abstract_data_type"><h3>What is an abstract data type?
 </h3></a><hr />
 <p>
+Examples of <a class="link" href="#decls_Abstract_data_type">abstract data types</a> are <tt><span class="type">array</span></tt>, <tt><span class="type">struct</span></tt> and <tt><span class="type">hash</span></tt>. Most programming
+languages hard-code abstract data types like <tt><span class="type">array</span></tt> in the compiler. In Seed7
+the library <span class="lib">array.s7i</span> defines the abstract data type <tt><span class="type">array</span></tt>. In Seed7
+programmers can introduce new abstract data types.
+</p><p>
 An abstract data type defines, like every other type, a set of functions to handle
 data. An abstract data type leaves, like an interface type from OO, the details of
 the data representation open. The difference between the two is:
@@ -3247,8 +3255,7 @@ the data representation open. The difference between the two is:
    when it is used.</li>
 </ul><p>
 Usually an abstract data type uses parameters to resolve to a concrete type.
-Examples of abstract data types are <tt><span class="type">array</span>s</tt>, <tt><span class="type">struct</span>s</tt> and <tt><span class="type">hash</span>es</tt>. An abstract <tt><span class="type">array</span></tt>
-type needs the element type as parameter. E.g.:
+An abstract <tt><span class="type">array</span></tt> type needs the element type as parameter. E.g.:
 </p><pre class="indent">
 <span class="type">array string</span>
 </pre><p>
@@ -3281,53 +3288,53 @@ and it makes no sense to have a <tt>'self'</tt> or <tt>'this'</tt> parameter.
 All parameters are taken into account when the dispatch decision is done.
 In the following example the interface type <tt><span class="type">Number</span></tt> uses multiple dispatch:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
 The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
 The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: data <span class="keywd">is</span> 0;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: data <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
 
-<span class="keywd">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
-    <span class="keywd">var</span> <span class="type">float</span>: data <span class="keywd">is</span> 0.0;
+<span class="keywd_no_ul">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
+    <span class="keywd_no_ul">var</span> <span class="type">float</span>: data <span class="keywd">is</span> 0.0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Float</span>, <span class="type">Number</span>);
 </pre><p>
 The declarations of the converting <tt>'+'</tt> operators are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
     sum.data <span class="op_no_ul">:=</span> <span class="func">float</span>(a.data) + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
     sum.data <span class="op_no_ul">:=</span> a.data + <span class="func">float</span>(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
   <span class="keywd">begin</span>
     sum.data <span class="op_no_ul">:=</span> a.data + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
     sum.data <span class="op_no_ul">:=</span> a.data + b.data;
   <span class="keywd">end func</span>;
@@ -3507,9 +3514,9 @@ class. If this is not desired Seed7 uses a special parameter, the <tt>'attr'</tt
 named class methods) in a more general way. How a static method is declared is
 shown in the following example:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd_no_ul">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd_no_ul">attr</span> <span class="type">integer</span>, <span class="keywd_no_ul">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     converted <span class="op_no_ul">:=</span> <span class="func">ord</span>(ch);
   <span class="keywd">end func</span>;
@@ -3571,9 +3578,9 @@ respectively string. The function <span class="func">execute</span> can be used 
 $ include <span class="lib">"seed7_05.s7i"</span>;
   include <span class="lib">"progs.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">&gt;=</span> 1 <span class="keywd_no_ul">then</span>
       aProg <span class="op_no_ul">:=</span> <span class="func">parseFile</span>(<span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[1]</span>);
@@ -3598,10 +3605,10 @@ in the program panic.sd7:
 $ include <span class="lib">"seed7_05.s7i"</span>;
   include <span class="lib">"progs.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
-    <span class="keywd">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
+    <span class="keywd_no_ul">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
+    <span class="keywd_no_ul">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
   <span class="keywd">begin</span>
     aProg <span class="op_no_ul">:=</span> <span class="func">parseFile</span>(<span class="stri">"panic.sd7"</span>);
     <span class="keywd_no_ul">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd_no_ul">then</span>
@@ -3765,7 +3772,7 @@ include "console.s7i";
 </pre><p>
 and assign <tt><span class="var">STD_CONSOLE</span></tt> to <tt><span class="var">OUT</span></tt> at the beginning of the <tt>main</tt> function
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   ...
   <span class="keywd">begin</span>
     <span class="var">OUT</span> <span class="op_no_ul">:=</span> <span class="var">STD_CONSOLE</span>;
@@ -3781,14 +3788,14 @@ Writing Unicode characters beyond <tt><span class="stri">'\255;'</span></tt> to 
 There is no <tt><span class="keywd">return</span></tt> statement in Seed7. Instead there is a <tt><span class="keywd">return</span></tt> construct
 that can be used to declare a function:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span>
   <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 </pre><p>
 This is a shortcut for a function declaration with a result variable:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <span class="keywd_no_ul">var</span> <span class="type_no_ul">boolean</span>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     coinState <span class="op_no_ul">:=</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
   <span class="keywd">end</span> <span class="keywd">func</span>;
@@ -3803,9 +3810,9 @@ declaration that uses:
 </pre><p>
 Using <tt><span class="keywd">return</span></tt> as statement triggers an error.
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <span class="keywd_no_ul">var</span> <span class="type_no_ul">boolean</span>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);     <span class="comment"># THIS WILL NOT WORK</span>
   <span class="keywd">end</span> <span class="keywd">func</span>;
@@ -3879,7 +3886,7 @@ a programmer defines a new statement, it would be necessary to specify the
 behavior of <tt>break</tt> and <tt>continue</tt>. This could be done by specifying labels
 (which do not exist in Seed7):
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">proc</span>: loop
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">proc</span>: loop
               (<span class="keywd_no_ul">in</span> <span class="type_no_ul">proc</span>: statements)
             end loop <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -3901,17 +3908,17 @@ exceptions:
 </p><pre class="indent">
 <span class="keywd">syntax</span> <span class="type_no_ul">expr</span>: .loop.().end.loop <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <span class="type_no_ul">EXCEPTION</span>: DO_BREAK    <span class="keywd">is</span> enumlit;
-<span class="keywd">const</span> <span class="type_no_ul">EXCEPTION</span>: DO_CONTINUE <span class="keywd">is</span> enumlit;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">EXCEPTION</span>: DO_BREAK    <span class="keywd">is</span> enumlit;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">EXCEPTION</span>: DO_CONTINUE <span class="keywd">is</span> enumlit;
 
-<span class="keywd">const</span> <span class="type_no_ul">proc</span>: break    <span class="keywd">is return</span> <span class="keywd_no_ul">raise</span> DO_BREAK;
-<span class="keywd">const</span> <span class="type_no_ul">proc</span>: continue <span class="keywd">is return</span> <span class="keywd_no_ul">raise</span> DO_CONTINUE;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">proc</span>: break    <span class="keywd">is return</span> <span class="keywd_no_ul">raise</span> DO_BREAK;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">proc</span>: continue <span class="keywd">is return</span> <span class="keywd_no_ul">raise</span> DO_CONTINUE;
 
-<span class="keywd">const</span> <span class="type_no_ul">proc</span>: loop
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">proc</span>: loop
               (<span class="keywd_no_ul">in</span> <span class="type_no_ul">proc</span>: statements)
             end loop <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type_no_ul">boolean</span>: exitLoop <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <span class="keywd_no_ul">var</span> <span class="type_no_ul">boolean</span>: exitLoop <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">repeat</span>
       <span class="keywd">block</span>
@@ -3955,6 +3962,65 @@ If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the <a class="link" href="#faq_bytecode">call-code</a>. Call-code can be executed by the <a class="link" href="#faq_interpreter">interpreter</a>.
 Alternatively the <a class="link" href="#faq_compile">compiler</a> can generate C code from it.
 </p></div>
+
+<div><br /><a name="faq_documentation_comment_format"><h3>Which format is used by the Seed7 documentation comments?
+</h3></a><hr />
+<p>
+Seed7 uses its own format for documentation comments:
+</p><ul>
+<li>Documentation comments are introduced with a line of <tt><span class="comment">(**</span></tt>.
+   There might be white-space before the <tt><span class="comment">(**</span></tt>.</li>
+<li>The following lines start with white-space followed by <tt><span class="comment">*</span></tt>.
+   Between the <tt><span class="comment">*</span></tt> and the actual documentation are <b>two</b> spaces.</li>
+<li>A line of <tt><span class="comment">*)</span></tt> ends the documentation comment.
+   There might be white space before the <tt><span class="comment">*)</span></tt>.</li>
+<li>The line which follows the documentation comment starts the
+   documented function or type declaration.</li>
+</ul><p>
+Inside of the documentation comment the following rules apply:
+</p><ul>
+<li>The first line is a quick 1-line overview of the thing.</li>
+<li>A long description can start at the second line.
+   The part with the long description might be empty.</li>
+<li>After the long description there is an optional description of the API.</li>
+<li>Lines starting with <tt><span class="comment">*  @param</span></tt> describe a function parameter.
+   Multi line descriptions are allowed.</li>
+<li>Lines starting with <tt><span class="comment">*  @return</span></tt> describe the function result.
+   Multi line descriptions are allowed.</li>
+<li>Lines starting with <tt><span class="comment">*  @exception</span></tt> describe an exception which might be raised.
+   Multi line descriptions are allowed.</li>
+</ul><p>
+The long description can contain code examples. In code examples the
+<tt><span class="comment">*</span></tt> is followed by <b>three</b> spaces. E.g.:
+</p><pre class="indent">
+<span class="comment">(**
+ *  Convert an ''integer'' number to a [[string]] using a radix.
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *  For negative numbers a minus sign is prepended.
+ *   48879 radix 16   returns "beef"
+ *   -48879 radix 16  returns "-beef"
+ *  @param number Number to be converted to a [[string]].
+ *  @param base Base of the numeral system used for the conversion.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)</span>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">string</span>: (<span class="keywd_no_ul">in</span> <span class="type_no_ul">integer</span>: number) radix (<span class="keywd_no_ul">in</span> <span class="type_no_ul">integer</span>: base) <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="op_no_ul">action</span> <span class="stri">"INT_radix"</span>;
+</pre><p>
+This corresponds to this <span class="link">documentation of the radix operator</span>.
+</p><p>
+Quoting something with two single quotes creates italics text. E.g.: <tt>''integer''</tt>
+Double brackets can be used to introduce links. E.g.: <tt>[[string]]</tt>
+The link <tt>[[string]]</tt> links to the <tt>string.s7i</tt> library.
+Links inside the same file can be done with e.g.: <tt>[[#NaN|NaN]]</tt>
+</p><ul>
+<li>Left of the vertical bar (<tt>|</tt>) is the actual link destination. In the
+   case above <tt>#NaN</tt> refers to the <tt>NaN</tt> constant defined in the same file.</li>
+<li>Right of the vertical bar is the name of the link. In the case above
+   this is <tt>NaN</tt>.</li>
+</ul></div>
 
 <div><br /><a name="faq_lto"><h3>What is link time optimization?
 </h3></a><hr />
