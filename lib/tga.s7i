@@ -516,7 +516,7 @@ const func string: fromTgaRunLengthEncoding (inout file: tgaFile,
     number := ord(getc(tgaFile));
     while number <> ord(EOF) and length(pixelData) < minLength do
       if number <= 127 then
-        # Copy a sequence of bytes.
+        # Copy a sequence of pixels.
         data := gets(tgaFile, succ(number) * bytesPerPixel);
         if length(data) <> succ(number) * bytesPerPixel then
           raise RANGE_ERROR;
@@ -524,7 +524,7 @@ const func string: fromTgaRunLengthEncoding (inout file: tgaFile,
           pixelData &:= data;
         end if;
       else
-        # Make copies of the next byte.
+        # Make copies of the next pixel.
         data := gets(tgaFile, bytesPerPixel);
         if length(data) <> bytesPerPixel then
           raise RANGE_ERROR;
