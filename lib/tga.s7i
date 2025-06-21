@@ -1,0 +1,687 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tga.s7i       Support for the TGA image file format.            *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "draw.s7i";
+include "bytedata.s7i";
+include "pixelimage.s7i";
+
+
+const integer: TGA_FILE_HEADER_SIZE is 18;
+
+const integer: TGA_NO_COLOR_MAP      is 0;  # Image file contains no color map
+const integer: TGA_COLOR_MAP_PRESENT is 1;  # A color map is present
+
+const integer: TGA_NO_IMAGE_DATA             is  0;  # No image data is present
+const integer: TGA_UNCOMPRESSED_COLOR_MAPPED is  1;  # Uncompressed color-mapped image
+const integer: TGA_UNCOMPRESSED_TRUE_COLOR   is  2;  # Uncompressed true-color image
+const integer: TGA_UNCOMPRESSED_GRAYSCALE    is  3;  # Uncompressed grayscale image
+const integer: TGA_RLE_COLOR_MAPPED          is  9;  # Run-length encoded color-mapped image
+const integer: TGA_RLE_TRUE_COLOR            is 10;  # Run-length encoded true-color image
+const integer: TGA_RLE_GRAYSCALE             is 11;  # Run-length encoded grayscale image
+
+const integer: TGA_NON_INTERLEAVED      is 0;  # Non-interleaved
+const integer: TGA_TWO_WAY_INTERLEAVED  is 1;  # Two-way (even/odd) interleaving
+const integer: TGA_FOUR_WAY_INTERLEAVED is 2;  # Four way interleaving
+
+
+const type: tgaHeader is new struct
+    var integer: idLength                 is 0;                  # Length of the image ID field
+    var integer: colorMapType             is 0;                  # Whether a color map is included
+    var integer: imageType                is TGA_NO_IMAGE_DATA;  # Compression and color types
+    # Color map specification - Describes the color map
+    var integer: colorMapFirstEntryIndex  is 0;  # Index of the first color map entry.
+    var integer: colorMapLength           is 0;  # Number of color map entries.
+    var integer: colorMapEntrySize        is 0;  # Number of bits in a color map entry.
+    # Image specification - Image dimensions and format
+    var integer: xOrigin                  is 0;  # X coordinate of the lower left corner of the image.
+    var integer: yOrigin                  is 0;  # Y coordinate of the lower left corner of the image.
+    var integer: width                    is 0;  # Width in pixels
+    var integer: height                   is 0;  # Height in pixels
+    var integer: pixelDepth               is 0;  # Bits per pixel
+    # Image descriptor - Bits 3–0 give the alpha channel depth, bits 5–4 give pixel ordering
+    var integer: alphaChannelDepth        is 0;
+    var boolean: rightToLeftPixelOrdering is FALSE;
+    var boolean: topToBottomPixelOrdering is FALSE;
+    var integer: interleavingFlag         is 0;
+    var string: imageId                   is "";
+    var colorLookupTable: palette is colorLookupTable.value;
+  end struct;
+
+
+const proc: showHeader (in tgaHeader: header) is func
+  begin
+    writeln("idLength: " <& header.idLength);
+    writeln("colorMapType: " <& header.colorMapType);
+    writeln("imageType: " <& header.imageType);
+    writeln("colorMapFirstEntryIndex: " <& header.colorMapFirstEntryIndex);
+    writeln("colorMapLength: " <& header.colorMapLength);
+    writeln("colorMapEntrySize: " <& header.colorMapEntrySize);
+    writeln("xOrigin: " <& header.xOrigin);
+    writeln("yOrigin: " <& header.yOrigin);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("pixelDepth: " <& header.pixelDepth);
+    writeln("alphaChannelDepth: " <& header.alphaChannelDepth);
+    writeln("rightToLeftPixelOrdering: " <& header.rightToLeftPixelOrdering);
+    writeln("topToBottomPixelOrdering: " <& header.topToBottomPixelOrdering);
+    writeln("interleavingFlag: " <& header.interleavingFlag);
+    writeln("imageId: " <& header.imageId);
+  end func;
+
+
+const proc: readPalette (inout file: tgaFile, inout tgaHeader: header) is func
+  local
+    var integer: maxColorIndex is 0;
+    var integer: colorEntrySize is 0;
+    var integer: bytesNeeded is 0;
+    var string: colorData is "";
+    var integer: index is 0;
+    var integer: byteIndex is 1;
+    var integer: colorBits is 1;
+  begin
+    maxColorIndex := pred(header.colorMapFirstEntryIndex + header.colorMapLength);
+    colorEntrySize := succ(pred(header.colorMapEntrySize) mdiv 8);
+    header.palette := colorLookupTable[.. maxColorIndex] times pixel.value;
+    bytesNeeded := header.colorMapLength * colorEntrySize;
+    colorData := gets(tgaFile, bytesNeeded);
+    if length(colorData) = bytesNeeded then
+      case colorEntrySize of
+        when {2}:
+          for index range header.colorMapFirstEntryIndex to maxColorIndex do
+            colorBits := bytes2Int(colorData[byteIndex fixLen 2], UNSIGNED, LE);
+            header.palette[index] := rgbPixel(colorBits >> 10 mod 32 << 11,
+                                              colorBits >>  5 mod 32 << 11,
+                                              colorBits       mod 32 << 11);
+            byteIndex +:= 2;
+          end for;
+        when {3, 4}:
+          for index range header.colorMapFirstEntryIndex to maxColorIndex do
+            header.palette[index] := rgbPixel(ord(colorData[byteIndex + 2])   << 8,
+                                              ord(colorData[succ(byteIndex)]) << 8,
+                                              ord(colorData[byteIndex])       << 8);
+            byteIndex +:= colorEntrySize;
+          end for;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func boolean: isTgaHeader (in string: stri) is
+    return length(stri) = TGA_FILE_HEADER_SIZE and
+           ord(stri[ 2]) in {TGA_NO_COLOR_MAP, TGA_COLOR_MAP_PRESENT} and
+           ord(stri[ 3]) in {TGA_UNCOMPRESSED_COLOR_MAPPED,
+                             TGA_UNCOMPRESSED_TRUE_COLOR,
+                             TGA_UNCOMPRESSED_GRAYSCALE,
+                             TGA_RLE_COLOR_MAPPED,
+                             TGA_RLE_TRUE_COLOR,
+                             TGA_RLE_GRAYSCALE} and
+           ord(stri[ 8]) in {0, 15, 16, 24, 32} and
+           ord(stri[17]) in {8, 15, 16, 24, 32};
+
+
+const proc: readHeader (inout file: tgaFile, inout tgaHeader: header) is func
+  local
+    var string: stri is "";
+    var integer: imageDescriptor is 0;
+  begin
+    stri := gets(tgaFile, TGA_FILE_HEADER_SIZE);
+    if length(stri) = TGA_FILE_HEADER_SIZE then
+      header.idLength                 := bytes2Int(stri[ 1 fixLen 1], UNSIGNED, LE);
+      header.colorMapType             := bytes2Int(stri[ 2 fixLen 1], UNSIGNED, LE);
+      header.imageType                := bytes2Int(stri[ 3 fixLen 1], UNSIGNED, LE);
+      header.colorMapFirstEntryIndex  := bytes2Int(stri[ 4 fixLen 2], UNSIGNED, LE);
+      header.colorMapLength           := bytes2Int(stri[ 6 fixLen 2], UNSIGNED, LE);
+      header.colorMapEntrySize        := bytes2Int(stri[ 8 fixLen 1], UNSIGNED, LE);
+      header.xOrigin                  := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
+      header.yOrigin                  := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
+      header.width                    := bytes2Int(stri[13 fixLen 2], UNSIGNED, LE);
+      header.height                   := bytes2Int(stri[15 fixLen 2], UNSIGNED, LE);
+      header.pixelDepth               := bytes2Int(stri[17 fixLen 1], UNSIGNED, LE);
+      imageDescriptor                 := bytes2Int(stri[18 fixLen 1], UNSIGNED, LE);
+      # Bits 3–0 give the alpha channel depth
+      header.alphaChannelDepth        := imageDescriptor mod 16;
+      # Bits 5–4 give pixel ordering
+      header.rightToLeftPixelOrdering := boolean(imageDescriptor mdiv 16 mod 2);
+      header.topToBottomPixelOrdering := boolean(imageDescriptor mdiv 32 mod 2);
+      # Bits 7-6 - Data storage interleaving flag
+      header.interleavingFlag         := imageDescriptor mdiv 64 mod 4;
+      header.imageId := gets(tgaFile, header.idLength);
+      if  header.colorMapType in {TGA_NO_COLOR_MAP, TGA_COLOR_MAP_PRESENT} and
+          header.imageType in {TGA_UNCOMPRESSED_COLOR_MAPPED,
+                               TGA_UNCOMPRESSED_TRUE_COLOR,
+                               TGA_UNCOMPRESSED_GRAYSCALE,
+                               TGA_RLE_COLOR_MAPPED,
+                               TGA_RLE_TRUE_COLOR,
+                               TGA_RLE_GRAYSCALE} and
+          header.colorMapEntrySize in {0, 15, 16, 24, 32} and
+          header.pixelDepth in {8, 15, 16, 24, 32} then
+        if header.colorMapLength <> 0 then
+          readPalette(tgaFile, header);
+        end if;
+      else
+        header.imageType := TGA_NO_IMAGE_DATA;
+      end if;
+    else
+      header.imageType := TGA_NO_IMAGE_DATA;
+    end if;
+  end func;
+
+
+const proc: readTgaColorMappedImageLine8 (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      imageLine[column] := palette[ord(pixelData[byteIndex])];
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readTgaColorMappedImage8 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaColorMappedImageLine8(image[line], header.width, header.palette, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaColorMappedImageLine8(image[line], header.width, header.palette, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaUncompressedColorMapped (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {8}:
+        bytesNeeded := header.width * header.height;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaColorMappedImage8(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: readTgaTrueColorImageLine16 (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: colorBits is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      colorBits := bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, LE);
+      imageLine[column] := rgbPixel(colorBits >> 10 mod 32 << 11,
+                                    colorBits >>  5 mod 32 << 11,
+                                    colorBits       mod 32 << 11);
+      byteIndex +:= 2;
+    end for;
+  end func;
+
+
+const proc: readTgaTrueColorImage16 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaTrueColorImageLine16(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 2;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaTrueColorImageLine16(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 2;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaTrueColorImageLine24 (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      imageLine[column] := rgbPixel(ord(pixelData[byteIndex + 2])   << 8,
+                                    ord(pixelData[succ(byteIndex)]) << 8,
+                                    ord(pixelData[byteIndex])       << 8);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
+const proc: readTgaTrueColorImage24 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+   if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaTrueColorImageLine24(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 3;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaTrueColorImageLine24(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 3;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaTrueColorImageLine32 (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      imageLine[column] := rgbPixel(ord(pixelData[byteIndex + 2])   << 8,
+                                    ord(pixelData[succ(byteIndex)]) << 8,
+                                    ord(pixelData[byteIndex])       << 8);
+      byteIndex +:= 4;
+    end for;
+  end func;
+
+
+const proc: readTgaTrueColorImage32 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaTrueColorImageLine32(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 4;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaTrueColorImageLine32(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 4;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaUncompressedTrueColor (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {15, 16}:
+        bytesNeeded := header.width * header.height * 2;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage16(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {24}:
+        bytesNeeded := header.width * header.height * 3;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage24(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {32}:
+        bytesNeeded := header.width * header.height * 4;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage32(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: readTgaGrayscaleImageLine8 (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      luminance := ord(pixelData[byteIndex]) << 8;
+      imageLine[column] := rgbPixel(luminance, luminance, luminance);
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readTgaGrayscaleImage8 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaGrayscaleImageLine8(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaGrayscaleImageLine8(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaGrayscaleImageLine16 (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in integer: byteIndexStart) is func
+  local
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    byteIndex := byteIndexStart;
+    for column range 1 to width do
+      luminance := bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, LE);
+      imageLine[column] := rgbPixel(luminance, luminance, luminance);
+      byteIndex +:= 2;
+    end for;
+  end func;
+
+
+const proc: readTgaGrayscaleImage16 (inout pixelImage: image,
+    inout tgaHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    if header.topToBottomPixelOrdering then
+      for line range 1 to header.height do
+        readTgaGrayscaleImageLine16(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 2;
+      end for;
+    else
+      for line range header.height downto 1 do
+        readTgaGrayscaleImageLine16(image[line], header.width, pixelData, byteIndexStart);
+        byteIndexStart +:= header.width * 2;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readTgaUncompressedGrayscale (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {8}:
+        bytesNeeded := header.width * header.height;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaGrayscaleImage8(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {16}:
+        bytesNeeded := header.width * header.height * 2;
+        pixelData := gets(tgaFile, bytesNeeded);
+        if length(pixelData) = bytesNeeded then
+          readTgaGrayscaleImage16(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const func string: fromTgaRunLengthEncoding (inout file: tgaFile,
+    in integer: minLength, in integer: bytesPerPixel) is func
+  result
+    var string: pixelData is "";
+  local
+    var integer: number is 0;
+    var string: data is "";
+  begin
+    number := ord(getc(tgaFile));
+    while number <> ord(EOF) and length(pixelData) < minLength do
+      if number <= 127 then
+        # Copy a sequence of bytes.
+        data := gets(tgaFile, succ(number) * bytesPerPixel);
+        if length(data) <> succ(number) * bytesPerPixel then
+          raise RANGE_ERROR;
+        else
+          pixelData &:= data;
+        end if;
+      else
+        # Make copies of the next byte.
+        data := gets(tgaFile, bytesPerPixel);
+        if length(data) <> bytesPerPixel then
+          raise RANGE_ERROR;
+        else
+          pixelData &:= data mult number - 127;
+        end if;
+      end if;
+      number := ord(getc(tgaFile));
+    end while;
+  end func;
+
+
+const proc: readTgaRleColorMapped (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {8}:
+        bytesNeeded := header.width * header.height;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 1);
+        if length(pixelData) = bytesNeeded then
+          readTgaColorMappedImage8(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: readTgaRleTrueColor (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {15, 16}:
+        bytesNeeded := header.width * header.height * 2;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 2);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage16(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {24}:
+        bytesNeeded := header.width * header.height * 3;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 3);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage24(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {32}:
+        bytesNeeded := header.width * header.height * 4;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 4);
+        if length(pixelData) = bytesNeeded then
+          readTgaTrueColorImage32(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: readTgaRleGrayscale (inout file: tgaFile,
+    inout tgaHeader: header, inout pixelImage: image) is func
+  local
+    var integer: bytesNeeded is 0;
+    var string: pixelData is "";
+  begin
+    case header.pixelDepth of
+      when {8}:
+        bytesNeeded := header.width * header.height;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 1);
+        if length(pixelData) = bytesNeeded then
+          readTgaGrayscaleImage8(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {16}:
+        bytesNeeded := header.width * header.height * 2;
+        pixelData := fromTgaRunLengthEncoding(tgaFile, bytesNeeded, 2);
+        if length(pixelData) = bytesNeeded then
+          readTgaGrayscaleImage16(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+(**
+ *  Reads a TGA file into a pixmap.
+ *  @param tgaFile File that contains a TGA image.
+ *  @return A pixmap with the TGA image, or
+ *          PRIMITIVE_WINDOW.value if the file does
+ *          not start with a valid TGA header.
+ *  @exception RANGE_ERROR The file is not in the TGA file format.
+ *)
+const func PRIMITIVE_WINDOW: readTga (inout file: tgaFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var tgaHeader: header is tgaHeader.value;
+    var pixelImage: image is pixelImage.value;
+  begin
+    readHeader(tgaFile, header);
+    # showHeader(header);
+    if header.imageType <> TGA_NO_IMAGE_DATA then
+      image := pixelImage[.. header.height] times
+               pixelArray[.. header.width] times pixel.value;
+      case header.imageType of
+        when {TGA_UNCOMPRESSED_COLOR_MAPPED}:
+          readTgaUncompressedColorMapped(tgaFile, header, image);
+        when {TGA_UNCOMPRESSED_TRUE_COLOR}:
+          readTgaUncompressedTrueColor(tgaFile, header, image);
+        when {TGA_UNCOMPRESSED_GRAYSCALE}:
+          readTgaUncompressedGrayscale(tgaFile, header, image);
+        when {TGA_RLE_COLOR_MAPPED}:
+          readTgaRleColorMapped(tgaFile, header, image);
+        when {TGA_RLE_TRUE_COLOR}:
+          readTgaRleTrueColor(tgaFile, header, image);
+        when {TGA_RLE_GRAYSCALE}:
+          readTgaRleGrayscale(tgaFile, header, image);
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+      pixmap := getPixmap(image);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a TGA file with the given ''tgaFileName'' into a pixmap.
+ *  @param tgaFileName Name of the TGA file.
+ *  @return A pixmap with the TGA image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not start with a valid TGA header.
+ *  @exception RANGE_ERROR The file is not in the TGA file format.
+ *)
+const func PRIMITIVE_WINDOW: readTga (in string: tgaFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: tgaFile is STD_NULL;
+  begin
+    tgaFile := open(tgaFileName, "r");
+    if tgaFile <> STD_NULL then
+      pixmap := readTga(tgaFile);
+      close(tgaFile);
+    end if;
+  end func;

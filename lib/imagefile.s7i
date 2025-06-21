@@ -34,13 +34,14 @@
   include "pbm.s7i";
   include "pgm.s7i";
   include "ppm.s7i";
+  include "tga.s7i";
   include "tiff.s7i";
 
 
 (**
  *  Determine if ''fileName'' uses an image extension.
  *  Image extensions are .png, .gif, .jpeg, .jpg, .pbm, .pgm, .ppm,
- *  .bpm, .ico .tiff and .tif.
+ *  .bpm, .ico .tga .tiff and .tif .
  *  @param imageFileName Name of the image file.
  *  @return TRUE if ''fileName'' ends with an image extension,
  *          FALSE otherwise.
@@ -59,6 +60,7 @@ const func boolean: hasImageExtension (in var string: fileName) is func
                          endsWith(fileName, ".ppm") or
                          endsWith(fileName, ".bmp") or
                          endsWith(fileName, ".ico") or
+                         endsWith(fileName, ".tga") or
                          endsWith(fileName, ".tiff") or
                          endsWith(fileName, ".tif");
   end func;
@@ -67,7 +69,8 @@ const func boolean: hasImageExtension (in var string: fileName) is func
 (**
  *  Reads an image file into a pixmap.
  *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]], [[png|PNG]],
- *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]] and [[tiff|TIFF]] images are supported.
+ *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tga|TGA]] and
+ *  [[tiff|TIFF]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image.
  *  @param imageFile File that contains an image.
@@ -118,6 +121,12 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
               if magic = PNG_MAGIC then
                 seek(imageFile, 1);
                 pixmap := readPng(imageFile);
+              else
+                magic &:= gets(imageFile, TGA_FILE_HEADER_SIZE - length(PNG_MAGIC));
+                if isTgaHeader(magic) then
+                  seek(imageFile, 1);
+                  pixmap := readTga(imageFile);
+                end if;
               end if;
             end if;
           end if;
@@ -132,7 +141,8 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
 (**
  *  Reads an image file with the given ''imageFileName'' into a pixmap.
  *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]], [[png|PNG]],
- *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]] and [[tiff|TIFF]] images are supported.
+ *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tga|TGA]] and
+ *  [[tiff|TIFF]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image. The file extension of
  *  ''imageFileName'' is not used to decide about the image file type.
