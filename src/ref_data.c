@@ -169,6 +169,7 @@ objectType refAllocStri (boolType isVar, typeType aType,
 objectType refAllocVar (typeType aType, const intType aCategory)
 
   {
+    errInfoType err_info = OKAY_NO_ERROR;
     objectType created_object;
 
   /* refAllocVar */
@@ -179,12 +180,20 @@ objectType refAllocVar (typeType aType, const intType aCategory)
                 printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
+    } else if (unlikely(aType->owningProg == NULL)) {
+      raise_error(RANGE_ERROR);
     } else {
-      created_object->type_of = aType;
-      created_object->descriptor.property = NULL;
-      INIT_CATEGORY_OF_OBJ(created_object, aCategory);
-      SET_VAR_FLAG(created_object);
-      created_object->value.intValue = 0;
+      incl_list(&aType->owningProg->allocated_objects, created_object, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        FREE_OBJECT(created_object);
+        raise_error(MEMORY_ERROR);
+      } else {
+        created_object->type_of = aType;
+        created_object->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(created_object, aCategory);
+        SET_VAR_FLAG(created_object);
+        memset(&created_object->value, 0, sizeof(valueUnion));
+      } /* if */
     } /* if */
     return created_object;
   } /* refAllocVar */

@@ -474,6 +474,7 @@ void prgDestr (progType old_prog)
         free_obj_and_prop(old_prog->when_value_objects);
         free_obj_and_prop(old_prog->struct_objects);
         free_list_objects(old_prog->match_expr_objects);
+        free_obj_and_prop(old_prog->allocated_objects);
         freeGenericHash((rtlHashType) old_prog->structSymbolsMap);
         free_list(old_prog->struct_symbols);
         freeGenericHash((rtlHashType) old_prog->objectNumberMap);
