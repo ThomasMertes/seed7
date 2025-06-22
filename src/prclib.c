@@ -231,7 +231,7 @@ objectType prc_begin (listType arguments)
         fix_posinfo(block_body, block_body_list);
       } /* if */
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-        err_type(PROC_EXPECTED, block_body->type_of);
+        err_type(PROC_EXPECTED, block_body);
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -1217,7 +1217,7 @@ objectType prc_local (listType arguments)
         fix_posinfo(block_body, block_body_list);
       } /* if */
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-        err_type(PROC_EXPECTED, block_body->type_of);
+        err_type(PROC_EXPECTED, block_body);
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -1385,7 +1385,7 @@ objectType prc_res_begin (listType arguments)
           fix_posinfo(block_body, block_body_list);
         } /* if */
         if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-          err_type(PROC_EXPECTED, block_body->type_of);
+          err_type(PROC_EXPECTED, block_body);
         } /* if */
       } /* if */
       pop_stack();
@@ -1489,7 +1489,7 @@ objectType prc_res_local (listType arguments)
           fix_posinfo(block_body, block_body_list);
         } /* if */
         if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-          err_type(PROC_EXPECTED, block_body->type_of);
+          err_type(PROC_EXPECTED, block_body);
         } /* if */
       } else {
         local_vars = NULL;

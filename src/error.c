@@ -1194,21 +1194,31 @@ void err_object (errorType err, const_objectType obj_found)
 
 
 
-void err_type (errorType err, const_typeType type_found)
+void err_type (errorType err, const_objectType expr_object)
 
   {
+    fileNumType fileNumber;
     parseErrorType error;
 
   /* err_type */
-    logFunction(printf("err_type(%d, " FMT_U_MEM ")\n",
-                       err, (memSizeType) type_found););
+    logFunction(printf("err_type(%d, ", err);
+                trace1(expr_object);
+                printf(")\n"););
     error = newError(err);
-    setPlaceOfError(error);
-    storeErrorLine(error);
+    if (HAS_POSINFO(expr_object)) {
+      fileNumber = GET_FILE_NUM(expr_object);
+      setPlaceForObject(error, expr_object);
+      storePositionedErrorLine(error, fileNumber);
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
+    } /* if */
     switch (err) {
       case PROC_EXPECTED:
         copyCStri(&error->msg, "Procedure expected found \"");
-        appendType(&error->msg, type_found);
+        appendType(&error->msg, expr_object->type_of);
         appendCStri(&error->msg, "\" expression");
         break;
       default:
