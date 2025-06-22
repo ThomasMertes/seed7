@@ -446,10 +446,13 @@ void appendType (striType *const msg, const const_typeType anytype)
     if (anytype != NULL) {
       if (anytype->name != NULL) {
         appendUStri(msg, anytype->name->entity->ident->name);
-      } else if (anytype->result_type != NULL &&
-          anytype->result_type->name != NULL) {
-        appendCStri(msg, "func ");
-        appendUStri(msg, anytype->result_type->name->entity->ident->name);
+      } else if (anytype->result_type != NULL) {
+        if (anytype->is_varfunc_type) {
+          appendCStri(msg, "varfunc ");
+        } else {
+          appendCStri(msg, "func ");
+        } /* if */
+        appendType(msg, anytype->result_type);
       } else {
         appendCStri(msg, " *ANONYM_TYPE* ");
       } /* if */

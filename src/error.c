@@ -1172,9 +1172,9 @@ void err_object (errorType err, const_objectType obj_found)
         appendCStri(&error->msg, " failed");
         break;
       case PROC_EXPECTED:
-        copyCStri(&error->msg, "Procedure expected found ");
+        copyCStri(&error->msg, "Procedure expected found \"");
         appendObject(&error->msg, obj_found);
-        appendCStri(&error->msg, " expression");
+        appendCStri(&error->msg, "\" expression");
         break;
       case TYPE_EXPECTED:
         copyCStri(&error->msg, "Type expected found ");
@@ -1207,9 +1207,9 @@ void err_type (errorType err, const_typeType type_found)
     storeErrorLine(error);
     switch (err) {
       case PROC_EXPECTED:
-        copyCStri(&error->msg, "Procedure expected found ");
-        appendObject(&error->msg, type_found->match_obj);
-        appendCStri(&error->msg, " expression");
+        copyCStri(&error->msg, "Procedure expected found \"");
+        appendType(&error->msg, type_found);
+        appendCStri(&error->msg, "\" expression");
         break;
       default:
         undefErr(&error->msg);

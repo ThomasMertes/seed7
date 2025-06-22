@@ -2375,33 +2375,33 @@ const func boolean: checkProcExpected is func
                     \const proc: abc is func\n\
                     \  begin 1; end func;",
                     PROC_EXPECTED, 3, 20,
-                    "Procedure expected found type integer expression",
+                    "Procedure expected found \"integer\" expression",
                     "  begin 1; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"bigint.s7i\";\n\
                     \const proc: abc is func\n\
                     \  begin 1_; end func;",
                     PROC_EXPECTED, 4, 21,
-                    "Procedure expected found type bigInteger expression",
+                    "Procedure expected found \"bigInteger\" expression",
                     "  begin 1_; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"float.s7i\";\n\
                     \const proc: abc is func\n\
                     \  begin 1.5; end func;",
                     PROC_EXPECTED, 4, 22,
-                    "Procedure expected found type float expression",
+                    "Procedure expected found \"float\" expression",
                     "  begin 1.5; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: abc is func\n\
                     \  begin 'a'; end func;",
                     PROC_EXPECTED, 3, 22,
-                    "Procedure expected found type char expression",
+                    "Procedure expected found \"char\" expression",
                     "  begin 'a'; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: abc is func\n\
                     \  begin \"a\"; end func;",
                     PROC_EXPECTED, 3, 22,
-                    "Procedure expected found type string expression",
+                    "Procedure expected found \"string\" expression",
                     "  begin \"a\"; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: abc is func\n\
@@ -2409,7 +2409,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1; end func;",
                     PROC_EXPECTED, 5, 20,
-                    "Procedure expected found type integer expression",
+                    "Procedure expected found \"integer\" expression",
                     "  begin 1; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"bigint.s7i\";\n\
@@ -2418,7 +2418,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1_; end func;",
                     PROC_EXPECTED, 6, 21,
-                    "Procedure expected found type bigInteger expression",
+                    "Procedure expected found \"bigInteger\" expression",
                     "  begin 1_; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"float.s7i\";\n\
@@ -2427,7 +2427,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1.5; end func;",
                     PROC_EXPECTED, 6, 22,
-                    "Procedure expected found type float expression",
+                    "Procedure expected found \"float\" expression",
                     "  begin 1.5; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: abc is func\n\
@@ -2435,7 +2435,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 'a'; end func;",
                     PROC_EXPECTED, 5, 22,
-                    "Procedure expected found type char expression",
+                    "Procedure expected found \"char\" expression",
                     "  begin 'a'; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: abc is func\n\
@@ -2443,7 +2443,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin \"a\"; end func;",
                     PROC_EXPECTED, 5, 22,
-                    "Procedure expected found type string expression",
+                    "Procedure expected found \"string\" expression",
                     "  begin \"a\"; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2451,7 +2451,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1; end func;",
                     PROC_EXPECTED, 5, 20,
-                    "Procedure expected found type integer expression",
+                    "Procedure expected found \"integer\" expression",
                     "  begin 1; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"bigint.s7i\";\n\
@@ -2460,7 +2460,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1_; end func;",
                     PROC_EXPECTED, 6, 21,
-                    "Procedure expected found type bigInteger expression",
+                    "Procedure expected found \"bigInteger\" expression",
                     "  begin 1_; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"float.s7i\";\n\
@@ -2469,7 +2469,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 1.5; end func;",
                     PROC_EXPECTED, 6, 22,
-                    "Procedure expected found type float expression",
+                    "Procedure expected found \"float\" expression",
                     "  begin 1.5; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2477,7 +2477,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin 'a'; end func;",
                     PROC_EXPECTED, 5, 22,
-                    "Procedure expected found type char expression",
+                    "Procedure expected found \"char\" expression",
                     "  begin 'a'; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2485,7 +2485,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: x is 0;\n\
                     \  begin \"a\"; end func;",
                     PROC_EXPECTED, 5, 22,
-                    "Procedure expected found type string expression",
+                    "Procedure expected found \"string\" expression",
                     "  begin \"a\"; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2495,7 +2495,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: y is 0;\n\
                     \  begin 1; end func;",
                     PROC_EXPECTED, 7, 20,
-                    "Procedure expected found type integer expression",
+                    "Procedure expected found \"integer\" expression",
                     "  begin 1; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"bigint.s7i\";\n\
@@ -2506,7 +2506,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: y is 0;\n\
                     \  begin 1_; end func;",
                     PROC_EXPECTED, 8, 21,
-                    "Procedure expected found type bigInteger expression",
+                    "Procedure expected found \"bigInteger\" expression",
                     "  begin 1_; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \  include \"float.s7i\";\n\
@@ -2517,7 +2517,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: y is 0;\n\
                     \  begin 1.5; end func;",
                     PROC_EXPECTED, 8, 22,
-                    "Procedure expected found type float expression",
+                    "Procedure expected found \"float\" expression",
                     "  begin 1.5; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2527,7 +2527,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: y is 0;\n\
                     \  begin 'a'; end func;",
                     PROC_EXPECTED, 7, 22,
-                    "Procedure expected found type char expression",
+                    "Procedure expected found \"char\" expression",
                     "  begin 'a'; end func;") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func integer: abc is func\n\
@@ -2537,7 +2537,7 @@ const func boolean: checkProcExpected is func
                     \    var integer: y is 0;\n\
                     \  begin \"a\"; end func;",
                     PROC_EXPECTED, 7, 22,
-                    "Procedure expected found type string expression",
+                    "Procedure expected found \"string\" expression",
                     "  begin \"a\"; end func;") then
       okay := TRUE;
     else
