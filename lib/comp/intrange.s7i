@@ -44,6 +44,10 @@ const type: intRangeOfVariableHash is hash[reference] intRange;
 
 var intRangeOfVariableHash: intRangeOfVariable is intRangeOfVariableHash.value;
 
+const type: setOfExpression is set of reference;
+
+var setOfExpression: ongoingIntRangeCheck is setOfExpression.value;
+
 
 const func intRange: getIntRange (in integer: number) is func
   result
@@ -1061,7 +1065,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
     var intRange: argument1Range is intRange.value;
     var intRange: argument2Range is intRange.value;
   begin
-    if config.reduceOverflowChecks then
+    if config.reduceOverflowChecks and
+        intExpression not in ongoingIntRangeCheck then
+      incl(ongoingIntRangeCheck, intExpression);
       if getConstant(intExpression, INTOBJECT, evaluatedParam) then
         number := getValue(evaluatedParam, integer);
         valueRange.minValue := number;
@@ -1370,5 +1376,6 @@ const func intRange: getIntRange (in reference: intExpression) is func
           end if;
         end if;
       end if;
+      excl(ongoingIntRangeCheck, intExpression);
     end if;
   end func;
