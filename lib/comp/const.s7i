@@ -47,6 +47,10 @@ const set of string: specialActions is
      "SET_CONV1", "SET_CONV3", "SET_ELEM", "SET_EXCL", "SET_INCL",
      "SET_NOT_ELEM", "SET_RAND"};
 
+const type: setOfFunction is set of reference;
+
+var setOfFunction: checkForPurBlockFunction is setOfFunction.value;
+
 
 const func boolean: isPureFunction (in reference: function) is forward;
 
@@ -159,18 +163,22 @@ const func boolean: isPureBlockFunction (in reference: function) is func
     var boolean_obj_hash: local_objects is boolean_obj_hash.value;
   begin
     # writeln("isPureBlockFunction: " <& str(function));
-    function_type := getType(function);
-    result_object := resultVar(function);
-    if not isVarfunc(function_type) then
-      if result_object <> NIL then
-        local_object_list := make_list(result_object);
+    if function not in checkForPurBlockFunction then
+      incl(checkForPurBlockFunction, function);
+      function_type := getType(function);
+      result_object := resultVar(function);
+      if not isVarfunc(function_type) then
+        if result_object <> NIL then
+          local_object_list := make_list(result_object);
+        end if;
+        local_object_list &:= formalParams(function) & localVars(function);
+        for obj range local_object_list do
+          # writeln("isPureBlockFunction local: " <& str(obj));
+          local_objects @:= [obj] TRUE;
+        end for;
+        isPureBlockFunction := isConstant(body(function), local_objects);
       end if;
-      local_object_list &:= formalParams(function) & localVars(function);
-      for obj range local_object_list do
-        # writeln("isPureBlockFunction local: " <& str(obj));
-        local_objects @:= [obj] TRUE;
-      end for;
-      isPureBlockFunction := isConstant(body(function), local_objects);
+      excl(checkForPurBlockFunction, function);
     end if;
     # writeln("isPureBlockFunction: " <& str(function) <& " --> " <& isPureBlockFunction);
   end func;
