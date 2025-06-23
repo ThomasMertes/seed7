@@ -86,7 +86,7 @@ const func proc: return (ref void: statement)                is action "PRC_RETU
 const func proc: return (ref proc: statement)                is action "PRC_RETURN";
 const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
 const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
-const proc: destroy (ref proc param)                         is action "GEN_DESTR";
+const proc: destroy (ref proc param)                         is action "PRC_DESTR";
 const proc: noop                                             is action "PRC_NOOP";
 const proc: (ref void: statement1) ; (ref void: statement2)  is noop;
 const proc: ignore (ref f_param: aParam)                     is noop;
@@ -114,8 +114,8 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (ref varfunc aType param) ::= (ref ACTION param)           is action "ACT_CREATE";
     const proc: (ref func aType param) ::= (ref func aType param)          is action "PRC_CREATE";
     const proc: (ref varfunc aType param) ::= (ref varfunc aType param)    is action "PRC_CREATE";
-    const proc: destroy (ref func aType param)                             is action "GEN_DESTR";
-    const proc: destroy (ref varfunc aType param)                          is action "GEN_DESTR";
+    const proc: destroy (ref func aType param)                             is action "PRC_DESTR";
+    const proc: destroy (ref varfunc aType param)                          is action "PRC_DESTR";
     const proc: (inout func aType: dest) := (ref func aType: source)       is action "PRC_CPY";
     const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
     const type: typeof (ref aType param)                                   is aType;

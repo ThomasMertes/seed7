@@ -702,6 +702,7 @@ objectType prc_cpy (listType arguments)
                 });
     if (CATEGORY_OF_OBJ(dest) == MATCHOBJECT) {
       if (unlikely(dest->value.listValue->next != NULL)) {
+        logError(printf("prc_cpy: Destination with parameters.\n"););
         return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
         dest = dest->value.listValue->obj;
@@ -710,6 +711,7 @@ objectType prc_cpy (listType arguments)
     is_variable(dest);
     if (CATEGORY_OF_OBJ(source) == MATCHOBJECT) {
       if (unlikely(source->value.listValue->next != NULL)) {
+        logError(printf("prc_cpy: Source with parameters.\n"););
         return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
         source = source->value.listValue->obj;
@@ -874,6 +876,48 @@ objectType prc_decls (listType arguments)
     trace_nodes();
     return SYS_EMPTY_OBJECT;
   } /* prc_decls */
+
+
+
+/**
+ *  Free the memory referred by 'old_prc/arg_1'.
+ *  After prc_destr is left 'old_prc/arg_1' is NULL.
+ *  The memory where 'old_prc/arg_1' is stored can be freed afterwards.
+ */
+objectType prc_destr (listType arguments)
+
+  {
+    objectType old_proc;
+    blockType old_block;
+
+  /* prc_destr */
+    old_proc = arg_1(arguments);
+    logFunction(printf("prc_destr(");
+                if (CATEGORY_OF_OBJ(take_act_obj(old_proc)) == BLOCKOBJECT) {
+                  printf("block " FMT_U_MEM " (usage=" FMT_U_MEM "))\n",
+                         (memSizeType) take_block(take_act_obj(old_proc)),
+                         take_block(take_act_obj(old_proc)) != NULL ?
+                             take_block(take_act_obj(old_proc))->usage_count :
+                             (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(old_proc)) == ACTOBJECT) {
+                  printf("action \"%s\")\n",
+                         getActEntry(take_action(old_proc))->name);
+                } else {
+                  printf("category %u)\n", CATEGORY_OF_OBJ(old_proc));
+                });
+    if (CATEGORY_OF_OBJ(old_proc) == BLOCKOBJECT) {
+      old_block = take_block(old_proc);
+      if (old_block != NULL && old_block->usage_count != 0) {
+        old_block->usage_count--;
+        if (old_block->usage_count == 0) {
+          free_block(old_block);
+        } /* if */
+        arg_1(arguments)->value.blockValue = NULL;
+      } /* if */
+    } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* prc_destr */
 
 
 

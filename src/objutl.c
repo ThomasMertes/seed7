@@ -826,9 +826,6 @@ void dump_temp_value (objectType object)
       case BLOCKOBJECT:
         if (object->value.blockValue != NULL &&
             object->value.blockValue->usage_count != 0) {
-          /* printf("free_block: ");
-          trace1(object);
-          printf("\n"); */
           object->value.blockValue->usage_count--;
           if (object->value.blockValue->usage_count == 0) {
             free_block(object->value.blockValue);
