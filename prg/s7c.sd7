@@ -79,6 +79,7 @@ const type: act_to_form_param_hash is hash [reference] reference;
 const type: params_added_hash is hash [reference] act_to_form_param_hash;
 const type: setOfCategory is set of category;
 const type: setOfString is set of string;
+const type: setOfReference is set of reference;
 const type: funcparam_data_hash is hash [reference] string;
 const type: element_repeat_count_hash is hash [reference] integer;
 const type: stringLengthHash is hash [integer] integer;
@@ -89,6 +90,7 @@ var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: inline_function is boolean_obj_hash.EMPTY_HASH;
+var setOfReference: failed_function_inlining is setOfReference.value;
 var boolean_obj_hash: function_with_dcl_actions is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
@@ -1588,7 +1590,15 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     if functionCategory = ACTOBJECT then
       process_action(function, params, c_expr);
     elsif functionCategory = BLOCKOBJECT then
-      if function in inline_function or
+      if function in functionInlineDepth and
+          functionInlineDepth[function] > maximumInlineDepth then
+        incl(failed_function_inlining, function);
+        if function not in prototype_declared then
+          process_prototype_declaration(function, global_c_expr);
+          prototype_declared @:= [function] TRUE;
+        end if;
+        process_func_call(function, params, c_expr);
+      elsif function in inline_function or
           (function not in prototype_declared and
            isFunctionCallingSpecialAction(function)) then
         process_inline(function, params, c_expr);
@@ -2314,7 +2324,8 @@ const proc: process_const_func_declaration (in reference: function,
     result_object := resultVar(function);
     if param_list_okay(param_list) or
         recursiveFunctionCall(function, body(function)) or
-        result_object <> NIL then
+        result_object <> NIL or
+        function in failed_function_inlining then
       # Try to process the function declaration always.
       # The variable write_object_declaration is used to
       # decide if the function declaration should be written
@@ -3865,7 +3876,9 @@ const proc: process_dynamic_function_call (in reference: function,
     resultExpr.currentFile := file(interface_object);
     resultExpr.currentLine := line(interface_object);
     resultExpr.temp_num := c_expr.temp_num;
-    if function in inline_function then
+    if function in inline_function and
+        (function not in functionInlineDepth or
+         functionInlineDepth[function] <= maximumInlineDepth) then
       process_inline(function, actual_params, resultExpr);
       if resultExpr.result_expr = "" then
         c_expr.expr &:= "/* copy ref_to_value */ ";
@@ -5536,6 +5549,20 @@ const proc: process_library_import_object (in reference: current_object) is func
   begin
     process_object_declaration(current_object, c_expr);
     global_c_expr := expr_type.value;
+  end func;
+
+
+const proc: declare_failed_inline_functions (inout expr_type: c_expr) is func
+
+  local
+    var reference: function is NIL;
+  begin
+    for function range failed_function_inlining do
+      excl(inline_function, function);
+    end for;
+    for function range failed_function_inlining do
+      process_func_declaration(function, c_expr);
+    end for;
   end func;
 
 
@@ -8115,6 +8142,7 @@ const proc: process_global_declarations (in program: prog) is func
     end if;
     declare_rtlRaiseError(c_expr);
     declare_raise_error2(c_expr);
+    declare_failed_inline_functions(c_expr);
     process_dynamic_decisions(c_expr);
     declare_literal_function_of_enums(c_expr);
     declare_missing_create_declarations(c_expr);

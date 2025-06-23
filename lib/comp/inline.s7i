@@ -34,6 +34,12 @@ const type: inlineParamHash is hash [reference] array inlineParamData;
 
 var inlineParamHash: inlineParam is inlineParamHash.EMPTY_HASH;
 
+const integer: maximumInlineDepth is 10;
+
+const type: inlineDepthHash is hash [reference] integer;
+
+var inlineDepthHash: functionInlineDepth is inlineDepthHash.value;
+
 
 const func boolean: isPointerParam (in reference: a_param) is forward;
 
@@ -559,10 +565,20 @@ const proc: process_inline (in reference: function,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   begin
+    if function in functionInlineDepth then
+      incr(functionInlineDepth[function])
+    else
+      incl(functionInlineDepth, function, 1);
+    end if;
     if resultType(getType(function)) <> typeData.voidtype then
       process_inline_func(function, actual_params, c_expr);
     else
       process_inline_proc(function, actual_params, c_expr);
+    end if;
+    if functionInlineDepth[function] > 1 then
+      decr(functionInlineDepth[function])
+    else
+      excl(functionInlineDepth, function);
     end if;
   end func;
 
