@@ -2578,7 +2578,17 @@ const func boolean: checkProcExpected is func
                     \  end func;",
                     PROC_EXPECTED, 8, 0,
                     "Procedure expected found \"string\" expression",
-                    "    \"a\";") then
+                    "    \"a\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func boolean: flipCoin is func\n\
+                    \  result\n\
+                    \    var boolean: coinState is FALSE;\n\
+                    \  begin\n\
+                    \    return rand(FALSE, TRUE);\n\
+                    \  end func;",
+                    PROC_EXPECTED, 6, 0,
+                    "Procedure expected found \"func func boolean\" expression",
+                    "    return rand(FALSE, TRUE);") then
       okay := TRUE;
     else
       writeln(" *** PROC_EXPECTED not reported correctly.");
