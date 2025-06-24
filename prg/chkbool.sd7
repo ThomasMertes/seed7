@@ -42,6 +42,10 @@ const func boolean: boolExpr (in boolean: aBool) is func
   end func;
 
 
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
 const proc: check_not is func
   begin
     if TRUE then
@@ -2375,6 +2379,17 @@ const proc: check_pred is func
   end func;
 
 
+const func boolean: is_odd (in integer: number) is forward;
+
+
+const func boolean: is_even (in integer: number) is
+  return number = 0 ? TRUE : is_odd(pred(number));
+
+
+const func boolean: is_odd (in integer: number) is
+  return number = 0 ? FALSE : is_even(pred(number));
+
+
 const proc: check_ternary is func
   local
     var boolean: okay is TRUE;
@@ -2916,6 +2931,86 @@ const proc: check_ternary is func
         not (boolExpr( TRUE) ?  boolExpr(TRUE) :          FALSE ) or
         not (boolExpr( TRUE) ?  boolExpr(TRUE) : boolExpr(FALSE)) then
       writeln(" ***** The ternary operator ? : does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not is_even(0) or
+            is_even(1) or
+        not is_even(2) or
+            is_even(3) or
+        not is_even(4) or
+            is_even(5) or
+        not is_even(6) or
+            is_even(7) or
+        not is_even(100) or
+            is_even(101) or
+        not is_even(102) or
+            is_even(103) or
+        not is_even(104) or
+            is_even(105) or
+        not is_even(106) or
+            is_even(107) then
+      writeln(" ***** The test function is_even() does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not is_even(intExpr(0)) or
+            is_even(intExpr(1)) or
+        not is_even(intExpr(2)) or
+            is_even(intExpr(3)) or
+        not is_even(intExpr(4)) or
+            is_even(intExpr(5)) or
+        not is_even(intExpr(6)) or
+            is_even(intExpr(7)) or
+        not is_even(intExpr(100)) or
+            is_even(intExpr(101)) or
+        not is_even(intExpr(102)) or
+            is_even(intExpr(103)) or
+        not is_even(intExpr(104)) or
+            is_even(intExpr(105)) or
+        not is_even(intExpr(106)) or
+            is_even(intExpr(107)) then
+      writeln(" ***** The test function is_even() does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if      is_odd(0) or
+        not is_odd(1) or
+            is_odd(2) or
+        not is_odd(3) or
+            is_odd(4) or
+        not is_odd(5) or
+            is_odd(6) or
+        not is_odd(7) or
+            is_odd(100) or
+        not is_odd(101) or
+            is_odd(102) or
+        not is_odd(103) or
+            is_odd(104) or
+        not is_odd(105) or
+            is_odd(106) or
+        not is_odd(107) then
+      writeln(" ***** The test function is_odd() does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if      is_odd(intExpr(0)) or
+        not is_odd(intExpr(1)) or
+            is_odd(intExpr(2)) or
+        not is_odd(intExpr(3)) or
+            is_odd(intExpr(4)) or
+        not is_odd(intExpr(5)) or
+            is_odd(intExpr(6)) or
+        not is_odd(intExpr(7)) or
+            is_odd(intExpr(100)) or
+        not is_odd(intExpr(101)) or
+            is_odd(intExpr(102)) or
+        not is_odd(intExpr(103)) or
+            is_odd(intExpr(104)) or
+        not is_odd(intExpr(105)) or
+            is_odd(intExpr(106)) or
+        not is_odd(intExpr(107)) then
+      writeln(" ***** The test function is_odd() does not work correctly. (2)");
       okay := FALSE;
     end if;
 
