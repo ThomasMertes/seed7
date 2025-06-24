@@ -122,16 +122,27 @@ static inline boolType speedup (void)
           in_file.beyond = in_file.start + file_length;
           in_file.buffer_size = 0;
         } else {
+          logError(printf("speedup: map(NULL, " FMT_U_MEM
+                          ", PROT_READ, MAP_PRIVATE, %d, 0) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          file_length, file_no,
+                          errno, strerror(errno)););
           if (ALLOC_UBYTES(in_file.start, file_length)) {
-            if (fread(in_file.start, 1, file_length, in_file.fil) ==
+            if (fread(in_file.start, 1, file_length, in_file.fil) !=
                 file_length) {
+              logError(printf("speedup: fread(" FMT_X_MEM ", 1, "
+                              FMT_U_MEM ", " FMT_X_MEM ") failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              (memSizeType) in_file.start,
+                              file_length, (memSizeType) in_file.fil,
+                              errno, strerror(errno)););
+              FREE_BYTES(in_file.start, file_length);
+              okay = FALSE;
+            } else {
               in_file.nextch = in_file.start;
               in_file.beyond = in_file.start + file_length;
               in_file.buffer_size = file_length;
               fseek(in_file.fil, 0, SEEK_SET);
-            } else {
-              FREE_BYTES(in_file.start, file_length);
-              okay = FALSE;
             } /* if */
           } else {
             okay = FALSE;
@@ -468,7 +479,8 @@ static void freeFile (inFileType old_file)
     memSizeType name_length;
 
   /* freeFile */
-    logFunction(printf("freeFile\n"););
+    logFunction(printf("freeFile(\"%s\"\n",
+                       striAsUnquotedCStri(old_file->name)););
     name_length = strlen((const_cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
     FREE_STRI(old_file->name);
@@ -486,7 +498,8 @@ void removeProgFiles (progType aProg)
     inFileType currFile;
 
   /* removeProgFiles */
-    logFunction(printf("removeProgFiles\n"););
+    logFunction(printf("removeProgFiles(" FMT_U_MEM ")\n",
+                       (memSizeType) aProg););
     aFile = aProg->fileList;
     while (aFile != NULL) {
       currFile = aFile;
