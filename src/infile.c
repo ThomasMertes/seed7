@@ -127,9 +127,9 @@ static inline boolType speedup (void)
                           "errno=%d\nerror: %s\n",
                           file_length, file_no,
                           errno, strerror(errno)););
-          if (ALLOC_UBYTES(in_file.start, file_length)) {
-            if (fread(in_file.start, 1, file_length, in_file.fil) !=
-                file_length) {
+          if (likely(ALLOC_UBYTES(in_file.start, file_length))) {
+            if (unlikely(fread(in_file.start, 1, file_length, in_file.fil) !=
+                         file_length)) {
               logError(printf("speedup: fread(" FMT_X_MEM ", 1, "
                               FMT_U_MEM ", " FMT_X_MEM ") failed:\n"
                               "errno=%d\nerror: %s\n",
@@ -160,12 +160,12 @@ static inline boolType speedup (void)
     } else {
       in_file.buffer_size = 512;
     } /* if */
-    if (ALLOC_UBYTES(in_file.start, in_file.buffer_size)) {
+    if (likely(ALLOC_UBYTES(in_file.start, in_file.buffer_size))) {
       in_file.nextch = in_file.start + in_file.buffer_size;
       in_file.beyond = in_file.start;
     } else {
       in_file.buffer_size = 512;
-      if (ALLOC_UBYTES(in_file.start, in_file.buffer_size)) {
+      if (likely(ALLOC_UBYTES(in_file.start, in_file.buffer_size))) {
         in_file.nextch = in_file.start + in_file.buffer_size;
         in_file.beyond = in_file.start;
       } else {
@@ -176,7 +176,7 @@ static inline boolType speedup (void)
 #else
 #if USE_INFILE_BUFFER
     if (GET_INFILE_BUFFER) {
-      if (ALLOC_UBYTES(in_file.buffer, SIZE_IN_BUFFER)) {
+      if (likely(ALLOC_UBYTES(in_file.buffer, SIZE_IN_BUFFER))) {
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
             (size_t) SIZE_IN_BUFFER);
       } /* if */
@@ -238,7 +238,7 @@ boolType openInfile (const_striType sourceFileName,
         *err_info = FILE_ERROR;
 #endif
       } else {
-        if (!ALLOC_FILE(new_file)) {
+        if (unlikely(!ALLOC_FILE(new_file))) {
           fclose(in_fil);
           *err_info = MEMORY_ERROR;
         } else {
@@ -386,16 +386,16 @@ boolType openBString (bstriType inputString,
                        write_library_names, write_line_numbers,
                        *err_info););
     if (*err_info == OKAY_NO_ERROR) {
-      if (!ALLOC_FILE(new_file)) {
+      if (unlikely(!ALLOC_FILE(new_file))) {
         *err_info = MEMORY_ERROR;
       } else {
         name_length = STRLEN(sourceFileName);
-        if (!ALLOC_USTRI(name_ustri, name_length)) {
+        if (unlikely(!ALLOC_USTRI(name_ustri, name_length))) {
           *err_info = MEMORY_ERROR;
-        } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
+        } else if (unlikely(!ALLOC_STRI_SIZE_OK(in_name, name_length))) {
           UNALLOC_USTRI(name_ustri, name_length);
           *err_info = MEMORY_ERROR;
-        } else if (!ALLOC_STRI_SIZE_OK(in_path, name_length)) {
+        } else if (unlikely(!ALLOC_STRI_SIZE_OK(in_path, name_length))) {
           UNALLOC_USTRI(name_ustri, name_length);
           FREE_STRI2(in_name, name_length);
           *err_info = MEMORY_ERROR;
