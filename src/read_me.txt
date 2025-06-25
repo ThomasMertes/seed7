@@ -1247,6 +1247,7 @@ PRIMITIVE ACTION FUNCTIONS
     reflib.c   reference (REF_*) actions
     rfllib.c   ref_list (RFL_*) actions
     sctlib.c   struct (SCT_*) actions
+    sellib.c   structElement (SEL_*) actions
     setlib.c   set (SET_*) actions
     soclib.c   PRIMITIVE_SOCKET (SOC_*) actions
     sqllib.c   database and sqlStatement (SQL_*) actions

@@ -148,6 +148,12 @@ span.func    { color: purple }
 span.var     { color: darkcyan }
 span.input   { color: green }
 
+span.type_no_ul  { color: red }
+span.keywd_no_ul { color: blue }
+span.op_no_ul    { color: blue }
+span.func_no_ul  { color: purple }
+span.var_no_ul   { color: darkcyan }
+
 span.navigation { color: gainsboro; text-decoration: none; background-color: gainsboro }
 
 span.box {
@@ -227,7 +233,7 @@ pre.indent {
   utility is missing under Windows the program <span class="link">make7.exe</span> can
   be downloaded from
 </p><dl><dd>
-    <span class="link">https://sourceforge.net/projects/seed7/files/bin</span>
+    <a class="link" href="https://sourceforge.net/projects/seed7/files/bin">https://sourceforge.net/projects/seed7/files/bin</a>
 </dd></dl><p>
   In this directory is also a <a class="link" href="#faq_installer">Seed7 installer</a> for Windows
   (seed7_05_20230709_win.exe).
@@ -240,7 +246,7 @@ pre.indent {
   and shell:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>C compiler  </th><th>shell</th></tr>
-  
+
   <tr><td><a class="link" href="#build_COMPILING_UNDER_LINUX">mk_linux.mak</a> </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_icc.mak   </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> icc        </td><td> sh</td></tr>
@@ -648,7 +654,7 @@ bin/as.exe: cannot execute binary file
 </h3></a><p>
     Emscripten provides a C compiler (emcc) that targets
   JavaScript and WebAssembly. How to download and install
-  Emscripten is described <span class="link">here</span>.
+  Emscripten is described <a class="link" href="https://emscripten.org/docs/getting_started/downloads.html">here</a>.
 </p><p>
   The makefiles mk_emccl.mak and mk_emccw.mak are provided
   for compiling with emcc under Linux and Windows. Besides emcc
@@ -1463,6 +1469,7 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>reflib.c  <td>&nbsp;</td><td>reference (REF_*) actions</td></tr>
 <tr><td>rfllib.c  <td>&nbsp;</td><td>ref_list (RFL_*) actions</td></tr>
 <tr><td>sctlib.c  <td>&nbsp;</td><td>struct (SCT_*) actions</td></tr>
+<tr><td>sellib.c  <td>&nbsp;</td><td>structElement (SEL_*) actions</td></tr>
 <tr><td>setlib.c  <td>&nbsp;</td><td>set (SET_*) actions</td></tr>
 <tr><td>soclib.c  <td>&nbsp;</td><td>PRIMITIVE_SOCKET (SOC_*) actions</td></tr>
 <tr><td>sqllib.c  <td>&nbsp;</td><td>database and sqlStatement (SQL_*) actions</td></tr>
