@@ -7485,6 +7485,19 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: enter_ref_constant_types is func
+
+  local
+    var reference: ref1 is NIL;
+  begin
+    for key ref1 range constTable.ref_const do
+      if getType(ref1) not in constTable.type_const then
+        constTable.type_const @:= [getType(ref1)] length(constTable.type_const);
+      end if;
+    end for;
+  end func;
+
+
 const proc: init_ref_constants (inout expr_type: c_expr) is func
 
   local
@@ -7947,6 +7960,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     init_string_constants(c_expr);
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);
+    enter_ref_constant_types;
     init_type_constants(c_expr);
     init_ref_constants(c_expr);
 
