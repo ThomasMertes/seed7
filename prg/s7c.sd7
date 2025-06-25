@@ -323,6 +323,9 @@ const proc: getAnyParamToTempAssigns (in reference: aParam, inout expr_type: c_e
            exprCategory = POINTLISTOBJECT) then
         incr(c_expr.temp_num);
         variableName := "tmp_" & str(c_expr.temp_num);
+        if useConstPrefix(paramValue) then
+          c_expr.temp_decls &:= "const_";
+        end if;
         c_expr.temp_decls &:= type_name(getType(paramValue));
         c_expr.temp_decls &:= " ";
         c_expr.temp_decls &:= variableName;
