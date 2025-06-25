@@ -1215,7 +1215,8 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
 
 
 
-static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
+static void setSearchPath (const const_rtlArrayType searchPath,
+    errInfoType *err_info)
 
   {
     os_charType searchPathDelimiter;
@@ -1223,9 +1224,9 @@ static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
     memSizeType idx;
     memSizeType length = 0;
     memSizeType pos;
-    striType pathElement;
+    const_striType pathElement;
     striType pathStri;
-    striType pathVariableName;
+    const_striType pathVariableName;
 
   /* setSearchPath */
     logFunction(printf("setSearchPath(" FMT_U_MEM " (size = " FMT_U_MEM "), *)\n",
@@ -4340,7 +4341,7 @@ void cmdSetMTime (const const_striType filePath,
  *  @exception RANGE_ERROR The path cannot be converted to the
  *             system string type or a system function returns an error.
  */
-void cmdSetSearchPath (rtlArrayType searchPath)
+void cmdSetSearchPath (const const_rtlArrayType searchPath)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;

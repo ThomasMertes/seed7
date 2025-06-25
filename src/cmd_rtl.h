@@ -106,7 +106,7 @@ void cmdSetFileMode (const const_striType filePath, const const_setType mode);
 void cmdSetMTime (const const_striType filePath,
     intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone);
-void cmdSetSearchPath (rtlArrayType searchPath);
+void cmdSetSearchPath (const const_rtlArrayType searchPath);
 intType cmdShell (const const_striType command, const const_striType parameters);
 striType cmdShellEscape (const const_striType stri);
 striType cmdToOsPath (const const_striType standardPath);
