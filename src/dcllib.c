@@ -231,13 +231,12 @@ objectType dcl_elements (listType arguments)
 
   {
     objectType local_decls;
-    boolType can_push_stack;
     listType *local_object_insert_place;
     objectType decl_res;
     objectType decl_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
     listType list_elem;
-    listType element_list;
+    listType element_list = NULL;
 
   /* dcl_elements */
     logFunction(printf("dcl_elements\n"););
@@ -245,42 +244,34 @@ objectType dcl_elements (listType arguments)
     decl_exec_object = curr_exec_object;
     /* printf("stack upward: " FMT_U_MEM "\n",
            (memSizeType) prog->stack_current->upward); */
-    can_push_stack = prog->stack_current->upward != NULL;
-    if (can_push_stack) {
+    grow_stack(&err_info);
+    if (err_info == OKAY_NO_ERROR) {
       push_stack();
-    } /* if */
-    local_object_insert_place = get_local_object_insert_place();
-    decl_res = evaluate(local_decls);
-    if (decl_res != SYS_EMPTY_OBJECT) {
-      if (fail_flag) {
-        if (fail_file_number != 0) {
-          err_at_file_in_line(EXCEPTION_RAISED, fail_value,
-                              fail_file_number, fail_line_number);
+      local_object_insert_place = get_local_object_insert_place();
+      decl_res = evaluate(local_decls);
+      if (decl_res != SYS_EMPTY_OBJECT) {
+        if (fail_flag) {
+          if (fail_file_number != 0) {
+            err_at_file_in_line(EXCEPTION_RAISED, fail_value,
+                                fail_file_number, fail_line_number);
+          } else {
+            err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
+                         fail_value);
+          } /* if */
+          set_fail_flag(FALSE);
         } else {
-          err_expr_obj(EXCEPTION_RAISED, decl_exec_object,
-                       fail_value);
+          err_object(PROC_EXPECTED, decl_res);
         } /* if */
-        set_fail_flag(FALSE);
-      } else {
-        err_object(PROC_EXPECTED, decl_res);
       } /* if */
-    } /* if */
-    if (can_push_stack) {
       element_list = copy_list(*local_object_insert_place, &err_info);
-      /* printf("before pop_stack\n"); */
       pop_stack();
-      /* printf("after pop_stack\n"); */
-    } else {
-      element_list = *local_object_insert_place;
-      *local_object_insert_place = NULL;
-      pop_object_list(element_list);
-      prog->stack_current->object_list_insert_place = local_object_insert_place;
+      shrink_stack();
+      list_elem = element_list;
+      while (list_elem != NULL && err_info == OKAY_NO_ERROR) {
+        addStructElement(prog, list_elem->obj, &err_info);
+        list_elem = list_elem->next;
+      } /* while */
     } /* if */
-    list_elem = element_list;
-    while (list_elem != NULL && err_info == OKAY_NO_ERROR) {
-      addStructElement(prog, list_elem->obj, &err_info);
-      list_elem = list_elem->next;
-    } /* while */
     logFunction(printf("dcl_elements --> err_info=%d\n", err_info););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_obj_and_args(prog->sys_var[err_info],

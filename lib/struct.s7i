@@ -54,35 +54,37 @@ const func type: new struct (ref proc: elem_decl) end struct is func
     var reference: elem_obj is NIL;
     var structElementArray: structElems is structElementArray.value;
   begin
+    global
     structType := newtype;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     CURR_STRUCT_PTR := ptrType;
     varptrType := varptr structType;
     elem_list := declare_elements(elem_decl);
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const type: base_type (attr structType)                         is void;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const type: base_type (attr structType)                            is void;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
       if is_symb(elem_obj) then
         (* TRACE(elem_obj); PRINT("\n"); *)
         incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+        const func    getType(elem_obj):    (in structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType:    aPtr)    -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType: aStruct) -> (symb elem_obj) is action "REF_SELECT";
         structElems &:= structElement(elem_obj);
       end if;
     end for;
-    const structElementArray: elements (attr structType)            is structElems;
-    const structType: (attr structType) . value                     is structType conv struct_value;
+    const structElementArray: elements (attr structType)               is structElems;
+    const structType: (attr structType) . value                        is structType conv struct_value;
+    end global;
   end func;
 
 const func type: new struct end struct is func
@@ -92,21 +94,23 @@ const func type: new struct end struct is func
     var type: ptrType is void;
     var type: varptrType is void;
   begin
+    global
     structType := newtype;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     varptrType := varptr structType;
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const type: base_type (attr structType)                         is void;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
-    const structElementArray: elements (attr structType)            is structElementArray.value;
-    const structType: (attr structType) . value                     is structType conv empty(STRUCT);
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const type: base_type (attr structType)                            is void;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
+    const structElementArray: elements (attr structType)               is structElementArray.value;
+    const structType: (attr structType) . value                        is structType conv empty(STRUCT);
+    end global;
   end func;
 
 const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
@@ -121,32 +125,34 @@ const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct
     var reference: elem_obj is NIL;
     var structElementArray: structElems is structElementArray.value;
   begin
+    global
     structType := subtype baseType;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     varptrType := varptr structType;
     elem_list := declare_elements(elem_decl);
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
       if is_symb(elem_obj) then
         incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+        const func    getType(elem_obj):    (in structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType:    aPtr)    -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType: aStruct) -> (symb elem_obj) is action "REF_SELECT";
         structElems &:= structElement(elem_obj);
       end if;
     end for;
-    const structElementArray: elements (attr structType)            is structElems;
-    const structType: (attr structType) . value                     is structType conv struct_value;
+    const structElementArray: elements (attr structType)               is structElems;
+    const structType: (attr structType) . value                        is structType conv struct_value;
+    end global;
   end func;
 
 const func type: new (in type: baseType) struct end struct is func
@@ -156,20 +162,22 @@ const func type: new (in type: baseType) struct end struct is func
     var type: ptrType is void;
     var type: varptrType is void;
   begin
+    global
     structType := subtype baseType;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     varptrType := varptr structType;
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
-    const structElementArray: elements (attr structType)            is structElementArray.value;
-    const structType: (attr structType) . value                     is structType conv empty(STRUCT);
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
+    const structElementArray: elements (attr structType)               is structElementArray.value;
+    const structType: (attr structType) . value                        is structType conv empty(STRUCT);
+    end global;
   end func;
 
 const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
@@ -184,32 +192,34 @@ const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct
     var reference: elem_obj is NIL;
     var structElementArray: structElems is structElementArray.value;
   begin
+    global
     structType := subtype baseType;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     varptrType := varptr structType;
     elem_list := declare_elements(elem_decl);
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
       if is_symb(elem_obj) then
         incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+        const func    getType(elem_obj):    (in structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType: aStruct) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType:    aPtr)    -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType: aStruct) -> (symb elem_obj) is action "REF_SELECT";
         structElems &:= structElement(elem_obj);
       end if;
     end for;
-    const structElementArray: elements (attr structType)            is elements(baseType) & structElems;
-    const structType: (attr structType) . value                     is structType conv (STRUCT conv (baseType.value) & struct_value);
+    const structElementArray: elements (attr structType)               is elements(baseType) & structElems;
+    const structType: (attr structType) . value                        is structType conv (STRUCT conv (baseType.value) & struct_value);
+    end global;
   end func;
 
 const func type: sub (in type: baseType) struct end struct is func
@@ -219,18 +229,20 @@ const func type: sub (in type: baseType) struct end struct is func
     var type: ptrType is void;
     var type: varptrType is void;
   begin
+    global
     structType := subtype baseType;
     IN_PARAM_IS_REFERENCE(structType);
     ptrType := ptr structType;
     varptrType := varptr structType;
-    const boolean: isStructType (attr structType)                   is TRUE;
-    const proc: (ref structType param) ::= (in structType param)    is action "SCT_CREATE";
-    const proc: destroy (ref structType param)                      is action "SCT_DESTR";
-    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
-    const func ptrType: alloc (in structType param)                 is action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param)           is action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param)     is action "SCT_CONV";
-    const structElementArray: elements (attr structType)            is elements(baseType);
-    const structType: (attr structType) . value                     is structType conv (STRUCT conv (baseType.value));
+    const boolean: isStructType (attr structType)                      is TRUE;
+    const proc: (ref structType: dest) ::= (in structType: source)     is action "SCT_CREATE";
+    const proc: destroy (ref structType: aValue)                       is action "SCT_DESTR";
+    const proc: (inout structType: dest) := (in structType: source)    is action "SCT_CPY";
+    const func ptrType: alloc (in structType: aStruct)                 is action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType: aStruct)           is action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT: aStruct) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType: aStruct)     is action "SCT_CONV";
+    const structElementArray: elements (attr structType)               is elements(baseType);
+    const structType: (attr structType) . value                        is structType conv (STRUCT conv (baseType.value));
+    end global;
   end func;
