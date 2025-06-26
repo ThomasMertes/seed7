@@ -98,6 +98,34 @@ objectType prg_bstri_parse (listType arguments)
 
 
 /**
+ *  Compare two programs.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
+objectType prg_cmp (listType arguments)
+
+  {
+    memSizeType program1;
+    memSizeType program2;
+    intType signumValue;
+
+  /* prg_cmp */
+    isit_prog(arg_1(arguments));
+    isit_prog(arg_2(arguments));
+    program1 = (memSizeType) take_prog(arg_1(arguments));
+    program2 = (memSizeType) take_prog(arg_2(arguments));
+    if (program1 < program2) {
+      signumValue = -1;
+    } else {
+      signumValue = program1 > program2;
+    } /* if */
+    return bld_int_temp(signumValue);
+  } /* prg_cmp */
+
+
+
+/**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.
  */
@@ -378,6 +406,20 @@ objectType prg_global_objects (listType arguments)
     return bld_reflist_temp(prgGlobalObjects(
         take_prog(arg_1(arguments))));
   } /* prg_global_objects */
+
+
+
+/**
+ *  Compute the hash value of a program.
+ *  @return the hash value.
+ */
+objectType prg_hashcode (listType arguments)
+
+  { /* prg_hashcode */
+    isit_prog(arg_1(arguments));
+    return bld_int_temp((intType)
+        (((memSizeType) take_prog(arg_1(arguments))) >> 6));
+  } /* prg_hashcode */
 
 
 

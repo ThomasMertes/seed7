@@ -25,6 +25,7 @@
 
 
 const ACTION: PRG_BSTRI_PARSE     is action "PRG_BSTRI_PARSE";
+const ACTION: PRG_CMP             is action "PRG_CMP";
 const ACTION: PRG_CPY             is action "PRG_CPY";
 const ACTION: PRG_EQ              is action "PRG_EQ";
 const ACTION: PRG_ERROR_COUNT     is action "PRG_ERROR_COUNT";
@@ -34,6 +35,7 @@ const ACTION: PRG_EXEC            is action "PRG_EXEC";
 const ACTION: PRG_FIL_PARSE       is action "PRG_FIL_PARSE";
 const ACTION: PRG_GET_ERROR       is action "PRG_GET_ERROR";
 const ACTION: PRG_GLOBAL_OBJECTS  is action "PRG_GLOBAL_OBJECTS";
+const ACTION: PRG_HASHCODE        is action "PRG_HASHCODE";
 const ACTION: PRG_MATCH           is action "PRG_MATCH";
 const ACTION: PRG_MATCH_EXPR      is action "PRG_MATCH_EXPR";
 const ACTION: PRG_NAME            is action "PRG_NAME";
@@ -53,8 +55,11 @@ const proc: prg_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "progType    prgBStriParse (const bstriType, const const_setType, const const_arrayType, fileType);");
     declareExtern(c_prog, "void        prgCpy (progType *const, const progType);");
+    declareExtern(c_prog, "void        prgCpyGeneric (genericType *const, const genericType);");
     declareExtern(c_prog, "progType    prgCreate (const progType);");
+    declareExtern(c_prog, "genericType prgCreateGeneric (const genericType);");
     declareExtern(c_prog, "void        prgDestr (progType);");
+    declareExtern(c_prog, "void        prgDestrGeneric (const genericType);");
     declareExtern(c_prog, "intType     prgErrorCount (const const_progType);");
     declareExtern(c_prog, "objRefType  prgEval (progType, objRefType);");
     declareExtern(c_prog, "objRefType  prgEvalWithArgs (progType, objRefType, listType);");
@@ -89,6 +94,18 @@ const proc: process (PRG_BSTRI_PARSE, in reference: function,
     c_expr.result_expr &:= ", ";
     getAnyParamToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -254,6 +271,16 @@ const proc: process (PRG_GLOBAL_OBJECTS, in reference: function,
     c_expr.result_expr := "prgGlobalObjects(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (PRG_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(((memSizeType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
   end func;
 
 

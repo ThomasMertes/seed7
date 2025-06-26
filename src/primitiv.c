@@ -763,6 +763,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_WHILE_NOOP",               prc_while_noop,               },
 
     { "PRG_BSTRI_PARSE",              prg_bstri_parse,              },
+    { "PRG_CMP",                      prg_cmp,                      },
     { "PRG_CPY",                      prg_cpy,                      },
     { "PRG_CREATE",                   prg_create,                   },
     { "PRG_DESTR",                    prg_destr,                    },
@@ -775,6 +776,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRG_FIL_PARSE",                prg_fil_parse,                },
     { "PRG_GET_ERROR",                prg_get_error,                },
     { "PRG_GLOBAL_OBJECTS",           prg_global_objects,           },
+    { "PRG_HASHCODE",                 prg_hashcode,                 },
     { "PRG_MATCH",                    prg_match,                    },
     { "PRG_MATCH_EXPR",               prg_match_expr,               },
     { "PRG_NAME",                     prg_name,                     },

@@ -3181,6 +3181,16 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bstHashCodeGeneric";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
+    elsif action_name = "PRG_CMP" then
+      c_expr.expr &:= "&ptrCmpGeneric";
+    elsif action_name = "PRG_CPY" then
+      c_expr.expr &:= "&prgCpyGeneric";
+    elsif action_name = "PRG_CREATE" then
+      c_expr.expr &:= "&prgCreateGeneric";
+    elsif action_name = "PRG_DESTR" then
+      c_expr.expr &:= "&prgDestrGeneric";
+    elsif action_name = "PRG_HASHCODE" then
+      c_expr.expr &:= "&ptrHashCodeGeneric";
     elsif action_name = "REF_CMP" or
           action_name = "SEL_CMP" then
       c_expr.expr &:= "&ptrCmpGeneric";

@@ -74,6 +74,22 @@ const func boolean: (in program: prog1) <> (in program: prog2)           is acti
 
 
 (**
+ *  Compare two programs.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in program: prog1, in program: prog2)       is action "PRG_CMP";
+
+
+(**
+ *  Compute the hash value of a program.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in program: aProgram)                      is action "PRG_HASHCODE";
+
+
+(**
  *  Returns the name of ''aProgram'' without path and extension.
  *  This function does not follow symbolic links.
  *  It determines, with which name a program was called.

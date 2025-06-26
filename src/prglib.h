@@ -26,6 +26,7 @@
 /********************************************************************/
 
 objectType prg_bstri_parse    (listType arguments);
+objectType prg_cmp            (listType arguments);
 objectType prg_cpy            (listType arguments);
 objectType prg_create         (listType arguments);
 objectType prg_destr          (listType arguments);
@@ -38,6 +39,7 @@ objectType prg_exec           (listType arguments);
 objectType prg_fil_parse      (listType arguments);
 objectType prg_get_error      (listType arguments);
 objectType prg_global_objects (listType arguments);
+objectType prg_hashcode       (listType arguments);
 objectType prg_match          (listType arguments);
 objectType prg_match_expr     (listType arguments);
 objectType prg_name           (listType arguments);
