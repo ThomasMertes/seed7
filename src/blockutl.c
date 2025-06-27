@@ -258,6 +258,13 @@ static void append_to_loclist (locListType **list_insert_place, objectType objec
     register locListType help_element;
 
   /* append_to_loclist */
+    logFunction(printf("append_to_loclist(" FMT_U_MEM ", " FMT_U_MEM ", "
+                       FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       (memSizeType) **list_insert_place,
+                       (memSizeType) object,
+                       (memSizeType) init_value,
+                       (memSizeType) create_call_obj,
+                       (memSizeType) destroy_call_obj, *err_info););
     if (ALLOC_RECORD(help_element, locListRecord, count.loclist)) {
       help_element->next = NULL;
       help_element->local.object = object;
@@ -371,8 +378,9 @@ locListType get_local_var_list (const_listType local_object_list,
     locListType local_vars;
 
   /* get_local_var_list */
-    logFunction(printf("get_local_var_list(" FMT_X_MEM ")\n",
-                       (memSizeType) local_object_list););
+    logFunction(printf("get_local_var_list(" FMT_X_MEM ", %d)\n",
+                       (memSizeType) local_object_list,
+                       *err_info););
     local_vars = NULL;
     local_vars_insert_place = &local_vars;
     local_element = local_object_list;
@@ -421,7 +429,8 @@ locListType get_local_var_list (const_listType local_object_list,
       } /* if */
       local_element = local_element->next;
     } /* while */
-    logFunction(printf("get_local_var_list -->\n"););
+    logFunction(printf("get_local_var_list --> (err_info=%d)\n",
+                       *err_info););
     return local_vars;
   } /* get_local_var_list */
 

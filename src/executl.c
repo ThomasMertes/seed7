@@ -69,7 +69,7 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
   /* get_create_call_obj */
     logFunction(printf("get_create_call_obj(");
                 trace1(obj);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - get_create_call_obj: obj= ");
@@ -105,8 +105,10 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     } /* if */
     prog = progBackup;
 
-    logFunction(printf("get_create_call_obj -> " FMT_U_MEM "\n",
-                       (memSizeType) create_call_obj););
+    logFunction(printf("get_create_call_obj -> " FMT_U_MEM
+                       " (err_info=%d)\n",
+                       (memSizeType) create_call_obj,
+                       *err_info););
     return create_call_obj;
   } /* get_create_call_obj */
 
@@ -124,7 +126,7 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
   /* get_destroy_call_obj */
     logFunction(printf("get_destroy_call_obj(");
                 trace1(obj);
-                printf(")\n"););
+                printf(", %d)\n", *err_info););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - get_destroy_call_obj: obj= ");
@@ -158,8 +160,10 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     } /* if */
     prog = progBackup;
 
-    logFunction(printf("get_destroy_call_obj -> " FMT_U_MEM "\n",
-                       (memSizeType) destroy_call_obj););
+    logFunction(printf("get_destroy_call_obj -> " FMT_U_MEM
+                       " (err_info=%d)\n",
+                       (memSizeType) destroy_call_obj,
+                       *err_info););
     return destroy_call_obj;
   } /* get_destroy_call_obj */
 
@@ -1231,8 +1235,8 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
 
   /* destroy_local_init_value */
     logFunction(printf("destroy_local_init_value(");
-               /* trace1(local->object); */
-               printf(")\n"););
+                trace1(local->init_value);
+                printf(", %d)\n", *err_info););
     switch (CATEGORY_OF_OBJ(local->init_value)) {
       case INTOBJECT:
       case CHAROBJECT:
@@ -1279,7 +1283,8 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
         } /* if */
         break;
     } /* switch */
-    logFunction(printf("destroy_local_init_value -->\n"););
+    logFunction(printf("destroy_local_init_value --> (err_info=%d)\n",
+                       *err_info););
   } /* destroy_local_init_value */
 
 
@@ -1340,7 +1345,7 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
 
   /* crea_struct */
     logFunction(printf("crea_struct(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM ")\n",
-			(memSizeType) elem_to, (memSizeType) elem_from, new_size););
+                       (memSizeType) elem_to, (memSizeType) elem_from, new_size););
     while (position < new_size && okay) {
       if (!sct_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
         /* If the creation of an element fails (mostly no memory) */

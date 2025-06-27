@@ -235,19 +235,19 @@ objectType prc_begin (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
         logError(printf("prc_begin: error - err_info: %d\n", err_info););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_begin: Create error\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_begin: No memory\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1265,25 +1265,25 @@ objectType prc_local (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("prc_local: error - err_info: %d\n", err_info););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        logError(printf("prc_local: error - err_info: %d\n", err_info););
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
+        logError(printf("prc_local: Create error\n"););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        logError(printf("prc_local: Create error\n"););
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL)) {
+        logError(printf("prc_local: No memory\n"););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
-        logError(printf("prc_local: No memory\n"););
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1434,22 +1434,22 @@ objectType prc_res_begin (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
         free_expression(block_body);
         free_locobj(&result_var);
-        logError(printf("prc_res_begin: error - err_info: %d\n", err_info););
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(result_var.object == NULL || block_body == NULL)) {
+        logError(printf("prc_res_begin: Create error\n"););
         free_expression(block_body);
         free_locobj(&result_var);
-        logError(printf("prc_res_begin: Create error\n"););
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL)) {
+        logError(printf("prc_res_begin: No memory\n"););
         free_expression(block_body);
         free_locobj(&result_var);
-        logError(printf("prc_res_begin: No memory\n"););
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1541,28 +1541,28 @@ objectType prc_res_local (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("prc_res_local: error - err_info: %d\n", err_info););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
         free_locobj(&result_var);
-        logError(printf("prc_res_local: error - err_info: %d\n", err_info););
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(result_var.object == NULL || block_body == NULL)) {
+        logError(printf("prc_res_local: Create error\n"););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
         free_locobj(&result_var);
-        logError(printf("prc_res_local: Create error\n"););
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL)) {
+        logError(printf("prc_res_local: No memory\n"););
         free_expression(block_body);
         free_local_consts(local_consts);
         free_loclist(local_vars);
         free_locobj(&result_var);
-        logError(printf("prc_res_local: No memory\n"););
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1634,19 +1634,19 @@ objectType prc_return (listType arguments)
 #endif
       get_return_var(&return_var, return_type, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
         logError(printf("prc_return: error - err_info: %d\n", err_info););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return: Create error\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return: No memory\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1718,19 +1718,19 @@ objectType prc_return2 (listType arguments)
 #endif
       get_return_var(&return_var, return_type, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
         logError(printf("prc_return2: error - err_info: %d\n", err_info););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return2: Create error\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return2: No memory\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1781,19 +1781,19 @@ objectType prc_return_var (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
         logError(printf("prc_return_var: error - err_info: %d\n", err_info););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return_var: Create error\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return_var: No memory\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
@@ -1844,19 +1844,19 @@ objectType prc_return_var2 (listType arguments)
       } /* if */
       pop_stack();
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_expression(block_body);
         logError(printf("prc_return_var2: error - err_info: %d\n", err_info););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[err_info],
                                        proc_exec_object, arguments);
       } else if (unlikely(block_body == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return_var2: Create error\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(prog->sys_var[CREATE_ERROR],
                                        proc_exec_object, arguments);
       } else if (unlikely((block =
           new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
-        free_expression(block_body);
         logError(printf("prc_return_var2: No memory\n"););
+        free_expression(block_body);
         return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
                                        proc_exec_object, arguments);
       } else {
