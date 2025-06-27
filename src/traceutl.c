@@ -865,9 +865,41 @@ static void printparam (const_objectType aParam)
 
 
 
+static void printObjectName (const_objectType traceobject)
+
+  { /* printObjectName */
+    if (HAS_POSINFO(traceobject)) {
+      prot_string(objectFileName(traceobject));
+      prot_cstri("(");
+      prot_int((intType) GET_LINE_NUM(traceobject));
+      prot_cstri(")");
+    } else if (HAS_PROPERTY(traceobject)) {
+      if (HAS_ENTITY(traceobject)) {
+        if (GET_ENTITY(traceobject)->ident != NULL) {
+          prot_cstri8(id_string(GET_ENTITY(traceobject)->ident));
+        } else if (traceobject->descriptor.property->params != NULL) {
+          prot_params(traceobject->descriptor.property->params);
+        } else if (GET_ENTITY(traceobject)->fparam_list != NULL) {
+          prot_name(GET_ENTITY(traceobject)->fparam_list);
+        } else {
+          prot_cstri8(id_string(NULL));
+        } /* if */
+      } else {
+        prot_string(objectFileName(traceobject));
+        prot_cstri("(");
+        prot_int((intType) traceobject->descriptor.property->line);
+        prot_cstri(")");
+      } /* if */
+    } else {
+      prot_cstri("*NULL_PROPERTY_OBJECT*");
+    } /* if */
+  } /* printObjectName */
+
+
+
 void printLocObj (const_locObjType locObj)
 
-  { /* printlocobj */
+  { /* printLocObj */
     if (locObj == NULL) {
       prot_cstri("***NULL_LOCOBJ***");
     } else {
@@ -886,7 +918,19 @@ void printLocObj (const_locObjType locObj)
       printobject(locObj->destroy_call_obj);
       prot_nl();
     } /* if */
-  } /* printlocobj */
+  } /* printLocObj */
+
+
+
+void printLocList (locListType loclist)
+
+  { /* printLocList */
+    while (loclist != NULL) {
+      printf(" ");
+      printObjectName(loclist->local.object);
+      loclist = loclist->next;
+    } /* while */
+  } /* printLocList */
 
 
 
@@ -1505,31 +1549,7 @@ void trace1 (const_objectType traceobject)
         printtype(traceobject->type_of);
       } /* if */
       prot_cstri(": ");
-      if (HAS_POSINFO(traceobject)) {
-        prot_string(objectFileName(traceobject));
-        prot_cstri("(");
-        prot_int((intType) GET_LINE_NUM(traceobject));
-        prot_cstri(")");
-      } else if (HAS_PROPERTY(traceobject)) {
-        if (HAS_ENTITY(traceobject)) {
-          if (GET_ENTITY(traceobject)->ident != NULL) {
-            prot_cstri8(id_string(GET_ENTITY(traceobject)->ident));
-          } else if (traceobject->descriptor.property->params != NULL) {
-            prot_params(traceobject->descriptor.property->params);
-          } else if (GET_ENTITY(traceobject)->fparam_list != NULL) {
-            prot_name(GET_ENTITY(traceobject)->fparam_list);
-          } else {
-            prot_cstri8(id_string(NULL));
-          } /* if */
-        } else {
-          prot_string(objectFileName(traceobject));
-          prot_cstri("(");
-          prot_int((intType) traceobject->descriptor.property->line);
-          prot_cstri(")");
-        } /* if */
-      } else {
-        prot_cstri("*NULL_PROPERTY_OBJECT*");
-      } /* if */
+      printObjectName(traceobject);
       prot_cstri(" is <");
       printcategory(CATEGORY_OF_OBJ(traceobject));
       prot_cstri("> ");
