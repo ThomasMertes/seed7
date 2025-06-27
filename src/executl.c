@@ -63,6 +63,7 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     objectRecord expr_object;
     listRecord expr_list[3];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
     objectType create_call_obj;
     progType progBackup;
 
@@ -93,8 +94,8 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     expr_list[1].obj = SYS_CREA_OBJECT;
     expr_list[2].obj = obj;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -102,6 +103,8 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     prog = progBackup;
 
@@ -120,6 +123,7 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     objectRecord expr_object;
     listRecord expr_list[2];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
     objectType destroy_call_obj;
     progType progBackup;
 
@@ -148,8 +152,8 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     expr_list[0].obj = obj;
     expr_list[1].obj = SYS_DESTR_OBJECT;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -157,6 +161,8 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     prog = progBackup;
 
@@ -176,6 +182,7 @@ static void type_create_call_obj (objectType destination,
     objectRecord expr_object;
     listRecord expr_list[3];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_create_call_obj */
     logFunction(printf("type_create_call_obj\n"););
@@ -201,8 +208,8 @@ static void type_create_call_obj (objectType destination,
     expr_list[1].obj = SYS_CREA_OBJECT;
     expr_list[2].obj = source;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -211,6 +218,8 @@ static void type_create_call_obj (objectType destination,
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     logFunction(printf("type_create_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) destination->type_of->
@@ -226,6 +235,7 @@ static void type_copy_call_obj (objectType destination,
     objectRecord expr_object;
     listRecord expr_list[3];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_copy_call_obj */
     logFunction(printf("type_copy_call_obj\n"););
@@ -251,8 +261,8 @@ static void type_copy_call_obj (objectType destination,
     expr_list[1].obj = SYS_ASSIGN_OBJECT;
     expr_list[2].obj = source;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -261,6 +271,8 @@ static void type_copy_call_obj (objectType destination,
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     logFunction(printf("type_copy_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) destination->type_of->
@@ -276,6 +288,7 @@ static void type_ord_call_obj (objectType any_obj,
     objectRecord expr_object;
     listRecord expr_list[2];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_ord_call_obj */
     logFunction(printf("type_ord_call_obj\n"););
@@ -296,8 +309,8 @@ static void type_ord_call_obj (objectType any_obj,
     expr_list[0].obj = any_obj;
     expr_list[1].obj = SYS_ORD_OBJECT;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -306,6 +319,8 @@ static void type_ord_call_obj (objectType any_obj,
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     logFunction(printf("type_ord_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) any_obj->type_of->
@@ -321,6 +336,7 @@ static void type_in_call_obj (objectType elem_obj,
     objectRecord expr_object;
     listRecord expr_list[3];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_in_call_obj */
     logFunction(printf("type_in_call_obj\n"););
@@ -346,8 +362,8 @@ static void type_in_call_obj (objectType elem_obj,
     expr_list[1].obj = SYS_IN_OBJECT;
     expr_list[2].obj = set_obj;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -356,6 +372,8 @@ static void type_in_call_obj (objectType elem_obj,
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     logFunction(printf("type_in_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) elem_obj->type_of->
@@ -370,6 +388,7 @@ static objectType type_value_call_obj (objectType type_obj, errInfoType *err_inf
     objectRecord expr_object;
     listRecord expr_list[3];
     objectType match_result;
+    errInfoType copy_err_info = OKAY_NO_ERROR;
     objectType value_call_obj = NULL;
 
   /* type_value_call_obj */
@@ -393,8 +412,8 @@ static objectType type_value_call_obj (objectType type_obj, errInfoType *err_inf
     expr_list[1].obj = SYS_DOT_OBJECT;
     expr_list[2].obj = SYS_VALUE_OBJECT;
 
-    match_result = copy_expression(&expr_object, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
+    match_result = copy_expression(&expr_object, &copy_err_info);
+    if (likely(copy_err_info == OKAY_NO_ERROR)) {
       if (match_expression(match_result) != NULL) {
         match_result = match_object(match_result);
         if (match_result != NULL) {
@@ -402,6 +421,8 @@ static objectType type_value_call_obj (objectType type_obj, errInfoType *err_inf
         } /* if */
       } /* if */
       free_expression(match_result);
+    } else if (*err_info == OKAY_NO_ERROR) {
+      *err_info = copy_err_info;
     } /* if */
     logFunction(printf("type_value_call_obj -> " FMT_U_MEM "\n",
                        (memSizeType) value_call_obj););
