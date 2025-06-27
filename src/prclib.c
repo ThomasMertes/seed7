@@ -99,7 +99,7 @@ static objectType process_local_decl (objectType local_decl,
                 trace1(local_decl);
                 printf(", " FMT_X_MEM ")\n",
                        (memSizeType) local_object_list););
-    result = exec_call(local_decl);
+    result = do_exec_call(local_decl, err_info);
     if (result == SYS_EMPTY_OBJECT) {
       local_element = *local_object_list;
       while (local_element != NULL) {
