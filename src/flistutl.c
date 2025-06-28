@@ -271,7 +271,7 @@ void heapStatistic (void)
     unsigned long num_flist_stri_elems;
     unsigned long num_flist_bigints;
     memSizeType num_flist_bigint_elems;
-    memSizeType bytes_used;
+    memSizeType bytes_used = 0;
     memSizeType bytes_in_buffers;
     memSizeType bytes_free;
     memSizeType bytes_total;
@@ -285,7 +285,6 @@ void heapStatistic (void)
     num_flist_infiles    = infile_flist_count();
     num_flist_stris      = stri_flist_count(&num_flist_stri_elems);
     num_flist_bigints    = bigFListCount(&num_flist_bigint_elems);
-    bytes_used = 0;
     if (count.stri > num_flist_stris) {
       printf(F_U_MEM(9) " bytes in %8lu string records of      %4u bytes\n",
           (count.stri - num_flist_stris) * SIZ_STRI(0),
