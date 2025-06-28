@@ -649,7 +649,9 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         if (!isOpen) {
           FREE_STRI(absolutePath);
           if (add_extension) {
-            sourceFilePath->size = nameLen - STRLEN(".sd7");
+            /* The function below does not raise an exception. */
+            sourceFilePath = strHeadAssign(sourceFilePath,
+                                           (intType) sourceFileArgument->size);
             if ((absolutePath = getAbsolutePath(sourceFilePath)) == NULL) {
               *err_info = MEMORY_ERROR;
             } else {
@@ -675,7 +677,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         } /* if */
       } /* if */
       if (sourceFilePath != NULL) {
-        FREE_STRI2(sourceFilePath, nameLen);
+        FREE_STRI(sourceFilePath);
       } /* if */
     } /* if */
     logFunction(printf("analyzeFile --> " FMT_U_MEM
