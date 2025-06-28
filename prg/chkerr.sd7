@@ -2292,7 +2292,17 @@ const func boolean: checkIdentExpected is func
                     \$ syntax expr: 123 is -> 5;",
                     IDENT_EXPECTED, 2, 27,
                     "Identifier expected found \"123\"",
-                    "$ syntax expr: 123 is -> 5;") then
+                    "$ syntax expr: 123 is -> 5;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \$ syntax expr: .123 .() is -> 1;",
+                    IDENT_EXPECTED, 2, 32,
+                    "Identifier expected found \"123\"",
+                    "$ syntax expr: .123 .() is -> 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \syntax expr: .123 .() is -> 1;",
+                    IDENT_EXPECTED, 2, 30,
+                    "Identifier expected found \"123\"",
+                    "syntax expr: .123 .() is -> 1;") then
       okay := TRUE;
     else
       writeln(" *** IDENT_EXPECTED not reported correctly.");

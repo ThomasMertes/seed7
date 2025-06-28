@@ -148,27 +148,29 @@ static identType put_ident (progType aProgram, const_cstriType stri,
 
 
 
-void check_list_of_syntax_elements (const_listType elem_list)
+boolType list_of_syntax_elements_okay (const_listType elem_list)
 
-  { /* check_list_of_syntax_elements */
-    logFunction(printf("check_list_of_syntax_elements\n"););
+  {
+    boolType okay = TRUE;
+
+  /* list_of_syntax_elements_okay */
+    logFunction(printf("list_of_syntax_elements_okay\n"););
     while (elem_list != NULL) {
       if (!HAS_ENTITY(elem_list->obj)) {
         if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
+          okay = FALSE;
         } /* if */
+      } else if (GET_ENTITY(elem_list->obj) == prog->entity.literal) {
+        err_object(IDENT_EXPECTED, elem_list->obj);
+        okay = FALSE;
       } /* if */
-#ifdef OUT_OF_ORDER
-      if (GET_ENTITY(elem_list->obj) == prog->entity.literal) {
-        if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
-          err_object(IDENT_EXPECTED, elem_list->obj);
-        } /* if */
-      } /* if */
-#endif
       elem_list = elem_list->next;
     } /* while */
-    logFunction(printf("check_list_of_syntax_elements -->\n"););
-  } /* check_list_of_syntax_elements */
+    logFunction(printf("list_of_syntax_elements_okay --> %d\n",
+                       okay););
+    return okay;
+  } /* list_of_syntax_elements_okay */
 
 
 

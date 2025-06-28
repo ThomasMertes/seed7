@@ -375,18 +375,21 @@ tokenType def_statement_syntax (objectType syntax_expression,
                  printf("\n"););
       statement_syntax = syntax_expression->value.listValue;
       if (statement_syntax != NULL) {
-        check_list_of_syntax_elements(statement_syntax);
-        if (CATEGORY_OF_OBJ(statement_syntax->obj) == EXPROBJECT) {
-          if (statement_syntax->next != NULL) {
-            token_list_end = def_infix_syntax(statement_syntax->next,
-                statement_priority, statement_associativity);
+        if (list_of_syntax_elements_okay(statement_syntax)) {
+          if (CATEGORY_OF_OBJ(statement_syntax->obj) == EXPROBJECT) {
+            if (statement_syntax->next != NULL) {
+              token_list_end = def_infix_syntax(statement_syntax->next,
+                  statement_priority, statement_associativity);
+            } else {
+              err_warning(EMPTY_SYNTAX);
+              token_list_end = NULL;
+            } /* if */
           } else {
-            err_warning(EMPTY_SYNTAX);
-            token_list_end = NULL;
+            token_list_end = def_prefix_syntax(statement_syntax,
+                statement_priority, statement_associativity);
           } /* if */
         } else {
-          token_list_end = def_prefix_syntax(statement_syntax,
-              statement_priority, statement_associativity);
+          token_list_end = NULL;
         } /* if */
       } else {
         err_warning(EMPTY_SYNTAX);
