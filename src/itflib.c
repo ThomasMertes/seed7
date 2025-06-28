@@ -379,57 +379,12 @@ objectType itf_create2 (listType arguments)
  */
 objectType itf_destr (listType arguments)
 
-  {
-    objectType old_value;
-    structType old_struct;
-
-  /* itf_destr */
+  { /* itf_destr */
     logFunction(printf("itf_destr(");
                 trace1(arg_1(arguments));
                 printf(")\n"););
     just_interface(arg_1(arguments));
-    old_value = take_interface(arg_1(arguments));
-    if (unlikely(CATEGORY_OF_OBJ(old_value) != STRUCTOBJECT)) {
-      logError(printf("itf_destr(");
-               trace1(arg_1(arguments));
-               printf("): Category of value is not STRUCTOBJECT.\n"););
-      expected_category(STRUCTOBJECT, old_value);
-    } else {
-      old_struct = take_struct(old_value);
-      if (old_struct != NULL) {
-        logMessage(printf("itf_destr: %s usage_count=" FMT_U_MEM
-                          ", " FMT_U_MEM " ",
-                          old_struct->usage_count != 0 ? "Decrease"
-                                                       : "Keep",
-                          old_struct->usage_count,
-                          (memSizeType) old_value);
-                   trace1(old_value);
-                   printf("\n"););
-        if (old_struct->usage_count != 0) {
-          old_struct->usage_count--;
-          if (old_struct->usage_count == 0) {
-            destr_struct(old_struct->stru, old_struct->size);
-            FREE_STRUCT(old_struct, old_struct->size);
-            /* This function just removes objects without property. */
-            /* Objects with property just lose their struct value.  */
-            /* For these objects the HAS_PROPERTY flag and the      */
-            /* descriptor.property stay unchanged. Objects with     */
-            /* property will be removed later by close_stack(). The */
-            /* descriptor.property will be freed together with the  */
-            /* object.                                              */
-            if (HAS_PROPERTY(old_value)) {
-              old_value->value.structValue = NULL;
-              logMessage(printf("itf_destr: Struct object with property "
-                                FMT_U_MEM " ", (memSizeType) old_value);
-                         trace1(old_value);
-                         printf("\n"););
-            } else {
-              FREE_OBJECT(old_value);
-            } /* if */
-          } /* if */
-        } /* if */
-      } /* if */
-    } /* if */
+    destr_interface(arg_1(arguments)->value.objValue);
     arg_1(arguments)->value.objValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     logFunction(printf("itf_destr -->\n"););

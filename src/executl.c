@@ -1388,6 +1388,60 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
 
 
 
+void destr_interface (objectType old_value)
+
+  {
+    structType old_struct;
+
+  /* destr_interface */
+    logFunction(printf("destr_interface: old_value: " FMT_U_MEM ")\n",
+                       (memSizeType) old_value););
+    if (unlikely(CATEGORY_OF_OBJ(old_value) != STRUCTOBJECT)) {
+      logError(printf("destr_interface(");
+               trace1(old_value);
+               printf("): Category of value is not STRUCTOBJECT.\n"););
+      category_required(STRUCTOBJECT, old_value);
+    } else {
+      old_struct = take_struct(old_value);
+      if (old_struct != NULL) {
+        logMessage(printf("destr_interface: %s usage_count=" FMT_U_MEM
+                          ", " FMT_U_MEM " ",
+                          old_struct->usage_count != 0 ? "Decrease"
+                                                       : "Keep",
+                          old_struct->usage_count,
+                          (memSizeType) old_value);
+                   trace1(old_value);
+                   printf("\n"););
+        if (old_struct->usage_count != 0) {
+          old_struct->usage_count--;
+          if (old_struct->usage_count == 0) {
+            destr_struct(old_struct->stru, old_struct->size);
+            FREE_STRUCT(old_struct, old_struct->size);
+            /* This function just removes objects without property. */
+            /* Objects with property just lose their struct value.  */
+            /* For these objects the HAS_PROPERTY flag and the      */
+            /* descriptor.property stay unchanged. Objects with     */
+            /* property will be removed later by close_stack(). The */
+            /* descriptor.property will be freed together with the  */
+            /* object.                                              */
+            if (HAS_PROPERTY(old_value)) {
+              old_value->value.structValue = NULL;
+              logMessage(printf("destr_interface: Struct object with property "
+                                FMT_U_MEM " ", (memSizeType) old_value);
+                         trace1(old_value);
+                         printf("\n"););
+            } else {
+              FREE_OBJECT(old_value);
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("destr_interface -->\n"););
+  } /* destr_struct */
+
+
+
 boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectType obj_from)
 
   {

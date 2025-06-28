@@ -371,33 +371,42 @@ objectType sct_destr (listType arguments)
     structType old_struct;
 
   /* sct_destr */
-    isit_struct(arg_1(arguments));
-    old_struct = take_struct(arg_1(arguments));
-    logFunction(printf("sct_destr(" FMT_U_MEM
-                       " (usage=" FMT_U_MEM "))\n",
-                       (memSizeType) old_struct,
-                       old_struct != NULL ? old_struct->usage_count
-                                          : (memSizeType) 0););
-    if (old_struct != NULL) {
-      logMessage(printf("sct_destr: %s usage_count=" FMT_U_MEM
-                        ", " FMT_U_MEM " ",
-                        old_struct->usage_count != 0 ? "Decrease"
-                                                     : "Keep",
-                        old_struct->usage_count,
-                        (memSizeType) arg_1(arguments));
-                 trace1(arg_1(arguments));
-                 printf("\n"););
-      if (old_struct->usage_count != 0) {
-        old_struct->usage_count--;
-        if (old_struct->usage_count == 0) {
-          destr_struct(old_struct->stru, old_struct->size);
-          FREE_STRUCT(old_struct, old_struct->size);
-          arg_1(arguments)->value.structValue = NULL;
-          SET_UNUSED_FLAG(arg_1(arguments));
-        } /* if */
-      } /* if */
-    } else {
+    logFunction(printf("sct_destr(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
+    if (CATEGORY_OF_OBJ(arg_1(arguments)) == INTERFACEOBJECT) {
+      destr_interface(arg_1(arguments)->value.objValue);
+      arg_1(arguments)->value.objValue = NULL;
       SET_UNUSED_FLAG(arg_1(arguments));
+    } else {
+      isit_struct(arg_1(arguments));
+      old_struct = take_struct(arg_1(arguments));
+      logMessage(printf("sct_destr(" FMT_U_MEM
+                        " (usage=" FMT_U_MEM "))\n",
+                        (memSizeType) old_struct,
+                        old_struct != NULL ? old_struct->usage_count
+                                           : (memSizeType) 0););
+      if (old_struct != NULL) {
+        logMessage(printf("sct_destr: %s usage_count=" FMT_U_MEM
+                          ", " FMT_U_MEM " ",
+                          old_struct->usage_count != 0 ? "Decrease"
+                                                       : "Keep",
+                          old_struct->usage_count,
+                          (memSizeType) arg_1(arguments));
+                   trace1(arg_1(arguments));
+                   printf("\n"););
+        if (old_struct->usage_count != 0) {
+          old_struct->usage_count--;
+          if (old_struct->usage_count == 0) {
+            destr_struct(old_struct->stru, old_struct->size);
+            FREE_STRUCT(old_struct, old_struct->size);
+            arg_1(arguments)->value.structValue = NULL;
+            SET_UNUSED_FLAG(arg_1(arguments));
+          } /* if */
+        } /* if */
+      } else {
+        SET_UNUSED_FLAG(arg_1(arguments));
+      } /* if */
     } /* if */
     logFunction(printf("sct_destr -->\n"););
     return SYS_EMPTY_OBJECT;
