@@ -472,7 +472,7 @@ static void old_do_create (objectType destination, objectType source,
         *err_info = CREATE_ERROR;
       } /* if */
     } /* if */
-    logFunction(printf("old_do_create --> err_info=%d\n", *err_info););
+    logFunction(printf("old_do_create --> (err_info=%d)\n", *err_info););
   } /* old_do_create */
 
 
@@ -549,7 +549,7 @@ void do_create (objectType destination, objectType source,
     } else {
       old_do_create(destination, source, err_info);
     } /* if */
-    logFunction(printf("do_create --> err_info=%d\n", *err_info););
+    logFunction(printf("do_create --> (err_info=%d)\n", *err_info););
   } /* do_create */
 
 
@@ -562,6 +562,9 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
     objectType call_result;
 
   /* do_destroy */
+    logFunction(printf("do_destroy(");
+                trace1(old_obj);
+                printf(", %d)\n", *err_info););
     if (old_obj->type_of != NULL) {
       if (old_obj->type_of->destroy_call_obj == NULL) {
         /* prot_cstri("do_destroy ");
@@ -633,6 +636,7 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
     } else {
       *err_info = DESTROY_ERROR;
     } /* if */
+    logFunction(printf("do_destroy --> (err_info=%d)\n", *err_info););
   } /* do_destroy */
 
 
