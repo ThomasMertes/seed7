@@ -592,7 +592,7 @@ void heapStatistic (void)
       bytes_used += count.parseError * SIZ_REC(parseErrorRecord);
     } /* if */
     if (count.prog != 0) {
-      printf(F_U_MEM(9) " bytes in %8lu progs of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu progs of              %5u bytes\n",
           count.prog * SIZ_REC(progRecord),
           count.prog,
           (unsigned int) SIZ_REC(progRecord));
