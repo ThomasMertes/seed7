@@ -575,6 +575,9 @@ static void print_real_value (const_objectType anyobject)
             prot_cstri("<");
             prot_int((intType) structValue->usage_count);
             prot_cstri(">");
+          } else {
+            prot_cstri(" ");
+            prot_int((intType) (memSizeType) structValue);
           } /* if */
           /* prot_cstri(" ");
              prot_ptr(structValue); */

@@ -398,6 +398,11 @@ objectType sct_destr (listType arguments)
         if (old_struct->usage_count != 0) {
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
+            logMessage(printf("sct_destr: Free struct data "
+                              FMT_U_MEM " ",
+                              (memSizeType) arg_1(arguments));
+                       trace1(arg_1(arguments));
+                       printf("\n"););
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
             arg_1(arguments)->value.structValue = NULL;

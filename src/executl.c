@@ -1235,8 +1235,15 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
       if (IS_UNUSED(local->object->value.objValue)) {
         FREE_OBJECT(local->object->value.objValue);
       } else if (okay) {
-        if (CATEGORY_OF_OBJ(local->object->value.objValue) == STRUCTOBJECT) {
-          FREE_OBJECT(local->object->value.objValue);
+        if (CATEGORY_OF_OBJ(local->object->value.objValue) == STRUCTOBJECT &&
+            local->object->value.objValue->value.structValue != NULL) {
+          if (!HAS_PROPERTY(local->object->value.objValue)) {
+            logMessage(printf("destroy_local_object: " FMT_U_MEM " ",
+                              (memSizeType) local->object->value.objValue);
+                       trace1(local->object->value.objValue);
+                       printf("\n"););
+            FREE_OBJECT(local->object->value.objValue);
+          } /* if */
         } else {
           printf("loc not dumped: ");
           trace1(local->object);
@@ -1415,6 +1422,13 @@ void destr_interface (objectType old_value)
         if (old_struct->usage_count != 0) {
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
+            logMessage(printf("destr_interface: "
+                              "Free struct object %s property "
+                              FMT_U_MEM " ",
+                              HAS_PROPERTY(old_value) ? "with" : "without",
+                              (memSizeType) old_value);
+                       trace1(old_value);
+                       printf("\n"););
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
             /* This function just removes objects without property. */
@@ -1426,10 +1440,6 @@ void destr_interface (objectType old_value)
             /* be freed together with the object.                   */
             if (HAS_PROPERTY(old_value)) {
               old_value->value.structValue = NULL;
-              logMessage(printf("destr_interface: Struct object with property "
-                                FMT_U_MEM " ", (memSizeType) old_value);
-                         trace1(old_value);
-                         printf("\n"););
             } else {
               FREE_OBJECT(old_value);
             } /* if */
