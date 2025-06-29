@@ -289,6 +289,9 @@ static void free_form_param_list (listType name_list)
     if (name_list != NULL) {
       name_elem = name_list;
       do {
+        logMessage(printf("free_form_param_list: ");
+                   trace1(name_elem->obj);
+                   printf("\n"););
         if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
           FREE_OBJECT(name_elem->obj);
         } /* if */
@@ -860,10 +863,6 @@ static listType eval_name_list (listType matched_name_list,
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-    if (*err_info != OKAY_NO_ERROR) {
-      free_form_param_list(name_list);
-      name_list = NULL;
-    } /* if */
     logFunction(printf("eval_name_list(" FMT_U_MEM ", %u, %u, %d) --> "
                        FMT_U_MEM "\n",
                        (memSizeType) matched_name_list,
@@ -892,11 +891,13 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
       push_stack();
       name_list = eval_name_list(matched_name_list,
           GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-      down_stack();
       if (*err_info == OKAY_NO_ERROR) {
+        down_stack();
         defined_object = push_name(prog, declaration_base, name_list,
             GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       } else {
+        pop_stack();
+        free_name_list(name_list);
         defined_object = NULL;
       } /* if */
       free_matched_list(matched_name_list);
@@ -956,8 +957,8 @@ static objectType inst_object_expr (const_nodeType declaration_base,
       push_stack();
       name_list = eval_name_list(matched_name_list,
           GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-      down_stack();
       if (*err_info == OKAY_NO_ERROR) {
+        down_stack();
         /* printf("name_list ");
         prot_list(name_list);
         printf("\n");
@@ -989,6 +990,9 @@ static objectType inst_object_expr (const_nodeType declaration_base,
           err_object(IDENT_EXPECTED, object_name);
         } /* if */
         free_form_param_list(name_list);
+      } else {
+        pop_stack();
+        free_name_list(name_list);
       } /* if */
       free_matched_list(matched_name_list);
     } /* if */

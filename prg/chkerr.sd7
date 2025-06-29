@@ -2283,11 +2283,6 @@ const func boolean: checkIdentExpected is func
                     IDENT_EXPECTED, 2, 27,
                     "Identifier expected found \"asdf\"",
                     "const integer: \"asdf\" is 1;") and
-(*        checkError1("$ include \"seed7_05.s7i\";\n\
-                    \const integer: 1234(in integer: a) is 1;",
-                    IDENT_EXPECTED, 2, 27,
-                    "Identifier expected found \"asdf\"",
-                    "const integer: 1234(in integer: a) is 1;") and *)
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \$ syntax expr: 123 is -> 5;",
                     IDENT_EXPECTED, 2, 27,
@@ -2633,7 +2628,12 @@ const func boolean: checkParamDeclOrSymbolExpected is func
                     \  end func;",
                     PARAM_DECL_OR_SYMBOL_EXPECTED, 2, 0,
                     "Parameter declaration or symbol expected found constant integer: 1",
-                    "const proc: test (1) is func") then
+                    "const proc: test (1) is func") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const integer: 1234 (in integer: a) is 1;",
+                    PARAM_DECL_OR_SYMBOL_EXPECTED, 2, 41,
+                    "Parameter declaration or symbol expected found constant integer: 1234",
+                    "const integer: 1234 (in integer: a) is 1;") then
       okay := TRUE;
     else
       writeln(" *** PARAM_DECL_OR_SYMBOL_EXPECTED not reported correctly.");
