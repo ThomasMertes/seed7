@@ -573,15 +573,15 @@ static void close_current_stack (progType currentProg)
         if (HAS_PROPERTY(list_element->obj) &&
             list_element->obj->descriptor.property !=
             currentProg->property.literal) {
-          /* In itf_destr() the STRUCTOBJECT value of an        */
+          /* In destr_interface() the STRUCTOBJECT value of an  */
           /* interface is freed when usage_count reaches zero.  */
           /* STRUCTOBJECT values with properties are treated    */
-          /* special by itf_destr(). In this case the struct    */
-          /* value of the STRUCTOBJECT is freed and set to NULL */
-          /* but the STRUCTOBJECT and its properties are left   */
-          /* intact. In this case sct_destr() just sets the     */
-          /* UNUSED flag of the STRUCTOBJECT. The object and    */
-          /* the descriptor.property are freed here.            */
+          /* special by destr_interface(). In this case the     */
+          /* struct value of the STRUCTOBJECT is freed and set  */
+          /* to NULL but the STRUCTOBJECT and its properties    */
+          /* are left intact. In this case sct_destr() just     */
+          /* sets the UNUSED flag of the STRUCTOBJECT. The      */
+          /* object and the descriptor.property are freed here. */
           free_params(currentProg,
                       list_element->obj->descriptor.property->params);
           FREE_PROPERTY(list_element->obj->descriptor.property);

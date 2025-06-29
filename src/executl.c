@@ -1421,9 +1421,9 @@ void destr_interface (objectType old_value)
             /* Objects with property just lose their struct value.  */
             /* For these objects the HAS_PROPERTY flag and the      */
             /* descriptor.property stay unchanged. Objects with     */
-            /* property will be removed later by close_stack(). The */
-            /* descriptor.property will be freed together with the  */
-            /* object.                                              */
+            /* property will be removed later by close_stack() or   */
+            /* by free_local_consts(). The descriptor.property will */
+            /* be freed together with the object.                   */
             if (HAS_PROPERTY(old_value)) {
               old_value->value.structValue = NULL;
               logMessage(printf("destr_interface: Struct object with property "
@@ -1438,7 +1438,7 @@ void destr_interface (objectType old_value)
       } /* if */
     } /* if */
     logFunction(printf("destr_interface -->\n"););
-  } /* destr_struct */
+  } /* destr_interface */
 
 
 
