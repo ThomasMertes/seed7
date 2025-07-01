@@ -201,6 +201,60 @@ objectType refAllocVar (typeType aType, const intType aCategory)
 
 
 /**
+ *  Append 'params' to the formal parameters of 'funcRef'.
+ *  @exception RANGE_ERROR If 'funcRef' is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+void refAppendParams (objectType funcRef, const_listType params)
+
+  {
+    listType list_end;
+    locListType loclist_end;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* refAppendParams */
+    logFunction(printf("refAppendParams(");
+                trace1(funcRef);
+                printf(", ");
+                prot_list(params);
+                printf(")\n"););
+    if (unlikely(funcRef == NULL)) {
+      logError(printf("refAppendParams(NULL, " FMT_U_MEM "): Object is NULL.\n",
+                      (memSizeType) params););
+      raise_error(RANGE_ERROR);
+    } else {
+      if (HAS_PROPERTY(funcRef)) {
+        if (funcRef->descriptor.property->params == NULL) {
+          funcRef->descriptor.property->params = copy_list(params, &err_info);
+        } else {
+          list_end = funcRef->descriptor.property->params;
+          while (list_end->next != NULL) {
+            list_end = list_end->next;
+          } /* while */
+          list_end->next = copy_list(params, &err_info);
+        } /* if */
+      } /* if */
+      if (CATEGORY_OF_OBJ(funcRef) == BLOCKOBJECT) {
+        if (funcRef->value.blockValue->params == NULL) {
+          funcRef->value.blockValue->params =
+              get_param_list(params, &err_info);
+        } else {
+          loclist_end = funcRef->value.blockValue->params;
+          while (loclist_end->next != NULL) {
+            loclist_end = loclist_end->next;
+          } /* while */
+          loclist_end->next = get_param_list(params, &err_info);
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
+    } /* if */
+  } /* refAppendParams */
+
+
+
+/**
  *  Obtain the maximum index of the array referenced by 'arrayRef'.
  *  @param arrayRef Reference to an array object.
  *  @return the maximum index of the array.

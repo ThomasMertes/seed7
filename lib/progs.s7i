@@ -607,6 +607,15 @@ const proc: setFormalParams (in reference: funcRef, in ref_list: params) is acti
 
 
 (**
+ *  Append ''params'' to the formal parameters of ''funcRef''.
+ *  Set the formal parameters of ''funcRef'' to ''params''.
+ *  @exception RANGE_ERROR If ''funcRef'' is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const proc: appendFormalParams (in reference: funcRef, in ref_list: params) is action "REF_APPEND_PARAMS";
+
+
+(**
  *  Gets the result variable of ''funcRef''.
  *  @return a [[reference]] to the result variable.
  *  @exception RANGE_ERROR If ''funcRef'' is NIL or

@@ -29,6 +29,7 @@ const ACTION: REF_ALLOC          is action "REF_ALLOC";
 const ACTION: REF_ALLOC_INT      is action "REF_ALLOC_INT";
 const ACTION: REF_ALLOC_STRI     is action "REF_ALLOC_STRI";
 const ACTION: REF_ALLOC_VAR      is action "REF_ALLOC_VAR";
+const ACTION: REF_APPEND_PARAMS  is action "REF_APPEND_PARAMS";
 const ACTION: REF_ARRMAXIDX      is action "REF_ARRMAXIDX";
 const ACTION: REF_ARRMINIDX      is action "REF_ARRMINIDX";
 const ACTION: REF_ARRTOLIST      is action "REF_ARRTOLIST";
@@ -77,6 +78,7 @@ const proc: ref_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "objRefType  refAllocInt (boolType, typeType, intType);");
     declareExtern(c_prog, "objRefType  refAllocStri (boolType, typeType, const const_striType);");
     declareExtern(c_prog, "objRefType  refAllocVar (typeType, const intType);");
+    declareExtern(c_prog, "void        refAppendParams (objRefType, const_listType);");
     declareExtern(c_prog, "intType     refArrMaxIdx (const const_objRefType);");
     declareExtern(c_prog, "intType     refArrMinIdx (const const_objRefType);");
     declareExtern(c_prog, "listType    refArrToList (const const_objRefType);");
@@ -178,6 +180,20 @@ const proc: process (REF_ALLOC_VAR, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_APPEND_PARAMS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "refAppendParams(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 

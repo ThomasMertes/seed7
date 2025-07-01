@@ -31,6 +31,7 @@ objectType refAllocInt (boolType isVar, typeType aType,
 objectType refAllocStri (boolType isVar, typeType aType,
                          const const_striType stri);
 objectType refAllocVar (typeType aType, const intType aCategory);
+void refAppendParams (objectType funcRef, const_listType params);
 intType refArrMaxIdx (const const_objectType arrayRef);
 intType refArrMinIdx (const const_objectType arrayRef);
 listType refArrToList (const const_objectType arrayRef);

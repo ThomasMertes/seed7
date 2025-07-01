@@ -796,6 +796,7 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_ALLOC_INT",                ref_alloc_int,                },
     { "REF_ALLOC_STRI",               ref_alloc_stri,               },
     { "REF_ALLOC_VAR",                ref_alloc_var,                },
+    { "REF_APPEND_PARAMS",            ref_append_params,            },
     { "REF_ARRMAXIDX",                ref_arrmaxidx,                },
     { "REF_ARRMINIDX",                ref_arrminidx,                },
     { "REF_ARRTOLIST",                ref_arrtolist,                },

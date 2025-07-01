@@ -5459,7 +5459,7 @@ const func boolean: fixLocalFunction (in reference: parent_function,
           additional_act_params, additional_form_params);
       adjustParamsToAdd(local_function, additional_act_params, additional_form_params);
       if length(additional_act_params) <> 0 then
-        setFormalParams(local_function, formalParams(local_function) & additional_form_params);
+        appendFormalParams(local_function, additional_form_params);
         changeCallsOfLocalFunction(body_expression, local_function, additional_form_params);
         changeCallsFromSubFunctions(parent_function, local_function, additional_act_params);
         fix_done := TRUE;

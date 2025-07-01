@@ -149,6 +149,22 @@ objectType ref_alloc_var (listType arguments)
 
 
 /**
+ *  Append params/arg_2 to the formal parameters of funcRef/arg_1.
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
+objectType ref_append_params (listType arguments)
+
+  { /* ref_append_params */
+    isit_reference(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    refAppendParams(take_reference(arg_1(arguments)), take_reflist(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* ref_append_params */
+
+
+
+/**
  *  Obtain the maximum index of the array referenced by arrayRef/arg_1.
  *  @param arrayRef Reference to an array object.
  *  @return the maximum index of the array.
