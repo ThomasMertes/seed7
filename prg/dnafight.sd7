@@ -225,18 +225,18 @@ var colorSet: playerSet is colorSet.EMPTY_SET;
 
 const proc: resetStat (in bactColor: species) is func
 
-  begin (* resetStat *)
+  begin
 (*! statValues[species][FALSE].accno:= 0;
     statValues[species][FALSE].accmass:= 0; *)
     noop;
-  end func; (* resetStat *)
+  end func; # resetStat
 
 
 const proc: incrKillStat (in bactColor: content, in killReason: Killer) is func
 
-  begin (* incrKillStat *)
+  begin
     incr(killarray[content][Killer]);
-  end func; (* incrKillStat *)
+  end func; # incrKillStat
 
 
 const func boolean: continue (GAME) is func
@@ -246,7 +246,7 @@ const func boolean: continue (GAME) is func
   local
     var char: c is ' ';
 
-  begin (* continue (GAME) *)
+  begin
     setPos(stat, 34, 1);
     color(stat, statCol);
     write(stat, " Once more (y/n) ?                 ");
@@ -256,13 +256,13 @@ const func boolean: continue (GAME) is func
     until c = 'Y' or c = 'N';
     setPos(stat, 34, 1);
     doContinue := c = 'Y';
-  end func; (* continue (GAME) *)
+  end func; # continue (GAME)
 
 
 const proc: setclass (in xcoordinate: x, in ycoordinate: y,
     in bactColor: sclass, in boolean: small) is func
 
-  begin (* setclass *)
+  begin
     if sclass = CLEAR then
       rect(X_SHIFT + STRETCH_FACTOR * x, Y_SHIFT + STRETCH_FACTOR * y,
           STRETCH_FACTOR, STRETCH_FACTOR, plateBackground);
@@ -282,18 +282,18 @@ const proc: setclass (in xcoordinate: x, in ycoordinate: y,
             NORMAL_RADIUS, display_color(sclass));
       end if;
     end if;
-  end func; (* setclass *)
+  end func; # setclass
 
 
 const proc: writeParameters (in integer: initSize,
     in integer: foodReserve, in integer: shrinkage) is func
 
-  begin (* writeParameters *)
+  begin
     setPos(info, 1, 1);
     writeln(info, "Isize "     <& initSize    lpad 5);
     writeln(info, "Foodr "     <& foodReserve lpad 5);
     writeln(info, "Shrinkage " <& shrinkage   lpad 3 <& "%");
-  end func; (* writeParameters *)
+  end func; # writeParameters
 
 
 const proc: initScreen is func
@@ -302,7 +302,7 @@ const proc: initScreen is func
     var integer: x is 0;
     var integer: y is 0;
 
-  begin (* initScreen *)
+  begin
     info := openWindow(scr, 2, 48, 34, 58);
     stat := info;
     fstat := info;
@@ -365,7 +365,7 @@ const proc: initScreen is func
 
     setPos(scr, 1, 1);
     color(scr, textColor, textBackground)
-  end func; (* initScreen *)
+  end func; # initScreen
 
 
 const proc: readLimits is func
@@ -375,7 +375,7 @@ const proc: readLimits is func
     var array integer: intValue is 3 times 10;
     var boolean: leave is FALSE;
 
-  begin (* readLimits *)
+  begin
     intValue[1] := initSize;
     intValue[2] := foodReserve;
     intValue[3] := shrinkage;
@@ -409,14 +409,14 @@ const proc: readLimits is func
       write(initSize); write(" "); write(foodReserve); write(" "); writeln(shrinkage);
 *)
     until leave;
-  end func; (* readLimits *)
+  end func; # readLimits
 
 
 const func bactColor: charCol (in char: ch) is func
   result
     var bactColor: col is CLEAR;
 
-  begin (* charCol *)
+  begin
     case upper(ch) of
       when {' '}: col:= CLEAR;
       when {'.'}: col:= CLEAR;
@@ -436,12 +436,12 @@ const func bactColor: charCol (in char: ch) is func
       when {'P'}: col:= PINK
       otherwise: col := EDGE;
     end case;
-  end func; (* charCol *)
+  end func; # charCol
 
 
 const proc: initDisplay is func
 
-  begin (* initDisplay *)
+  begin
     fieldWin[1] := openField(KEYBOARD, info, 1,  7, 5, "   10");
     fieldWin[2] := openField(KEYBOARD, info, 2,  7, 5, "   10");
     fieldWin[3] := openField(KEYBOARD, info, 3, 11, 3, " 10");
@@ -449,29 +449,29 @@ const proc: initDisplay is func
     color(scr, textColor, textBackground);
     clear(scr);
 *)
-  end func; (* initDisplay *)
+  end func; # initDisplay
 
 
 const func direction: ranDir (in directSet: dirset) is func
   result
     var direction: dir is HERE;
 
-  begin (* ranDir *)
+  begin
     if dirset <> directSet.EMPTY_SET then
       dir := rand(dirset);
     end if;
-  end func; (* ranDir *)
+  end func; # ranDir
 
 
 const func power: shrinkSize (in power: size) is func
   result
     var power: shrinkSize is 0;
 
-  begin (* shrinkSize *)
+  begin
     if size <> 0 then
       shrinkSize := succ((pred(size) * shrinkage) div 100);
     end if;
-  end func; (* shrinkSize *)
+  end func; # shrinkSize
 
 
 const func power: nextSize (in power: ownSize, in power: foodMass,
@@ -482,12 +482,12 @@ const func power: nextSize (in power: ownSize, in power: foodMass,
   local
     var power: shrinkext is 0;
 
-  begin (* nextSize *)
+  begin
     shrinkext := shrinkSize(ownSize);
     if foodMass >= shrinkext or ownHunger <> 0 then
       size := ownSize - shrinkext + foodMass;
     end if;
-  end func; (* nextSize *)
+  end func; # nextSize
 
 
 const func microbe: newBacterium (in xcoordinate: cx,
@@ -504,32 +504,32 @@ const func microbe: newBacterium (in xcoordinate: cx,
     newBacterium.hungry := ownHunger;
     newBacterium.mass := strength;
     newMicrobe := toInterface(newBacterium);
-  end func;
+  end func; # newBacterium
 
 
 const proc: create (in xcoordinate: cx, in ycoordinate: cy,
     inout array microbe: animates, in bactColor: species,
     in lifeSpan: ownHunger, in power: strength) is func
 
-  begin (* create *)
+  begin
     area[cx][cy].content := species;
     area[cx][cy].possessor := newBacterium(cx, cy, ownHunger, strength);
     children &:= [] (area[cx][cy].possessor);
-  end func; (* create *)
+  end func; # create
 
 
 const proc: setBact (in xcoordinate: x, in ycoordinate: y, in bactColor: species) is func
 
-  begin (* setBact *)
+  begin
     create(x, y, animates, species, MAXLIFESPAN, initSize);
     incl(playerSet, species);
     resetStat(species);
-  end func; (* setBact *)
+  end func; # setBact
 
 
 const proc: die (in xcoordinate: x, in ycoordinate: y, in killReason: killer) is func
 
-  begin (* die *)
+  begin
     if area[x][y].content <> CLEAR then
       area[x][y].meal +:= area[x][y].possessor.mass;
       area[x][y].possessor.mass := 0;
@@ -538,7 +538,7 @@ const proc: die (in xcoordinate: x, in ycoordinate: y, in killReason: killer) is
       area[x][y].content := CLEAR;
       setclass(x, y, CLEAR, FALSE);
     end if;
-  end func; (* die *)
+  end func; # die
 
 
 const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
@@ -548,7 +548,7 @@ const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
     var xcoordinate: new_x_pos is 0;
     var ycoordinate: new_y_pos is 0;
 
-  begin (* move *)
+  begin
     new_x_pos := old_x_pos + diffx[direct];
     new_y_pos := old_y_pos + diffy[direct];
     if area[new_x_pos][new_y_pos].content = CLEAR then
@@ -566,7 +566,7 @@ const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
       old_x_pos := new_x_pos;
       old_y_pos := new_y_pos;
     end if;
-  end func; (* move *)
+  end func; # move
 
 
 const proc: digest (in xcoordinate: x, in ycoordinate: y, in power: quantity) is func
@@ -575,7 +575,7 @@ const proc: digest (in xcoordinate: x, in ycoordinate: y, in power: quantity) is
     var microbe: bact_1 is microbe.value;
     var power: shrinkext is 0;
 
-  begin (* digest *)
+  begin
     bact_1 := area[x][y].possessor;
     shrinkext := shrinkSize(bact_1.mass);
     if quantity < shrinkext then
@@ -592,19 +592,19 @@ const proc: digest (in xcoordinate: x, in ycoordinate: y, in power: quantity) is
       area[x][y].meal -:= quantity;
       bact_1.hungry := min(MAXLIFESPAN, pred(bact_1.mass));
     end if;
-  end func; (* digest *)
+  end func; # digest
 
 
 const proc: eatat (in xcoordinate: x, in ycoordinate: y, in var power: quantity) is func
 
-  begin (* eatat *)
+  begin
     quantity := min(quantity, area[x][y].meal);
     if area[x][y].possessor.mass < quantity then
       die(x, y, KBigMouth)
     else
       digest(x, y, quantity)
     end if;
-  end func; (* eatat *)
+  end func; # eatat
 
 
 const func power: strength (in direction: direct) is func
@@ -613,41 +613,41 @@ const func power: strength (in direction: direct) is func
   local
     var microbe: possessor is microbe.value;
 
-  begin (* strength *)
+  begin
     possessor := area[x + diffx[direct]][y + diffy[direct]].possessor;
     if possessor <> microbe.value then
       strength := possessor.mass;
     else
       strength := 0;
     end if;
-  end func; (* strength *)
+  end func; # strength
 
 
 const func bactColor: view (in direction: direct) is func
   result
     var bactColor: content is CLEAR;
 
-  begin (* view *)
+  begin
     content := area[x + diffx[direct]][y + diffy[direct]].content;
-  end func; (* view *)
+  end func; # view
 
 
 const func power: food (in direction: direct) is func
   result
     var power: meal is 0;
 
-  begin (* food *)
+  begin
     meal := area[x + diffx[direct]][y + diffy[direct]].meal;
-  end func; (* food *)
+  end func; # food
 
 
 const func lifeSpan: hunger is func
   result
     var lifeSpan: hungry is 0;
 
-  begin (* hunger *)
+  begin
     hungry := area[x][y].possessor.hungry;
-  end func; (* hunger *)
+  end func; # hunger
 
 
 const proc: doWait is func
@@ -655,17 +655,17 @@ const proc: doWait is func
   local
     var power: quantity is 0;
 
-  begin (* doWait *)
+  begin
     if not done then
       digest(x, y, quantity);
       done := TRUE;
     end if;
-  end func; (* doWait *)
+  end func; # doWait
 
 
 const proc: eat (in direction: direct, in power: quantity) is func
 
-  begin (* eat *)
+  begin
     if not done then
 (*    write("eat("); write(direct); write(", "); write(quantity); writeln(");"); *)
       if area[x + diffx[direct]][y + diffy[direct]].content <> CLEAR and
@@ -683,7 +683,7 @@ const proc: eat (in direction: direct, in power: quantity) is func
       end if;
       done := TRUE;
     end if;
-  end func; (* eat *)
+  end func; # eat
 
 
 const proc: kill (in direction: direct) is func
@@ -693,7 +693,7 @@ const proc: kill (in direction: direct) is func
     var ycoordinate: new_y is 0;
     var power: quantity is 0;
 
-  begin (* kill *)
+  begin
     if not done then
 (*    write("kill("); write(direct); write(", "); write(quantity); writeln(");"); *)
       if direct = HERE then
@@ -719,7 +719,7 @@ const proc: kill (in direction: direct) is func
       end if;
       done := TRUE;
     end if;
-  end func; (* kill *)
+  end func; # kill
 
 
 const proc: split (in direction: direct, in power: quantity1, in power: quantity2) is func
@@ -732,7 +732,7 @@ const proc: split (in direction: direct, in power: quantity1, in power: quantity
     var lifeSpan: hungry is 0;
     var power: strength is 0;
 
-  begin (* split *)
+  begin
     if not done then
 (*    write("split("); write(direct); write(", "); write(quantity1); write(", "); write(quantity2); writeln(");"); *)
       bact_1 := area[x][y].possessor;
@@ -760,7 +760,7 @@ const proc: split (in direction: direct, in power: quantity1, in power: quantity
       end if;
       done := TRUE
     end if;
-  end func; (* split *)
+  end func; # split
 
 
 const proc: setAllBacterials is func
@@ -769,7 +769,7 @@ const proc: setAllBacterials is func
     var xcoordinate: x is 0;
     var ycoordinate: y is 0;
 
-  begin (* setAllBacterials *)
+  begin
     children := 0 times microbe.value;
     for x range 2 to pred(XMAX) do
       for y range 2 to pred(YMAX) do
@@ -784,7 +784,7 @@ const proc: setAllBacterials is func
       end for;
     end for;
     animates := children;
-  end func; (* setAllBacterials *)
+  end func; # setAllBacterials
 
 
 const proc: writeInfo (in integer: line, in integer: column) is func
@@ -792,7 +792,7 @@ const proc: writeInfo (in integer: line, in integer: column) is func
   local
     var bactColor: species is CLEAR;
 
-  begin (* writeInfo *)
+  begin
     color(info, white, dark_blue);
     clear(info);
     writeParameters(initSize, foodReserve, shrinkage);
@@ -810,7 +810,7 @@ const proc: writeInfo (in integer: line, in integer: column) is func
     writeln(info);
     write(info, "Meal ");
     write(info, area[succ(column)][succ(line)].meal);
-  end func; (* writeInfo *)
+  end func; # writeInfo
 
 
 const func char: readCommand (in integer: line, in integer: column) is func
@@ -819,7 +819,7 @@ const func char: readCommand (in integer: line, in integer: column) is func
   local
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
 
-  begin (* readCommand *)
+  begin
     writeInfo(line, column);
     pixmap := getPixmap(pred(X_SHIFT + STRETCH_FACTOR * succ(column)),
                         pred(Y_SHIFT + STRETCH_FACTOR * succ(line)),
@@ -829,7 +829,7 @@ const func char: readCommand (in integer: line, in integer: column) is func
     command := getc(KEYBOARD);
     put(pred(X_SHIFT + STRETCH_FACTOR * succ(column)),
         pred(Y_SHIFT + STRETCH_FACTOR * succ(line)), pixmap);
-  end func; (* readCommand *)
+  end func; # readCommand
 
 
 const proc: InitAnimates is func
@@ -844,7 +844,7 @@ const proc: InitAnimates is func
     var integer: index is 0;
     var bactColor: species is CLEAR;
 
-  begin (* InitAnimates *)
+  begin
     playerSet:= colorSet.EMPTY_SET;
     animates:= 0 times microbe.value;
     command := readCommand(line, column);
@@ -961,7 +961,7 @@ const proc: InitAnimates is func
     if command = KEY_F1 then
       setAllBacterials;
     end if;
-  end func; (* InitAnimates *)
+  end func; # InitAnimates
 
 
 const proc: initArea is func
@@ -971,7 +971,7 @@ const proc: initArea is func
     var ycoordinate: y is 0;
     var position: edgePosition is position.value;
 
-  begin (* initArea *)
+  begin
     edgePosition.content := EDGE;
     edgePosition.meal := 0;
     edgePosition.possessor := microbe.value;
@@ -991,7 +991,7 @@ const proc: initArea is func
       end for;
     end for;
     InitAnimates;
-  end func; (* initArea *)
+  end func; # initArea
 
 
 const proc: statistics (in integer: genNr) is func
@@ -1008,7 +1008,7 @@ const proc: statistics (in integer: genNr) is func
     var boolean: anychange is FALSE;
     var microbe: p is microbe.value;
 
-  begin (* statistics *)
+  begin
     sumAccno := 0;
     sumAccmass := 0;
     anychange := FALSE;
@@ -1105,7 +1105,7 @@ const proc: statistics (in integer: genNr) is func
     else
       writeln(stat, " " lpad 8);
     end if;
-  end func; (* statistics *)
+  end func; # statistics
 
 
 const proc: finalStatistics is func
@@ -1120,7 +1120,7 @@ const proc: finalStatistics is func
     var array [hue] hue: colField is hue times hue.value;
     var array [hue] bigInteger: valueField is hue times 0_;
 
-  begin (* finalStatistics *)
+  begin
     cardPlayerSet:= 0;
     color(stat, statCol);
     for col1 range FIRSTCOL to LASTCOL do
@@ -1178,7 +1178,7 @@ const proc: finalStatistics is func
         end if;
       end for;
     end if;
-  end func; (* finalStatistics *)
+  end func; # finalStatistics
 
 
 const proc: initStatistics is func
@@ -1188,7 +1188,7 @@ const proc: initStatistics is func
     var killReason: reason is KHunger;
     var integer: playanz is 0;
 
-  begin (* initStatistics *)
+  begin
     playanz:= 0;
     clear(stat);
     color(stat, statCol);
@@ -1215,7 +1215,7 @@ const proc: initStatistics is func
     writeln(stat, "Food");
     setPos(stat, 9 + playanz, 1);
     writeln(stat, "Total");
-  end func; (* initStatistics *)
+  end func; # initStatistics
 
 
 const proc: execute (ref microbe: individuum) is func
@@ -1249,7 +1249,7 @@ const proc: execute (ref microbe: individuum) is func
     if not done then
       doWait;
     end if;
-  end func; (* execute *)
+  end func; # execute
 
 
 const proc: generation is func
@@ -1258,7 +1258,7 @@ const proc: generation is func
     var microbe: individuum is microbe.value;
     var integer: index is 1;
 
-  begin (* generation *)
+  begin
     children := 0 times microbe.value;
     index := 1;
     while index <= length(animates) do
@@ -1270,7 +1270,7 @@ const proc: generation is func
       end if;
     end while;
     animates := children & animates;
-  end func; (* generation *)
+  end func; # generation
 
 
 const proc: main is func
@@ -1279,7 +1279,7 @@ const proc: main is func
     var char: command is ' ';
     var time: turnTime is time.value;
 
-  begin (* main *)
+  begin
     screen(640, 480);
     clear(curr_win, white);
     color(black, white);
@@ -1361,4 +1361,4 @@ const proc: main is func
         finalStatistics;
       until not continue(GAME);
     end if;
-  end func; (* main *)
+  end func; # main
