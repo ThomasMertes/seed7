@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  dnafight.sd7  Bacterial dna fight programming game              *)
-(*  Copyright (C) 1985, 1986, 2005  Thomas Mertes                   *)
+(*  Copyright (C) 1985, 1986, 2005, 2025  Thomas Mertes             *)
 (*  Copyright (C) 1985, 1986,       Markus Stumptner                *)
 (*  Copyright (C) 1985, 1986, 1991  Johannes Gritsch                *)
 (*                                                                  *)
@@ -76,24 +76,42 @@ const type: ycoordinate is subtype integer; (* 1 .. YMAX *)
 
 const type: hue is subrange FIRSTCOL .. LASTCOL;
 
-const type: bacterium is new struct
+const type: microbe is sub object interface;
+
+const type: lifeForm is new struct
+  end struct;
+
+type_implements_interface(lifeForm, microbe);
+
+const microbe: (attr microbe) . value is lifeForm.value;
+
+const type: bacterium is sub lifeForm struct
     var xcoordinate: xpos is 0;
     var ycoordinate: ypos is 0;
     var lifeSpan:    hungry is 0;
     var power:       mass is 0;
   end struct;
 
-const type: microbe is varptr bacterium;
+type_implements_interface(bacterium, microbe);
+
+const func xcoordinate: (in microbe: aMicrobe).xpos       is DYNAMIC;
+const varfunc xcoordinate: (inout microbe: aMicrobe).xpos is DYNAMIC;
+const func ycoordinate: (in microbe: aMicrobe).ypos       is DYNAMIC;
+const varfunc ycoordinate: (inout microbe: aMicrobe).ypos is DYNAMIC;
+const func lifeSpan: (in microbe: aMicrobe).hungry        is DYNAMIC;
+const varfunc lifeSpan: (inout microbe: aMicrobe).hungry  is DYNAMIC;
+const func power: (in microbe: aMicrobe).mass             is DYNAMIC;
+const varfunc power: (inout microbe: aMicrobe).mass       is DYNAMIC;
 
 const type: position is new struct
     var bactColor: content is CLEAR;
     var power:     meal is 0;
-    var microbe:   possessor is microbe.NIL;
+    var microbe:   possessor is microbe.value;
   end struct;
 
 var array array position: area is XMAX times YMAX times position.value;
-var array microbe: animates is 0 times microbe.NIL;
-var array microbe: children is 0 times microbe.NIL;
+var array microbe: animates is 0 times microbe.value;
+var array microbe: children is 0 times microbe.value;
 var xcoordinate: x is 0;
 var ycoordinate: y is 0;
 var boolean: done is FALSE;
@@ -472,29 +490,30 @@ const func power: nextSize (in power: ownSize, in power: foodMass,
   end func; (* nextSize *)
 
 
-const proc: initBacterium (inout bacterium: bact,
-    in xcoordinate: cx, in ycoordinate: cy,
-    in lifeSpan: ownHunger, in power: strength) is func
+const func microbe: newBacterium (in xcoordinate: cx,
+    in ycoordinate: cy, in lifeSpan: ownHunger,
+    in power: strength) is func
+  result
+    var microbe: newMicrobe is microbe.value;
+  local
+    var bacterium: newBacterium is bacterium.value;
 
-  begin (* initBacterium *)
-    bact.xpos := cx;
-    bact.ypos := cy;
-    bact.hungry := ownHunger;
-    bact.mass := strength;
-  end func; (* initBacterium *)
+  begin
+    newBacterium.xpos := cx;
+    newBacterium.ypos := cy;
+    newBacterium.hungry := ownHunger;
+    newBacterium.mass := strength;
+    newMicrobe := toInterface(newBacterium);
+  end func;
 
 
 const proc: create (in xcoordinate: cx, in ycoordinate: cy,
     inout array microbe: animates, in bactColor: species,
     in lifeSpan: ownHunger, in power: strength) is func
 
-  local
-    var bacterium: bact is bacterium.value;
-
   begin (* create *)
     area[cx][cy].content := species;
-    initBacterium(bact, cx, cy, ownHunger, strength);
-    area[cx][cy].possessor := varalloc(bact);
+    area[cx][cy].possessor := newBacterium(cx, cy, ownHunger, strength);
     children &:= [] (area[cx][cy].possessor);
   end func; (* create *)
 
@@ -512,14 +531,27 @@ const proc: die (in xcoordinate: x, in ycoordinate: y, in killReason: killer) is
 
   begin (* die *)
     if area[x][y].content <> CLEAR then
-      area[x][y].meal +:= area[x][y].possessor->mass;
-      area[x][y].possessor->mass := 0;
-      area[x][y].possessor := microbe.NIL;
+      area[x][y].meal +:= area[x][y].possessor.mass;
+      area[x][y].possessor.mass := 0;
+      area[x][y].possessor := microbe.value;
       incrKillStat(area[x][y].content, killer);
       area[x][y].content := CLEAR;
       setclass(x, y, CLEAR, FALSE);
     end if;
   end func; (* die *)
+
+
+const proc: setXY (inout microbe: aMicrobe, in xcoordinate: xPos,
+		   in ycoordinate: yPos) is DYNAMIC;
+
+
+const proc: setXY (inout bacterium: bact, in xcoordinate: xPos,
+    in ycoordinate: yPos) is func
+
+  begin
+    bact.xpos := xPos;
+    bact.ypos := yPos;
+  end func;
 
 
 const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
@@ -537,10 +569,9 @@ const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
           area[old_x_pos][old_y_pos].content;
       area[new_x_pos][new_y_pos].possessor :=
           area[old_x_pos][old_y_pos].possessor;
-      area[new_x_pos][new_y_pos].possessor->xpos := new_x_pos;
-      area[new_x_pos][new_y_pos].possessor->ypos := new_y_pos;
+      setXY(area[new_x_pos][new_y_pos].possessor, new_x_pos, new_y_pos);
       area[old_x_pos][old_y_pos].content := CLEAR;
-      area[old_x_pos][old_y_pos].possessor := microbe.NIL;
+      area[old_x_pos][old_y_pos].possessor := microbe.value;
       setclass(old_x_pos, old_y_pos, CLEAR, FALSE);
       setclass(new_x_pos, new_y_pos,
           area[new_x_pos][new_y_pos].content, FALSE);
@@ -553,25 +584,25 @@ const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
 const proc: digest (in xcoordinate: x, in ycoordinate: y, in power: quantity) is func
 
   local
-    var microbe: bact_1 is microbe.NIL;
+    var microbe: bact_1 is microbe.value;
     var power: shrinkext is 0;
 
   begin (* digest *)
     bact_1 := area[x][y].possessor;
-    shrinkext := shrinkSize(bact_1->mass);
+    shrinkext := shrinkSize(bact_1.mass);
     if quantity < shrinkext then
-      if bact_1->hungry = 0 or
-          bact_1->mass - shrinkext + quantity <= 0 then
+      if bact_1.hungry = 0 or
+          bact_1.mass - shrinkext + quantity <= 0 then
         die(x, y, KHunger);
       else
-        bact_1->mass +:= quantity - shrinkext;
+        bact_1.mass +:= quantity - shrinkext;
         area[x][y].meal -:= quantity;
-        bact_1->hungry := min(pred(bact_1->mass), pred(bact_1->hungry));
+        bact_1.hungry := min(pred(bact_1.mass), pred(bact_1.hungry));
       end if;
     else
-      bact_1->mass +:= quantity - shrinkext;
+      bact_1.mass +:= quantity - shrinkext;
       area[x][y].meal -:= quantity;
-      bact_1->hungry := min(MAXLIFESPAN, pred(bact_1->mass));
+      bact_1.hungry := min(MAXLIFESPAN, pred(bact_1.mass));
     end if;
   end func; (* digest *)
 
@@ -580,7 +611,7 @@ const proc: eatat (in xcoordinate: x, in ycoordinate: y, in var power: quantity)
 
   begin (* eatat *)
     quantity := min(quantity, area[x][y].meal);
-    if area[x][y].possessor->mass < quantity then
+    if area[x][y].possessor.mass < quantity then
       die(x, y, KBigMouth)
     else
       digest(x, y, quantity)
@@ -592,12 +623,12 @@ const func power: strength (in direction: direct) is func
   result
     var power: strength is 0;
   local
-    var microbe: possessor is microbe.NIL;
+    var microbe: possessor is microbe.value;
 
   begin (* strength *)
     possessor := area[x + diffx[direct]][y + diffy[direct]].possessor;
-    if possessor <> microbe.NIL then
-      strength := possessor->mass;
+    if possessor <> microbe.value then
+      strength := possessor.mass;
     else
       strength := 0;
     end if;
@@ -627,7 +658,7 @@ const func lifeSpan: hunger is func
     var lifeSpan: hungry is 0;
 
   begin (* hunger *)
-    hungry := area[x][y].possessor->hungry;
+    hungry := area[x][y].possessor.hungry;
   end func; (* hunger *)
 
 
@@ -706,7 +737,7 @@ const proc: kill (in direction: direct) is func
 const proc: split (in direction: direct, in power: quantity1, in power: quantity2) is func
 
   local
-    var microbe: bact_1 is microbe.NIL;
+    var microbe: bact_1 is microbe.value;
     var xcoordinate: new_x is 0;
     var ycoordinate: new_y is 0;
     var bactColor: species is CLEAR;
@@ -725,17 +756,17 @@ const proc: split (in direction: direct, in power: quantity1, in power: quantity
         die(x, y, KWrMove);
       elsif area[new_x][new_y].content <> CLEAR then
         die(x, y, KFnotEmpty);
-      elsif bact_1->mass <= 1 then
+      elsif bact_1.mass <= 1 then
         die(x, y, KHunger);
       else
         species := view(HERE);
         setclass(x, y, species, TRUE);
         setclass(new_x, new_y, species, TRUE);
-        hungry := min(bact_1->hungry, pred(bact_1->mass div 2));
-        strength := bact_1->mass div 2;
+        hungry := min(bact_1.hungry, pred(bact_1.mass div 2));
+        strength := bact_1.mass div 2;
         create(new_x, new_y, animates, species, hungry, strength);
-        bact_1->hungry := min(bact_1->hungry, pred(bact_1->mass));
-        bact_1->mass -:= strength;
+        bact_1.hungry := min(bact_1.hungry, pred(bact_1.mass));
+        bact_1.mass -:= strength;
         eatat(x, y, quantity1);
         eatat(new_x, new_y, quantity2);
       end if;
@@ -751,7 +782,7 @@ const proc: setAllBacterials is func
     var ycoordinate: y is 0;
 
   begin (* setAllBacterials *)
-    children := 0 times microbe.NIL;
+    children := 0 times microbe.value;
     for x range 2 to pred(XMAX) do
       for y range 2 to pred(YMAX) do
         (* write(STD_ERR, x lpad 2);
@@ -782,8 +813,8 @@ const proc: writeInfo (in integer: line, in integer: column) is func
     write(info, species);
     if species <> EDGE and species <> CLEAR then
       write(info, " of size ");
-      if area[succ(column)][succ(line)].possessor <> microbe.NIL then
-        write(info, area[succ(column)][succ(line)].possessor->mass);
+      if area[succ(column)][succ(line)].possessor <> microbe.value then
+        write(info, area[succ(column)][succ(line)].possessor.mass);
       else
         write(info, initSize);
       end if;
@@ -955,7 +986,7 @@ const proc: initArea is func
   begin (* initArea *)
     edgePosition.content := EDGE;
     edgePosition.meal := 0;
-    edgePosition.possessor := microbe.NIL;
+    edgePosition.possessor := microbe.value;
     for x range 1 to XMAX do
       area[x][1] := edgePosition;
       area[x][YMAX] := edgePosition;
@@ -968,7 +999,7 @@ const proc: initArea is func
       for y range 2 to pred(YMAX) do
         area[x][y].content := CLEAR;
         area[x][y].meal := foodReserve;
-        area[x][y].possessor := microbe.NIL;
+        area[x][y].possessor := microbe.value;
       end for;
     end for;
     InitAnimates;
@@ -987,7 +1018,7 @@ const proc: statistics (in integer: genNr) is func
     var ycoordinate: y is 0;
     var hue: species is CLEAR;
     var boolean: anychange is FALSE;
-    var microbe: p is microbe.NIL;
+    var microbe: p is microbe.value;
 
   begin (* statistics *)
     sumAccno := 0;
@@ -1001,9 +1032,9 @@ const proc: statistics (in integer: genNr) is func
     setPos(stat, 1, 12);
     writeln(stat, genNr lpad 1);
     for p range animates do
-      if p->mass > 0 then
-        incr(statValues[area[p->xpos][p->ypos].content][TRUE].accno);
-        statValues[area[p->xpos][p->ypos].content][TRUE].accmass +:= p->mass;
+      if p.mass > 0 then
+        incr(statValues[area[p.xpos][p.ypos].content][TRUE].accno);
+        statValues[area[p.xpos][p.ypos].content][TRUE].accmass +:= p.mass;
       end if;
     end for;
     playanz := 1;
@@ -1017,8 +1048,8 @@ const proc: statistics (in integer: genNr) is func
             write(stat, statValues[species][TRUE].totalno lpad 5);
             write(stat, " ");
             write(stat, statValues[species][TRUE].totalmass lpad 9);
-            write(stat, flt(statValues[species][TRUE].totalmass) /
-                flt(succ(statValues[species][TRUE].totalno)) digits 1 lpad 8);
+            write(stat, float(statValues[species][TRUE].totalmass) /
+                float(succ(statValues[species][TRUE].totalno)) digits 1 lpad 8);
             write(stat, ") d");
             writeln(stat, genNr lpad 5);
             anychange := TRUE;
@@ -1037,8 +1068,8 @@ const proc: statistics (in integer: genNr) is func
               write(stat, statValues[species][TRUE].accno lpad 6);
               write(stat, " ");
               write(stat, statValues[species][TRUE].accmass lpad 9);
-              writeln(stat, flt(statValues[species][TRUE].accmass) /
-                  flt(statValues[species][TRUE].accno) digits 1 lpad 8);
+              writeln(stat, float(statValues[species][TRUE].accmass) /
+                  float(statValues[species][TRUE].accno) digits 1 lpad 8);
               statValues[species][FALSE] := statValues[species][TRUE];
               anychange := TRUE;
             end if;
@@ -1053,7 +1084,7 @@ const proc: statistics (in integer: genNr) is func
       write(stat, " ");
       write(stat, sumAccmass lpad 9);
       if sumAccno <> 0 then
-        writeln(stat, flt(sumAccmass) / flt(sumAccno) digits 1 lpad 8);
+        writeln(stat, float(sumAccmass) / float(sumAccno) digits 1 lpad 8);
       else
         writeln(stat, " " lpad 8);
       end if;
@@ -1073,7 +1104,7 @@ const proc: statistics (in integer: genNr) is func
     write(stat, " ");
     write(stat, sumFoodmass lpad 9);
     if sumFoodno <> 0 then
-      writeln(stat, flt(sumFoodmass) / flt(sumFoodno) digits 1 lpad 8);
+      writeln(stat, float(sumFoodmass) / float(sumFoodno) digits 1 lpad 8);
     else
       writeln(stat, " " lpad 8);
     end if;
@@ -1082,7 +1113,7 @@ const proc: statistics (in integer: genNr) is func
     write(stat, " ");
     write(stat, sumAccmass + sumFoodmass lpad 9);
     if sumAccno + sumFoodno <> 0 then
-      writeln(stat, flt(sumAccmass + sumFoodmass) / flt(sumAccno + sumFoodno) digits 1 lpad 8);
+      writeln(stat, float(sumAccmass + sumFoodmass) / float(sumAccno + sumFoodno) digits 1 lpad 8);
     else
       writeln(stat, " " lpad 8);
     end if;
@@ -1205,8 +1236,8 @@ const proc: execute (ref microbe: individuum) is func
     var bactColor: species is CLEAR;
 
   begin
-    x := individuum->xpos;
-    y := individuum->ypos;
+    x := individuum.xpos;
+    y := individuum.ypos;
     done:= FALSE;
     species := area[x][y].content;
     case species of
@@ -1236,14 +1267,14 @@ const proc: execute (ref microbe: individuum) is func
 const proc: generation is func
 
   local
-    var microbe: individuum is microbe.NIL;
+    var microbe: individuum is microbe.value;
     var integer: index is 1;
 
   begin (* generation *)
-    children := 0 times microbe.NIL;
+    children := 0 times microbe.value;
     index := 1;
     while index <= length(animates) do
-      if animates[index]->mass = 0 then
+      if animates[index].mass = 0 then
         ignore(remove(animates, index));
       else
         execute(animates[index]);
