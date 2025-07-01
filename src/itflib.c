@@ -152,6 +152,12 @@ objectType itf_cpy (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
+          CLEAR_TEMP_FLAG(new_value);
+          CLEAR_TEMP2_FLAG(new_value);
+          if (IS_STRUCT_OWNER(source)) {
+            /* Transfer the ownership to new_value. */
+            CLEAR_STRUCT_OWNER_FLAG(source);
+          } /* if */
         } /* if */
       } /* if */
       new_struct = new_value->value.structValue;
@@ -244,6 +250,12 @@ objectType itf_cpy2 (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
+          CLEAR_TEMP_FLAG(new_value);
+          CLEAR_TEMP2_FLAG(new_value);
+          if (IS_STRUCT_OWNER(source)) {
+            /* Transfer the ownership to new_value. */
+            CLEAR_STRUCT_OWNER_FLAG(source);
+          } /* if */
         } /* if */
       } /* if */
       new_struct = new_value->value.structValue;
@@ -326,6 +338,12 @@ objectType itf_create (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
+          CLEAR_TEMP_FLAG(new_value);
+          CLEAR_TEMP2_FLAG(new_value);
+          if (IS_STRUCT_OWNER(source)) {
+            /* Transfer the ownership to new_value. */
+            CLEAR_STRUCT_OWNER_FLAG(source);
+          } /* if */
         } /* if */
       } else {
         isit_struct_ok(new_value);
@@ -386,6 +404,12 @@ objectType itf_create2 (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
+          CLEAR_TEMP_FLAG(new_value);
+          CLEAR_TEMP2_FLAG(new_value);
+          if (IS_STRUCT_OWNER(source)) {
+            /* Transfer the ownership to new_value. */
+            CLEAR_STRUCT_OWNER_FLAG(source);
+          } /* if */
         } /* if */
       } /* if */
       new_struct = new_value->value.structValue;
@@ -607,6 +631,10 @@ objectType itf_to_interface (listType arguments)
       memcpy(new_value, stru_arg, sizeof(objectRecord));
       CLEAR_TEMP_FLAG(new_value);
       CLEAR_TEMP2_FLAG(new_value);
+      if (IS_STRUCT_OWNER(stru_arg)) {
+        /* Transfer the ownership to new_value. */
+        CLEAR_STRUCT_OWNER_FLAG(stru_arg);
+      } /* if */
       new_struct = new_value->value.structValue;
       logMessage(printf("itf_to_interface: %s usage_count=" FMT_U_MEM
                         ", " FMT_U_MEM " " FMT_U_MEM " ",

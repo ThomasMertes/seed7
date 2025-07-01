@@ -499,15 +499,16 @@ extern progType prog;
 #define GET_LINE_NUM(O)     (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
 #define GET_FILE_NUM(O)     (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 
-#define CATEGORY_MASK  ((categoryType)   63)
-#define VAR_MASK       ((categoryType)   64)
-#define TEMP_MASK      ((categoryType)  128)
-#define TEMP2_MASK     ((categoryType)  256)
-#define POSINFO_MASK   ((categoryType)  512)
-#define MATCH_ERR_MASK ((categoryType) 1024)
-#define UNUSED_MASK    ((categoryType) 2048)
+#define CATEGORY_MASK     ((categoryType)   63)
+#define VAR_MASK          ((categoryType)   64)
+#define TEMP_MASK         ((categoryType)  128)
+#define TEMP2_MASK        ((categoryType)  256)
+#define POSINFO_MASK      ((categoryType)  512)
+#define MATCH_ERR_MASK    ((categoryType) 1024)
+#define STRUCT_OWNER_MASK ((categoryType) 2048)
+#define UNUSED_MASK       ((categoryType) 4096)
 
-#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 4095)
+#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 8191)
 #define LEGAL_CATEGORY_FIELD(O)  ((objectCategory) ((O)->objcategory <= MAX_CATEGORY_FIELD_VALUE))
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categoryType) ((O)->objcategory | (FLAG))
@@ -541,6 +542,10 @@ extern progType prog;
 #define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (categoryType) ((O)->objcategory | MATCH_ERR_MASK)
 #define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (categoryType) ((O)->objcategory & ~MATCH_ERR_MASK)
 #define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
+
+#define SET_STRUCT_OWNER_FLAG(O)        (O)->objcategory = (categoryType) ((O)->objcategory | STRUCT_OWNER_MASK)
+#define CLEAR_STRUCT_OWNER_FLAG(O)      (O)->objcategory = (categoryType) ((O)->objcategory & ~STRUCT_OWNER_MASK)
+#define IS_STRUCT_OWNER(O)              ((O)->objcategory & STRUCT_OWNER_MASK)
 
 #define SET_UNUSED_FLAG(O)              (O)->objcategory = (categoryType) ((O)->objcategory | UNUSED_MASK)
 #define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (categoryType) ((O)->objcategory & ~UNUSED_MASK)

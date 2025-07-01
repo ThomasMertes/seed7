@@ -320,6 +320,7 @@ objectType sct_create (listType arguments)
                 trace1(source);
                 printf(")\n"););
     SET_CATEGORY_OF_OBJ(dest, STRUCTOBJECT);
+    SET_STRUCT_OWNER_FLAG(dest);
     isit_struct(source);
     if (TEMP_OBJECT(source)) {
 /*
@@ -407,6 +408,9 @@ objectType sct_destr (listType arguments)
                        printf("\n"););
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
+            old_value->value.structValue = NULL;
+            SET_UNUSED_FLAG(old_value);
+          } else if (!IS_STRUCT_OWNER(old_value)) {
             old_value->value.structValue = NULL;
             SET_UNUSED_FLAG(old_value);
           } /* if */

@@ -1234,24 +1234,8 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
       } /* switch */
       if (IS_UNUSED(local->object->value.objValue)) {
         FREE_OBJECT(local->object->value.objValue);
-      } else if (okay) {
-        if (CATEGORY_OF_OBJ(local->object->value.objValue) == STRUCTOBJECT &&
-            local->object->value.objValue->value.structValue != NULL) {
-          if (!HAS_PROPERTY(local->object->value.objValue)) {
-            logMessage(printf("destroy_local_object: " FMT_U_MEM " ",
-                              (memSizeType) local->object->value.objValue);
-                       trace1(local->object->value.objValue);
-                       printf("\n"););
-            FREE_OBJECT(local->object->value.objValue);
-          } /* if */
-        } else {
-          printf("loc not dumped: ");
-          trace1(local->object);
-          printf("\n");
-          trace1(local->object->value.objValue);
-          printf("\n");
-        } /* if */
       } /* if */
+      local->object->value.objValue = NULL;
     } /* if */
     logFunction(printf("destroy_local_object -->\n"););
   } /* destroy_local_object */
