@@ -1153,7 +1153,11 @@ const proc: finalStatistics is func
             end if;
           end for;
           setPos(stat, 4 + i, 42);
-          writeln(stat, ord(col1) - ord(FIRSTCOL) + 1 lpad 1);
+          write(stat, ord(col1) - ord(FIRSTCOL) + 1 lpad 1);
+          if ord(col1) = ord(FIRSTCOL) then
+            write(stat, " (Winner)");
+          end if;
+          writeln(stat);
         end if;
       end for;
 
