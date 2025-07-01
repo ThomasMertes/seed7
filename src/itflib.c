@@ -142,6 +142,7 @@ objectType itf_cpy (listType arguments)
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
           CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
+        logMessage(printf("itf_cpy: allocate new struct\n"););
         if (unlikely(!ALLOC_OBJECT(new_value))) {
           logError(printf("itf_cpy: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -233,6 +234,7 @@ objectType itf_cpy2 (listType arguments)
     new_value = source;
     if (CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
       if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
+        logMessage(printf("itf_cpy2: allocate new struct\n"););
         if (unlikely(!ALLOC_OBJECT(new_value))) {
           logError(printf("itf_cpy2: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -314,6 +316,7 @@ objectType itf_create (listType arguments)
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if ((TEMP_OBJECT(source) || TEMP2_OBJECT(source)) &&
           CATEGORY_OF_OBJ(source) == STRUCTOBJECT) {
+        logMessage(printf("itf_create: allocate new struct\n"););
         if (unlikely(!ALLOC_OBJECT(new_value))) {
           logError(printf("itf_create: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -373,6 +376,7 @@ objectType itf_create2 (listType arguments)
     new_value = source;
     if (CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
       if (TEMP_OBJECT(source) || TEMP2_OBJECT(source)) {
+        logMessage(printf("itf_create2: allocate new struct\n"););
         if (unlikely(!ALLOC_OBJECT(new_value))) {
           logError(printf("itf_create2: ALLOC_OBJECT() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
