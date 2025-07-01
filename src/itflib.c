@@ -109,8 +109,9 @@ objectType itf_cpy (listType arguments)
     objectType dest;
     objectType source;
     objectType old_value;
-    objectType new_value;
     structType old_struct;
+    objectType new_value;
+    structType new_struct;
 
   /* itf_cpy */
     dest = arg_1(arguments);
@@ -152,8 +153,17 @@ objectType itf_cpy (listType arguments)
           memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
-      if (new_value->value.structValue->usage_count != 0) {
-        new_value->value.structValue->usage_count++;
+      new_struct = new_value->value.structValue;
+      logMessage(printf("itf_cpy: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " ",
+                        new_struct->usage_count != 0 ? "Increase"
+                                                     : "Keep",
+                        new_struct->usage_count,
+                        (memSizeType) new_value);
+                  trace1(new_value);
+                  printf("\n"););
+      if (new_struct->usage_count != 0) {
+        new_struct->usage_count++;
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
@@ -196,8 +206,9 @@ objectType itf_cpy2 (listType arguments)
     objectType dest;
     objectType source;
     objectType old_value;
-    objectType new_value;
     structType old_struct;
+    objectType new_value;
+    structType new_struct;
 
   /* itf_cpy2 */
     dest = arg_1(arguments);
@@ -233,8 +244,17 @@ objectType itf_cpy2 (listType arguments)
           memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
-      if (new_value->value.structValue->usage_count != 0) {
-        new_value->value.structValue->usage_count++;
+      new_struct = new_value->value.structValue;
+      logMessage(printf("itf_cpy2: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " ",
+                        new_struct->usage_count != 0 ? "Increase"
+                                                     : "Keep",
+                        new_struct->usage_count,
+                        (memSizeType) new_value);
+                  trace1(new_value);
+                  printf("\n"););
+      if (new_struct->usage_count != 0) {
+        new_struct->usage_count++;
       } /* if */
     } else if (CATEGORY_OF_OBJ(source) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(source) != FORWARDOBJECT) {
@@ -280,6 +300,7 @@ objectType itf_create (listType arguments)
     objectType dest;
     objectType source;
     objectType new_value;
+    structType new_struct;
 
   /* itf_create */
     dest = arg_1(arguments);
@@ -306,8 +327,17 @@ objectType itf_create (listType arguments)
       } else {
         isit_struct_ok(new_value);
       } /* if */
-      if (new_value->value.structValue->usage_count != 0) {
-        new_value->value.structValue->usage_count++;
+      new_struct = new_value->value.structValue;
+      logMessage(printf("itf_create: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " ",
+                        new_struct->usage_count != 0 ? "Increase"
+                                                     : "Keep",
+                        new_struct->usage_count,
+                        (memSizeType) new_value);
+                  trace1(new_value);
+                  printf("\n"););
+      if (new_struct->usage_count != 0) {
+        new_struct->usage_count++;
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
@@ -330,6 +360,7 @@ objectType itf_create2 (listType arguments)
     objectType dest;
     objectType source;
     objectType new_value;
+    structType new_struct;
 
   /* itf_create2 */
     dest = arg_1(arguments);
@@ -353,8 +384,17 @@ objectType itf_create2 (listType arguments)
           memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
       } /* if */
-      if (new_value->value.structValue->usage_count != 0) {
-        new_value->value.structValue->usage_count++;
+      new_struct = new_value->value.structValue;
+      logMessage(printf("itf_create2: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " ",
+                        new_struct->usage_count != 0 ? "Increase"
+                                                     : "Keep",
+                        new_struct->usage_count,
+                        (memSizeType) new_value);
+                  trace1(new_value);
+                  printf("\n"););
+      if (new_struct->usage_count != 0) {
+        new_struct->usage_count++;
       } /* if */
     } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
                CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
@@ -546,6 +586,7 @@ objectType itf_to_interface (listType arguments)
   {
     objectType stru_arg;
     objectType new_value;
+    structType new_struct;
     objectType result;
 
   /* itf_to_interface */
@@ -562,8 +603,18 @@ objectType itf_to_interface (listType arguments)
       memcpy(new_value, stru_arg, sizeof(objectRecord));
       CLEAR_TEMP_FLAG(new_value);
       CLEAR_TEMP2_FLAG(new_value);
-      if (new_value->value.structValue->usage_count != 0) {
-        new_value->value.structValue->usage_count++;
+      new_struct = new_value->value.structValue;
+      logMessage(printf("itf_to_interface: %s usage_count=" FMT_U_MEM
+                        ", " FMT_U_MEM " " FMT_U_MEM " ",
+                        new_struct->usage_count != 0 ? "Increase"
+                                                     : "Keep",
+                        new_struct->usage_count,
+                        (memSizeType) new_value,
+                        (memSizeType) stru_arg);
+                  trace1(stru_arg);
+                  printf("\n"););
+      if (new_struct->usage_count != 0) {
+        new_struct->usage_count++;
       } /* if */
     } /* if */
     result = bld_interface_temp(new_value);
