@@ -541,19 +541,6 @@ const proc: die (in xcoordinate: x, in ycoordinate: y, in killReason: killer) is
   end func; (* die *)
 
 
-const proc: setXY (inout microbe: aMicrobe, in xcoordinate: xPos,
-		   in ycoordinate: yPos) is DYNAMIC;
-
-
-const proc: setXY (inout bacterium: bact, in xcoordinate: xPos,
-    in ycoordinate: yPos) is func
-
-  begin
-    bact.xpos := xPos;
-    bact.ypos := yPos;
-  end func;
-
-
 const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
     in direction: direct) is func
 
@@ -569,7 +556,8 @@ const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
           area[old_x_pos][old_y_pos].content;
       area[new_x_pos][new_y_pos].possessor :=
           area[old_x_pos][old_y_pos].possessor;
-      setXY(area[new_x_pos][new_y_pos].possessor, new_x_pos, new_y_pos);
+      area[new_x_pos][new_y_pos].possessor.xpos := new_x_pos;
+      area[new_x_pos][new_y_pos].possessor.ypos := new_y_pos;
       area[old_x_pos][old_y_pos].content := CLEAR;
       area[old_x_pos][old_y_pos].possessor := microbe.value;
       setclass(old_x_pos, old_y_pos, CLEAR, FALSE);
