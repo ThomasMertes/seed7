@@ -368,19 +368,21 @@ printf("create: pointer assignment\n");
 objectType sct_destr (listType arguments)
 
   {
+    objectType old_value;
     structType old_struct;
 
   /* sct_destr */
+    old_value = arg_1(arguments);
     logFunction(printf("sct_destr(");
-                trace1(arg_1(arguments));
+                trace1(old_value);
                 printf(")\n"););
-    if (CATEGORY_OF_OBJ(arg_1(arguments)) == INTERFACEOBJECT) {
-      destr_interface(arg_1(arguments)->value.objValue);
-      arg_1(arguments)->value.objValue = NULL;
-      SET_UNUSED_FLAG(arg_1(arguments));
+    if (CATEGORY_OF_OBJ(old_value) == INTERFACEOBJECT) {
+      destr_interface(old_value->value.objValue);
+      old_value->value.objValue = NULL;
+      SET_UNUSED_FLAG(old_value);
     } else {
-      isit_struct(arg_1(arguments));
-      old_struct = take_struct(arg_1(arguments));
+      isit_struct(old_value);
+      old_struct = take_struct(old_value);
       logMessage(printf("sct_destr(" FMT_U_MEM
                         " (usage=" FMT_U_MEM "))\n",
                         (memSizeType) old_struct,
@@ -392,25 +394,25 @@ objectType sct_destr (listType arguments)
                           old_struct->usage_count != 0 ? "Decrease"
                                                        : "Keep",
                           old_struct->usage_count,
-                          (memSizeType) arg_1(arguments));
-                   trace1(arg_1(arguments));
+                          (memSizeType) old_value);
+                   trace1(old_value);
                    printf("\n"););
         if (old_struct->usage_count != 0) {
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
             logMessage(printf("sct_destr: Free struct data "
                               FMT_U_MEM " ",
-                              (memSizeType) arg_1(arguments));
-                       trace1(arg_1(arguments));
+                              (memSizeType) old_value);
+                       trace1(old_value);
                        printf("\n"););
             destr_struct(old_struct->stru, old_struct->size);
             FREE_STRUCT(old_struct, old_struct->size);
-            arg_1(arguments)->value.structValue = NULL;
-            SET_UNUSED_FLAG(arg_1(arguments));
+            old_value->value.structValue = NULL;
+            SET_UNUSED_FLAG(old_value);
           } /* if */
         } /* if */
       } else {
-        SET_UNUSED_FLAG(arg_1(arguments));
+        SET_UNUSED_FLAG(old_value);
       } /* if */
     } /* if */
     logFunction(printf("sct_destr -->\n"););
