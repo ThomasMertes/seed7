@@ -328,7 +328,9 @@ static void free_name_list (listType name_list)
                             HAS_PROPERTY(param_obj));
                      trace1(param_obj);
                      printf("\n"););
-          if (!HAS_ENTITY(param_obj) || GET_ENTITY(param_obj)->data.owner == NULL) {
+          if (!HAS_ENTITY(param_obj) ||
+              GET_ENTITY(param_obj)->data.owner == NULL ||
+              GET_ENTITY(param_obj)->data.owner->obj != param_obj) {
             logMessage(printf("free " FMT_U_MEM " ", (memSizeType) param_obj);
                        trace1(param_obj);
                        printf("\n"););
