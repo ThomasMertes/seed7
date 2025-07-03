@@ -273,7 +273,7 @@ objectType dcl_elements (listType arguments)
       while (list_elem != NULL && err_info == OKAY_NO_ERROR) {
         if (!HAS_ENTITY(list_elem->obj) ||
             GET_ENTITY(list_elem->obj)->syobject == NULL) {
-          err_object(DECL_FAILED, list_elem->obj);
+          err_existing_obj(DECL_FAILED, list_elem->obj);
           dump_temp_value(list_elem->obj);
           free_name(list_elem->obj);
           old_elem = list_elem;

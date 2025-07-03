@@ -1785,6 +1785,11 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     setPlaceForFileNumber(error, fileNumber, lineNumber);
     storePositionedErrorLine(error, fileNumber);
     switch (err) {
+      case DECL_FAILED:
+        copyCStri(&error->msg, "Declaration of \"");
+        appendObjectWithParameters(&error->msg, obj_found);
+        appendCStri(&error->msg, "\" failed");
+        break;
       case PREVIOUS_DECLARATION:
         copyCStri(&error->msg, "Previous declaration of \"");
         appendObjectWithParameters(&error->msg, obj_found);

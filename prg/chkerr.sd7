@@ -2905,7 +2905,21 @@ const func boolean: checkDeclFailed is func
                     \var char: j3 is 1+1;",
                     DECL_FAILED, 4, 0,
                     "Declaration of \"j3\" failed",
-                    "var char: j3 is 1+1;") then
+                    "var char: j3 is 1+1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const type: aStruct is new struct\n\
+                    \    var integer: num, num2 is 0;\n\
+                    \  end struct;",
+                    DECL_FAILED, 3, 0,
+                    "Declaration of \"num , num2\" failed",
+                    "    var integer: num, num2 is 0;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const type: aStruct is new struct\n\
+                    \    var string: stri, stri2 is \"asdf\";\n\
+                    \  end struct;",
+                    DECL_FAILED, 3, 0,
+                    "Declaration of \"stri , stri2\" failed",
+                    "    var string: stri, stri2 is \"asdf\";") then
       okay := TRUE;
     else
       writeln(" *** DECL_FAILED not reported correctly.");
