@@ -235,7 +235,9 @@ objectType dcl_elements (listType arguments)
     objectType decl_res;
     objectType decl_exec_object;
     errInfoType err_info = OKAY_NO_ERROR;
+    listType* list_elem_place;
     listType list_elem;
+    listType old_elem;
     listType element_list = NULL;
 
   /* dcl_elements */
@@ -266,10 +268,23 @@ objectType dcl_elements (listType arguments)
       element_list = copy_list(*local_object_insert_place, &err_info);
       pop_stack();
       shrink_stack();
+      list_elem_place = &element_list;
       list_elem = element_list;
       while (list_elem != NULL && err_info == OKAY_NO_ERROR) {
-        addStructElement(prog, list_elem->obj, &err_info);
-        list_elem = list_elem->next;
+        if (!HAS_ENTITY(list_elem->obj) ||
+            GET_ENTITY(list_elem->obj)->syobject == NULL) {
+          err_object(DECL_FAILED, list_elem->obj);
+          dump_temp_value(list_elem->obj);
+          free_name(list_elem->obj);
+          old_elem = list_elem;
+          list_elem = list_elem->next;
+          *list_elem_place = list_elem;
+          FREE_L_ELEM(old_elem);
+        } else {
+          addStructElement(prog, list_elem->obj, &err_info);
+          list_elem_place = &list_elem->next;
+          list_elem = list_elem->next;
+        } /* if */
       } /* while */
     } /* if */
     logFunction(printf("dcl_elements --> err_info=%d\n", err_info););

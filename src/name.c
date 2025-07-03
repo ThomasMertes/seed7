@@ -209,6 +209,7 @@ void free_name (objectType object)
     if (object != NULL) {
       if (HAS_PROPERTY(object) &&
           object->descriptor.property != prog->property.literal) {
+        free_params(prog, object->descriptor.property->params);
         FREE_PROPERTY(object->descriptor.property);
       } /* if */
       FREE_OBJECT(object);
