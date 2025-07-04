@@ -135,11 +135,11 @@ static void write_position_info (objectType currObject, boolType writeNoInfo)
           prot_int((intType) POSINFO_LINE_NUM(currObject));
           prot_cstri(")");
         } else if (HAS_PROPERTY(currObject) &&
-            currObject->descriptor.property->line != 0) {
+                   PROPERTY_LINE_NUM(currObject) != 0) {
           prot_cstri("at ");
           prot_string(objectFileName(currObject));
           prot_cstri("(");
-          prot_int((intType) currObject->descriptor.property->line);
+          prot_int((intType) PROPERTY_LINE_NUM(currObject));
           prot_cstri(")");
         } else if (writeNoInfo) {
           prot_cstri("no POSITION INFORMATION ");

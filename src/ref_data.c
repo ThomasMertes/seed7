@@ -92,7 +92,7 @@ objectType refAlloc (const const_objectType obj1)
           created_property->entity = obj1->descriptor.property->entity;
           created_property->params = obj1->descriptor.property->params;
           created_property->file_number = PROPERTY_FILE_NUM(obj1);
-          created_property->line = obj1->descriptor.property->line;
+          created_property->line        = PROPERTY_LINE_NUM(obj1);
           /* created_property->syNumberInLine = obj1->descriptor.property->syNumberInLine; */
           created_object->descriptor.property = created_property;
         } /* if */
@@ -632,10 +632,10 @@ intType refLine (const const_objectType aReference)
     } else if (HAS_PROPERTY(aReference)) {
       /* trace1(aReference);
       printf(" %u %u\n",
-          aReference->descriptor.property->line,
+          PROPERTY_LINE_NUM(aReference),
           aReference->descriptor.property->syNumberInLine); */
       /* Cast to intType: The line is probably in the range 0 to 2147483647 */
-      lineNumber = (intType) aReference->descriptor.property->line;
+      lineNumber = (intType) PROPERTY_LINE_NUM(aReference);
     } else {
       lineNumber = 0;
     } /* if */

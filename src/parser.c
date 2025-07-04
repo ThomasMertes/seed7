@@ -325,7 +325,7 @@ void decl_const (nodeType node_level, errInfoType *err_info)
       if (declared_object != NULL && *err_info == OKAY_NO_ERROR) {
         if (HAS_PROPERTY(declared_object) &&
             PROPERTY_FILE_NUM(declared_object) == 0 &&
-            declared_object->descriptor.property->line == 0) {
+            PROPERTY_LINE_NUM(declared_object) == 0) {
           declared_object->descriptor.property->file_number = in_file.file_number;
           declared_object->descriptor.property->line = in_file.line;
 	} /* if */

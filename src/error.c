@@ -1739,7 +1739,7 @@ void err_existing_obj (errorType err, const_objectType obj_found)
     error = newError(err);
     if (HAS_PROPERTY(obj_found)) {
       fileNumber = PROPERTY_FILE_NUM(obj_found);
-      lineNumber = obj_found->descriptor.property->line;
+      lineNumber = PROPERTY_LINE_NUM(obj_found);
     } else {
       fileNumber = 0;
       lineNumber = 0;

@@ -500,6 +500,7 @@ extern progType prog;
 #define POSINFO_LINE_NUM(O)  (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
 
 #define PROPERTY_FILE_NUM(O) (O)->descriptor.property->file_number
+#define PROPERTY_LINE_NUM(O) (O)->descriptor.property->line
 
 #define CATEGORY_MASK     ((categoryType)   63)
 #define VAR_MASK          ((categoryType)   64)

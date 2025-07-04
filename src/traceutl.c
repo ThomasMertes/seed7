@@ -890,7 +890,7 @@ static void printObjectName (const_objectType traceobject)
       } else {
         prot_string(objectFileName(traceobject));
         prot_cstri("(");
-        prot_int((intType) traceobject->descriptor.property->line);
+        prot_int((intType) PROPERTY_LINE_NUM(traceobject));
         prot_cstri(")");
       } /* if */
     } else {
