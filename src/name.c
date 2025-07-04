@@ -982,7 +982,7 @@ static objectType inst_object_expr (const_nodeType declaration_base,
             printf("\n"); */
             if (HAS_PROPERTY(param_obj)) {
               defined_object = inst_object(declaration_base, param_obj,
-                  param_obj->descriptor.property->file_number,
+                  PROPERTY_FILE_NUM(param_obj),
                   param_obj->descriptor.property->line, err_info);
             } else {
               defined_object = inst_object(declaration_base, param_obj,

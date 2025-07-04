@@ -491,13 +491,15 @@ typedef struct inFileStruct {
 extern progType prog;
 
 
-#define INIT_POS(O,L,F)     (O)->value.pos = ((posType) (L)) | (((posType) (F)) << 20)
-#define GET_POS_LINE_NUM(O) (lineNumType) ((O)->value.pos & 1048575L)
-#define GET_POS_FILE_NUM(O) (fileNumType) (((O)->value.pos & 2146435072L) >> 20)
+#define INIT_POS(O,L,F)      (O)->value.pos = ((posType) (L)) | (((posType) (F)) << 20)
+#define GET_POS_FILE_NUM(O)  (fileNumType) (((O)->value.pos & 2146435072L) >> 20)
+#define GET_POS_LINE_NUM(O)  (lineNumType) ((O)->value.pos & 1048575L)
 
-#define CREATE_POSINFO(L,F) (((posType) (L)) | (((posType) (F)) << 20))
-#define POSINFO_LINE_NUM(O) (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
-#define POSINFO_FILE_NUM(O) (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
+#define CREATE_POSINFO(L,F)  (((posType) (L)) | (((posType) (F)) << 20))
+#define POSINFO_FILE_NUM(O)  (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
+#define POSINFO_LINE_NUM(O)  (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
+
+#define PROPERTY_FILE_NUM(O) (O)->descriptor.property->file_number
 
 #define CATEGORY_MASK     ((categoryType)   63)
 #define VAR_MASK          ((categoryType)   64)

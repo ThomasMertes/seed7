@@ -91,7 +91,7 @@ objectType refAlloc (const const_objectType obj1)
         } else {
           created_property->entity = obj1->descriptor.property->entity;
           created_property->params = obj1->descriptor.property->params;
-          created_property->file_number = obj1->descriptor.property->file_number;
+          created_property->file_number = PROPERTY_FILE_NUM(obj1);
           created_property->line = obj1->descriptor.property->line;
           /* created_property->syNumberInLine = obj1->descriptor.property->syNumberInLine; */
           created_object->descriptor.property = created_property;

@@ -1738,7 +1738,7 @@ void err_existing_obj (errorType err, const_objectType obj_found)
                 printf(")\n"););
     error = newError(err);
     if (HAS_PROPERTY(obj_found)) {
-      fileNumber = obj_found->descriptor.property->file_number;
+      fileNumber = PROPERTY_FILE_NUM(obj_found);
       lineNumber = obj_found->descriptor.property->line;
     } else {
       fileNumber = 0;

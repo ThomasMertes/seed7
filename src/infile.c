@@ -597,7 +597,7 @@ striType objectFileName (const_objectType anObject)
     if (HAS_POSINFO(anObject)) {
       fileNumber = POSINFO_FILE_NUM(anObject);
     } else if (HAS_PROPERTY(anObject)) {
-      fileNumber = anObject->descriptor.property->file_number;
+      fileNumber = PROPERTY_FILE_NUM(anObject);
     } else {
       fileNumber = 0;
     } /* if */
@@ -659,7 +659,7 @@ striType objectFilePath (const_objectType anObject)
     if (HAS_POSINFO(anObject)) {
       fileNumber = POSINFO_FILE_NUM(anObject);
     } else if (HAS_PROPERTY(anObject)) {
-      fileNumber = anObject->descriptor.property->file_number;
+      fileNumber = PROPERTY_FILE_NUM(anObject);
     } else {
       fileNumber = 0;
     } /* if */
