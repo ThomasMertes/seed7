@@ -852,6 +852,26 @@ static void setPlaceOfError (parseErrorType error)
 
 
 
+static void setPlaceAndLine (parseErrorType error, const_objectType expr_object)
+
+  {
+    fileNumType fileNumber;
+
+  /* setPlaceAndLine */
+    if (HAS_POSINFO(expr_object)) {
+      fileNumber = GET_FILE_NUM(expr_object);
+      setPlaceForObject(error, expr_object);
+      storePositionedErrorLine(error, fileNumber);
+    } else {
+      if (in_file.name != NULL) {
+        setPlace(error, in_file.name, in_file.line);
+      } /* if */
+      storeErrorLine(error);
+    } /* if */
+  } /* setPlaceAndLine */
+
+
+
 static void undefErr (striType *const msg)
 
   { /* undefErr */
@@ -1197,7 +1217,6 @@ void err_object (errorType err, const_objectType obj_found)
 void err_type (errorType err, const_objectType expr_object)
 
   {
-    fileNumType fileNumber;
     parseErrorType error;
 
   /* err_type */
@@ -1205,16 +1224,7 @@ void err_type (errorType err, const_objectType expr_object)
                 trace1(expr_object);
                 printf(")\n"););
     error = newError(err);
-    if (HAS_POSINFO(expr_object)) {
-      fileNumber = GET_FILE_NUM(expr_object);
-      setPlaceForObject(error, expr_object);
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      if (in_file.name != NULL) {
-        setPlace(error, in_file.name, in_file.line);
-      } /* if */
-      storeErrorLine(error);
-    } /* if */
+    setPlaceAndLine(error, expr_object);
     switch (err) {
       case PROC_EXPECTED:
         copyCStri(&error->msg, "Procedure expected found \"");
@@ -1235,7 +1245,6 @@ void err_expr_type (errorType err, const_objectType expr_object,
     const_typeType type_found)
 
   {
-    fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_type */
@@ -1245,16 +1254,7 @@ void err_expr_type (errorType err, const_objectType expr_object,
                 printtype(type_found);
                 printf(")\n"););
     error = newError(err);
-    if (HAS_POSINFO(expr_object)) {
-      fileNumber = GET_FILE_NUM(expr_object);
-      setPlaceForObject(error, expr_object);
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      if (in_file.name != NULL) {
-        setPlace(error, in_file.name, in_file.line);
-      } /* if */
-      storeErrorLine(error);
-    } /* if */
+    setPlaceAndLine(error, expr_object);
     switch (err) {
       case KIND_OF_IN_PARAM_UNDEFINED:
         copyCStri(&error->msg, "Kind of in-parameter (val or ref) unspecified for type \"");
@@ -1275,7 +1275,6 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     objectType obj_found)
 
   {
-    fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_obj */
@@ -1285,16 +1284,7 @@ void err_expr_obj (errorType err, const_objectType expr_object,
                 trace1(obj_found);
                 printf(")\n"););
     error = newError(err);
-    if (HAS_POSINFO(expr_object)) {
-      fileNumber = GET_FILE_NUM(expr_object);
-      setPlaceForObject(error, expr_object);
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      if (in_file.name != NULL) {
-        setPlace(error, in_file.name, in_file.line);
-      } /* if */
-      storeErrorLine(error);
-    } /* if */
+    setPlaceAndLine(error, expr_object);
     switch (err) {
       case WRONGACCESSRIGHT:
         copyCStri(&error->msg, "Variable expected in ");
@@ -1358,7 +1348,6 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
     objectType obj_found, const_cstriType stri)
 
   {
-    fileNumType fileNumber;
     parseErrorType error;
 
   /* err_expr_obj_stri */
@@ -1368,16 +1357,7 @@ void err_expr_obj_stri (errorType err, const_objectType expr_object,
                 trace1(obj_found);
                 printf(", \"%s\")\n", stri););
     error = newError(err);
-    if (HAS_POSINFO(expr_object)) {
-      fileNumber = GET_FILE_NUM(expr_object);
-      setPlaceForObject(error, expr_object);
-      storePositionedErrorLine(error, fileNumber);
-    } else {
-      if (in_file.name != NULL) {
-        setPlace(error, in_file.name, in_file.line);
-      } /* if */
-      storeErrorLine(error);
-    } /* if */
+    setPlaceAndLine(error, expr_object);
     switch (err) {
       case EXPECTED_SYMBOL:
         copyCStri(&error->msg, "\"");
