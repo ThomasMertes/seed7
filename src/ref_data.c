@@ -627,8 +627,8 @@ intType refLine (const const_objectType aReference)
       raise_error(RANGE_ERROR);
       lineNumber = 0;
     } else if (HAS_POSINFO(aReference)) {
-      /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
-      lineNumber = (intType) GET_LINE_NUM(aReference);
+      /* POSINFO_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
+      lineNumber = (intType) POSINFO_LINE_NUM(aReference);
     } else if (HAS_PROPERTY(aReference)) {
       /* trace1(aReference);
       printf(" %u %u\n",
@@ -1025,7 +1025,7 @@ striType refStr (const const_objectType aReference)
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(aReference));
+        sprintf(buffer, "%s(%u)", stri, POSINFO_LINE_NUM(aReference));
         stri = buffer;
       } /* if */
     } else if (!HAS_ENTITY(aReference)) {

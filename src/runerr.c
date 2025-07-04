@@ -132,7 +132,7 @@ static void write_position_info (objectType currObject, boolType writeNoInfo)
           prot_cstri("at ");
           prot_string(objectFileName(currObject));
           prot_cstri("(");
-          prot_int((intType) GET_LINE_NUM(currObject));
+          prot_int((intType) POSINFO_LINE_NUM(currObject));
           prot_cstri(")");
         } else if (HAS_PROPERTY(currObject) &&
             currObject->descriptor.property->line != 0) {
@@ -442,7 +442,7 @@ objectType raise_with_obj_and_args (objectType exception,
       fail_expression = copy_list(list, &err_info);
       if (object != NULL && HAS_POSINFO(object)){
         fail_file_number = POSINFO_FILE_NUM(object);
-        fail_line_number = GET_LINE_NUM(object);
+        fail_line_number = POSINFO_LINE_NUM(object);
       } else {
         fail_file_number = 0;
         fail_line_number = 0;

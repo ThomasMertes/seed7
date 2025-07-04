@@ -874,7 +874,7 @@ static void printObjectName (const_objectType traceobject)
     if (HAS_POSINFO(traceobject)) {
       prot_string(objectFileName(traceobject));
       prot_cstri("(");
-      prot_int((intType) GET_LINE_NUM(traceobject));
+      prot_int((intType) POSINFO_LINE_NUM(traceobject));
       prot_cstri(")");
     } else if (HAS_PROPERTY(traceobject)) {
       if (HAS_ENTITY(traceobject)) {
@@ -1069,7 +1069,7 @@ void prot_list_limited (const_listType list, int depthLimit)
               if (HAS_POSINFO(list->obj)) {
                 prot_string(objectFileName(list->obj));
                 prot_cstri("(");
-                prot_int((intType) GET_LINE_NUM(list->obj));
+                prot_int((intType) POSINFO_LINE_NUM(list->obj));
                 prot_cstri(")");
               } else {
                 prot_cstri("*NULL_ENTITY_OBJECT*");
