@@ -441,7 +441,7 @@ objectType raise_with_obj_and_args (objectType exception,
       } /* if */
       fail_expression = copy_list(list, &err_info);
       if (object != NULL && HAS_POSINFO(object)){
-        fail_file_number = GET_FILE_NUM(object);
+        fail_file_number = POSINFO_FILE_NUM(object);
         fail_line_number = GET_LINE_NUM(object);
       } else {
         fail_file_number = 0;

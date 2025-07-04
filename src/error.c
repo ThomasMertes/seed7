@@ -849,7 +849,7 @@ static void setPlaceAndLine (parseErrorType error, const_objectType expr_object)
 
   /* setPlaceAndLine */
     if (HAS_POSINFO(expr_object)) {
-      fileNumber = GET_FILE_NUM(expr_object);
+      fileNumber = POSINFO_FILE_NUM(expr_object);
       setPlace(error, get_file_name(prog, fileNumber),
                GET_LINE_NUM(expr_object));
       storePositionedErrorLine(error, fileNumber);

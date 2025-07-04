@@ -595,7 +595,7 @@ striType objectFileName (const_objectType anObject)
     logFunction(printf("objectFileName(" FMT_U_MEM ")\n",
                        (memSizeType) anObject););
     if (HAS_POSINFO(anObject)) {
-      fileNumber = GET_FILE_NUM(anObject);
+      fileNumber = POSINFO_FILE_NUM(anObject);
     } else if (HAS_PROPERTY(anObject)) {
       fileNumber = anObject->descriptor.property->file_number;
     } else {
@@ -657,7 +657,7 @@ striType objectFilePath (const_objectType anObject)
     logFunction(printf("objectFilePath(" FMT_U_MEM ")\n",
                        (memSizeType) anObject););
     if (HAS_POSINFO(anObject)) {
-      fileNumber = GET_FILE_NUM(anObject);
+      fileNumber = POSINFO_FILE_NUM(anObject);
     } else if (HAS_PROPERTY(anObject)) {
       fileNumber = anObject->descriptor.property->file_number;
     } else {

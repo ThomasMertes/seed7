@@ -497,7 +497,7 @@ extern progType prog;
 
 #define CREATE_POSINFO(L,F) (((posType) (L)) | (((posType) (F)) << 20))
 #define GET_LINE_NUM(O)     (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
-#define GET_FILE_NUM(O)     (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
+#define POSINFO_FILE_NUM(O) (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 
 #define CATEGORY_MASK     ((categoryType)   63)
 #define VAR_MASK          ((categoryType)   64)

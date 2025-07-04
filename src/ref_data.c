@@ -1016,7 +1016,7 @@ striType refStr (const const_objectType aReference)
       if (aReference->type_of != NULL &&
           aReference->type_of->owningProg != NULL) {
         stri = (const_cstriType) get_file_name_ustri(
-            aReference->type_of->owningProg, GET_FILE_NUM(aReference));
+            aReference->type_of->owningProg, POSINFO_FILE_NUM(aReference));
       } else {
         stri = "?";
       } /* if */

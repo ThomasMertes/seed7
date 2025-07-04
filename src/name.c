@@ -893,11 +893,11 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     if (*err_info == OKAY_NO_ERROR) {
       push_stack();
       name_list = eval_name_list(matched_name_list,
-          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+          POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       if (*err_info == OKAY_NO_ERROR) {
         down_stack();
         defined_object = push_name(prog, declaration_base, name_list,
-            GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+            POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       } else {
         pop_stack();
         free_name_list(name_list);
@@ -959,7 +959,7 @@ static objectType inst_object_expr (const_nodeType declaration_base,
     if (*err_info == OKAY_NO_ERROR) {
       push_stack();
       name_list = eval_name_list(matched_name_list,
-          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+          POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       if (*err_info == OKAY_NO_ERROR) {
         down_stack();
         /* printf("name_list ");
@@ -1030,7 +1030,7 @@ objectType entername (nodeType declaration_base, objectType object_name,
         printf(")\n"); */
         defined_object = inst_object(declaration_base,
             object_name->value.listValue->obj,
-            GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+            POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       } /* if */
     } else {
       defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
@@ -1070,7 +1070,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
             name_list = eval_name_list(matched_name_list,
-                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+                POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = find_entity(declaration_base, name_list);
@@ -1090,7 +1090,7 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
             name_list = eval_name_list(matched_name_list,
-                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+                POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
@@ -1164,7 +1164,7 @@ objectType search_name (const_nodeType declaration_base,
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
             name_list = eval_name_list(matched_name_list,
-                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+                POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               entity = search_entity(declaration_base, name_list);
@@ -1184,7 +1184,7 @@ objectType search_name (const_nodeType declaration_base,
           if (*err_info == OKAY_NO_ERROR) {
             push_stack();
             name_list = eval_name_list(matched_name_list,
-                GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+                POSINFO_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
             pop_stack();
             if (*err_info == OKAY_NO_ERROR) {
               if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
@@ -1382,7 +1382,7 @@ static objectType dollar_inst_list (nodeType declaration_base,
     } /* while */
     if (!parsing_error && *err_info == OKAY_NO_ERROR) {
       defined_object = push_name(prog, declaration_base,
-          name_list, GET_FILE_NUM(object_name),
+          name_list, POSINFO_FILE_NUM(object_name),
           GET_LINE_NUM(object_name), err_info);
     } else {
       free_list(name_list);
