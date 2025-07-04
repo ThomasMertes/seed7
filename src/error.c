@@ -821,16 +821,6 @@ static void setPlace (parseErrorType error, const const_striType name,
 
 
 
-static void setPlaceForObject (parseErrorType error,
-    const const_objectType anObject)
-
-  { /* setPlaceForObject */
-    setPlace(error, get_file_name(prog, GET_FILE_NUM(anObject)),
-             GET_LINE_NUM(anObject));
-  } /* setPlaceForObject */
-
-
-
 static void setPlaceForFileNumber (parseErrorType error,
     fileNumType fileNumber, lineNumType lineNumber)
 
@@ -860,7 +850,8 @@ static void setPlaceAndLine (parseErrorType error, const_objectType expr_object)
   /* setPlaceAndLine */
     if (HAS_POSINFO(expr_object)) {
       fileNumber = GET_FILE_NUM(expr_object);
-      setPlaceForObject(error, expr_object);
+      setPlace(error, get_file_name(prog, fileNumber),
+               GET_LINE_NUM(expr_object));
       storePositionedErrorLine(error, fileNumber);
     } else {
       if (in_file.name != NULL) {
@@ -1114,9 +1105,8 @@ void err_object (errorType err, const_objectType obj_found)
                 trace1(obj_found);
                 printf(")\n"););
     error = newError(err);
-    if (obj_found != NULL && HAS_POSINFO(obj_found)) {
-      setPlaceForObject(error, obj_found);
-      storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
+    if (obj_found != NULL) {
+      setPlaceAndLine(error, obj_found);
     } else {
       if (in_file.name != NULL) {
         setPlace(error, in_file.name, in_file.line);
@@ -1416,15 +1406,7 @@ void err_match (errorType err, objectType obj_found)
                 printf(")\n"););
     if (!contains_match_err_flag(obj_found)) {
       error = newError(err);
-      if (HAS_POSINFO(obj_found)) {
-        setPlaceForObject(error, obj_found);
-        storePositionedErrorLine(error, GET_FILE_NUM(obj_found));
-      } else {
-        if (in_file.name != NULL) {
-          setPlace(error, in_file.name, in_file.line);
-        } /* if */
-        storeErrorLine(error);
-      } /* if */
+      setPlaceAndLine(error, obj_found);
       switch (err) {
         case NO_MATCH:
           copyCStri(&error->msg, "Match for ");
