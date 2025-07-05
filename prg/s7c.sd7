@@ -3973,6 +3973,7 @@ const func boolean: process_dynamic_call (in reference: function,
   local
     var category: objectCategory is category.value;
     var expr_type: resultExpr is expr_type.value;
+    var type: objectType is void;
   begin
     if function = interface_object then
       found := TRUE;
@@ -4004,9 +4005,13 @@ const func boolean: process_dynamic_call (in reference: function,
           c_expr.expr &:= ";\n";
         end if;
       elsif objectCategory = INTOBJECT or
-          objectCategory = BIGINTOBJECT or
           objectCategory = FLOATOBJECT or
           objectCategory = CHAROBJECT or
+          objectCategory = CONSTENUMOBJECT then
+        c_expr.expr &:= "return ";
+        getAnyParamToExpr(function, c_expr);
+        c_expr.expr &:= ";\n";
+      elsif objectCategory = BIGINTOBJECT or
           objectCategory = STRIOBJECT or
           objectCategory = BSTRIOBJECT or
           objectCategory = ARRAYOBJECT or
@@ -4014,12 +4019,12 @@ const func boolean: process_dynamic_call (in reference: function,
           objectCategory = SETOBJECT or
           objectCategory = WINOBJECT or
           objectCategory = POINTLISTOBJECT or
-          objectCategory = PROCESSOBJECT or
-          objectCategory = CONSTENUMOBJECT then
+          objectCategory = PROCESSOBJECT then
         c_expr.expr &:= "return ";
         getAnyParamToExpr(function, resultExpr);
-        process_create_declaration(getType(function), global_c_expr);
-        process_create_call(getType(function),
+        objectType := getTypeOfCategory(objectCategory);
+        process_create_declaration(objectType, global_c_expr);
+        process_create_call(objectType,
             resultExpr.expr, c_expr.expr);
         c_expr.expr &:= ";\n";
       else
