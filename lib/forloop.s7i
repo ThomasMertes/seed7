@@ -286,6 +286,9 @@ const proc: FOR_ENUM_DECLS (in type: aType) is func
   end func;
 
 
+FOR_ENUM_DECLS(boolean);
+
+
 (**
  *  For-loop which loops a given number of times.
  *)
