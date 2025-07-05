@@ -5523,10 +5523,18 @@ const proc: process_local_consts (in reference: function,
     processLocalFunctions(function);
     objects := localConsts(function);
     for obj range objects do
-      if category(obj) <> FWDREFOBJECT then
+      if category(obj) = FWDREFOBJECT then
+        process_object_declaration(obj, global_c_expr);
+      else
         declare_type_if_necessary(getType(obj), global_c_expr);
       end if;
-      process_object_declaration(obj, c_expr);
+    end for;
+    for obj range objects do
+      if category(obj) = BLOCKOBJECT then
+        process_object_declaration(obj, global_c_expr);
+      elsif category(obj) <> FWDREFOBJECT then
+        process_object_declaration(obj, c_expr);
+      end if;
     end for;
   end func;
 
