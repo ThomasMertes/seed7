@@ -1471,7 +1471,8 @@ const proc: process_const_func_call (in reference: function,
     var ref_list: formal_params is ref_list.EMPTY;
     var expr_type: c_params is expr_type.value;
   begin
-    if function not in prototype_declared then
+    if function not in prototype_declared and
+        function not in function_declared then
       process_prototype_declaration(function, global_c_expr);
       prototype_declared @:= [function] TRUE;
     end if;
@@ -1596,7 +1597,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
       if function in functionInlineDepth and
           functionInlineDepth[function] > maximumInlineDepth then
         incl(failed_function_inlining, function);
-        if function not in prototype_declared then
+        if function not in prototype_declared and
+            function not in function_declared then
           process_prototype_declaration(function, global_c_expr);
           prototype_declared @:= [function] TRUE;
         end if;
@@ -2897,7 +2899,8 @@ const proc: process_forward_declaration (in reference: fwd_ref,
     var reference: function is NIL;
   begin
     function := getValue(fwd_ref, reference);
-    if function not in prototype_declared then
+    if function not in prototype_declared and
+        function not in function_declared then
       process_prototype_declaration(function, c_expr);
       prototype_declared @:= [function] TRUE;
     end if;
