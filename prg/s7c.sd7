@@ -2312,7 +2312,6 @@ const proc: process_const_func_declaration (in reference: function,
     inout expr_type: c_expr) is func
 
   local
-    var expr_type: c_local_consts is expr_type.value;
     var expr_type: c_param_list is expr_type.value;
     var expr_type: c_result is expr_type.value;
     var expr_type: c_local_vars is expr_type.value;
@@ -2334,14 +2333,9 @@ const proc: process_const_func_declaration (in reference: function,
       # Try to process the function declaration always.
       # The variable write_object_declaration is used to
       # decide if the function declaration should be written
-      function_declared @:= [function] TRUE;
       declare_types_of_params(param_list, global_c_expr);
-      c_local_consts.currentFile := c_expr.currentFile;
-      c_local_consts.currentLine := c_expr.currentLine;
-      process_local_consts(function, c_local_consts);
-      global_c_expr.expr  &:= c_local_consts.temp_decls;
-      global_init.expr    &:= c_local_consts.temp_assigns;
-      global_c_expr.expr  &:= c_local_consts.expr;
+      process_local_consts(function, c_expr);
+      function_declared @:= [function] TRUE;
       c_expr.expr &:= diagnosticLine(function);
       c_expr.expr &:= "static ";
       c_expr.expr &:= type_name(result_type);
@@ -5538,11 +5532,7 @@ const proc: process_local_consts (in reference: function,
       end if;
     end for;
     for obj range objects do
-      if category(obj) = BLOCKOBJECT then
-        process_object_declaration(obj, global_c_expr);
-      elsif category(obj) <> FWDREFOBJECT then
-        process_object_declaration(obj, c_expr);
-      end if;
+      process_object_declaration(obj, c_expr);
     end for;
   end func;
 
