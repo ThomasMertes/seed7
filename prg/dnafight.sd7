@@ -1199,7 +1199,7 @@ const proc: initStatistics is func
     setPos(stat, 1, 1);
     writeln(stat, "Generation");
     setPos(stat, 3, 1);
-    writeln(stat, "bact    number      mass  av.size");
+    writeln(stat, "bact    number      mass  av.size   died ranking");
     for col1 range ALL_COLORS do
       if col1 in playerSet then
         setPos(stat, 5 + playanz, 1);
