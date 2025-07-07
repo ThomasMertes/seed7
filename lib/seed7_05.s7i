@@ -60,41 +60,41 @@ const proc: var    (ref type param) : (ref expr param) is forward           is a
 const proc: syntax (ref type param) : (ref expr param) is (ref expr param)  is action "DCL_SYNTAX";
 
 const func f_param: ref (ref type param) : (ref expr param)     is action "DCL_REF2";
-const func f_param: val (ref type param) param                  is action "DCL_VAL1";
-const func f_param: val (ref type param) : (ref expr param)     is action "DCL_VAL2";
-const func f_param: in (ref type param) param                   is action "DCL_IN1";
-const func f_param: in (ref type param) : (ref expr param)      is action "DCL_IN2";
-const func f_param: in var (ref type param) param               is action "DCL_IN1VAR";
-const func f_param: in var (ref type param) : (ref expr param)  is action "DCL_IN2VAR";
-const func f_param: inout (ref type param) param                is action "DCL_INOUT1";
-const func f_param: inout (ref type param) : (ref expr param)   is action "DCL_INOUT2";
-const func f_param: attr (ref type param)                       is action "DCL_ATTR";
-const func f_param: attr (ref f_param param)                    is action "DCL_PARAM_ATTR";
-const proc: global (ref proc param) end global                  is action "DCL_GLOBAL";
+const func f_param: val (ref type: aType) param                 is action "DCL_VAL1";
+const func f_param: val (ref type: aType) : (ref expr: name)    is action "DCL_VAL2";
+const func f_param: in (ref type: aType) param                  is action "DCL_IN1";
+const func f_param: in (ref type: aType) : (ref expr: name)     is action "DCL_IN2";
+const func f_param: in var (ref type: aType) param              is action "DCL_IN1VAR";
+const func f_param: in var (ref type: aType) : (ref expr: name) is action "DCL_IN2VAR";
+const func f_param: inout (ref type: aType) param               is action "DCL_INOUT1";
+const func f_param: inout (ref type: aType) : (ref expr: name)  is action "DCL_INOUT2";
+const func f_param: attr (ref type: aType)                      is action "DCL_ATTR";
+const func f_param: attr (ref f_param: aParam)                  is action "DCL_PARAM_ATTR";
+const proc: global (ref proc: statement) end global             is action "DCL_GLOBAL";
 
-const proc: (ref type param) ::= (ref type param)            is action "TYP_CREATE";
-const proc: destroy (ref type param)                         is action "TYP_DESTR";
+const proc: (ref type: dest) ::= (ref type: source)           is action "TYP_CREATE";
+const proc: destroy (ref type: aValue)                        is action "TYP_DESTR";
 
-const proc: (inout type: dest) := (ref type: source)         is action "TYP_CPY";
-const proc: (ref func proc param) ::= (ref ACTION param)     is action "ACT_CREATE";
-const proc: (ref varfunc proc param) ::= (ref ACTION param)  is action "ACT_CREATE";
-const func proc: func begin (ref expr: statements) end func  is action "PRC_BEGIN";
-const func proc: func begin end func                         is action "PRC_BEGIN_NOOP";
+const proc: (inout type: dest) := (ref type: source)          is action "TYP_CPY";
+const proc: (ref func proc: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
+const proc: (ref varfunc proc: dest) ::= (ref ACTION: source) is action "ACT_CREATE";
+const func proc: func begin (ref expr: statements) end func   is action "PRC_BEGIN";
+const func proc: func begin end func                          is action "PRC_BEGIN_NOOP";
 const func proc: func local (ref proc: localDefinitions)
-                 begin (ref expr: statements) end func       is action "PRC_LOCAL";
-const func proc: return (ref void: statement)                is action "PRC_RETURN";
-const func proc: return (ref proc: statement)                is action "PRC_RETURN";
-const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
-const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
-const proc: destroy (ref proc param)                         is action "PRC_DESTR";
-const proc: noop                                             is action "PRC_NOOP";
-const proc: (ref void: statement1) ; (ref void: statement2)  is noop;
-const proc: ignore (ref f_param: aParam)                     is noop;
+                 begin (ref expr: statements) end func        is action "PRC_LOCAL";
+const func proc: return (ref void: statement)                 is action "PRC_RETURN";
+const func proc: return (ref proc: statement)                 is action "PRC_RETURN";
+const proc: (ref proc: dest) ::= (ref proc: source)           is action "PRC_CREATE";
+const proc: (inout proc: dest) := (ref proc: source)          is action "PRC_CPY";
+const proc: destroy (ref proc: aValue)                        is action "PRC_DESTR";
+const proc: noop                                              is action "PRC_NOOP";
+const proc: (ref void: statement1) ; (ref void: statement2)   is noop;
+const proc: ignore (ref f_param: aParam)                      is noop;
 
-const proc: PRINT (ref string: stri)                         is action "FIL_PRINT";
+const proc: PRINT (ref string: stri)                          is action "FIL_PRINT";
 
-const proc: IN_PARAM_IS_VALUE (ref type: aType)              is action "TYP_SET_IN_PARAM_VALUE";
-const proc: IN_PARAM_IS_REFERENCE (ref type: aType)          is action "TYP_SET_IN_PARAM_REF";
+const proc: IN_PARAM_IS_VALUE (ref type: aType)               is action "TYP_SET_IN_PARAM_VALUE";
+const proc: IN_PARAM_IS_REFERENCE (ref type: aType)           is action "TYP_SET_IN_PARAM_REF";
 
 IN_PARAM_IS_VALUE(type);
 IN_PARAM_IS_VALUE(void);
@@ -108,81 +108,81 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
   begin
     global
 (*    PRINT("in BASIC_TYPE_DECLS\n"); *)
-    const proc: TRACE (ref aType param)                                    is action "REF_TRACE";
-    const proc: ignore (ref aType param)                                   is noop;
-    const proc: (ref func aType param) ::= (ref ACTION param)              is action "ACT_CREATE";
-    const proc: (ref varfunc aType param) ::= (ref ACTION param)           is action "ACT_CREATE";
-    const proc: (ref func aType param) ::= (ref func aType param)          is action "PRC_CREATE";
-    const proc: (ref varfunc aType param) ::= (ref varfunc aType param)    is action "PRC_CREATE";
-    const proc: destroy (ref func aType param)                             is action "PRC_DESTR";
-    const proc: destroy (ref varfunc aType param)                          is action "PRC_DESTR";
+    const proc: TRACE (ref aType: aValue)                                  is action "REF_TRACE";
+    const proc: ignore (ref aType: aValue)                                 is noop;
+    const proc: (ref func aType: dest) ::= (ref ACTION: source)            is action "ACT_CREATE";
+    const proc: (ref varfunc aType: dest) ::= (ref ACTION: source)         is action "ACT_CREATE";
+    const proc: (ref func aType: dest) ::= (ref func aType: source)        is action "PRC_CREATE";
+    const proc: (ref varfunc aType: dest) ::= (ref varfunc aType: source)  is action "PRC_CREATE";
+    const proc: destroy (ref func aType: aValue)                           is action "PRC_DESTR";
+    const proc: destroy (ref varfunc aType: aValue)                        is action "PRC_DESTR";
     const proc: (inout func aType: dest) := (ref func aType: source)       is action "PRC_CPY";
     const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
-    const type: typeof (ref aType param)                                   is aType;
-    const proc: (ref func func aType param) ::= (ref ACTION param)         is action "ACT_CREATE";
-    const proc: (ref func varfunc aType param) ::= (ref ACTION param)      is action "ACT_CREATE";
-    const proc: (ref func func aType param) ::= (ref func func aType param)        is action "PRC_CREATE";
-    const proc: (ref func varfunc aType param) ::= (ref func varfunc aType param)  is action "PRC_CREATE";
-    # const proc: destroy (ref func func aType param)                      is action "GEN_DESTR";
-    # const proc: destroy (ref func varfunc aType param)                   is action "GEN_DESTR";
+    const type: typeof (ref aType: aValue)                                 is aType;
+    const proc: (ref func func aType: dest) ::= (ref ACTION: source)       is action "ACT_CREATE";
+    const proc: (ref func varfunc aType: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
+    const proc: (ref func func aType: dest) ::= (ref func func aType: source)        is action "PRC_CREATE";
+    const proc: (ref func varfunc aType: dest) ::= (ref func varfunc aType: source)  is action "PRC_CREATE";
+    # const proc: destroy (ref func func aType: aValue)                    is action "GEN_DESTR";
+    # const proc: destroy (ref func varfunc aType: aValue)                 is action "GEN_DESTR";
     IN_PARAM_IS_REFERENCE(func aType);
     IN_PARAM_IS_REFERENCE(varfunc aType);
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref aType param)
+                             var (attr aType) : (ref expr: name) is (ref aType: initValue)
                            local
-                             (ref proc param)
+                             (ref proc: localDecls)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref func aType param)
+                             var (attr aType) : (ref expr: name) is (ref func aType: initExpression)
                            local
-                             (ref proc param)
+                             (ref proc: localDecls)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref aType param)
+                             var (attr aType) : (ref expr: name) is (ref aType: initValue)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref func aType param)
+                             var (attr aType) : (ref expr: name) is (ref func aType: initExpression)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
 
-    const func func aType: return (ref aType param)                   is action "PRC_RETURN";
-    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
-    const func varfunc aType: return var (inout aType param)          is action "PRC_RETURN_VAR";
-    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_RETURN_VAR";
+    const func func aType: return (ref aType: resultValue)            is action "PRC_RETURN";
+    const func func aType: return (ref func aType: resultExpression)  is action "PRC_RETURN";
+    const func varfunc aType: return var (inout aType: resultValue)               is action "PRC_RETURN_VAR";
+    const func varfunc aType: return var (ref varfunc aType: resultExpression)    is action "PRC_RETURN_VAR";
 
-    const func func aType: (attr aType) return (ref aType param)                is action "PRC_RETURN2";
-    const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
-    const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_RETURN_VAR2";
-    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_RETURN_VAR2";
+    const func func aType: (attr aType) return (ref aType: resultValue)           is action "PRC_RETURN2";
+    const func func aType: (attr aType) return (ref func aType: resultExpression) is action "PRC_RETURN2";
+    const func varfunc aType: (attr aType) return var (inout aType: resultValue)            is action "PRC_RETURN_VAR2";
+    const func varfunc aType: (attr aType) return var (ref varfunc aType: resultExpression) is action "PRC_RETURN_VAR2";
 
-    const func func func aType: return (ref func func aType param)              is action "PRC_RETURN";
-    const func func func aType: (attr aType) return (ref func func aType param) is action "PRC_RETURN2";
+    const func func func aType: return (ref func func aType: resultExpression)              is action "PRC_RETURN";
+    const func func func aType: (attr aType) return (ref func func aType: resultExpression) is action "PRC_RETURN2";
     const func func func aType: func
                                 result
-                                  var (attr func aType) : (ref expr param) is (ref func aType param)
+                                  var (attr func aType) : (ref expr: name) is (ref func aType: initExpression)
                                 begin
-                                  (ref expr param)
+                                  (ref expr: functionBody)
                                 end func                              is action "PRC_RES_BEGIN";
     const func func func aType: func
                                 result
-                                  var (attr func aType) : (ref expr param) is (ref func func aType param)
+                                  var (attr func aType) : (ref expr: name) is (ref func func aType: initExpression)
                                 begin
-                                  (ref expr param)
+                                  (ref expr: functionBody)
                                 end func                              is action "PRC_RES_BEGIN";
     end global;
   end func;
@@ -216,6 +216,7 @@ const func type: subtype (in type: baseType) is func
   result
     var type: aType is void;
   begin
+    global
     aType := gensub(baseType);
 (*    PRINT("GENERATE type: subtype "); PRINT(str(baseType)); PRINT(" as "); PRINT(str(aType)); PRINT("\n"); *)
     BASIC_TYPE_DECLS(aType);
@@ -223,43 +224,44 @@ const func type: subtype (in type: baseType) is func
     const type: base_type (attr aType) is baseType;
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref baseType param)
+                             var (attr aType) : (ref expr: name) is (ref baseType: initValue)
                            local
-                             (ref proc param)
+                             (ref proc: localDecls)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref func baseType param)
+                             var (attr aType) : (ref expr: name) is (ref func baseType: initExpression)
                            local
-                             (ref proc param)
+                             (ref proc: localDecls)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref baseType param)
+                             var (attr aType) : (ref expr: name) is (ref baseType: initValue)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
 
     const func func aType: func
                            result
-                             var (attr aType) : (ref expr param) is (ref func baseType param)
+                             var (attr aType) : (ref expr: name) is (ref func baseType: initExpression)
                            begin
-                             (ref expr param)
+                             (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
 
-    const func func aType: (attr aType) return (ref func baseType param)           is action "PRC_RETURN2";
-    const func func aType: (attr aType) return (ref baseType param)                is action "PRC_RETURN2";
-    const func varfunc aType: (attr aType) return var (ref varfunc baseType param) is action "PRC_RETURN_VAR2";
-    const func varfunc aType: (attr aType) return var (inout baseType param)       is action "PRC_RETURN_VAR2";
+    const func func aType: (attr aType) return (ref baseType: resultValue)                     is action "PRC_RETURN2";
+    const func func aType: (attr aType) return (ref func baseType: resultExpression)           is action "PRC_RETURN2";
+    const func varfunc aType: (attr aType) return var (inout baseType: resultValue)            is action "PRC_RETURN_VAR2";
+    const func varfunc aType: (attr aType) return var (ref varfunc baseType: resultExpression) is action "PRC_RETURN_VAR2";
 
 (*  TRACE(aType);
     PRINT("\n"); *)
+    end global;
   end func;
 
 
