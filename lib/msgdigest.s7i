@@ -1193,15 +1193,15 @@ const func string: msgDigest (SHA512, in string: message)    is return sha512(me
  *)
 const func integer: blockSize (in digestAlgorithm: digestAlg) is DYNAMIC;
 
-const func integer: blockSize (NO_DIGEST) is   0;
-const func integer: blockSize (MD4)       is  64;
-const func integer: blockSize (MD5)       is  64;
-const func integer: blockSize (RIPEMD160) is  64;
-const func integer: blockSize (SHA1)      is  64;
-const func integer: blockSize (SHA224)    is  64;
-const func integer: blockSize (SHA256)    is  64;
-const func integer: blockSize (SHA384)    is 128;
-const func integer: blockSize (SHA512)    is 128;
+const integer: blockSize (NO_DIGEST) is   0;
+const integer: blockSize (MD4)       is  64;
+const integer: blockSize (MD5)       is  64;
+const integer: blockSize (RIPEMD160) is  64;
+const integer: blockSize (SHA1)      is  64;
+const integer: blockSize (SHA224)    is  64;
+const integer: blockSize (SHA256)    is  64;
+const integer: blockSize (SHA384)    is 128;
+const integer: blockSize (SHA512)    is 128;
 
 
 (**
@@ -1210,12 +1210,12 @@ const func integer: blockSize (SHA512)    is 128;
  *)
 const func integer: digestSize (in digestAlgorithm: digestAlg) is DYNAMIC;
 
-const func integer: digestSize (NO_DIGEST) is  0;
-const func integer: digestSize (MD4)       is 16;
-const func integer: digestSize (MD5)       is 16;
-const func integer: digestSize (RIPEMD160) is 20;
-const func integer: digestSize (SHA1)      is 20;
-const func integer: digestSize (SHA224)    is 28;
-const func integer: digestSize (SHA256)    is 32;
-const func integer: digestSize (SHA384)    is 48;
-const func integer: digestSize (SHA512)    is 64;
+const integer: digestSize (NO_DIGEST) is  0;
+const integer: digestSize (MD4)       is 16;
+const integer: digestSize (MD5)       is 16;
+const integer: digestSize (RIPEMD160) is 20;
+const integer: digestSize (SHA1)      is 20;
+const integer: digestSize (SHA224)    is 28;
+const integer: digestSize (SHA256)    is 32;
+const integer: digestSize (SHA384)    is 48;
+const integer: digestSize (SHA512)    is 64;
