@@ -31,7 +31,6 @@ const category: VOIDOBJECT        is category conv 258;
 
 const type: typeReferenceHash is hash [type] reference;
 const type: typeCategoryHash is hash [type] category;
-const type: typeOfCategoryHash is hash [category] type;
 const type: type_hash is hash [type] type;
 const type: boolean_type_hash is hash [type] boolean;
 const type: integer_type_hash is hash [type] integer;
@@ -52,7 +51,6 @@ const type: boolean_obj_hash is hash [reference] boolean;
 
 const type: typeDataStruct is new struct
   var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
-  var typeOfCategoryHash: typeOfCategory is typeOfCategoryHash.EMPTY_HASH;
 
   var type_hash: array_element is type_hash.EMPTY_HASH;
   var type_hash: array_type is type_hash.EMPTY_HASH;
@@ -304,25 +302,3 @@ const func boolean: useConstPrefix (in type: aType) is func
 
 const func boolean: useConstPrefix (in reference: a_param) is
   return useConstPrefix(getType(a_param));
-
-
-const func type: getTypeOfCategory (in category: aTypeCategory) is func
-  result
-    var type: typeFound is void;
-  local
-    var category: aCategory is ILLEGALOBJECT;
-    var type: aType is void;
-  begin
-    if aTypeCategory in typeData.typeOfCategory then
-      typeFound := typeData.typeOfCategory[aTypeCategory];
-    else
-      for aCategory key aType range typeData.typeCategory do
-        if aCategory not in typeData.typeOfCategory then
-          typeData.typeOfCategory @:= [aCategory] aType;
-        end if;
-      end for;
-      if aTypeCategory in typeData.typeOfCategory then
-        typeFound := typeData.typeOfCategory[aTypeCategory];
-      end if;
-    end if;
-  end func;
