@@ -48,7 +48,7 @@ type_implements_interface(blowfishState, cipherState);
  *  Block size used by the Blowfish block cipher.
  *  @return the block size used by the Blowfish cipher.
  *)
-const func integer: blockSize (BLOWFISH) is 8;
+const integer: blockSize (BLOWFISH) is 8;
 
 
 const array bin32: pBoxInit is [0] (

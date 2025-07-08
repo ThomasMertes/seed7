@@ -51,7 +51,7 @@ type_implements_interface(aesState, cipherState);
  *  Block size used by the AES (Advanced Encryption Standard) block cipher.
  *  @return the block size used by the AES cipher.
  *)
-const func integer: blockSize (AES) is 16;
+const integer: blockSize (AES) is 16;
 
 
 const array array bin32: Te is [] (

@@ -119,7 +119,7 @@ type_implements_interface(noCipherState, cipherState);
 const cipherState: (attr cipherState) . value is noCipherState.value;
 
 
-const func integer: blockSize (NO_CIPHER) is 0;
+const integer: blockSize (NO_CIPHER) is 0;
 
 
 const func cipherState: setCipherKey (NO_CIPHER, in string: cipherKey,
