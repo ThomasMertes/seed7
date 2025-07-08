@@ -3998,33 +3998,20 @@ const func boolean: process_dynamic_call (in reference: function,
           end if;
           c_expr.expr &:= ";\n";
         end if;
-      elsif objectCategory = INTOBJECT or
-          objectCategory = FLOATOBJECT or
-          objectCategory = CHAROBJECT or
-          objectCategory = CONSTENUMOBJECT then
+      elsif objectCategory in simpleValueType then
         c_expr.expr &:= "return ";
         getAnyParamToExpr(function, c_expr);
         c_expr.expr &:= ";\n";
-      elsif objectCategory = BIGINTOBJECT or
-          objectCategory = STRIOBJECT or
-          objectCategory = BSTRIOBJECT or
-          objectCategory = ARRAYOBJECT or
-          objectCategory = STRUCTOBJECT or
-          objectCategory = SETOBJECT or
-          objectCategory = WINOBJECT or
-          objectCategory = POINTLISTOBJECT or
-          objectCategory = PROCESSOBJECT then
+      else
         c_expr.expr &:= "return ";
         getAnyParamToExpr(function, resultExpr);
-        objectType := getTypeOfCategory(objectCategory);
+        objectType := getType(function);
+        if isFunc(objectType) then
+          objectType := resultType(objectType);
+        end if;
         process_create_declaration(objectType, global_c_expr);
-        process_create_call(objectType,
-            resultExpr.expr, c_expr.expr);
+        process_create_call(objectType, resultExpr.expr, c_expr.expr);
         c_expr.expr &:= ";\n";
-      else
-        c_expr.expr &:= "/* ";
-        c_expr.expr &:= str(objectCategory);
-        c_expr.expr &:= " */\n";
       end if;
     end if;
   end func;
@@ -9002,7 +8989,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 3.4." <& ccConf.VERSION_REVISION_LEVEL <&
+    writeln("SEED7 COMPILER Version 3.5." <& ccConf.VERSION_REVISION_LEVEL <&
             " Copyright (c) 1990-2025 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
