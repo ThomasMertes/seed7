@@ -68,13 +68,23 @@ const func string: getwd (inout field_file: field_fil) is func
   result
     var string: stri is "";
   local
-    var boolean: input_done is FALSE;
     var char: ch is ' ';
   begin
     field_fil.column := 1;
     repeat
       setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+      if field_fil.column <= length(field_fil.field) then
+        cursorOn(field_fil.out_file, field_fil.field[field_fil.column]);
+      else
+        cursorOn(field_fil.out_file, ' ');
+      end if;
+      flush(field_fil.out_file);
       ch := getc(field_fil.in_file);
+      if field_fil.column <= length(field_fil.field) then
+        cursorOff(field_fil.out_file, field_fil.field[field_fil.column]);
+      else
+        cursorOff(field_fil.out_file, ' ');
+      end if;
       case ch of
         when {KEY_LEFT}:
           if field_fil.column > 1 then
@@ -99,12 +109,15 @@ const func string: getwd (inout field_file: field_fil) is func
           field_fil.field @:= [field_fil.column] ' ';
           write(field_fil.out_file, ' ');
         when {' ' .. '~'}:
-          if not input_done and field_fil.column = 1 then
-            field_fil.field := " " mult field_fil.width;
+          if length(field_fil.field) <> field_fil.width then
+            if length(field_fil.field) < field_fil.width then
+              field_fil.field &:= " " mult field_fil.width - length(field_fil.field);
+            else
+              field_fil.field := field_fil.field[.. field_fil.width];
+            end if;
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
-            write(field_fil.out_file, " " mult field_fil.width);
+            write(field_fil.out_file, field_fil.field);
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
-            input_done := TRUE;
           end if;
           field_fil.field @:= [field_fil.column] ch;
           write(field_fil.out_file, ch);
@@ -113,13 +126,7 @@ const func string: getwd (inout field_file: field_fil) is func
           end if;
       end case;
     until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
-    stri := field_fil.field;
-    while length(stri) >= 1 and stri[1] = ' ' do
-      stri := stri[2 ..];
-    end while;
-    while length(stri) >= 1 and stri[length(stri)] = ' ' do
-      stri := stri[.. pred(length(stri))];
-    end while;
+    stri := trim(field_fil.field);
     field_fil.bufferChar := ch;
   end func;
 
@@ -128,13 +135,23 @@ const func string: getln (inout field_file: field_fil) is func
   result
     var string: stri is "";
   local
-    var boolean: input_done is FALSE;
     var char: ch is ' ';
   begin
     field_fil.column := 1;
     repeat
       setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+      if field_fil.column <= length(field_fil.field) then
+        cursorOn(field_fil.out_file, field_fil.field[field_fil.column]);
+      else
+        cursorOn(field_fil.out_file, ' ');
+      end if;
+      flush(field_fil.out_file);
       ch := getc(field_fil.in_file);
+      if field_fil.column <= length(field_fil.field) then
+        cursorOff(field_fil.out_file, field_fil.field[field_fil.column]);
+      else
+        cursorOff(field_fil.out_file, ' ');
+      end if;
       case ch of
         when {KEY_LEFT}:
           if field_fil.column > 1 then
@@ -159,12 +176,15 @@ const func string: getln (inout field_file: field_fil) is func
           field_fil.field @:= [field_fil.column] ' ';
           write(field_fil.out_file, ' ');
         when {' ' .. '~'}:
-          if not input_done and field_fil.column = 1 then
-            field_fil.field := " " mult field_fil.width;
+          if length(field_fil.field) <> field_fil.width then
+            if length(field_fil.field) < field_fil.width then
+              field_fil.field &:= " " mult field_fil.width - length(field_fil.field);
+            else
+              field_fil.field := field_fil.field[.. field_fil.width];
+            end if;
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
-            write(field_fil.out_file, " " mult field_fil.width);
+            write(field_fil.out_file, field_fil.field);
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
-            input_done := TRUE;
           end if;
           field_fil.field @:= [field_fil.column] ch;
           write(field_fil.out_file, ch);
@@ -199,4 +219,17 @@ const func string: gets (inout field_file: field_fil, in integer: length) is fun
     end while;
     stri := field_fil.field[ .. length];
     field_fil.field := field_fil.field[succ(length) .. ];
+  end func;
+
+
+const proc: write (inout field_file: field_fil, in string: stri) is func
+  begin
+    if length(stri) < field_fil.width then
+      field_fil.field := stri & " " mult field_fil.width - length(stri);
+    else
+      field_fil.field := stri[.. field_fil.width];
+    end if;
+    setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
+    write(field_fil.out_file, field_fil.field);
+    setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
   end func;
