@@ -2610,7 +2610,7 @@ const proc: main is func
     writeCentered(info, 360, "terms of the GNU General Public License");
     writeCentered(info, 392, "Sudoku7 is written in the");
     writeCentered(info, 408, "Seed7 programming language.");
-    writeCentered(info, 440, "Homepage:  http://seed7.sourceforge.net");
+    writeCentered(info, 440, "Homepage:  https://seed7.net");
     initGrid;
     blue_digits := [0](
       createPixmap(blue_zero,  2, BACKGROUND),

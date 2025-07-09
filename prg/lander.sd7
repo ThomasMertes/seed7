@@ -432,7 +432,7 @@ const proc: welcome is func
     setPos(screen, 10, 2);
     writeln(screen, "Lander is written in the Seed7 programming language");
     setPos(screen, 11, 5);
-    writeln(screen, "Homepage:    http://seed7.sourceforge.net");
+    writeln(screen, "Homepage:    https://seed7.net");
     setPos(screen, 14, 1);
     writeln(screen, "      The object is to successfully land the");
     writeln(screen, "      space-craft on the landing pad. This is");

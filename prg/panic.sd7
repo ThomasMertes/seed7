@@ -2587,7 +2587,7 @@ const proc: main is func
     writeCentered(scr, 93, "This program is free software under the");
     writeCentered(scr, 108, "terms of the GNU General Public License");
     writeCentered(scr, 135, "Panic is written in the Seed7 programming language");
-    writeCentered(scr, 150, "Homepage:    http://seed7.sourceforge.net");
+    writeCentered(scr, 150, "Homepage:    https://seed7.net");
     setPosXY(scr, 65, 205);
     writeln(scr, "Dig holes and pound the apples through the holes");
     writeln(scr);

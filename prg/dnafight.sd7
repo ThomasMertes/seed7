@@ -1317,7 +1317,7 @@ const proc: main is func
     setPos(scr, 13, 28);
     writeln(scr, "Dnafight is written in the Seed7 programming language");
     setPos(scr, 14, 35);
-    writeln(scr, "Homepage:  http://seed7.sourceforge.net");
+    writeln(scr, "Homepage:  https://seed7.net");
     setPos(scr, 17, 1);
     writeln(scr, "   Dnafight is a programming game in which bacteria fight \
         \against each other.");

@@ -67,7 +67,7 @@ const proc: main is func
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Make7 is written in the Seed7 programming language");
-      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln("Homepage: https://seed7.net");
       writeln;
       writeln("usage: make7 [options] [targets]");
       writeln;

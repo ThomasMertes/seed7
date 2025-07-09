@@ -451,7 +451,7 @@ const proc: main is func
       setPos(info_sheet, 8, 2);
       write(info_sheet, "Tetris is written in the Seed7 programming language");
       setPos(info_sheet, 9, 4);
-      write(info_sheet, "Homepage:    http://seed7.sourceforge.net");
+      write(info_sheet, "Homepage:    https://seed7.net");
       setPos(info_sheet, 14, 2);
       write(info_sheet, " Score: ");
       setPos(info_sheet, 14, 11);

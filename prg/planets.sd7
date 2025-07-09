@@ -501,7 +501,7 @@ const proc: showMenu is func
     writeln(scr, " terms of the GNU General Public License");
     setPos(scr, 9, 1);
     writeln(scr, " Planets is written in the Seed7 programming language");
-    writeln(scr, " Homepage:    http://seed7.sourceforge.net");
+    writeln(scr, " Homepage:    https://seed7.net");
     writeln(scr);
     writeln(scr);
     writeln(scr, " Possible commands are:");

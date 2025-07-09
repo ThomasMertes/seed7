@@ -40,7 +40,7 @@ const proc: main is func
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
     writeln("Ftpserv is written in the Seed7 programming language");
-    writeln("Homepage: http://seed7.sourceforge.net");
+    writeln("Homepage: https://seed7.net");
     if length(argv(PROGRAM)) >= 1 then
       parameter := argv(PROGRAM)[1];
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then

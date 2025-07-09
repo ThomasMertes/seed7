@@ -204,7 +204,7 @@ const proc: main is func
     setPosXY(screen, 222, 254);
     writeln(screen, "ming language. Homepage:");
     setPosXY(screen, 234, 270);
-    writeln(screen, "seed7.sourceforge.net");
+    writeln(screen, "seed7.net");
     setPosXY(screen, 150, 190);
     writeln(screen, "press");
     setPosXY(screen, 162, 206);

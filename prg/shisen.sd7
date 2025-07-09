@@ -1383,7 +1383,7 @@ const proc: main is func
     writeCentered(screen, 38, "Copyright (C) 2005, 2007, 2012, 2013, 2020  Thomas Mertes");
     writeCentered(screen, 54, "This program is free software under the terms of the GNU General Public License");
     writeCentered(screen, 652, "Shisen is written in the Seed7 programming language");
-    writeCentered(screen, 668, "Homepage:    http://seed7.sourceforge.net");
+    writeCentered(screen, 668, "Homepage:    https://seed7.net");
     flushGraphic;
     digit_pixmap := [0](
       createPixmap(zero,  2, black),

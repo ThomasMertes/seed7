@@ -321,7 +321,7 @@ const proc: introduction is func
     writeln(win, "Sokoban is written in the Seed7");
     writeln(win, "programming language");
     writeln(win);
-    writeln(win, "Homepage:  http://seed7.sourceforge.net");
+    writeln(win, "Homepage:  https://seed7.net");
     setPos(win, 20, 1);
     writeln(win, "The following commands are accepted:");
     writeln(win, "  cursor keys to move");

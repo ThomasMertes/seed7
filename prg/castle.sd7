@@ -2499,7 +2499,7 @@ const proc: welcomeScreen is func
     setPos(screen, 12, 43);
     writeln(screen, "Castle is written in the Seed7 programming language");
     setPos(screen, 13, 48);
-    writeln(screen, "Homepage:    http://seed7.sourceforge.net");
+    writeln(screen, "Homepage:    https://seed7.net");
   end func;
 
 

@@ -92,7 +92,7 @@ const proc: introduction is func
     setPos(intro, 8, 1);
     writeln(intro, "Wator is written in the Seed7 programming language");
     setPos(intro, 9, 1);
-    writeln(intro, "Homepage:    http://seed7.sourceforge.net");
+    writeln(intro, "Homepage:    https://seed7.net");
     setPos(intro, 12, 1);
     writeln(intro, "This program simulates the planet WATOR as described in Scientific American Computer");
     writeln(intro, "Recreations column, Dec 1984.  WATOR (or Wa-Tor) is a toroidal (donut-shaped) planet");
