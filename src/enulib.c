@@ -130,6 +130,12 @@ objectType enu_genlit (listType arguments)
     enum_to = arg_1(arguments);
     logFunction(printf("enu_genlit(");
                 trace1(enum_to);
+                if (HAS_ENTITY(enum_to) &&
+                    GET_ENTITY(enum_to)->syobject != NULL) {
+                  printf(" (");
+                  trace1(GET_ENTITY(enum_to)->syobject);
+                  printf(")");
+                } /* if */
                 printf(")\n"););
     SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
     enum_to->value.objValue = NULL;

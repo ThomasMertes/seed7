@@ -159,6 +159,9 @@ objectType dcl_const (listType arguments)
                   printf("*** do_create failed ");
                   prot_list(arguments);
                   printf("\n");
+                  printf("current_object: ");
+                  trace1(current_object);
+                  printf("\n");
 #endif
                 } /* if */
 #if TRACE_DCL_CONST
@@ -196,6 +199,9 @@ objectType dcl_const (listType arguments)
 #if TRACE_DCL_CONST
               printf("*** do_create failed ");
               prot_list(arguments);
+              printf("\n");
+              printf("current_object: ");
+              trace1(current_object);
               printf("\n");
 #endif
             } /* if */
@@ -933,11 +939,10 @@ objectType dcl_symb (listType arguments)
     objectType symb_object;
 
   /* dcl_symb */
-    logFunction(printf("dcl_symb\n"););
     symb_object = arg_2(arguments);
-    /* printf("decl symb %lu ", (long unsigned) GET_ENTITY(symb_object));
-    trace1(symb_object);
-    printf(":\n"); */
+    logFunction(printf("dcl_symb(");
+                trace1(symb_object);
+                printf(")\n"););
     if (HAS_ENTITY(symb_object) &&
         GET_ENTITY(symb_object)->syobject != NULL) {
       symb_object = GET_ENTITY(symb_object)->syobject;

@@ -136,6 +136,8 @@ objectType act_gen (listType arguments)
   /* act_gen */
     isit_stri(arg_2(arguments));
     actionName = take_stri(arg_2(arguments));
+    logFunction(printf("act_gen(\"%s\")\n",
+                       striAsUnquotedCStri(actionName)););
     action = findAction(actionName);
     if (unlikely(action == NULL)) {
       logError(printf("act_gen(\"%s\"): No such action exists.\n",
