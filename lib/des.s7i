@@ -53,7 +53,6 @@ type_implements_interface(desState, cipherState);
 
 (**
  *  Block size used by the DES (Data Encryption Standard) block cipher.
- *  @return the block size used by the DES cipher.
  *)
 const integer: blockSize (DES) is 8;
 

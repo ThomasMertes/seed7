@@ -151,7 +151,6 @@ type_implements_interface(aesGcmState, cipherState);
  *  Block size used by the AES GCM cipher.
  *  AES is the Advanced Encryption Standard cipher.
  *  GCM is the Galois Counter Mode.
- *  @return the block size used by the AES GCM cipher.
  *)
 const integer: blockSize (AES_GCM) is 0;
 

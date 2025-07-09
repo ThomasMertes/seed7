@@ -52,7 +52,6 @@ type_implements_interface(tdesState, cipherState);
 
 (**
  *  Block size used by the TDES (Triple DES) block cipher.
- *  @return the block size used by the TDES cipher.
  *)
 const integer: blockSize (TDES) is 8;
 

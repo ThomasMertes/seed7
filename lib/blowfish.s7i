@@ -46,7 +46,6 @@ type_implements_interface(blowfishState, cipherState);
 
 (**
  *  Block size used by the Blowfish block cipher.
- *  @return the block size used by the Blowfish cipher.
  *)
 const integer: blockSize (BLOWFISH) is 8;
 

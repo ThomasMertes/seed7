@@ -49,7 +49,6 @@ type_implements_interface(aesState, cipherState);
 
 (**
  *  Block size used by the AES (Advanced Encryption Standard) block cipher.
- *  @return the block size used by the AES cipher.
  *)
 const integer: blockSize (AES) is 16;
 
