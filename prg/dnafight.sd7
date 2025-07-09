@@ -374,15 +374,27 @@ const proc: readLimits is func
     var integer: currWin is 1;
     var array integer: intValue is 3 times 10;
     var boolean: leave is FALSE;
+    var string: word is "";
+    var boolean: inputOkay is FALSE;
 
   begin
     intValue[1] := initSize;
     intValue[2] := foodReserve;
     intValue[3] := shrinkage;
-    leave := FALSE;
-    currWin:= 1;
     repeat
-      read(fieldWin[currWin], intValue[currWin]);
+      inputOkay := FALSE;
+      repeat
+        write(fieldWin[currWin], intValue[currWin]);
+        word := getwd(fieldWin[currWin]);
+        if succeeds(intValue[currWin] := integer(word)) then
+          inputOkay := TRUE;
+        else
+          setPos(info, currWin, 20);
+          write(info, "*** Conversion to integer failed ***");
+        end if;
+      until inputOkay;
+      setPos(info, currWin, 20);
+      write(info, "                                    ");
       case fieldWin[currWin].bufferChar of
         when {KEY_TAB, KEY_DOWN}:
           writeParameters(intValue[1], intValue[2], intValue[3]);
