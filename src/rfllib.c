@@ -373,6 +373,8 @@ objectType rfl_expr (listType arguments)
     listType list1;
     objectType arg1_object;
     objectType arg3_object;
+    fileNumType file_number;
+    lineNumType line;
     boolType okay;
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
@@ -389,18 +391,31 @@ objectType rfl_expr (listType arguments)
       arg1_object = arg_1(list1);
       incl_list(&result, arg1_object, &err_info);
     } else {
+      arg1_object = arg_1(arguments);
       okay = TRUE;
       do {
         if (list1 != NULL &&
             list1->next != NULL &&
             list1->next->next != NULL &&
             list1->next->next->next == NULL) {
+          if (HAS_POSINFO(arg1_object)) {
+            file_number = POSINFO_FILE_NUM(arg1_object);
+            line = POSINFO_LINE_NUM(arg1_object);
+          } /* if */
           arg1_object = arg_1(list1);
           arg3_object = arg_3(list1);
+          if (HAS_PROPERTY(arg3_object)) {
+            arg3_object->descriptor.property->file_number = file_number;
+            arg3_object->descriptor.property->line = line;
+          } /* if */
           incl_list(&result, arg3_object, &err_info);
           if (CATEGORY_OF_OBJ(arg1_object) == EXPROBJECT) {
             list1 = take_list(arg1_object);
           } else {
+            if (HAS_PROPERTY(arg1_object)) {
+              arg1_object->descriptor.property->file_number = file_number;
+              arg1_object->descriptor.property->line = line;
+            } /* if */
             incl_list(&result, arg1_object, &err_info);
             okay = FALSE;
           } /* if */
