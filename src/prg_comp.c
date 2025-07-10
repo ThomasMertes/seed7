@@ -1100,11 +1100,28 @@ objectType prgSysvar (const const_progType aProgram, const const_striType name)
       result = NULL;
     } else {
       index_found = findSysvar(name);
-      if (index_found != -1) {
-        result = aProgram->sys_var[index_found];
-      } else {
+      if (unlikely(index_found == -1)) {
+        logError(printf("prgSysvar(" FMT_X_MEM ", \"%s\"): "
+                        "System variable not found.\n",
+                        (memSizeType) aProgram,
+                        striAsUnquotedCStri(name)););
         result = NULL;
+      } else {
+        result = aProgram->sys_var[index_found];
+        if (unlikely(result != NULL &&
+                     CATEGORY_OF_OBJ(result) == ILLEGALOBJECT)) {
+          logError(printf("prgSysvar(" FMT_X_MEM ", \"%s\"): "
+                          "System variable is ILLEGALOBJECT.\n",
+                          (memSizeType) aProgram,
+                          striAsUnquotedCStri(name)););
+          result = NULL;
+        } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("prgSysvar(" FMT_X_MEM ", \"%s\") --> ",
+                       (memSizeType) aProgram,
+                       striAsUnquotedCStri(name));
+                trace1(result);
+                printf("\n"););
     return result;
   } /* prgSysvar */
