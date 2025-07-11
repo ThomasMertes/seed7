@@ -42,6 +42,14 @@ const func STRUCT: empty (attr STRUCT)                              is action "S
 const func ref_list: declare_elements (ref proc: elem_decl)         is action "DCL_ELEMENTS";
 
 
+(**
+ *  Structure type with elements defined in ''elem_decl''.
+ *   const type: point is new struct
+ *       var integer: xPos is 0;
+ *       var integer: yPos is 0;
+ *     end struct;
+ *  @param elem_decl Declarations of the struct elements.
+ *)
 const func type: new struct (ref proc: elem_decl) end struct is func
   result
     var type: structType is void;
@@ -87,6 +95,11 @@ const func type: new struct (ref proc: elem_decl) end struct is func
     end global;
   end func;
 
+(**
+ *  Structure type with no elements.
+ *   const type: emptyStruct is new struct
+ *     end struct;
+ *)
 const func type: new struct end struct is func
   result
     var type: structType is void;
@@ -113,6 +126,17 @@ const func type: new struct end struct is func
     end global;
   end func;
 
+(**
+ *  Derived structure type with elements defined in ''elem_decl''.
+ *  Create new structure type as subtype of ''baseType'', which is not
+ *  a structure.
+ *   const type: point is new object struct
+ *       var integer: xPos is 0;
+ *       var integer: yPos is 0;
+ *     end struct;
+ *  @param baseType Base type from which the new type is derived.
+ *  @param elem_decl Declarations of the struct elements.
+ *)
 const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
   result
     var type: structType is void;
@@ -155,6 +179,14 @@ const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct
     end global;
   end func;
 
+(**
+ *  Derived structure type with no elements.
+ *  Create new empty structure type as subtype of ''baseType'', which is not
+ *  a structure.
+ *   const type: emptyStruct new object struct
+ *     end struct;
+ *  @param baseType Base type from which the new type is derived.
+ *)
 const func type: new (in type: baseType) struct end struct is func
   result
     var type: structType is void;
@@ -180,6 +212,23 @@ const func type: new (in type: baseType) struct end struct is func
     end global;
   end func;
 
+(**
+ *  Structure type with inherited elements and elements defined in ''elem_decl''.
+ *  Create new structure type as subtype of ''baseType'', which is a
+ *  structure type. The new structure type inherits all elements of
+ *  the structure type ''baseType''.
+ *   const type: null_file is new struct
+ *       var char: bufferChar is '\n';
+ *     end struct;
+ *
+ *   const type: external_file is sub null_file struct
+ *       var clib_file: ext_file is CLIB_NULL_FILE;
+ *       var string: name is "";
+ *     end struct;
+ *  @param baseType Base type from which the new type is derived and inherits
+ *         all elements from baseType as well.
+ *  @param elem_decl Declarations of the struct elements.
+ *)
 const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
   result
     var type: structType is void;
@@ -222,6 +271,20 @@ const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct
     end global;
   end func;
 
+(**
+ *  Structure type with inherited elements and no own elements.
+ *  Create new structure type as subtype of ''baseType'', which is a
+ *  structure type. The new structure type has the same elements as
+ *  the structure type ''baseType''.
+ *   const type: null_file is new struct
+ *       var char: bufferChar is '\n';
+ *     end struct;
+ *
+ *   const type: special_file is sub null_file struct
+ *     end struct;
+ *  @param baseType Base type from which the new type is derived and inherits
+ *         all elements from baseType as well.
+ *)
 const func type: sub (in type: baseType) struct end struct is func
   result
     var type: structType is void;
