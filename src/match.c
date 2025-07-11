@@ -115,7 +115,9 @@ static void check_access_rights (const_objectType object)
     listType expr_list;
 
   /* check_access_rights */
-    logFunction(printf("check_access_rights\n"););
+    logFunction(printf("check_access_rights(");
+                trace1(object);
+                printf("\n"););
 /*    printf("check_access_rights ");
     trace1(object);
     printf("\n"); */

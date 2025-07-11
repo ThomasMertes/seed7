@@ -185,7 +185,11 @@ static void type_create_call_obj (objectType destination,
     errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_create_call_obj */
-    logFunction(printf("type_create_call_obj\n"););
+    logFunction(printf("type_create_call_obj ");
+                trace1(destination);
+                printf(", ");
+                trace1(source);
+                printf("\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_create_call_obj: destination= ");
@@ -238,7 +242,11 @@ static void type_copy_call_obj (objectType destination,
     errInfoType copy_err_info = OKAY_NO_ERROR;
 
   /* type_copy_call_obj */
-    logFunction(printf("type_copy_call_obj\n"););
+    logFunction(printf("type_copy_call_obj ");
+                trace1(destination);
+                printf(", ");
+                trace1(source);
+                printf("\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - type_copy_call_obj: destination= ");
@@ -488,7 +496,7 @@ void do_create (objectType destination, objectType source,
   /* do_create */
     logFunction(printf("do_create ");
                 trace1(destination);
-                printf("\nas ");
+                printf(", ");
                 trace1(source);
                 printf("\n"););
     if (destination->type_of == source->type_of) {
@@ -1168,7 +1176,6 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
     objectRecord call_object;
     listRecord call_list[3];
     objectType call_result;
-    boolType okay = TRUE;
 
   /* destroy_local_object */
     logFunction(printf("destroy_local_object(" FMT_U_MEM
@@ -1222,7 +1229,6 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
             /* printf("destroy_local_object: after exec_call\n");
                fflush(stdout); */
             if (unlikely(call_result != SYS_EMPTY_OBJECT)) {
-              okay = FALSE;
               if (ignoreError) {
                 leaveExceptionHandling();
               /* } else if (!fail_flag) {
