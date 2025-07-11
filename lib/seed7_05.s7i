@@ -376,11 +376,13 @@ const func boolean: (in void: void1) <> (in void: void2) is return FALSE;
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
-const proc: (ref ELSIF_RESULT: dest) ::= enumlit       is action "ENU_GENLIT";
+const proc: (ref ELSIF_RESULT: dest) ::= (val ELSIF_RESULT: source) is action "ENU_CREATE";
+const proc: (ref ELSIF_RESULT: dest) ::= enumlit                    is action "ENU_GENLIT";
+const proc: destroy (ref ELSIF_RESULT: aValue)                      is action "GEN_DESTR";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
-const type: ELSIF_PROC                                 is func ELSIF_RESULT;
+const type: ELSIF_PROC                                              is func ELSIF_RESULT;
 IN_PARAM_IS_REFERENCE(ELSIF_PROC);
-const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source) is action "ENU_CREATE";
+const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source)   is action "ENU_CREATE";
 
 const proc:       if (in boolean: condition) then
                   end if                               is noop;
@@ -409,7 +411,7 @@ const ELSIF_PROC: elsif (in boolean: condition) then
                   (in ELSIF_PROC: elsifPart)           is action "PRC_IF_NOOP";
 
 const ELSIF_PROC: else
-                    (in void: elsePart)                is ELSIF_EMPTY;
+                    (in void: elsePart)                is return ELSIF_EMPTY;
 
 (*
 const proc: if TRUE  then (in void param) end if is                           noop;

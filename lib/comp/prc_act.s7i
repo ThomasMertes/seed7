@@ -115,7 +115,7 @@ const proc: process_else (in reference: else_part, in boolean: insertKeyword,
       function := params[1];
       params := params[2 ..];
       functionCategory := category(function);
-      if functionCategory = CONSTENUMOBJECT then
+      if functionCategory = BLOCKOBJECT then
         process_call_by_name_expr(params[2], c_param2);
         if insertKeyword then
           c_expr.expr &:= "else {\n";
@@ -288,7 +288,7 @@ const proc: process_const_prc_if_noop (in boolean: condition, in reference: stat
       c_expr.expr &:= "/* Optimized: elsif FALSE */ {\n";
       if category(statement) = MATCHOBJECT and
           length(getValue(statement, ref_list)) = 3 and
-          category(getValue(statement, ref_list)[1]) = CONSTENUMOBJECT and
+          category(getValue(statement, ref_list)[1]) = BLOCKOBJECT and
           category(getValue(statement, ref_list)[3]) = CALLOBJECT then
         process_expr(getValue(statement, ref_list)[3], c_statement);
       else
