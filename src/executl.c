@@ -462,22 +462,35 @@ static void old_do_create (objectType destination, objectType source,
       prot_nl();
     } /* if */
 #endif
-    crea_expr[0].next = &crea_expr[1];
-    crea_expr[1].next = &crea_expr[2];
-    crea_expr[2].next = NULL;
-    crea_expr[0].obj = destination;
-    crea_expr[1].obj = SYS_CREA_OBJECT;
-    crea_expr[2].obj = source;
-    call_result = exec1(crea_expr);
-    if (call_result != SYS_EMPTY_OBJECT) {
-      if (fail_flag && trace.exceptions) {
-        write_exception_info();
-      } /* if */
-      set_fail_flag(FALSE);
-      if (call_result != NULL) {
-        *err_info = getErrInfoFromFailValue(call_result);
-      } else {
-        *err_info = CREATE_ERROR;
+    if (unlikely(destination->type_of->result_type != NULL &&
+                 !destination->type_of->is_varfunc_type &&
+                 (CATEGORY_OF_OBJ(source) != MATCHOBJECT &&
+                  CATEGORY_OF_OBJ(source) != CALLOBJECT &&
+                  CATEGORY_OF_OBJ(source) != ACTOBJECT))) {
+      logError(printf("old_do_create(");
+               trace1(destination);
+               printf(", ");
+               trace1(source);
+               printf("): Assign non-function to function.\n"););
+      *err_info = CREATE_ERROR;
+    } else {
+      crea_expr[0].next = &crea_expr[1];
+      crea_expr[1].next = &crea_expr[2];
+      crea_expr[2].next = NULL;
+      crea_expr[0].obj = destination;
+      crea_expr[1].obj = SYS_CREA_OBJECT;
+      crea_expr[2].obj = source;
+      call_result = exec1(crea_expr);
+      if (call_result != SYS_EMPTY_OBJECT) {
+        if (fail_flag && trace.exceptions) {
+          write_exception_info();
+        } /* if */
+        set_fail_flag(FALSE);
+        if (call_result != NULL) {
+          *err_info = getErrInfoFromFailValue(call_result);
+        } else {
+          *err_info = CREATE_ERROR;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("old_do_create --> (err_info=%d)\n", *err_info););
