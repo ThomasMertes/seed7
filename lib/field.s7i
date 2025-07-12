@@ -30,7 +30,7 @@ include "text.s7i";
 include "keybd.s7i";
 
 
-const type: field_file is sub null_file struct
+const type: fieldFile is sub null_file struct
     var file: in_file is STD_NULL;
     var text: out_file is STD_NULL;
     var integer: linePos is 0;
@@ -41,7 +41,7 @@ const type: field_file is sub null_file struct
     var string: field is "";
   end struct;
 
-type_implements_interface(field_file, file);
+type_implements_interface(fieldFile, file);
 
 
 const func file: openField (in file: in_fil, inout text: out_fil,
@@ -49,9 +49,9 @@ const func file: openField (in file: in_fil, inout text: out_fil,
   result
     var file: newFile is STD_NULL;
   local
-    var field_file: field_fil is field_file.value;
+    var fieldFile: field_fil is fieldFile.value;
   begin
-    field_fil := field_file.value;
+    field_fil := fieldFile.value;
     field_fil.in_file := in_fil;
     field_fil.out_file := out_fil;
     field_fil.linePos := line;
@@ -64,7 +64,7 @@ const func file: openField (in file: in_fil, inout text: out_fil,
   end func;
 
 
-const func string: getwd (inout field_file: field_fil) is func
+const func string: getwd (inout fieldFile: field_fil) is func
   result
     var string: stri is "";
   local
@@ -131,7 +131,7 @@ const func string: getwd (inout field_file: field_fil) is func
   end func;
 
 
-const func string: getln (inout field_file: field_fil) is func
+const func string: getln (inout fieldFile: field_fil) is func
   result
     var string: stri is "";
   local
@@ -198,7 +198,7 @@ const func string: getln (inout field_file: field_fil) is func
   end func;
 
 
-const func char: getc (inout field_file: field_fil) is func
+const func char: getc (inout fieldFile: field_fil) is func
   result
     var char: ch is ' ';
   begin
@@ -210,7 +210,7 @@ const func char: getc (inout field_file: field_fil) is func
   end func;
 
 
-const func string: gets (inout field_file: field_fil, in integer: length) is func
+const func string: gets (inout fieldFile: field_fil, in integer: length) is func
   result
     var string: stri is "";
   begin
@@ -222,7 +222,7 @@ const func string: gets (inout field_file: field_fil, in integer: length) is fun
   end func;
 
 
-const proc: write (inout field_file: field_fil, in string: stri) is func
+const proc: write (inout fieldFile: field_fil, in string: stri) is func
   begin
     if length(stri) < field_fil.width then
       field_fil.field := stri & " " mult field_fil.width - length(stri);
