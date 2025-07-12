@@ -30,6 +30,9 @@ include "text.s7i";
 include "keybd.s7i";
 
 
+(**
+ *  [[file|File]] implementation type for input fields on console/window.
+ *)
 const type: fieldFile is sub null_file struct
     var file: in_file is STD_NULL;
     var text: out_file is STD_NULL;
@@ -44,6 +47,17 @@ const type: fieldFile is sub null_file struct
 type_implements_interface(fieldFile, file);
 
 
+(**
+ *  Open a ''fieldFile'' with the given parameters.
+ *   aFieldFile := openField(KEYBOARD, info, 3, 11, 3, " 10");
+ *  @param in_fil Keyboard input file.
+ *  @param out_fil Text console/window file to place the field in.
+ *  @param line Line of the field in ''out_fil''.
+ *  @param column Column of the field in 'out_fil''.
+ *  @param width Width of the field.
+ *  @param defaultValue Default value of the field.
+ *  @return the fieldFile opened.
+ *)
 const func file: openField (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: defaultValue) is func
   result
@@ -64,6 +78,13 @@ const func file: openField (in file: in_fil, inout text: out_fil,
   end func;
 
 
+(**
+ *  Read the content of the field ''field_fil''.
+ *  Leading and trailing whitespace is removed from the result.
+ *  When the function is left field_fil.bufferChar contains one of
+ *  KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN and KEY_ESC.
+ *  @return a word read without leading and trailing whitespace.
+ *)
 const func string: getwd (inout fieldFile: field_fil) is func
   result
     var string: stri is "";
@@ -131,6 +152,13 @@ const func string: getwd (inout fieldFile: field_fil) is func
   end func;
 
 
+(**
+ *  Read the content of the field ''field_fil''.
+ *  Leading and trailing whitespace is retained in the result.
+ *  When the function is left field_fil.bufferChar contains one of
+ *  KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN and KEY_ESC.
+ *  @return a line with possible leading and trailing whitespace.
+ *)
 const func string: getln (inout fieldFile: field_fil) is func
   result
     var string: stri is "";
@@ -222,6 +250,10 @@ const func string: gets (inout fieldFile: field_fil, in integer: length) is func
   end func;
 
 
+(**
+ *  Write ''stri'' to the content of the field ''field_fil''.
+ *  The ''stri'' is filled with spaces or truncated to the field width.
+ *)
 const proc: write (inout fieldFile: field_fil, in string: stri) is func
   begin
     if length(stri) < field_fil.width then

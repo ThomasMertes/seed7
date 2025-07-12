@@ -33,12 +33,18 @@ include "bigfile.s7i";
 include "getf.s7i";
 
 
+(**
+ *  Destribes an FTP server.
+ *)
 const type: ftpServer is new struct
     var string: startDirectory is "";
     var integer: ftpControlPort is 2021;
     var fileSys: backendSys is fileSys.value;
   end struct;
 
+(**
+ *  Destribes an FTP server connection.
+ *)
 const type: ftpServerConnection is new struct
     var fileSys: backendSys is fileSys.value;
     var file: control is STD_NULL;
@@ -601,6 +607,9 @@ const proc: processFtpRequest (inout file: control) is func
   end func;
 
 
+(**
+ *  Run an FTP server.
+ *)
 const proc: runServer (inout ftpServer: ftpServ) is func
   local
     var listener: aListener is listener.value;
