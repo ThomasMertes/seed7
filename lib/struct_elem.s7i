@@ -33,8 +33,8 @@ const type: structElement is newtype;
 
 IN_PARAM_IS_REFERENCE(structElement);
 
-const proc: (ref structElement: dest) ::= (in structElement: source)           is action "SEL_CREATE";
-const proc: destroy (ref structElement: anElement)                             is action "GEN_DESTR";
+const creator: (ref structElement: dest) ::= (in structElement: source)        is action "SEL_CREATE";
+const destroyer: destroy (ref structElement: anElement)                        is action "GEN_DESTR";
 const proc: (inout structElement: dest) := (in structElement: source)          is action "SEL_CPY";
 
 

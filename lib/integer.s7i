@@ -28,7 +28,7 @@
 
 $ system "integer" is integer;
 
-const proc: (ref integer: dest) ::= (ref integer: source)           is action "INT_CREATE";
+const creator: (ref integer: dest) ::= (ref integer: source)        is action "INT_CREATE";
 
 const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
 

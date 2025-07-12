@@ -35,8 +35,8 @@ const type: PRIMITIVE_WINDOW is newtype;
 
 IN_PARAM_IS_REFERENCE(PRIMITIVE_WINDOW);
 
-const proc: (ref PRIMITIVE_WINDOW: dest) ::= (in PRIMITIVE_WINDOW: source)     is action "DRW_CREATE";
-const proc: destroy (ref PRIMITIVE_WINDOW: aValue)                             is action "DRW_DESTR";
+const creator: (ref PRIMITIVE_WINDOW: dest) ::= (in PRIMITIVE_WINDOW: source)  is action "DRW_CREATE";
+const destroyer: destroy (ref PRIMITIVE_WINDOW: aValue)                        is action "DRW_DESTR";
 const proc: (inout PRIMITIVE_WINDOW: dest) := (in PRIMITIVE_WINDOW: source)    is action "DRW_CPY";
 const func boolean: (in PRIMITIVE_WINDOW: win1) = (in PRIMITIVE_WINDOW: win2)  is action "DRW_EQ";
 const func boolean: (in PRIMITIVE_WINDOW: win1) <> (in PRIMITIVE_WINDOW: win2) is action "DRW_NE";
@@ -47,8 +47,8 @@ const type: pixel is newtype;
 
 IN_PARAM_IS_VALUE(pixel);
 
-const proc: (ref pixel: dest) ::= (in pixel: source)       is action "INT_CREATE";
-const proc: destroy (ref pixel: aValue)                    is action "GEN_DESTR";
+const creator: (ref pixel: dest) ::= (in pixel: source)    is action "INT_CREATE";
+const destroyer: destroy (ref pixel: aValue)               is action "GEN_DESTR";
 const proc: (inout pixel: dest) := (in pixel: source)      is action "INT_CPY";
 const func boolean: (in pixel: pix1) = (in pixel: pix2)    is action "INT_EQ";
 const func boolean: (in pixel: pix1) <> (in pixel: pix2)   is action "INT_NE";
@@ -389,8 +389,8 @@ const type: pointList is newtype;
 
 IN_PARAM_IS_REFERENCE(pointList);
 
-const proc: destroy (ref pointList: aValue)                       is action "PLT_DESTR";
-const proc: (ref pointList: dest) ::= (in pointList: source)      is action "PLT_CREATE";
+const creator: (ref pointList: dest) ::= (in pointList: source)   is action "PLT_CREATE";
+const destroyer: destroy (ref pointList: aValue)                  is action "PLT_DESTR";
 const proc: (inout pointList: dest) := (in pointList: source)     is action "PLT_CPY";
 
 const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "PLT_EMPTY";

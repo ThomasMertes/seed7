@@ -81,13 +81,13 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const func array baseType: VALUES (in hashType: aHashMap, in reference: dataCreate,
                                          in reference: dataDestroy)            is action "HSH_VALUES";
 
-      const proc: (ref hashType: dest) ::= (in hashType: source) is func
+      const creator: (ref hashType: dest) ::= (in hashType: source) is func
         begin
           CREATE(dest, source, hashType.keyCreate, hashType.keyDestroy,
               hashType.dataCreate, hashType.dataDestroy);
         end func;
 
-      const proc: destroy (ref hashType: oldHash) is func
+      const destroyer: destroy (ref hashType: oldHash) is func
         begin
           DESTROY(oldHash, hashType.keyDestroy, hashType.dataDestroy);
         end func;

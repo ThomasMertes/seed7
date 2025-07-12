@@ -45,12 +45,14 @@ $ const type: f_param  is $ newtype;
 $ const $ func type: $ func (ref type param)    is $ action "TYP_FUNC";
 $ const $ func type: $ varfunc (ref type param) is $ action "TYP_VARFUNC";
 
-$ const func ACTION: $ action (ref string param)        is $ action "ACT_GEN";
-$ const proc: $ (ref proc param) ::= (ref ACTION param) is $ action "ACT_CREATE";
-$ const proc: $ destroy (ref string param)              is   action "STR_DESTR";
+$ const func ACTION: $ action (ref string param)                    is $ action "ACT_GEN";
+$ const creator:     $ (ref creator param) ::= (ref ACTION param)   is $ action "ACT_CREATE";
+$ const creator:     $ (ref destroyer param) ::= (ref ACTION param) is $ action "ACT_CREATE";
+$ const destroyer:   $ destroy (ref string param)                   is   action "STR_DESTR";
+$ const creator:     $ (ref proc param) ::= (ref ACTION param)      is   action "ACT_CREATE";
 
-$ const proc: $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
-$ const func f_param: $ ref (ref type param) param              is action "DCL_REF1";
+$ const creator:      $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
+$ const func f_param: $ ref (ref type param) param                      is action "DCL_REF1";
 
 $ const proc: const (ref type param) : (ref expr param) is (ref expr param) is action "DCL_CONST";
 
@@ -72,21 +74,23 @@ const func f_param: attr (ref type: aType)                      is action "DCL_A
 const func f_param: attr (ref f_param: aParam)                  is action "DCL_PARAM_ATTR";
 const proc: global (ref proc: statement) end global             is action "DCL_GLOBAL";
 
-const proc: (ref type: dest) ::= (ref type: source)           is action "TYP_CREATE";
-const proc: destroy (ref type: aValue)                        is action "TYP_DESTR";
+const creator: (ref type: dest) ::= (ref type: source)          is action "TYP_CREATE";
+const destroyer: destroy (ref type: aValue)                     is action "TYP_DESTR";
 
-const proc: (inout type: dest) := (ref type: source)          is action "TYP_CPY";
-const proc: (ref func proc: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
-const proc: (ref varfunc proc: dest) ::= (ref ACTION: source) is action "ACT_CREATE";
-const func proc: func begin (ref expr: statements) end func   is action "PRC_BEGIN";
-const func proc: func begin end func                          is action "PRC_BEGIN_NOOP";
+const proc: (inout type: dest) := (ref type: source)             is action "TYP_CPY";
+const creator: (ref func proc: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
+const creator: (ref varfunc proc: dest) ::= (ref ACTION: source) is action "ACT_CREATE";
+const func proc: func begin (ref expr: statements) end func      is action "PRC_BEGIN";
+const func proc: func begin end func                             is action "PRC_BEGIN_NOOP";
 const func proc: func local (ref proc: localDefinitions)
                  begin (ref expr: statements) end func        is action "PRC_LOCAL";
 const func proc: return (ref void: statement)                 is action "PRC_RETURN";
 const func proc: return (ref proc: statement)                 is action "PRC_RETURN";
-const proc: (ref proc: dest) ::= (ref proc: source)           is action "PRC_CREATE";
+const creator: (ref creator: dest) ::= (ref proc: source)     is action "PRC_CREATE";
+const creator: (ref destroyer: dest) ::= (ref proc: source)   is action "PRC_CREATE";
+const creator: (ref proc: dest) ::= (ref proc: source)        is action "PRC_CREATE";
+const destroyer: destroy (ref proc: aValue)                   is action "PRC_DESTR";
 const proc: (inout proc: dest) := (ref proc: source)          is action "PRC_CPY";
-const proc: destroy (ref proc: aValue)                        is action "PRC_DESTR";
 const proc: noop                                              is action "PRC_NOOP";
 const proc: (ref void: statement1) ; (ref void: statement2)   is noop;
 const proc: ignore (ref f_param: aParam)                      is noop;
@@ -103,28 +107,30 @@ IN_PARAM_IS_REFERENCE(expr);
 IN_PARAM_IS_REFERENCE(object);
 IN_PARAM_IS_REFERENCE(string);
 IN_PARAM_IS_REFERENCE(ACTION);
+IN_PARAM_IS_REFERENCE(creator);
+IN_PARAM_IS_REFERENCE(destroyer);
 
 const proc: BASIC_TYPE_DECLS (in type: aType) is func
   begin
     global
 (*    PRINT("in BASIC_TYPE_DECLS\n"); *)
-    const proc: TRACE (ref aType: aValue)                                  is action "REF_TRACE";
-    const proc: ignore (ref aType: aValue)                                 is noop;
-    const proc: (ref func aType: dest) ::= (ref ACTION: source)            is action "ACT_CREATE";
-    const proc: (ref varfunc aType: dest) ::= (ref ACTION: source)         is action "ACT_CREATE";
-    const proc: (ref func aType: dest) ::= (ref func aType: source)        is action "PRC_CREATE";
-    const proc: (ref varfunc aType: dest) ::= (ref varfunc aType: source)  is action "PRC_CREATE";
-    const proc: destroy (ref func aType: aValue)                           is action "PRC_DESTR";
-    const proc: destroy (ref varfunc aType: aValue)                        is action "PRC_DESTR";
-    const proc: (inout func aType: dest) := (ref func aType: source)       is action "PRC_CPY";
-    const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
-    const type: typeof (ref aType: aValue)                                 is aType;
-    const proc: (ref func func aType: dest) ::= (ref ACTION: source)       is action "ACT_CREATE";
-    const proc: (ref func varfunc aType: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
-    const proc: (ref func func aType: dest) ::= (ref func func aType: source)        is action "PRC_CREATE";
-    const proc: (ref func varfunc aType: dest) ::= (ref func varfunc aType: source)  is action "PRC_CREATE";
-    # const proc: destroy (ref func func aType: aValue)                    is action "GEN_DESTR";
-    # const proc: destroy (ref func varfunc aType: aValue)                 is action "GEN_DESTR";
+    const proc: TRACE (ref aType: aValue)                                     is action "REF_TRACE";
+    const proc: ignore (ref aType: aValue)                                    is noop;
+    const creator: (ref func aType: dest) ::= (ref ACTION: source)            is action "ACT_CREATE";
+    const creator: (ref varfunc aType: dest) ::= (ref ACTION: source)         is action "ACT_CREATE";
+    const creator: (ref func aType: dest) ::= (ref func aType: source)        is action "PRC_CREATE";
+    const creator: (ref varfunc aType: dest) ::= (ref varfunc aType: source)  is action "PRC_CREATE";
+    const destroyer: destroy (ref func aType: aValue)                         is action "PRC_DESTR";
+    const destroyer: destroy (ref varfunc aType: aValue)                      is action "PRC_DESTR";
+    const proc: (inout func aType: dest) := (ref func aType: source)          is action "PRC_CPY";
+    const proc: (inout varfunc aType: dest) := (ref varfunc aType: source)    is action "PRC_CPY";
+    const type: typeof (ref aType: aValue)                                    is aType;
+    const creator: (ref func func aType: dest) ::= (ref ACTION: source)       is action "ACT_CREATE";
+    const creator: (ref func varfunc aType: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
+    const creator: (ref func func aType: dest) ::= (ref func func aType: source)        is action "PRC_CREATE";
+    const creator: (ref func varfunc aType: dest) ::= (ref func varfunc aType: source)  is action "PRC_CREATE";
+    # const destroyer: destroy (ref func func aType: aValue)                  is action "GEN_DESTR";
+    # const destroyer: destroy (ref func varfunc aType: aValue)               is action "GEN_DESTR";
     IN_PARAM_IS_REFERENCE(func aType);
     IN_PARAM_IS_REFERENCE(varfunc aType);
 
@@ -190,6 +196,8 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
 BASIC_TYPE_DECLS(type);
 BASIC_TYPE_DECLS(string);
 BASIC_TYPE_DECLS(ACTION);
+BASIC_TYPE_DECLS(creator);
+BASIC_TYPE_DECLS(destroyer);
 
 
 const proc: var (ref type: aType) : (ref expr: name) is default is func
@@ -273,8 +281,8 @@ const func type: func (in type: baseType) is func
     aType := gentype;
     const func type: func baseType                        is aType;
     const proc: TRACE (ref aType param)                   is action "REF_TRACE";
-    const proc: (ref aType param) ::= (ref ACTION param)  is action "ACT_CREATE";
-    const proc: (ref aType param) ::= (ref aType param)   is action "PRC_CREATE";
+    const creator: (ref aType param) ::= (ref ACTION param)  is action "ACT_CREATE";
+    const creator: (ref aType param) ::= (ref aType param)   is action "PRC_CREATE";
   end func;
 *)
 
@@ -289,19 +297,19 @@ IN_PARAM_IS_VALUE(ENUMERATION);
 const type: INDEXABLE      is subtype object;
 const type: MODULE         is subtype object;
 
-const proc: destroy (ref ACTION: aValue)      is action "GEN_DESTR";
-const proc: destroy (ref ENUMERATION: aValue) is action "GEN_DESTR";
-const proc: destroy (ref integer: aValue)     is action "GEN_DESTR";
-const proc: destroy (ref EXCEPTION: aValue)   is action "GEN_DESTR";
+const destroyer: destroy (ref ACTION: aValue)      is action "GEN_DESTR";
+const destroyer: destroy (ref ENUMERATION: aValue) is action "GEN_DESTR";
+const destroyer: destroy (ref integer: aValue)     is action "GEN_DESTR";
+const destroyer: destroy (ref EXCEPTION: aValue)   is action "GEN_DESTR";
 
-const proc: (ref ACTION: dest) ::= (in ACTION: source)            is action "ACT_CREATE";
-const proc: (inout ACTION: dest) := (in ACTION: source)           is action "ACT_CPY";
-const proc: (ref ENUMERATION: dest) ::= (ref ENUMERATION: source) is action "ENU_CREATE";
-const proc: (ref ENUMERATION: dest) ::= enumlit                   is action "ENU_GENLIT";
-const proc: (ref func object: dest) ::= (in ACTION: source)       is action "ACT_CREATE";
-const proc: (ref EXCEPTION: dest) ::= (ref EXCEPTION: source)     is action "ENU_CREATE";
-const proc: (ref EXCEPTION: dest) ::= enumlit                     is action "ENU_GENLIT";
-const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)    is action "ENU_CPY";
+const creator: (ref ACTION: dest) ::= (in ACTION: source)            is action "ACT_CREATE";
+const proc: (inout ACTION: dest) := (in ACTION: source)              is action "ACT_CPY";
+const creator: (ref ENUMERATION: dest) ::= (ref ENUMERATION: source) is action "ENU_CREATE";
+const creator: (ref ENUMERATION: dest) ::= enumlit                   is action "ENU_GENLIT";
+const creator: (ref func object: dest) ::= (in ACTION: source)       is action "ACT_CREATE";
+const creator: (ref EXCEPTION: dest) ::= (ref EXCEPTION: source)     is action "ENU_CREATE";
+const creator: (ref EXCEPTION: dest) ::= enumlit                     is action "ENU_GENLIT";
+const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)       is action "ENU_CPY";
 
 const EXCEPTION: MEMORY_ERROR   is enumlit;
 const EXCEPTION: NUMERIC_ERROR  is enumlit;
@@ -342,9 +350,9 @@ const proc: DECLS                                  is action "PRC_DECLS";
 
 (* void *)
 
-const proc: (ref void: dest) ::= (in void: source) is action "ENU_CREATE";
-const proc: destroy (ref void: aVoid)              is noop;
-const void: (attr void) . value                    is empty;
+const creator: (ref void: dest) ::= (in void: source) is action "ENU_CREATE";
+const destroyer: destroy (ref void: aVoid)            is action "GEN_DESTR";
+const void: (attr void) . value                       is empty;
 
 
 (* boolean *)
@@ -376,13 +384,13 @@ const func boolean: (in void: void1) <> (in void: void2) is return FALSE;
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
-const proc: (ref ELSIF_RESULT: dest) ::= (val ELSIF_RESULT: source) is action "ENU_CREATE";
-const proc: (ref ELSIF_RESULT: dest) ::= enumlit                    is action "ENU_GENLIT";
-const proc: destroy (ref ELSIF_RESULT: aValue)                      is action "GEN_DESTR";
+const creator: (ref ELSIF_RESULT: dest) ::= (val ELSIF_RESULT: source) is action "ENU_CREATE";
+const creator: (ref ELSIF_RESULT: dest) ::= enumlit                    is action "ENU_GENLIT";
+const destroyer: destroy (ref ELSIF_RESULT: aValue)                    is action "GEN_DESTR";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
 const type: ELSIF_PROC                                              is func ELSIF_RESULT;
 IN_PARAM_IS_REFERENCE(ELSIF_PROC);
-const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source)   is action "ENU_CREATE";
+const creator: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source)   is action "ENU_CREATE";
 
 const proc:       if (in boolean: condition) then
                   end if                               is noop;
@@ -552,8 +560,8 @@ const func type: forward_ptr (ref expr: baseTypeName) is func
     ptrType := newtype;
     FORWARD_PTR := ptrType;
     IN_PARAM_IS_VALUE(ptrType);
-    const proc: (ref ptrType: dest) ::= (in ptrType: source)         is action "REF_CREATE";
-    const proc: destroy (ref ptrType: aPtr)                          is action "GEN_DESTR";
+    const creator: (ref ptrType: dest) ::= (in ptrType: source)      is action "REF_CREATE";
+    const destroyer: destroy (ref ptrType: aPtr)                     is action "GEN_DESTR";
     const proc: (inout ptrType: dest) := (in ptrType: source)        is action "REF_CPY";
     const func boolean: (in ptrType: ptr1) = (in ptrType: ptr2)      is action "REF_EQ";
     const func boolean: (in ptrType: ptr1) <> (in ptrType: ptr2)     is action "REF_NE";
@@ -606,8 +614,8 @@ const func type: ptr (in type: baseType) is func
       IN_PARAM_IS_VALUE(ptrType);
       const type: ptr (attr baseType)                                is   ptrType;
       const type: base_type (attr ptrType)                           is   baseType;
-      const proc: (ref ptrType: dest) ::= (in ptrType: source)       is action "REF_CREATE";
-      const proc: destroy (ref ptrType: aPtr)                        is action "GEN_DESTR";
+      const creator: (ref ptrType: dest) ::= (in ptrType: source)    is action "REF_CREATE";
+      const destroyer: destroy (ref ptrType: aPtr)                   is action "GEN_DESTR";
       const proc: (inout ptrType: dest) := (in ptrType: source)      is action "REF_CPY";
       const func boolean: (in ptrType: ptr1) = (in ptrType: ptr2)    is action "REF_EQ";
       const func boolean: (in ptrType: ptr1) <> (in ptrType: ptr2)   is action "REF_NE";
@@ -632,8 +640,8 @@ const func type: varptr (in type: baseType) is func
       IN_PARAM_IS_VALUE(varptrType);
       const type: varptr (attr baseType)                                 is varptrType;
       const type: base_type (attr varptrType)                            is baseType;
-      const proc: (ref varptrType: dest) ::= (in varptrType: source)     is action "REF_CREATE";
-      const proc: destroy (ref varptrType: aPtr)                         is action "GEN_DESTR";
+      const creator: (ref varptrType: dest) ::= (in varptrType: source)  is action "REF_CREATE";
+      const destroyer: destroy (ref varptrType: aPtr)                    is action "GEN_DESTR";
       const proc: (inout varptrType: dest) := (in varptrType: source)    is action "REF_CPY";
       const func boolean: (in varptrType: ptr1) = (in varptrType: ptr2)  is action "REF_EQ";
       const func boolean: (in varptrType: ptr1) <> (in varptrType: ptr2) is action "REF_NE";
@@ -714,8 +722,8 @@ const func type: tuple (in type: baseType) is func
       tupleType := newtype;
       IN_PARAM_IS_REFERENCE(tupleType);
       const type: tuple (attr baseType) is tupleType;
-      const proc: (ref tupleType: dest) ::= (in tupleType: source)            is action "ARR_CREATE";
-      const proc: destroy (ref tupleType: aValue)                             is action "ARR_DESTR";
+      const creator: (ref tupleType: dest) ::= (in tupleType: source)         is action "ARR_CREATE";
+      const destroyer: destroy (ref tupleType: aValue)                        is action "ARR_DESTR";
       const func tupleType: (in baseType: element1) , (in baseType: element2) is action "ARR_GEN";
       const func tupleType: (in tupleType: arr1) , (in baseType: element)     is action "ARR_EXTEND";
 (*
@@ -957,8 +965,8 @@ const func type: new interface is func
     global
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType: dest) ::= (ref interfaceType: source)    is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType: aValue)                          is action "ITF_DESTR";
+    const creator: (ref interfaceType: dest) ::= (ref interfaceType: source) is action "ITF_CREATE";
+    const destroyer: destroy (ref interfaceType: aValue)                     is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType: itf1) = (in interfaceType: itf2)  is action "ITF_EQ";
     const func boolean: (in interfaceType: itf1) <> (in interfaceType: itf2) is action "ITF_NE";
@@ -972,8 +980,8 @@ const func type: sub (in type: baseType) interface is func
     global
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType: dest) ::= (ref interfaceType: source)    is action "ITF_CREATE";
-    const proc: destroy (ref interfaceType: aValue)                          is action "ITF_DESTR";
+    const creator: (ref interfaceType: dest) ::= (ref interfaceType: source) is action "ITF_CREATE";
+    const destroyer: destroy (ref interfaceType: aValue)                     is action "ITF_DESTR";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType: itf1) = (in interfaceType: itf2)  is action "ITF_EQ";
     const func boolean: (in interfaceType: itf1) <> (in interfaceType: itf2) is action "ITF_NE";
@@ -995,7 +1003,7 @@ const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType: dest) ::= (ref aType: source)           is action "ITF_CREATE";
+    const creator: (ref interfaceType: dest) ::= (ref aType: source)           is action "ITF_CREATE";
     const proc: (inout interfaceType: dest) := (ref aType: source)          is action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType: aValue) is action "ITF_CONV2";
     const func interfaceType: toInterface (ref aType: aValue)               is action "ITF_TO_INTERFACE";
@@ -1061,9 +1069,9 @@ const proc: CASE_DECLS (in type: aType) is func
                     otherwise : (ref proc: statements)
                   end case                                                      is action "PRC_CASE_HASHSET_DEF";
     end if;
-    const proc: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
+    const creator: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
-    const proc: (ref WHEN_PROC: dest) ::= (ref WHEN_RESULT: source)             is action "ENU_CREATE";
+    const creator: (ref WHEN_PROC: dest) ::= (ref WHEN_RESULT: source)             is action "ENU_CREATE";
     const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)  is WHEN_EMPTY(aType);
     const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)
                        (ref WHEN_PROC: whenPart)                                is WHEN_EMPTY(aType);
@@ -1101,7 +1109,7 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
     const proc: block (ref proc: statements) exception
                   otherwise : (ref proc: otherwiseStatements)
                 end block                                                          is action "PRC_BLOCK_CATCH_ALL";
-    const proc: (ref CATCH_PROC: dest) ::= (ref CATCH_RESULT: source)              is action "ENU_CREATE";
+    const creator: (ref CATCH_PROC: dest) ::= (ref CATCH_RESULT: source)              is action "ENU_CREATE";
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)  is CATCH_RESULT.value;
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)
                        (ref CATCH_PROC: catchPart)                                 is CATCH_RESULT.value;

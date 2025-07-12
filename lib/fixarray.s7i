@@ -48,8 +48,8 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
 
-      const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
-      const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
+      const creator: (ref arrayType: dest) ::= (in arrayType: source)         is action "ARR_CREATE";
+      const destroyer: destroy (ref arrayType: aValue)                        is action "ARR_DESTR";
       const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
       const func arrayType: SET_MIN_IDX (paren1, in integer: start, paren2,

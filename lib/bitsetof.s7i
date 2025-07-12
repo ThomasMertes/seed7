@@ -47,8 +47,8 @@ const func type: bitset (in type: baseType) is func
       const boolean: isSetType (attr setType)                            is TRUE;
       const type: bitset (attr baseType)                                 is setType;
       const type: base_type (attr setType)                               is baseType;
-      const proc: (ref setType: dest) ::= (in setType: source)           is action "SET_CREATE";
-      const proc: destroy (ref setType: aValue)                          is action "SET_DESTR";
+      const creator: (ref setType: dest) ::= (in setType: source)        is action "SET_CREATE";
+      const destroyer: destroy (ref setType: aValue)                     is action "SET_DESTR";
       const proc: (inout setType: dest) := (in setType: source)          is action "SET_CPY";
 
       const boolean: isBitset (attr setType)                             is TRUE;

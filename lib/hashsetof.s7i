@@ -69,13 +69,13 @@ const func type: hashset (in type: baseType) is func
       const func array baseType: KEYS (in setType: aSet, in reference: keyCreate,
                                        in reference: keyDestroy)               is action "HSH_KEYS";
 
-      const proc: (ref setType: dest) ::= (in setType: source) is func
+      const creator: (ref setType: dest) ::= (in setType: source) is func
         begin
           CREATE(dest, source, setType.keyCreate, setType.keyDestroy,
               setType.dataCreate, setType.dataDestroy);
         end func;
 
-      const proc: destroy (ref setType: oldSet) is func
+      const destroyer: destroy (ref setType: oldSet) is func
         begin
           DESTROY(oldSet, setType.keyDestroy, setType.dataDestroy);
         end func;

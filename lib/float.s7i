@@ -39,8 +39,8 @@ const type: float is          subtype object;
 
 $ system "float" is float;
 
-const proc: destroy (ref float: aValue)                        is action "GEN_DESTR";
-const proc: (ref float: dest) ::= (ref float: source)          is action "FLT_CREATE";
+const creator: (ref float: dest) ::= (ref float: source)       is action "FLT_CREATE";
+const destroyer: destroy (ref float: aValue)                   is action "GEN_DESTR";
 IN_PARAM_IS_VALUE(float);
 
 

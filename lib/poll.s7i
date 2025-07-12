@@ -52,8 +52,8 @@ const type: pollData is newtype;
 
 IN_PARAM_IS_REFERENCE(pollData);
 
-const proc: destroy (ref pollData: aValue)                                 is action "POL_DESTR";
-const proc: (ref pollData: dest) ::= (ref pollData: source)                is action "POL_CREATE";
+const creator: (ref pollData: dest) ::= (ref pollData: source)             is action "POL_CREATE";
+const destroyer: destroy (ref pollData: aValue)                            is action "POL_DESTR";
 const proc: (inout pollData: dest) := (ref pollData: source)               is action "POL_CPY";
 
 const func pollData: _GENERATE_EMPTY_POLL_DATA (in file: aFile)            is action "POL_EMPTY";

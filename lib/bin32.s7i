@@ -36,8 +36,8 @@ include "float.s7i";
  *)
 const type: bin32 is subtype object;
 
-const proc: destroy (ref bin32: aValue)                        is action "GEN_DESTR";
-const proc: (ref bin32: dest) ::= (ref bin32: source)          is action "INT_CREATE";
+const creator: (ref bin32: dest) ::= (ref bin32: source)       is action "INT_CREATE";
+const destroyer: destroy (ref bin32: aValue)                   is action "GEN_DESTR";
 IN_PARAM_IS_VALUE(bin32);
 
 const proc: (inout bin32: dest) := (in bin32: source)          is action "INT_CPY";

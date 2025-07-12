@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const proc: (ref string: dest) ::= (in string: source)           is action "STR_CREATE";
+const creator: (ref string: dest) ::= (in string: source)        is action "STR_CREATE";
 
 const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
 

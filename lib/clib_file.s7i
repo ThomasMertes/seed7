@@ -39,8 +39,8 @@ const type: clib_file is newtype;
 
 IN_PARAM_IS_VALUE(clib_file);
 
-const proc: destroy (ref clib_file: aValue)                          is action "FIL_DESTR";
-const proc: (ref clib_file: dest) ::= (in clib_file: source)         is action "FIL_CREATE";
+const creator: (ref clib_file: dest) ::= (in clib_file: source)      is action "FIL_CREATE";
+const destroyer: destroy (ref clib_file: aValue)                     is action "FIL_DESTR";
 const proc: (inout clib_file: dest) := (in clib_file: source)        is action "FIL_CPY";
 
 

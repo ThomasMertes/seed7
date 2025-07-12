@@ -112,8 +112,8 @@ const type: database is newtype;
 
 IN_PARAM_IS_REFERENCE(database);
 
-const proc: (ref database: dest) ::= (ref database: source)    is action "SQL_CREATE_DB";
-const proc: destroy (ref database: aValue)                     is action "SQL_DESTR_DB";
+const creator: (ref database: dest) ::= (ref database: source) is action "SQL_CREATE_DB";
+const destroyer: destroy (ref database: aValue)                is action "SQL_DESTR_DB";
 const proc: (inout database: dest) := (ref database: source)   is action "SQL_CPY_DB";
 
 const func database: _GENERATE_EMPTY_DATABASE                  is action "SQL_EMPTY_DB";
@@ -152,8 +152,8 @@ const type: sqlStatement is newtype;
 
 IN_PARAM_IS_REFERENCE(sqlStatement);
 
-const proc: (ref sqlStatement: dest) ::= (ref sqlStatement: source)      is action "SQL_CREATE_STMT";
-const proc: destroy (ref sqlStatement: aValue)                           is action "SQL_DESTR_STMT";
+const creator: (ref sqlStatement: dest) ::= (ref sqlStatement: source)   is action "SQL_CREATE_STMT";
+const destroyer: destroy (ref sqlStatement: aValue)                      is action "SQL_DESTR_STMT";
 const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)     is action "SQL_CPY_STMT";
 
 const func sqlStatement: _GENERATE_EMPTY_STATEMENT                       is action "SQL_EMPTY_STMT";

@@ -53,8 +53,8 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
       maxIndexType := newtype;
       IN_PARAM_IS_VALUE(maxIndexType);
 
-      const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
-      const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
+      const creator: (ref arrayType: dest) ::= (in arrayType: source)         is action "ARR_CREATE";
+      const destroyer: destroy (ref arrayType: aValue)                        is action "ARR_DESTR";
       const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
       (**
@@ -213,9 +213,9 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
       const func arrayType: (attr arrayType) [] (in baseType: anElement) is
           return SET_MIN_IDX(paren1, minIdx, paren2, anElement, arrayType);
 
-      const proc: (ref maxIndexType: dest) ::= (ref maxIndexType: source)        is action "INT_CREATE";
+      const creator: (ref maxIndexType: dest) ::= (ref maxIndexType: source)     is action "INT_CREATE";
+      const destroyer: destroy (ref maxIndexType: aValue)                        is action "GEN_DESTR";
       const proc: (inout maxIndexType: dest) := (in maxIndexType: source)        is action "INT_CPY";
-      const proc: destroy (ref maxIndexType: aValue)                             is action "GEN_DESTR";
 
       const func integer: ord (in maxIndexType: maxIndex)                        is action "INT_ICONV1";
 

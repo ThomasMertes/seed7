@@ -34,8 +34,8 @@ const type: ref_list is subtype object;
 
 IN_PARAM_IS_REFERENCE(ref_list);
 
-const proc: (ref ref_list: dest) ::= (in ref_list: source)               is action "RFL_CREATE";
-const proc: destroy (ref ref_list: aValue)                               is action "RFL_DESTR";
+const creator: (ref ref_list: dest) ::= (in ref_list: source)            is action "RFL_CREATE";
+const destroyer: destroy (ref ref_list: aValue)                          is action "RFL_DESTR";
 const proc: (inout ref_list: dest) := (in ref_list: source)              is action "RFL_CPY";
 
 const func ref_list: _GENERATE_EMPTY_REFLIST                             is action "RFL_EMPTY";

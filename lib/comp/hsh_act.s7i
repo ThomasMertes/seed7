@@ -246,7 +246,7 @@ const proc: process (HSH_CREATE, in reference: function,
 *)
     c_expr.expr &:= "/* hshCreate implemented with create_";
     c_expr.expr &:= str(typeNumber(param_type));
-    c_expr.expr &:= " */\n";
+    c_expr.expr &:= " */ 0\n";
   end func;
 
 
@@ -275,7 +275,7 @@ const proc: process (HSH_DESTR, in reference: function,
 *)
     c_expr.expr &:= "/* hshDestr implemented with destr_";
     c_expr.expr &:= str(typeNumber(param_type));
-    c_expr.expr &:= " */\n";
+    c_expr.expr &:= " */ 0\n";
   end func;
 
 

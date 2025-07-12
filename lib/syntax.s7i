@@ -38,6 +38,10 @@ $ const type: object   is $ newtype;
 $ const type: string   is $ subtype object;
 $ const type: ACTION   is $ newtype;
 $ const type: f_param  is $ newtype;
+$ const type: create_result  is $ newtype;
+$ const type: creator        is $ func create_result;
+$ const type: destroy_result is $ newtype;
+$ const type: destroyer      is $ func destroy_result;
 
 $ system "expr"         is expr;
 $ system "string"       is string;
