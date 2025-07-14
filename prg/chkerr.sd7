@@ -2919,7 +2919,17 @@ const func boolean: checkDeclFailed is func
                     \  end struct;",
                     DECL_FAILED, 3, 0,
                     "Declaration of \"stri , stri2\" failed",
-                    "    var string: stri, stri2 is \"asdf\";") then
+                    "    var string: stri, stri2 is \"asdf\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: length (FALSE) is 5;",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"FALSE length\" failed",
+                    "const func integer: length (FALSE) is 5;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func string: example (FALSE) is \"hello\";",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"FALSE example\" failed",
+                    "const func string: example (FALSE) is \"hello\";") then
       okay := TRUE;
     else
       writeln(" *** DECL_FAILED not reported correctly.");
