@@ -2593,7 +2593,27 @@ const func boolean: checkProcExpected is func
                     \  end func;",
                     PROC_EXPECTED, 6, 0,
                     "Procedure expected found \"func func boolean\" expression",
-                    "    return rand(FALSE, TRUE);") then
+                    "    return rand(FALSE, TRUE);") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: main is func\n\
+                    \  local\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    number ::= 1;\n\
+                    \  end func;\n",
+                    PROC_EXPECTED, 6, 0,
+                    "Procedure expected found \"creator\" expression",
+                    "    number ::= 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: main is func\n\
+                    \  local\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    destroy(number);\n\
+                    \  end func;\n",
+                    PROC_EXPECTED, 6, 0,
+                    "Procedure expected found \"destroyer\" expression",
+                    "    destroy(number);") then
       okay := TRUE;
     else
       writeln(" *** PROC_EXPECTED not reported correctly.");
@@ -3521,7 +3541,29 @@ const func boolean: checkNoMatch is func
                     \  end func;",
                     NO_MATCH, 2, 0,
                     "Match for {123 div \"12\" } failed",
-                    "const proc: test (123 div \"12\") is func") then
+                    "const proc: test (123 div \"12\") is func") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: main is func\n\
+                    \  local\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    number ::= 1;\n\
+                    \    writeln(number);\n\
+                    \  end func;\n",
+                    NO_MATCH, 6, 0,
+                    "Match for {INT_CREATE({number ::= 1 }) ; {number writeln } } failed",
+                    "    number ::= 1;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: main is func\n\
+                    \  local\n\
+                    \    var integer: number is 0;\n\
+                    \  begin\n\
+                    \    destroy(number);\n\
+                    \    writeln(number);\n\
+                    \  end func;\n",
+                    NO_MATCH, 6, 0,
+                    "Match for {GEN_DESTR({number destroy }) ; {number writeln } } failed",
+                    "    destroy(number);") then
       okay := TRUE;
     else
       writeln(" *** NO_MATCH not reported correctly.");
