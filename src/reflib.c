@@ -473,17 +473,19 @@ objectType ref_hshlength (listType arguments)
 objectType ref_issymb (listType arguments)
 
   {
-    objectType symb_object;
+    objectType obj_arg;
 
   /* ref_issymb */
     isit_reference(arg_1(arguments));
-    symb_object = take_reference(arg_1(arguments));
-    logFunction(printf("ref_issymb(" FMT_U_MEM " ",
-                       (memSizeType) GET_ENTITY(symb_object));
-                trace1(symb_object);
+    obj_arg = take_reference(arg_1(arguments));
+    logFunction(printf("ref_issymb(");
+                trace1(obj_arg);
                 printf(")\n"););
-    if (HAS_ENTITY(symb_object) &&
-        GET_ENTITY(symb_object)->syobject != NULL) {
+    if (unlikely(obj_arg == NULL)) {
+      logError(printf("ref_issymb: Null argument.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (HAS_ENTITY(obj_arg) &&
+               GET_ENTITY(obj_arg)->syobject != NULL) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
