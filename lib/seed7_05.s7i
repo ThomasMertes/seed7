@@ -47,13 +47,11 @@ $ const $ func type: $ varfunc (ref type param) is $ action "TYP_VARFUNC";
 
 $ const func ACTION: $ action (ref string param)                    is $ action "ACT_GEN";
 $ const creator:     $ (ref creator param) ::= (ref ACTION param)   is $ action "ACT_CREATE";
-$ const creator:     $ (ref destroyer param) ::= (ref ACTION param) is $ action "ACT_CREATE";
-$ const destroyer:   $ destroy (ref string param)                   is   action "STR_DESTR";
-$ const creator:     $ (ref proc param) ::= (ref ACTION param)      is   action "ACT_CREATE";
 
 $ const creator:      $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
 $ const func f_param: $ ref (ref type param) param                      is action "DCL_REF1";
 
+$ const creator: (ref proc param) ::= (ref ACTION param)                    is action "ACT_CREATE";
 $ const proc: const (ref type param) : (ref expr param) is (ref expr param) is action "DCL_CONST";
 
 const proc: const  (ref type param) : (ref expr param) is forward           is action "DCL_FWD";
@@ -73,6 +71,8 @@ const func f_param: inout (ref type: aType) : (ref expr: name)  is action "DCL_I
 const func f_param: attr (ref type: aType)                      is action "DCL_ATTR";
 const func f_param: attr (ref f_param: aParam)                  is action "DCL_PARAM_ATTR";
 const proc: global (ref proc: statement) end global             is action "DCL_GLOBAL";
+
+const creator: (ref destroyer: dest) ::= (ref ACTION: source)   is action "ACT_CREATE";
 
 const creator: (ref type: dest) ::= (ref type: source)          is action "TYP_CREATE";
 const destroyer: destroy (ref type: aValue)                     is action "TYP_DESTR";

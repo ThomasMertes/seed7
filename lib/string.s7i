@@ -27,7 +27,7 @@
 
 
 const creator: (ref string: dest) ::= (in string: source)        is action "STR_CREATE";
-
+const destroyer: destroy (ref string: aValue)                    is action "STR_DESTR";
 const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
 
 
