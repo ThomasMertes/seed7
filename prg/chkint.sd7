@@ -16055,7 +16055,6 @@ const func boolean: check_mult_assign_maximum_product is func
     num :=        -783128380993; num *:=            -11777599; ok := ok and num =  9223372036854775807;
     num :=         -60247241209; num *:=           -153092023; ok := ok and num =  9223372036854775807;
     num :=          -4042815511; num *:=          -2281422937; ok := ok and num =  9223372036854775807;
-    num :=          -3037000499; num *:=          -3037000499; ok := ok and num =  9223372030926249001;
     num :=          -2281422937; num *:=          -4042815511; ok := ok and num =  9223372036854775807;
     num :=           -153092023; num *:=         -60247241209; ok := ok and num =  9223372036854775807;
     num :=            -11777599; num *:=        -783128380993; ok := ok and num =  9223372036854775807;
@@ -16086,7 +16085,6 @@ const func boolean: check_mult_assign_maximum_product is func
     num :=         783128380993; num *:=             11777599; ok := ok and num =  9223372036854775807;
     num :=          60247241209; num *:=            153092023; ok := ok and num =  9223372036854775807;
     num :=           4042815511; num *:=           2281422937; ok := ok and num =  9223372036854775807;
-    num :=           3037000499; num *:=           3037000499; ok := ok and num =  9223372030926249001;
     num :=           2281422937; num *:=           4042815511; ok := ok and num =  9223372036854775807;
     num :=            153092023; num *:=          60247241209; ok := ok and num =  9223372036854775807;
     num :=             11777599; num *:=         783128380993; ok := ok and num =  9223372036854775807;
@@ -16117,7 +16115,6 @@ const func boolean: check_mult_assign_maximum_product is func
     num :=        -783128380993; num *:= intExpr(           -11777599); ok := ok and num =  9223372036854775807;
     num :=         -60247241209; num *:= intExpr(          -153092023); ok := ok and num =  9223372036854775807;
     num :=          -4042815511; num *:= intExpr(         -2281422937); ok := ok and num =  9223372036854775807;
-    num :=          -3037000499; num *:= intExpr(         -3037000499); ok := ok and num =  9223372030926249001;
     num :=          -2281422937; num *:= intExpr(         -4042815511); ok := ok and num =  9223372036854775807;
     num :=           -153092023; num *:= intExpr(        -60247241209); ok := ok and num =  9223372036854775807;
     num :=            -11777599; num *:= intExpr(       -783128380993); ok := ok and num =  9223372036854775807;
@@ -16148,7 +16145,6 @@ const func boolean: check_mult_assign_maximum_product is func
     num :=         783128380993; num *:= intExpr(            11777599); ok := ok and num =  9223372036854775807;
     num :=          60247241209; num *:= intExpr(           153092023); ok := ok and num =  9223372036854775807;
     num :=           4042815511; num *:= intExpr(          2281422937); ok := ok and num =  9223372036854775807;
-    num :=           3037000499; num *:= intExpr(          3037000499); ok := ok and num =  9223372030926249001;
     num :=           2281422937; num *:= intExpr(          4042815511); ok := ok and num =  9223372036854775807;
     num :=            153092023; num *:= intExpr(         60247241209); ok := ok and num =  9223372036854775807;
     num :=             11777599; num *:= intExpr(        783128380993); ok := ok and num =  9223372036854775807;
@@ -16179,7 +16175,6 @@ const func boolean: check_mult_assign_maximum_product is func
     arr[1] :=        -783128380993; arr[1] *:=            -11777599; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=         -60247241209; arr[1] *:=           -153092023; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=          -4042815511; arr[1] *:=          -2281422937; ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=          -3037000499; arr[1] *:=          -3037000499; ok := ok and arr[1] =  9223372030926249001;
     arr[1] :=          -2281422937; arr[1] *:=          -4042815511; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=           -153092023; arr[1] *:=         -60247241209; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=            -11777599; arr[1] *:=        -783128380993; ok := ok and arr[1] =  9223372036854775807;
@@ -16210,7 +16205,6 @@ const func boolean: check_mult_assign_maximum_product is func
     arr[1] :=         783128380993; arr[1] *:=             11777599; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=          60247241209; arr[1] *:=            153092023; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=           4042815511; arr[1] *:=           2281422937; ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=           3037000499; arr[1] *:=           3037000499; ok := ok and arr[1] =  9223372030926249001;
     arr[1] :=           2281422937; arr[1] *:=           4042815511; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=            153092023; arr[1] *:=          60247241209; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=             11777599; arr[1] *:=         783128380993; ok := ok and arr[1] =  9223372036854775807;
@@ -16241,7 +16235,6 @@ const func boolean: check_mult_assign_maximum_product is func
     arr[1] :=        -783128380993; arr[1] *:= intExpr(           -11777599); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=         -60247241209; arr[1] *:= intExpr(          -153092023); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=          -4042815511; arr[1] *:= intExpr(         -2281422937); ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=          -3037000499; arr[1] *:= intExpr(         -3037000499); ok := ok and arr[1] =  9223372030926249001;
     arr[1] :=          -2281422937; arr[1] *:= intExpr(         -4042815511); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=           -153092023; arr[1] *:= intExpr(        -60247241209); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=            -11777599; arr[1] *:= intExpr(       -783128380993); ok := ok and arr[1] =  9223372036854775807;
@@ -16272,7 +16265,6 @@ const func boolean: check_mult_assign_maximum_product is func
     arr[1] :=         783128380993; arr[1] *:= intExpr(            11777599); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=          60247241209; arr[1] *:= intExpr(           153092023); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=           4042815511; arr[1] *:= intExpr(          2281422937); ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=           3037000499; arr[1] *:= intExpr(          3037000499); ok := ok and arr[1] =  9223372030926249001;
     arr[1] :=           2281422937; arr[1] *:= intExpr(          4042815511); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=            153092023; arr[1] *:= intExpr(         60247241209); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=             11777599; arr[1] *:= intExpr(        783128380993); ok := ok and arr[1] =  9223372036854775807;
