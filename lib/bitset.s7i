@@ -114,6 +114,14 @@ const proc: (inout bitset: dest) -:= (in bitset: set2)          is action "SET_D
 
 (**
  *  Check if two sets are equal.
+ *   {} = {}          returns  TRUE
+ *   {} = {1}         returns  FALSE
+ *   {1} = {}         returns  FALSE
+ *   {1} = {1}        returns  TRUE
+ *   {1} = {2}        returns  FALSE
+ *   {1} = {1, 2}     returns  FALSE
+ *   {1, 2} = {1}     returns  FALSE
+ *   {1, 2} = {1, 2}  returns  TRUE
  *  @return TRUE if the two sets are equal,
  *          FALSE otherwise.
  *)
@@ -122,6 +130,14 @@ const func boolean: (in bitset: set1) = (in bitset: set2)       is action "SET_E
 
 (**
  *  Check if two sets are not equal.
+ *   {} <> {}          returns  FALSE
+ *   {} <> {1}         returns  TRUE
+ *   {1} <> {}         returns  TRUE
+ *   {1} <> {1}        returns  FALSE
+ *   {1} <> {2}        returns  TRUE
+ *   {1} <> {1, 2}     returns  TRUE
+ *   {1, 2} <> {1}     returns  TRUE
+ *   {1, 2} <> {1, 2}  returns  FALSE
  *  @return FALSE if the two sets are equal,
  *          TRUE otherwise.
  *)
@@ -133,6 +149,15 @@ const func boolean: (in bitset: set1) <> (in bitset: set2)      is action "SET_N
  *  ''set1'' is a proper subset of ''set2'' if
  *   set1 <= set2 and set1 <> set2
  *  holds.
+ *   {} < {}       returns  FALSE
+ *   {} < {1}      returns  TRUE
+ *   {1} < {}      returns  FALSE
+ *   {1} < {1}     returns  FALSE
+ *   {1} < {1, 2}  returns  TRUE
+ *   {2} < {1}     returns  FALSE
+ *   {2} < {1, 2}  returns  TRUE
+ *   {3} < {1, 2}  returns  FALSE
+ *   {1, 2} < {1}  returns  FALSE
  *  @return TRUE if ''set1'' is a proper subset of ''set2'',
  *          FALSE otherwise.
  *)
@@ -144,6 +169,15 @@ const func boolean: (in bitset: set1) < (in bitset: set2)       is action "SET_L
  *  ''set1'' is a proper superset of ''set2'' if
  *   set1 >= set2 and set1 <> set2
  *  holds.
+ *   {} > {}       returns  FALSE
+ *   {} > {1}      returns  FALSE
+ *   {1} > {}      returns  TRUE
+ *   {1} > {1}     returns  FALSE
+ *   {1} > {2}     returns  FALSE
+ *   {1} > {1, 2}  returns  FALSE
+ *   {1, 2} > {1}  returns  TRUE
+ *   {1, 2} > {2}  returns  TRUE
+ *   {1, 2} > {3}  returns  FALSE
  *  @return TRUE if ''set1'' is a proper superset of ''set2'',
  *          FALSE otherwise.
  *)
@@ -155,6 +189,15 @@ const func boolean: (in bitset: set1) > (in bitset: set2)       is action "SET_G
  *  ''set1'' is a subset of ''set2'' if no element X exists for which
  *   X in set1 and X not in set2
  *  holds.
+ *   {} <= {}       returns  TRUE
+ *   {} <= {1}      returns  TRUE
+ *   {1} <= {}      returns  FALSE
+ *   {1} <= {1}     returns  TRUE
+ *   {1} <= {1, 2}  returns  TRUE
+ *   {2} <= {1}     returns  FALSE
+ *   {2} <= {1, 2}  returns  TRUE
+ *   {3} <= {1, 2}  returns  FALSE
+ *   {1, 2} <= {1}  returns  FALSE
  *  @return TRUE if ''set1'' is a subset of ''set2'',
  *          FALSE otherwise.
  *)
@@ -166,6 +209,15 @@ const func boolean: (in bitset: set1) <= (in bitset: set2)      is action "SET_L
  *  ''set1'' is a superset of ''set2'' if no element X exists for which
  *   X in set2 and X not in set1
  *  holds.
+ *   {} >= {}       returns  TRUE
+ *   {} >= {1}      returns  FALSE
+ *   {1} >= {}      returns  TRUE
+ *   {1} >= {1}     returns  TRUE
+ *   {1} >= {2}     returns  FALSE
+ *   {1} >= {1, 2}  returns  FALSE
+ *   {1, 2} >= {1}  returns  TRUE
+ *   {1, 2} >= {2}  returns  TRUE
+ *   {1, 2} >= {3}  returns  FALSE
  *  @return TRUE if ''set1'' is a superset of ''set2'',
  *          FALSE otherwise.
  *)
@@ -180,6 +232,16 @@ const func boolean: (in bitset: set1) >= (in bitset: set2)      is action "SET_G
  *  is not related to the concepts of subset or superset. With the
  *  comparison function ''compare'' it is possible to sort an array of
  *  sets or to use sets as key in a hash table.
+ *   compare({}, {})          returns   0
+ *   compare({}, {1})         returns  -1
+ *   compare({1}, {})         returns   1
+ *   compare({1}, {1})        returns   0
+ *   compare({1}, {2})        return   -1
+ *   compare({1}, {1, 2})     returns  -1
+ *   compare({2}, {1})        returns   1
+ *   compare({1, 2}, {1})     returns   1
+ *   compare({1, 3}, {1, 2})  returns   1
+ *   compare({1, 2}, {1, 3})  returns  -1
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
