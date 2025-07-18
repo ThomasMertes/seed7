@@ -1331,7 +1331,7 @@ static boolType sct_elem_initialisation (typeType dest_type, objectType obj_to, 
 
   /* sct_elem_initialisation */
     memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorUnion));
-    INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
+    INIT_VAR_EMBEDDED(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
     do_create(obj_to, obj_from, &err_info);
@@ -1441,7 +1441,7 @@ void destr_interface (objectType old_value)
             /* property will be removed later by close_stack() or   */
             /* by free_local_consts(). The descriptor.property will */
             /* be freed together with the object.                   */
-            if (HAS_PROPERTY(old_value)) {
+            if (HAS_PROPERTY(old_value) || IS_EMBEDDED(old_value)) {
               old_value->value.structValue = NULL;
             } else {
               FREE_OBJECT(old_value);
@@ -1463,7 +1463,7 @@ boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectT
 
   /* arr_elem_initialisation */
     obj_to->descriptor.property = NULL;
-    INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
+    INIT_VAR_EMBEDDED(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
     objFromIsTemp = TEMP_OBJECT(obj_from);

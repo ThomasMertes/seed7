@@ -508,10 +508,11 @@ extern progType prog;
 #define TEMP2_MASK        ((categoryType)  256)
 #define POSINFO_MASK      ((categoryType)  512)
 #define MATCH_ERR_MASK    ((categoryType) 1024)
-#define STRUCT_OWNER_MASK ((categoryType) 2048)
-#define UNUSED_MASK       ((categoryType) 4096)
+#define EMBEDDED_MASK     ((categoryType) 2048)
+#define STRUCT_OWNER_MASK ((categoryType) 4096)
+#define UNUSED_MASK       ((categoryType) 8192)
 
-#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 8191)
+#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 16383)
 #define LEGAL_CATEGORY_FIELD(O)  ((objectCategory) ((O)->objcategory <= MAX_CATEGORY_FIELD_VALUE))
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categoryType) ((O)->objcategory | (FLAG))
@@ -545,6 +546,11 @@ extern progType prog;
 #define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (categoryType) ((O)->objcategory | MATCH_ERR_MASK)
 #define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (categoryType) ((O)->objcategory & ~MATCH_ERR_MASK)
 #define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
+
+#define INIT_VAR_EMBEDDED(O,CAT)        (O)->objcategory = (categoryType) ((CAT) | VAR_MASK | EMBEDDED_MASK)
+#define SET_EMBEDDED_FLAG(O)            (O)->objcategory = (categoryType) ((O)->objcategory | EMBEDDED_MASK)
+#define CLEAR_EMBEDDED_FLAG(O)          (O)->objcategory = (categoryType) ((O)->objcategory & ~EMBEDDED_MASK)
+#define IS_EMBEDDED(O)                  ((O)->objcategory & EMBEDDED_MASK)
 
 #define SET_STRUCT_OWNER_FLAG(O)        (O)->objcategory = (categoryType) ((O)->objcategory | STRUCT_OWNER_MASK)
 #define CLEAR_STRUCT_OWNER_FLAG(O)      (O)->objcategory = (categoryType) ((O)->objcategory & ~STRUCT_OWNER_MASK)
