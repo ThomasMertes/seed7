@@ -622,7 +622,6 @@ objectType arr_cpy (listType arguments)
     objectType source;
     arrayType arr_dest;
     arrayType arr_source;
-    memSizeType arr_dest_size;
     memSizeType arr_source_size;
     arrayType new_arr;
     objectType array_exec_object;
@@ -636,9 +635,7 @@ objectType arr_cpy (listType arguments)
     arr_dest = take_array(dest);
     arr_source = take_array(source);
     if (TEMP_OBJECT(source)) {
-      arr_dest_size = arraySize(arr_dest);
-      destr_array(arr_dest->arr, arr_dest_size);
-      FREE_ARRAY(arr_dest, arr_dest_size);
+      free_array(arr_dest);
       dest->value.arrayValue = arr_source;
       source->value.arrayValue = NULL;
     } else {
@@ -660,9 +657,7 @@ objectType arr_cpy (listType arguments)
                                            array_exec_object,
                                            arguments);
           } else {
-            arr_dest_size = arraySize(arr_dest);
-            destr_array(arr_dest->arr, arr_dest_size);
-            FREE_ARRAY(arr_dest, arr_dest_size);
+            free_array(arr_dest);
             dest->value.arrayValue = new_arr;
           } /* if */
         } /* if */
@@ -737,15 +732,12 @@ objectType arr_destr (listType arguments)
 
   {
     arrayType old_arr;
-    memSizeType old_size;
 
   /* arr_destr */
     isit_array(arg_1(arguments));
     old_arr = take_array(arg_1(arguments));
     if (old_arr != NULL) {
-      old_size = arraySize(old_arr);
-      destr_array(old_arr->arr, old_size);
-      FREE_ARRAY(old_arr, old_size);
+      free_array(old_arr);
       arg_1(arguments)->value.arrayValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));

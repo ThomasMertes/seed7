@@ -1492,6 +1492,40 @@ void destr_array (objectType old_elem, memSizeType old_size)
 
 
 
+void free_array (arrayType old_arr)
+
+  {
+    memSizeType old_size;
+    objectType old_elem;
+    memSizeType position;
+    errInfoType err_info = OKAY_NO_ERROR;
+    boolType elementInUse = FALSE;
+
+  /* free_array */
+    old_size = arraySize(old_arr);
+    old_elem = old_arr->arr;
+    for (position = old_size; position > 0; position--) {
+      do_destroy(old_elem, &err_info);
+      if (unlikely(!IS_UNUSED(old_elem))) {
+        logError(printf("free_array: Element is still in use:\n");
+                 trace1(old_elem);
+                 printf("\n"););
+        elementInUse = TRUE;
+      } /* if */
+      old_elem++;
+    } /* for */
+    if (unlikely(elementInUse)) {
+      logError(printf("free_array: array[" FMT_D ",," FMT_D "] "
+                      "still in use.\n",
+                      old_arr->min_position,
+                      old_arr->max_position););
+    } else {
+      FREE_ARRAY(old_arr, old_size);
+    } /* if */
+  } /* free_array */
+
+
+
 boolType crea_array (objectType elem_to, objectType elem_from,
     memSizeType new_size)
 

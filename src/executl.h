@@ -52,6 +52,7 @@ void destr_interface (objectType old_value);
 boolType arr_elem_initialisation (typeType dest_type, objectType obj_to,
     objectType obj_from);
 void destr_array (objectType old_elem, memSizeType old_size);
+void free_array (arrayType old_arr);
 boolType crea_array (objectType elem_to, objectType elem_from,
     memSizeType new_size);
 void cpy_array (objectType elem_to, objectType elem_from,
