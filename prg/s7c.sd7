@@ -3981,6 +3981,7 @@ const func boolean: process_dynamic_call (in reference: function,
   begin
     if function = interface_object then
       found := TRUE;
+      error(ENDLESS_RECURSION, function);
       c_expr.expr &:= "/* ENDLESS RECURSION */\n";
       c_expr.expr &:= diagnosticLine(interface_object);
       c_expr.expr &:= "raiseError(ACTION_ERROR);\n";

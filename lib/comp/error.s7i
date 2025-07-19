@@ -372,6 +372,17 @@ const proc: error (FORWARD_CALLED, in reference: current_expression,
   end func;
 
 
+const proc: error (ENDLESS_RECURSION, in reference: function) is func
+  begin
+    if config.warning_level >= 2 then
+      writeln("*** " <& file(function) <& "(" <& line(function) <&
+              "): Endless recursion in interface function.");
+      writeLine(file(function), line(function));
+      writeln;
+    end if;
+  end func;
+
+
 const proc: checkRangeFromZero (in string: number_name, in string: beyond,
     inout expr_type: c_expr) is func
 
