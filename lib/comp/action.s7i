@@ -1428,6 +1428,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_REPEAT_NOOP, function, params, c_expr);
       when {"PRC_RETURN"}:
         process(PRC_RETURN, function, params, c_expr);
+      when {"PRC_SEMICOLON"}:
+        process(PRC_SEMICOLON, function, params, c_expr);
       when {"PRC_WHILE"}:
         process(PRC_WHILE, function, params, c_expr);
       when {"PRC_WHILE_NOOP"}:

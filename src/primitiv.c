@@ -690,7 +690,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PCS_WAIT_FOR",                 pcs_wait_for,                 },
 
 #if WITH_DRAW
-    { "PLT_BSTRING",                  plt_bstring                   },
+    { "PLT_BSTRING",                  plt_bstring,                  },
     { "PLT_CMP",                      plt_cmp,                      },
     { "PLT_CPY",                      plt_cpy,                      },
     { "PLT_CREATE",                   plt_create,                   },
@@ -757,6 +757,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_RETURN2",                  prc_return2,                  },
     { "PRC_RETURN_VAR",               prc_return_var,               },
     { "PRC_RETURN_VAR2",              prc_return_var2,              },
+    { "PRC_SEMICOLON",                prc_semicolon,                },
     { "PRC_SETTRACE",                 prc_settrace,                 },
     { "PRC_TRACE",                    prc_trace,                    },
     { "PRC_WHILE",                    prc_while,                    },

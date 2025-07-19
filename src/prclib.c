@@ -1868,6 +1868,14 @@ objectType prc_return_var2 (listType arguments)
 
 
 
+objectType prc_semicolon (listType arguments)
+
+  { /* prc_semicolone */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_semicolone */
+
+
+
 objectType prc_settrace (listType arguments)
 
   { /* prc_settrace */

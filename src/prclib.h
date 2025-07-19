@@ -63,6 +63,7 @@ objectType prc_return           (listType arguments);
 objectType prc_return2          (listType arguments);
 objectType prc_return_var       (listType arguments);
 objectType prc_return_var2      (listType arguments);
+objectType prc_semicolon        (listType arguments);
 objectType prc_settrace         (listType arguments);
 objectType prc_trace            (listType arguments);
 objectType prc_while            (listType arguments);
