@@ -769,12 +769,18 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         objectType not in typeData.typeCategory then
       typeData.typeCategory @:= [objectType] valueCategory;
     end if;
-    declare_type_if_necessary(objectType, global_c_expr);
-    c_declaration.temp_decls &:= diagnosticLine(current_object);
-    c_declaration.temp_decls &:= type_name(objectType);
-    c_declaration.temp_decls &:= " o_";
-    create_name(current_object, c_declaration.temp_decls);
-    if objectType in typeData.typeCategory and
+    if objectType <> typeData.voidtype then
+      declare_type_if_necessary(objectType, global_c_expr);
+      c_declaration.temp_decls &:= diagnosticLine(current_object);
+      c_declaration.temp_decls &:= type_name(objectType);
+      c_declaration.temp_decls &:= " o_";
+      create_name(current_object, c_declaration.temp_decls);
+    end if;
+    if objectType = typeData.voidtype then
+      c_declaration.temp_decls &:= "/* Declaration of void variable */ int o_";
+      create_name(current_object, c_declaration.temp_decls);
+      c_declaration.temp_decls &:= "=0";
+    elsif objectType in typeData.typeCategory and
         typeData.typeCategory[objectType] = INTERFACEOBJECT then
       if valueCategory = INTERFACEOBJECT then
         object_value := interfaceToStruct(object_value);
