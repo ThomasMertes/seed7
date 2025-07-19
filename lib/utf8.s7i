@@ -41,6 +41,9 @@ const type: utf8File is sub external_file struct
   end struct;
 
 
+type_implements_interface(utf8File, file);
+
+
 const func char: utf8_getc (ref clib_file: inFile)                    is action "UT8_GETC";
 const func string: utf8_gets (in clib_file: inFile,
                               in integer: maxLength)                  is action "UT8_GETS";
@@ -184,13 +187,16 @@ const proc: seek (in utf8File: aFile, in integer: position) is func
 (* System STD_UTF8_IN, STD_UTF8_OUT and STD_UTF8_ERR files *)
 
 
-const func utf8File: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
+const func file: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
     in string: path) is func
   result
-    var utf8File: aFile is utf8File.value;
+    var file: newFile is STD_NULL;
+  local
+    var utf8File: aUtf8File is utf8File.value;
   begin
-    aFile.ext_file := primitive_file;
-    aFile.name := path;
+    aUtf8File.ext_file := primitive_file;
+    aUtf8File.name := path;
+    newFile := toInterface(aUtf8File);
   end func;
 
 
@@ -205,7 +211,7 @@ const func utf8File: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
  *   read(aVariable);
  *  reads from ''STD_UTF8_IN''.
  *)
-var utf8File: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
+var file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
 
 
 (**
@@ -219,7 +225,7 @@ var utf8File: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
  *   write(something);
  *  writes to ''STD_UTF8_OUT''.
  *)
-var utf8File: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
+var file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
 
 
 (**
@@ -227,4 +233,4 @@ var utf8File: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
  *  Writing to ''STD_UTF8_ERR'' can be done with e.g.:
  *   write(STD_UTF8_ERR, something);
  *)
-var utf8File: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");
+var file: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");
