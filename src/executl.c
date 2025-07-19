@@ -770,7 +770,7 @@ static void do_copy (objectType destination, objectType source,
 intType do_ord (objectType any_obj, errInfoType *err_info)
 
   {
-    categoryType temp_any_obj;
+    categoryType temp_flag_any_obj;
     objectRecord call_object;
     listRecord call_list[3];
     objectType call_result;
@@ -830,12 +830,12 @@ intType do_ord (objectType any_obj, errInfoType *err_info)
         prot_cstri("is temp ");
         trace1(any_obj);
       } */
-      temp_any_obj = (categoryType) TEMP_OBJECT(any_obj);
+      temp_flag_any_obj = (categoryType) TEMP_OBJECT(any_obj);
       CLEAR_TEMP_FLAG(any_obj);
 
       call_result = exec_call(&call_object);
 
-      SET_ANY_FLAG(any_obj, temp_any_obj);
+      SET_ANY_FLAG(any_obj, temp_flag_any_obj);
       /* printf("do_ord: after exec_call\n");
          fflush(stdout); */
       result = take_int(call_result);
@@ -855,8 +855,8 @@ boolType do_in (objectType elem_obj, objectType set_obj,
     errInfoType *err_info)
 
   {
-    categoryType temp_elem_obj;
-    categoryType temp_set_obj;
+    categoryType temp_flag_elem_obj;
+    categoryType temp_flag_set_obj;
     objectRecord call_object;
     listRecord call_list[4];
     objectType call_result;
@@ -918,15 +918,15 @@ boolType do_in (objectType elem_obj, objectType set_obj,
         prot_cstri("is temp ");
         trace1(elem_obj);
       } */
-      temp_elem_obj = (categoryType) TEMP_OBJECT(elem_obj);
-      temp_set_obj = (categoryType) TEMP_OBJECT(set_obj);
+      temp_flag_elem_obj = (categoryType) TEMP_OBJECT(elem_obj);
+      temp_flag_set_obj = (categoryType) TEMP_OBJECT(set_obj);
       CLEAR_TEMP_FLAG(elem_obj);
       CLEAR_TEMP_FLAG(set_obj);
 
       call_result = exec_call(&call_object);
 
-      SET_ANY_FLAG(elem_obj, temp_elem_obj);
-      SET_ANY_FLAG(set_obj, temp_set_obj);
+      SET_ANY_FLAG(elem_obj, temp_flag_elem_obj);
+      SET_ANY_FLAG(set_obj, temp_flag_set_obj);
       /* printf("do_in: after exec_call\n");
          fflush(stdout); */
       result = (boolType) (take_bool(call_result) == SYS_TRUE_OBJECT);
@@ -1458,20 +1458,17 @@ void destr_interface (objectType old_value)
 boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectType obj_from)
 
   {
-    boolType objFromIsTemp;
+    boolType temp_flag_obj_from;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* arr_elem_initialisation */
     obj_to->descriptor.property = NULL;
     INIT_VAR_EMBEDDED(obj_to, DECLAREDOBJECT);
-    SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
-    objFromIsTemp = TEMP_OBJECT(obj_from);
+    temp_flag_obj_from = TEMP_OBJECT(obj_from);
     CLEAR_TEMP_FLAG(obj_from);
     do_create(obj_to, obj_from, &err_info);
-    if (objFromIsTemp) {
-      SET_TEMP_FLAG(obj_from);
-    } /* if */
+    SET_ANY_FLAG(obj_from, temp_flag_obj_from);
     return err_info == OKAY_NO_ERROR;
   } /* arr_elem_initialisation */
 
