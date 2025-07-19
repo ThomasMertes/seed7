@@ -419,6 +419,7 @@ objectType arr_baselit (listType arguments)
       if (TEMP_OBJECT(element) && element->type_of == element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
+        SET_EMBEDDED_FLAG(element);
         memcpy(&result->arr[0], element, sizeof(objectRecord));
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
@@ -467,6 +468,7 @@ objectType arr_baselit2 (listType arguments)
       if (TEMP_OBJECT(element) && element->type_of == element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
+        SET_EMBEDDED_FLAG(element);
         memcpy(&result->arr[0], element, sizeof(objectRecord));
         FREE_OBJECT(element);
         arg_4(arguments) = NULL;
@@ -827,6 +829,7 @@ objectType arr_extend (listType arguments)
       if (TEMP_OBJECT(element) && element->type_of == element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
+        SET_EMBEDDED_FLAG(element);
         memcpy(&result->arr[arr1_size], element, sizeof(objectRecord));
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
@@ -875,6 +878,7 @@ objectType arr_gen (listType arguments)
       if (TEMP_OBJECT(element1) && element1->type_of == element_type) {
         CLEAR_TEMP_FLAG(element1);
         SET_VAR_FLAG(element1);
+        SET_EMBEDDED_FLAG(element1);
         memcpy(&result->arr[0], element1, sizeof(objectRecord));
         FREE_OBJECT(element1);
         arg_1(arguments) = NULL;
@@ -892,6 +896,7 @@ objectType arr_gen (listType arguments)
       if (TEMP_OBJECT(element2) && element2->type_of == element_type) {
         CLEAR_TEMP_FLAG(element2);
         SET_VAR_FLAG(element2);
+        SET_EMBEDDED_FLAG(element2);
         memcpy(&result->arr[1], element2, sizeof(objectRecord));
         FREE_OBJECT(element2);
         arg_3(arguments) = NULL;
@@ -1032,6 +1037,7 @@ objectType arr_idx (listType arguments)
         } else {
           memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
           SET_TEMP_FLAG(result);
+          CLEAR_EMBEDDED_FLAG(result);
           destr_array(array_pointer, arraySize2(arr1->min_position, position) - 1);
           destr_array(&array_pointer[position - arr1->min_position + 1],
               arraySize2(position, arr1->max_position) - 1);
@@ -1109,6 +1115,7 @@ objectType arr_insert (listType arguments)
                   arraySize2(position, arr1->max_position) * sizeof(objectRecord));
           CLEAR_TEMP_FLAG(element);
           SET_VAR_FLAG(element);
+          SET_EMBEDDED_FLAG(element);
           memcpy(&array_pointer[position - arr1->min_position], element,
                  sizeof(objectRecord));
           FREE_OBJECT(element);
@@ -1363,6 +1370,7 @@ objectType arr_push (listType arguments)
         if (TEMP_OBJECT(element) && element->type_of == element_type) {
           CLEAR_TEMP_FLAG(element);
           SET_VAR_FLAG(element);
+          SET_EMBEDDED_FLAG(element);
           memcpy(&new_arr->arr[dest_size], element, sizeof(objectRecord));
           new_arr->max_position ++;
           FREE_OBJECT(element);
@@ -1544,6 +1552,7 @@ objectType arr_remove (listType arguments)
           arr1->max_position--;
           arg_1(arguments)->value.arrayValue = arr1;
           SET_TEMP_FLAG(result);
+          CLEAR_EMBEDDED_FLAG(result);
         } /* if */
       } /* if */
     } /* if */
@@ -1937,6 +1946,7 @@ objectType arr_times (listType arguments)
           if (TEMP_OBJECT(element) && element->type_of == element_type) {
             CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);
+            SET_EMBEDDED_FLAG(element);
             memcpy(elem_to, element, sizeof(objectRecord));
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
