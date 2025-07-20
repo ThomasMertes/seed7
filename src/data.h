@@ -283,7 +283,7 @@ typedef struct typeStruct {
     boolType is_varfunc_type;
     boolType is_type_type;
     parameterType in_param_type;
-    typeListType interfaces;
+    listType interfaces;
     identType name;
     progType owningProg;
     objectType inout_f_param_prototype;

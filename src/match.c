@@ -641,7 +641,7 @@ static objectType match_subexpr_type (objectType expr_object,
 
   {
     typeType current_object_type;
-    typeListType interface_list;
+    listType interface_list;
     boolType non_dynamic_match_removed;
     objectType matched_object;
 
@@ -661,7 +661,7 @@ static objectType match_subexpr_type (objectType expr_object,
         interface_list = object_type->interfaces;
         while (interface_list != NULL && matched_object == NULL) {
           matched_object = match_subexpr_var(expr_object, start_node,
-              interface_list->type_elem->match_obj, rest_of_expression,
+              interface_list->obj, rest_of_expression,
               check_access_right, look_for_interfaces);
           interface_list = interface_list->next;
         } /* while */
@@ -691,7 +691,7 @@ static objectType match_subexpr_type (objectType expr_object,
           interface_list = object_type->interfaces;
           while (interface_list != NULL && matched_object == NULL) {
             matched_object = match_subexpr_var(expr_object, start_node,
-                interface_list->type_elem->match_obj, rest_of_expression,
+                interface_list->obj, rest_of_expression,
                 check_access_right, look_for_interfaces);
             interface_list = interface_list->next;
           } /* while */
@@ -702,7 +702,7 @@ static objectType match_subexpr_type (objectType expr_object,
         interface_list = object_type->interfaces;
         while (interface_list != NULL && matched_object == NULL) {
           matched_object = match_subexpr_const(expr_object, start_node,
-              interface_list->type_elem->match_obj, rest_of_expression,
+              interface_list->obj, rest_of_expression,
               check_access_right, look_for_interfaces);
           interface_list = interface_list->next;
         } /* while */
@@ -732,7 +732,7 @@ static objectType match_subexpr_type (objectType expr_object,
           interface_list = object_type->interfaces;
           while (interface_list != NULL && matched_object == NULL) {
             matched_object = match_subexpr_const(expr_object, start_node,
-                interface_list->type_elem->match_obj, rest_of_expression,
+                interface_list->obj, rest_of_expression,
                 check_access_right, look_for_interfaces);
             interface_list = interface_list->next;
           } /* while */

@@ -116,21 +116,12 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
 
 static void free_type (typeType old_type)
 
-  {
-    typeListType typelist_elem;
-    typeListType next_elem;
-
-  /* free_type */
+  { /* free_type */
     logFunction(printf("free_type(");
                 printtype(old_type);
                 printf(")\n"););
     FREE_OBJECT(old_type->match_obj);
-    typelist_elem = old_type->interfaces;
-    while (typelist_elem != NULL) {
-      next_elem = typelist_elem->next;
-      FREE_RECORD(typelist_elem, typeListRecord, count.typelist_elems);
-      typelist_elem = next_elem;
-    } /* while */
+    free_list(old_type->interfaces);
     FREE_RECORD(old_type, typeRecord, count.type);
     logFunction(printf("free_type -->\n"););
   } /* free_type */
@@ -213,8 +204,8 @@ typeType get_varfunc_type (typeType meta_type, typeType basic_type)
 void add_interface (typeType basic_type, typeType interface_type)
 
   {
-    typeListType typelist_elem;
-    typeListType current_elem;
+    listType new_list_elem;
+    listType last_elem;
 
   /* add_interface */
     logFunction(printf("add_interface(");
@@ -222,46 +213,18 @@ void add_interface (typeType basic_type, typeType interface_type)
                 printf(", ");
                 printtype(interface_type);
                 printf(")\n"););
-    if (ALLOC_RECORD(typelist_elem, typeListRecord, count.typelist_elems)) {
-      typelist_elem->next = NULL;
-      typelist_elem->type_elem = interface_type;
+    if (ALLOC_L_ELEM(new_list_elem)) {
+      new_list_elem->next = NULL;
+      new_list_elem->obj = interface_type->match_obj;
       if (basic_type->interfaces == NULL) {
-        basic_type->interfaces = typelist_elem;
+        basic_type->interfaces = new_list_elem;
       } else {
-        current_elem = basic_type->interfaces;
-        while (current_elem->next != NULL) {
-          current_elem = current_elem->next;
+        last_elem = basic_type->interfaces;
+        while (last_elem->next != NULL) {
+          last_elem = last_elem->next;
         } /* while */
-        current_elem->next = typelist_elem;
+        last_elem->next = new_list_elem;
       } /* if */
     } /* if */
     logFunction(printf("add_interface\n"););
   } /* add_interface */
-
-
-
-#ifdef OUT_OF_ORDER
-void get_interfaces (typeType basic_type)
-
-  {
-    typeListType typelist_elem;
-    listType *list_insert_place;
-    errInfoType err_info = OKAY_NO_ERROR;
-    listType result;
-
-  /* get_interfaces */
-    result = NULL;
-    list_insert_place = &result;
-    typelist_elem = basic_type->interfaces;
-    while (typelist_elem->next != NULL) {
-      list_insert_place = append_element_to_list(list_insert_place,
-          typelist_elem->type_elem, &err_info);
-      typelist_elem = typelist_elem->next;
-    } /* while */
-    if (err_info != OKAY_NO_ERROR) {
-      free_list(result);
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } /* if */
-    return bld_reflist_temp(result);
-  } /* get_interfaces */
-#endif
