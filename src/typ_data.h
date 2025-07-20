@@ -28,6 +28,7 @@
 intType typCmp (const const_typeType type1, const const_typeType type2);
 intType typCmpGeneric (const genericType value1, const genericType value2);
 typeType typFunc (typeType basic_type);
+listType typInterfaces (typeType basic_type);
 boolType typIsDerived (typeType any_type);
 boolType typIsFunc (typeType any_type);
 boolType typIsVarfunc (typeType any_type);

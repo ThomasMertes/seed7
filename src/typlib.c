@@ -266,22 +266,6 @@ objectType typ_gentype (listType arguments)
 
 
 #ifdef OUT_OF_ORDER
-objectType typ_getinterfaces (listType arguments)
-
-  {
-    typeType typ1;
-
-  /* typ_getinterfaces */
-    isit_type(arg_1(arguments));
-    typ1 = take_type(arg_1(arguments));
-    get_interfaces(typ1);
-    return SYS_EMPTY_OBJECT;
-  } /* typ_getinterfaces */
-#endif
-
-
-
-#ifdef OUT_OF_ORDER
 objectType typ_getcreate (listType arguments)
 
   {
@@ -307,6 +291,16 @@ objectType typ_hashcode (listType arguments)
     return bld_int_temp((intType)
         (((memSizeType) take_type(arg_1(arguments))) >> 6));
   } /* typ_hashcode */
+
+
+
+objectType typ_interfaces (listType arguments)
+
+  { /* typ_interfaces */
+    isit_type(arg_1(arguments));
+    return bld_reflist_temp(typInterfaces(
+        take_type(arg_1(arguments))));
+  } /* typ_interfaces */
 
 
 

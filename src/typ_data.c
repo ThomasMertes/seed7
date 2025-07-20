@@ -41,6 +41,7 @@
 #include "datautl.h"
 #include "typeutl.h"
 #include "striutl.h"
+#include "listutl.h"
 #include "hsh_rtl.h"
 #include "rtl_err.h"
 
@@ -103,6 +104,24 @@ typeType typFunc (typeType basic_type)
     logFunction(printf("typFunc --> " FMT_X_MEM "\n", (memSizeType) func_type););
     return func_type;
   } /* typFunc */
+
+
+
+listType typInterfaces (typeType any_type)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
+
+  /* typInterfaces */
+    logFunction(printf("typInterfaces(" FMT_X_MEM ")\n",
+                       (memSizeType) any_type););
+    result = copy_list(any_type->interfaces, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return result;
+  } /* typInterfaces */
 
 
 

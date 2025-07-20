@@ -1103,6 +1103,7 @@ static const actEntryRecord actEntryTable[] = {
     { "TYP_GENSUB",                   typ_gensub,                   },
     { "TYP_GENTYPE",                  typ_gentype,                  },
     { "TYP_HASHCODE",                 typ_hashcode,                 },
+    { "TYP_INTERFACES",               typ_interfaces,               },
     { "TYP_ISDECLARED",               typ_isdeclared,               },
     { "TYP_ISDERIVED",                typ_isderived,                },
     { "TYP_ISFORWARD",                typ_isforward,                },
