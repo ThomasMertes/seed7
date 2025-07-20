@@ -106,7 +106,6 @@ typedef struct ownerStruct      *ownerType;
 typedef struct objectStruct     *objectType;
 typedef struct propertyStruct   *propertyType;
 typedef struct stackStruct      *stackType;
-typedef struct typeListStruct   *typeListType;
 typedef struct typeStruct       *typeType;
 typedef struct listStruct       *listType;
 typedef struct locObjStruct     *locObjType;
@@ -128,7 +127,6 @@ typedef const struct ownerStruct      *const_ownerType;
 typedef const struct objectStruct     *const_objectType;
 typedef const struct propertyStruct   *const_propertyType;
 typedef const struct stackStruct      *const_stackType;
-typedef const struct typeListStruct   *const_typeListType;
 typedef const struct typeStruct       *const_typeType;
 typedef const struct listStruct       *const_listType;
 typedef const struct locObjStruct     *const_locObjType;
@@ -262,11 +260,6 @@ typedef struct stackStruct {
     stackType upward;
     stackType downward;
   } stackRecord;
-
-typedef struct typeListStruct {
-    typeListType next;
-    typeType type_elem;
-  } typeListRecord;
 
 typedef enum {
     PARAM_UNDEFINED,
