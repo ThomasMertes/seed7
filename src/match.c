@@ -557,7 +557,7 @@ static objectType match_object3 (objectType object, const_objectType expr_object
 
 
 static objectType match_subexpr_var (objectType expr_object,
-    const_nodeType start_node, typeType object_type,
+    const_nodeType start_node, objectType type_match_obj,
     listType rest_of_expression, boolType check_access_right,
     boolType look_for_interfaces)
 
@@ -569,24 +569,22 @@ static objectType match_subexpr_var (objectType expr_object,
     matched_object = NULL;
     if (trace.match) {
       printf("//ST1v//");
-      trace1(object_type->match_obj);
-      printf("=");
-      printtype(object_type);
+      trace1(type_match_obj);
       fflush(stdout);
     } /* if */
-    node_found = find_node(start_node->inout_param, object_type->match_obj);
+    node_found = find_node(start_node->inout_param, type_match_obj);
     if (node_found != NULL) {
       matched_object = match_subexpr(expr_object, node_found,
           rest_of_expression, check_access_right, look_for_interfaces);
       if (matched_object == NULL) {
-        node_found = find_node(start_node->other_param, object_type->match_obj);
+        node_found = find_node(start_node->other_param, type_match_obj);
         if (node_found != NULL) {
           matched_object = match_subexpr(expr_object, node_found,
               rest_of_expression, check_access_right, look_for_interfaces);
         } /* if */
       } /* if */
     } else {
-      node_found = find_node(start_node->other_param, object_type->match_obj);
+      node_found = find_node(start_node->other_param, type_match_obj);
       if (node_found != NULL) {
         matched_object = match_subexpr(expr_object, node_found,
             rest_of_expression, check_access_right, look_for_interfaces);
@@ -598,8 +596,9 @@ static objectType match_subexpr_var (objectType expr_object,
 
 
 static objectType match_subexpr_const (objectType expr_object,
-    const_nodeType start_node, typeType object_type, listType rest_of_expression,
-    boolType check_access_right, boolType look_for_interfaces)
+    const_nodeType start_node, objectType type_match_obj,
+    listType rest_of_expression, boolType check_access_right,
+    boolType look_for_interfaces)
 
   {
     nodeType node_found;
@@ -609,24 +608,22 @@ static objectType match_subexpr_const (objectType expr_object,
     matched_object = NULL;
     if (trace.match) {
       printf("//ST1o//");
-      trace1(object_type->match_obj);
-      printf("=");
-      printtype(object_type);
+      trace1(type_match_obj);
       fflush(stdout);
     } /* if */
-    node_found = find_node(start_node->other_param, object_type->match_obj);
+    node_found = find_node(start_node->other_param, type_match_obj);
     if (node_found != NULL) {
       matched_object = match_subexpr(expr_object, node_found,
           rest_of_expression, check_access_right, look_for_interfaces);
       if (matched_object == NULL && check_access_right) {
-        node_found = find_node(start_node->inout_param, object_type->match_obj);
+        node_found = find_node(start_node->inout_param, type_match_obj);
         if (node_found != NULL) {
           matched_object = match_subexpr(expr_object, node_found,
               rest_of_expression, check_access_right, look_for_interfaces);
         } /* if */
       } /* if */
     } else if (check_access_right) {
-      node_found = find_node(start_node->inout_param, object_type->match_obj);
+      node_found = find_node(start_node->inout_param, type_match_obj);
       if (node_found != NULL) {
         matched_object = match_subexpr(expr_object, node_found,
             rest_of_expression, check_access_right, look_for_interfaces);
@@ -664,7 +661,7 @@ static objectType match_subexpr_type (objectType expr_object,
         interface_list = object_type->interfaces;
         while (interface_list != NULL && matched_object == NULL) {
           matched_object = match_subexpr_var(expr_object, start_node,
-              interface_list->type_elem, rest_of_expression,
+              interface_list->type_elem->match_obj, rest_of_expression,
               check_access_right, look_for_interfaces);
           interface_list = interface_list->next;
         } /* while */
@@ -686,15 +683,15 @@ static objectType match_subexpr_type (objectType expr_object,
         current_object_type = object_type;
         do {
           matched_object = match_subexpr_var(expr_object, start_node,
-              current_object_type, rest_of_expression, check_access_right,
-              look_for_interfaces);
+              current_object_type->match_obj, rest_of_expression,
+              check_access_right, look_for_interfaces);
           current_object_type = current_object_type->meta;
         } while (current_object_type != NULL && matched_object == NULL);
         if (matched_object == NULL && non_dynamic_match_removed) {
           interface_list = object_type->interfaces;
           while (interface_list != NULL && matched_object == NULL) {
             matched_object = match_subexpr_var(expr_object, start_node,
-                interface_list->type_elem, rest_of_expression,
+                interface_list->type_elem->match_obj, rest_of_expression,
                 check_access_right, look_for_interfaces);
             interface_list = interface_list->next;
           } /* while */
@@ -705,7 +702,7 @@ static objectType match_subexpr_type (objectType expr_object,
         interface_list = object_type->interfaces;
         while (interface_list != NULL && matched_object == NULL) {
           matched_object = match_subexpr_const(expr_object, start_node,
-              interface_list->type_elem, rest_of_expression,
+              interface_list->type_elem->match_obj, rest_of_expression,
               check_access_right, look_for_interfaces);
           interface_list = interface_list->next;
         } /* while */
@@ -727,7 +724,7 @@ static objectType match_subexpr_type (objectType expr_object,
         current_object_type = object_type;
         do {
           matched_object = match_subexpr_const(expr_object, start_node,
-              current_object_type, rest_of_expression,
+              current_object_type->match_obj, rest_of_expression,
               check_access_right, look_for_interfaces);
           current_object_type = current_object_type->meta;
         } while (current_object_type != NULL && matched_object == NULL);
@@ -735,7 +732,7 @@ static objectType match_subexpr_type (objectType expr_object,
           interface_list = object_type->interfaces;
           while (interface_list != NULL && matched_object == NULL) {
             matched_object = match_subexpr_const(expr_object, start_node,
-                interface_list->type_elem, rest_of_expression,
+                interface_list->type_elem->match_obj, rest_of_expression,
                 check_access_right, look_for_interfaces);
             interface_list = interface_list->next;
           } /* while */
@@ -828,8 +825,8 @@ static objectType match_subexpr_param_attr (objectType expr_object,
 
 
 static objectType match_subexpr (objectType expr_object,
-    const_nodeType start_node, listType match_expr, boolType check_access_right,
-    boolType look_for_interfaces)
+    const_nodeType start_node, listType match_expr,
+    boolType check_access_right, boolType look_for_interfaces)
 
   {
     nodeType node_found;
