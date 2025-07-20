@@ -29,6 +29,7 @@ const ACTION: TYP_CPY        is action "TYP_CPY";
 const ACTION: TYP_EQ         is action "TYP_EQ";
 const ACTION: TYP_FUNC       is action "TYP_FUNC";
 const ACTION: TYP_HASHCODE   is action "TYP_HASHCODE";
+const ACTION: TYP_INTERFACES is action "TYP_INTERFACES";
 const ACTION: TYP_ISDERIVED  is action "TYP_ISDERIVED";
 const ACTION: TYP_ISFUNC     is action "TYP_ISFUNC";
 const ACTION: TYP_ISVARFUNC  is action "TYP_ISVARFUNC";
@@ -49,6 +50,7 @@ const proc: typ_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     typCmp (const const_typeType, const const_typeType);");
     declareExtern(c_prog, "intType     typCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "typeType    typFunc (typeType);");
+    declareExtern(c_prog, "listType    typInterfaces (typeType);");
     declareExtern(c_prog, "boolType    typIsDerived (typeType);");
     declareExtern(c_prog, "boolType    typIsFunc (typeType);");
     declareExtern(c_prog, "boolType    typIsVarfunc (typeType);");
@@ -118,6 +120,18 @@ const proc: process (TYP_HASHCODE, in reference: function,
     c_expr.expr &:= "(intType)(((memSizeType)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")) >> 6)";
+  end func;
+
+
+const proc: process (TYP_INTERFACES, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    programUses.compDataLibrary := TRUE;
+    prepare_list_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "typInterfaces(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

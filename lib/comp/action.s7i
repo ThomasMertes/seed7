@@ -2041,6 +2041,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(TYP_FUNC, function, params, c_expr);
       when {"TYP_HASHCODE"}:
         process(TYP_HASHCODE, function, params, c_expr);
+      when {"TYP_INTERFACES"}:
+        process(TYP_INTERFACES, function, params, c_expr);
       when {"TYP_ISDERIVED"}:
         process(TYP_ISDERIVED, function, params, c_expr);
       when {"TYP_ISFUNC"}:
