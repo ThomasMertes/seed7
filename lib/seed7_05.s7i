@@ -92,6 +92,7 @@ const creator: (ref proc: dest) ::= (ref proc: source)        is action "PRC_CRE
 const destroyer: destroy (ref proc: aValue)                   is action "PRC_DESTR";
 const proc: (inout proc: dest) := (ref proc: source)          is action "PRC_CPY";
 const proc: noop                                              is action "PRC_NOOP";
+const proc: (inout void: dest) := (ref void: source)          is action "PRC_NOOP";
 const proc: (ref void: statement1) ; (ref void: statement2)   is action "PRC_SEMICOLON";
 const proc: ignore (ref f_param: aParam)                      is noop;
 
