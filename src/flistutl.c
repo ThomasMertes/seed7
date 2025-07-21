@@ -291,6 +291,8 @@ void heapStatistic (void)
           count.stri - num_flist_stris,
           (unsigned int) SIZ_STRI(0));
       bytes_used += (count.stri - num_flist_stris) * SIZ_STRI(0);
+    } /* if */
+    if (count.stri_elems > num_flist_stri_elems) {
       printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " string chars of        %4u bytes\n",
           (count.stri_elems - num_flist_stri_elems) * sizeof(strElemType),
           count.stri_elems - num_flist_stri_elems,
@@ -303,6 +305,8 @@ void heapStatistic (void)
           count.bstri,
           (unsigned int) SIZ_BSTRI(0));
       bytes_used += count.bstri * SIZ_BSTRI(0);
+    } /* if */
+    if (count.bstri_elems != 0) {
       printf(F_U_MEM(9) " bytes in %8lu bstrings of average    %4lu bytes\n",
           count.bstri_elems * sizeof(ucharType),
           count.bstri,
