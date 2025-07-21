@@ -784,7 +784,7 @@ static objectType match_subexpr_param_attr (objectType expr_object,
 
   {
     nodeType node_found;
-    objectType matched_object;
+    objectType matched_object = NULL;
 
   /* match_subexpr_param_attr */
     logFunction(printf("match_subexpr_param_attr\n"););
@@ -794,8 +794,7 @@ static objectType match_subexpr_param_attr (objectType expr_object,
        printf("other_f_param_prototype = %lX\n", f_param_type->other_f_param_prototype);
        trace1(f_param_type->other_f_param_prototype);
        printf("\n"); */
-    matched_object = NULL;
-    do {
+    while (f_param_type != NULL && matched_object == NULL) {
       if (is_inout_f_param) {
         if (trace.match) {
           printf("//PA1//");
@@ -817,7 +816,7 @@ static objectType match_subexpr_param_attr (objectType expr_object,
             look_for_interfaces);
       } /* if */
       f_param_type = f_param_type->meta;
-    } while (f_param_type != NULL && matched_object == NULL);
+    } /* while */
     logFunction(printf("match_subexpr_param_attr -->\n"););
     return matched_object;
   } /* match_subexpr_param_attr */
