@@ -1265,7 +1265,7 @@ const proc: do_noop_param (in reference: formal_param, in reference: actual_para
         end if;
         c_expr.expr &:= " */";
         getAnyParamToExpr(actual_param, c_expr);
-        c_expr.expr &:= ";";
+        c_expr.expr &:= ";\n";
       end if;
     else
       c_expr.expr &:= "/*";
