@@ -2911,11 +2911,28 @@ const proc: process_forward_declaration (in reference: fwd_ref,
   end func;
 
 
+const proc: addImplementationToInterface (in type: implementationType, in type: interfaceType) is func
+
+  begin
+    if interfaceType in typeData.implementsInterface then
+      typeData.implementsInterface[interfaceType] &:= implementationType;
+    else
+      typeData.implementsInterface @:= [interfaceType] [] (implementationType);
+    end if;
+    if implementationType in typeData.interfaceOfType then
+      typeData.interfaceOfType[implementationType] &:= interfaceType;
+    else
+      typeData.interfaceOfType @:= [implementationType] [] (interfaceType);
+    end if;
+  end func;
+
+
 const proc: process_type_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   local
     var type: aType is void;
+    var type: interfaceType is void;
   begin
     if isVar(current_object) then
       c_expr.expr &:= "typeType o_";
@@ -2930,6 +2947,9 @@ const proc: process_type_declaration (in reference: current_object,
     else
       aType := getValue(current_object, type);
       declare_type_if_necessary(aType, c_expr);
+      for interfaceType range interfaces(aType) do
+        addImplementationToInterface(aType, interfaceType);
+      end for;
     end if;
     count_declarations(c_expr);
   end func;
@@ -4841,44 +4861,6 @@ const proc: defineParam1TypeCategory (in reference: current_object,
   end func;
 
 
-const proc: addImplementationToInterface (in type: implementationType, in type: interfaceType) is func
-
-  begin
-    if interfaceType in typeData.implementsInterface then
-      typeData.implementsInterface[interfaceType] &:= implementationType;
-    else
-      typeData.implementsInterface @:= [interfaceType] [] (implementationType);
-    end if;
-    if implementationType in typeData.interfaceOfType then
-      typeData.interfaceOfType[implementationType] &:= interfaceType;
-    else
-      typeData.interfaceOfType @:= [implementationType] [] (interfaceType);
-    end if;
-  end func;
-
-
-const proc: process_itf_cpy2_declaration (in reference: current_object,
-    inout expr_type: c_expr) is func
-
-  local
-    var ref_list: params is ref_list.EMPTY;
-    var type: interfaceType is void;
-    var type: implementationType is void;
-  begin
-    params := formalParams(current_object);
-    if length(params) >= 1 then
-      interfaceType := getType(params[1]);
-      implementationType := getType(params[3]);
-      addImplementationToInterface(implementationType, interfaceType);
-      c_expr.expr &:= "/* itf_cpy2: ";
-      c_expr.expr &:= type_name2(interfaceType);
-      c_expr.expr &:= " := ";
-      c_expr.expr &:= type_name2(implementationType);
-      c_expr.expr &:= " */\n";
-    end if;
-  end func;
-
-
 const proc: process_itf_next_file_declaration (in reference: current_object) is func
 
   local
@@ -5006,11 +4988,6 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
           for structIndex range 0 to pred(typeData.struct_size[meta_type]) do
             addStructElem(sct_type, typeData.struct_element_type[meta_type][structIndex],
                           typeData.struct_element[meta_type][structIndex]);
-          end for;
-        end if;
-        if meta_type in typeData.interfaceOfType then
-          for interfaceType range typeData.interfaceOfType[meta_type] do
-            addImplementationToInterface(sct_type, interfaceType);
           end for;
         end if;
       end if;
@@ -5176,7 +5153,7 @@ const proc: process_action_declaration (in reference: current_object,
         defineParam1TypeCategory(current_object, INTERFACEOBJECT);
         count_declarations(c_expr);
       elsif action_name = "ITF_CPY2" then
-        process_itf_cpy2_declaration(current_object, c_expr);
+        defineParam1TypeCategory(current_object, INTERFACEOBJECT);
         count_declarations(c_expr);
       elsif action_name = "POL_CPY" or action_name = "POL_CREATE" then
         defineParam1TypeCategory(current_object, POLLOBJECT);

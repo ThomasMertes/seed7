@@ -764,3 +764,4 @@ const proc: setValue(inout reference: listRef, in ref_list: list)      is action
 
 const func integer: typeNumber  (in type: aType)                       is action "TYP_NUM";
 const func reference: typeObject (in type: aType)                      is action "TYP_MATCHOBJ";
+const func array type: interfaces (in type: aType)                     is action "TYP_INTERFACES";
