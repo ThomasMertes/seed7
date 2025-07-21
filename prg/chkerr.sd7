@@ -48,7 +48,7 @@ const func boolean: checkError (in string: testProgram, in integer: errorNum,
     var parseError: error is parseError.value;
   begin
     block
-      aProgram := parseStri(testProgram);
+      aProgram := parseStri(testProgram, parseOptions.value, [] ("../lib"));
     exception
       catch MEMORY_ERROR: noop;
     end block;
@@ -98,7 +98,7 @@ const func boolean: checkError (in bstring: testProgram, in integer: errorNum,
     var parseError: error is parseError.value;
   begin
     block
-      aProgram := parseStri(testProgram);
+      aProgram := parseStri(testProgram, parseOptions.value, [] ("../lib"));
     exception
       catch MEMORY_ERROR: noop;
     end block;
