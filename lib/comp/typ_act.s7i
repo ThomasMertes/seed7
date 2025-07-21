@@ -50,7 +50,7 @@ const proc: typ_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     typCmp (const const_typeType, const const_typeType);");
     declareExtern(c_prog, "intType     typCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "typeType    typFunc (typeType);");
-    declareExtern(c_prog, "listType    typInterfaces (typeType);");
+    declareExtern(c_prog, "arrayType   typInterfaces (typeType);");
     declareExtern(c_prog, "boolType    typIsDerived (typeType);");
     declareExtern(c_prog, "boolType    typIsFunc (typeType);");
     declareExtern(c_prog, "boolType    typIsVarfunc (typeType);");
@@ -128,7 +128,7 @@ const proc: process (TYP_INTERFACES, in reference: function,
 
   begin
     programUses.compDataLibrary := TRUE;
-    prepare_list_result(resultType(getType(function)), c_expr);
+    prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "typInterfaces(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";

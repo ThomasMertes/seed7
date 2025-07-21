@@ -42,6 +42,7 @@
 #include "datautl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "listutl.h"
 #include "object.h"
 #include "typeutl.h"
 #include "executl.h"
@@ -296,10 +297,35 @@ objectType typ_hashcode (listType arguments)
 
 objectType typ_interfaces (listType arguments)
 
-  { /* typ_interfaces */
+  {
+    typeType any_type;
+    listType list_elem;
+    objectType array_pointer;
+    memSizeType result_size;
+    arrayType result;
+
+  /* typ_interfaces */
     isit_type(arg_1(arguments));
-    return bld_reflist_temp(typInterfaces(
-        take_type(arg_1(arguments))));
+    any_type = take_type(arg_1(arguments));
+    result_size = list_length(any_type->interfaces);
+    if (unlikely(!ALLOC_ARRAY(result, result_size))) {
+      logError(printf("typ_interfaces: ALLOC_ARRAY() failed.\n"););
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      result->min_position = 1;
+      result->max_position = (intType) result_size;
+      list_elem = any_type->interfaces;
+      array_pointer = result->arr;
+      while (list_elem != NULL) {
+        array_pointer->type_of = NULL;
+        array_pointer->descriptor.property = NULL;
+        INIT_VAR_EMBEDDED(array_pointer, TYPEOBJECT);
+        array_pointer->value.typeValue = list_elem->obj->value.typeValue;
+        list_elem = list_elem->next;
+        array_pointer++;
+      } /* while */
+    } /* if */
+    return bld_array_temp(result);
   } /* typ_interfaces */
 
 

@@ -107,18 +107,29 @@ typeType typFunc (typeType basic_type)
 
 
 
-listType typInterfaces (typeType any_type)
+rtlArrayType typInterfaces (typeType any_type)
 
   {
-    errInfoType err_info = OKAY_NO_ERROR;
-    listType result;
+    listType list_elem;
+    rtlObjectType *array_pointer;
+    memSizeType result_size;
+    rtlArrayType result;
 
-  /* typInterfaces */
-    logFunction(printf("typInterfaces(" FMT_X_MEM ")\n",
-                       (memSizeType) any_type););
-    result = copy_list(any_type->interfaces, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+  /* typ_interfaces */
+    result_size = list_length(any_type->interfaces);
+    if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+      logError(printf("typInterfaces: ALLOC_RTL_ARRAY() failed.\n"););
       raise_error(MEMORY_ERROR);
+    } else {
+      result->min_position = 1;
+      result->max_position = (intType) result_size;
+      list_elem = any_type->interfaces;
+      array_pointer = result->arr;
+      while (list_elem != NULL) {
+        array_pointer->value.typeValue = (rtlTypeType) list_elem->obj->value.typeValue;
+        list_elem = list_elem->next;
+        array_pointer++;
+      } /* while */
     } /* if */
     return result;
   } /* typInterfaces */
