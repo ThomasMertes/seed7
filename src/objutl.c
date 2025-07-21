@@ -879,6 +879,12 @@ void dump_temp_value (objectType object)
         SET_UNUSED_FLAG(object);
         break;
 #endif
+      case FORMPARAMOBJECT:
+        if (object->value.objValue != NULL) {
+          FREE_OBJECT(object->value.objValue);
+        } /* if */
+        SET_UNUSED_FLAG(object);
+        break;
       default:
         if (trace.heapsize) {
           prot_heapsize();
