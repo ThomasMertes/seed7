@@ -2823,7 +2823,15 @@ const func boolean: checkExpectedSymbol is func
         checkError1("$ const $ type: type is $ newtype fee",
                     EXPECTED_SYMBOL, 1, 37,
                     "\";\" expected found \"fee\"",
-                    "$ const $ type: type is $ newtype fee") then
+                    "$ const $ type: type is $ newtype fee") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: template (in type: aType) is func\n\
+                    \  begin\n\
+                    \    const proc: if (attr aType) is noop;\n\
+                    \  end func;",
+                    EXPECTED_SYMBOL, 4, 35,
+                    "\"then\" expected found \"is\"",
+                    "    const proc: if (attr aType) is noop;") then
       okay := TRUE;
     else
       writeln(" *** EXPECTED_SYMBOL not reported correctly.");
