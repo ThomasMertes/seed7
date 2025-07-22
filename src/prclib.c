@@ -148,7 +148,7 @@ static objectType evaluate_local_decls (objectType local_decls,
         semicol_params = local_decls->value.listValue;
         if (list_length(semicol_params) == 4 &&
             CATEGORY_OF_OBJ(arg_1(semicol_params)) == ACTOBJECT &&
-            take_action(arg_1(semicol_params)) == &prc_noop) {
+            take_action(arg_1(semicol_params)) == &prc_semicolon) {
           result = process_local_decl(arg_2(semicol_params),
               local_object_list, err_info);
           local_decls = arg_4(semicol_params);
