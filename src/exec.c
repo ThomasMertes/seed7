@@ -857,12 +857,20 @@ objectType do_exec_call (objectType object, errInfoType *err_info)
     objectType result;
 
   /* do_exec_call */
+    logFunction(printf("do_exec_call(");
+                trace1(object);
+                printf(", %d)\n", *err_info););
     result = exec_call(object);
     if (unlikely(fail_flag || result == NULL)) {
       *err_info = getErrInfoFromFailValue(fail_value);
       result = fail_value;
       leaveExceptionHandling();
     } /* if */
+    logFunction(printf("do_exec_call(");
+                trace1(object);
+                printf(", %d) --> ", *err_info);
+                trace1(result);
+                printf("\n"););
     return result;
   } /* do_exec_call */
 

@@ -97,8 +97,9 @@ static objectType process_local_decl (objectType local_decl,
   /* process_local_decl */
     logFunction(printf("process_local_decl(");
                 trace1(local_decl);
-                printf(", " FMT_X_MEM ")\n",
-                       (memSizeType) local_object_list););
+                printf(", " FMT_X_MEM ", %d)\n",
+                       (memSizeType) local_object_list,
+                       *err_info););
     result = do_exec_call(local_decl, err_info);
     if (result == SYS_EMPTY_OBJECT) {
       local_element = *local_object_list;
@@ -123,7 +124,7 @@ static objectType process_local_decl (objectType local_decl,
     } /* if */
     logFunction(printf("process_local_decl --> ");
                 trace1(result);
-                printf("\n"););
+                printf(" (err_info=%d)\n", *err_info););
     return result;
   } /* process_local_decl */
 
@@ -140,8 +141,9 @@ static objectType evaluate_local_decls (objectType local_decls,
   /* evaluate_local_decls */
     logFunction(printf("evaluate_local_decls(");
                 trace1(local_decls);
-                printf(", " FMT_X_MEM ")\n",
-                       (memSizeType) local_object_list););
+                printf(", " FMT_X_MEM ", %d)\n",
+                       (memSizeType) local_object_list,
+                       *err_info););
     do {
       if (CATEGORY_OF_OBJ(local_decls) == MATCHOBJECT ||
           CATEGORY_OF_OBJ(local_decls) == CALLOBJECT) {
@@ -165,7 +167,7 @@ static objectType evaluate_local_decls (objectType local_decls,
     } while (!finished && result == SYS_EMPTY_OBJECT);
     logFunction(printf("evaluate_local_decls --> ");
                 trace1(result);
-                printf("\n"););
+                printf(" (err_info=%d)\n", *err_info););
     return result;
   } /* evaluate_local_decls */
 
