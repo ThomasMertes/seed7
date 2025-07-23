@@ -49,7 +49,7 @@ const set of string: specialActions is
 
 const type: setOfFunction is set of reference;
 
-var setOfFunction: checkForPurBlockFunction is setOfFunction.value;
+var setOfFunction: checkForPureBlockFunction is setOfFunction.value;
 
 
 const func boolean: isPureFunction (in reference: function) is forward;
@@ -163,8 +163,8 @@ const func boolean: isPureBlockFunction (in reference: function) is func
     var boolean_obj_hash: local_objects is boolean_obj_hash.value;
   begin
     # writeln("isPureBlockFunction: " <& str(function));
-    if function not in checkForPurBlockFunction then
-      incl(checkForPurBlockFunction, function);
+    if function not in checkForPureBlockFunction then
+      incl(checkForPureBlockFunction, function);
       function_type := getType(function);
       result_object := resultVar(function);
       if not isVarfunc(function_type) then
@@ -178,7 +178,7 @@ const func boolean: isPureBlockFunction (in reference: function) is func
         end for;
         isPureBlockFunction := isConstant(body(function), local_objects);
       end if;
-      excl(checkForPurBlockFunction, function);
+      excl(checkForPureBlockFunction, function);
     end if;
     # writeln("isPureBlockFunction: " <& str(function) <& " --> " <& isPureBlockFunction);
   end func;
