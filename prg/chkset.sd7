@@ -3307,6 +3307,62 @@ const proc: check_relations is func
   local
     var boolean: okay is TRUE;
   begin
+    if  not {} = {}          or
+            {} = {1}         or
+            {1} = {}         or
+        not {1} = {1}        or
+            {1} = {2}        or
+            {1} = {1, 2}     or
+            {1, 2} = {1}     or
+        not {1, 2} = {1, 2}  or
+            {} <> {}         or
+        not {} <> {1}        or
+        not {1} <> {}        or
+            {1} <> {1}       or
+        not {1} <> {2}       or
+        not {1} <> {1, 2}    or
+        not {1, 2} <> {1}    or
+            {1, 2} <> {1, 2} or
+            {} < {}          or
+        not {} < {1}         or
+            {1} < {}         or
+            {1} < {1}        or
+        not {1} < {1, 2}     or
+            {2} < {1}        or
+        not {2} < {1, 2}     or
+            {3} < {1, 2}     or
+            {1, 2} < {1}     or
+            {} > {}          or
+            {} > {1}         or
+        not {1} > {}         or
+            {1} > {1}        or
+            {1} > {2}        or
+            {1} > {1, 2}     or
+        not {1, 2} > {1}     or
+        not {1, 2} > {2}     or
+            {1, 2} > {3}     or
+        not {} <= {}         or
+        not {} <= {1}        or
+            {1} <= {}        or
+        not {1} <= {1}       or
+        not {1} <= {1, 2}    or
+            {2} <= {1}       or
+        not {2} <= {1, 2}    or
+            {3} <= {1, 2}    or
+            {1, 2} <= {1}    or
+        not {} >= {}         or
+            {} >= {1}        or
+        not {1} >= {}        or
+        not {1} >= {1}       or
+            {1} >= {2}       or
+            {1} >= {1, 2}    or
+        not {1, 2} >= {1}    or
+        not {1, 2} >= {2}    or
+            {1, 2} >= {3}    then
+      writeln(" ***** set relations do not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
     if  not (EMPTY_SET          = EMPTY_SET)          or
         not ({-900}             = {-900})             or
         not ({-1}               = {-1})               or
@@ -3387,21 +3443,21 @@ const proc: check_relations is func
         not ({900, 901, 1800}   = {900, 901, 1800})   or
         not ({900, 1800, 1801}  = {900, 1800, 1801})  or
         not ({1800, 1801, 1802} = {1800, 1801, 1802}) or
+             EMPTY_SET          = {-1}                then
+      writeln(" ***** set relations do not work correctly. (2)");
+      okay := FALSE;
+    end if;
 
-             EMPTY_SET          = {-1}                or
-
-             relationTests1 or
-             relationTests2 or
-             relationTests3 or
-             relationTests4 then
+    if  relationTests1 or
+        relationTests2 or
+        relationTests3 or
+        relationTests4 then
+      writeln(" ***** set relations do not work correctly. (3)");
       okay := FALSE;
     end if;
 
     if okay then
       writeln("set relations work correctly.");
-    else
-      writeln(" ***** set relations do not work correctly");
-      writeln;
     end if;
   end func;
 
