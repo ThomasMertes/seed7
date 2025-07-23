@@ -156,7 +156,7 @@ const func boolean: keypressed (in console_keybd_file: keybd)                  i
  *  RETURN. There is also no possibility to correct a key, once it
  *  is pressed. Additionally KEYBOARD does not echo the characters.
  *)
-var console_keybd_file: CONSOLE_KEYBOARD is console_keybd_file.value;
+var keyboard_file: CONSOLE_KEYBOARD is create(console_keybd_file);
 
 
 const func string: getk (in console_keybd_file: keybd) is func
@@ -317,7 +317,7 @@ const func boolean: keypressed (in graph_keybd_file: keybd)                    i
  *  RETURN. There is also no possibility to correct a key, once it
  *  is pressed. Additionally KEYBOARD does not echo the characters.
  *)
-var graph_keybd_file: GRAPH_KEYBOARD is graph_keybd_file.value;
+var keyboard_file: GRAPH_KEYBOARD is create(graph_keybd_file);
 
 
 const func string: getk (in graph_keybd_file: keybd) is func
