@@ -373,8 +373,8 @@ objectType rfl_expr (listType arguments)
     listType list1;
     objectType arg1_object;
     objectType arg3_object;
-    fileNumType file_number;
-    lineNumType line;
+    fileNumType file_number = 0;
+    lineNumType line = 0;
     boolType okay;
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
