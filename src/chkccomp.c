@@ -1929,7 +1929,7 @@ static void writeMacroDefs (FILE *versionFile)
       strcat(macroDefs, "#define unlikely(x) (x)\\n");
     } /* if */
     if (compileAndLinkOk("#include <stdlib.h>\n"
-                        "__attribute__ ((noreturn)) void fatal (void) {exit(1);}\n"
+                         "__attribute__ ((noreturn)) void fatal (void) {exit(1);}\n"
                          "int main(int argc,char *argv[])\n"
                          "{return 0;}\n")) {
       fputs("#define NORETURN __attribute__ ((noreturn))\n", versionFile);
