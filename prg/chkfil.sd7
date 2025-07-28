@@ -26,6 +26,8 @@ $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "bigfile.s7i";
   include "osfiles.s7i";
+  include "console.s7i";
+  include "keybd.s7i";
   include "utf8.s7i";
 
 # The file size for the seek test has been reduced, such that not
@@ -1668,6 +1670,17 @@ const proc: check_null_file is func
   end func;
 
 
+const proc: check_keybd_and_console is func
+  local
+    var text: consoleFile is STD_CONSOLE;
+    var keyboard_file: consoleKeyboard is CONSOLE_KEYBOARD;
+    var keyboard_file: graphKeyboard is GRAPH_KEYBOARD;
+    var keyboard_file: keyboard is KEYBOARD;
+  begin
+    noop;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -1686,4 +1699,5 @@ const proc: main is func
     check_automatic_close_utf8;
     check_use_after_close_utf8;
     check_null_file;
+    check_keybd_and_console;
   end func;
