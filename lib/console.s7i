@@ -54,7 +54,7 @@ type_implements_interface(console_file, text);
  *  file of the operating system has been redirected UTF-8 encoded
  *  characters are written to the redirected file.
  *)
-var text: STD_CONSOLE is create(console_file);
+var console_file: STD_CONSOLE is console_file.value;
 
 
 const proc: CON_OPEN                                             is action "CON_OPEN";
@@ -65,9 +65,9 @@ const proc: CON_OPEN                                             is action "CON_
  *  The ''console_file'' extends over the whole text console/window.
  *  @return the file opened.
  *)
-const func text: open (CONSOLE) is func
+const func console_file: open (CONSOLE) is func
   result
-    var text: consoleFile is STD_CONSOLE;
+    var console_file: consoleFile is STD_CONSOLE;
   begin
     CON_OPEN;
     consoleFile := STD_CONSOLE;
