@@ -1672,6 +1672,12 @@ const proc: check_null_file is func
 
 const proc: check_keybd_and_console is func
   local
+    var file: stdIn is STD_IN;
+    var file: stdOut is STD_OUT;
+    var file: stdErr is STD_ERR;
+    var file: utf8In is STD_UTF8_IN;
+    var file: utf8Out is STD_UTF8_OUT;
+    var file: utf8Err is STD_UTF8_ERR;
     var text: consoleFile is STD_CONSOLE;
     var keyboard_file: consoleKeyboard is CONSOLE_KEYBOARD;
     var keyboard_file: graphKeyboard is GRAPH_KEYBOARD;
