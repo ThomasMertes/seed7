@@ -346,12 +346,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-05-16 the number of lines is:
+than 400000 lines of Seed7. For version 2025-07-29 the number of lines is:
 
-  189119  C source files (*.c)
-   14179  C header files (*.h)
-  273860  Seed7 source files (*.sd7)
-  200310  Seed7 library/include files (*.s7i)
+  190460  C source files (*.c)
+   14214  C header files (*.h)
+  275726  Seed7 source files (*.sd7)
+  201500  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -892,19 +892,21 @@ Seed7 allows introducing new keywords with syntax declarations. This feature
 is used in the standard libraries. Programs usually do not introduce new
 keywords. So the list of keywords defined in the standard libraries can be used.
 
- - Keywords are: array begin block case catch const do downto else elsif end
-   enum exception for forward func global hash if in include inout is local
-   new of otherwise param raise range ref repeat result return set step struct
-   sub syntax system then to until val var when while
+ - Keywords are: array attr begin block case catch const default do downto
+   else elsif end enum exception fixLen for forward func global hash if in
+   include inout is key len local new of otherwise param raise range ref
+   repeat result return set step struct sub syntax system then to until val
+   var varfunc when while
  - Keywords which introduce statements are: block case for global if include
    raise repeat syntax system while
  - Keywords which are used in the middle of statements are: catch do downto
-   else elsif end exception of otherwise range step then to until when
+   else elsif end exception key of otherwise range step then to until when
  - Keywords which introduce declarations are: const in inout ref val var
  - Keywords which are used in the function body are: begin end func local
    result return
- - Keywords which are used in type expression are: array enum hash new of set
-   struct sub
+ - Keywords which are used in expressions are: default fixLen len
+ - Keywords which are used in type expression are: array enum func hash new of
+   set struct sub varfunc
  - Keywords which are used as operator symbols are: and conj conv digits div
    exp in lpad lapd0 mdiv mod mult not or parse radix RADIX rem rpad sci times
    varConv
@@ -914,10 +916,10 @@ keywords. So the list of keywords defined in the standard libraries can be used.
  - Predefined comparison operators are: = <> < <= > >=
  - Other predefined operators are: + - * / ** ! << >> & | >< <& ?
  - Predefined types are: array bigInteger bigRational bin32 bin64 bitset
-   boolean bstring category char clib_file color complex database duration
-   enum expr file fileSys float func hash integer object proc process program
-   rational reference ref_list set sqlStatement string struct text time type
-   void PRIMITIVE_WINDOW
+   boolean bstring category char clib_file color complex creator database
+   destroyer duration enum expr file fileSys float func hash integer object
+   proc process program rational reference ref_list set sqlStatement string
+   struct structElement text time type varfunc void PRIMITIVE_WINDOW
  - Predefined constants are: E empty EOF FALSE Infinity NaN NIL PI TRUE
  - Predefined variables are: CONSOLE_KEYBOARD GRAPH_KEYBOARD IN KEYBOARD OUT
    STD_CONSOLE STD_ERR STD_IN STD_NULL STD_OUT
@@ -995,6 +997,28 @@ program with the option -p. If you execute this program it writes profiling
 data to the file "profile_out", when it is finished. In "profile_out" you find
 a tab-separated table with microseconds, number of calls, place of the function
 and function name.
+
+
+Is Seed7 case sensitive or case insensitive?
+============================================
+
+Seed7 is a case sensitive language. This has several advantages:
+
+ - It increases uniformity of code as the keywords in statements and
+   declarations always have to be in the same case. E.g.: A while-loop
+   is always introduced with 'while' and using 'WHILE' or 'While'
+   triggers an error.
+ - There is usually a canonical way to write any given identifier. Using
+   a mix of cases for the same identifier makes code harder to read.
+   Case sensitiveness forces people to write each identifier the correct
+   way each time they reference it. Misspelling 'elementId' as 'elementID'
+   triggers an error.
+ - With case sensitivity, the casing may specify the category of an
+   identifier. E.g.: Identifiers in all upper case are used by global
+   constants.
+ - Case sensitive identifier lookup is simpler and faster. Since a
+   significant time is spent for identifier lookups compilations will
+   speed up.
 
 
 What are the reserved words of Seed7?
@@ -1535,39 +1559,24 @@ heuristics. Therefore, Seed7 is not a "do what I mean" language.
 Can I use something and declare it later?
 =========================================
 
-No, everything must be declared before it is used. The possibility to declare new
-statements and new operators on one side and the static typing requirements with
-compile time checks of the parameters on the other side would make the job of
-analyzing expressions with undeclared functions overly complex.
+No, everything must be declared before it is used.
 
-Forward declarations help, if something needs to be used before it can be declared
-fully:
+This keeps the code easier to follow and the compiler easier to implement.
 
-  const func string: concatenate (inout file: inFile) is forward;
+Forward declarations are required if something needs to be used before it can be
+declared fully:
 
-  const func string: getString (inout file: inFile) is func
-    result
-      var string: stri is "";
-    begin
-      if inFile.bufferChar = '(' then
-        ignore(getc(inFile));
-        stri := concatenate(inFile);    # Call of forward declared function
-        ignore(getc(inFile));
-      elsif inFile.bufferChar = '"' then
-        stri := getQuotedText(inFile);
-      end if;
-    end func;
+  const func boolean: isOdd (in integer: number) is forward;
 
-  const func string: concatenate (inout file: inFile) is func
-    result
-      var string: stri is "";
-    begin
-      stri := getString(inFile);
-      while inFile.bufferChar = '&' do
-        ignore(getc(inFile));
-        stri &:= getString(inFile);
-      end while;
-    end func;
+  const func boolean: isEven (in integer: number) is
+    return number = 0 ? TRUE : isOdd(pred(number));
+
+  const func boolean: isOdd (in integer: number) is
+    return number = 0 ? FALSE : isEven(pred(number));
+
+Since a declaration must precede its use the declaration of a certain
+function is easier to find. This helps when reading code from the internet
+or a book (where no IDE support is available).
 
 
 Can functions be overloaded?
@@ -1827,7 +1836,7 @@ big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library bytedata.s7i
 defines several functions to convert integers into and from signed and
 unsigned representations of various sizes. These functions also allow that
-the endianness is specified explicit.
+the endianness is specified explicitly.
 
 Message digest and compression algorithms do bitwise operations on 32- or
 64-bit data. Bitwise operations are not supported by 'integer'. To do that the
@@ -2485,6 +2494,30 @@ since object orientation provides a much better mechanism to execute
 different functions at run-time.
 
 
+What are the possible syntaxes of function declarations?
+========================================================
+
+Function declarations use the constant declaration mechanism:
+
+  const func aType: myFunction (in parameterType: aParameter) is ...
+
+The initialization value of the function is after the keyword 'is'.
+
+ - Declarations with the keyword 'action' use a primitive action to
+   specify what the function should do.
+ - Declarations with the keyword 'func' use a 'func ... end func' construct.
+ - Declarations with the keyword 'return' use an expression which is
+   returned (Be aware that return is not a statement).
+ - Declarations with the keywords 'return var' support the declaration of
+   'varfunc' functions. This allows that the function can be placed as
+   left argument of an assignment.
+ - Declarations with the keyword 'return' as infix operator allow the
+   specification of a type as left argument of the 'return'. There is
+   also an infix 'return var'.
+ - Declarations with the keyword 'DYNAMIC' are interface declarations.
+ - Declarations with the keyword 'forward' are forward declarations.
+
+
 What is an integer overflow?
 ============================
 
@@ -2679,36 +2712,33 @@ process.
 What is an abstract data type?
 ==============================
 
-Examples of abstract data types are array, struct and hash. Most programming
-languages hard-code abstract data types like array in the compiler. In Seed7
+Abstract data types are array, struct and hash. In most programming
+languages the compiler hard-codes abstract data types like array. In Seed7
 the library array.s7i defines the abstract data type array. In Seed7
 programmers can introduce new abstract data types.
 
-An abstract data type defines, like every other type, a set of functions to handle
-data. An abstract data type leaves, like an interface type from OO, the details of
-the data representation open. The difference between the two is:
+Abstract data types are essentially parameterized types.
+Like any other type an abstract data type defines a
+set of functions to handle data.
 
- - An interface type is resolved to an implementation type at runtime.
- - An abstract data type is resolved to a concrete type at compile time,
-   when it is used.
-
-Usually an abstract data type uses parameters to resolve to a concrete type.
-An abstract 'array' type needs the element type as parameter. E.g.:
+Usually an abstract data type uses parameters to resolve to an actual type.
+The abstract type 'array' is resolved with the parameter  'string' to the
+actual type:
 
   array string
 
-This 'array' has 'string' elements and uses 'integer' indices.
-An abstract 'array', were the index type is also specified as parameters is:
+This 'array' has 'string' elements and uses 'integer' indices. An abstract
+'array', were the index type is also specified as parameters is:
 
   array [char] string
 
-This 'array' has 'string' elements and uses 'char' indices.
-Arrays are present in many programming languages, but they are usually hard-coded
-into the compiler / interpreter. Seed7 does not follow this direction. Instead it
-introduces abstract data types as common concept behind arrays, structs, hashes
-and other types. Like templates abstract data types are implemented with functions
-that are executed at compile time. In contrast to templates abstract data types
-return a type as result.
+This 'array' has 'string' elements and uses 'char' indices. Arrays are
+present in many programming languages, but they are usually hard-coded
+into the compiler. Seed7 instead introduces abstract data types as common
+concept behind arrays, structs, hashes and other types. Like templates
+abstract data types are implemented with functions that are executed at
+compile time. In contrast to templates abstract data types return a type
+as result.
 
 
 What is multiple dispatch?
@@ -2910,37 +2940,103 @@ comparison operators.
 Where are the constructors?
 ===========================
 
-Seed7 does not need constructors, but you can define normal functions which create
-a new value in a similar way as constructors do it.
+Seed7 does not need constructors, but you can define normal functions
+which create a new value in a similar way as constructors do it:
 
-Seed7 uses a special create statement ( ::= ) to initialize objects. Explicit calls
-of the create statement are not needed.
+  const func complex: complex (in float: re, in float: im) is func
+    result
+      var complex: aComplex is complex.value;
+    begin
+      aComplex.re := re;
+      aComplex.im := im;
+    end func;
+
+This function can be used to initialize values:
+
+  var complex: one is complex(1.0, 0.0);
+
+Initialization expressions are executed at compile-time. At run-time
+the variable is initialized with minumum effort from the value which
+has been computed at compile-time.
+
+New values for interface types can be created as well. In case of the
+interface type 'itfType' and the implementation type 'implType' a new
+value is created with:
+
+  const func itfType: openItfType (in someType: someParameter) is func
+    result
+      var itfType: newItfValue is itfType.value;
+    local
+      var implType: newImplValue is implType.value;
+    begin
+      newImplValue.someElement := someParameter;
+      newItfValue := toInterface(newImplValue);
+    end func;
+
+The function 'toInterface' transfers the ownership from 'newImplValue'
+to 'newItfValue'.
+
+
+How is the initialization done?
+===============================
+
+Seed7 uses a special create operator ( ::= ) to initialize objects.
+Create operators are similar to assignment statements ( := ), but they
+assume that the destination is undefined (It may contain garbage).
+Create operators are not called explicitly. They are called by constant-
+and variable-declarations instead:
+
+  var string: greeting is "hello";
+
+This implicitely calls:
+
+  greeting ::= "hello"
+
+Using ::= explicitly as statement like in
+
+  const proc: test is func
+    local
+      var integer: number is 0;
+    begin
+      writeln(number);
+      number ::= 1;       # THIS DOES NOT WORK
+      writeln(number);
+    end func;
+
+triggers an error:
+
+  *** tst492.sd7(8):57: Match for {INT_CREATE({number ::= 1 }) ; {number writeln } } failed
+      number ::= 1;       # THIS DOES NOT WORK
 
 The lifetime of an object goes like this:
 
-1. Memory is reserved for the new object (stack or heap memory make no difference
-   here).
+1. Memory is reserved for the new object (stack or heap memory
+   make no difference here).
 
-2. The content of the new memory is undefined (It may contain garbage), therefore a
-   create statement is necessary instead of an assignment.
+2. The content of the new memory is undefined (It may contain
+   garbage), therefore a create operator ( ::= ) is necessary
+   instead of an assignment statement ( := ).
 
-3. The create statements copies the right expression to the left expression taking
-   into account that the left expression is undefined.
+3. The create operator ( ::= ) copies the right expression to the
+   left expression taking into account that the left expression is
+   undefined.
 
-4. If the object is variable other values can be assigned using the assign
-   statement ( := ). The assignment can assume that the left expression contains a
-   legal value. This allows that for strings (and some other types which are just
-   references to a memory area) the memory containing the old string value (and not
-   the memory of the object itself) can be freed if necessary.
+4. If the object is variable other values can be assigned using
+   the assignment statement ( := ). The assignment can assume that
+   the destination contains a legal value.
 
-5. At the end of the lifetime of an object the destroy statement is executed.
-   For strings (and some other types which are just references to a memory area)
-   the memory containing the string value (and not the memory of the object itself)
-   is freed.
+5. Strings (and some other types) are just references to a memory
+   area where the data resides. These references are the sole
+   owner of the memory area. This allows that an assignment
+   can reallocate the memory area.
 
-6. The memory of the object is freed.
+6. At the end of the lifetime of an object the destroy operation
+   is executed. For strings (and some other types which are just
+   references to a memory area) the referenced memory is freed.
 
-The first three steps are usually hidden in the declaration statement.
+7. The memory of the object is freed.
+
+The first three steps are usually hidden in the declaration.
 
 
 Are there static methods / class methods?
@@ -3001,7 +3097,7 @@ template function can have parameters. Especially types as parameters are useful
 with template functions. That way a template function can declare objects with the
 type value of a parameter.
 
-It is necessary to call template functions explicit. They are not invoked implicit
+It is necessary to call template functions explicitly. They are not invoked implicit
 as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 
@@ -3226,34 +3322,39 @@ Is there a return statement?
 There is no 'return' statement in Seed7. Instead there is a 'return' construct
 that can be used to declare a function:
 
-    const func boolean: flipCoin is
-      return rand(FALSE, TRUE);
+  const func boolean: flipCoin is
+    return rand(FALSE, TRUE);
 
 This is a shortcut for a function declaration with a result variable:
 
-    const func boolean: flipCoin is func
-      result
-        var boolean: coinState is FALSE;
-      begin
-        coinState := rand(FALSE, TRUE);
-      end func;
+  const func boolean: flipCoin is func
+    result
+      var boolean: coinState is FALSE;
+    begin
+      coinState := rand(FALSE, TRUE);
+    end func;
 
 The 'return' above is not a statement but an alternate possibility to declare
 a function. This alternate function declaration differs from the normal function
 declaration that uses:
 
-    func
-      ...
+  func
+    ...
+  end func;
+
+Using 'return' as statement like in
+
+  const func boolean: flipCoin is func
+    result
+      var boolean: coinState is FALSE;
+    begin
+      return rand(FALSE, TRUE);     # THIS DOES NOT WORK
     end func;
 
-Using 'return' as statement triggers an error.
+triggers an error:
 
-    const func boolean: flipCoin is func
-      result
-        var boolean: coinState is FALSE;
-      begin
-        return rand(FALSE, TRUE);     # THIS WILL NOT WORK
-      end func;
+  *** tst461.sd7(7):35: Procedure expected found "func func boolean" expression
+      return rand(FALSE, TRUE);     # THIS DOES NOT WORK
 
 The 'return' construct of Seed7 is not comparable to the 'return' statements
 of other programming languages. Since no 'return' statement exists, it is not

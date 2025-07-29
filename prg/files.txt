@@ -310,6 +310,7 @@ tar_cmds.s7i Commands of the tar program.
 tdes.s7i     TDES (Triple DES) cipher support.
 tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files
+tga.s7i      Support for the TGA image file format.
 tiff.s7i     Support for the TIFF image file format.
 time.s7i     Time and date library
 tls.s7i      Support for Transport Layer Security (TLS/SSL).

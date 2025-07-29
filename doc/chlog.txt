@@ -1,3 +1,389 @@
+20250729:
+- The program chkerr.sd7 has been changed to search include
+  libraries in the directory "../lib" as well. This is needed for
+  the FreeBSD build. Many thanks to Pietro Cerutti for the bug
+  report.
+- The files chkerr.sd7, err.sd7, reference.s7i, seed7_05.s7i and
+  struct.s7i have been refactored to use named parameters instead of
+  'param' parameters. Many thanks to Pierre Rouleau for pointing out
+  parameter declarations with the keyword 'param'.
+- In name.c the function globalObjects() has been improved to return
+  file and line of enum literals. Many thanks to Pierre Rouleau for
+  reporting that for enum values the function globalObjects() returns
+  objects with "?" for filename and 0 for line.
+- In executl.c the function old_do_create() has been improved to
+  trigger an error if a function is created with a non-function
+  value (e.g. a literal). Many thanks to Pierre Rouleau for pointing
+  out function declarations with a literal as value instead of a
+  function body.
+- Explanations about case sensitivity, function declarations, object
+  initialization, documentation comments and the seed7-mode of Emacs
+  (thanks to Pierre Rouleau) have been added to the FAQ.
+- Links in the FAQ have been improved.
+- Several FAQ answers have been improved:
+  - The keywords used for syntax highlighting.
+  - The reason why Seed7 does not use type inference.
+  - Why forward declarations are necessary.
+  - What an abstract data type is.
+  - The lifetime of an object.
+- Chapters about forward declarations, interface declarations,
+  creator, destroyer, pointList actions, structElement actions and
+  system variables have been added to the manual.
+- The new library tga.s7i has been added. This library supports
+  the TGA image file format.
+- The library imagefile.s7i has been improved to support TGA image
+  files.
+- The Seed7 compiler (s7c) has been improved:
+  - The recursive inlining of a function is limited to a maximum
+    depth.
+  - The recursion of getIntRange() is stopped if it is called with
+    the same parameter again.
+  - The recursion of isPureBlockFunction() is stopped if it is
+    called with the same parameter again.
+  - The code generation for local functions has been improved to
+    work for deeply nested functions.
+  - A compiler warning for endless recursion in interface functions
+    has been added.
+  - The function process_type_declaration() has been improved to use
+    interfaces(aType) to call addImplementationToInterface(). The
+    function process_itf_cpy2_declaration(), which called
+    addImplementationToInterface() before, has been removed.
+  - Support for local variables of type void has been added.
+  - Optimizations for the array functions length(), minIdx() and
+    maxIdx() have been added.
+  - The generation of prototype declarations has been changed: If a
+    function calls itself recursively no additional prototype
+    declaration of the function is needed.
+  - The function evaluate() has been removed from comp/const.s7i.
+    The evaluate() function with argument list from progs.s7i is
+    called by canEvaluateSpecialAction() instead.
+  - The optimization of for-each-loops has been improved to remove
+    some index checks. The estimation of an integer variable range
+    in process_prc_for() has been improved to consider for-loops
+    used in inlined code.
+  - In prc_act.s7i the processing of the else-part in the functions
+    process_else() and process_const_prc_if_noop() has been
+    improved. CONSTENUMOBJECT (corresponding to the non-function
+    literal 'ELSIF_EMPTY' has been replaced with BLOCKOBJECT
+    (corresponding 'return ELSIF_EMPTY').
+  - The function process_dynamic_call() has been improved to process
+    constant values of any type. For constants which are wrongly
+    defined as function the create() function of the function result
+    type is used.
+  - The function process_dynamic_param_struct_elem() has been
+    improved to use ustriCmpGeneric(), which works with 32-bit
+    pointers, instead of strcmp().
+  - The function enter_ref_constant_types() has been added. The
+    function adds the types of referred objects to
+    constTable.type_const.
+  - The macro NORETURN has been moved from the end of the prototype
+    to the beginning.
+  - The function getAnyParamToTempAssigns() has been improved to use
+    a 'const_*' type if necessary. This fixes the compilation of
+    chkdb.sd7.
+  - The compilation of the function setSearchPath() has been fixed.
+    A prototype of cmdSetSearchPath() has been added to the
+    generated C program.
+  - The compilation of the function hashCode() for process arguments
+    has been fixed. The generated prototype of pcsHashCode() has
+    been changed to use a processType argument.
+  - The function process_expr() has been improved to avoid casting
+    a SETOBJECT to a function type.
+  - The compiler version number has been raised to 3.5.
+- The interpreter version number has been raised to 5.4.
+- The program dnafight.sd7 has been improved:
+  - Now the type 'microbe' is defined as interface instead of
+    varptr.
+  - The headline of the statistics has been improved and the text
+    '(Winner)' has been added to the winner.
+  - Now a warning is written if the conversion to integer failed.
+  - The comments at the beginning and end of functions have been
+    changed.
+- The program sydir7.sd7 has been improved to support the options -e
+  and -o.
+- The program s7check.sd7 has been improved to work for include
+  libraries. To check *.s7i files an include of "seed7_05.s7i" and
+  an empty main program is used.
+- Tests for based integer literals with lower case letters have been
+  added to chkint.sd7.
+- Tests for multiplications with integer.first, integer.last and
+  -integer.last product have been added to chkint.sd7.
+- Tests for mutually recursive functions with the ternary operator
+  have been added to chkbool.sd7.
+- Tests for set comparisons from documentation comments have been
+  added to chkset.sd7.
+- In seed7_05.s7i an assignment for the type void has been added.
+- In progs.s7i the functions compare() and hashCode() have been
+  added. This allows hash tables with programs as key or value.
+- In progs.s7i the functions evaluate(), appendFormalParams() and
+  interfaces() have been added.
+- In the library forloop.s7i support the for-loop
+  'for aBoolean range boolean do' has been added.
+- In the library category.s7i the functions compare() and hashCode()
+  have been added for category values.
+- In bitdata.s7i parameters of the functions openLsbInBitStream()
+  and openMsbInBitStream() have been changed to use an inout file
+  parameter, because the files in LSB- and MSB-bit-streams are
+  changed.
+- In osfiles.s7i the new function getFileName() has been introduced.
+- In osfiles.s7i the undocumented function parentDir() has been
+  renamed to getParentDir() and a documentation of it has been
+  added.
+- In field.s7i the type field_file has been renamed to fieldFile.
+- In field.s7i the functions getwd() and getln() have been improved
+  to show the cursor. The function write() has been added.
+- In msgdigest.s7i the definitions of blockSize and digestSize have
+  been changed. Now they are defined as integer constants.
+- In seed7_05.s7i the definition of the else-part has been changed
+  to use 'return ELSIF_EMPTY'. Before a function definition with a
+  non-function value (the literal 'ELSIF_EMPTY') was used.
+- In seed7_05.s7i the types creator and destroyer have been
+  introduced. All libraries with create and destroy declarations
+  have been changed to use the types creator and destroyer.
+- The program chkerr.sd7 has been changed to declare create
+  operators with the type creator.
+- In chkerr.sd7 tests for errors have been added:
+  - If a creator or destroyer is used as statement.
+  - If a function is created with a non-function value.
+  - If a comma expression is used as name of a struct element.
+  - If f_param_type is NULL.
+  - For REDECLARATION, PREVIOUS_DECLARATION, EXCEPTION_RAISED,
+    IDENT_EXPECTED, PARAM_DECL_OR_SYMBOL_EXPECTED, PROC_EXPECTED and
+    EXPECTED_SYMBOL errors.
+- In aes.s7i, aes_gcm.s7i, arc4.s7i, blowfish.s7i, cipher.s7i,
+  des.s7i and tdes.s7i the definitions of blockSize have been
+  changed. Now they are defined as integer constants.
+- Includes have been added to bitmapfont.s7i, browser.s7i,
+  db_prop.s7i, elf.s7i, field.s7i, gtkserver.s7i, image.s7i,
+  math.s7i, pixmapfont.s7i, stars.s7i, vector3d.s7i, vectorfont.s7i
+  and wildcard.s7i such that s7check passes.
+- Occurrences of the functions chr() and flt() have been replaced by
+  char() respectively float().
+- The file name.c has been improved:
+  - The function close_current_stack() has been changed to use
+    reverse_list().
+  - The function free_name_list() has been changed to free
+    parameters if a function has been redeclared.
+  - The function in eval_name_list() has been changed to stop
+    evaluating parameters after an error.
+- The function free_params() has been moved from name.c to entutl.c.
+  It is called from close_current_stack() and free_local_consts() to
+  free properties and params. The call from free_local_consts() has
+  been added.
+- In dcllib.c in the function dcl_elements() the declaration of
+  struct types has been improved:
+  - Now the stack is always grown and pushed before evaluating
+    local_decls (which contains the struct element declarations).
+  - Now an EXCEPTION_RAISED error is triggered if the evaluation of
+    local_decls raises an exception.
+  - Now an DECL_FAILED error is triggered if a struct element has no
+    syobject.
+- The file prclib.c has been improved:
+  - The functions prc_cpy() and prc_create() have been improved to
+    use the usage_count of block elements.
+  - The function prc_destr() has been added.
+  - The function evaluate_local_decls() has been changed to use
+    prc_semicolon instead of prc_noop.
+  - The functions prc_res_begin() and prc_res_local() have been
+    changed to completely free result_var in case of an error.
+  - A test, if the argument vector is NULL, has been added to
+    prc_args().
+  - In prc_local(), prc_res_begin(), prc_res_local(), the order of
+    free calls for block components has been changed.
+- The file blockutl.c has been improved:
+  - In free_block() the order of free calls for block components has
+    been changed.
+  - The function reverse_loclist() has been added. The function
+    reverse_loclist() is used in free_loclist() to reverse the local
+    list before removing list elements.
+  - The function free_local_consts() has been improved to use
+    reverse_list().
+  - The function free_locobj() has been changed to non-static. In
+    prclib.c calls of free_name() have been replaced with calls of
+    free_locobj().
+- In objutl.c the function dump_temp_value() has been improved to
+  free FORMPARAMOBJECT objects. The usage_count of a BLOCKOBJECT
+  is now considered as well.
+- In findid.c the function check_list_of_syntax_elements() has been
+  renamed to list_of_syntax_elements_okay(). This function is used
+  by def_statement_syntax().
+- In listutl.c the function reverse_list() has been added.
+- The file data.h has been improved:
+  - The macros GET_FILE_NUM() and GET_LINE_NUM() have been renamed
+    to POSINFO_FILE_NUM() and POSINFO_LINE_NUM() respectively.
+  - The new macros PROPERTY_FILE_NUM() and PROPERTY_LINE_NUM() have
+    been introduced.
+  - The STRUCT_OWNER flag has been added. The STRUCT_OWNER flag is
+    set for the object which owns a certain structValue. Other
+    objects do not own the structValue.
+  - The EMBEDDED flags has been added. The EMBEDDED flag is set for
+    all objects inside arrays and structs.
+  - The new category ILLEGALOBJECT has been introduced. The system
+    variables are initialized with dummy ILLEGALOBJECT values in
+    syvarutl.c. The usage of a system variable with a dummy
+    ILLEGALOBJECT triggers an error.
+  - A usage_count has been added to blockStruct.
+  - The typeStruct element 'interfaces' has been changed from
+    typeListType to listType.
+  - The type typeListType has been removed. The corresponding heap
+    statistic has been removed from heaputl.h and flistutl.c.
+- The files infile.c, sctlib.c and itflib.c have been refactored to
+  use unlikely() for exception conditions.
+- In itflib.c the functions itf_cpy(), itf_cpy2(), itf_create(),
+  itf_create2() and itf_to_interface() have been changed to transfer
+  the ownership of a structValue to a new object.
+- In itflib.c in functions raising an exception the variable
+  interface_exec_object has been added and used in calls of
+  raise_with_obj_and_args().
+- In sctlib.c in functions raising an exception the variable
+  struct_exec_object has been added and used in calls of
+  raise_with_obj_and_args().
+- In sctlib.c the function sct_destr() has been refactored to use
+  old_value instead of arg_1(arguments).
+- In arrlib.c in functions raising an exception the variable
+  array_exec_object has been added and used in calls of
+  raise_with_obj_and_args().
+- The file arrlib.c has been refactored to use else parts after
+  if-statements are checking for an error.
+- In arrlib.c the functions arr_baselit(), arr_baselit2(),
+  arr_extend(), arr_gen(), arr_idx(), arr_insert(), arr_push(),
+  arr_remove() and arr_times() have been changed to set and clear
+  the EMBEDDED flag for array elements.
+- In str_rtl.c the function ustriCmpGeneric() has been introduced
+  and the function ustrCreateGeneric() has been renamed to
+  ustriCreateGeneric().
+- In rfllib.c the function rfl_expr() has been improved to set file
+  and line of enumeration literals.
+- In reflib.c a NULL check has been added to ref_issymb().
+- In reflib.c the function ref_append_params() has been added.
+- In typlib.c the function typ_interfaces() has been added.
+- In prglib.c the functions prg_cmp(), prg_eval_with_args() and
+  prg_hashcode() have been added.
+- In infile.c the function speedup() has been improved to only call
+  mmap() if the file size is not 0. The function mmap() would fail
+  for a size of 0.
+- In scanner.c the function scan_eof() has been improved to leave
+  in_file.line unchanged in case of an EOF_ENCOUNTERED error. This
+  way an EOF_ENCOUNTERED error writes the last line of a file.
+- In analyze.c the function declAny() has been changed to trigger an
+  EXCEPTION_RAISED arror instead of a fatal memory error.
+- In analyze.c in the function analyzeFile() the length of
+  sourceFilePath is now reduced with strHeadAssign(). This avoids a
+  problem if followLink() changes sourceFilePath before it is freed.
+- In parser.c the function decl_const() has been improved to set
+  file_number and line from in_file if they are 0 in the object.
+- In parser.c commented out code has been removed.
+- The file error.c has been improved:
+  - The function storeLineOfCurrentFile() has been improved to
+    support writing an error line below.
+  - The function storePositionedErrorLine() has been improved to set
+    errorLine to "" in case of an unknown file.
+  - The function setPlaceForObject() has been removed.
+  - The function setPlaceAndLine() has been introduced. Several
+    calls of setPlaceAndLine() have been added.
+  - The function err_type() has been changed to use an objectType
+    parameter. This improves the place of the PROC_EXPECTED error
+    messages.
+  - The function err_existing_obj() has been improved to assure that
+    'descriptor.property' is present before accessing it.
+- In msg_stri.c the function appendType() has been improved to use
+  a recursive call for function types.
+- In match.c the functions match_subexpr_var() and
+  match_subexpr_const() have been changed to use the objectType
+  parameter 'type_match_obj' instead of typeType parameter
+  'object_type'.
+- In match.c the function match_subexpr_param_attr() considers now
+  that the parameter f_param_type might be NULL.
+- The file executl.c has been improved:
+  - The function destr_interface() has been introduced. This
+    function is used by itf_destr() and sct_destr(). It is called
+    to free the struct object value of an INTERFACEOBJECT. It frees
+    the structValue if the usage_count is 0. Non-embedded struct
+    objects without property are removed as well.
+  - The functions get_create_call_obj(), get_destroy_call_obj(),
+    type_create_call_obj(), type_copy_call_obj(),
+    type_ord_call_obj(), type_in_call_obj() and
+    type_value_call_obj() have been improved to work if err_info
+    is not OKAY_NO_ERROR. The variable copy_err_info is used for
+    calls of copy_expression().
+  - The function free_array() has been introduced. It frees an array
+    only if all elements are unused.
+  - In executl.c the functions sct_elem_initialisation() and
+    arr_elem_initialisation() have been changed to set the EMBEDDED
+    flag for all elements.
+- In exec.c the function exec_dynamic() has been improved to check
+  if element_value == NULL.
+- In exec.c in the function exec_action() a check for ACT_ILLEGAL
+  has been added. This code is conditionally compiled if the macro
+  WITH_ACTION_CHECK is TRUE.
+- In runerr.c the function raise_with_obj_and_args() has been
+  improved free the previous fail_expression.
+- The checks for category have been refactored:
+  - In runerr.c the functions run_error(), empty_value() and
+    var_required() have been renamed to categoryRequired(),
+    emptyValue() and varRequired() respectively.
+  - In runerr.h the macros category_required(), empty_value() and
+    var_required() have been introduced.
+  - In objutl.h the macro run_exception() has been renamed to
+    expected_category().
+  - In the files itflib.c, objutl.c, objutl.h, pollib.c, prog_comp.c
+    and reflib.c all calls of run_error() and run_exception() have
+    been replaced with calls of category_required() and
+    expected_category() respectively.
+- In gkb_emc.c, gkb_win.c and gkb_x11.c the function
+  gkbCloseKeyboard() has been introduced. This function frees
+  resources associated with a graphic keyboard.
+- Functions in prg_comp.c have been improved such that prgDestr()
+  frees objects and lists created by prgMatchExpr().
+- The file prg_comp.c has been improved:
+  - The functions free_list_objects(), prgCpyGeneric(),
+    prgCreateGeneric(), prgDestrGeneric() and prgEvalWithArgs() have
+    been added.
+  - The function prgSysvar has been changed to assure that a system
+    variable is not an ILLEGALOBJECT.
+  - The function prgDestr() has been improved to set
+    interpreter_exception to TRUE while data is freed.
+- In typ_data.c the function typInterfaces() has been added. This
+  function returns an array of interface types which implement a
+  given type.
+- In ref_data.c the function refAppendParams() has been added.
+- In ref_data.c the function refAlloc (called for the action
+  REF_ALLOC) has been improved to allocate a copy of the property.
+- Now objects created by refAllocVar() are freed by prgDestr().
+- In chkccomp.c the detection of the NORETURN macro has been
+  improved and the determination of STRCMP_RETURNS_SIGNUM has been
+  added.
+- In traceutl.c the functions printObjectName and printLocList()
+  have been added.
+- In traceutl.c the function printformparam() has been improved to
+  print symbol parameters.
+- The files read_me.txt and read_me.htm have been updated.
+- Support for the actions PRG_CMP, PRG_EVAL_WITH_ARGS, PRG_HASHCODE,
+  PRC_SEMICOLON, REF_APPEND_PARAMS and TYP_INTERFACES has been added
+  to interpreter and compiler.
+- Support for the action PRC_DESTR has been added to the
+  interpreter.
+- The actions PRC_VARFUNC and PRC_VARFUNC2 have been renamed to
+  PRC_RETURN_VAR and PRC_RETURN_VAR2 respectively.
+- The makefiles have been improved to create the s7check executable
+  with 'make utils'.
+- In bas7.sd7, bigfiles.sd7, calc7.sd7, castle.sd7, comanche.sd7,
+  diff7.sd7, dnafight.sd7, find7.sd7, findchar.sd7, ftp7.sd7,
+  ftpserv.sd7, hd.sd7, lander.sd7, mahjong.sd7, make7.sd7,
+  mandelbr.sd7, pairs.sd7, panic.sd7, planets.sd7, portfwd7.sd7,
+  s7c.sd7, savehd7.sd7, shisen.sd7, sokoban.sd7, sql7.sd7,
+  sudoku7.sd7, sydir7.sd7, tar7.sd7, tet.sd7, tetg.sd7, toutf8.sd7,
+  wator.sd7 and which which.sd7 the address of the Seed7 homepage
+  has been changed to https://seed7.net .
+- Logging functions have been added or improved in actlib.c,
+  arrlib.c, blockutl.c, big_rtl.c, dcllib.c, enulib.c, error.c,
+  exec.c, executl.c, hshlib.c, infile.c, itflib.c, match.c, name.c,
+  prclib.c, prg_comp.c, runerr.c and sctlib.c.
+- Documentation comments have been added or improved in aes.s7i,
+  aes_gcm.s7i, arc4.s7i, bitset.s7i, blowfish.s7i, des.s7i,
+  field.s7i, float.s7i, ftpserv.s7i, integer.s7i, struct.s7i,
+  tdes.s7i blockutl.c, executl.c and name.c.
+
 20250516:
 - Pierre Rouleau created a seed7-mode for Emacs (see:
   https://github.com/pierre-rouleau/seed7-mode/tree/main).
@@ -3018,7 +3404,7 @@
   is enabled. This allows logging in compiled programs.
 - Logging functions have been improved in arr_rtl.c, con_win.c,
   drw_win.c, drw_x11.c, fil_rtl.c and gkb_win.c.
-- Occurrances of exit() and atexit() have been replaced by os_exit()
+- Occurrences of exit() and atexit() have been replaced by os_exit()
   respectively os_atexit(). This way, the makefiles mk_emccl.mak and
   mk_emccw.mak can define os_exit() and os_atexit() to use doExit()
   and registerExitFunction() instead of the default functions.

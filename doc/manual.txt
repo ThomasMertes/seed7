@@ -45,8 +45,10 @@ CONTENTS
   3.2.1     Type declarations
   3.2.2     Procedure declarations
   3.2.3     Function declarations
-  3.2.4     Abstract data type
-  3.2.5     Template
+  3.2.4     Forward declarations
+  3.2.5     Interface declarations
+  3.2.6     Abstract data types
+  3.2.7     Templates
   3.3     Initialization
   3.3.1     How the initialization works
   3.4     Syntax declarations
@@ -102,9 +104,11 @@ CONTENTS
   5.34    varfunc
   5.35    void
   5.36    proc
-  5.37    type
-  5.38    object
-  5.39    expr
+  5.37    creator
+  5.38    destroyer
+  5.39    type
+  5.40    object
+  5.41    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -252,28 +256,31 @@ CONTENTS
   15.19   Actions to support the text (console) screen keyboard
   15.20   Actions for the list type
   15.21   Actions for the type process
-  15.22   Actions for the type pollData
-  15.23   Actions for proc operations and statements
-  15.24   Actions for the type program
-  15.25   Actions for the type reference
-  15.26   Actions for the type ref_list
-  15.27   Actions for struct types
-  15.28   Actions for set types
-  15.29   Actions for the type PRIMITIVE_SOCKET
-  15.30   Actions for the types database and sqlStatement
-  15.31   Actions for the type string
-  15.32   Actions for the type time
-  15.33   Actions for the type type
-  15.34   Actions for the type utf8File
+  15.22   Actions for the type pointList
+  15.23   Actions for the type pollData
+  15.24   Actions for proc operations and statements
+  15.25   Actions for the type program
+  15.26   Actions for the type reference
+  15.27   Actions for the type ref_list
+  15.28   Actions for struct types
+  15.29   Actions for the type structElement
+  15.30   Actions for set types
+  15.31   Actions for the type PRIMITIVE_SOCKET
+  15.32   Actions for the types database and sqlStatement
+  15.33   Actions for the type string
+  15.34   Actions for the type time
+  15.35   Actions for the type type
+  15.36   Actions for the type utf8File
   16.   FOREIGN FUNCTION INTERFACE
   16.1    C types used by the implementation
-  16.2    String conversions
-  16.3    Operating system string and path conversions
-  16.4    Macros to access the action parameters
-  16.5    Functions to create action results
-  16.6    Memory management macros
-  16.7    Basic conversion functions
-  16.8    Error handling
+  16.2    System variables
+  16.3    String conversions
+  16.4    Operating system string and path conversions
+  16.5    Macros to access the action parameters
+  16.6    Functions to create action results
+  16.7    Memory management macros
+  16.8    Basic conversion functions
+  16.9    Error handling
   17.   ERRORS
   17.1    Parsing errors
   17.2    Compilation errors
@@ -1772,13 +1779,69 @@ CONTENTS
   A function with a parameter ('number') is defined with:
 
     const func float: inverse (in float: number) is
-      return 1 / number;
+      return 1.0 / number;
 
   Procedure and function parameters are explained in chapter 6
   (PARAMETERS).
 
 
-3.2.4 Abstract data type
+3.2.4 Forward declarations
+
+    In Seed7 everything must be declared before it is used.
+
+  This keeps the code easier to follow and the compiler easier to
+  implement.
+
+  Forward declarations are required if something needs to be used
+  before it can be declared fully:
+
+    const func boolean: isOdd (in integer: number) is forward;
+
+    const func boolean: isEven (in integer: number) is
+      return number = 0 ? TRUE : isOdd(pred(number));
+
+    const func boolean: isOdd (in integer: number) is
+      return number = 0 ? FALSE : isEven(pred(number));
+
+
+3.2.5 Interface declarations
+
+    The object orientation of Seed7 is based on
+  interface types and interface functions. E.g.:
+
+    const type: file is sub object interface;                             # Declare interface type
+
+    const proc: write (inout file: outFile, in string: stri) is DYNAMIC;  # Declare interface function
+
+  Actual types and functions implement these interfaces:
+
+    const type: striFile is sub null_file struct                              # Implementation type
+        var string: content is "";
+        var integer: position is 1;
+      end struct;
+
+    type_implements_interface(striFile, file);                                # Connect implementation type to interface type
+
+    const proc: write (inout striFile: outStriFile, in string: stri) is func  # Implementation function
+      ...
+
+  Functions use interface types and implementation types to create new interface values:
+
+    const func file: openStriFile (in string: content) is func
+      result
+    var file: newFile is STD_NULL;
+      local
+    var striFile: new_striFile is striFile.value;
+      begin
+        new_striFile.content := content;
+        newFile := toInterface(new_striFile);
+      end func;
+
+The function 'toInterface' transfers the ownership from 'new_striFile'
+to 'newFile'.
+
+
+3.2.6 Abstract data types
 
     An abstract data type is a type that requires additional
   information. E.g.: The abstract data type 'array' requires
@@ -1802,7 +1865,7 @@ CONTENTS
   User defined abstract data types are also possible.
 
 
-3.2.5 Template
+3.2.7 Templates
 
     Templates do declarations for a given type. Templates are
   executed at compile-time. The function 'FOR_ENUM_DECLS' from
@@ -1858,19 +1921,19 @@ CONTENTS
 3.3.1 How the initialization works
 
     The initialization of variables and constants is done at
-  compile-time. The initialization uses the create statement
-  ( ::= ). Note that ::= is used internally by the interpreter
-  and compiler. Explicit calls of ::= in user programs are not
-  needed. A create statement is similar to an assignment ( := ),
+  compile-time. The initialization uses the create operator ( ::= ).
+  Note that ::= is used internally by the interpreter and compiler.
+  Explicit calls of ::= in user programs are not allowed. The
+  create operator is similar to an assignment statement ( := ),
   but with two important differences:
 
   1. Assignments can assume that the destination has a legal value.
-     Create statements assume that the destination has an undefined
-     value. A create statement needs to do all the initializations
+     Create operators assume that the destination has an undefined
+     value. A create operator needs to do all the initializations
      necessary.
 
   2. Assignments can only be used to assign a value to a variable.
-     Create statements are not restricted to variables. Interpreter
+     Create operators are not restricted to variables. Interpreter
      and compiler use ::= to initialize constants.
 
   The lifetime of an object goes like this:
@@ -1879,14 +1942,14 @@ CONTENTS
      make no difference here).
 
   2. The content of the new memory is undefined (It may contain
-     garbage), therefore a create statement is necessary instead of
-     an assignment.
+     garbage), therefore a create operator ( ::= ) is necessary
+     instead of an assignment statement ( := ).
 
-  3. The create statement ( ::= ) copies the right expression
-     to the left expression taking into account that the left
-     expression is undefined.
+  3. The create operator ( ::= ) copies the right expression to the
+     left expression taking into account that the left expression is
+     undefined.
 
-  4. If the object is a variable other values can be assigned using
+  4. If the object is variable other values can be assigned using
      the assignment statement ( := ). The assignment can assume that
      the destination contains a legal value.
 
@@ -1895,7 +1958,7 @@ CONTENTS
      owner of the memory area. This allows that an assignment
      can reallocate the memory area.
 
-  6. At the end of the lifetime of an object the destroy statement
+  6. At the end of the lifetime of an object the destroy operation
      is executed. For strings (and some other types which are just
      references to a memory area) the referenced memory is freed.
 
@@ -1906,32 +1969,32 @@ CONTENTS
 
     ONE ::= 1
 
-  to assign 1 to the object 'ONE'. The destroy statement is the
-  opposite of the create statement. It is automatically executed
+  to assign 1 to the object 'ONE'. The destroy operation is the
+  opposite of the create operator. It is automatically executed
   at the end of the lifetime of an object. The run-time library
   executes
 
     destroy(fileName)
 
   to free the memory referred by the 'string' variable 'fileName'.
-  For simple types such as 'integer' the destroy statement does
+  For simple types such as 'integer' the destroy operation does
   nothing.
 
   The mechanism with create and destroy is also used for
   call-by-value parameters ('val', 'in var' and 'in' if it uses
   call-by-value). When a function is called the call-by-value
-  parameters are initialized with a create statement:
+  parameters are initialized with a create operator:
 
     formalParameter ::= actualParameter
 
-  At the end of the function the destroy statement is executed:
+  At the end of the function the destroy operation is executed:
 
     destroy(formalParameter)
 
-  For all predefined types the create statement ( ::= ) and the
-  destroy statement are already defined. To allow the declaration
+  For all predefined types the create operator ( ::= ) and the
+  destroy operation are already defined. To allow the declaration
   of objects of a new user defined type the create and destroy
-  statements for this type must be defined.
+  operations for this type must be defined.
 
 
 3.4 Syntax declarations
@@ -1985,6 +2048,7 @@ CONTENTS
   The following system declarations exist
 
     $ system "expr" is expr;
+    $ system "f_param" is f_param;
     $ system "integer" is integer;
     $ system "bigInteger" is bigInteger;
     $ system "char" is char;
@@ -5465,20 +5529,20 @@ CONTENTS
       end struct
                 Create new structure type
 
-      new metaType struct
+      new baseType struct
         var aType: name is value;
         ...
       end struct
-                Create new structure type as subtype of 'metaType',
+                Create new structure type as subtype of 'baseType',
                 which is not a structure
 
-      sub metaType struct
+      sub baseType struct
         var aType: name is value;
         ...
       end struct
-                Create new structure type as subtype of 'metaType',
+                Create new structure type as subtype of 'baseType',
                 which is a structure type. The new structure type inherits all
-                elements of the structure type 'metaType'.
+                elements of the structure type 'baseType'.
 
       var aType: name is value
                 Declare structure element 'name' with 'value'
@@ -7372,7 +7436,72 @@ CONTENTS
                     Type of result: proc )
 
 
-5.37 type
+5.37 creator
+
+    The type 'creator' describes create operators. Create operators ( ::= )
+  are used for initializations. They are similar to assignment statements
+  ( := ) but they assume that the destination is undefined (It may contain
+  garbage). Create operators are not called explicitly. They are called by
+  constant- and variable-declarations instead. Value parameters use create
+  operators for initialization as well. To allow declarations and value
+  parameters a type needs a corresponding create operator. Examples of
+  create operator declarations are:
+
+    const creator: (ref boolean: dest) ::= (in boolean: source)         is action "BLN_CREATE";
+    const creator: (ref integer: dest) ::= (ref integer: source)        is action "INT_CREATE";
+    const creator: (ref bigInteger: dest) ::= (ref bigInteger: source)  is action "BIG_CREATE";
+    const creator: (ref string: dest) ::= (in string: source)           is action "STR_CREATE";
+    const creator: (ref proc: dest) ::= (ref proc: source)              is action "PRC_CREATE";
+
+  The types 'boolean', 'integer', 'float', 'char', 'bin64', 'bin32' and
+  enumeration types don't use the heap. In this case the ::= operator
+  just copies some bytes from the source to the destination (like the
+  assignment does).
+
+  For types like 'string' and 'bigInteger' data is stored in the heap.
+  In this case the ::= operator allocates heap memory and copies data
+  to the allocated area. Finally the pointer to the heap is stored in the
+  destination.
+
+  The type 'creator' is defined as 'func create_result'. The type
+  'creator' is similar to 'proc'. The type 'creator' has been introduced
+  to prohibit create operators in places where statements are required.
+  An attempt to use ::= as statement leads to an error:
+
+    *** tst492.sd7(7):57: Match for {INT_CREATE({number ::= 1 }) ; {number writeln } } failed
+        number ::= 1;
+
+
+5.38 destroyer
+
+    The type 'destroyer' describes destroy operations. Destroy operations are
+  used to free data. They are not called explicitly. Destroy operations are
+  executed by the automatic memory management when a certain value cannot
+  be accessed any more. Examples of destroy operation declarations are:
+
+    const destroyer: destroy (ref boolean: aValue)     is action "GEN_DESTR";
+    const destroyer: destroy (ref integer: aValue)     is action "GEN_DESTR";
+    const destroyer: destroy (ref bigInteger: aValue)  is action "BIG_DESTR";
+    const destroyer: destroy (ref bstring: aValue)     is action "BST_DESTR";
+    const destroyer: destroy (ref proc: aValue)        is action "PRC_DESTR";
+
+  For the types 'boolean', 'integer', 'float', 'char', 'bin64', 'bin32' and
+  for enumeration types the destroy operation does nothing.
+
+  For types like 'string' and 'bigInteger' the destroy operation frees the
+  heap data.
+
+  The type 'destroyer' is defined as 'func destroy_result'. The type
+  'destroyer' is similar to 'proc'. The type 'destroyer' has been
+  introduced to prohibit destroy operations in places where statements are
+  required. An attempt to do use a destroy operation as statement leads to
+  an error:
+
+    *** tst493.sd7(8):57: Match for {GEN_DESTR({number destroy }) ; {number writeln } } failed
+        destroy(number);
+
+
+5.39 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -7481,7 +7610,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.38 object
+5.40 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7494,7 +7623,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.39 expr
+5.41 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -13721,11 +13850,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   of the while-statement can use a conditional jump
   instead of a subroutine call. Since Seed7 has no 'goto'
   statement, this is not an option. Instead the primitive
-  action PRC_WHILE can be used. The while-statement is
+  action 'PRC_WHILE' can be used. The while-statement is
   defined in the basic Seed7 library "seed7_05.s7i" with:
 
-    const proc: while (in func boolean param) do
-        (in proc param) end while is action "PRC_WHILE";
+    const proc: while (in func boolean: condition) do
+                  (in proc: statement)
+                end while                           is action "PRC_WHILE";
 
   This declaration shows the types and the position of
   the parameters of a while-statement. Such an action
@@ -13752,9 +13882,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     _ADD      Addition
     _CAT      Concatenation
     _CMP      Compare
-    _CPY      Copy (Assignment)
-    _CREATE   Initialize (Construct)
-    _DESTR    Destroy (Destruct)
+    _CPY      Copy a new value to an existing object (Assignment)
+    _CREATE   Create and initialize a new object (creator)
+    _DESTR    Destroy an unused object (destroyer)
     _DECR     Decrement
     _DIV      Division
     _EQ       Equal
@@ -13820,18 +13950,21 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     ENU_  enulib.c  Enumeration operations
     FIL_  fillib.c  'clib_file' operations
     FLT_  fltlib.c  'float' operations
+    GKB_  gkblib.c  Graphic keyboard operations
     HSH_  hshlib.c  'hash' operations
     INT_  intlib.c  'integer' operations
     ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
     LST_  lstlib.c  List operations
     PCS_  pcslib.c  'process' operations
+    PTL_  drwlib.c  pointList operations
     POL_  pollib.c  'pollData' operations
     PRC_  prclib.c  'proc' operations and statements
     PRG_  prglib.c  Program operations
     REF_  reflib.c  'reference' operations
     RFL_  rfllib.c  'ref_list' operations
     SCT_  sctlib.c  'struct' operations
+    SEL_  sellib.c  'structElement' operations
     SET_  setlib.c  'set' operations
     SOC_  soclib.c  'PRIMITIVE_SOCKET' operations
     SQL_  sqllib.c  'database' operations
@@ -13998,7 +14131,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   actions the functions of the "seed7_05.a" library are used.
 
 
-14.1 Actions for the type ACTION
+15.1 Actions for the type ACTION
 
     Action name         actlib.c function   act_comp.c function
     ACT_ILLEGAL         act_illegal
@@ -14014,7 +14147,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     ACT_VALUE           act_value           actValue
 
 
-14.2 Actions for array types
+15.2 Actions for array types
 
     Action name         arrlib.c function   arr_rtl.c function
     ARR_APPEND          arr_append          arrAppend
@@ -14048,7 +14181,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     ARR_TIMES           arr_times           times_ ...
 
 
-14.3 Actions for the type bigInteger
+15.3 Actions for the type bigInteger
 
     Action name         biglib.c function   big_rtl.c function
     BIG_ABS             big_abs             bigAbs
@@ -14108,16 +14241,20 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BIG_radix           big_radix           bigRadix
 
 
-14.4 Actions for the types bin32 and bin64
+15.4 Actions for the types bin32 and bin64
 
-    Action name         blnlib.c function   bln_rtl.c function
+    Action name         binlib.c function   big_rtl.c or int_rtl.c function
     BIN_AND             bin_and             &
     BIN_AND_ASSIGN      bin_and_assign      &=
     BIN_BIG             bin_big             bigFromUInt64
     BIN_BINARY          bin_binary          bigToUInt64
+    BIN_BIT_LENGTH      bin_bit_length      uint64MostSignificantBit
+    BIN_BYTES_BE_2_UINT bin_bytes_be_2_uint uintBytesBe2UInt
+    BIN_BYTES_LE_2_UINT bin_bytes_le_2_uint uintBytesLe2UInt
     BIN_CARD            bin_card            uintCard
     BIN_CMP             bin_cmp             uintCmp
     BIN_GET_BINARY_FROM_SET bin_get_binary_from_set setToUInt
+    BIN_LOWEST_SET_BIT  bin_lowest_set_bit  (intType)(bits==0?-1:uint64LeastSignificantBit(bits))
     BIN_LSHIFT          bin_lshift          (intType)((uintType)(a<&ltb))
     BIN_LSHIFT_ASSIGN   bin_lshift_assign   a=(intType)((uintType)(a<&ltb))
     BIN_N_BYTES_BE      bin_n_bytes_be      uintNBytesBe
@@ -14133,12 +14270,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BIN_radix           bin_radix           uintRadix
 
 
-14.5 Actions for the type boolean
+15.5 Actions for the type boolean
 
     Action name         blnlib.c function   bln_rtl.c function
     BLN_AND             bln_and             &&
     BLN_CPY             bln_cpy             blnCpy
-    BLN_CREATE          bln_create          blnCreate
+    BLN_CREATE          bln_create          = or genericCreate
     BLN_EQ              bln_eq              ==
     BLN_GE              bln_ge              >=
     BLN_GT              bln_gt              >
@@ -14156,7 +14293,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BLN_VALUE           bln_value           blnValue
 
 
-14.6 Actions for byte strings
+15.6 Actions for byte strings
 
     Action name         bstlib.c function   bst_rtl.c function
     BST_APPEND          bst_append          bstAppend
@@ -14176,13 +14313,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BST_VALUE           bst_value           bstValue
 
 
-14.7 Actions for the type char
+15.7 Actions for the type char
 
     Action name         chrlib.c function   chr_rtl.c function
     CHR_CLIT            chr_clit            chrCLit
     CHR_CMP             chr_cmp             chrCmp
     CHR_CPY             chr_cpy             chrCpy
-    CHR_CREATE          chr_create          chrCreate
+    CHR_CREATE          chr_create          = or genericCreate
     CHR_DECR            chr_decr            --
     CHR_EQ              chr_eq              ==
     CHR_GE              chr_ge              >=
@@ -14205,7 +14342,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CHR_WIDTH           chr_width           chrWidth
 
 
-14.8 Actions for various directory, file and other commands
+15.8 Actions for various directory, file and other commands
 
     Action name         cmdlib.c function   cmd_rtl.c function
     CMD_BIG_FILESIZE    cmd_big_filesize    cmdBigFileSize
@@ -14257,7 +14394,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CMD_UNSETENV        cmd_unsetenv        cmdUnsetenv
 
 
-14.9 Actions for text (console) screen output
+15.9 Actions for text (console) screen output
 
     Action name         scrlib.c function   con_inf.c/con_rtl.c/con_win.c function
     CON_CLEAR           con_clear           conClear
@@ -14274,7 +14411,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CON_WRITE           con_write           conWrite
 
 
-14.10 Actions for declarations
+15.10 Actions for declarations
 
     Action name         dcllib.c function
     DCL_ATTR            dcl_attr
@@ -14301,7 +14438,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DCL_VAR             dcl_var
 
 
-14.11 Actions to do graphic output
+15.11 Actions to do graphic output
 
     Action name         drwlib.c function   drw_rtl.c/drw_x11.c/drw_win.c function
     DRW_ARC             drw_arc             drwArc
@@ -14311,7 +14448,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_CAPTURE         drw_capture         drwCapture
     DRW_CIRCLE          drw_circle          drwCircle
     DRW_CLEAR           drw_clear           drwClear
-    DRW_CMP             drw_cmp             uintCmpGeneric((genericType)(a))
+    DRW_CMP             drw_cmp             ptrCmp / ptrCmpGeneric
     DRW_COLOR           drw_color           drwColor
     DRW_CONV_POINT_LIST drw_conv_point_list drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
@@ -14331,6 +14468,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_GET_PIXEL       drw_get_pixel       drwGetPixel
     DRW_GET_PIXEL_ARRAY drw_get_pixel_array drwGetPixelArray
     DRW_GET_PIXEL_DATA  drw_get_pixel_data  drwGetPixelData
+    DRW_GET_PIXEL_DATA_FROM_ARRAY drw_get_pixel_data_from_array drwGetPixelDataFromArray
     DRW_GET_PIXMAP      drw_get_pixmap      drwGetPixmap
     DRW_GET_PIXMAP_FROM_PIXELS drw_get_pixmap_from_pixels drwGetPixmapFromPixels
     DRW_HASHCODE        drw_hashcode        (intType)(((memSizeType)a)>>6)
@@ -14377,21 +14515,22 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_YPOS            drw_ypos            drwYPos
 
 
-14.12 Actions for enumeration types
+15.12 Actions for enumeration types
 
     Action name         enulib.c function
     ENU_CONV            enu_conv            (noop)
     ENU_CPY             enu_cpy             =
-    ENU_CREATE          enu_create
+    ENU_CREATE          enu_create          = or genericCreate
     ENU_EQ              enu_eq              ==
     ENU_GENLIT          enu_genlit
     ENU_ICONV2          enu_iconv2          (noop)
+    ENU_LIT             enu_lit
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
     ENU_VALUE           enu_value           enuValue
 
 
-14.13 Actions for the type clib_file
+15.13 Actions for the type clib_file
 
     Action name         fillib.c function   fil_rtl.c function
     FIL_BIG_LNG         fil_big_lng         filBigLng
@@ -14419,18 +14558,21 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FIL_OPEN_NULL_DEVICE fil_open_null_device filOpenNullDevice
     FIL_OUT             fil_out             stdout
     FIL_PCLOSE          fil_pclose          filPclose
+    FIL_PIPE            fil_pipe            filPipe
     FIL_POPEN           fil_popen           filPopen
     FIL_PRINT           fil_print           filPrint
     FIL_SEEK            fil_seek            filSeek
+    FIL_SEEKABLE        fil_seekable        filSeekable
     FIL_SETBUF          fil_setbuf          filSetbuf
     FIL_TELL            fil_tell            filTell
+    FIL_TERMINATED_READ fil_terminated_read filTerminatedRead
     FIL_TRUNCATE        fil_truncate        filTruncate
     FIL_VALUE           fil_value           filValue
     FIL_WORD_READ       fil_word_read       filWordRead
     FIL_WRITE           fil_write           filWrite
 
 
-14.14 Actions for the type float
+15.14 Actions for the type float
 
     Action name         fltlib.c function   flt_rtl.c function
     FLT_ABS             flt_abs             fabs
@@ -14447,7 +14589,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_COS             flt_cos             cos
     FLT_COSH            flt_cosh            cosh
     FLT_CPY             flt_cpy             fltCpy
-    FLT_CREATE          flt_create          fltCreate
+    FLT_CREATE          flt_create          = or genericCreate
     FLT_DECOMPOSE       flt_decompose       frexp
     FLT_DGTS            flt_dgts            fltDgts
     FLT_DIV             flt_div             /
@@ -14492,13 +14634,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_SINH            flt_sinh            sinh
     FLT_SQRT            flt_sqrt            sqrt
     FLT_STR             flt_str             fltStr
+    FLT_STR_SCIENTIFIC  flt_str_scientific  fltStrScientific
     FLT_TAN             flt_tan             tan
     FLT_TANH            flt_tanh            tanh
     FLT_TRUNC           flt_trunc           (intType)
     FLT_VALUE           flt_value           fltValue
 
 
-14.15 Actions to support the graphic keyboard
+15.15 Actions to support the graphic keyboard
 
     Action name         drwlib.c function   kbd_rtl.c/drw_x11.c/drw_win.c function
     GKB_BUTTON_PRESSED  gkb_button_pressed  gkbButtonPressed
@@ -14514,9 +14657,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     GKB_WORD_READ       gkb_word_read       gkbWordRead
 
 
-14.16 Actions for hash types
+15.16 Actions for hash types
 
     Action name         hshlib.c function   hsh_rtl.c function
+    HSH_CONCAT_KEY_VALUE hsh_concat_key_value hshConcatKeyValue
     HSH_CONTAINS        hsh_contains        hshContains
     HSH_CPY             hsh_cpy             hshCpy
     HSH_CREATE          hsh_create          hshCreate
@@ -14526,6 +14670,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     HSH_FOR             hsh_for             for
     HSH_FOR_DATA_KEY    hsh_for_data_key    for
     HSH_FOR_KEY         hsh_for_key         for
+    HSH_GEN_HASH        hsh_gen_hash        hshGenHash
+    HSH_GEN_KEY_VALUE   hsh_gen_key_value   hshGenKeyValue
     HSH_IDX             hsh_idx             hshIdx, hshIdxAddr
     HSH_IDX2            hsh_idx2
     HSH_INCL            hsh_incl            hshIncl
@@ -14537,7 +14683,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     HSH_VALUES          hsh_values          hshValues
 
 
-14.17 Actions for the type integer
+15.17 Actions for the type integer
 
     Action name         intlib.c function   int_rtl.c function
     INT_ABS             int_abs             labs
@@ -14555,7 +14701,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     INT_BYTES_LE_UNSIGNED int_bytes_le_unsigned intBytesLe
     INT_CMP             int_cmp             intCmp
     INT_CPY             int_cpy             intCpy
-    INT_CREATE          int_create          intCreate
+    INT_CREATE          int_create          = or genericCreate
     INT_DECR            int_decr            --
     INT_DIV             int_div             /
     INT_EQ              int_eq              ==
@@ -14605,10 +14751,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     INT_radix           int_radix           intRadix
 
 
-14.18 Actions for interface types
+15.18 Actions for interface types
 
     Action name         itflib.c function
-    ITF_CMP             itf_cmp             uintCmpGeneric
+    ITF_CMP             itf_cmp             ptrCmp / ptrCmpGeneric
     ITF_CONV2           itf_conv2           (noop)
     ITF_CPY             itf_cpy             =
     ITF_CPY2            itf_cpy2            =
@@ -14622,7 +14768,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     ITF_TO_INTERFACE    itf_to_interface
 
 
-14.19 Actions to support the text (console) screen keyboard
+15.19 Actions to support the text (console) screen keyboard
 
     Action name         kbdlib.c function   kbd_rtl.c/kbd_inf.c function
     KBD_GETC            kbd_getc            kbdGetc
@@ -14633,7 +14779,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     KBD_WORD_READ       kbd_word_read       kbdWordRead
 
 
-14.20 Actions for the list type
+15.20 Actions for the list type
 
     Action name         lstlib.c function
     LST_CAT             lst_cat
@@ -14650,7 +14796,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     LST_TAIL            lst_tail
 
 
-14.21 Actions for the type process
+15.21 Actions for the type process
 
     Action name         pcslib.c function   pcs_rtl.c function
     PCS_CHILD_STDERR    pcs_child_stderr    pcsChildStdErr
@@ -14670,12 +14816,29 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PCS_PIPE2           pcs_pipe2           pcsPipe2
     PCS_PTY             pcs_pty             pcsPty
     PCS_START           pcs_start           pcsStart
+    PCS_START_PIPE      pcs_start_pipe      pcsStartPipe
     PCS_STR             pcs_str             pcsStr
     PCS_VALUE           pcs_value           pcsValue
     PCS_WAIT_FOR        pcs_wait_for        pcsWaitFor
 
 
-14.22 Actions for the type pollData
+15.22 Actions for the type pointList
+
+    Action name         drwlib.c function   bst_rtl.c function
+    PLT_BSTRING         plt_bstring         (noop)
+    PLT_CMP             plt_cmp             bstCmp
+    PLT_CPY             plt_cpy             bstCpy
+    PLT_CREATE          plt_create          bstCreate
+    PLT_DESTR           plt_destr           bstDestr
+    PLT_EMPTY           plt_empty
+    PLT_EQ              plt_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(unsigned char))==0
+    PLT_HASHCODE        plt_hashcode        bstHashCode
+    PLT_NE              plt_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0
+    PLT_POINT_LIST      plt_point_list      (noop)
+    PLT_VALUE           plt_value           pltValue
+
+
+15.23 Actions for the type pollData
 
     Action name         pollib.c function   pol_unx.c/pol_sel.c function
     POL_ADD_CHECK       pol_add_check       polAddCheck
@@ -14695,12 +14858,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     POL_VALUE           pol_value           polValue
 
 
-14.23 Actions for proc operations and statements
+15.24 Actions for proc operations and statements
 
     Action name         prclib.c function
     PRC_ARGS            prc_args            arg_v
-    PRC_BEGIN           prc_begin
-    PRC_BEGIN_NOOP      prc_begin_noop
+    PRC_BEGIN           prc_begin           Executed at compile-time
+    PRC_BEGIN_NOOP      prc_begin_noop      Executed at compile-time
     PRC_BLOCK           prc_block
     PRC_BLOCK_CATCH_ALL prc_block_catch_all
     PRC_BLOCK_OTHERWISE prc_block_otherwise
@@ -14711,6 +14874,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRC_CPY             prc_cpy
     PRC_CREATE          prc_create
     PRC_DECLS           prc_decls
+    PRC_DESTR           prc_destr
     PRC_DYNAMIC         prc_dynamic
     PRC_EXIT            prc_exit            exit
     PRC_FOR_DOWNTO      prc_for_downto      for
@@ -14722,27 +14886,31 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRC_IF              prc_if              if
     PRC_IF_ELSIF        prc_if_elsif        if
     PRC_IF_NOOP         prc_if_noop         if
-    PRC_INCLUDE         prc_include
-    PRC_LOCAL           prc_local
+    PRC_INCLUDE         prc_include         Executed at compile-time
+    PRC_LINE            prc_line
+    PRC_LOCAL           prc_local           Executed at compile-time
     PRC_NOOP            prc_noop            prcNoop
     PRC_RAISE           prc_raise           raise_error
     PRC_REPEAT          prc_repeat          do {stmts} while (!(cond));
     PRC_REPEAT_NOOP     prc_repeat_noop     do {} while (!(cond));
-    PRC_RES_BEGIN       prc_res_begin
-    PRC_RES_LOCAL       prc_res_local
-    PRC_RETURN          prc_return
-    PRC_RETURN2         prc_return2
+    PRC_RES_BEGIN       prc_res_begin       Executed at compile-time
+    PRC_RES_LOCAL       prc_res_local       Executed at compile-time
+    PRC_RETURN          prc_return          Executed at compile-time
+    PRC_RETURN2         prc_return2         Executed at compile-time
+    PRC_RETURN_VAR      prc_return_var      Executed at compile-time
+    PRC_RETURN_VAR2     prc_return_var2     Executed at compile-time
+    PRC_SEMICOLON       prc_semicolon       statement1;statement2;
     PRC_SETTRACE        prc_settrace
     PRC_TRACE           prc_trace
-    PRC_VARFUNC         prc_varfunc
-    PRC_VARFUNC2        prc_varfunc2
     PRC_WHILE           prc_while           while (cond) {stmts}
     PRC_WHILE_NOOP      prc_while_noop      while (cond) {}
 
 
-14.24 Actions for the type program
+15.25 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
+    PRG_BSTRI_PARSE     prg_bstri_parse     prgBStriParse
+    PRG_CMP             prg_cmp             ptrCmp / ptrCmpGeneric
     PRG_CPY             prg_cpy             prgCpy
     PRG_CREATE          prg_create
     PRG_DESTR           prg_destr
@@ -14750,9 +14918,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRG_EQ              prg_eq              ==
     PRG_ERROR_COUNT     prg_error_count     prgErrorCount
     PRG_EVAL            prg_eval            prgEval
+    PRG_EVAL_WITH_ARGS  prg_eval_with_args  prgEvalWithArgs
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
+    PRG_GET_ERROR       prg_get_error       prgGetError
     PRG_GLOBAL_OBJECTS  prg_global_objects  prgGlobalObjects
+    PRG_HASHCODE        prg_hashcode        (intType)(((memSizeType)a)>>6)
     PRG_MATCH           prg_match           prgMatch
     PRG_MATCH_EXPR      prg_match_expr      prgMatchExpr
     PRG_NAME            prg_name            arg_0
@@ -14760,13 +14931,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRG_OWN_NAME        prg_own_name        programName
     PRG_OWN_PATH        prg_own_path        programPath
     PRG_PATH            prg_path            programPath
+    PRG_STRUCT_SYMBOLS  prg_struct_symbols  prgStructSymbols
     PRG_STR_PARSE       prg_str_parse       prgStrParse
     PRG_SYOBJECT        prg_syobject        prgSyobject
     PRG_SYSVAR          prg_sysvar          prgSysvar
     PRG_VALUE           prg_value           prgValue
 
 
-14.25 Actions for the type reference
+15.26 Actions for the type reference
 
     Action name         reflib.c function   ref_data.c function
     REF_ADDR            ref_addr            &
@@ -14774,6 +14946,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_ALLOC_INT       ref_alloc_int       refAllocInt
     REF_ALLOC_STRI      ref_alloc_stri      refAllocStri
     REF_ALLOC_VAR       ref_alloc_var       refAllocVar
+    REF_APPEND_PARAMS   ref_append_params   refAppendParams
     REF_ARRMAXIDX       ref_arrmaxidx       refArrmaxidx
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
@@ -14782,10 +14955,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
     REF_CAT_STR         ref_cat_str         refCatStr
-    REF_CMP             ref_cmp             refCmp
+    REF_CMP             ref_cmp             ptrCmp / ptrCmpGeneric
     REF_CONTENT         ref_content
-    REF_CPY             ref_cpy             refCpy
-    REF_CREATE          ref_create          refCreate
+    REF_CPY             ref_cpy             =
+    REF_CREATE          ref_create          = or ptrCreateGeneric
     REF_DEREF           ref_deref
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
@@ -14806,6 +14979,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_NIL             ref_nil
     REF_NUM             ref_num             refNum
     REF_PARAMS          ref_params          refParams
+    REF_PATH            ref_path            refPath
     REF_PROG            ref_prog
     REF_RESINI          ref_resini          refResini
     REF_RESULT          ref_result          refResult
@@ -14823,7 +14997,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_VALUE           ref_value           refValue
 
 
-14.26 Actions for the type ref_list
+15.27 Actions for the type ref_list
 
     Action name         rfllib.c function   rfl_data.c function
     RFL_APPEND          rfl_append          rflAppend
@@ -14855,7 +15029,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     RFL_VALUE           rfl_value           rflValue
 
 
-14.27 Actions for struct types
+15.28 Actions for struct types
 
     Action name         sctlib.c function
     SCT_ALLOC           sct_alloc
@@ -14871,7 +15045,22 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SCT_SELECT          sct_select          a->stru[b]
 
 
-14.28 Actions for set types
+15.29 Actions for the type structElement
+
+    Action name         sctlib.c function
+    SEL_CMP             sel_cmp             ptrCmp / ptrCmpGeneric
+    SEL_CONV1           sel_conv1
+    SEL_CPY             sel_cpy             =
+    SEL_CREATE          sel_create          =
+    SEL_EQ              sel_eq              ==
+    SEL_HASHCODE        sel_hashcode        (intType)(((memSizeType)a)>>6)
+    SEL_NAME            sel_name            refStr
+    SEL_NE              sel_ne              !=
+    SEL_SYMB            sel_symb            refSymb
+    SEL_TYPE            sel_type            refType
+
+
+15.30 Actions for set types
 
     Action name         setlib.c function   set_rtl.c function
     SET_ARRLIT          set_arrlit          setArrlit
@@ -14914,7 +15103,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SET_VALUE           set_value           setValue
 
 
-14.29 Actions for the type PRIMITIVE_SOCKET
+15.31 Actions for the type PRIMITIVE_SOCKET
 
     Action name         strlib.c function   str_rtl.c function
     SOC_ACCEPT          soc_accept          socAccept
@@ -14952,7 +15141,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SOC_WRITE           soc_write           socWrite
 
 
-14.30 Actions for the types database and sqlStatement
+15.32 Actions for the types database and sqlStatement
 
     Action name         sqllib.c function   sql_rtl.c function
     SQL_BIND_BIGINT     sql_bind_bigint     sqlBindBigInt
@@ -14966,8 +15155,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_BIND_STRI       sql_bind_stri       sqlBindStri
     SQL_BIND_TIME       sql_bind_time       sqlBindTime
     SQL_CLOSE           sql_close           sqlClose
-    SQL_CMP_DB          sql_cmp_db          ptrCmp
-    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp
+    SQL_CMP_DB          sql_cmp_db          ptrCmp / ptrCmpGeneric
+    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp / ptrCmpGeneric
     SQL_COLUMN_BIGINT   sql_column_bigint   sqlColumnBigInt
     SQL_COLUMN_BIGRAT   sql_column_bigrat   sqlColumnBigRat
     SQL_COLUMN_BOOL     sql_column_bool     sqlColumnBool
@@ -15016,7 +15205,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_STMT_COLUMN_NAME  sql_stmt_column_name  sqlStmtColumnName
 
 
-14.31 Actions for the type string
+15.33 Actions for the type string
 
     Action name         strlib.c function   str_rtl.c function
     STR_APPEND          str_append          strAppend
@@ -15073,7 +15262,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_VALUE           str_value           strValue
 
 
-14.32 Actions for the type time
+15.34 Actions for the type time
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
     TIM_AWAIT           tim_await           timAwait
@@ -15082,7 +15271,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
 
 
-14.33 Actions for the type type
+15.35 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
     TYP_ADDINTERFACE    typ_addinterface
@@ -15113,7 +15302,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 
-14.34 Actions for the type utf8File
+15.36 Actions for the type utf8File
 
     Action name         ut8lib.c function   ut8_rtl.c function
     UT8_GETC            ut8_getc            ut8Getc
@@ -15282,7 +15471,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     const proc: doWurx1 (in string: name) is action "SUP_DO_WURX";
 
 
-15.1 C types used by the implementation
+16.1 C types used by the implementation
 
   Several Seed7 types correspond to simple C types, which are
   defined in "common.h":
@@ -15378,7 +15567,35 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     errInfoType   int                 Represents predefined Exceptions
 
 
-15.2 String conversions
+16.2 System variables
+
+  The interpreter uses several system variables which are initialized
+  from system declarations.
+
+    System declaration  Seed7 name      C objectType macro         objectType macro with argument
+    "empty"             empty           SYS_EMPTY_OBJECT           EMPTY_OBJECT(prog)
+    "memory_error"      MEMORY_ERROR    SYS_MEM_EXCEPTION          MEM_EXCEPTION(prog)
+    "numeric_error"     NUMERIC_ERROR   SYS_NUM_EXCEPTION          NUM_EXCEPTION(prog)
+    "overflow_error"    OVERFLOW_ERROR  SYS_OVF_EXCEPTION          OVF_EXCEPTION(prog)
+    "range_error"       RANGE_ERROR     SYS_RNG_EXCEPTION          RNG_EXCEPTION(prog)
+    "index_error"       INDEX_ERROR     SYS_IDX_EXCEPTION          IDX_EXCEPTION(prog)
+    "file_error"        FILE_ERROR      SYS_FIL_EXCEPTION          FIL_EXCEPTION(prog)
+    "database_error"    DATABASE_ERROR  SYS_DB_EXCEPTION           DB_EXCEPTION(prog)
+    "graphic_error"     GRAPHIC_ERROR   SYS_GRAPHIC_EXCEPTION      GRAPHIC_EXCEPTION(prog)
+    "illegal_action"    ILLEGAL_ACTION  SYS_ACT_ILLEGAL_EXCEPTION  ACT_ILLEGAL_EXCEPTION(prog)
+    "false"             FALSE           SYS_FALSE_OBJECT           FALSE_OBJECT(prog)
+    "true"              TRUE            SYS_TRUE_OBJECT            TRUE_OBJECT(prog)
+    "expr"              expr            SYS_EXPR_TYPE              EXPR_TYPE(prog)
+    "f_param"           f_param         SYS_F_PARAM_TYPE           F_PARAM_TYPE(prog)
+    "integer"           integer         SYS_INT_TYPE               INT_TYPE(prog)
+    "bigInteger"        bigInteger      SYS_BIGINT_TYPE            BIGINT_TYPE(prog)
+    "char"              char            SYS_CHAR_TYPE              CHAR_TYPE(prog)
+    "string"            string          SYS_STRI_TYPE              STRI_TYPE(prog)
+    "proc"              proc            SYS_PROC_TYPE              PROC_TYPE(prog)
+    "float"             float           SYS_FLT_TYPE               FLT_TYPE(prog)
+
+
+16.3 String conversions
 
   Seed7 strings are UTF-32 encoded and C strings are zero terminated
   byte sequences. C uses also byte sequences with a length. The byte
@@ -15727,7 +15944,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         NULL if the memory allocation failed.
 
 
-15.3 Operating system string and path conversions
+16.4 Operating system string and path conversions
 
   Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
   To cope with this, "striutl.h" defines the type 'os_striType' and
@@ -15881,7 +16098,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         NULL if the memory allocation failed.
 
 
-15.4 Macros to access the action parameters
+16.5 Macros to access the action parameters
 
   A primitive action function has one parameter named 'arguments'. The
   'arguments' parameter has the type 'listType' and contains a list of
@@ -16024,7 +16241,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       Take the struct value from an object.
 
 
-15.5 Functions to create action results
+16.6 Functions to create action results
 
   A primitive action function has a result of type 'objectType'.
   The header file "objutl.h" defines macros like 'bld_bigint_temp'
@@ -16082,7 +16299,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       Create an object with a winType value.
 
 
-15.6 Memory management macros
+16.7 Memory management macros
 
   The conversion functions mentioned above use macros to do the
   memory management. Some of this macros are not based on malloc()
@@ -16165,7 +16382,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         var - The string to be freed.
 
 
-15.7 Basic conversion functions
+16.8 Basic conversion functions
 
   The conversion functions mentioned above are implemented with
   basic conversion functions. In some situations it might make sense
@@ -16336,19 +16553,19 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         the length of the converted UTF-16 string in characters.
 
 
-15.8 Error handling
+16.9 Error handling
 
   The C programming language does not provide exceptions. Seed7 uses
   several methods to provide error handling. Before an actual exception
   is raised an error state can be handled in different ways:
 
-    - The integer type 'errInfoType' is used to describe an
-      error state. Usually a variable or parameter named 'err_info' is
-      used to store the error state. The value 'OKAY_NO_ERROR' is used
-      to describe that no error occurred. Values like 'MEMORY_ERROR',
-      'NUMERIC_ERROR', 'OVERFLOW_ERROR', 'RANGE_ERROR', 'FILE_ERROR',
-      'DATABASE_ERROR', 'GRAPHIC_ERROR' and 'ACTION_ERROR' describe
-      errors that occurred.
+    - The integer type 'errInfoType' is used to describe an error
+      state. Usually a variable or parameter named 'err_info' is used
+      to store the error state. The value 'OKAY_NO_ERROR' is used to
+      describe that no error occurred. Values like 'MEMORY_ERROR',
+      'NUMERIC_ERROR', 'OVERFLOW_ERROR', 'RANGE_ERROR', 'INDEX_ERROR',
+      'FILE_ERROR', 'DATABASE_ERROR', 'GRAPHIC_ERROR' and
+      'ACTION_ERROR' describe errors that occurred.
     - In some situations a function has only one possible error
       situation (e.g. a 'MEMORY_ERROR'). This is handled with functions
       that return NULL in case of a 'MEMORY_ERROR'.
@@ -16453,7 +16670,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     32: String literal expected found "%s"
     33: Identifier expected found "%s"
     34: Type expected found %s
-    35: Procedure expected found %s expression
+    35: Procedure expected found "%s" expression
     36: Parameter specifier expected found "%s"
     37: Parameter declaration or symbol expected found %s
     38: Exception expected found %s

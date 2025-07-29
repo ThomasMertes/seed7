@@ -267,8 +267,10 @@ pre.indent {
 <li><a class="link" href="#decls_Type_declarations"><b><i>Type declarations</i></b></a></li>
 <li><a class="link" href="#decls_Procedure_declarations"><b><i>Procedure declarations</i></b></a></li>
 <li><a class="link" href="#decls_Function_declarations"><b><i>Function declarations</i></b></a></li>
-<li><a class="link" href="#decls_Abstract_data_type"><b><i>Abstract data type</i></b></a></li>
-<li><a class="link" href="#decls_Template"><b><i>Template</i></b></a></li></ol></li>
+<li><a class="link" href="#decls_Forward_declarations"><b><i>Forward declarations</i></b></a></li>
+<li><a class="link" href="#decls_Interface_declarations"><b><i>Interface declarations</i></b></a></li>
+<li><a class="link" href="#decls_Abstract_data_types"><b><i>Abstract data types</i></b></a></li>
+<li><a class="link" href="#decls_Templates"><b><i>Templates</i></b></a></li></ol></li>
 <li><a class="link" href="#decls_Initialization"><b>Initialization</b></a><ol>
 <li><a class="link" href="#decls_How_the_initialization_works"><b><i>How the initialization works</i></b></a></li></ol></li>
 <li><a class="link" href="#decls_Syntax_declarations"><b>Syntax declarations</b></a></li>
@@ -324,6 +326,8 @@ pre.indent {
 <li><a class="link" href="#types_varfunc"><b>varfunc</b></a></li>
 <li><a class="link" href="#types_void"><b>void</b></a></li>
 <li><a class="link" href="#types_proc"><b>proc</b></a></li>
+<li><a class="link" href="#types_creator"><b>creator</b></a></li>
+<li><a class="link" href="#types_destroyer"><b>destroyer</b></a></li>
 <li><a class="link" href="#types_type"><b>type</b></a></li>
 <li><a class="link" href="#types_object"><b>object</b></a></li>
 <li><a class="link" href="#types_expr"><b>expr</b></a></li></ol></li>
@@ -474,12 +478,14 @@ pre.indent {
 <li><a class="link" href="#actions_console_keyboard"><b>Actions to support the text (console) screen keyboard</b></a></li>
 <li><a class="link" href="#actions_list"><b>Actions for the list type</b></a></li>
 <li><a class="link" href="#actions_process"><b>Actions for the type process</b></a></li>
+<li><a class="link" href="#actions_pointList"><b>Actions for the type pointList</b></a></li>
 <li><a class="link" href="#actions_pollData"><b>Actions for the type pollData</b></a></li>
 <li><a class="link" href="#actions_proc"><b>Actions for proc operations and statements</b></a></li>
 <li><a class="link" href="#actions_program"><b>Actions for the type program</b></a></li>
 <li><a class="link" href="#actions_reference"><b>Actions for the type reference</b></a></li>
 <li><a class="link" href="#actions_ref_list"><b>Actions for the type ref_list</b></a></li>
 <li><a class="link" href="#actions_struct"><b>Actions for struct types</b></a></li>
+<li><a class="link" href="#actions_structElement"><b>Actions for the type structElement</b></a></li>
 <li><a class="link" href="#actions_set"><b>Actions for set types</b></a></li>
 <li><a class="link" href="#actions_PRIMITIVE_SOCKET"><b>Actions for the type PRIMITIVE_SOCKET</b></a></li>
 <li><a class="link" href="#actions_database"><b>Actions for the types database and sqlStatement</b></a></li>
@@ -489,6 +495,7 @@ pre.indent {
 <li><a class="link" href="#actions_utf8File"><b>Actions for the type utf8File</b></a></li></ol></li>
 <li><a class="link" href="#ffi_file_start"><big><b>FOREIGN FUNCTION INTERFACE</b></big></a><ol>
 <li><a class="link" href="#ffi_C_types_used_by_the_implementation"><b>C types used by the implementation</b></a></li>
+<li><a class="link" href="#ffi_System_variables"><b>System variables</b></a></li>
 <li><a class="link" href="#ffi_String_conversions"><b>String conversions</b></a></li>
 <li><a class="link" href="#ffi_Operating_system_string_and_path_conversions"><b>Operating system string and path conversions</b></a></li>
 <li><a class="link" href="#ffi_Macros_to_access_the_action_parameters"><b>Macros to access the action parameters</b></a></li>
@@ -1870,11 +1877,11 @@ FOR_DECLS(<span class="type">boolean</span>);
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                       </td><td> Declaration of an <a class="link" href="#params_in_var_parameter">in-var-parameter</a>      </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                        </td><td> Declaration of an <a class="link" href="#params_inout_parameter">inout-parameter</a>       </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name</tt>                      </td><td> Declaration of a <a class="link" href="#params_call_by_name_parameter">call-by-name parameter</a> </td></tr>
-  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Type_declarations">type declaration</a>                      </td></tr>
-  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Procedure_declarations">procedure declaration</a>                 </td></tr>
-  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>            </td><td> A <a class="link" href="#decls_Function_declarations">function declaration</a>                  </td></tr>
-  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>             </td><td> Declaration of an <a class="link" href="#decls_Abstract_data_type">abstract data type</a>    </td></tr>
-  <tr><td> <tt><span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: name (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type"><b><i>aType</i></b></span>) <span class="keywd">is</span> ...</tt> </td><td> Declaration of a <a class="link" href="#decls_Template">template</a>               </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Type_declarations">const</a> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Type_declarations">type declaration</a>                      </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: name <span class="keywd">is</span> ...</tt>                  </td><td> A <a class="link" href="#decls_Procedure_declarations">procedure declaration</a>                 </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type"><b><i>aType</i></b></span>: name <span class="keywd">is</span> ...</tt>            </td><td> A <a class="link" href="#decls_Function_declarations">function declaration</a>                  </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Abstract_data_types">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_type">type</a>: name <span class="keywd">is</span> ...</tt>             </td><td> Declaration of an <a class="link" href="#decls_Abstract_data_types">abstract data type</a>    </td></tr>
+  <tr><td> <tt><a class="keywd_no_ul" href="#decls_Templates">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: name (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type"><b><i>aType</i></b></span>) <span class="keywd">is</span> ...</tt> </td><td> Declaration of a <a class="link" href="#decls_Templates">template</a>               </td></tr>
   <tr><td> <tt><a class="keywd_no_ul" href="#decls_Syntax_declarations">syntax</a> <a class="type_no_ul" href="#types_expr">expr</a>: pattern <span class="keywd">is</span> ...</tt>              </td><td> A <a class="link" href="#decls_Syntax_declarations">syntax declaration</a>                    </td></tr>
 
 </table></dd></dl><p></p>
@@ -1924,7 +1931,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
 </pre><p>
   Afterwards the new type can be used in other declarations. E.g.:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">myChar</span>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Char_literals">'x'</a>;
+<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type">myChar</span>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">'x'</a>;
 </pre><p></p>
 
 <a name="decls_Procedure_declarations"><h4>3.2.2 Procedure declarations</h4></a>
@@ -1972,7 +1979,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     coinState <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
   <span class="keywd">end</span> <span class="keywd">func</span>;
@@ -1982,25 +1989,81 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: alphabet <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: abc <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: abc <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Char_literals">' '</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
   <span class="keywd">begin</span>
-    <a class="keywd_no_ul" href="#stats_for-statement">for</a> ch <a class="keywd_no_ul" href="#stats_for-statement">range</a> <a class="stri" href="#tokens_Char_literals">'a'</a> <a class="keywd_no_ul" href="#stats_for-statement">to</a> <a class="stri" href="#tokens_Char_literals">'z'</a> <a class="keywd_no_ul" href="#stats_for-statement">do</a>
-      abc <span class="op_no_ul">&:=</span> ch;
+    <a class="keywd_no_ul" href="#stats_for-statement">for</a> ch <a class="keywd_no_ul" href="#stats_for-statement">range</a> <a class="stri" href="#tokens_Character_literals">'a'</a> <a class="keywd_no_ul" href="#stats_for-statement">to</a> <a class="stri" href="#tokens_Character_literals">'z'</a> <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+      abc <span class="op_no_ul">&amp;:=</span> ch;
     <a class="keywd_no_ul" href="#stats_for-statement">end</a> <a class="keywd_no_ul" href="#stats_for-statement">for</a>;
   <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
   A function with a parameter (<tt>number</tt>) is defined with:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: inverse (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: number) <span class="keywd">is</span>
-  <span class="keywd">return</span> 1 <span class="op_no_ul">/</span> number;
-</pre>
+  <span class="keywd">return</span> 1.0 <span class="op_no_ul">/</span> number;
+</pre><p>
   Procedure and function parameters are explained in <a class="link" href="#params_file_start">chapter 6
   (PARAMETERS)</a>.
 </p>
 
-<a name="decls_Abstract_data_type"><h4>3.2.4 Abstract data type</h4></a>
+<a name="decls_Forward_declarations"><h4>3.2.4 Forward declarations</h4></a>
+<p>
+    In Seed7 everything must be declared before it is used.
+</p><p>
+  This keeps the code easier to follow and the compiler easier to
+  implement.
+</p><p>
+  Forward declarations are required if something needs to be used
+  before it can be declared fully:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isOdd (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span> <span class="keywd">forward</span>;
+
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isEven (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">TRUE</span> <span class="op_no_ul">:</span> <span class="func">isOdd</span>(<span class="func_no_ul">pred</span>(number));
+
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isOdd (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">FALSE</span> <span class="op_no_ul">:</span> <span class="func">isEven</span>(<span class="func_no_ul">pred</span>(number));
+</pre>
+
+<a name="decls_Interface_declarations"><h4>3.2.5 Interface declarations</h4></a>
+<p>
+    The <a class="link" href="#objects_file_start">object orientation</a> of Seed7 is based on
+  interface types and interface functions. E.g.:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Type_declarations">const</a> <a class="type_no_ul" href="#types_type">type</a>: file <span class="keywd">is</span> <a class="keywd_no_ul" href="#objects_inheritance">sub</a> <a class="type_no_ul" href="#types_object">object</a> <a class="keywd_no_ul" href="#objects_interface_and_implementation">interface</a>;                             <a class="comment" href="#tokens_Line_comments"># Declare interface type</a>
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: write (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type_no_ul" href="#types_file">file</a>: outFile, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: stri) <span class="keywd">is</span> DYNAMIC;  <a class="comment" href="#tokens_Line_comments"># Declare interface function</a>
+</pre><p>
+  Actual types and functions implement these interfaces:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Type_declarations">const</a> <a class="type_no_ul" href="#types_type">type</a>: striFile <span class="keywd">is</span> <a class="keywd_no_ul" href="#types_struct">sub</a> <span class="type_no_ul">null_file</span> <a class="keywd_no_ul" href="#types_struct">struct</a>                              <a class="comment" href="#tokens_Line_comments"># Implementation type</a>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: content <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: position <span class="keywd">is</span> 1;
+  <a class="keywd_no_ul" href="#types_struct">end</a> <a class="keywd_no_ul" href="#types_struct">struct</a>;
+
+type_implements_interface(<span class="type_no_ul">striFile</span>, <a class="type_no_ul" href="#types_file">file</a>);                                <a class="comment" href="#tokens_Line_comments"># Connect implementation type to interface type</a>
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: write (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type_no_ul">striFile</span>: outStriFile, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: stri) <span class="keywd">is</span> <span class="keywd">func</span>  <a class="comment" href="#tokens_Line_comments"># Implementation function</a>
+  ...
+</pre><p>
+  Functions use interface types and implementation types to create new interface values:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_file">file</a>: openStriFile (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: content) <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">result</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_file">file</a>: newFile <span class="keywd">is</span> <span class="var_no_ul">STD_NULL</span>;
+  <span class="keywd">local</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type_no_ul">striFile</span>: new_striFile <span class="keywd">is</span> <span class="type_no_ul">striFile</span>.value;
+  <span class="keywd">begin</span>
+    new_striFile.content <a class="op_no_ul" href="#stats_Assignment">:=</a> content;
+    newFile <a class="op_no_ul" href="#stats_Assignment">:=</a> toInterface(new_striFile);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+The function <tt>toInterface</tt> transfers the ownership from <tt>new_striFile</tt>
+to <tt>newFile</tt>.
+</p>
+
+<a name="decls_Abstract_data_types"><h4>3.2.6 Abstract data types</h4></a>
 <p>
     An abstract data type is a type that requires additional
   information. E.g.: The abstract data type <tt><a class="type" href="#types_array">array</a></tt> requires
@@ -2016,7 +2079,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
   elements. The abstract data type <tt><a class="type" href="#types_array">array</a></tt> can be used in
   declarations:
 </p><pre class="indent">
-<span class="keywd">var</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_integer">integer</a>: numbers <span class="keywd">is</span> [] (1);
+<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_integer">integer</a>: numbers <span class="keywd">is</span> [] (1);
 </pre><p>
   Other abstract data types are declared similar to the
   declaration of <tt><a class="type" href="#types_array">array</a></tt>.
@@ -2024,7 +2087,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
   User defined abstract data types are also possible.
 </p>
 
-<a name="decls_Template"><h4>3.2.5 Template</h4></a>
+<a name="decls_Templates"><h4>3.2.7 Templates</h4></a>
 <p>
     Templates do declarations for a given type. Templates are
   executed at compile-time. The function <tt>FOR_ENUM_DECLS</tt> from
@@ -2034,7 +2097,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_ENUM_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: <span class="type">aType</span>) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<span class="keywd">attr</span> <span class="type">aType</span>) do
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">aType</span>) do
         (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
         <span class="keywd">for</span> variable <span class="keywd">range</span> aType.first <span class="keywd">to</span> aType.last <span class="keywd">do</span>
@@ -2052,8 +2115,8 @@ FOR_ENUM_DECLS(enumType);
 
 <a name="decls_Initialization"><h3>3.3 Initialization</h3></a>
 <p>
-    Each object declared with a <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt> declaration obtains
-  an initial value. It is not possible to use <tt>'<span class="keywd">const</span>'</tt> or <tt>'<span class="keywd">var</span>'</tt>
+    Each object declared with a <tt>'<span class="keywd">const</span>'</tt> or <tt>'<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a>'</tt> declaration obtains
+  an initial value. It is not possible to use <tt>'<span class="keywd">const</span>'</tt> or <tt>'<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a>'</tt>
   declarations without initial value. The type of the initial value
   must fit to the type of the variable or constant. A compile error
   is triggered if this is not the case:
@@ -2066,7 +2129,7 @@ var integer: number is ' ';
 </pre><p>
   Expressions can be used as initial value. E.g.:
 </p><pre class="indent">
-<span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: fileName <span class="keywd">is</span> NAME <span class="op_no_ul">&amp;</span> <span class="stri">".txt"</span>;
+<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: fileName <span class="keywd">is</span> NAME <span class="op_no_ul">&amp;</span> <span class="stri">".txt"</span>;
 </pre><p>
   The expression is evaluated and the result is assigned to the
   new object. This is done at compile-time by the interpreter or
@@ -2080,20 +2143,20 @@ var integer: number is ' ';
 <a name="decls_How_the_initialization_works"><h4>3.3.1 How the initialization works</h4></a>
 <p>
     The initialization of variables and constants is done at
-  compile-time. The initialization uses the create statement
-  ( <tt><span class="op">::=</span></tt> ). Note that <tt><span class="op">::=</span></tt> is used internally by the interpreter
-  and compiler. Explicit calls of <tt><span class="op">::=</span></tt> in user programs are not
-  needed. A create statement is similar to an assignment ( <tt><span class="op">:=</span></tt> ),
+  compile-time. The initialization uses the <a class="link" href="#types_creator">create operator</a> ( <tt><a class="op_no_ul" href="#types_creator">::=</a></tt> ).
+  Note that <tt><a class="op_no_ul" href="#types_creator">::=</a></tt> is used internally by the interpreter and compiler.
+  Explicit calls of <tt><a class="op_no_ul" href="#types_creator">::=</a></tt> in user programs are not allowed. The
+  <a class="link" href="#types_creator">create operator</a> is similar to an <a class="link" href="#stats_Assignment">assignment statement</a> ( <tt><a class="op_no_ul" href="#stats_Assignment">:=</a></tt> ),
   but with two important differences:
 </p><ol><li>
   Assignments can assume that the destination has a legal value.
-     Create statements assume that the destination has an undefined
-     value. A create statement needs to do all the initializations
+     <a class="link" href="#types_creator">Create operators</a> assume that the destination has an undefined
+     value. A <a class="link" href="#types_creator">create operator</a> needs to do all the initializations
      necessary.
 </li><li>
   Assignments can only be used to assign a value to a variable.
-     Create statements are not restricted to variables. Interpreter
-     and compiler use <tt><span class="op">::=</span></tt> to initialize constants.
+     <a class="link" href="#types_creator">Create operators</a> are not restricted to variables. Interpreter
+     and compiler use <tt><a class="op_no_ul" href="#types_creator">::=</a></tt> to initialize constants.
 </li></ol><p>
   The lifetime of an object goes like this:
 </p><ol><li>
@@ -2101,15 +2164,15 @@ var integer: number is ' ';
      make no difference here).
 </li><li>
   The content of the new memory is undefined (It may contain
-     garbage), therefore a create statement is necessary instead of
-     an assignment.
+     garbage), therefore a <a class="link" href="#types_creator">create operator</a> ( <a class="op_no_ul" href="#types_creator">::=</a> ) is necessary
+     instead of an <a class="link" href="#stats_Assignment">assignment statement</a> ( <a class="op_no_ul" href="#stats_Assignment">:=</a> ).
 </li><li>
-  The create statement ( <tt><span class="op">::=</span></tt> ) copies the right expression
-     to the left expression taking into account that the left
-     expression is undefined.
+  The <a class="link" href="#types_creator">create operator</a> ( <a class="op_no_ul" href="#types_creator">::=</a> ) copies the right expression to the
+     left expression taking into account that the left expression is
+     undefined.
 </li><li>
-  If the object is a variable other values can be assigned using
-     the assignment statement ( <tt><span class="op">:=</span></tt> ). The assignment can assume that
+  If the object is variable other values can be assigned using
+     the <a class="link" href="#stats_Assignment">assignment statement</a> ( <a class="op_no_ul" href="#stats_Assignment">:=</a> ). The assignment can assume that
      the destination contains a legal value.
 </li><li>
   Strings (and some other types) are just references to a memory
@@ -2117,7 +2180,7 @@ var integer: number is ' ';
      owner of the memory area. This allows that an assignment
      can reallocate the memory area.
 </li><li>
-  At the end of the lifetime of an object the destroy statement
+  At the end of the lifetime of an object the <a class="link" href="#types_destroyer">destroy operation</a>
      is executed. For strings (and some other types which are just
      references to a memory area) the referenced memory is freed.
 </li><li>
@@ -2126,34 +2189,34 @@ var integer: number is ' ';
   The first three steps are usually hidden in the declaration
   statement. The declaration statement executes
 </p><pre class="indent">
-ONE ::= 1
+ONE <a class="op_no_ul" href="#types_creator">::=</a> 1
 </pre><p>
-  to assign <tt>1</tt> to the object <tt>ONE</tt>. The destroy statement is the
-  opposite of the create statement. It is automatically executed
+  to assign <tt>1</tt> to the object <tt>ONE</tt>. The <a class="link" href="#types_destroyer">destroy operation</a> is the
+  opposite of the <a class="link" href="#types_creator">create operator</a>. It is automatically executed
   at the end of the lifetime of an object. The run-time library
   executes
 </p><pre class="indent">
-destroy(fileName)
+<a class="func_no_ul" href="#types_destroyer">destroy</a>(fileName)
 </pre><p>
   to free the memory referred by the <tt><a class="type_no_ul" href="#types_string">string</a></tt> variable <tt>fileName</tt>.
-  For simple types such as <tt><a class="type_no_ul" href="#types_integer">integer</a></tt> the destroy statement does
+  For simple types such as <tt><a class="type_no_ul" href="#types_integer">integer</a></tt> the <a class="link" href="#types_destroyer">destroy operation</a> does
   nothing.
 </p><p>
   The mechanism with create and destroy is also used for
   call-by-value parameters (<tt><a class="keywd_no_ul" href="#params_val_parameter">val</a></tt>, <tt><a class="keywd_no_ul" href="#params_in_var_parameter">in var</a></tt> and <tt><a class="keywd_no_ul" href="#params_in_parameter">in</a></tt> if it uses
   call-by-value). When a function is called the call-by-value
-  parameters are initialized with a create statement:
+  parameters are initialized with a <a class="link" href="#types_creator">create operator</a>:
 </p><pre class="indent">
-formalParameter ::= actualParameter
+formalParameter <a class="op_no_ul" href="#types_creator">::=</a> actualParameter
 </pre><p>
-  At the end of the function the destroy statement is executed:
+  At the end of the function the <a class="link" href="#types_destroyer">destroy operation</a> is executed:
 </p><pre class="indent">
-destroy(formalParameter)
+<a class="func_no_ul" href="#types_destroyer">destroy</a>(formalParameter)
 </pre><p>
-  For all predefined types the create statement ( <tt><span class="op">::=</span></tt> ) and the
-  destroy statement are already defined. To allow the declaration
+  For all predefined types the <a class="link" href="#types_creator">create operator</a> ( <tt><a class="op_no_ul" href="#types_creator">::=</a></tt> ) and the
+  <a class="link" href="#types_destroyer">destroy operation</a> are already defined. To allow the declaration
   of objects of a new user defined type the create and destroy
-  statements for this type must be defined.
+  operations for this type must be defined.
 </p>
 
 <a name="decls_Syntax_declarations"><h3>3.4 Syntax declarations</h3></a>
@@ -2206,27 +2269,28 @@ $ <span class="keywd">system</span> <span class="stri">"integer"</span> <span cl
 </ul><p>
   The following system declarations exist
 </p><pre class="indent">
-$ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class="keywd">is</span> <a class="type" href="#types_expr">expr</a>;
-$ <span class="keywd">system</span> <span class="stri">"integer"</span> <span class="keywd">is</span> <a class="type" href="#types_integer">integer</a>;
-$ <span class="keywd">system</span> <span class="stri">"bigInteger"</span> <span class="keywd">is</span> <a class="type" href="#types_bigInteger">bigInteger</a>;
-$ <span class="keywd">system</span> <span class="stri">"char"</span> <span class="keywd">is</span> <a class="type" href="#types_char">char</a>;
-$ <span class="keywd">system</span> <span class="stri">"string"</span> <span class="keywd">is</span> <a class="type" href="#types_string">string</a>;
-$ <span class="keywd">system</span> <span class="stri">"proc"</span> <span class="keywd">is</span> <a class="type" href="#types_proc">proc</a>;
-$ <span class="keywd">system</span> <span class="stri">"float"</span> <span class="keywd">is</span> <a class="type" href="#types_float">float</a>;
+$ <span class="keywd">system</span> <a name="decls_expr"><span class="stri">"expr"</span></a> <span class="keywd">is</span> <a class="type" href="#types_expr">expr</a>;
+$ <span class="keywd">system</span> <a name="decls_f_param"><span class="stri">"f_param"</span></a> <span class="keywd">is</span> <span class="type">f_param</span>;
+$ <span class="keywd">system</span> <a name="decls_integer"><span class="stri">"integer"</span></a> <span class="keywd">is</span> <a class="type" href="#types_integer">integer</a>;
+$ <span class="keywd">system</span> <a name="decls_bigInteger"><span class="stri">"bigInteger"</span></a> <span class="keywd">is</span> <a class="type" href="#types_bigInteger">bigInteger</a>;
+$ <span class="keywd">system</span> <a name="decls_char"><span class="stri">"char"</span></a> <span class="keywd">is</span> <a class="type" href="#types_char">char</a>;
+$ <span class="keywd">system</span> <a name="decls_string"><span class="stri">"string"</span></a> <span class="keywd">is</span> <a class="type" href="#types_string">string</a>;
+$ <span class="keywd">system</span> <a name="decls_proc"><span class="stri">"proc"</span></a> <span class="keywd">is</span> <a class="type" href="#types_proc">proc</a>;
+$ <span class="keywd">system</span> <a name="decls_float"><span class="stri">"float"</span></a> <span class="keywd">is</span> <a class="type" href="#types_float">float</a>;
 
-$ <span class="keywd">system</span> <span class="stri">"true"</span> <span class="keywd">is</span> <span class="var">TRUE</span>;
-$ <span class="keywd">system</span> <span class="stri">"false"</span> <span class="keywd">is</span> <span class="var">FALSE</span>;
-$ <span class="keywd">system</span> <span class="stri">"empty"</span> <span class="keywd">is</span> <a class="var" href="#types_void">empty</a>;
+$ <span class="keywd">system</span> <a name="decls_true"><span class="stri">"true"</span></a> <span class="keywd">is</span> <span class="var">TRUE</span>;
+$ <span class="keywd">system</span> <a name="decls_false"><span class="stri">"false"</span></a> <span class="keywd">is</span> <span class="var">FALSE</span>;
+$ <span class="keywd">system</span> <a name="decls_empty"><span class="stri">"empty"</span></a> <span class="keywd">is</span> <a class="var" href="#types_void">empty</a>;
 
-$ <span class="keywd">system</span> <span class="stri">"memory_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"numeric_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"overflow_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"range_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"index_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"file_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"database_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"graphic_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_GRAPHIC_ERROR">GRAPHIC_ERROR</a>;
-$ <span class="keywd">system</span> <span class="stri">"illegal_action"</span> <span class="keywd">is</span> <a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>;
+$ <span class="keywd">system</span> <a name="decls_memory_error"><span class="stri">"memory_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_numeric_error"><span class="stri">"numeric_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_overflow_error"><span class="stri">"overflow_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_range_error"><span class="stri">"range_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_index_error"><span class="stri">"index_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_file_error"><span class="stri">"file_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_database_error"><span class="stri">"database_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_graphic_error"><span class="stri">"graphic_error"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_GRAPHIC_ERROR">GRAPHIC_ERROR</a>;
+$ <span class="keywd">system</span> <a name="decls_illegal_action"><span class="stri">"illegal_action"</span></a> <span class="keywd">is</span> <a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>;
 
 $ <span class="keywd">system</span> <span class="stri">"assign"</span> <span class="keywd">is</span> := ;
 $ <span class="keywd">system</span> <span class="stri">"create"</span> <span class="keywd">is</span> ::= ;
@@ -3234,7 +3298,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
                   end case                                                      <span class="keywd">is action</span> <span class="stri">"PRC_CASE_HASHSET_DEF"</span>;
     <span class="keywd">end if</span>;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: dest) ::= enumlit                             <span class="keywd">is action</span> <span class="stri">"ENU_GENLIT"</span>;
-    <span class="keywd">const</span> <span class="type">WHEN_RESULT</span>: WHEN_EMPTY (<span class="keywd">attr</span> <span class="type">aType</span>) is enumlit;
+    <span class="keywd">const</span> <span class="type">WHEN_RESULT</span>: WHEN_EMPTY (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">aType</span>) is enumlit;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: dest) ::= (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: source)             <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
     <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span>: whenSet) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statement)  <span class="keywd">is</span> WHEN_EMPTY(<span class="type">aType</span>);
     <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span>: whenSet) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statement)
@@ -3353,7 +3417,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( <span class="func">incr</span>(A) <b>&rArr;</b> A:=succ(A) )
       <span class="func">decr</span>(A)   Decrement
                   ( <span class="func">decr</span>(A) <b>&rArr;</b> A:=pred(A) )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
 
     The logical operators <tt><span class="op">and</span></tt> and <tt><span class="op">or</span></tt> work strictly left
@@ -3672,7 +3736,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">decr</span>(A)   Decrement with 1
                   ( decr(A) <b>&rArr;</b> A -:= 1,
                     decr(A) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for A = <span class="type">integer</span>.<span class="var">first</span> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   <a name="types_div_rem_mdiv_mod_properties"></a>For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
     (A <span class="op">div</span> B) * B + A <span class="op">rem</span> B = A           when B &lt;> 0
@@ -4022,7 +4086,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( incr(A) <b>&rArr;</b> A +:= 1_ )
       <span class="func">decr</span>(A)   Decrement with 1
                   ( decr(A) <b>&rArr;</b> A -:= 1_ )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
     (A <span class="op">div</span> B) * B + A <span class="op">rem</span> B = A           when B &lt;> 0_
@@ -4263,7 +4327,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( A *:= B <b>&rArr;</b> A := A * B )
       A <span class="op">/:=</span> B   Dividing copy
                   ( A /:= B <b>&rArr;</b> A := A / B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   All calculations with <tt><span class="type">rational</span></tt> numbers are done exact.
   (Without any rounding)
@@ -4412,7 +4476,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( A *:= B <b>&rArr;</b> A := A * B )
       A <span class="op">/:=</span> B   Dividing copy
                   ( A /:= B <b>&rArr;</b> A := A / B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   All calculations with <tt><span class="type">bigRational</span></tt> numbers are done exact.
   (Without any rounding)
@@ -4660,7 +4724,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( A *:= B <b>&rArr;</b> A := A * B )
       A <span class="op">/:=</span> B   Dividing copy
                   ( A /:= B <b>&rArr;</b> A := A / B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_complex"><h3>5.7 complex</h3></a>
@@ -4748,7 +4812,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( A *:= B <b>&rArr;</b> A := A * B )
       A <span class="op">/:=</span> B   Dividing copy
                   ( A /:= B <b>&rArr;</b> A := A / B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_char"><h3>5.8 char</h3></a>
@@ -4865,7 +4929,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( incr(A) <b>&rArr;</b> A := succ(A) )
       <span class="func">decr</span>(A)   Decrement
                   ( decr(A) <b>&rArr;</b> A := pred(A) )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_string"><h3>5.9 string</h3></a>
@@ -5141,7 +5205,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                         A := A[..pred(B)] &amp; C &amp; A[B+length(C)..],
                     A @:= [0] <span class="stri">"xyz"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     A @:= [pred(length(A))] <span class="stri">"xyz"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> aString <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a string
@@ -5359,7 +5423,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     <span class="func">insert</span>(anArray, 6, anotherAnarry) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4 )
       insert(A, B) Insert B into the sorted array A
                   ( Type of argument B: <span class="type">baseType</span> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> anArray <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of an array
@@ -5456,7 +5520,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       A <span class="op">@:=</span> [B] C  Assign C to element B of hash table A
                   ( Type of argument B: <span class="type">keyType</span>,
                     Type of argument C: <span class="type">baseType</span> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> aHash <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Unsorted loop over all values of a hash
@@ -5655,7 +5719,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of argument B: <span class="type">baseType</span> )
       <span class="func">excl</span>(A,B) Exclude element B from set A
                   ( Type of argument B: <span class="type">baseType</span> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> aSet <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a set
@@ -5665,12 +5729,12 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 
 <a name="types_struct"><h3>5.13 struct</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_struct">struct</a></tt> describes all structured types. An example of a
+    The type <tt><span class="type">struct</span></tt> describes all structured types. An example of a
   struct type declaration is:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: aStructType <span class="keywd">is</span> <span class="keywd">new struct</span>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: aStructType <span class="keywd">is</span> <span class="keywd_no_ul">new</span> <span class="keywd_no_ul">struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
-  <span class="keywd">end struct</span>
+  <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">struct</span>
 </pre><p>
   Variables of this type are declared with:
 </p><pre class="indent">
@@ -5681,26 +5745,26 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   there are no struct literals.
 </p><pre class="tt">
     Type generators:
-      <span class="keywd">new struct</span>
+      <span class="keywd_no_ul">new</span> <span class="keywd_no_ul">struct</span>
         <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value;
         ...
-      <span class="keywd">end struct</span>
+      <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">struct</span>
                 Create new structure type
 
-      <span class="keywd">new</span> <span class="type">metaType</span> <span class="keywd">struct</span>
+      <span class="keywd_no_ul">new</span> <span class="type">baseType</span> <span class="keywd_no_ul">struct</span>
         <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value;
         ...
-      <span class="keywd">end struct</span>
-                Create new structure type as subtype of <tt><span class="type">metaType</span></tt>,
+      <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">struct</span>
+                Create new structure type as subtype of <tt><span class="type">baseType</span></tt>,
                 which is not a structure
 
-      <span class="keywd">sub</span> <span class="type">metaType</span> <span class="keywd">struct</span>
+      <span class="keywd_no_ul">sub</span> <span class="type">baseType</span> <span class="keywd_no_ul">struct</span>
         <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value;
         ...
-      <span class="keywd">end struct</span>
-                Create new structure type as subtype of <tt><span class="type">metaType</span></tt>,
+      <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">struct</span>
+                Create new structure type as subtype of <tt><span class="type">baseType</span></tt>,
                 which is a structure type. The new structure type inherits all
-                elements of the structure type <tt><span class="type">metaType</span></tt>.
+                elements of the structure type <tt><span class="type">baseType</span></tt>.
 
       <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value
                 Declare structure element 'name' with 'value'
@@ -5713,7 +5777,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Relations:
       =, &lt;>
     Statements:
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_enumeration"><h3>5.14 enumeration</h3></a>
@@ -5801,7 +5865,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( <span class="func">incr</span>(A) <b>&rArr;</b> A:=<span class="func">succ</span>(A) )
       <span class="func">decr</span>(A)   Decrement
                   ( <span class="func">decr</span>(A) <b>&rArr;</b> A:=<span class="func">pred</span>(A) )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_bin64"><h3>5.15 bin64</h3></a>
@@ -5925,7 +5989,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( A &lt;&lt;:= B ⇒ A := A &lt;&lt; B )
       A <span class="func">>>:=</span> B  Shift right copy
                   ( A >>:= B ⇒ A := A >> B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_bin32"><h3>5.16 bin32</h3></a>
@@ -6040,7 +6104,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( A &lt;&lt;:= B ⇒ A := A &lt;&lt; B )
       A <span class="func">>>:=</span> B  Shift right copy
                   ( A >>:= B ⇒ A := A >> B )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_bstring"><h3>5.17 bstring</h3></a>
@@ -6090,7 +6154,7 @@ enable_output(<span class="type">anEnumType</span>);
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Statements:
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> bstri <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a bstring
@@ -6151,7 +6215,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       <span class="func">clear</span>(A)  Clear current window
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_time"><h3>5.19 time</h3></a>
@@ -6269,7 +6333,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       <span class="func">await</span>(A)  Wait until the given time
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_duration"><h3>5.20 duration</h3></a>
@@ -6360,7 +6424,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument A: <a class="type" href="#types_time">time</a>,
                     A <span class="op">-:=</span> B <b>&rArr;</b> A := A <span class="op">-</span> B )
       <span class="func">wait</span>(A)   Wait for given duration
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   For the operations <tt><span class="op">-</span></tt> (negate a <tt><span class="type">duration</span></tt>) and
   <tt><span class="op">-</span></tt> (subtract two <tt><a class="type" href="#types_time">time</a></tt> values) holds:</p><pre class="box">
@@ -6438,27 +6502,27 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of argument mode: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openUtf8</span>(path, mode) Open external UTF-8 encoded <a class="type" href="#types_file">file</a>
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of argument mode: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openUtf16</span>(path, mode) Open existing UTF-16LE or UTF-16BE encoded <a class="type" href="#types_file">file</a>
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of argument mode: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openUtf16le</span>(path, mode) Open UTF-16LE encoded <a class="type" href="#types_file">file</a>
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of argument mode: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openUtf16be</span>(path, mode) Open UTF-16BE encoded <a class="type" href="#types_file">file</a>
                   ( Type of argument path: <a class="type" href="#types_string">string</a>,
                     Type of argument mode: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openStriFile</span>(content) Open a <span class="type">striFile</span> with the given string content
                   ( Type of argument content: <a class="type" href="#types_string">string</a> )
       <span class="func">openStriFile</span> Open a <span class="type">striFile</span> with an empty string content
@@ -6470,39 +6534,39 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">openLower</span>(dest) Open a filter file which turns characters to lower case
       <span class="func">openUpper</span>(dest) Open a filter file which turns characters to upper case
       <span class="func">openGzipFile</span>(compressed, <span class="var">READ</span>) Open a GZIP file for reading (decompression)
-                  ( Returns STD_NULL if the file is not in GZIP format )
+                  ( Returns <span class="var">STD_NULL</span> if the file is not in GZIP format )
       <span class="func">openGzipFile</span>(destFile, <span class="var">WRITE</span>) Open a GZIP file for writing (compression)
            The data written to this file is compressed with GZIP and written to destFile.
       <span class="func">openLzmaFile</span>(compressed) Open a LZMA file for reading (decompression)
-                  ( Returns STD_NULL if the file is not in LZMA format )
+                  ( Returns <span class="var">STD_NULL</span> if the file is not in LZMA format )
       <span class="func">openXzFile</span>(compressed)  Open a XZ file for reading (decompression)
-                  ( Returns STD_NULL if the file is not in XZ format )
+                  ( Returns <span class="var">STD_NULL</span> if the file is not in XZ format )
       <span class="func">openZstdFile</span>(compressed) Open a Zstandard file for reading (decompression)
-                  ( Returns STD_NULL if the file is not in Zstandard format )
+                  ( Returns <span class="var">STD_NULL</span> if the file is not in Zstandard format )
       <span class="func">popen</span>(A, B) Open a pipe to a process
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if popen was not possible )
+                    Returns <span class="var">STD_NULL</span> if popen was not possible )
       <span class="func">popen8</span>(A, B) Open a UTF-8 pipe to a process
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if popen8 was not possible )
+                    Returns <span class="var">STD_NULL</span> if popen8 was not possible )
       <span class="func">openInetSocket</span>(port) Open local Internet client socket
                   ( Type of argument port: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openInetSocket</span>(addr, port) Open Internet client socket
                   ( Type of argument addr: <a class="type" href="#types_string">string</a>,
                     Type of argument port: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openTlsSocket</span>(addr, port) Open TLS socket
                   ( Type of argument addr: <a class="type" href="#types_string">string</a>,
                     Type of argument port: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
-                    Returns STD_NULL if open was not possible )
+                    Returns <span class="var">STD_NULL</span> if open was not possible )
       <span class="func">openDir</span>(directoryPath)  Open a directory file
                   ( Type of argument directoryPath: <a class="type" href="#types_string">string</a> )
       <span class="func">openEcho</span>(inFile, outFile) Open an echo file
@@ -6575,7 +6639,7 @@ enable_output(<span class="type">anEnumType</span>);
                     seek(A, 0) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">truncate</span>(A, B) Truncate <a class="type" href="#types_file">file</a> A to length B
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_text"><h3>5.22 text</h3></a>
@@ -6668,7 +6732,7 @@ enable_output(<span class="type">anEnumType</span>);
       clear_box(A) Clear the box around the window
       cursor_on(A) Make the cursor visible
       cursor_off(A) Make the cursor invisible
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_fileSys"><h3>5.23 fileSys</h3></a>
@@ -6815,7 +6879,7 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">getcwd</span>(aFileSys)  Determine the current working directory
       <span class="func">chdir</span>(aFileSys, dirPath)  Change the current working directory
                   ( Type of argument dirPath: <a class="type" href="#types_string">string</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_database"><h3>5.24 database</h3></a>
@@ -6997,7 +7061,7 @@ enable_output(<span class="type">anEnumType</span>);
       <span class="func">waitFor</span>(process)  Wait until process has terminated
       <span class="func">setSearchPath</span>(searchPath)  Set the search path of the current process
                   ( Type of argument searchPath: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_category"><h3>5.27 category</h3></a>
@@ -7045,7 +7109,7 @@ enable_output(<span class="type">anEnumType</span>);
                     <span class="func">category</span>(<span class="stri">"FLOATOBJECT"</span>) <b>&rArr;</b> FLOATOBJECT,
                     <span class="func">category</span>(<span class="stri">"does not exist"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Statements:
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">to</span> C <span class="keywd">do</span>
         D
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all categories from B to C
@@ -7214,7 +7278,7 @@ enable_output(<span class="type">anEnumType</span>);
       setFormalParams(A, B) Set the formal parameters of a function
                   ( Type of argument B: <a class="type" href="#types_ref_list">ref_list</a>,
                     setFormalParams(NIL, B) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_ref_list"><h3>5.29 ref_list</h3></a>
@@ -7277,7 +7341,7 @@ enable_output(<span class="type">anEnumType</span>);
                         A := A[..pred(B)] &amp; make_list(C) &amp; A[succ(B)..],
                     A @:= [0] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     A @:= [succ(length(A))] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> forVar <span class="keywd">range</span> aRefList <span class="keywd">do</span>
         statements
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a ref_list
@@ -7395,7 +7459,7 @@ integer: number
                     Type of argument B: <a class="type" href="#types_ref_list">ref_list</a> )
     Statements:
       <span class="func">execute</span>(A) Execute the program referred by A
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
 <a name="types_ptr"><h3>5.32 ptr</h3></a>
@@ -7493,8 +7557,8 @@ integer: number
   statement. It is important to note that no <tt><span class="keywd">return</span></tt> statement
   exists. The declaration for the <tt><span class="keywd">return</span></tt> function is as follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: return (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span> <span class="keywd">param</span>)  <span class="keywd">is action</span> <span class="stri">"PRC_RETURN"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: return (<span class="keywd">ref</span> <span class="type">aType</span> <span class="keywd">param</span>)       <span class="keywd">is action</span> <span class="stri">"PRC_RETURN"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: return (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span> <span class="keywd">param</span>)  <span class="keywd">is action</span> <span class="stri">"PRC_RETURN"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: return (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <span class="type">aType</span> <span class="keywd">param</span>)       <span class="keywd">is action</span> <span class="stri">"PRC_RETURN"</span>;
 </pre><p>
   The <tt><a class="type" href="#types_func">func</a></tt> types can also be used for parameters.
   Functions which use a <tt><a class="type" href="#types_func">func</a></tt> parameter do not evaluate this
@@ -7594,7 +7658,72 @@ integer: number
                     Type of result: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_type"><h3>5.37 type</h3></a>
+<a name="types_creator"><h3>5.37 creator</h3></a>
+<p>
+    The type <tt><a class="type" href="#types_creator">creator</a></tt> describes create operators. Create operators ( <tt>::=</tt> )
+  are used for initializations. They are similar to <a class="link" href="#stats_Assignment">assignment statements</a>
+  ( <tt><a class="op_no_ul" href="#stats_Assignment">:=</a></tt> ) but they assume that the destination is undefined (It may contain
+  garbage). Create operators are not called explicitly. They are called by
+  constant- and variable-declarations instead. Value parameters use create
+  operators for initialization as well. To allow declarations and value
+  parameters a type needs a corresponding create operator. Examples of
+  create operator declarations are:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_creator">creator</a>: (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: dest) ::= (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: source)         <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"BLN_CREATE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_creator">creator</a>: (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_integer">integer</a>: dest) ::= (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_integer">integer</a>: source)        <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"INT_CREATE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_creator">creator</a>: (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: dest) ::= (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: source)  <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"BIG_CREATE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_creator">creator</a>: (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_string">string</a>: dest) ::= (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: source)           <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"STR_CREATE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_creator">creator</a>: (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_proc">proc</a>: dest) ::= (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_proc">proc</a>: source)              <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"PRC_CREATE"</span>;
+</pre><p>
+  The types <tt><a class="type_no_ul" href="#types_boolean">boolean</a></tt>, <tt><a class="type_no_ul" href="#types_integer">integer</a></tt>, <tt><a class="type_no_ul" href="#types_float">float</a></tt>, <tt><a class="type_no_ul" href="#types_char">char</a></tt>, <tt><a class="type_no_ul" href="#types_bin64.htm#bin64">bin64</a></tt>, <tt><a class="type_no_ul" href="#types_bin32.htm#bin64">bin32</a></tt> and
+  <a class="link" href="#types_enumeration">enumeration types</a> don't use the heap. In this case the <tt>::=</tt> operator
+  just copies some bytes from the source to the destination (like the
+  assignment does).
+</p><p>
+  For types like <tt><a class="type_no_ul" href="#types_string">string</a></tt> and <tt><a class="type_no_ul" href="#types_bigInteger">bigInteger</a></tt> data is stored in the heap.
+  In this case the <tt>::=</tt> operator allocates heap memory and copies data
+  to the allocated area. Finally the pointer to the heap is stored in the
+  destination.
+</p><p>
+  The type <tt><a class="type" href="#types_creator">creator</a></tt> is defined as <tt><a class="type" href="#types_func">func</a> <span class="type">create_result</span></tt>. The type
+  <tt><a class="type" href="#types_creator">creator</a></tt> is similar to <tt><a class="type_no_ul" href="#types_proc">proc</a></tt>. The type <tt><a class="type" href="#types_creator">creator</a></tt> has been introduced
+  to prohibit create operators in places where statements are required.
+  An attempt to use <tt>::=</tt> as statement leads to an error:
+</p><pre class="indent">
+*** tst492.sd7(7):57: <a class="link" href="#errors_NO_MATCH">Match for {INT_CREATE({number ::= 1 }) ; {number writeln } } failed</a>
+    number ::= 1;
+</pre><p></p>
+
+<a name="types_destroyer"><h3>5.38 destroyer</h3></a>
+<p>
+    The type <tt><a class="type" href="#types_destroyer">destroyer</a></tt> describes destroy operations. Destroy operations are
+  used to free data. They are not called explicitly. Destroy operations are
+  executed by the automatic memory management when a certain value cannot
+  be accessed any more. Examples of destroy operation declarations are:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_destroyer">destroyer</a>: destroy (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: aValue)     <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"GEN_DESTR"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_destroyer">destroyer</a>: destroy (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_integer">integer</a>: aValue)     <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"GEN_DESTR"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_destroyer">destroyer</a>: destroy (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: aValue)  <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"BIG_DESTR"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_destroyer">destroyer</a>: destroy (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_bstring">bstring</a>: aValue)     <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"BST_DESTR"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_destroyer">destroyer</a>: destroy (<a class="keywd_no_ul" href="#params_ref_parameter">ref</a> <a class="type_no_ul" href="#types_proc">proc</a>: aValue)        <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"PRC_DESTR"</span>;
+</pre><p>
+  For the types <tt><a class="type_no_ul" href="#types_boolean">boolean</a></tt>, <tt><a class="type_no_ul" href="#types_integer">integer</a></tt>, <tt><a class="type_no_ul" href="#types_float">float</a></tt>, <tt><a class="type_no_ul" href="#types_char">char</a></tt>, <tt><a class="type_no_ul" href="#types_bin64.htm#bin64">bin64</a></tt>, <tt><a class="type_no_ul" href="#types_bin32.htm#bin64">bin32</a></tt> and
+  for <a class="link" href="#types_enumeration">enumeration types</a> the destroy operation does nothing.
+</p><p>
+  For types like <tt><a class="type_no_ul" href="#types_string">string</a></tt> and <tt><a class="type_no_ul" href="#types_bigInteger">bigInteger</a></tt> the destroy operation frees the
+  heap data.
+</p><p>
+  The type <tt><a class="type" href="#types_destroyer">destroyer</a></tt> is defined as <tt><a class="type" href="#types_func">func</a> <span class="type">destroy_result</span></tt>. The type
+  <tt><a class="type" href="#types_destroyer">destroyer</a></tt> is similar to <tt><a class="type_no_ul" href="#types_proc">proc</a></tt>. The type <tt><a class="type" href="#types_destroyer">destroyer</a></tt> has been
+  introduced to prohibit destroy operations in places where statements are
+  required. An attempt to do use a destroy operation as statement leads to
+  an error:
+</p><pre class="indent">
+*** tst493.sd7(8):57: <a class="link" href="#errors_NO_MATCH">Match for {GEN_DESTR({number destroy }) ; {number writeln } } failed</a>
+    destroy(number);
+</pre><p></p>
+
+<a name="types_type"><h3>5.39 type</h3></a>
 <p>
     The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
 </p><pre class="indent">
@@ -7700,10 +7829,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
                 Declare constant 'name' with 'value'
       <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value
                 Declare variable 'name' with 'value'
-      <span class="func">ignore</span>(A) Ignore value
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_object"><h3>5.38 object</h3></a>
+<a name="types_object"><h3>5.40 object</h3></a>
 <p>
     The type <tt><a class="type" href="#types_object">object</a></tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7716,7 +7845,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="types_expr"><h3>5.39 expr</h3></a>
+<a name="types_expr"><h3>5.41 expr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_expr">expr</a></tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -8499,10 +8628,10 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
     Many object-oriented programming languages support methods
   that are associated with a class instead of an instantiated
   object. Such methods are called class methods or static
-  methods. Seed7 supports class methods via attribute (<tt>'<span class="keywd">attr</span>'</tt>)
+  methods. Seed7 supports class methods via attribute (<tt>'<a class="keywd_no_ul" href="#params_attr_parameter">attr</a>'</tt>)
   parameters which allow that a function is attached to a <tt><a class="type" href="#types_type">type</a></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">circle</span>: create (<span class="keywd">attr</span> <span class="type">circle</span>, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: radius) <span class="keywd">is</span>
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">circle</span>: create (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">circle</span>, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: radius) <span class="keywd">is</span>
   <span class="keywd">return</span> circle(radius);
 </pre><p>
   This <tt>'create'</tt> function is attached to the type <tt><span class="type">circle</span></tt> and can be called with
@@ -8511,11 +8640,11 @@ create(<span class="type">circle</span>, 10)
 </pre><p>
   Many languages require that the class name must precede the
   method name when a class method is called (E.g. <tt>'circle::create(10)'</tt>
-  in C++). In contrast to that <tt>'<span class="keywd">attr</span>'</tt> parameters are not
+  in C++). In contrast to that <tt>'<a class="keywd_no_ul" href="#params_attr_parameter">attr</a>'</tt> parameters are not
   restricted to a specific parameter position. They can be used
   in any parameter position as in the following example:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">circle</span>: create (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: radius, <span class="keywd">attr</span> <span class="type">circle</span>) <span class="keywd">is</span>
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">circle</span>: create (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: radius, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">circle</span>) <span class="keywd">is</span>
   <span class="keywd">return</span> circle(radius);
 </pre><p>
   This function can be called with
@@ -8527,7 +8656,7 @@ create(10, <span class="type">circle</span>)
   have a function type such as a character constant can also
   be attached to a type:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_char">char</a>: (<span class="keywd">attr</span> <a class="type" href="#types_char">char</a>) . value <span class="keywd">is</span> <span class="stri">' '</span>;
+<span class="keywd">const</span> <a class="type" href="#types_char">char</a>: (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_char">char</a>) . value <span class="keywd">is</span> <span class="stri">' '</span>;
 </pre><p>
   This way attributes can be used to specify properties
   of a type such as its default <tt>'value'</tt>.
@@ -8648,7 +8777,7 @@ type_implements_interface(<span class="type">emptyElement</span>, <span class="t
   necessary to define a special <tt>'NIL'</tt> value (used with  <tt>'<span class="type">element</span>.NIL'</tt>)
   for the type <tt><span class="type">element</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">element</span>: (<span class="keywd">attr</span> element) . NIL <span class="keywd">is</span> <span class="type">emptyElement</span>.value;
+<span class="keywd">const</span> <span class="type">element</span>: (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> element) . NIL <span class="keywd">is</span> <span class="type">emptyElement</span>.value;
 </pre><p>
   Now the struct with two "pointers" and an <tt><a class="type" href="#types_integer">integer</a></tt> can be
   declared:
@@ -8867,7 +8996,7 @@ clear(window1);
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func boolean</span>: (<span class="keywd">attr</span> <span class="type">boolean</span>) parse (<span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func boolean</span>: (<a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">boolean</span>) parse (<span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">boolean</span>: aBoolean <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
@@ -12865,7 +12994,7 @@ dir_array := readDir(<span class="stri">"."</span>);
 
 <span class="keywd">include</span> <span class="stri">"dir.s7i"</span>;
 
-<span class="keywd">var</span> <a class="type" href="#types_file">file</a>: aDirFile <span class="keywd">is</span> STD_NULL;
+<span class="keywd">var</span> <a class="type" href="#types_file">file</a>: aDirFile <span class="keywd">is</span> <span class="var_no_ul">STD_NULL</span>;
 <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: fileName <span class="keywd">is</span> <span class="stri">""</span>;
 
 ...
@@ -13756,23 +13885,23 @@ end while;
   individual column data can be retrieved with a <tt><span class="func">column</span>()</tt> function.
   For several types <tt><span class="func">column</span>()</tt> functions are defined:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_bigInteger">bigInteger</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_bigInteger">bigInteger</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigRational">bigRational</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_bigRational">bigRational</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigRational">bigRational</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_bigRational">bigRational</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_boolean">boolean</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_boolean">boolean</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">bstring</span>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <span class="type">bstring</span>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">bstring</span>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <span class="type">bstring</span>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_duration">duration</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_duration">duration</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_duration">duration</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_duration">duration</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_float">float</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_float">float</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_float">float</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_float">float</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_integer">integer</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_integer">integer</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_string">string</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_string">string</a>)
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_time">time</a>)
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <a class="keywd_no_ul" href="#params_attr_parameter">attr</a> <a class="type" href="#types_time">time</a>)
 </pre><p>
   Getting a column fails with a <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no record
   has been <a class="link" href="#database_Fetch_records_from_the_result_set">fetched</a> from the result set. Column numbers start
@@ -13943,11 +14072,12 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   of the <a class="link" href="#stats_while-statement">while-statement</a> can use a conditional jump
   instead of a subroutine call. Since Seed7 has no <tt><span class="keywd">goto</span></tt>
   statement, this is not an option. Instead the primitive
-  action PRC_WHILE can be used. The <a class="link" href="#stats_while-statement">while-statement</a> is
+  action <tt><a class="link" href="#actions_PRC_WHILE">PRC_WHILE</a></tt> can be used. The <a class="link" href="#stats_while-statement">while-statement</a> is
   defined in the basic Seed7 library <tt><span class="lib">"seed7_05.s7i"</span></tt> with:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">in</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a> <span class="keywd">param</span>) do
-    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) end while <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: while (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+              (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_proc">proc</a>: statement)
+            end while                           <span class="keywd">is</span> <span class="keywd">action</span> <a class="stri" href="#actions_PRC_WHILE">"PRC_WHILE"</a>;
 </pre><p>
   This declaration shows the types and the position of
   the parameters of a <a class="link" href="#stats_while-statement">while-statement</a>. Such an action
@@ -13966,7 +14096,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 TYPE_ACTION
 </pre><p>
   Which means that for example all <tt><a class="type" href="#types_integer">integer</a></tt> actions start
-  with INT_ and all assignment actions end with _CPY .
+  with <a class="link" href="#actions_integer">INT_</a> and all assignment actions end with _CPY .
   The following list shows actions which are used with more
   than one type:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -13974,9 +14104,9 @@ TYPE_ACTION
     <tr><td>_ADD      <td width="20"></td><td>Addition</td></tr>
     <tr><td>_CAT      <td width="20"></td><td>Concatenation</td></tr>
     <tr><td>_CMP      <td width="20"></td><td>Compare</td></tr>
-    <tr><td>_CPY      <td width="20"></td><td>Copy (Assignment)</td></tr>
-    <tr><td>_CREATE   <td width="20"></td><td>Initialize (Construct)</td></tr>
-    <tr><td>_DESTR    <td width="20"></td><td>Destroy (Destruct)</td></tr>
+    <tr><td>_CPY      <td width="20"></td><td><a class="link" href="#stats_Assignment">Copy</a> a new value to an existing object (<a class="link" href="#stats_Assignment">Assignment</a>)</td></tr>
+    <tr><td>_CREATE   <td width="20"></td><td><a class="link" href="#types_creator">Create</a> and initialize a new object (<a class="type" href="#types_creator">creator</a>)</td></tr>
+    <tr><td>_DESTR    <td width="20"></td><td><a class="link" href="#types_destroyer">Destroy</a> an unused object (<a class="type" href="#types_destroyer">destroyer</a>)</td></tr>
     <tr><td>_DECR     <td width="20"></td><td>Decrement</td></tr>
     <tr><td>_DIV      <td width="20"></td><td>Division</td></tr>
     <tr><td>_EQ       <td width="20"></td><td>Equal</td></tr>
@@ -14028,57 +14158,60 @@ TYPE_ACTION
   in *lib.c files. The following list contains the action
   prefix, the file containing the functions and a description:
 </p><dl><dd><table border="0" cellspacing="0">
-    <tr><td>ACT_  <td width="20"></td><td>actlib.c  <td width="20"></td><td><tt><span class="type">ACTION</span></tt> operations</td></tr>
-    <tr><td>ARR_  <td width="20"></td><td>arrlib.c  <td width="20"></td><td><tt><a class="type" href="#types_array">array</a></tt> operations</td></tr>
-    <tr><td>BIG_  <td width="20"></td><td>biglib.c  <td width="20"></td><td><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations</td></tr>
-    <tr><td>BIN_  <td width="20"></td><td>binlib.c  <td width="20"></td><td><tt><span class="type">bin32</span></tt> and <tt><span class="type">bin64</span></tt> operations</td></tr>
-    <tr><td>BLN_  <td width="20"></td><td>blnlib.c  <td width="20"></td><td><tt><a class="type" href="#types_boolean">boolean</a></tt> operations</td></tr>
-    <tr><td>BST_  <td width="20"></td><td>bstlib.c  <td width="20"></td><td>Operations for byte strings</td></tr>
-    <tr><td>CHR_  <td width="20"></td><td>chrlib.c  <td width="20"></td><td><tt><a class="type" href="#types_char">char</a></tt> operations</td></tr>
-    <tr><td>CMD_  <td width="20"></td><td>cmdlib.c  <td width="20"></td><td>Various directory, file and other commands</td></tr>
-    <tr><td>CON_  <td width="20"></td><td>conlib.c  <td width="20"></td><td><tt><span class="type">console_file</span></tt> operations</td></tr>
-    <tr><td>DCL_  <td width="20"></td><td>dcllib.c  <td width="20"></td><td>Declaration operations</td></tr>
-    <tr><td>DRW_  <td width="20"></td><td>drwlib.c  <td width="20"></td><td>Drawing operations</td></tr>
-    <tr><td>ENU_  <td width="20"></td><td>enulib.c  <td width="20"></td><td>Enumeration operations</td></tr>
-    <tr><td>FIL_  <td width="20"></td><td>fillib.c  <td width="20"></td><td><tt><span class="type">clib_file</span></tt> operations</td></tr>
-    <tr><td>FLT_  <td width="20"></td><td>fltlib.c  <td width="20"></td><td><tt><a class="type" href="#types_float">float</a></tt> operations</td></tr>
-    <tr><td>HSH_  <td width="20"></td><td>hshlib.c  <td width="20"></td><td><tt><a class="type" href="#types_hash">hash</a></tt> operations</td></tr>
-    <tr><td>INT_  <td width="20"></td><td>intlib.c  <td width="20"></td><td><tt><a class="type" href="#types_integer">integer</a></tt> operations</td></tr>
-    <tr><td>ITF_  <td width="20"></td><td>itflib.c  <td width="20"></td><td>Operations for interface types</td></tr>
-    <tr><td>KBD_  <td width="20"></td><td>kbdlib.c  <td width="20"></td><td>Keyboard operations</td></tr>
-    <tr><td>LST_  <td width="20"></td><td>lstlib.c  <td width="20"></td><td>List operations</td></tr>
-    <tr><td>PCS_  <td width="20"></td><td>pcslib.c  <td width="20"></td><td><tt><span class="type">process</span></tt> operations</td></tr>
-    <tr><td>POL_  <td width="20"></td><td>pollib.c  <td width="20"></td><td><tt><span class="type">pollData</span></tt> operations</td></tr>
-    <tr><td>PRC_  <td width="20"></td><td>prclib.c  <td width="20"></td><td><tt><a class="type" href="#types_proc">proc</a></tt> operations and statements</td></tr>
-    <tr><td>PRG_  <td width="20"></td><td>prglib.c  <td width="20"></td><td>Program operations</td></tr>
-    <tr><td>REF_  <td width="20"></td><td>reflib.c  <td width="20"></td><td><tt><a class="type" href="#types_reference">reference</a></tt> operations</td></tr>
-    <tr><td>RFL_  <td width="20"></td><td>rfllib.c  <td width="20"></td><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations</td></tr>
-    <tr><td>SCT_  <td width="20"></td><td>sctlib.c  <td width="20"></td><td><tt><a class="type" href="#types_struct">struct</a></tt> operations</td></tr>
-    <tr><td>SET_  <td width="20"></td><td>setlib.c  <td width="20"></td><td><tt><a class="type" href="#types_set">set</a></tt> operations</td></tr>
-    <tr><td>SOC_  <td width="20"></td><td>soclib.c  <td width="20"></td><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt> operations</td></tr>
-    <tr><td>SQL_  <td width="20"></td><td>sqllib.c  <td width="20"></td><td><tt><span class="type">database</span></tt> operations</td></tr>
-    <tr><td>STR_  <td width="20"></td><td>strlib.c  <td width="20"></td><td><tt><a class="type" href="#types_string">string</a></tt> operations</td></tr>
-    <tr><td>TIM_  <td width="20"></td><td>timlib.c  <td width="20"></td><td><tt><a class="type" href="#types_time">time</a></tt> and <tt><a class="type" href="#types_duration">duration</a></tt> operations</td></tr>
-    <tr><td>TYP_  <td width="20"></td><td>typlib.c  <td width="20"></td><td><tt><a class="type" href="#types_type">type</a></tt> operations</td></tr>
-    <tr><td>UT8_  <td width="20"></td><td>ut8lib.c  <td width="20"></td><td><tt><span class="type">utf8File</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_ACTION"          >ACT_</a></td>  <td width="20"></td><td>actlib.c</td>  <td width="20"></td><td><tt><span class="type">ACTION</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_array"           >ARR_</a></td>  <td width="20"></td><td>arrlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_array">array</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_bigInteger"      >BIG_</a></td>  <td width="20"></td><td>biglib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_binary"          >BIN_</a></td>  <td width="20"></td><td>binlib.c</td>  <td width="20"></td><td><tt><span class="type">bin32</span></tt> and <tt><span class="type">bin64</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_boolean"         >BLN_</a></td>  <td width="20"></td><td>blnlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_boolean">boolean</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_bstring"         >BST_</a></td>  <td width="20"></td><td>bstlib.c</td>  <td width="20"></td><td>Operations for byte strings</td></tr>
+    <tr><td><a class="link" href="#actions_char"            >CHR_</a></td>  <td width="20"></td><td>chrlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_char">char</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_commands"        >CMD_</a></td>  <td width="20"></td><td>cmdlib.c</td>  <td width="20"></td><td>Various directory, file and other commands</td></tr>
+    <tr><td><a class="link" href="#actions_console_output"  >CON_</a></td>  <td width="20"></td><td>conlib.c</td>  <td width="20"></td><td><tt><span class="type">console_file</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_declarations"    >DCL_</a></td>  <td width="20"></td><td>dcllib.c</td>  <td width="20"></td><td>Declaration operations</td></tr>
+    <tr><td><a class="link" href="#actions_graphic_output"  >DRW_</a></td>  <td width="20"></td><td>drwlib.c</td>  <td width="20"></td><td>Drawing operations</td></tr>
+    <tr><td><a class="link" href="#actions_enumeration"     >ENU_</a></td>  <td width="20"></td><td>enulib.c</td>  <td width="20"></td><td>Enumeration operations</td></tr>
+    <tr><td><a class="link" href="#actions_clib_file"       >FIL_</a></td>  <td width="20"></td><td>fillib.c</td>  <td width="20"></td><td><tt><span class="type">clib_file</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_float"           >FLT_</a></td>  <td width="20"></td><td>fltlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_float">float</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_graphic_keyboard">GKB_</a></td>  <td width="20"></td><td>gkblib.c</td>  <td width="20"></td><td>Graphic keyboard operations</td></tr>
+    <tr><td><a class="link" href="#actions_hash"            >HSH_</a></td>  <td width="20"></td><td>hshlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_hash">hash</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_integer"         >INT_</a></td>  <td width="20"></td><td>intlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_integer">integer</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_interface"       >ITF_</a></td>  <td width="20"></td><td>itflib.c</td>  <td width="20"></td><td>Operations for interface types</td></tr>
+    <tr><td><a class="link" href="#actions_console_keyboard">KBD_</a></td>  <td width="20"></td><td>kbdlib.c</td>  <td width="20"></td><td>Keyboard operations</td></tr>
+    <tr><td><a class="link" href="#actions_list"            >LST_</a></td>  <td width="20"></td><td>lstlib.c</td>  <td width="20"></td><td>List operations</td></tr>
+    <tr><td><a class="link" href="#actions_process"         >PCS_</a></td>  <td width="20"></td><td>pcslib.c</td>  <td width="20"></td><td><tt><span class="type">process</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_pointList"       >PTL_</a></td>  <td width="20"></td><td>drwlib.c</td>  <td width="20"></td><td>pointList operations</td></tr>
+    <tr><td><a class="link" href="#actions_pollData"        >POL_</a></td>  <td width="20"></td><td>pollib.c</td>  <td width="20"></td><td><tt><span class="type">pollData</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_proc"            >PRC_</a></td>  <td width="20"></td><td>prclib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_proc">proc</a></tt> operations and statements</td></tr>
+    <tr><td><a class="link" href="#actions_program"         >PRG_</a></td>  <td width="20"></td><td>prglib.c</td>  <td width="20"></td><td>Program operations</td></tr>
+    <tr><td><a class="link" href="#actions_reference"       >REF_</a></td>  <td width="20"></td><td>reflib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_reference">reference</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_ref_list"        >RFL_</a></td>  <td width="20"></td><td>rfllib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_struct"          >SCT_</a></td>  <td width="20"></td><td>sctlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_struct">struct</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_structElement"   >SEL_</a></td>  <td width="20"></td><td>sellib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_structElement">structElement</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_set"             >SET_</a></td>  <td width="20"></td><td>setlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_set">set</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_PRIMITIVE_SOCKET">SOC_</a></td>  <td width="20"></td><td>soclib.c</td>  <td width="20"></td><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_database"        >SQL_</a></td>  <td width="20"></td><td>sqllib.c</td>  <td width="20"></td><td><tt><span class="type">database</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_string"          >STR_</a></td>  <td width="20"></td><td>strlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_string">string</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_time"            >TIM_</a></td>  <td width="20"></td><td>timlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_time">time</a></tt> and <tt><a class="type" href="#types_duration">duration</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_type"            >TYP_</a></td>  <td width="20"></td><td>typlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_type">type</a></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_utf8File"        >UT8_</a></td>  <td width="20"></td><td>ut8lib.c</td>  <td width="20"></td><td><tt><span class="type">utf8File</span></tt> operations</td></tr>
 </table></dd></dl><p>
   The C functions which implement primitive actions have
-  lowercase names. E.g.: The action <tt>'PRC_WHILE'</tt> is implemented
+  lowercase names. E.g.: The action <tt><a class="link" href="#actions_PRC_WHILE">PRC_WHILE</a></tt> is implemented
   with the C function <tt>'prc_while()'</tt> in the file <tt><span class="lib">"prclib.c"</span></tt>.
   The parameter list for all C action functions is identical.
   Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
 </p><p>
-  In a Seed7 program the operator <tt><span class="op">+</span></tt> is used to add two <tt><a class="type" href="#types_integer">integer</a></tt>
+  In a Seed7 program the operator <tt><span class="op_no_ul">+</span></tt> is used to add two <tt><a class="type" href="#types_integer">integer</a></tt>
   values. The primitive action, which describes the addition of
-  two integers, is <tt>'INT_ADD'</tt>. The connection between <tt><span class="op">+</span></tt>
-  and <tt>'INT_ADD'</tt> is done in the library <tt><span class="stri">"<span class="lib">integer.s7i</span>"</span></tt> with the definition:
+  two integers, is <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt>. The connection between <tt><span class="op">+</span></tt>
+  and <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt> is done in the library <tt><span class="stri">"<span class="lib">integer.s7i</span>"</span></tt> with the definition:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: summand1) + (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: summand2) <span class="keywd">is action</span> <span class="stri">"INT_ADD"</span>;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span> <span class="keywd">action</span> <a class="stri" href="#actions_INT_ADD">"INT_ADD"</a>;
 </pre><p>
   To execute an action a corresponding C function must
   be present in the s7 interpreter. The function for the
-  action <tt>'INT_ADD'</tt> is <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>. The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
+  action <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt> is <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>. The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
   is defined in the file <tt><span class="lib">"intlib.c"</span></tt> with:
 </p><pre class="indent">
 <a class="type" href="#ffi_objectType">objectType</a> <a name="actions_int_add">int_add</a> (<a class="type" href="#ffi_listType">listType</a> arguments)
@@ -14119,7 +14252,7 @@ TYPE_ACTION
 <a class="type" href="#ffi_objectType">objectType</a> <a class="func" href="#actions_int_add">int_add</a> (<a class="type" href="#ffi_listType">listType</a> arguments);
 </pre><p>
   Additionally every primitive action is registered in the file
-  <tt><span class="lib">"primitive.c"</span></tt>. The line which incorporates <tt>'INT_ADD'</tt> is:
+  <tt><span class="lib">"primitive.c"</span></tt>. The line which incorporates <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt> is:
 </p><pre class="indent">
 { <span class="stri">"INT_ADD"</span>,             <a class="func" href="#actions_int_add">int_add</a>,             },
 </pre><p>
@@ -14129,28 +14262,28 @@ TYPE_ACTION
 </p><p>
   To allow a primitive function in a compiled Seed7 program the
   Seed7 compiler (s7c) needs to know the action also. The
-  compiler function which creates code for the <tt>'INT_ADD'</tt> action is:
+  compiler function which creates code for the <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt> action is:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: process (INT_ADD, <span class="keywd">in</span> <a class="type" href="#types_reference">reference</a>: function,
-    <span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: params, <span class="keywd">inout</span> <span class="type">expr_type</span>: c_expr) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: process (<a class="link" href="#actions_INT_ADD">INT_ADD</a>, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_reference">reference</a>: function,
+    <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_ref_list">ref_list</a>: params, <a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">expr_type</span>: c_expr) <span class="keywd">is func</span>
 
   <span class="keywd">begin</span>
-    c_expr.expr &amp;:= <span class="stri">"("</span>;
+    c_expr.expr <span class="op_no_ul">&amp;:=</span> <span class="stri">"("</span>;
     process_expr(params[1], c_expr);
-    c_expr.expr &amp;:= <span class="stri">") + ("</span>;
+    c_expr.expr <span class="op_no_ul">&amp;:=</span> <span class="stri">") + ("</span>;
     process_expr(params[3], c_expr);
-    c_expr.expr &amp;:= <span class="stri">")"</span>;
+    c_expr.expr <span class="op_no_ul">&amp;:=</span> <span class="stri">")"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   This function is defined in <tt><span class="lib">"<span class="lib">seed7/lib/comp/int_act.s7i</span>"</span></tt> and
   called from the function <tt><span class="func">process_action</span></tt> with:
 </p><pre class="indent">
 <span class="keywd">elsif</span> action_name = <span class="stri">"INT_ADD"</span> <span class="keywd">then</span>
-  process(INT_ADD, function, params, c_expr);
+  process(<a class="link" href="#actions_INT_ADD">INT_ADD</a>, function, params, c_expr);
 </pre><p>
   Some primitive actions are more complicated and inline code would
   not be the best solution for it. In this case an additional helper
-  function is used. The action <tt>'INT_LOG2'</tt> is such an action. The
+  function is used. The action <tt><a class="link" href="#actions_INT_LOG2">INT_LOG2</a></tt> is such an action. The
   definition of the function <tt><span class="func">int_log2</span>()</tt> in the file <tt><span class="lib">"intlib.c"</span></tt> is:
 </p><pre class="indent">
 <a class="type" href="#ffi_objectType">objectType</a> <a name="actions_int_log2">int_log2</a> (<a class="type" href="#ffi_listType">listType</a> arguments)
@@ -14161,7 +14294,7 @@ TYPE_ACTION
         <a class="func" href="#actions_intLog2">intLog2</a>(<a class="func" href="#ffi_take_int">take_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments))));
   } <span class="comment">/* int_log2 */</span>
 </pre><p>
-  The main work for the primitive action <tt>'INT_LOG2'</tt> is done in
+  The main work for the primitive action <tt><a class="link" href="#actions_INT_LOG2">INT_LOG2</a></tt> is done in
   the helper function <tt><a class="func" href="#actions_intLog2">intLog2</a>()</tt>. The helper function <tt><a class="func" href="#actions_intLog2">intLog2</a>()</tt>
   can be found in the file <tt><span class="lib">"int_rtl.c"</span></tt>:
 </p><pre class="indent">
@@ -14177,7 +14310,7 @@ TYPE_ACTION
 
   <span class="comment">/* intLog2 */</span>
     <span class="keywd">if</span> (unlikely(number &lt; 0)) {
-      raise_error(NUMERIC_ERROR);
+      <a class="func" href="#ffi_raise_error">raise_error</a>(<a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>);
       result = 0;
     } <span class="keywd">else</span> {
       result = uintMostSignificantBit((<a class="type" href="#ffi_uintType">uintType</a>) number);
@@ -14193,13 +14326,13 @@ TYPE_ACTION
   The helper functions are also used in the code generated by
   the Seed7 compiler:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: process (INT_LOG2, <span class="keywd">in</span> <a class="type" href="#types_reference">reference</a>: function,
-    <span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: params, <span class="keywd">inout</span> <span class="type">expr_type</span>: c_expr) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: process (<a class="link" href="#actions_INT_LOG2">INT_LOG2</a>, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_reference">reference</a>: function,
+    <a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_ref_list">ref_list</a>: params, <a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">expr_type</span>: c_expr) <span class="keywd">is func</span>
 
   <span class="keywd">begin</span>
-    c_expr.expr &amp;:= <span class="stri">"intLog2("</span>;
+    c_expr.expr <span class="op_no_ul">&amp;:=</span> <span class="stri">"intLog2("</span>;
     process_expr(params[1], c_expr);
-    c_expr.expr &amp;:= <span class="stri">")"</span>;
+    c_expr.expr <span class="op_no_ul">&amp;:=</span> <span class="stri">")"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   The compiler writes a prototype of <tt><a class="func" href="#actions_intLog2">intLog2</a>()</tt> in the
@@ -14220,7 +14353,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
   actions the functions of the <tt><span class="lib">"seed7_05.a"</span></tt> library are used.
 </p>
 
-<a name="actions_ACTION"><h3>14.1 Actions for the type ACTION</h3></a>
+<a name="actions_ACTION"><h3>15.1 Actions for the type ACTION</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>actlib.c function</th>   <th>act_comp.c function</th></tr>
     <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td>&nbsp;</td></tr>
@@ -14236,7 +14369,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ACT_VALUE</td>           <td>act_value</td>           <td>actValue</td></tr>
 </table><p></p>
 
-<a name="actions_array"><h3>14.2 Actions for array types</h3></a>
+<a name="actions_array"><h3>15.2 Actions for array types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>arrlib.c function</th>   <th>arr_rtl.c function</th></tr>
     <tr><td>ARR_APPEND</td>          <td>arr_append</td>          <td>arrAppend</td></tr>
@@ -14270,7 +14403,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
 </table><p></p>
 
-<a name="actions_bigInteger"><h3>14.3 Actions for the type bigInteger</h3></a>
+<a name="actions_bigInteger"><h3>15.3 Actions for the type bigInteger</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>biglib.c function</th>   <th>big_rtl.c function</th></tr>
     <tr><td>BIG_ABS</td>             <td>big_abs</td>             <td>bigAbs</td></tr>
@@ -14330,16 +14463,20 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIG_radix</td>           <td>big_radix</td>           <td>bigRadix</td></tr>
 </table><p></p>
 
-<a name="actions_binary"><h3>14.4 Actions for the types bin32 and bin64</h3></a>
+<a name="actions_binary"><h3>15.4 Actions for the types bin32 and bin64</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>Action name</th>         <th>blnlib.c function</th>   <th>bln_rtl.c function</th></tr>
+    <tr><th>Action name</th>         <th>binlib.c function</th>   <th>big_rtl.c or int_rtl.c function</th></tr>
     <tr><td>BIN_AND</td>             <td>bin_and</td>             <td>&amp;</td></tr>
     <tr><td>BIN_AND_ASSIGN</td>      <td>bin_and_assign</td>      <td>&amp;=</td></tr>
     <tr><td>BIN_BIG</td>             <td>bin_big</td>             <td>bigFromUInt64</td></tr>
     <tr><td>BIN_BINARY</td>          <td>bin_binary</td>          <td>bigToUInt64</td></tr>
+    <tr><td>BIN_BIT_LENGTH</td>      <td>bin_bit_length</td>      <td>uint64MostSignificantBit</td></tr>
+    <tr><td>BIN_BYTES_BE_2_UINT</td> <td>bin_bytes_be_2_uint</td> <td>uintBytesBe2UInt</td></tr>
+    <tr><td>BIN_BYTES_LE_2_UINT</td> <td>bin_bytes_le_2_uint</td> <td>uintBytesLe2UInt</td></tr>
     <tr><td>BIN_CARD</td>            <td>bin_card</td>            <td>uintCard</td></tr>
     <tr><td>BIN_CMP</td>             <td>bin_cmp</td>             <td>uintCmp</td></tr>
     <tr><td>BIN_GET_BINARY_FROM_SET</td> <td>bin_get_binary_from_set</td> <td>setToUInt</td></tr>
+    <tr><td>BIN_LOWEST_SET_BIT</td>  <td>bin_lowest_set_bit</td>  <td>(intType)(bits==0?-1:uint64LeastSignificantBit(bits))</td></tr>
     <tr><td>BIN_LSHIFT</td>          <td>bin_lshift</td>          <td>(intType)((uintType)(a&lt;&ltb))</td></tr>
     <tr><td>BIN_LSHIFT_ASSIGN</td>   <td>bin_lshift_assign</td>   <td>a=(intType)((uintType)(a&lt;&ltb))</td></tr>
     <tr><td>BIN_N_BYTES_BE</td>      <td>bin_n_bytes_be</td>      <td>uintNBytesBe</td></tr>
@@ -14355,12 +14492,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIN_radix</td>           <td>bin_radix</td>           <td>uintRadix</td></tr>
 </table><p></p>
 
-<a name="actions_boolean"><h3>14.5 Actions for the type boolean</h3></a>
+<a name="actions_boolean"><h3>15.5 Actions for the type boolean</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>blnlib.c function</th>   <th>bln_rtl.c function</th></tr>
     <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
     <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>blnCpy</td></tr>
-    <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>blnCreate</td></tr>
+    <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>= or genericCreate</td></tr>
     <tr><td>BLN_EQ</td>              <td>bln_eq</td>              <td>==</td></tr>
     <tr><td>BLN_GE</td>              <td>bln_ge</td>              <td>&gt;=</td></tr>
     <tr><td>BLN_GT</td>              <td>bln_gt</td>              <td>&gt;</td></tr>
@@ -14378,7 +14515,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BLN_VALUE</td>           <td>bln_value</td>           <td>blnValue</td></tr>
 </table><p></p>
 
-<a name="actions_bstring"><h3>14.6 Actions for byte strings</h3></a>
+<a name="actions_bstring"><h3>15.6 Actions for byte strings</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>bstlib.c function</th>   <th>bst_rtl.c function</th></tr>
     <tr><td>BST_APPEND</td>          <td>bst_append</td>          <td>bstAppend</td></tr>
@@ -14398,13 +14535,13 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BST_VALUE</td>           <td>bst_value</td>           <td>bstValue</td></tr>
 </table><p></p>
 
-<a name="actions_char"><h3>14.7 Actions for the type char</h3></a>
+<a name="actions_char"><h3>15.7 Actions for the type char</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>chrlib.c function</th>   <th>chr_rtl.c function</th></tr>
     <tr><td>CHR_CLIT</td>            <td>chr_clit</td>            <td>chrCLit</td></tr>
     <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
     <tr><td>CHR_CPY</td>             <td>chr_cpy</td>             <td>chrCpy</td></tr>
-    <tr><td>CHR_CREATE</td>          <td>chr_create</td>          <td>chrCreate</td></tr>
+    <tr><td>CHR_CREATE</td>          <td>chr_create</td>          <td>= or genericCreate</td></tr>
     <tr><td>CHR_DECR</td>            <td>chr_decr</td>            <td>--</td></tr>
     <tr><td>CHR_EQ</td>              <td>chr_eq</td>              <td>==</td></tr>
     <tr><td>CHR_GE</td>              <td>chr_ge</td>              <td>&gt;=</td></tr>
@@ -14427,7 +14564,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CHR_WIDTH</td>           <td>chr_width</td>           <td>chrWidth</td></tr>
 </table><p></p>
 
-<a name="actions_commands"><h3>14.8 Actions for various directory, file and other commands</h3></a>
+<a name="actions_commands"><h3>15.8 Actions for various directory, file and other commands</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>cmdlib.c function</th>   <th>cmd_rtl.c function</th></tr>
     <tr><td>CMD_BIG_FILESIZE</td>    <td>cmd_big_filesize</td>    <td>cmdBigFileSize</td></tr>
@@ -14479,7 +14616,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_UNSETENV</td>        <td>cmd_unsetenv</td>        <td>cmdUnsetenv</td></tr>
 </table><p></p>
 
-<a name="actions_console_output"><h3>14.9 Actions for text (console) screen output</h3></a>
+<a name="actions_console_output"><h3>15.9 Actions for text (console) screen output</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>scrlib.c function</th>   <th>con_inf.c/con_rtl.c/con_win.c function</th></tr>
     <tr><td>CON_CLEAR</td>           <td>con_clear</td>           <td>conClear</td></tr>
@@ -14496,7 +14633,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CON_WRITE</td>           <td>con_write</td>           <td>conWrite</td></tr>
 </table><p></p>
 
-<a name="actions_declarations"><h3>14.10 Actions for declarations</h3></a>
+<a name="actions_declarations"><h3>15.10 Actions for declarations</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>dcllib.c function</th></tr>
     <tr><td>DCL_ATTR</td>            <td>dcl_attr</td></tr>
@@ -14523,7 +14660,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DCL_VAR</td>             <td>dcl_var</td></tr>
 </table><p></p>
 
-<a name="actions_graphic_output"><h3>14.11 Actions to do graphic output</h3></a>
+<a name="actions_graphic_output"><h3>15.11 Actions to do graphic output</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>drw_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
@@ -14533,7 +14670,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_CAPTURE</td>         <td>drw_capture</td>         <td>drwCapture</td></tr>
     <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
-    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((genericType)(a))</td></tr>
+    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
     <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
     <tr><td>DRW_CONV_POINT_LIST</td> <td>drw_conv_point_list</td> <td>drwConvPointList</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
@@ -14553,6 +14690,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_GET_PIXEL</td>       <td>drw_get_pixel</td>       <td>drwGetPixel</td></tr>
     <tr><td>DRW_GET_PIXEL_ARRAY</td> <td>drw_get_pixel_array</td> <td>drwGetPixelArray</td></tr>
     <tr><td>DRW_GET_PIXEL_DATA</td>  <td>drw_get_pixel_data</td>  <td>drwGetPixelData</td></tr>
+    <tr><td>DRW_GET_PIXEL_DATA_FROM_ARRAY</td> <td>drw_get_pixel_data_from_array</td> <td>drwGetPixelDataFromArray</td></tr>
     <tr><td>DRW_GET_PIXMAP</td>      <td>drw_get_pixmap</td>      <td>drwGetPixmap</td></tr>
     <tr><td>DRW_GET_PIXMAP_FROM_PIXELS</td> <td>drw_get_pixmap_from_pixels</td> <td>drwGetPixmapFromPixels</td></tr>
     <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
@@ -14599,21 +14737,22 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_YPOS</td>            <td>drw_ypos</td>            <td>drwYPos</td></tr>
 </table><p></p>
 
-<a name="actions_enumeration"><h3>14.12 Actions for enumeration types</h3></a>
+<a name="actions_enumeration"><h3>15.12 Actions for enumeration types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>enulib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
     <tr><td>ENU_CPY</td>             <td>enu_cpy</td>             <td>=</td></tr>
-    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td>= or genericCreate</td></tr>
     <tr><td>ENU_EQ</td>              <td>enu_eq</td>              <td>==</td></tr>
     <tr><td>ENU_GENLIT</td>          <td>enu_genlit</td>          <td>&nbsp;</td></tr>
     <tr><td>ENU_ICONV2</td>          <td>enu_iconv2</td>          <td>(noop)</td></tr>
+    <tr><td>ENU_LIT</td>             <td>enu_lit</td>             <td>&nbsp;</td></tr>
     <tr><td>ENU_NE</td>              <td>enu_ne</td>              <td>!=</td></tr>
     <tr><td>ENU_ORD2</td>            <td>enu_ord2</td>            <td>(noop)</td></tr>
     <tr><td>ENU_VALUE</td>           <td>enu_value</td>           <td>enuValue</td></tr>
 </table><p></p>
 
-<a name="actions_clib_file"><h3>14.13 Actions for the type clib_file</h3></a>
+<a name="actions_clib_file"><h3>15.13 Actions for the type clib_file</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>fillib.c function</th>   <th>fil_rtl.c function</th></tr>
     <tr><td>FIL_BIG_LNG</td>         <td>fil_big_lng</td>         <td>filBigLng</td></tr>
@@ -14641,18 +14780,21 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FIL_OPEN_NULL_DEVICE</td> <td>fil_open_null_device</td> <td>filOpenNullDevice</td></tr>
     <tr><td>FIL_OUT</td>             <td>fil_out</td>             <td>stdout</td></tr>
     <tr><td>FIL_PCLOSE</td>          <td>fil_pclose</td>          <td>filPclose</td></tr>
+    <tr><td>FIL_PIPE</td>            <td>fil_pipe</td>            <td>filPipe</td></tr>
     <tr><td>FIL_POPEN</td>           <td>fil_popen</td>           <td>filPopen</td></tr>
     <tr><td>FIL_PRINT</td>           <td>fil_print</td>           <td>filPrint</td></tr>
     <tr><td>FIL_SEEK</td>            <td>fil_seek</td>            <td>filSeek</td></tr>
+    <tr><td>FIL_SEEKABLE</td>        <td>fil_seekable</td>        <td>filSeekable</td></tr>
     <tr><td>FIL_SETBUF</td>          <td>fil_setbuf</td>          <td>filSetbuf</td></tr>
     <tr><td>FIL_TELL</td>            <td>fil_tell</td>            <td>filTell</td></tr>
+    <tr><td>FIL_TERMINATED_READ</td> <td>fil_terminated_read</td> <td>filTerminatedRead</td></tr>
     <tr><td>FIL_TRUNCATE</td>        <td>fil_truncate</td>        <td>filTruncate</td></tr>
     <tr><td>FIL_VALUE</td>           <td>fil_value</td>           <td>filValue</td></tr>
     <tr><td>FIL_WORD_READ</td>       <td>fil_word_read</td>       <td>filWordRead</td></tr>
     <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
 </table><p></p>
 
-<a name="actions_float"><h3>14.14 Actions for the type float</h3></a>
+<a name="actions_float"><h3>15.14 Actions for the type float</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>fltlib.c function</th>   <th>flt_rtl.c function</th></tr>
     <tr><td>FLT_ABS</td>             <td>flt_abs</td>             <td>fabs</td></tr>
@@ -14669,7 +14811,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_COS</td>             <td>flt_cos</td>             <td>cos</td></tr>
     <tr><td>FLT_COSH</td>            <td>flt_cosh</td>            <td>cosh</td></tr>
     <tr><td>FLT_CPY</td>             <td>flt_cpy</td>             <td>fltCpy</td></tr>
-    <tr><td>FLT_CREATE</td>          <td>flt_create</td>          <td>fltCreate</td></tr>
+    <tr><td>FLT_CREATE</td>          <td>flt_create</td>          <td>= or genericCreate</td></tr>
     <tr><td>FLT_DECOMPOSE</td>       <td>flt_decompose</td>       <td>frexp</td></tr>
     <tr><td>FLT_DGTS</td>            <td>flt_dgts</td>            <td>fltDgts</td></tr>
     <tr><td>FLT_DIV</td>             <td>flt_div</td>             <td>/</td></tr>
@@ -14714,13 +14856,14 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_SINH</td>            <td>flt_sinh</td>            <td>sinh</td></tr>
     <tr><td>FLT_SQRT</td>            <td>flt_sqrt</td>            <td>sqrt</td></tr>
     <tr><td>FLT_STR</td>             <td>flt_str</td>             <td>fltStr</td></tr>
+    <tr><td>FLT_STR_SCIENTIFIC</td>  <td>flt_str_scientific</td>  <td>fltStrScientific</td></tr>
     <tr><td>FLT_TAN</td>             <td>flt_tan</td>             <td>tan</td></tr>
     <tr><td>FLT_TANH</td>            <td>flt_tanh</td>            <td>tanh</td></tr>
     <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(intType)</td></tr>
     <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
 </table><p></p>
 
-<a name="actions_graphic_keyboard"><h3>14.15 Actions to support the graphic keyboard</h3></a>
+<a name="actions_graphic_keyboard"><h3>15.15 Actions to support the graphic keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>kbd_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>GKB_BUTTON_PRESSED</td>  <td>gkb_button_pressed</td>  <td>gkbButtonPressed</td></tr>
@@ -14736,9 +14879,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>GKB_WORD_READ</td>       <td>gkb_word_read</td>       <td>gkbWordRead</td></tr>
 </table><p></p>
 
-<a name="actions_hash"><h3>14.16 Actions for hash types</h3></a>
+<a name="actions_hash"><h3>15.16 Actions for hash types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>hshlib.c function</th>   <th>hsh_rtl.c function</th></tr>
+    <tr><td>HSH_CONCAT_KEY_VALUE</td> <td>hsh_concat_key_value</td> <td>hshConcatKeyValue</td></tr>
     <tr><td>HSH_CONTAINS</td>        <td>hsh_contains</td>        <td>hshContains</td></tr>
     <tr><td>HSH_CPY</td>             <td>hsh_cpy</td>             <td>hshCpy</td></tr>
     <tr><td>HSH_CREATE</td>          <td>hsh_create</td>          <td>hshCreate</td></tr>
@@ -14748,6 +14892,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>HSH_FOR</td>             <td>hsh_for</td>             <td>for</td></tr>
     <tr><td>HSH_FOR_DATA_KEY</td>    <td>hsh_for_data_key</td>    <td>for</td></tr>
     <tr><td>HSH_FOR_KEY</td>         <td>hsh_for_key</td>         <td>for</td></tr>
+    <tr><td>HSH_GEN_HASH</td>        <td>hsh_gen_hash</td>        <td>hshGenHash</td></tr>
+    <tr><td>HSH_GEN_KEY_VALUE</td>   <td>hsh_gen_key_value</td>   <td>hshGenKeyValue</td></tr>
     <tr><td>HSH_IDX</td>             <td>hsh_idx</td>             <td>hshIdx, hshIdxAddr</td></tr>
     <tr><td>HSH_IDX2</td>            <td>hsh_idx2</td>            <td>&nbsp;</td></tr>
     <tr><td>HSH_INCL</td>            <td>hsh_incl</td>            <td>hshIncl</td></tr>
@@ -14759,11 +14905,11 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
 </table><p></p>
 
-<a name="actions_integer"><h3>14.17 Actions for the type integer</h3></a>
+<a name="actions_integer"><h3>15.17 Actions for the type integer</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>intlib.c function</th>   <th>int_rtl.c function</th></tr>
     <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
-    <tr><td>INT_ADD</td>             <td>int_add</td>             <td>+</td></tr>
+    <tr><td><a name="actions_INT_ADD"        >INT_ADD</a></td>             <td>int_add</td>             <td>+</td></tr>
     <tr><td>INT_ADD_ASSIGN</td>      <td>int_add_assign</td>      <td>+=</td></tr>
     <tr><td>INT_BINOM</td>           <td>int_binom</td>           <td>intBinom</td></tr>
     <tr><td>INT_BIT_LENGTH</td>      <td>int_bit_length</td>      <td>intBitLength</td></tr>
@@ -14777,7 +14923,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_BYTES_LE_UNSIGNED</td> <td>int_bytes_le_unsigned</td> <td>intBytesLe</td></tr>
     <tr><td>INT_CMP</td>             <td>int_cmp</td>             <td>intCmp</td></tr>
     <tr><td>INT_CPY</td>             <td>int_cpy</td>             <td>intCpy</td></tr>
-    <tr><td>INT_CREATE</td>          <td>int_create</td>          <td>intCreate</td></tr>
+    <tr><td>INT_CREATE</td>          <td>int_create</td>          <td>= or genericCreate</td></tr>
     <tr><td>INT_DECR</td>            <td>int_decr</td>            <td>--</td></tr>
     <tr><td>INT_DIV</td>             <td>int_div</td>             <td>/</td></tr>
     <tr><td>INT_EQ</td>              <td>int_eq</td>              <td>==</td></tr>
@@ -14789,8 +14935,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_ICONV3</td>          <td>int_iconv3</td>          <td>(noop)</td></tr>
     <tr><td>INT_INCR</td>            <td>int_incr</td>            <td>++</td></tr>
     <tr><td>INT_LE</td>              <td>int_le</td>              <td>&lt;=</td></tr>
-    <tr><td>INT_LOG10</td>           <td>int_log10</td>           <td>intLog10</td></tr>
-    <tr><td>INT_LOG2</td>            <td>int_log2</td>            <td>intLog2</td></tr>
+    <tr><td><a name="actions_INT_LOG10"      >INT_LOG10</a></td>           <td>int_log10</td>           <td>intLog10</td></tr>
+    <tr><td><a name="actions_INT_LOG2"       >INT_LOG2</a></td>            <td>int_log2</td>            <td>intLog2</td></tr>
     <tr><td>INT_LOWEST_SET_BIT</td>  <td>int_lowest_set_bit</td>  <td>intLowestSetBit</td></tr>
     <tr><td>INT_LPAD0</td>           <td>int_lpad0</td>           <td>intLpad0</td></tr>
     <tr><td>INT_LSHIFT</td>          <td>int_lshift</td>          <td>&lt;&lt;</td></tr>
@@ -14827,10 +14973,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_radix</td>           <td>int_radix</td>           <td>intRadix</td></tr>
 </table><p></p>
 
-<a name="actions_interface"><h3>14.18 Actions for interface types</h3></a>
+<a name="actions_interface"><h3>15.18 Actions for interface types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>itflib.c function</th>   <th>&nbsp;</th></tr>
-    <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>uintCmpGeneric</td></tr>
+    <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
     <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
     <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>=</td></tr>
     <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
@@ -14844,7 +14990,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ITF_TO_INTERFACE</td>    <td>itf_to_interface</td>    <td>&nbsp;</td></tr>
 </table><p></p>
 
-<a name="actions_console_keyboard"><h3>14.19 Actions to support the text (console) screen keyboard</h3></a>
+<a name="actions_console_keyboard"><h3>15.19 Actions to support the text (console) screen keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>kbdlib.c function</th>   <th>kbd_rtl.c/kbd_inf.c function</th></tr>
     <tr><td>KBD_GETC</td>            <td>kbd_getc</td>            <td>kbdGetc</td></tr>
@@ -14855,7 +15001,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
 </table><p></p>
 
-<a name="actions_list"><h3>14.20 Actions for the list type</h3></a>
+<a name="actions_list"><h3>15.20 Actions for the list type</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>lstlib.c function</th></tr>
     <tr><td>LST_CAT</td>             <td>lst_cat</td></tr>
@@ -14872,7 +15018,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>LST_TAIL</td>            <td>lst_tail</td></tr>
 </table><p></p>
 
-<a name="actions_process"><h3>14.21 Actions for the type process</h3></a>
+<a name="actions_process"><h3>15.21 Actions for the type process</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>pcslib.c function</th>   <th>pcs_rtl.c function</th></tr>
     <tr><td>PCS_CHILD_STDERR</td>    <td>pcs_child_stderr</td>    <td>pcsChildStdErr</td></tr>
@@ -14892,12 +15038,29 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PCS_PIPE2</td>           <td>pcs_pipe2</td>           <td>pcsPipe2</td></tr>
     <tr><td>PCS_PTY</td>             <td>pcs_pty</td>             <td>pcsPty</td></tr>
     <tr><td>PCS_START</td>           <td>pcs_start</td>           <td>pcsStart</td></tr>
+    <tr><td>PCS_START_PIPE</td>      <td>pcs_start_pipe</td>      <td>pcsStartPipe</td></tr>
     <tr><td>PCS_STR</td>             <td>pcs_str</td>             <td>pcsStr</td></tr>
     <tr><td>PCS_VALUE</td>           <td>pcs_value</td>           <td>pcsValue</td></tr>
     <tr><td>PCS_WAIT_FOR</td>        <td>pcs_wait_for</td>        <td>pcsWaitFor</td></tr>
 </table><p></p>
 
-<a name="actions_pollData"><h3>14.22 Actions for the type pollData</h3></a>
+<a name="actions_pointList"><h3>15.22 Actions for the type pointList</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>bst_rtl.c function</th></tr>
+    <tr><td>PLT_BSTRING</td>         <td>plt_bstring</td>         <td>(noop)</td></tr>
+    <tr><td>PLT_CMP</td>             <td>plt_cmp</td>             <td>bstCmp</td></tr>
+    <tr><td>PLT_CPY</td>             <td>plt_cpy</td>             <td>bstCpy</td></tr>
+    <tr><td>PLT_CREATE</td>          <td>plt_create</td>          <td>bstCreate</td></tr>
+    <tr><td>PLT_DESTR</td>           <td>plt_destr</td>           <td>bstDestr</td></tr>
+    <tr><td>PLT_EMPTY</td>           <td>plt_empty</td>           <td>&nbsp;</td></tr>
+    <tr><td>PLT_EQ</td>              <td>plt_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(unsigned char))==0</td></tr>
+    <tr><td>PLT_HASHCODE</td>        <td>plt_hashcode</td>        <td>bstHashCode</td></tr>
+    <tr><td>PLT_NE</td>              <td>plt_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0</td></tr>
+    <tr><td>PLT_POINT_LIST</td>      <td>plt_point_list</td>      <td>(noop)</td></tr>
+    <tr><td>PLT_VALUE</td>           <td>plt_value</td>           <td>pltValue</td></tr>
+</table><p></p>
+
+<a name="actions_pollData"><h3>15.23 Actions for the type pollData</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>pollib.c function</th>   <th>pol_unx.c/pol_sel.c function</th></tr>
     <tr><td>POL_ADD_CHECK</td>       <td>pol_add_check</td>       <td>polAddCheck</td></tr>
@@ -14917,12 +15080,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>POL_VALUE</td>           <td>pol_value</td>           <td>polValue</td></tr>
 </table><p></p>
 
-<a name="actions_proc"><h3>14.23 Actions for proc operations and statements</h3></a>
+<a name="actions_proc"><h3>15.24 Actions for proc operations and statements</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>arg_v</td></tr>
-    <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td>&nbsp;</td></tr>
-    <tr><td>PRC_BEGIN_NOOP</td>      <td>prc_begin_noop</td>      <td>&nbsp;</td></tr>
+    <tr><td><a name="actions_PRC_BEGIN"      >PRC_BEGIN</a></td>           <td>prc_begin</td>           <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_BEGIN_NOOP" >PRC_BEGIN_NOOP</a></td>      <td>prc_begin_noop</td>      <td>Executed at compile-time</td></tr>
     <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK_CATCH_ALL</td> <td>prc_block_catch_all</td> <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK_OTHERWISE</td> <td>prc_block_otherwise</td> <td>&nbsp;</td></tr>
@@ -14933,6 +15096,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRC_CPY</td>             <td>prc_cpy</td>             <td>&nbsp;</td></tr>
     <tr><td>PRC_CREATE</td>          <td>prc_create</td>          <td>&nbsp;</td></tr>
     <tr><td>PRC_DECLS</td>           <td>prc_decls</td>           <td>&nbsp;</td></tr>
+    <tr><td>PRC_DESTR</td>           <td>prc_destr</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_DYNAMIC</td>         <td>prc_dynamic</td>         <td>&nbsp;</td></tr>
     <tr><td>PRC_EXIT</td>            <td>prc_exit</td>            <td>exit</td></tr>
     <tr><td>PRC_FOR_DOWNTO</td>      <td>prc_for_downto</td>      <td>for</td></tr>
@@ -14944,27 +15108,31 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRC_IF</td>              <td>prc_if</td>              <td>if</td></tr>
     <tr><td>PRC_IF_ELSIF</td>        <td>prc_if_elsif</td>        <td>if</td></tr>
     <tr><td>PRC_IF_NOOP</td>         <td>prc_if_noop</td>         <td>if</td></tr>
-    <tr><td>PRC_INCLUDE</td>         <td>prc_include</td>         <td>&nbsp;</td></tr>
-    <tr><td>PRC_LOCAL</td>           <td>prc_local</td>           <td>&nbsp;</td></tr>
+    <tr><td><a name="actions_PRC_INCLUDE"    >PRC_INCLUDE</a></td>         <td>prc_include</td>         <td>Executed at compile-time</td></tr>
+    <tr><td>PRC_LINE</td>            <td>prc_line</td>            <td>&nbsp;</td></tr>
+    <tr><td><a name="actions_PRC_LOCAL"      >PRC_LOCAL</a></td>           <td>prc_local</td>           <td>Executed at compile-time</td></tr>
     <tr><td>PRC_NOOP</td>            <td>prc_noop</td>            <td>prcNoop</td></tr>
     <tr><td>PRC_RAISE</td>           <td>prc_raise</td>           <td>raise_error</td></tr>
-    <tr><td>PRC_REPEAT</td>          <td>prc_repeat</td>          <td>do {stmts} while (!(cond));</td></tr>
-    <tr><td>PRC_REPEAT_NOOP</td>     <td>prc_repeat_noop</td>     <td>do {} while (!(cond));</td></tr>
-    <tr><td>PRC_RES_BEGIN</td>       <td>prc_res_begin</td>       <td>&nbsp;</td></tr>
-    <tr><td>PRC_RES_LOCAL</td>       <td>prc_res_local</td>       <td>&nbsp;</td></tr>
-    <tr><td>PRC_RETURN</td>          <td>prc_return</td>          <td>&nbsp;</td></tr>
-    <tr><td>PRC_RETURN2</td>         <td>prc_return2</td>         <td>&nbsp;</td></tr>
+    <tr><td><a name="actions_PRC_REPEAT"     >PRC_REPEAT</a></td>          <td>prc_repeat</td>          <td>do {stmts} while (!(cond));</td></tr>
+    <tr><td><a name="actions_PRC_REPEAT_NOOP">PRC_REPEAT_NOOP</a></td>     <td>prc_repeat_noop</td>     <td>do {} while (!(cond));</td></tr>
+    <tr><td><a name="actions_PRC_RES_BEGIN"  >PRC_RES_BEGIN</a></td>       <td>prc_res_begin</td>       <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_RES_LOCAL"  >PRC_RES_LOCAL</a></td>       <td>prc_res_local</td>       <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_RETURN"     >PRC_RETURN</a></td>          <td>prc_return</td>          <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_RETURN2"    >PRC_RETURN2</a></td>         <td>prc_return2</td>         <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_RETURN_VAR" >PRC_RETURN_VAR</a></td>      <td>prc_return_var</td>      <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_RETURN_VAR2">PRC_RETURN_VAR2</a></td>     <td>prc_return_var2</td>     <td>Executed at compile-time</td></tr>
+    <tr><td><a name="actions_PRC_SEMICOLON"  >PRC_SEMICOLON</a></td>       <td>prc_semicolon</td>       <td>statement1;statement2;</td></tr>
     <tr><td>PRC_SETTRACE</td>        <td>prc_settrace</td>        <td>&nbsp;</td></tr>
     <tr><td>PRC_TRACE</td>           <td>prc_trace</td>           <td>&nbsp;</td></tr>
-    <tr><td>PRC_VARFUNC</td>         <td>prc_varfunc</td>         <td>&nbsp;</td></tr>
-    <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td>&nbsp;</td></tr>
-    <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while (cond) {stmts}</td></tr>
-    <tr><td>PRC_WHILE_NOOP</td>      <td>prc_while_noop</td>      <td>while (cond) {}</td></tr>
+    <tr><td><a name="actions_PRC_WHILE"      >PRC_WHILE</a></td>           <td>prc_while</td>           <td>while (cond) {stmts}</td></tr>
+    <tr><td><a name="actions_PRC_WHILE_NOOP" >PRC_WHILE_NOOP</a></td>      <td>prc_while_noop</td>      <td>while (cond) {}</td></tr>
 </table><p></p>
 
-<a name="actions_program"><h3>14.24 Actions for the type program</h3></a>
+<a name="actions_program"><h3>15.25 Actions for the type program</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prglib.c function</th>   <th>prg_comp.c function</th></tr>
+    <tr><td>PRG_BSTRI_PARSE</td>     <td>prg_bstri_parse</td>     <td>prgBStriParse</td></tr>
+    <tr><td>PRG_CMP</td>             <td>prg_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
     <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td>&nbsp;</td></tr>
     <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td>&nbsp;</td></tr>
@@ -14972,9 +15140,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRG_EQ</td>              <td>prg_eq</td>              <td>==</td></tr>
     <tr><td>PRG_ERROR_COUNT</td>     <td>prg_error_count</td>     <td>prgErrorCount</td></tr>
     <tr><td>PRG_EVAL</td>            <td>prg_eval</td>            <td>prgEval</td></tr>
+    <tr><td>PRG_EVAL_WITH_ARGS</td>  <td>prg_eval_with_args</td>  <td>prgEvalWithArgs</td></tr>
     <tr><td>PRG_EXEC</td>            <td>prg_exec</td>            <td>prgExec</td></tr>
     <tr><td>PRG_FIL_PARSE</td>       <td>prg_fil_parse</td>       <td>prgFilParse</td></tr>
+    <tr><td>PRG_GET_ERROR</td>       <td>prg_get_error</td>       <td>prgGetError</td></tr>
     <tr><td>PRG_GLOBAL_OBJECTS</td>  <td>prg_global_objects</td>  <td>prgGlobalObjects</td></tr>
+    <tr><td>PRG_HASHCODE</td>        <td>prg_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>PRG_MATCH</td>           <td>prg_match</td>           <td>prgMatch</td></tr>
     <tr><td>PRG_MATCH_EXPR</td>      <td>prg_match_expr</td>      <td>prgMatchExpr</td></tr>
     <tr><td>PRG_NAME</td>            <td>prg_name</td>            <td>arg_0</td></tr>
@@ -14982,13 +15153,14 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRG_OWN_NAME</td>        <td>prg_own_name</td>        <td>programName</td></tr>
     <tr><td>PRG_OWN_PATH</td>        <td>prg_own_path</td>        <td>programPath</td></tr>
     <tr><td>PRG_PATH</td>            <td>prg_path</td>            <td>programPath</td></tr>
+    <tr><td>PRG_STRUCT_SYMBOLS</td>  <td>prg_struct_symbols</td>  <td>prgStructSymbols</td></tr>
     <tr><td>PRG_STR_PARSE</td>       <td>prg_str_parse</td>       <td>prgStrParse</td></tr>
     <tr><td>PRG_SYOBJECT</td>        <td>prg_syobject</td>        <td>prgSyobject</td></tr>
     <tr><td>PRG_SYSVAR</td>          <td>prg_sysvar</td>          <td>prgSysvar</td></tr>
     <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
 </table><p></p>
 
-<a name="actions_reference"><h3>14.25 Actions for the type reference</h3></a>
+<a name="actions_reference"><h3>15.26 Actions for the type reference</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>reflib.c function</th>   <th>ref_data.c function</th></tr>
     <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
@@ -14996,6 +15168,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_ALLOC_INT</td>       <td>ref_alloc_int</td>       <td>refAllocInt</td></tr>
     <tr><td>REF_ALLOC_STRI</td>      <td>ref_alloc_stri</td>      <td>refAllocStri</td></tr>
     <tr><td>REF_ALLOC_VAR</td>       <td>ref_alloc_var</td>       <td>refAllocVar</td></tr>
+    <tr><td>REF_APPEND_PARAMS</td>   <td>ref_append_params</td>   <td>refAppendParams</td></tr>
     <tr><td>REF_ARRMAXIDX</td>       <td>ref_arrmaxidx</td>       <td>refArrmaxidx</td></tr>
     <tr><td>REF_ARRMINIDX</td>       <td>ref_arrminidx</td>       <td>refArrminidx</td></tr>
     <tr><td>REF_ARRTOLIST</td>       <td>ref_arrtolist</td>       <td>refArrtolist</td></tr>
@@ -15004,10 +15177,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
     <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
     <tr><td>REF_CAT_STR</td>         <td>ref_cat_str</td>         <td>refCatStr</td></tr>
-    <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>refCmp</td></tr>
+    <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
     <tr><td>REF_CONTENT</td>         <td>ref_content</td>         <td>&nbsp;</td></tr>
-    <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>refCpy</td></tr>
-    <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>refCreate</td></tr>
+    <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>=</td></tr>
+    <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>= or ptrCreateGeneric</td></tr>
     <tr><td>REF_DEREF</td>           <td>ref_deref</td>           <td>&nbsp;</td></tr>
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
@@ -15028,6 +15201,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_NIL</td>             <td>ref_nil</td>             <td>&nbsp;</td></tr>
     <tr><td>REF_NUM</td>             <td>ref_num</td>             <td>refNum</td></tr>
     <tr><td>REF_PARAMS</td>          <td>ref_params</td>          <td>refParams</td></tr>
+    <tr><td>REF_PATH</td>            <td>ref_path</td>            <td>refPath</td></tr>
     <tr><td>REF_PROG</td>            <td>ref_prog</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_RESINI</td>          <td>ref_resini</td>          <td>refResini</td></tr>
     <tr><td>REF_RESULT</td>          <td>ref_result</td>          <td>refResult</td></tr>
@@ -15045,7 +15219,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
 </table><p></p>
 
-<a name="actions_ref_list"><h3>14.26 Actions for the type ref_list</h3></a>
+<a name="actions_ref_list"><h3>15.27 Actions for the type ref_list</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>rfllib.c function</th>   <th>rfl_data.c function</th></tr>
     <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
@@ -15077,7 +15251,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
 </table><p></p>
 
-<a name="actions_struct"><h3>14.27 Actions for struct types</h3></a>
+<a name="actions_struct"><h3>15.28 Actions for struct types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td>&nbsp;</td></tr>
@@ -15093,7 +15267,22 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
 </table><p></p>
 
-<a name="actions_set"><h3>14.28 Actions for set types</h3></a>
+<a name="actions_structElement"><h3>15.29 Actions for the type structElement</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
+    <tr><td>SEL_CMP</td>             <td>sel_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
+    <tr><td>SEL_CONV1</td>           <td>sel_conv1</td>           <td>&nbsp;</td></tr>
+    <tr><td>SEL_CPY</td>             <td>sel_cpy</td>             <td>=</td></tr>
+    <tr><td>SEL_CREATE</td>          <td>sel_create</td>          <td>=</td></tr>
+    <tr><td>SEL_EQ</td>              <td>sel_eq</td>              <td>==</td></tr>
+    <tr><td>SEL_HASHCODE</td>        <td>sel_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
+    <tr><td>SEL_NAME</td>            <td>sel_name</td>            <td>refStr</td></tr>
+    <tr><td>SEL_NE</td>              <td>sel_ne</td>              <td>!=</td></tr>
+    <tr><td>SEL_SYMB</td>            <td>sel_symb</td>            <td>refSymb</td></tr>
+    <tr><td>SEL_TYPE</td>            <td>sel_type</td>            <td>refType</td></tr>
+</table><p></p>
+
+<a name="actions_set"><h3>15.30 Actions for set types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>setlib.c function</th>   <th>set_rtl.c function</th></tr>
     <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
@@ -15136,7 +15325,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
 </table><p></p>
 
-<a name="actions_PRIMITIVE_SOCKET"><h3>14.29 Actions for the type PRIMITIVE_SOCKET</h3></a>
+<a name="actions_PRIMITIVE_SOCKET"><h3>15.31 Actions for the type PRIMITIVE_SOCKET</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
@@ -15174,7 +15363,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
 </table><p></p>
 
-<a name="actions_database"><h3>14.30 Actions for the types database and sqlStatement</h3></a>
+<a name="actions_database"><h3>15.32 Actions for the types database and sqlStatement</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>sqllib.c function</th>   <th>sql_rtl.c function</th></tr>
     <tr><td>SQL_BIND_BIGINT</td>     <td>sql_bind_bigint</td>     <td>sqlBindBigInt</td></tr>
@@ -15188,8 +15377,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SQL_BIND_STRI</td>       <td>sql_bind_stri</td>       <td>sqlBindStri</td></tr>
     <tr><td>SQL_BIND_TIME</td>       <td>sql_bind_time</td>       <td>sqlBindTime</td></tr>
     <tr><td>SQL_CLOSE</td>           <td>sql_close</td>           <td>sqlClose</td></tr>
-    <tr><td>SQL_CMP_DB</td>          <td>sql_cmp_db</td>          <td>ptrCmp</td></tr>
-    <tr><td>SQL_CMP_STMT</td>        <td>sql_cmp_stmt</td>        <td>ptrCmp</td></tr>
+    <tr><td>SQL_CMP_DB</td>          <td>sql_cmp_db</td>          <td>ptrCmp / ptrCmpGeneric</td></tr>
+    <tr><td>SQL_CMP_STMT</td>        <td>sql_cmp_stmt</td>        <td>ptrCmp / ptrCmpGeneric</td></tr>
     <tr><td>SQL_COLUMN_BIGINT</td>   <td>sql_column_bigint</td>   <td>sqlColumnBigInt</td></tr>
     <tr><td>SQL_COLUMN_BIGRAT</td>   <td>sql_column_bigrat</td>   <td>sqlColumnBigRat</td></tr>
     <tr><td>SQL_COLUMN_BOOL</td>     <td>sql_column_bool</td>     <td>sqlColumnBool</td></tr>
@@ -15238,7 +15427,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SQL_STMT_COLUMN_NAME</td>  <td>sql_stmt_column_name</td>  <td>sqlStmtColumnName</td></tr>
 </table><p></p>
 
-<a name="actions_string"><h3>14.31 Actions for the type string</h3></a>
+<a name="actions_string"><h3>15.33 Actions for the type string</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
@@ -15295,7 +15484,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
 
-<a name="actions_time"><h3>14.32 Actions for the type time</h3></a>
+<a name="actions_time"><h3>15.34 Actions for the type time</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>timlib.c function</th>   <th>tim_unx.c/tim_win.c function</th></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
@@ -15304,7 +15493,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TIM_SET_LOCAL_TZ</td>    <td>tim_set_local_tz</td>    <td>timSetLocalTZ</td></tr>
 </table><p></p>
 
-<a name="actions_type"><h3>14.33 Actions for the type type</h3></a>
+<a name="actions_type"><h3>15.35 Actions for the type type</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>typlib.c function</th>   <th>typ_data.c function</th></tr>
     <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td>&nbsp;</td></tr>
@@ -15335,7 +15524,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
 </table><p></p>
 
-<a name="actions_utf8File"><h3>14.34 Actions for the type utf8File</h3></a>
+<a name="actions_utf8File"><h3>15.36 Actions for the type utf8File</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>ut8lib.c function</th>   <th>ut8_rtl.c function</th></tr>
     <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>
@@ -15418,7 +15607,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
       wurxResult = <a class="func" href="#ffi_doWurx1">doWurx1</a>(cName);
       <a class="func" href="#ffi_free_cstri8">free_cstri8</a>(cName, name);
       <span class="keywd">if</span> (wurxResult != 0) {
-        <a class="func" href="#ffi_raise_error">raise_error</a>(<span class="exception">RANGE_ERROR</span>);
+        <a class="func" href="#ffi_raise_error">raise_error</a>(<a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>);
       }
     }
   }
@@ -15442,7 +15631,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
   {
     <a class="func" href="#ffi_isit_stri">isit_stri</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
     <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a>(<a class="func" href="#ffi_take_stri">take_stri</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments)));
-    <span class="keywd">return</span> SYS_EMPTY_OBJECT;
+    <span class="keywd">return</span> <a class="func_no_ul" href="#ffi_SYS_EMPTY_OBJECT">SYS_EMPTY_OBJECT</a>;
   }
 </pre><p>
   The prototype of <tt><a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a></tt> is defined in the file <tt><span class="lib">"suplib.h"</span></tt> with:
@@ -15504,7 +15693,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: doWurx1 (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> <span class="keywd">action</span> <span class="stri">"SUP_DO_WURX"</span>;
 </pre><p></p>
 
-<a name="ffi_C_types_used_by_the_implementation"><h3>15.1 C types used by the implementation</h3></a>
+<a name="ffi_C_types_used_by_the_implementation"><h3>16.1 C types used by the implementation</h3></a>
 <p>
   Several Seed7 types correspond to simple C types, which are
   defined in <tt><span class="lib">"common.h"</span></tt>:
@@ -15592,7 +15781,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>     <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
     <tr><td><tt><a class="type" name="ffi_utf16striType">utf16striType</a></tt></td> <td>uint16Type *</td>        <td>UTF-16 string</td></tr>
     <tr><td><tt><a class="type" name="ffi_utf32striType">utf32striType</a></tt></td> <td>uint32Type *</td>        <td>UTF-32 string</td></tr>
-    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>   <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt>.</td></tr>
+    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>   <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt>.</td></tr></tt></td>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_os_striType">os_striType</a></tt></td>   <td>char *</td>              <td>If the OS uses UTF-8 chars</td></tr>
     <tr><td>wchar_t *</td>           <td>If the OS uses UTF-16 chars</td></tr>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_memSizeType">memSizeType</a></tt></td>   <td>uint32Type</td>          <td>If C uses 32-bit pointers</td></tr>
@@ -15600,7 +15789,35 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td><tt><a class="type" name="ffi_errInfoType">errInfoType</a></tt></td>   <td>int</td>                 <td>Represents predefined Exceptions</td></tr>
 </table><p></p>
 
-<a name="ffi_String_conversions"><h3>15.2 String conversions</h3></a>
+<a name="ffi_System_variables"><h3>16.2 System variables</h3></a>
+<p>
+  The interpreter uses several system variables which are initialized
+  from <a class="link" href="#decls_System_declarations">system declarations.
+</p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th><a class="link" href="#decls_System_declarations">System declaration</a></th>  <th>Seed7 name</th>      <th>C <a class="type_no_ul" href="#ffi_objectType">objectType</a> macro</th>         <th><a class="type_no_ul" href="#ffi_objectType">objectType</a> macro with argument</th></tr>
+    <tr><td><tt><a class="link" href="#decls_empty"         >"empty"</a></tt></td>             <td><tt><a class="var_no_ul" href="#types_empty"               >empty</a></tt></td>           <td><tt><a name="ffi_SYS_EMPTY_OBJECT"         >SYS_EMPTY_OBJECT</a></tt></td>           <td><tt>EMPTY_OBJECT(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_memory_error"  >"memory_error"</a></tt></td>      <td><tt><a class="exception" href="#errors_MEMORY_ERROR"       >MEMORY_ERROR</a></tt></td>    <td><tt><a name="ffi_SYS_MEM_EXCEPTION"        >SYS_MEM_EXCEPTION</a></tt></td>          <td><tt>MEM_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_numeric_error" >"numeric_error"</a></tt></td>     <td><tt><a class="exception" href="#errors_NUMERIC_ERROR"      >NUMERIC_ERROR</a></tt></td>   <td><tt><a name="ffi_SYS_NUM_EXCEPTION"        >SYS_NUM_EXCEPTION</a></tt></td>          <td><tt>NUM_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_overflow_error">"overflow_error"</a></tt></td>    <td><tt><a class="exception" href="#errors_OVERFLOW_ERROR"     >OVERFLOW_ERROR</a></tt></td>  <td><tt><a name="ffi_SYS_OVF_EXCEPTION"        >SYS_OVF_EXCEPTION</a></tt></td>          <td><tt>OVF_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_range_error"   >"range_error"</a></tt></td>       <td><tt><a class="exception" href="#errors_RANGE_ERROR"        >RANGE_ERROR</a></tt></td>     <td><tt><a name="ffi_SYS_RNG_EXCEPTION"        >SYS_RNG_EXCEPTION</a></tt></td>          <td><tt>RNG_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_index_error"   >"index_error"</a></tt></td>       <td><tt><a class="exception" href="#errors_INDEX_ERROR"        >INDEX_ERROR</a></tt></td>     <td><tt><a name="ffi_SYS_IDX_EXCEPTION"        >SYS_IDX_EXCEPTION</a></tt></td>          <td><tt>IDX_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_file_error"    >"file_error"</a></tt></td>        <td><tt><a class="exception" href="#errors_FILE_ERROR"         >FILE_ERROR</a></tt></td>      <td><tt><a name="ffi_SYS_FIL_EXCEPTION"        >SYS_FIL_EXCEPTION</a></tt></td>          <td><tt>FIL_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_database_error">"database_error"</a></tt></td>    <td><tt><a class="exception" href="#errors_DATABASE_ERROR"     >DATABASE_ERROR</a></tt></td>  <td><tt><a name="ffi_SYS_DB_EXCEPTION"         >SYS_DB_EXCEPTION</a></tt></td>           <td><tt>DB_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_graphic_error" >"graphic_error"</a></tt></td>     <td><tt><a class="exception" href="#errors_GRAPHIC_ERROR"      >GRAPHIC_ERROR</a></tt></td>   <td><tt><a name="ffi_SYS_GRAPHIC_EXCEPTION"    >SYS_GRAPHIC_EXCEPTION</a></tt></td>      <td><tt>GRAPHIC_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_illegal_action">"illegal_action"</a></tt></td>    <td><tt><a class="exception" href="#errors_ILLEGAL_ACTION"     >ILLEGAL_ACTION</a></tt></td>  <td><tt><a name="ffi_SYS_ACT_ILLEGAL_EXCEPTION">SYS_ACT_ILLEGAL_EXCEPTION</a></tt></td>  <td><tt>ACT_ILLEGAL_EXCEPTION(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_false"         >"false"</a></tt></td>             <td><tt><span class="var_no_ul">FALSE</span></tt></td>           <td><tt><a name="ffi_SYS_FALSE_OBJECT"         >SYS_FALSE_OBJECT</a></tt></td>           <td><tt>FALSE_OBJECT(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_true"          >"true"</a></tt></td>              <td><tt><span class="var_no_ul">TRUE</span></tt></td>            <td><tt><a name="ffi_SYS_TRUE_OBJECT"          >SYS_TRUE_OBJECT</a></tt></td>            <td><tt>TRUE_OBJECT(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_expr"          >"expr"</a></tt></td>              <td><tt><a class="type" href="#types_expr"                     >expr</a></tt></td>            <td><tt><a name="ffi_SYS_EXPR_TYPE"            >SYS_EXPR_TYPE</a></tt></td>              <td><tt>EXPR_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_f_param"       >"f_param"</a></tt></td>           <td><tt><span class="type"                                        >f_param</a></tt></td>         <td><tt><a name="ffi_SYS_F_PARAM_TYPE"         >SYS_F_PARAM_TYPE</a></tt></td>           <td><tt>F_PARAM_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_integer"       >"integer"</a></tt></td>           <td><tt><a class="type" href="#types_integer"                  >integer</a></tt></td>         <td><tt><a name="ffi_SYS_INT_TYPE"             >SYS_INT_TYPE</a></tt></td>               <td><tt>INT_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_bigInteger"    >"bigInteger"</a></tt></td>        <td><tt><a class="type" href="#types_bigInteger"               >bigInteger</a></tt></td>      <td><tt><a name="ffi_SYS_BIGINT_TYPE"          >SYS_BIGINT_TYPE</a></tt></td>            <td><tt>BIGINT_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_char"          >"char"</a></tt></td>              <td><tt><a class="type" href="#types_char"                     >char</a></tt></td>            <td><tt><a name="ffi_SYS_CHAR_TYPE"            >SYS_CHAR_TYPE</a></tt></td>              <td><tt>CHAR_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_string"        >"string"</a></tt></td>            <td><tt><a class="type" href="#types_string"                   >string</a></tt></td>          <td><tt><a name="ffi_SYS_STRI_TYPE"            >SYS_STRI_TYPE</a></tt></td>              <td><tt>STRI_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_proc"          >"proc"</a></tt></td>              <td><tt><a class="type" href="#types_proc"                     >proc</a></tt></td>            <td><tt><a name="ffi_SYS_PROC_TYPE"            >SYS_PROC_TYPE</a></tt></td>              <td><tt>PROC_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_float"         >"float"</a></tt></td>             <td><tt><a class="type" href="#types_float"                    >float</a></tt></td>           <td><tt><a name="ffi_SYS_FLT_TYPE"             >SYS_FLT_TYPE</a></tt></td>               <td><tt>FLT_TYPE(prog)</tt></td></tr>
+</table><p></p>
+
+<a name="ffi_String_conversions"><h3>16.3 String conversions</h3></a>
 <p>
   Seed7 strings are UTF-32 encoded and C strings are zero terminated
   byte sequences. C uses also byte sequences with a length. The byte
@@ -15949,7 +16166,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         NULL if the memory allocation failed.</dd></dl></dd>
 </dl></div></div>
 
-<a name="ffi_Operating_system_string_and_path_conversions"><h3>15.3 Operating system string and path conversions</h3></a>
+<a name="ffi_Operating_system_string_and_path_conversions"><h3>16.4 Operating system string and path conversions</h3></a>
 <p>
   Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
   To cope with this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_striType">os_striType</a></tt> and
@@ -16103,7 +16320,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         NULL if the memory allocation failed.</dd></dl></dd>
 </dl></div></div>
 
-<a name="ffi_Macros_to_access_the_action_parameters"><h3>15.4 Macros to access the action parameters</h3></a>
+<a name="ffi_Macros_to_access_the_action_parameters"><h3>16.5 Macros to access the action parameters</h3></a>
 <p>
   A primitive action function has one parameter named <tt>'arguments'</tt>. The
   <tt>'arguments'</tt> parameter has the type <tt><a class="type" href="#ffi_listType">listType</a></tt> and contains a list of
@@ -16246,7 +16463,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Take the struct value from an object.</td></tr></table></td></tr>
 </table></div>
 
-<a name="ffi_Functions_to_create_action_results"><h3>15.5 Functions to create action results</h3></a>
+<a name="ffi_Functions_to_create_action_results"><h3>16.6 Functions to create action results</h3></a>
 <p>
   A primitive action function has a result of type <tt><a class="type" href="#ffi_objectType">objectType</a></tt>.
   The header file <tt><span class="lib">"objutl.h"</span></tt> defines macros like <tt><a class="func" href="#ffi_bld_bigint_temp">bld_bigint_temp</a></tt>
@@ -16304,7 +16521,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_winType">winType</a> value.</td></tr></table></td></tr>
 </table></div>
 
-<a name="ffi_Memory_management_macros"><h3>15.6 Memory management macros</h3></a>
+<a name="ffi_Memory_management_macros"><h3>16.7 Memory management macros</h3></a>
 <p>
   The conversion functions mentioned above use macros to do the
   memory management. Some of this macros are not based on malloc()
@@ -16387,7 +16604,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>var</tt> - The string to be freed.</dd>
 </dl></div></div>
 
-<a name="ffi_Basic_conversion_functions"><h3>15.7 Basic conversion functions</h3></a>
+<a name="ffi_Basic_conversion_functions"><h3>16.8 Basic conversion functions</h3></a>
 <p>
   The conversion functions mentioned above are implemented with
   basic conversion functions. In some situations it might make sense
@@ -16558,19 +16775,19 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd>the length of the converted UTF-16 string in characters.</dd></dl></dd>
 </dl></div></div>
 
-<a name="ffi_Error_handling"><h3>15.8 Error handling</h3></a>
+<a name="ffi_Error_handling"><h3>16.9 Error handling</h3></a>
 <p>
   The C programming language does not provide exceptions. Seed7 uses
   several methods to provide error handling. Before an actual exception
   is raised an error state can be handled in different ways:
 </p><ul>
-    <li>The integer type <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> is used to describe an
-      error state. Usually a variable or parameter named <tt><span class="var">err_info</span></tt> is
-      used to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used
-      to describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
-      <tt><span class="exception">NUMERIC_ERROR</span></tt>, <tt><span class="exception">OVERFLOW_ERROR</span></tt>, <tt><span class="exception">RANGE_ERROR</span></tt>, <tt><span class="exception">FILE_ERROR</span></tt>,
-      <tt><span class="exception">DATABASE_ERROR</span></tt>, <tt><span class="exception">GRAPHIC_ERROR</span></tt> and <tt><span class="exception">ACTION_ERROR</span></tt> describe
-      errors that occurred.</li>
+    <li>The integer type <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> is used to describe an error
+      state. Usually a variable or parameter named <tt><span class="var">err_info</span></tt> is used
+      to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used to
+      describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
+      <tt><span class="exception">NUMERIC_ERROR</span></tt>, <tt><span class="exception">OVERFLOW_ERROR</span></tt>, <tt><span class="exception">RANGE_ERROR</span></tt>, <tt><span class="exception">INDEX_ERROR</span></tt>,
+      <tt><span class="exception">FILE_ERROR</span></tt>, <tt><span class="exception">DATABASE_ERROR</span></tt>, <tt><span class="exception">GRAPHIC_ERROR</span></tt> and
+      <tt><span class="exception">ACTION_ERROR</span></tt> describe errors that occurred.</li>
     <li>In some situations a function has only one possible error
       situation (e.g. a <tt><span class="exception">MEMORY_ERROR</span></tt>). This is handled with functions
       that return NULL in case of a <tt><span class="exception">MEMORY_ERROR</span></tt>.</li>
@@ -16675,7 +16892,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_STRING_EXPECTED"                  >String literal expected found "%s"</a></td></tr>
     <tr><td align="right">33:</td> <td width="10"></td><td><a name="errors_IDENT_EXPECTED"                   >Identifier expected found "%s"</a></td></tr>
     <tr><td align="right">34:</td> <td width="10"></td><td><a name="errors_TYPE_EXPECTED"                    >Type expected found %s</a></td></tr>
-    <tr><td align="right">35:</td> <td width="10"></td><td><a name="errors_PROC_EXPECTED"                    >Procedure expected found %s expression</a></td></tr>
+    <tr><td align="right">35:</td> <td width="10"></td><td><a name="errors_PROC_EXPECTED"                    ></a><span class="link">Procedure expected found "%s" expression</span></td></tr>
     <tr><td align="right">36:</td> <td width="10"></td><td><a name="errors_PARAM_SPECIFIER_EXPECTED"         >Parameter specifier expected found "%s"</a></td></tr>
     <tr><td align="right">37:</td> <td width="10"></td><td><a name="errors_PARAM_DECL_OR_SYMBOL_EXPECTED"    >Parameter declaration or symbol expected found %s</a></td></tr>
     <tr><td align="right">38:</td> <td width="10"></td><td><a name="errors_EXCEPTION_EXPECTED"               >Exception expected found %s</a></td></tr>

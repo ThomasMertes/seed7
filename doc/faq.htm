@@ -300,6 +300,9 @@ Can I profile Seed7 programs?
 </ul><h2>
 Language
 </h2><ul>
+<li><a class="link" href="#faq_case_sensitive"><b>
+Is Seed7 case sensitive or case insensitive?
+</b></a></li>
 <li><a class="link" href="#faq_reserved_words"><b>
 What are the reserved words of Seed7?
 </b></a></li>
@@ -423,6 +426,9 @@ Why are functions declared with const?
 <li><a class="link" href="#faq_functions_declared_without_const"><b>
 Are there functions declared without const?
 </b></a></li>
+<li><a class="link" href="#faq_possible_function_declaration_syntaxes"><b>
+What are the possible syntaxes of function declarations?
+</b></a></li>
 <li><a class="link" href="#faq_integer_overflow"><b>
 What is an integer overflow?
 </b></a></li>
@@ -467,6 +473,9 @@ Why are there two forms of assignment?
 </b></a></li>
 <li><a class="link" href="#faq_constructors"><b>
 Where are the constructors?
+</b></a></li>
+<li><a class="link" href="#faq_initialization"><b>
+How is the initialization done?
 </b></a></li>
 <li><a class="link" href="#faq_static_methods"><b>
 Are there static methods / class methods?
@@ -909,12 +918,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-05-16 the number of lines is:
+than 400000 lines of Seed7. For version 2025-07-29 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">189119</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 14179</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">273860</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">200310</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">190460</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 14214</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">275726</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">201500</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1454,19 +1463,21 @@ Seed7 allows introducing new keywords with <span class="link">syntax declaration
 is used in the standard libraries. Programs usually do not introduce new
 keywords. So the list of keywords defined in the standard libraries can be used.
 </p><ul>
-<li>Keywords are: <tt><span class="keywd_no_ul">array</span></tt> <tt><span class="keywd">begin</span></tt> <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">catch</span></tt> <tt><span class="keywd_no_ul">const</span></tt> <tt><span class="keywd">do</span></tt> <tt><span class="keywd_no_ul">downto</span></tt> <tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt>
-<tt><span class="keywd_no_ul">enum</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><a class="keywd_no_ul" href="#faq_declare_later">forward</a></tt> <tt><span class="keywd">func</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">hash</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd_no_ul">in</span></tt> <tt><span class="keywd">include</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd">is</span></tt> <tt><span class="keywd">local</span></tt>
-<tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd">param</span></tt> <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">ref</span></tt> <tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd">result</span></tt> <tt><a class="keywd_no_ul" href="#faq_no_return_statement">return</a></tt> <tt><span class="keywd_no_ul">set</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">struct</span></tt>
-<tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">val</span></tt> <tt><span class="keywd_no_ul">var</span></tt> <tt><span class="keywd_no_ul">when</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
+<li>Keywords are: <tt><span class="keywd_no_ul">array</span></tt> <tt><span class="keywd_no_ul">attr</span></tt> <tt><span class="keywd">begin</span></tt> <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">catch</span></tt> <tt><span class="keywd_no_ul">const</span></tt> <tt><span class="keywd_no_ul">default</span></tt> <tt><span class="keywd">do</span></tt> <tt><span class="keywd_no_ul">downto</span></tt>
+<tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd_no_ul">enum</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">fixLen</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd_no_ul">forward</span></tt> <tt><span class="keywd">func</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">hash</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd_no_ul">in</span></tt>
+<tt><span class="keywd">include</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd">is</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">len</span></tt> <tt><span class="keywd">local</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd">param</span></tt> <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">ref</span></tt>
+<tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd">result</span></tt> <tt><a class="keywd_no_ul" href="#faq_no_return_statement">return</a></tt> <tt><span class="keywd_no_ul">set</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">val</span></tt>
+<tt><span class="keywd_no_ul">var</span></tt> <tt><span class="keywd">varfunc</span></tt> <tt><span class="keywd_no_ul">when</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
 <li>Keywords which introduce statements are: <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd">include</span></tt>
 <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
 <li>Keywords which are used in the middle of statements are: <tt><span class="keywd_no_ul">catch</span></tt> <tt><span class="keywd">do</span></tt> <tt><span class="keywd_no_ul">downto</span></tt>
-<tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">when</span></tt></li>
+<tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">when</span></tt></li>
 <li>Keywords which introduce declarations are: <tt><span class="keywd_no_ul">const</span></tt> <tt><span class="keywd_no_ul">in</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd_no_ul">ref</span></tt> <tt><span class="keywd_no_ul">val</span></tt> <tt><span class="keywd_no_ul">var</span></tt></li>
 <li>Keywords which are used in the function body are: <tt><span class="keywd">begin</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd">func</span></tt> <tt><span class="keywd">local</span></tt>
 <tt><span class="keywd">result</span></tt> <tt><a class="keywd_no_ul" href="#faq_no_return_statement">return</a></tt></li>
-<li>Keywords which are used in type expression are: <tt><span class="keywd_no_ul">array</span></tt> <tt><span class="keywd_no_ul">enum</span></tt> <tt><span class="keywd_no_ul">hash</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">set</span></tt>
-<tt><span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt></li>
+<li>Keywords which are used in expressions are: <tt><span class="keywd_no_ul">default</span></tt> <tt><span class="keywd_no_ul">fixLen</span></tt> <tt><span class="keywd_no_ul">len</span></tt>
+<li>Keywords which are used in type expression are: <tt><span class="keywd_no_ul">array</span></tt> <tt><span class="keywd_no_ul">enum</span></tt> <tt><span class="keywd_no_ul">func</span></tt> <tt><span class="keywd_no_ul">hash</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt>
+<tt><tt><span class="keywd_no_ul">set</span></tt> <span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">varfunc</span></tt></li>
 <li>Keywords which are used as operator symbols are: <tt><span class="op_no_ul">and</span></tt> <tt><span class="op_no_ul">conj</span></tt> <tt><span class="op_no_ul">conv</span></tt> <tt><span class="op_no_ul">digits</span></tt> <tt><span class="op_no_ul">div</span></tt>
 <tt><span class="op_no_ul">exp</span></tt> <tt><span class="op_no_ul">in</span></tt> <tt><span class="op_no_ul">lpad</span></tt> <tt><span class="op_no_ul">lapd0</span></tt> <tt><span class="op_no_ul">mdiv</span></tt> <tt><span class="op_no_ul">mod</span></tt> <tt><span class="op_no_ul">mult</span></tt> <tt><span class="op_no_ul">not</span></tt> <tt><span class="op_no_ul">or</span></tt> <tt><span class="op_no_ul">parse</span></tt> <tt><span class="op_no_ul">radix</span></tt> <tt><span class="op_no_ul">RADIX</span></tt> <tt><span class="op_no_ul">rem</span></tt> <tt><span class="op_no_ul">rpad</span></tt> <tt><span class="op_no_ul">sci</span></tt> <tt><span class="op_no_ul">times</span></tt>
 <tt><span class="keywd">varConv</span></tt></li>
@@ -1476,10 +1487,10 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <li>Predefined comparison operators are: <tt><span class="op_no_ul">=</span></tt> <tt><span class="op_no_ul">&lt;&gt;</span></tt> <tt><span class="op_no_ul">&lt;</span></tt> <tt><span class="op_no_ul">&lt;=</span></tt> <tt><span class="op_no_ul">&gt;</span></tt> <tt><span class="op_no_ul">&gt;=</span></tt></li>
 <li>Other predefined operators are: <tt><span class="op_no_ul">+</span></tt> <tt><span class="op_no_ul">-</span></tt> <tt><span class="op_no_ul">*</span></tt> <tt><span class="op_no_ul">/</span></tt> <tt><span class="op_no_ul">**</span></tt> <tt><span class="op_no_ul">!</span></tt> <tt><span class="op_no_ul">&lt;&lt;</span></tt> <tt><span class="op_no_ul">&gt;&gt;</span></tt> <tt><span class="op_no_ul">&amp;</span></tt> <tt><span class="op_no_ul">|</span></tt> <tt><span class="op_no_ul">&gt;&lt;</span></tt> <tt><span class="op_no_ul">&lt;&amp;</span></tt> <tt><span class="op_no_ul">?</span></tt></li>
 <li>Predefined types are: <tt><span class="type_no_ul">array</span> <span class="type_no_ul">bigInteger</span> <span class="type_no_ul">bigRational</span> <span class="type_no_ul">bin32</span> <span class="type_no_ul">bin64</span> <span class="type_no_ul">bitset</span>
-<span class="type_no_ul">boolean</span> <span class="type_no_ul">bstring</span> <span class="type_no_ul">category</span> <span class="type_no_ul">char</span> <span class="type_no_ul">clib_file</span> <span class="type_no_ul">color</span> <span class="type_no_ul">complex</span> <span class="type_no_ul">database</span> <span class="type_no_ul">duration</span>
-<span class="type_no_ul">enum</span> <span class="type_no_ul">expr</span> <span class="type_no_ul">file</span> <span class="type_no_ul">fileSys</span> <span class="type_no_ul">float</span> <span class="type_no_ul">func</span> <span class="type_no_ul">hash</span> <span class="type_no_ul">integer</span> <span class="type_no_ul">object</span> <span class="type_no_ul">proc</span> <span class="type_no_ul">process</span> <span class="type_no_ul">program</span>
-<span class="type_no_ul">rational</span> <span class="type_no_ul">reference</span> <span class="type_no_ul">ref_list</span> <span class="type_no_ul">set</span> <span class="type_no_ul">sqlStatement</span> <span class="type_no_ul">string</span> <span class="type_no_ul">struct</span> <span class="type_no_ul">text</span> <span class="type_no_ul">time</span> <span class="type_no_ul">type</span>
-<span class="type_no_ul">void</span> <span class="type">PRIMITIVE_WINDOW</span></tt></li>
+<span class="type_no_ul">boolean</span> <span class="type_no_ul">bstring</span> <span class="type_no_ul">category</span> <span class="type_no_ul">char</span> <span class="type_no_ul">clib_file</span> <span class="type_no_ul">color</span> <span class="type_no_ul">complex</span> <span class="type_no_ul">creator</span> <span class="type_no_ul">database</span>
+<span class="type_no_ul">destroyer</span> <span class="type_no_ul">duration</span> <span class="type_no_ul">enum</span> <span class="type_no_ul">expr</span> <span class="type_no_ul">file</span> <span class="type_no_ul">fileSys</span> <span class="type_no_ul">float</span> <span class="type_no_ul">func</span> <span class="type_no_ul">hash</span> <span class="type_no_ul">integer</span> <span class="type_no_ul">object</span>
+<span class="type_no_ul">proc</span> <span class="type_no_ul">process</span> <span class="type_no_ul">program</span> <span class="type_no_ul">rational</span> <span class="type_no_ul">reference</span> <span class="type_no_ul">ref_list</span> <span class="type_no_ul">set</span> <span class="type_no_ul">sqlStatement</span> <span class="type_no_ul">string</span>
+<span class="type_no_ul">struct</span> <span class="type_no_ul">structElement</span> <span class="type_no_ul">text</span> <span class="type_no_ul">time</span> <span class="type_no_ul">type</span> <tt><span class="type_no_ul">varfunc</span></tt> <span class="type_no_ul">void</span> <span class="type">PRIMITIVE_WINDOW</span></tt></li>
 <li>Predefined constants are: <tt><span class="var_no_ul">E</span></tt> <span class="var_no_ul">empty</span> <tt><span class="var_no_ul">EOF</span></tt> <tt><span class="var_no_ul">FALSE</span></tt> <tt><span class="var_no_ul">Infinity</span></tt> <tt><span class="var_no_ul">NaN</span></tt> <tt><span class="var_no_ul">NIL</span></tt> <tt><span class="var_no_ul">PI</span></tt> <tt><span class="var_no_ul">TRUE</span></tt></li>
 <li>Predefined variables are: <tt><span class="var_no_ul">CONSOLE_KEYBOARD</span></tt> <tt><span class="var_no_ul">GRAPH_KEYBOARD</span></tt> <tt><span class="var_no_ul">IN</span></tt> <tt><span class="var_no_ul">KEYBOARD</span></tt> <tt><span class="var_no_ul">OUT</span></tt>
 <tt><span class="var_no_ul">STD_CONSOLE</span></tt> <tt><span class="var_no_ul">STD_ERR</span></tt> <tt><span class="var_no_ul">STD_IN</span></tt> <tt><span class="var_no_ul">STD_NULL</span></tt> <tt><span class="var_no_ul">STD_OUT</span></tt></li>
@@ -1559,15 +1570,37 @@ a tab-separated table with microseconds, number of calls, place of the function
 and function name.
 </p></div>
 
+<div><br /><a name="faq_case_sensitive"><h3>Is Seed7 case sensitive or case insensitive?
+</h3></a><hr />
+<p>
+Seed7 is a case sensitive language. This has several advantages:
+</p><ul>
+<li>It increases uniformity of code as the keywords in statements and
+   declarations always have to be in the same case. E.g.: A <span class="link">while-loop</span>
+   is always introduced with <tt><span class="keywd_no_ul">while</span></tt> and using <tt><span class="keywd">WHILE</span></tt> or <tt><span class="keywd">While</span></tt>
+   triggers an error.</li>
+<li>There is usually a canonical way to write any given identifier. Using
+   a mix of cases for the same identifier makes code harder to read.
+   Case sensitiveness forces people to write each identifier the correct
+   way each time they reference it. Misspelling <tt>elementId</tt> as <tt>elementID</tt>
+   triggers an error.</li>
+<li>With case sensitivity, the casing may specify the category of an
+   identifier. E.g.: Identifiers in all upper case are used by global
+   constants.</li>
+<li>Case sensitive identifier lookup is simpler and faster. Since a
+   significant time is spent for identifier lookups compilations will
+   speed up.</li>
+</ul></div>
+
 <div><br /><a name="faq_reserved_words"><h3>What are the reserved words of Seed7?
 </h3></a><hr />
 <p>
 In Seed7 there are no reserved words. Instead, there are keywords which are
 used at various places. Some keywords introduce statements or other constructs
-(such as declarations). E.g.: The keywords <tt><span class="keywd_no_ul">if</span></tt>, <tt><span class="keywd">while</span></tt>, <tt><span class="keywd">repeat</span></tt>, <tt><span class="keywd">for</span></tt>,
+(such as declarations). E.g.: The keywords <tt><span class="keywd_no_ul">if</span></tt>, <tt><span class="keywd_no_ul">while</span></tt>, <tt><span class="keywd_no_ul">repeat</span></tt>, <tt><span class="keywd_no_ul">for</span></tt>,
 and some others introduce statements. Other keywords like <tt><span class="keywd">do</span></tt>, <tt><span class="keywd">then</span></tt>, <tt><span class="keywd">range</span></tt>,
 <tt><span class="keywd">result</span></tt>, etc. are used in the middle of statements (or other constructs).
-Finally, there are also keywords like <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">lpad</span></tt>, <tt><span class="keywd">times</span></tt>, etc. which
+Finally, there are also keywords like <tt><span class="op_no_ul">div</span></tt>, <tt><span class="op_no_ul">rem</span></tt>, <tt><span class="op_no_ul">lpad</span></tt>, <tt><span class="op_no_ul">times</span></tt>, etc. which
 are used as operator symbols.
 </p><p>
 Seed7 uses <span class="link">syntax declarations</span> to specify the syntax of statements. A keyword
@@ -2097,40 +2130,25 @@ heuristics. Therefore, Seed7 is not a "do what I mean" language.
 <div><br /><a name="faq_declare_later"><h3>Can I use something and declare it later?
 </h3></a><hr />
 <p>
-No, everything must be declared before it is used. The possibility to declare new
-statements and new operators on one side and the static typing requirements with
-compile time checks of the parameters on the other side would make the job of
-analyzing expressions with undeclared functions overly complex.
+No, everything must be declared before it is used.
 </p><p>
-Forward declarations help, if something needs to be used before it can be declared
-fully:
+This keeps the code easier to follow and the compiler easier to implement.
+</p><p>
+<span class="link">Forward declarations</span> are required if something needs to be used before it can be
+declared fully:
 </p><pre class="indent">
-<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is forward</span>;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: isOdd (<span class="keywd_no_ul">in</span> <span class="type_no_ul">integer</span>: number) <span class="keywd">is</span> <span class="keywd_no_ul">forward</span>;
 
-<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: getString (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd_no_ul">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
-  <span class="keywd">begin</span>
-    <span class="keywd_no_ul">if</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'('</span> <span class="keywd_no_ul">then</span>
-      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
-      stri <span class="op_no_ul">:=</span> concatenate(inFile);    <span class="comment"># Call of forward declared function</span>
-      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
-    <span class="keywd_no_ul">elsif</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'"'</span> <span class="keywd_no_ul">then</span>
-      stri <span class="op_no_ul">:=</span> <span class="func">getQuotedText</span>(inFile);
-    <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">if</span>;
-  <span class="keywd">end func</span>;
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: isEven (<span class="keywd_no_ul">in</span> <span class="type_no_ul">integer</span>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">TRUE</span> <span class="op_no_ul">:</span> <span class="func">isOdd</span>(<span class="func_no_ul">pred</span>(number));
 
-<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">string</span>: concatenate (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd_no_ul">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
-  <span class="keywd">begin</span>
-    stri <span class="op_no_ul">:=</span> getString(inFile);
-    <span class="keywd_no_ul">while</span> inFile.bufferChar <span class="op_no_ul">=</span> <span class="stri">'&'</span> <span class="keywd_no_ul">do</span>
-      <span class="func">ignore</span>(<span class="func">getc</span>(inFile));
-      stri <span class="op_no_ul">&amp;:=</span> getString(inFile);
-    <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">while</span>;
-  <span class="keywd">end func</span>;
-</pre></div>
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: isOdd (<span class="keywd_no_ul">in</span> <span class="type_no_ul">integer</span>: number) <span class="keywd">is</span>
+  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">FALSE</span> <span class="op_no_ul">:</span> <span class="func">isEven</span>(<span class="func_no_ul">pred</span>(number));
+</pre><p>
+Since a declaration must precede its use the declaration of a certain
+function is easier to find. This helps when reading code from the internet
+or a book (where no IDE support is available).
+</p></div>
 
 <div><br /><a name="faq_overloading"><h3>Can functions be overloaded?
 </h3></a><hr />
@@ -2389,7 +2407,7 @@ big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library <span class="link">bytedata.s7i</span>
 defines several functions to convert integers into and from signed and
 unsigned representations of various sizes. These functions also allow that
-the endianness is specified explicit.
+the endianness is specified explicitly.
 </p><p>
 Message digest and compression algorithms do bitwise operations on 32- or
 64-bit data. Bitwise operations are not supported by <tt><span class="type">integer</span></tt>. To do that the
@@ -2645,15 +2663,15 @@ example:
     <span class="keywd_no_ul">var</span> <span class="type">integer</span>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     currDb <span class="op_no_ul">:=</span> <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-    <span class="keywd_no_ul">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd_no_ul">then</span>
+    <span class="keywd_no_ul">if</span> currDb <span class="op_no_ul">&lt;></span> <span class="type">database</span>.value <span class="keywd_no_ul">then</span>
       statement <span class="op_no_ul">:=</span> <span class="func">prepare</span>(currDb, <span class="stri">"select * from testTable"</span>);
       <span class="func">execute</span>(statement);
-      <span class="keywd">while</span> <span class="func">fetch</span>(statement) <span class="keywd">do</span>
+      <span class="keywd_no_ul">while</span> <span class="func">fetch</span>(statement) <span class="keywd_no_ul">do</span>
         <span class="keywd">for</span> index <span class="keywd">range</span> 1 <span class="keywd">to</span> <span class="func">columnCount</span>(statement) <span class="keywd">do</span>
-          write(<span class="func">column</span>(statement, index, <span class="type">string</span>) <span class="op">&lt;&amp;</span> <span class="stri">", "</span>);
+          write(<span class="func">column</span>(statement, index, <span class="type">string</span>) <span class="op_no_ul">&lt;&amp;</span> <span class="stri">", "</span>);
         <span class="keywd">end</span> <span class="keywd">for</span>;
         writeln;
-      <span class="keywd">end</span> <span class="keywd">while</span>;
+      <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">while</span>;
       <span class="func">close</span>(currDb);
     <span class="keywd_no_ul">end if</span>;
   <span class="keywd">end</span> <span class="keywd">func</span>;
@@ -2780,47 +2798,47 @@ divisions and contains <span class="link">tables</span> that show their behavior
 <div><br /><a name="faq_concatenation_operators"><h3>Why are &amp; and &lt;&amp; defined for string concatenation?
 </h3></a><hr />
 <p>
-The operators <tt><span class="op">&amp;</span></tt> and <tt><span class="op">&lt;&amp;</span></tt> both concatenate strings, but they have different purposes.
+The operators <tt><span class="op_no_ul">&amp;</span></tt> and <tt><span class="op_no_ul">&lt;&amp;</span></tt> both concatenate strings, but they have different purposes.
 </p><ul>
-<li><p>The <tt><span class="op">&amp;</span></tt> operator is intended for <tt><span class="type">string</span></tt> concatenations in normal expressions.
-   The <tt><span class="op">&amp;</span></tt> operator does not convert an <tt><span class="type">integer</span></tt> (or some other value) to a <tt><span class="type">string</span></tt>.
+<li><p>The <tt><span class="op_no_ul">&amp;</span></tt> operator is intended for <tt><span class="type">string</span></tt> concatenations in normal expressions.
+   The <tt><span class="op_no_ul">&amp;</span></tt> operator does not convert an <tt><span class="type">integer</span></tt> (or some other value) to a <tt><span class="type">string</span></tt>.
 </p><p>
-   The priority of <tt><span class="op">&amp;</span></tt> is defined to execute the concatenation before doing a
+   The priority of <tt><span class="op_no_ul">&amp;</span></tt> is defined to execute the concatenation before doing a
    comparison. E.g.:
 </p><pre class="indent">
-name <span class="op">&amp;</span> extension <span class="op">=</span> check
+name <span class="op_no_ul">&amp;</span> extension <span class="op">=</span> check
 </pre><p>
    has the meaning
 </p><pre class="indent">
-(name <span class="op">&amp;</span> extension) <span class="op">=</span> check
+(name <span class="op_no_ul">&amp;</span> extension) <span class="op">=</span> check
 </pre><p>
-   So the <tt><span class="op">&amp;</span></tt> operator can be used like <tt><span class="op">+</span></tt> <tt><span class="op">-</span></tt> <tt><span class="op">*</span></tt> (the expression is evaluated and its
+   So the <tt><span class="op_no_ul">&amp;</span></tt> operator can be used like <tt><span class="op">+</span></tt> <tt><span class="op">-</span></tt> <tt><span class="op">*</span></tt> (the expression is evaluated and its
    result can be compared).
 </p></li>
-<li><p>The <tt><span class="op">&lt;&amp;</span></tt> operator is intended for <tt><span class="func">write</span></tt> statements. It is overloaded for many
+<li><p>The <tt><span class="op_no_ul">&lt;&amp;</span></tt> operator is intended for <tt><span class="func">write</span></tt> statements. It is overloaded for many
    types. As long as the first or the second parameter is a <tt><span class="type">string</span></tt> it does convert
    the other parameter to a <tt><span class="type">string</span></tt> (with the function <tt><span class="func">str</span></tt>) and does the
    concatenation afterwards.
 </p><p>
-   The priority of <tt><span class="op">&lt;&amp;</span></tt> is defined to also allow the output of <tt><span class="type">boolean</span></tt> expressions.
+   The priority of <tt><span class="op_no_ul">&lt;&amp;</span></tt> is defined to also allow the output of <tt><span class="type">boolean</span></tt> expressions.
    E.g.:
 </p><pre class="indent">
-name <span class="op">&lt;&amp;</span> extension <span class="op">=</span> check
+name <span class="op_no_ul">&lt;&amp;</span> extension <span class="op">=</span> check
 </pre><p>
    has the meaning
 </p><pre class="indent">
-name <span class="op">&lt;&amp;</span> (extension <span class="op">=</span> check)
+name <span class="op_no_ul">&lt;&amp;</span> (extension <span class="op">=</span> check)
 </pre><p>
    Note that <tt><span class="var">extension</span></tt> and <tt><span class="var">check</span></tt> could be e.g. <tt><span class="type">integer</span>s</tt>. The result of
    '<span class="var">extension</span> = <span class="var">check</span>' is converted to <tt><span class="type">string</span></tt> with the function <tt><span class="func">str</span></tt>. So
 </p><pre class="indent">
-<span class="func">writeln</span>(name <span class="op">&lt;&amp;</span> extension = check)
+<span class="func">writeln</span>(name <span class="op_no_ul">&lt;&amp;</span> extension = check)
 </pre><p>
    would write (if <tt><span class="var">name</span></tt> is <tt><span class="stri">"asdf: "</span></tt> and <tt><span class="var">extension</span></tt> is not equal to <tt><span class="var">check</span></tt>):
 </p><pre class="indent">
 asdf: FALSE
 </pre></li></ul><p>
-The <tt><span class="op">&lt;&amp;</span></tt> operator can be defined for new types with <tt><span class="func">enable_io</span></tt> respectively
+The <tt><span class="op_no_ul">&lt;&amp;</span></tt> operator can be defined for new types with <tt><span class="func">enable_io</span></tt> respectively
 <tt><span class="func">enable_output</span></tt>. The description of the <span class="link">Seed7 file API</span> also contains a chapter
 about the <span class="link">conversion to strings and back</span>.
 </p></div>
@@ -2924,9 +2942,9 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd_no_ul">const</span> <span class="type">proc</span>: aFunc (<span class="keywd_no_ul">val</span> <span class="type">integer</span>: valParam, <span class="keywd_no_ul">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
+    writeln(valParam <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> refParam);
     aGlobal <span class="op_no_ul">:=</span> 2;
-    writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
+    writeln(valParam <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span> <span class="op_no_ul">&lt;&amp;</span> refParam);
   <span class="keywd">end func</span>;
 
 <span class="keywd_no_ul">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
@@ -3027,9 +3045,9 @@ Below is a <a class="link" href="#faq_call_by_name">call-by-name parameter</a> d
 </p><pre class="indent">
 <span class="keywd_no_ul">const</span> <span class="type">proc</span>: whileTrueDo (<span class="keywd_no_ul">in</span> <span class="type">func</span> <span class="type">boolean</span>: callByNameParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">while</span> callByNameParam <span class="keywd">do</span>
+    <span class="keywd_no_ul">while</span> callByNameParam <span class="keywd_no_ul">do</span>
       <span class="func_no_ul">noop</span>;
-    <span class="keywd">end while</span>;
+    <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">while</span>;
   <span class="keywd">end func</span>;
 </pre><p>
 The call-by-name parameter <tt><span class="var">callByNameParam</span></tt> refers to the function
@@ -3046,6 +3064,30 @@ functions with <tt><span class="keywd">var</span></tt>. Except for test programs
 since <a class="link" href="#faq_object_oriented">object orientation</a> provides a much better mechanism to execute
 different functions at run-time.
 </p></div>
+
+<div><br /><a name="faq_possible_function_declaration_syntaxes"><h3>What are the possible syntaxes of function declarations?
+</h3></a><hr />
+<p>
+Function declarations use the <span class="link">constant declaration</span> mechanism:
+</p><pre class="indent">
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type">aType</span>: myFunction (<span class="keywd_no_ul">in</span> <span class="type">parameterType</span>: aParameter) <span class="keywd">is</span> ...
+</pre><p>
+The initialization value of the function is after the keyword <tt><span class="keywd">is</span></tt>.
+</p><ul>
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">action</span></tt> use a <span class="link">primitive action</span> to
+   specify what the function should do.
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">func</span></tt> use a <tt><span class="keywd_no_ul">func ... end func</span></tt> construct.</li>
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">return</span></tt> <span class="link">use an expression which is
+   returned</span> (Be aware that <a class="link" href="#faq_no_return_statement">return is not a statement</a>).</li>
+<li>Declarations with the keywords <tt><span class="keywd_no_ul">return var</span></tt> support the declaration of
+   <tt><span class="type_no_ul">varfunc</span></tt> functions. This allows that the function can be placed as
+   left argument of an <span class="link">assignment</span>.</li>
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">return</span></tt> as infix operator allow the
+   specification of a type as left argument of the <tt><span class="keywd_no_ul">return</span></tt>. There is
+   also an infix <tt><span class="keywd_no_ul">return var</span></tt>.</li>
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">DYNAMIC</span></tt> are <span class="link">interface declarations</span>.</li>
+<li>Declarations with the keyword <tt><span class="keywd_no_ul">forward</span></tt> are <span class="link">forward declarations</span>.</li>
+</ul></div>
 
 <div><br /><a name="faq_integer_overflow"><h3>What is an integer overflow?
 </h3></a><hr />
@@ -3241,36 +3283,33 @@ process.
 <div><br /><a name="faq_abstract_data_type"><h3>What is an abstract data type?
 </h3></a><hr />
 <p>
-Examples of <a class="link" href="#decls_Abstract_data_type">abstract data types</a> are <tt><span class="type">array</span></tt>, <tt><span class="type">struct</span></tt> and <tt><span class="type">hash</span></tt>. Most programming
-languages hard-code abstract data types like <tt><span class="type">array</span></tt> in the compiler. In Seed7
+<span class="link">Abstract data types</span> are <tt><span class="type">array</span></tt>, <tt><span class="type">struct</span></tt> and <tt><span class="type">hash</span></tt>. In most programming
+languages the compiler hard-codes abstract data types like <tt><span class="type">array</span></tt>. In Seed7
 the library <span class="lib">array.s7i</span> defines the abstract data type <tt><span class="type">array</span></tt>. In Seed7
 programmers can introduce new abstract data types.
 </p><p>
-An abstract data type defines, like every other type, a set of functions to handle
-data. An abstract data type leaves, like an interface type from OO, the details of
-the data representation open. The difference between the two is:
-</p><ul>
-<li>An interface type is resolved to an implementation type at runtime.</li>
-<li>An abstract data type is resolved to a concrete type at compile time,
-   when it is used.</li>
-</ul><p>
-Usually an abstract data type uses parameters to resolve to a concrete type.
-An abstract <tt><span class="type">array</span></tt> type needs the element type as parameter. E.g.:
+Abstract data types are essentially parameterized types.
+Like any other type an <span class="link">abstract data type</span> defines a
+set of functions to handle data.
+</p><p>
+Usually an abstract data type uses parameters to resolve to an actual type.
+The abstract type <tt><span class="type">array</span></tt> is resolved with the parameter  <tt><span class="type_no_ul">string</span></tt> to the
+actual type:
 </p><pre class="indent">
-<span class="type">array string</span>
+<span class="type_no_ul">array</span> <span class="type_no_ul">string</span>
 </pre><p>
-This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">integer</span></tt> indices.
-An abstract <tt><span class="type">array</span></tt>, were the index type is also specified as parameters is:
+This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">integer</span></tt> indices. An abstract
+<tt><span class="type">array</span></tt>, were the index type is also specified as parameters is:
 </p><pre class="indent">
-<span class="type">array [char] string</span>
+<span class="type_no_ul">array</span> [<span class="type_no_ul">char</span>] <span class="type_no_ul">string</span>
 </pre><p>
-This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">char</span></tt> indices.
-Arrays are present in many programming languages, but they are usually hard-coded
-into the compiler / interpreter. Seed7 does not follow this direction. Instead it
-introduces abstract data types as common concept behind <tt><span class="type">array</span>s</tt>, <tt><span class="type">struct</span>s</tt>, <tt><span class="type">hash</span>es</tt>
-and other types. Like <a class="link" href="#faq_generics">templates</a> abstract data types are implemented with functions
-that are executed at compile time. In contrast to templates abstract data types
-return a type as result.
+This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">char</span></tt> indices. Arrays are
+present in many programming languages, but they are usually hard-coded
+into the compiler. Seed7 instead introduces abstract data types as common
+concept behind <tt><span class="type">array</span>s</tt>, <tt><span class="type">struct</span>s</tt>, <tt><span class="type">hash</span>es</tt> and other types. Like <a class="link" href="#faq_generics">templates</a>
+abstract data types are implemented with functions that are executed at
+compile time. In contrast to templates abstract data types return a type
+as result.
 </p></div>
 
 <div><br /><a name="faq_multiple_dispatch"><h3>What is multiple dispatch?
@@ -3313,14 +3352,14 @@ The declarations of the converting <tt>'+'</tt> operators are:
   <span class="keywd">result</span>
     <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> <span class="func">float</span>(a.data) + b.data;
+    sum.data <span class="op_no_ul">:=</span> <span class="func">float</span>(a.data) <span class="op_no_ul">+</span> b.data;
   <span class="keywd">end func</span>;
 
 <span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> a.data + <span class="func">float</span>(b.data);
+    sum.data <span class="op_no_ul">:=</span> a.data <span class="op_no_ul">+</span> <span class="func">float</span>(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
@@ -3329,14 +3368,14 @@ The declarations of the normal <tt>'+'</tt> operators (which do not convert) are
   <span class="keywd">result</span>
     <span class="keywd_no_ul">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> a.data + b.data;
+    sum.data <span class="op_no_ul">:=</span> a.data <span class="op_no_ul">+</span> b.data;
   <span class="keywd">end func</span>;
 
 <span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: a) + (<span class="keywd_no_ul">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd_no_ul">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.data <span class="op_no_ul">:=</span> a.data + b.data;
+    sum.data <span class="op_no_ul">:=</span> a.data <span class="op_no_ul">+</span> b.data;
   <span class="keywd">end func</span>;
 </pre><p>
 The decision which <tt>'+'</tt> operator should be called at runtime is based on the
@@ -3355,7 +3394,7 @@ A <tt><span class="type">ref_list</span></tt> should not be misused as container
 data types are:
 </p><dl>
 <dt><span class="type">array</span></dt><dd>
-   The type <tt>'<span class="type">array baseType</span>'</tt> describes sequences of identical elements of
+   The type <tt>'<span class="type_no_ul">array</span> <span class="type">baseType</span>'</tt> describes sequences of identical elements of
    a <tt>'<span class="type">baseType</span>'</tt></dd>
 
 <dt><span class="type">hash</span></dt><dd>
@@ -3370,12 +3409,12 @@ data types are:
 </dl><p>
 Usage examples of abstract data types are:
 </p><pre class="indent">
-<span class="type">array string</span>
-<span class="type">array [boolean] string</span>
-<span class="type">hash [string] boolean</span>
-<span class="type">hash [string] array array string</span>
-<span class="type">set of char</span>
-<span class="type">set of integer</span>
+<span class="type_no_ul">array</span> <span class="type_no_ul">string</span>
+<span class="type_no_ul">array</span> <span class="type">[</span><span class="type_no_ul">boolean</span><span class="type">]</span> <span class="type_no_ul">string</span>
+<span class="type"><span class="type_no_ul">hash</span> <span class="type">[</span><span class="type_no_ul">string</span><span class="type">]</span> <span class="type_no_ul">boolean</span>
+<span class="type"><span class="type_no_ul">hash</span> <span class="type">[</span><span class="type_no_ul">string</span><span class="type">]</span> <span class="type_no_ul">array</span> <span class="type_no_ul">array</span> <span class="type_no_ul">string</span>
+<span class="type_no_ul">set</span> <span class="type_no_ul">of</span> <span class="type_no_ul">char</span>
+<span class="type_no_ul">set</span> <span class="type_no_ul">of</span> <span class="type_no_ul">integer</span>
 </pre></div>
 
 <div><br /><a name="faq_primitive_types"><h3>Are there primitive types?
@@ -3472,37 +3511,103 @@ comparison operators.
 <div><br /><a name="faq_constructors"><h3>Where are the constructors?
 </h3></a><hr />
 <p>
-Seed7 does not need constructors, but you can define normal functions which create
-a new value in a similar way as constructors do it.
+Seed7 does not need constructors, but you can define normal functions
+which create a new value in a similar way as constructors do it:
+</p><pre class="indent">
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">complex</span>: complex (<span class="keywd_no_ul">in</span> <span class="type_no_ul">float</span>: re, <span class="keywd_no_ul">in</span> <span class="type_no_ul">float</span>: im) <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="keywd">func</span>
+  <span class="keywd">result</span>
+    <span class="keywd_no_ul">var</span> <span class="type_no_ul">complex</span>: aComplex <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="type_no_ul">complex</span>.value;
+  <span class="keywd">begin</span>
+    aComplex.re <span class="op_no_ul">:=</span> re;
+    aComplex.im <span class="op_no_ul">:=</span> im;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+This function can be used to initialize values:
+</p><pre class="indent">
+<span class="keywd_no_ul">var</span> <span class="type_no_ul">complex</span>: one <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> complex(1.0, 0.0);
+</pre><p>
+Initialization expressions are executed at compile-time. At run-time
+the variable is initialized with minumum effort from the value which
+has been computed at compile-time.
 </p><p>
-Seed7 uses a special create statement ( ::= ) to initialize objects. Explicit calls
-of the create statement are not needed.
-</p><p>
+New values for interface types can be created as well. In case of the
+interface type <tt><span class="type">itfType</span></tt> and the implementation type <tt><span class="type">implType</span></tt> a new
+value is created with:
+</p><pre class="indent">
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type">itfType</span>: openItfType (<span class="keywd_no_ul">in</span> <span class="type">someType</span>: someParameter) <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="keywd">func</span>
+  <span class="keywd">result</span>
+    <span class="keywd_no_ul">var</span> <span class="type">itfType</span>: newItfValue <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="type">itfType</span>.value;
+  <span class="keywd">local</span>
+    <span class="keywd_no_ul">var</span> <span class="type">implType</span>: newImplValue <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="type">implType</span>.value;
+  <span class="keywd">begin</span>
+    newImplValue.someElement <span class="op_no_ul">:=</span> someParameter;
+    newItfValue <span class="op_no_ul">:=</span> toInterface(newImplValue);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+The function <tt>toInterface</tt> transfers the ownership from <tt>newImplValue</tt>
+to <tt>newItfValue</tt>.
+</p></div>
+
+<div><br /><a name="faq_initialization"><h3>How is the initialization done?
+</h3></a><hr />
+<p>
+Seed7 uses a special <span class="link">create operator</span> ( <tt><span class="op_no_ul">::=</span></tt> ) to initialize objects.
+<span class="link">Create operators</span> are similar to <span class="link">assignment statements</span> ( <tt><span class="op_no_ul">:=</span></tt> ), but they
+assume that the destination is undefined (It may contain garbage).
+Create operators are not called explicitly. They are called by constant-
+and variable-declarations instead:
+</p><pre class="indent">
+<span class="keywd_no_ul">var</span> <span class="type_no_ul">string</span>: greeting <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="stri">"hello"</span>;
+</pre><p>
+This implicitely calls:
+</p><pre class="indent">
+greeting <span class="op_no_ul">::=</span> <span class="stri">"hello"</span>
+</pre><p>
+Using <tt><span class="op_no_ul">::=</span></tt> explicitly as statement like in
+</p><pre class="indent">
+<span class="keywd_no_ul">const</span> <span class="type_no_ul">proc</span>: test <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="keywd">func</span>
+  <span class="keywd">local</span>
+    <span class="keywd_no_ul">var</span> <span class="type_no_ul">integer</span>: number <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> 0;
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">writeln</span>(number);
+    number <span class="op_no_ul">::=</span> 1;       <span class="comment"># THIS DOES NOT WORK</span>
+    <span class="func_no_ul">writeln</span>(number);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+triggers an error:
+</p><pre class="indent">
+*** tst492.sd7(8):57: <span class="link">Match for {INT_CREATE({number ::= 1 }) ; {number writeln } } failed</span>
+    number ::= 1;       # THIS DOES NOT WORK
+</pre><p>
 The lifetime of an object goes like this:
 </p><ol><li>
-Memory is reserved for the new object (stack or heap memory make no difference
-   here).
+Memory is reserved for the new object (stack or heap memory
+   make no difference here).
 </li><li>
-The content of the new memory is undefined (It may contain garbage), therefore a
-   create statement is necessary instead of an assignment.
+The content of the new memory is undefined (It may contain
+   garbage), therefore a <span class="link">create operator</span> ( <span class="op_no_ul">::=</span> ) is necessary
+   instead of an <span class="link">assignment statement</span> ( <span class="op_no_ul">:=</span> ).
 </li><li>
-The create statements copies the right expression to the left expression taking
-   into account that the left expression is undefined.
+The <span class="link">create operator</span> ( <span class="op_no_ul">::=</span> ) copies the right expression to the
+   left expression taking into account that the left expression is
+   undefined.
 </li><li>
-If the object is variable other values can be assigned using the assign
-   statement ( <span class="op_no_ul">:=</span> ). The assignment can assume that the left expression contains a
-   legal value. This allows that for strings (and some other types which are just
-   references to a memory area) the memory containing the old string value (and not
-   the memory of the object itself) can be freed if necessary.
+If the object is variable other values can be assigned using
+   the <span class="link">assignment statement</span> ( <span class="op_no_ul">:=</span> ). The assignment can assume that
+   the destination contains a legal value.
 </li><li>
-At the end of the lifetime of an object the destroy statement is executed.
-   For strings (and some other types which are just references to a memory area)
-   the memory containing the string value (and not the memory of the object itself)
-   is freed.
+Strings (and some other types) are just references to a memory
+   area where the data resides. These references are the sole
+   owner of the memory area. This allows that an assignment
+   can reallocate the memory area.
+</li><li>
+At the end of the lifetime of an object the <a class="link" href="#types_destroyer">destroy operation</a>
+   is executed. For strings (and some other types which are just
+   references to a memory area) the referenced memory is freed.
 </li><li>
 The memory of the object is freed.
 </li></ol><p>
-The first three steps are usually hidden in the declaration statement.
+The first three steps are usually hidden in the <span class="link">declaration</span>.
 </p></div>
 
 <div><br /><a name="faq_static_methods"><h3>Are there static methods / class methods?
@@ -3514,9 +3619,9 @@ class. If this is not desired Seed7 uses a special parameter, the <tt>'attr'</tt
 named class methods) in a more general way. How a static method is declared is
 shown in the following example:
 </p><pre class="indent">
-<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd_no_ul">attr</span> <span class="type">integer</span>, <span class="keywd_no_ul">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+<span class="keywd_no_ul">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd_no_ul">attr</span> <span class="type">integer</span>, <span class="keywd_no_ul">in</span> <span class="type">char</span>: ch) <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="keywd">func</span>
   <span class="keywd">result</span>
-    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
+    <span class="keywd_no_ul">var</span> <span class="type">integer</span>: converted <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> 0;
   <span class="keywd">begin</span>
     converted <span class="op_no_ul">:=</span> <span class="func">ord</span>(ch);
   <span class="keywd">end func</span>;
@@ -3563,7 +3668,7 @@ template function can have parameters. Especially types as parameters are useful
 with template functions. That way a template function can declare objects with the
 type value of a parameter.
 </p><p>
-It is necessary to call template functions explicit. They are not invoked implicit
+It is necessary to call template functions explicitly. They are not invoked implicit
 as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 </p></div>
@@ -3808,14 +3913,19 @@ declaration that uses:
   ...
 <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
-Using <tt><span class="keywd">return</span></tt> as statement triggers an error.
+Using <tt><span class="keywd">return</span></tt> as statement like in
 </p><pre class="indent">
 <span class="keywd_no_ul">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">boolean</span>: flipCoin <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">result</span>
     <span class="keywd_no_ul">var</span> <span class="type_no_ul">boolean</span>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
-    <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);     <span class="comment"># THIS WILL NOT WORK</span>
+    <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);     <span class="comment"># THIS DOES NOT WORK</span>
   <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+triggers an error:
+</p><pre class="indent">
+*** tst461.sd7(7):35: <a name="faq_PROC_EXPECTED_example"></a><span class="link">Procedure expected found "func func boolean" expression</span>
+    return rand(FALSE, TRUE);     # THIS DOES NOT WORK
 </pre><p>
 The <tt><span class="keywd">return</span></tt> construct of Seed7 is not comparable to the <tt><span class="keywd">return</span></tt> statements
 of other programming languages. Since no <tt><span class="keywd">return</span></tt> statement exists, it is not
@@ -3835,8 +3945,8 @@ structured programming. A programmer should imagine loops as:
   <span class="keywd_no_ul">if</span> data <span class="op_no_ul">&lt;></span> <span class="stri">"undefined"</span> <span class="op_no_ul">and</span>
       <span class="op_no_ul">not</span> doSkip <span class="keywd_no_ul">then</span>
     do_something_useful;
-  <span class="keywd_no_ul">end if</span>;
-<span class="keywd_no_ul">end while</span>;
+  <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">if</span>;
+<span class="keywd_no_ul">end</span> <span class="keywd_no_ul">while</span>;
 </pre><p>
 instead of:
 </p><pre class="indent">
@@ -4156,9 +4266,9 @@ The following environment variables are defined by <span class="lib">chkccomp</s
 
   <tr><th> Variable           </th><th> Comment                                          </th></tr>
 
-  <tr><td> S7_LIB_DIR         </td><td> Absolute path to directory with static libraries </td></tr>
+  <tr><td> <span class="link">S7_LIB_DIR</span>         </td><td> Absolute path to directory with static libraries </td></tr>
   <tr><td> SEED7_LIBRARY      </td><td> Absolute path of directory with *.s7i libraries  </td></tr>
-  <tr><td> CC_ENVIRONMENT_INI </td><td> Name of environment ini file in the S7_LIB_DIR   </td></tr>
+  <tr><td> <span class="link">CC_ENVIRONMENT_INI</span> </td><td> Name of environment ini file in the S7_LIB_DIR   </td></tr>
   <tr><td> LINK_TIME          </td><td> Link libraries at 'BUILD' time or at 'RUN' time  </td></tr>
 
 </table></dd></dl><p>
