@@ -57,6 +57,11 @@ const destroyer: destroy (ref pollData: aValue)                            is ac
 const proc: (inout pollData: dest) := (ref pollData: source)               is action "POL_CPY";
 
 const func pollData: _GENERATE_EMPTY_POLL_DATA (in file: aFile)            is action "POL_EMPTY";
+
+
+(**
+ *  Default value of ''pollData'' (empty pollData).
+ *)
 const pollData: (attr pollData) . value                                    is _GENERATE_EMPTY_POLL_DATA(STD_NULL);
 
 

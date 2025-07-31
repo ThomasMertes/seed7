@@ -108,12 +108,22 @@ const proc: close (inout inetListener: aListener) is func
   end func;
 
 
+(**
+ *  Sign on the socket ''sock'' in the listener ''aListener''.
+ *  Afterwards the listener expects incoming data from the socket.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const proc: signOn (inout inetListener: aListener, in socket: sock) is func
   begin
     addCheck(aListener.checkedSocks, sock, POLLIN);
   end func;
 
 
+(**
+ *  Sign off the socket ''sock'' from the listener ''aListener''.
+ *  Afterwards the listener does not expect incoming data from the socket.
+ *)
 const proc: signOff (inout inetListener: aListener, in socket: sock) is func
   begin
     removeCheck(aListener.checkedSocks, sock, POLLIN);
