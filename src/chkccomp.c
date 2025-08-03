@@ -3051,7 +3051,7 @@ static void numericProperties (FILE *versionFile)
           fputs("#define PRINTF_ROUNDING ROUND_HALF_UP\n", versionFile);
           break;
         default:
-          fputs("#define ROUND_HALF_NOT_RECOGNIZED -1\n", versionFile);
+          fputs("#define ROUND_HALF_NOT_RECOGNIZED (-1)\n", versionFile);
           fputs("#define PRINTF_ROUNDING ROUND_HALF_NOT_RECOGNIZED\n", versionFile);
           fprintf(logFile, "\n *** Rounding of half values not recognized.\n");
           break;
@@ -4807,7 +4807,7 @@ static void determineSocketLib (FILE *versionFile)
       fputs("#define WINSOCK_SOCKETS 2\n", versionFile);
       fputs("#define SOCKET_LIB WINSOCK_SOCKETS\n", versionFile);
     } else {
-      fputs("#define NO_SOCKETS -1\n", versionFile);
+      fputs("#define NO_SOCKETS (-1)\n", versionFile);
       fputs("#define SOCKET_LIB NO_SOCKETS\n", versionFile);
     } /* if */
     fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
@@ -4894,7 +4894,7 @@ static void determineOsDirAccess (FILE *versionFile)
       fprintf(versionFile, "#define DIR_LIB %s\n", directory_lib);
     } else {
       fprintf(logFile, "\n *** Cannot define DIR_LIB.\n");
-      fputs("#define NO_DIRECTORY -1\n", versionFile);
+      fputs("#define NO_DIRECTORY (-1)\n", versionFile);
       fputs("#define DIR_LIB NO_DIRECTORY\n", versionFile);
     } /* if */
   } /* determineOsDirAccess */
