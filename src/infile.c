@@ -37,10 +37,12 @@
 #include "string.h"
 #include "errno.h"
 
-#if HAS_MMAP
+#if HAS_MMAP || FOPEN_OPENS_DIRECTORIES
 #include "sys/types.h"
 #include "sys/stat.h"
+#if HAS_MMAP
 #include "sys/mman.h"
+#endif
 #include "stat_drv.h"
 #endif
 
