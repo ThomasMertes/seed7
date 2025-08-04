@@ -679,7 +679,7 @@ const func float: getNumericVar (in string: varName) is func
     end if;
     if varName in var_value_from_for_loop then
       error_marker;
-      writeln(err, "VARIABLE " <& varName <& " GOT VALUE " <&
+      writeln(err, "VARIABLE " <& literal(varName) <& " GOT VALUE " <&
               numericValue <& " FROM FOR LOOP");
     end if;
   end func;
