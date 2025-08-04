@@ -199,7 +199,7 @@ chkccomp.h:
 	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
 	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> chkccomp.h
 	echo #define CC_FLAGS64 "-Wa,-mbig-obj" >> chkccomp.h
-	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto" >> chkccomp.h
+	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto=auto" >> chkccomp.h
 	echo #define LINKER_OPT_NO_LTO "-fno-lto" >> chkccomp.h
 	echo #define USE_GMP 0 >> chkccomp.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> chkccomp.h
