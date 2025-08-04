@@ -4675,7 +4675,7 @@ const proc: exec_loop (inout string: symbol, inout string: line) is func
             writeln(log, "LOOP - CONTINUE \"DO ... LOOP UNTIL\"");
           else
             error_marker;
-            writeln(err, "ILLEGAL - \"DO " <& symbol <& " .. LOOP UNTIL\"");
+            writeln(err, "ILLEGAL - \"DO " <& symbol <& " ... LOOP UNTIL\"");
             repeat
               symbol := get_symbol(line);
             until endOfStatement(symbol);
@@ -5704,7 +5704,7 @@ const proc: exec_line_input_from_file (inout string: symbol, inout string: line)
             " " <& literal(param1));
       else
         error_marker;
-        writeln(err, "STRING VARIABLE EXPECTED IN LINE INPUT FOUND " <&
+        writeln(err, "STRING VARIABLE EXPECTED IN LINE INPUT - FOUND " <&
             literal(symbol) <& ".");
       end if;
     elsif on_error_label <> "" then
@@ -5755,7 +5755,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
           writeln(log, " <- " <& literal(param2));
         else
           error_marker;
-          writeln(err, "STRING VARIABLE EXPECTED FOR LINE INPUT - FOUND " <&
+          writeln(err, "STRING VARIABLE EXPECTED IN LINE INPUT - FOUND " <&
               symbol <& ".");
         end if;
       elsif variable_name <> "" then
@@ -5774,7 +5774,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
       end if;
     else
       error_marker;
-      writeln(err, "STRING EXPECTED FOR LINE INPUT - FOUND " <&
+      writeln(err, "STRING EXPECTED IN LINE INPUT - FOUND " <&
           symbol <& ".");
     end if;
   end func;
@@ -5801,7 +5801,7 @@ const proc: exec_linput_from_file (inout string: symbol, inout string: line) is 
             " " <& literal(param1));
       else
         error_marker;
-        writeln(err, "STRING VARIABLE EXPECTED IN LINPUT FOUND " <&
+        writeln(err, "STRING VARIABLE EXPECTED IN LINPUT - FOUND " <&
             literal(symbol) <& ".");
       end if;
     elsif on_error_label <> "" then
@@ -5849,7 +5849,7 @@ const proc: exec_linput (inout string: symbol, inout string: line) is func
           writeln(log, " <- " <& literal(param2));
         else
           error_marker;
-          writeln(err, "STRING VARIABLE EXPECTED FOR LINPUT - FOUND " <&
+          writeln(err, "STRING VARIABLE EXPECTED IN LINPUT - FOUND " <&
               symbol <& ".");
         end if;
       elsif variable_name <> "" then
@@ -5868,7 +5868,7 @@ const proc: exec_linput (inout string: symbol, inout string: line) is func
       end if;
     else
       error_marker;
-      writeln(err, "STRING EXPECTED FOR LINPUT - FOUND " <&
+      writeln(err, "STRING EXPECTED IN LINPUT - FOUND " <&
           symbol <& ".");
     end if;
   end func;
@@ -9818,7 +9818,7 @@ const proc: prepareLoops is func
               symbol := get_symbol(line);
               if symbol <> "=" then
                 error_marker(headLabel);
-                writeln(err, "DO - NO STATICALLY CORRESPONDING \"LOOP\" STATEMENT FOUND ");
+                writeln(err, "DO - NO STATICALLY CORRESPONDING \"LOOP\" STATEMENT FOUND");
               end if;
             end if;
           elsif symbol = "LOOP" then
