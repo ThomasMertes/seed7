@@ -147,6 +147,8 @@ var def_fn_hash: def_fn_list is def_fn_hash.EMPTY_HASH;
 const type: numeric_hash is hash [string] float;
 var numeric_hash: numeric_var is numeric_hash.EMPTY_HASH;
 
+var stringSet: var_value_from_for_loop is stringSet.value;
+
 const type: string_hash is hash [string] string;
 var string_hash: string_var is string_hash.EMPTY_HASH;
 var stringSet: string_var_name is stringSet.value;
@@ -654,6 +656,20 @@ const func boolean: isNumericVar (in string: symbol) is
          symbol[length(symbol)] in numeric_var_suffix);
 
 
+const proc: error_marker is func
+  begin
+    write(err, " ***** ");
+    if statement_label <> "" then
+      write(err, "[" <& statement_label <& "] ");
+    elsif file_line_number >= 1 and file_line_number <= length(prg) then
+      if prg[file_line_number].fileName <> prg[1].fileName then
+        write(err, prg[file_line_number].fileName);
+      end if;
+      write(err, "(" <& prg[file_line_number].fileLine <& ") ");
+    end if;
+  end func;
+
+
 const func float: getNumericVar (in string: varName) is func
   result
     var float: numericValue is 0.0;
@@ -661,12 +677,18 @@ const func float: getNumericVar (in string: varName) is func
     if varName in numeric_var then
       numericValue := numeric_var[varName];
     end if;
+    if varName in var_value_from_for_loop then
+      error_marker;
+      writeln(err, "VARIABLE " <& varName <& " GOT VALUE " <&
+              numericValue <& " FROM FOR LOOP");
+    end if;
   end func;
 
 
 const proc: setNumericVar (in string: varName, in float: number) is func
   begin
     numeric_var @:= [varName] number;
+    excl(var_value_from_for_loop, varName);
   end func;
 
 
@@ -807,20 +829,6 @@ const proc: line_marker (in integer: line_number) is func
       end if;
     else
       write(log, "##### " <& line_number <& " ##### ");
-    end if;
-  end func;
-
-
-const proc: error_marker is func
-  begin
-    write(err, " ***** ");
-    if statement_label <> "" then
-      write(err, "[" <& statement_label <& "] ");
-    elsif file_line_number >= 1 and file_line_number <= length(prg) then
-      if prg[file_line_number].fileName <> prg[1].fileName then
-        write(err, prg[file_line_number].fileName);
-      end if;
-      write(err, "(" <& prg[file_line_number].fileLine <& ") ");
     end if;
   end func;
 
@@ -4062,6 +4070,7 @@ const proc: exec_next_decision (inout string: symbol, inout string: line,
         line_marker;
         writeln(log);
       else
+        incl(var_value_from_for_loop, variable_name);
         line_marker;
         writeln(log, "NEXT " <& variable_name <& " = " <& num1 <& " END FOR");
         forLoop := forLoop[2 .. ];
