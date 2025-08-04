@@ -357,6 +357,12 @@ static boolType findDll (void)
 #define ntohf(n) (n)
 #define htond(n) (n)
 #define ntohd(n) (n)
+#if SOCKET_LIB == NO_SOCKETS
+#define htons(n) (n)
+#define ntohs(n) (n)
+#define htonl(n) (n)
+#define ntohl(n) (n)
+#endif
 
 #else
 
@@ -366,6 +372,23 @@ static boolType findDll (void)
 #define ntohf(n) swap32float(n)
 #define htond(n) swap64double(n)
 #define ntohd(n) swap64double(n)
+#if SOCKET_LIB == NO_SOCKETS
+#define htons(n) swapUInt16(n)
+#define ntohs(n) swapUInt16(n)
+#define htonl(n) swapUInt32(n)
+#define ntohl(n) swapUInt32(n)
+
+static inline uint16Type swapUInt16 (uint16Type n)
+  {
+    return (uint16Type) (((n & 0xFF) << 8) | ((n & 0xFF00) >> 8));
+  }
+
+static inline uint32Type swapUInt32 (uint32Type n)
+  {
+    return ((n & 0xFF) << 24) | ((n & 0xFF00) << 8) |
+      ((n & 0xFF0000) >> 8) | ((n & 0xFF000000) >> 24);
+  }
+#endif
 
 static inline uint64Type swapUInt64 (uint64Type n)
   {
