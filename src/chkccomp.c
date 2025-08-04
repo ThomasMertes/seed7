@@ -9640,8 +9640,8 @@ static void determineFireDefines (FILE *versionFile,
     } /* if */
 #ifndef FIRE_USE_DLL
     /* Handle static libraries: */
-    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
-                         "#include \"%s\"\n"
+    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdlib.h>\n"
+                         "#include<stdio.h>\n#include \"%s\"\n"
                          "int main(int argc,char *argv[]){\n"
                          "ISC_STATUS status_vector[20];\n"
                          "isc_stmt_handle stmt_handle;\n"
