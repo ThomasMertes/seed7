@@ -215,9 +215,10 @@ errInfoType substitute_params (const_objectType expr_object)
           if (CATEGORY_OF_OBJ(current_element) == STRUCTELEMOBJECT &&
               current_element->value.objValue != NULL) {
             current_element = current_element->value.objValue;
-            if (HAS_ENTITY(current_element) &&
-                GET_ENTITY(current_element)->syobject != NULL) {
+            if (HAS_ENTITY(current_element)) {
               created_object = GET_ENTITY(current_element)->syobject;
+            } else {
+              created_object = NULL;
             } /* if */
           } else if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT ||
               CATEGORY_OF_OBJ(current_element) == CALLOBJECT ||
