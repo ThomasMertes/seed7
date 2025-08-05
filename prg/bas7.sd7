@@ -6018,7 +6018,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var string: unused_name is "";
     var string: param1 is "";
     var string: param2 is "";
-    var string: param_for is "";
+    var string: mode_param is "";
     var string: param_access is "";
     var string: mode is "";
     var string: file_name is "";
@@ -6030,22 +6030,18 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       param1 := exec_str_expr(symbol, line, unused_name);
     end if;
     if symbol = "FOR" then
-      param_for := get_symbol(line);
-      if param_for = "INPUT" then
-        mode := "r";
-      elsif param_for = "OUTPUT" then
-        mode := "w";
-      elsif param_for = "APPEND" then
-        mode := "a";
-      elsif param_for = "RANDOM" then
-        mode := "r+";
-      elsif param_for = "BINARY" then
-        mode := "r+";
-      else
-        mode := "r";
-        error_marker;
-        writeln(err, "ILLEGAL - OPEN FOR " <& param_for);
-      end if;
+      mode_param := get_symbol(line);
+      case mode_param of
+        when {"INPUT"}:  mode := "r";
+        when {"OUTPUT"}: mode := "w";
+        when {"APPEND"}: mode := "a";
+        when {"RANDOM"}: mode := "r+";
+        when {"BINARY"}: mode := "r+";
+        otherwise:
+          mode := "r";
+          error_marker;
+          writeln(err, "ILLEGAL - OPEN FOR " <& mode_param);
+      end case;
       symbol := get_symbol(line);
     else
       mode := "r+";
@@ -6095,7 +6091,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       file_name := param1;
       aFile := basicOpen(file_name, mode);
       if aFile = STD_NULL and param_access = "" and
-          (param_for = "" or param_for = "RANDOM" or param_for = "BINARY") then
+          (mode_param = "" or mode_param = "RANDOM" or mode_param = "BINARY") then
         mode := "w+";     # Try to open a new file with read/write mode
         aFile := basicOpen(file_name, mode);
         if aFile = STD_NULL then
@@ -6112,8 +6108,8 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       end if;
       line_marker;
       write(log, "OPEN " <& param1);
-      if param_for <> "" then
-        write(log, " FOR " <& param_for);
+      if mode_param <> "" then
+        write(log, " FOR " <& mode_param);
       end if;
       if param_access <> "" then
         write(log, " ACCESS " <& param_access);
@@ -6130,28 +6126,27 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       mode := "";
       while symbol = "," do
         symbol := get_symbol(line);
-        if symbol = "SEQUENTIAL" or symbol = "RELATIVE" then
-          write(log, "," <& symbol);
-        elsif symbol = "DISPLAY" or symbol = "INTERNAL" then
-          write(log, "," <& symbol);
-        elsif symbol = "UPDATE" then
-          write(log, "," <& symbol);
-          mode := "r+";
-        elsif symbol = "INPUT" then
-          write(log, "," <& symbol);
-          mode := "r";
-        elsif symbol = "OUTPUT" then
-          write(log, "," <& symbol);
-          mode := "w";
-        elsif symbol = "APPEND" then
-          write(log, "," <& symbol);
-          mode := "a";
-        elsif symbol=  "VARIABLE" or symbol = "FIXED" then
-          write(log, "," <& symbol);
-        else
-          error_marker;
-          writeln(err, "ILLEGAL - OPEN " <& symbol);
-        end if;
+        case symbol of
+          when {"SEQUENTIAL", "RELATIVE",
+                "DISPLAY", "INTERNAL",
+                "VARIABLE", "FIXED"}:
+            write(log, "," <& symbol);
+          when {"UPDATE"}:
+            write(log, "," <& symbol);
+            mode := "r+";
+          when {"INPUT"}:
+            write(log, "," <& symbol);
+            mode := "r";
+          when {"OUTPUT"}:
+            write(log, "," <& symbol);
+            mode := "w";
+          when {"APPEND"}:
+            write(log, "," <& symbol);
+            mode := "a";
+          otherwise:
+            error_marker;
+            writeln(err, "ILLEGAL - OPEN " <& symbol);
+        end case;
         symbol := get_symbol(line);
       end while;
       if mode = "" then
@@ -6166,22 +6161,18 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       writeln(log, " - open(" <& literal(file_name) <& ", " <&
           literal(mode) <& ")");
     else
-      if param1 <> "" then
-        if param1[.. 1] = "I" then
+      mode_param := upper(param1[.. 1]);
+      case mode_param of
+        when {"I"}: mode := "r";
+        when {"O"}: mode := "w";
+        when {"A"}: mode := "a";
+        when {"R"}: mode := "r+";
+        when {"B"}: mode := "r+";
+        otherwise:
           mode := "r";
-        elsif param1[.. 1] = "O" then
-          mode := "w";
-        elsif param1[.. 1] = "R" then
-          mode := "r+";
-        elsif param1[.. 1] = "B" then
-          mode := "r+";
-        end if;
-      end if;
-      if mode = "" then
-        mode := "r";
-        error_marker;
-        writeln(err, "ILLEGAL - OPEN " <& param1);
-      end if;
+          error_marker;
+          writeln(err, "ILLEGAL - OPEN " <& literal(param1));
+      end case;
       expect(",", symbol, line);
       if symbol = "#" then
         symbol := get_symbol(line);
@@ -6190,7 +6181,6 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       expect(",", symbol, line);
       param2 := exec_str_expr(symbol, line, unused_name);
       file_name := param2;
-      line_marker;
       aFile := basicOpen(file_name, mode);
       if aFile <> STD_NULL then
         setFileValue(index1, aFile);
