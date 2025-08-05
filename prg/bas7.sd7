@@ -6022,7 +6022,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var string: param_access is "";
     var string: mode is "";
     var string: file_name is "";
-    var integer: index1 is 0;
+    var integer: file_number is 0;
     var file: aFile is STD_NULL;
   begin
     symbol := get_symbol(line);
@@ -6080,13 +6080,13 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       if symbol = "#" then
         symbol := get_symbol(line);
       end if;
-      index1 := round(exec_expr(symbol, line));
+      file_number := round(exec_expr(symbol, line));
       if symbol = "LEN" then
         symbol := get_symbol(line);
         expect("=", symbol, line);
-        reclen_value[index1] := round(exec_expr(symbol, line));
+        reclen_value[file_number] := round(exec_expr(symbol, line));
       else
-        reclen_value[index1] := 0;
+        reclen_value[file_number] := 0;
       end if;
       file_name := param1;
       aFile := basicOpen(file_name, mode);
@@ -6104,25 +6104,25 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         end if;
       end if;
       if aFile <> STD_NULL then
-        setFileValue(index1, aFile);
+        setFileValue(file_number, aFile);
       end if;
       line_marker;
-      write(log, "OPEN " <& param1);
+      write(log, "OPEN " <& literal(file_name));
       if mode_param <> "" then
         write(log, " FOR " <& mode_param);
       end if;
       if param_access <> "" then
         write(log, " ACCESS " <& param_access);
       end if;
-      writeln(log, " AS #" <& index1 <&
+      writeln(log, " AS #" <& file_number <&
           " - open(" <& literal(file_name) <& ", " <& literal(mode) <& ")");
     elsif symbol = "#" then
       symbol := get_symbol(line);
-      index1 := round(exec_expr(symbol, line));
+      file_number := round(exec_expr(symbol, line));
       expect(":", symbol, line);
       file_name := exec_str_expr(symbol, line, unused_name);
       line_marker;
-      write(log, "OPEN #" <& index1 <& ":" <& literal(file_name));
+      write(log, "OPEN #" <& file_number <& ":" <& literal(file_name));
       while symbol = "," do
         symbol := get_symbol(line);
         case symbol of
@@ -6150,7 +6150,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       end while;
       aFile := basicOpen(file_name, mode);
       if aFile <> STD_NULL then
-        setFileValue(index1, aFile);
+        setFileValue(file_number, aFile);
       end if;
       writeln(log, " - open(" <& literal(file_name) <& ", " <&
           literal(mode) <& ")");
@@ -6171,22 +6171,22 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       if symbol = "#" then
         symbol := get_symbol(line);
       end if;
-      index1 := round(exec_expr(symbol, line));
+      file_number := round(exec_expr(symbol, line));
       expect(",", symbol, line);
       param2 := exec_str_expr(symbol, line, unused_name);
       file_name := param2;
       aFile := basicOpen(file_name, mode);
       if aFile <> STD_NULL then
-        setFileValue(index1, aFile);
+        setFileValue(file_number, aFile);
       end if;
       if symbol = "," then
         symbol := get_symbol(line);
-        reclen_value[index1] := round(exec_expr(symbol, line));
+        reclen_value[file_number] := round(exec_expr(symbol, line));
       else
-        reclen_value[index1] := 0;
+        reclen_value[file_number] := 0;
       end if;
       line_marker;
-      write(log, "OPEN " <& literal(param1) <& ", #" <& index1 <&
+      write(log, "OPEN " <& literal(param1) <& ", #" <& file_number <&
           ", " <& literal(param2));
       writeln(log, " - open(" <& literal(file_name) <& ", " <& literal(mode) <& ")");
     end if;
