@@ -6123,7 +6123,6 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       file_name := exec_str_expr(symbol, line, unused_name);
       line_marker;
       write(log, "OPEN #" <& index1 <& ":" <& literal(file_name));
-      mode := "";
       while symbol = "," do
         symbol := get_symbol(line);
         case symbol of
@@ -6149,11 +6148,6 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         end case;
         symbol := get_symbol(line);
       end while;
-      if mode = "" then
-        mode := "r";
-        error_marker;
-        writeln(err, "OPEN WITHOUT OPEN MODE");
-      end if;
       aFile := basicOpen(file_name, mode);
       if aFile <> STD_NULL then
         setFileValue(index1, aFile);
