@@ -6026,7 +6026,9 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var file: aFile is STD_NULL;
   begin
     symbol := get_symbol(line);
-    param1 := exec_str_expr(symbol, line, unused_name);
+    if symbol <> "#" then
+      param1 := exec_str_expr(symbol, line, unused_name);
+    end if;
     if symbol = "FOR" then
       param_for := get_symbol(line);
       if param_for = "INPUT" then
@@ -6118,6 +6120,51 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       end if;
       writeln(log, " AS #" <& index1 <&
           " - open(" <& literal(file_name) <& ", " <& literal(mode) <& ")");
+    elsif symbol = "#" then
+      symbol := get_symbol(line);
+      index1 := round(exec_expr(symbol, line));
+      expect(":", symbol, line);
+      file_name := exec_str_expr(symbol, line, unused_name);
+      line_marker;
+      write(log, "OPEN #" <& index1 <& ":" <& literal(file_name));
+      mode := "";
+      while symbol = "," do
+        symbol := get_symbol(line);
+        if symbol = "SEQUENTIAL" or symbol = "RELATIVE" then
+          write(log, "," <& symbol);
+        elsif symbol = "DISPLAY" or symbol = "INTERNAL" then
+          write(log, "," <& symbol);
+        elsif symbol = "UPDATE" then
+          write(log, "," <& symbol);
+          mode := "r+";
+        elsif symbol = "INPUT" then
+          write(log, "," <& symbol);
+          mode := "r";
+        elsif symbol = "OUTPUT" then
+          write(log, "," <& symbol);
+          mode := "w";
+        elsif symbol = "APPEND" then
+          write(log, "," <& symbol);
+          mode := "a";
+        elsif symbol=  "VARIABLE" or symbol = "FIXED" then
+          write(log, "," <& symbol);
+        else
+          error_marker;
+          writeln(err, "ILLEGAL - OPEN " <& symbol);
+        end if;
+        symbol := get_symbol(line);
+      end while;
+      if mode = "" then
+        mode := "r";
+        error_marker;
+        writeln(err, "OPEN WITHOUT OPEN MODE");
+      end if;
+      aFile := basicOpen(file_name, mode);
+      if aFile <> STD_NULL then
+        setFileValue(index1, aFile);
+      end if;
+      writeln(log, " - open(" <& literal(file_name) <& ", " <&
+          literal(mode) <& ")");
     else
       if param1 <> "" then
         if param1[.. 1] = "I" then
