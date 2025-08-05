@@ -2932,6 +2932,7 @@ const proc: process_type_declaration (in reference: current_object,
 
   local
     var type: aType is void;
+    var type: baseType is void;
     var type: interfaceType is void;
   begin
     if isVar(current_object) then
@@ -2949,7 +2950,22 @@ const proc: process_type_declaration (in reference: current_object,
       declare_type_if_necessary(aType, c_expr);
       for interfaceType range interfaces(aType) do
         addImplementationToInterface(aType, interfaceType);
+        while isDerived(interfaceType) do
+          interfaceType := meta(interfaceType);
+          addImplementationToInterface(aType, interfaceType);
+        end while;
       end for;
+      baseType := aType;
+      while isDerived(baseType) do
+        baseType := meta(baseType);
+        for interfaceType range interfaces(baseType) do
+          addImplementationToInterface(aType, interfaceType);
+          while isDerived(interfaceType) do
+            interfaceType := meta(interfaceType);
+            addImplementationToInterface(aType, interfaceType);
+          end while;
+        end for;
+      end while;
     end if;
     count_declarations(c_expr);
   end func;
