@@ -1592,6 +1592,36 @@ const proc: check_use_after_close_utf8 is func
   end func;
 
 
+const type: myFile is sub null_file struct
+    var string: line is "";
+  end struct;
+
+
+const func file: openMyFile is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var myFile: new_myFile is myFile.value;
+  begin
+    newFile := toInterface(new_myFile);
+  end func;
+
+
+const proc: write (inout myFile: outFile, in string: stri) is func
+  begin
+    outFile.line &:= stri;
+  end func;
+
+
+const proc: check_my_file is func
+  local
+    var file: aFile is STD_NULL;
+  begin
+    aFile := openMyFile;
+    write(aFile, "test");
+  end func;
+
+
 const proc: check_null_file is func
   local
     var boolean: okay is TRUE;
@@ -1704,6 +1734,7 @@ const proc: main is func
     check_utf8_seek;
     check_automatic_close_utf8;
     check_use_after_close_utf8;
+    check_my_file;
     check_null_file;
     check_keybd_and_console;
   end func;
