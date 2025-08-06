@@ -38,14 +38,14 @@
 (*  LOG, LOOP, LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$,    *)
 (*  MKDMBF$, MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$,       *)
 (*  ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,        *)
-(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT,   *)
-(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING,       *)
-(*  **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET,     *)
-(*  RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET, RTRIM$,       *)
-(*  **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP, **SOUND,   *)
-(*  SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, SWAP,    *)
-(*  SYSTEM, TAB, TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND, UCASE$,   *)
-(*  VAL, VTAB, WEND, WHILE, WRITE, WRITE#                           *)
+(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PCOPY, **PEEK,        *)
+(*  **PLAY, PLOT, **POINT, **POKE, POS, PRESET, PRINT, PRINT#,      *)
+(*  PRINT USING, **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM,    *)
+(*  REM, RESET, RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET,   *)
+(*  RTRIM$, **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP,    *)
+(*  **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, *)
+(*  SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND,     *)
+(*  UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#                   *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -9213,6 +9213,12 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         when {"PALETTE"}:
           line_marker;
           writeln(log, "**PALETTE " <& line);
+          repeat
+            symbol := get_symbol(line);
+          until endOfStatement(symbol);
+        when {"PCOPY"}:
+          line_marker;
+          writeln(log, "**PCOPY " <& line);
           repeat
             symbol := get_symbol(line);
           until endOfStatement(symbol);
