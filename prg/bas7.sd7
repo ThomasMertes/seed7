@@ -1919,11 +1919,17 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect("(", symbol, line);
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(",", symbol, line);
-        num1 := exec_expr(symbol, line);
+        index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        exprResult := stri1[ .. round(num1)];
-        writeln(log, "LEFT$(" <& literal(stri1) <& ", " <& num1 <&
-            ") -> " <& literal(exprResult));
+        if index1 >= 0 then
+          exprResult := stri1[ .. index1];
+          writeln(log, "LEFT$(" <& literal(stri1) <& ", " <& index1 <&
+              ") -> " <& literal(exprResult));
+        else
+          error_marker;
+          writeln(err, "LEFT$(" <& literal(stri1) <& ", " <& index1 <&
+              ") - ILLEGAL FUNCTION CALL");
+        end if;
       when {"LTRIM$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -1940,19 +1946,32 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect("(", symbol, line);
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(",", symbol, line);
-        num1 := exec_expr(symbol, line);
+        index1 := round(exec_expr(symbol, line));
         if symbol = "," then
           symbol := get_symbol(line);
-          num2 := exec_expr(symbol, line);
+          index2 := round(exec_expr(symbol, line));
           expect(")", symbol, line);
-          exprResult := stri1[round(num1) .. round(num1) + round(num2) - 1];
-          write(log, "MID$(" <& literal(stri1) <& ", " <& num1 <& ", " <& num2);
+          if index1 >= 1 and index2 >= 0 then
+            exprResult := stri1[index1 .. index1 + index2 - 1];
+            writeln(log, "MID$(" <& literal(stri1) <& ", " <& index1 <& ", " <& index2 <&
+                ") -> " <& literal(exprResult));
+          else
+            error_marker;
+            writeln(err, "MID$(" <& literal(stri1) <& ", " <& index1 <& ", " <& index2 <&
+                ") - ILLEGAL FUNCTION CALL");
+          end if;
         else
           expect(")", symbol, line);
-          exprResult := stri1[round(num1) .. ];
-          write(log, "MID$(" <& literal(stri1) <& ", " <& num1);
+          if index1 >= 1 then
+            exprResult := stri1[index1 .. ];
+            writeln(log, "MID$(" <& literal(stri1) <& ", " <& index1 <&
+                ") -> " <& literal(exprResult));
+          else
+            error_marker;
+            writeln(err, "MID$(" <& literal(stri1) <& ", " <& index1 <&
+                ") - ILLEGAL FUNCTION CALL");
+          end if;
         end if;
-        writeln(log, ") -> " <& literal(exprResult));
       when {"MKD$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -2023,11 +2042,21 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect("(", symbol, line);
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(",", symbol, line);
-        num1 := exec_expr(symbol, line);
+        index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        exprResult := stri1[length(stri1) - round(num1) + 1 .. ];
-        writeln(log, "RIGHT$(" <& literal(stri1) <& ", " <& num1 <&
-            ") -> " <& literal(exprResult));
+        if index1 >= 0 then
+          if index1 < length(stri1) then
+            exprResult := stri1[length(stri1) - index1 + 1 .. ];
+          else
+            exprResult := stri1;
+          end if;
+          writeln(log, "RIGHT$(" <& literal(stri1) <& ", " <& index1 <&
+              ") -> " <& literal(exprResult));
+        else
+          error_marker;
+          writeln(err, "RIGHT$(" <& literal(stri1) <& ", " <& index1 <&
+              ") - ILLEGAL FUNCTION CALL");
+        end if;
       when {"RPT$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -9156,7 +9185,6 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             line_marker;
             writeln(log, "SKIP LABEL: OUT");
           else
-            symbol := get_symbol(line);
             index1 := round(exec_expr(symbol, line));
             expect(",", symbol, line);
             index2 := round(exec_expr(symbol, line));
