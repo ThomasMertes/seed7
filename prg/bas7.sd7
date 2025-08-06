@@ -4051,7 +4051,25 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         length := length(stri);
       end if;
       var_value := getStringVar(variable_name);
-      if position <= length(var_value) then
+      if with_length and requested_length < 0 or
+          position <= 0 or position > length(var_value) then
+        if on_error_label <> "" then
+          error_code := 5; # Illegal function call
+          line_marker;
+          writeln(log, "ERROR " <& error_code <&
+              " - ON ERROR GOTO " <& on_error_label);
+          goto_on_error(on_error_label, line);
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          write(err, "MID$(" <& variable_name <& ", " <& position);
+          if with_length then
+            write(err, ", " <& requested_length);
+          end if;
+          writeln(err, ") - ILLEGAL FUNCTION CALL");
+        end if;
+      else
         if succ(length(var_value) - position) < length then
           length := succ(length(var_value) - position);
         end if;
@@ -4063,14 +4081,26 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
           write(log, ", " <& requested_length);
         end if;
         writeln(log, ")=" <& literal(stri));
-      else
-        error_marker;
-        writeln(err, "MID$ POSITION " <& position <&
-            " LARGER THAN LENGTH OF " <& literal(var_value));
       end if;
     else
-      error_marker;
-      writeln(err, "STRING VARIABLE EXPECTED - FOUND " <& literal(symbol));
+      if on_error_label <> "" then
+        while not endOfStatement(symbol) do
+          symbol := get_symbol(line);
+        end while;
+        error_code := 13; # Type mismatch
+        line_marker;
+        writeln(log, "ERROR " <& error_code <&
+            " - ON ERROR GOTO " <& on_error_label);
+        goto_on_error(on_error_label, line);
+        symbol := "";
+        line := "";
+      else
+        error_marker;
+        writeln(err, "STRING VARIABLE EXPECTED - FOUND " <& literal(symbol));
+        while not endOfStatement(symbol) do
+          symbol := get_symbol(line);
+        end while;
+      end if;
     end if;
   end func;
 
