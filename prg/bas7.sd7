@@ -5192,10 +5192,23 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
     var string: unused_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
+    var integer: position is 0;
     var integer: implicit_semicolon_pos is -1;
   begin
     line_marker;
     write(log, "PRINT ");
+    if symbol = "@" then
+      symbol := get_symbol(line);
+      position := round(exec_expr(symbol, line));
+      if position >= 0 and position <= 1023 then
+        write(log, "@" <& position <& "=(" <& succ(position mdiv 64) <& "," <&
+            succ(position mod 64) <& "), ");
+        setPos(win, succ(position mdiv 64), succ(position mod 64));
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+      end if;
+    end if;
     repeat
       if isStringExpr(symbol) then
         param1 := exec_str_expr(symbol, line, unused_name);
