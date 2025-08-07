@@ -4056,7 +4056,7 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         if on_error_label <> "" then
           error_code := 5; # Illegal function call
           line_marker;
-          writeln(log, "ERROR " <& error_code <&
+          writeln(log, error_code <& " ILLEGAL FUNCTION CALL - MID$" <&
               " - ON ERROR GOTO " <& on_error_label);
           goto_on_error(on_error_label, line);
           symbol := "";
@@ -4084,13 +4084,13 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
       end if;
     else
       if on_error_label <> "" then
+        error_code := 13; # Type mismatch
+        line_marker;
+        writeln(log, error_code <& " TYPE MISMATCH" <&
+            " - ON ERROR GOTO " <& on_error_label);
         while not endOfStatement(symbol) do
           symbol := get_symbol(line);
         end while;
-        error_code := 13; # Type mismatch
-        line_marker;
-        writeln(log, "ERROR " <& error_code <&
-            " - ON ERROR GOTO " <& on_error_label);
         goto_on_error(on_error_label, line);
         symbol := "";
         line := "";
