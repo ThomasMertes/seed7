@@ -8457,6 +8457,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               line_marker;
               writeln(log, "CHAIN " <& literal(param1) <& " - " <&
                   length(prg) <& " LINES");
+              on_error_label := "";
               file_line_number := 0;
               data_line_number := 0;
               symbol := "";
@@ -9137,7 +9138,9 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               line_marker;
               writeln(log, "LOAD " <& literal(param1) <& " - " <&
                   length(prg) <& " LINES");
+              on_error_label := "";
               file_line_number := 0;
+              data_line_number := 0;
               symbol := "";
               line := "";
             elsif on_error_label <> "" then
@@ -9557,7 +9560,9 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               line_marker;
               writeln(log, "RUN " <& literal(param1) <& " - " <&
                   length(prg) <& " LINES");
+              on_error_label := "";
               file_line_number := 0;
+              data_line_number := 0;
               symbol := "";
               line := "";
             elsif on_error_label <> "" then
