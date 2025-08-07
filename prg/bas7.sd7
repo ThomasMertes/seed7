@@ -5240,11 +5240,7 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
       end if;
     end if;
     repeat
-      if isStringExpr(symbol) then
-        param1 := exec_str_expr(symbol, line, unused_name);
-        write(win, param1);
-        write(log, literal(param1));
-      elsif symbol = "TAB" then
+      if symbol = "TAB" then
         symbol := get_symbol(line);
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
@@ -5262,6 +5258,10 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
         write(log, "SPC(" <& round(num1) <& ")");
       elsif symbol = "USING" then
         exec_print_using(win, symbol, line);
+      elsif isStringExpr(symbol) then
+        param1 := exec_str_expr(symbol, line, unused_name);
+        write(win, param1);
+        write(log, literal(param1));
       elsif symbol <> ";" and symbol <> "," and not endOfStatement(symbol) then
         write(win, " ");
         write(log, " ");
@@ -5327,21 +5327,23 @@ const proc: exec_print (inout file: outFile,
     var string: param1 is "";
     var float: num1 is 0.0;
     var integer: implicit_semicolon_pos is -1;
+    var integer: column is 1;
+    var integer: padding is 1;
   begin
     if endOfStatement(symbol) then
       writeln(outFile);
     else
       repeat
-        if isStringExpr(symbol) then
-          param1 := exec_str_expr(symbol, line, unused_name);
-          write(outFile, param1);
-          write(log, literal(param1));
-        elsif symbol = "TAB" then
+        if symbol = "TAB" then
           symbol := get_symbol(line);
           expect("(", symbol, line);
           num1 := exec_expr(symbol, line);
           expect(")", symbol, line);
-          write(outFile, "  ");
+          if column < round(num1) then
+            padding := round(num1) - column;
+            write(outFile, "" rpad padding);
+            column := round(num1);
+          end if;
           write(log, "TAB(" <& round(num1) <& ")");
         elsif symbol = "SPC" then
           symbol := get_symbol(line);
@@ -5349,9 +5351,16 @@ const proc: exec_print (inout file: outFile,
           num1 := exec_expr(symbol, line);
           expect(")", symbol, line);
           write(outFile, "" rpad round(num1));
+          column +:= round(num1);
           write(log, "SPC(" <& round(num1) <& ")");
+        elsif isStringExpr(symbol) then
+          param1 := exec_str_expr(symbol, line, unused_name);
+          write(outFile, param1);
+          column +:= length(param1);
+          write(log, literal(param1));
         else
           write(outFile, " ");
+          incr(column);
           write(log, " ");
           num1 := exec_expr(symbol, line);
           param1 := str(num1);
@@ -5359,9 +5368,11 @@ const proc: exec_print (inout file: outFile,
             param1 := param1[ .. length(param1) - 2];
           end if;
           write(outFile, param1);
+          column +:= length(param1);
           write(log, num1);
           if not endOfStatement(symbol) then
             write(outFile, " ");
+            incr(column);
             write(log, " ");
           end if;
         end if;
@@ -5372,7 +5383,9 @@ const proc: exec_print (inout file: outFile,
           write(log, "; ");
         elsif symbol = "," then
           symbol := get_symbol(line);
-          write(outFile, "  ");
+          padding := 15 - column rem 14;
+          write(outFile, "" rpad padding);
+          column +:= padding;
           write(log, ", ");
         else
           # This is the next thing to be printed.
@@ -5390,6 +5403,14 @@ const proc: exec_print (inout file: outFile,
     end if;
     flush(outFile);
     writeln(log);
+  end func;
+
+
+const proc: exec_lprint (inout string: symbol, inout string: line) is func
+  begin
+    line_marker;
+    write(log, "LPRINT ");
+    exec_print(STD_OUT, symbol, line);
   end func;
 
 
@@ -8235,7 +8256,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
       elsif startsWith(symbol, "LPRINT") then
         line := symbol[7 ..] & line;
         symbol := get_symbol(line);
-        exec_print(symbol, line);
+        exec_lprint(symbol, line);
       elsif startsWith(symbol, "INPUT") then
         line := symbol[6 ..] & line;
         symbol := get_symbol(line);
@@ -9190,7 +9211,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           exec_loop(symbol, line);
         when {"LPRINT"}:
           symbol := get_symbol(line);
-          exec_print(symbol, line);
+          exec_lprint(symbol, line);
         when {"LSET"}:
           symbol := get_symbol(line);
           if isStringVar(symbol) then
