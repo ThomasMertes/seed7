@@ -8352,7 +8352,8 @@ const proc: exec_let (inout string: symbol, inout string: line,
   end func;
 
 
-const func boolean: runOrChain (in string: cmd, in string: name) is forward;
+const func boolean: runOrChain (in string: cmd, in string: name,
+    in boolean: doClear) is forward;
 
 
 const func boolean: execCmd (inout string: symbol, inout string: line) is func
@@ -8452,7 +8453,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
           if isStringExpr(symbol) then
             param1 := exec_str_expr(symbol, line, variable_name);
-            if runOrChain("CHAIN", param1) then
+            if runOrChain("CHAIN", param1, FALSE) then
               writeln(log, "load program finished");
               line_marker;
               writeln(log, "CHAIN " <& literal(param1) <& " - " <&
@@ -8463,21 +8464,40 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               symbol := "";
               line := "";
             elsif on_error_label <> "" then
-              symbol := get_symbol(line);
               error_code := 53; # File not found
               line_marker;
-              writeln(log, error_code <& " CHAIN " <& literal(param1) <&
-                  " - FILE NOT FOUND - ON ERROR GOTO " <& on_error_label);
+              writeln(log, error_code <& " FILE NOT FOUND - CHAIN " <&
+                  literal(param1) <& " - ON ERROR GOTO " <& on_error_label);
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
               goto_on_error(on_error_label, line);
               symbol := "";
               line := "";
             else
               error_marker;
               writeln(err, "CHAIN " <& literal(param1) <& " - FILE NOT FOUND.");
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
             end if;
+          elsif on_error_label <> "" then
+            error_code := 2; # Syntax error
+            line_marker;
+            writeln(log, error_code <& " SYNTAX ERROR - CHAIN " <&
+                symbol <& " - ON ERROR GOTO " <& on_error_label);
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
           else
             error_marker;
             writeln(err, "STRING EXPECTED FOR CHAIN - FOUND " <& symbol <& ".");
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
           end if;
         when {"CIRCLE"}:
           exec_circle(symbol, line);
@@ -9132,33 +9152,50 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
           if isStringExpr(symbol) then
             param1 := exec_str_expr(symbol, line, variable_name);
-            clearProgram;
-            if runOrChain("LOAD", param1) then
+            if runOrChain("LOAD", param1, TRUE) then
               writeln(log, "load program finished");
               line_marker;
               writeln(log, "LOAD " <& literal(param1) <& " - " <&
                   length(prg) <& " LINES");
               on_error_label := "";
               file_line_number := 0;
-              data_line_number := 0;
               symbol := "";
               line := "";
             elsif on_error_label <> "" then
-              symbol := get_symbol(line);
               error_code := 53; # File not found
               line_marker;
-              writeln(log, error_code <& " LOAD " <& literal(param1) <&
-                  " - FILE NOT FOUND - ON ERROR GOTO " <& on_error_label);
+              writeln(log, error_code <& " FILE NOT FOUND - LOAD " <&
+                  literal(param1) <& " - ON ERROR GOTO " <& on_error_label);
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
               goto_on_error(on_error_label, line);
               symbol := "";
               line := "";
             else
               error_marker;
               writeln(err, "LOAD " <& literal(param1) <& " - FILE NOT FOUND.");
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
             end if;
+          elsif on_error_label <> "" then
+            error_code := 2; # Syntax error
+            line_marker;
+            writeln(log, error_code <& " SYNTAX ERROR - LOAD " <&
+                symbol <& " - ON ERROR GOTO " <& on_error_label);
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
           else
             error_marker;
             writeln(err, "STRING EXPECTED FOR LOAD - FOUND " <& symbol <& ".");
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
           end if;
         when {"LOCATE"}:
           symbol := get_symbol(line);
@@ -9554,29 +9591,32 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
           if isStringExpr(symbol) then
             param1 := exec_str_expr(symbol, line, variable_name);
-            clearProgram;
-            if runOrChain("RUN", param1) then
+            if runOrChain("RUN", param1, TRUE) then
               writeln(log, "load program finished");
               line_marker;
               writeln(log, "RUN " <& literal(param1) <& " - " <&
                   length(prg) <& " LINES");
               on_error_label := "";
               file_line_number := 0;
-              data_line_number := 0;
               symbol := "";
               line := "";
             elsif on_error_label <> "" then
-              symbol := get_symbol(line);
               error_code := 53; # File not found
               line_marker;
-              writeln(log, error_code <& " RUN " <& literal(param1) <&
-                  " - FILE NOT FOUND - ON ERROR GOTO " <& on_error_label);
+              writeln(log, error_code <& " FILE NOT FOUND - RUN " <&
+                  literal(param1) <& " - ON ERROR GOTO " <& on_error_label);
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
               goto_on_error(on_error_label, line);
               symbol := "";
               line := "";
             else
               error_marker;
               writeln(err, "RUN " <& literal(param1) <& " - FILE NOT FOUND.");
+              while not endOfStatement(symbol) do
+                symbol := get_symbol(line);
+              end while;
             end if;
           elsif label_or_linenum(symbol) then
             clearProgram;
@@ -9585,13 +9625,30 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             goto_label_or_linenum(symbol);
             symbol := "";
             line := "";
-          else
+          elsif endOfStatement(symbol) then
             clearProgram;
             line_marker;
             writeln(log, "RUN");
             file_line_number := 0;
             symbol := "";
             line := "";
+          elsif on_error_label <> "" then
+            error_code := 2; # Syntax error
+            line_marker;
+            writeln(log, error_code <& " SYNTAX ERROR - RUN " <&
+                symbol <& " - ON ERROR GOTO " <& on_error_label);
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+          else
+            error_marker;
+            writeln(err, "STRING EXPECTED FOR RUN - FOUND " <& symbol <& ".");
+            while not endOfStatement(symbol) do
+              symbol := get_symbol(line);
+            end while;
           end if;
         when {"SCREEN"}:
           exec_screen(symbol, line);
@@ -10294,7 +10351,8 @@ const proc: loadProg (in string: name, inout file: infile) is func
   end func;
 
 
-const func boolean: runOrChain (in string: cmd, in string: name) is func
+const func boolean: runOrChain (in string: cmd, in string: name,
+    in boolean: doClear) is func
   result
     var boolean: successful is FALSE;
   local
@@ -10307,6 +10365,9 @@ const func boolean: runOrChain (in string: cmd, in string: name) is func
       infile := basicOpen(name, "r");
     end if;
     if infile <> STD_NULL then
+      if doClear then
+        clearProgram;
+      end if;
       line_marker;
       writeln(log, cmd <& " " <& literal(name));
       prg := 0 times lineType.value;
