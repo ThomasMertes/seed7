@@ -6329,6 +6329,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
     var integer: reclen is 0;
     var string: variable_name is "";
     var string: field is "";
+    var boolean: okay is TRUE;
   begin
     if symbol = "#" then
       symbol := get_symbol(line);
@@ -6378,45 +6379,56 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
             seek(outFile, succ(pred(position) * reclen));
           end if;
         else
-          error_marker;
-          writeln(err, "PUT #" <& file_number <&
-              " WITH A RECORD NUMBER OF " <& position);
+          okay := FALSE;
+          if on_error_label <> "" then
+            error_code := 5; # Illegal function call
+            line_marker;
+            writeln(log, error_code <& " ILLEGAL FUNCTION CALL - PUT #" <&
+                    file_number <& ", " <& position <&
+                    " - ON ERROR GOTO " <& on_error_label);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+          else
+            error_marker;
+            writeln(err, "PUT #" <& file_number <&
+                    " WITH A RECORD NUMBER OF " <& position);
+          end if;
         end if;
       end if;
-      if length(field_value[file_number]) >= 1 then
-        for field range field_value[file_number] do
-          write(outFile, getStringVar(field));
-        end for;
-      elsif variable_name <> "" then
-        write(outFile, getStringVar(variable_name));
-      else
-        error_marker;
-        writeln(err, "PUT #" <& file_number <&
-            " - NO STRING VARIABLE PRESENT");
+      if okay then
+        if length(field_value[file_number]) >= 1 then
+          for field range field_value[file_number] do
+            write(outFile, getStringVar(field));
+          end for;
+        elsif variable_name <> "" then
+          write(outFile, getStringVar(variable_name));
+        else
+          error_marker;
+          writeln(err, "PUT #" <& file_number <&
+                  " - NO STRING VARIABLE PRESENT");
+        end if;
+        line_marker;
+        write(log, "PUT #" <& file_number <& ", ");
+        if with_position then
+          write(log, position);
+        end if;
+        if length(field_value[file_number]) >= 1 then
+          for field range field_value[file_number] do
+            write(log, ", " <& field <& "=" <&
+                  literal(getStringVar(field)));
+          end for;
+        elsif variable_name <> "" then
+          write(log, ", " <& variable_name <& "=" <&
+                literal(getStringVar(variable_name)));
+        end if;
+        writeln(log);
       end if;
-      line_marker;
-      write(log, "PUT #" <& file_number <& ", ");
-      if with_position then
-        write(log, position);
-      end if;
-      if length(field_value[file_number]) >= 1 then
-        for field range field_value[file_number] do
-          write(log, ", " <& field <& "=" <&
-              literal(getStringVar(field)));
-        end for;
-      elsif variable_name <> "" then
-        write(log, ", " <& variable_name <& "=" <&
-            literal(getStringVar(variable_name)));
-      end if;
-      writeln(log);
-      while not endOfStatement(symbol) do
-        symbol := get_symbol(line);
-      end while;
     elsif on_error_label <> "" then
       error_code := 52; # Bad file number
       line_marker;
-      writeln(log, error_code <& " BAD FILE NUMBER #" <& file_number <&
-          " - ON ERROR GOTO " <& on_error_label);
+      writeln(log, error_code <& " BAD FILE NUMBER - PUT #" <&
+              file_number <& " - ON ERROR GOTO " <& on_error_label);
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -6442,6 +6454,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
     var integer: reclen is 0;
     var string: variable_name is "";
     var string: field is "";
+    var boolean: okay is TRUE;
   begin
     if symbol = "#" then
       symbol := get_symbol(line);
@@ -6493,44 +6506,57 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             seek(inFile, succ(pred(position) * reclen));
           end if;
         else
-          error_marker;
-          writeln(err, "GET #" <& file_number <&
-              " WITH A RECORD NUMBER OF " <& position);
+          okay := FALSE;
+          if on_error_label <> "" then
+            error_code := 5; # Illegal function call
+            line_marker;
+            writeln(log, error_code <& " ILLEGAL FUNCTION CALL - GET #" <&
+                    file_number <& ", " <& position <&
+                    " - ON ERROR GOTO " <& on_error_label);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+          else
+            error_marker;
+            writeln(err, "GET #" <& file_number <&
+                    " WITH A RECORD NUMBER OF " <& position);
+          end if;
         end if;
       end if;
-      if length(field_value[file_number]) >= 1 then
-        for field range field_value[file_number] do
-          setStringVar(field, gets(inFile, length(getStringVar(field))));
-        end for;
-      elsif variable_name <> "" then
-        setStringVar(variable_name, gets(inFile,
-            length(getStringVar(variable_name))));
-      else
-        error_marker;
-        writeln(err, "GET #" <& file_number <&
-            " - NO STRING VARIABLE PRESENT");
+      if okay then
+        if length(field_value[file_number]) >= 1 then
+          for field range field_value[file_number] do
+            setStringVar(field, gets(inFile, length(getStringVar(field))));
+          end for;
+        elsif variable_name <> "" then
+          setStringVar(variable_name, gets(inFile,
+              length(getStringVar(variable_name))));
+        else
+          error_marker;
+          writeln(err, "GET #" <& file_number <&
+                  " - NO STRING VARIABLE PRESENT");
+        end if;
+        line_marker;
+        write(log, "GET #" <& file_number <& ", ");
+        if with_position then
+          write(log, position);
+        end if;
+        if length(field_value[file_number]) >= 1 then
+          for field range field_value[file_number] do
+            write(log, ", " <& field <& "=" <&
+                  literal(getStringVar(field)));
+          end for;
+        elsif variable_name <> "" then
+          write(log, ", " <& variable_name <& "=" <&
+                literal(getStringVar(variable_name)));
+        end if;
+        writeln(log);
       end if;
-      line_marker;
-      write(log, "GET #" <& file_number <& ", ");
-      if with_position then
-        write(log, position);
-      end if;
-      if length(field_value[file_number]) >= 1 then
-        for field range field_value[file_number] do
-          write(log, ", " <& field <& "=" <& literal(getStringVar(field)));
-        end for;
-      elsif variable_name <> "" then
-        write(log, ", " <& variable_name <& "=" <& literal(getStringVar(variable_name)));
-      end if;
-      writeln(log);
-      while not endOfStatement(symbol) do
-        symbol := get_symbol(line);
-      end while;
     elsif on_error_label <> "" then
       error_code := 52; # Bad file number
       line_marker;
-      writeln(log, error_code <& " BAD FILE NUMBER #" <& file_number <&
-          " - ON ERROR GOTO " <& on_error_label);
+      writeln(log, error_code <& " BAD FILE NUMBER - GET #" <&
+              file_number <& " - ON ERROR GOTO " <& on_error_label);
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
