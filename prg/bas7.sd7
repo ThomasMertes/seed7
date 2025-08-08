@@ -10409,6 +10409,7 @@ const func boolean: loadProg (in string: name) is func
 
 const proc: interactiveMode is func
   local
+    var file: commandWindow is STD_NULL;
     var file: commandFile is STD_NULL;
     var string: symbol is "";
     var string: line is "";
@@ -10416,7 +10417,8 @@ const proc: interactiveMode is func
   begin
     scr := open(CONSOLE);
     cursor(scr, TRUE);
-    win := openWindow(scr, 1, 1, TEXT_LINES, TEXT_COLUMNS);
+    commandWindow := openWindow(scr, 1, 1, TEXT_LINES, TEXT_COLUMNS);
+    win := commandWindow;
     OUT := win;
     IN := openEcho(KEYBOARD, OUT);
     IN := openLine(IN);
@@ -10427,7 +10429,24 @@ const proc: interactiveMode is func
       write("] ");
       readln(commandFile, line);
       symbol := get_symbol(line);
-      running := execCmd(symbol, line);
+      if symbol = "RUN" then
+        running := execCmd(symbol, line);
+        if running then
+          incr(file_line_number);
+          execLines;
+          win := commandWindow;
+          OUT := win;
+          IN := openEcho(KEYBOARD, OUT);
+          IN := openLine(IN);
+        else
+          writeln("RUN failed");
+          running := TRUE;
+        end if;
+      elsif symbol <> "" and symbol[1] in digit_char then
+        writeln("Not supported");
+      else
+        running := execCmd(symbol, line);
+      end if;
     until not running;
   end func;
 
@@ -10455,10 +10474,7 @@ const proc: main is func
         end if;
         incr(argumentIndex);
       end while;
-      if argumentIndex <= length(arg_v) then
-        if succ(argumentIndex) <= length(arg_v) then
-          command_line := join(arg_v[succ(argumentIndex) ..], " ");
-        end if;
+      if argumentIndex <= length(arg_v) or interactive then
         err := open("bas7.log", "w");
         if err = STD_NULL then
           writeln(" ***** Could not open log file.");
@@ -10467,6 +10483,11 @@ const proc: main is func
         end if;
         if doLog then
           log := err;
+        end if;
+      end if;
+      if argumentIndex <= length(arg_v) then
+        if succ(argumentIndex) <= length(arg_v) then
+          command_line := join(arg_v[succ(argumentIndex) ..], " ");
         end if;
         if loadProg(arg_v[argumentIndex]) then
           writeln(log, "load program finished");
