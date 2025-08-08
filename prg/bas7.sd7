@@ -10359,7 +10359,7 @@ const func boolean: runOrChain (in string: cmd, in string: name,
   local
     var file: infile is STD_NULL;
   begin
-    if lower(name[length(name) - 3 ..]) <> ".bas" then
+    if not endsWith(lower(name), ".bas") then
       infile := basicOpen(name & ".bas", "r");
     end if;
     if infile = STD_NULL then
@@ -10393,7 +10393,7 @@ const func boolean: loadProg (in string: name) is func
   local
     var file: infile is STD_NULL;
   begin
-    if lower(name[length(name) - 3 ..]) <> ".bas" then
+    if not endsWith(lower(name), ".bas") then
       infile := basicOpen(name & ".bas", "r");
     end if;
     if infile = STD_NULL then
