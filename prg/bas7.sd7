@@ -5217,12 +5217,37 @@ const proc: exec_print_using (inout file: outFile,
   end func;
 
 
+const proc: illegalFunctionCall (in string: actualCall,
+    inout string: symbol, inout string: line) is func
+  begin
+    if on_error_label <> "" then
+      error_code := 5; # Illegal function call
+      line_marker;
+      writeln(log, error_code <& " ILLEGAL FUNCTION CALL - " <&
+              actualCall <& " - ON ERROR GOTO " <& on_error_label);
+      repeat
+        symbol := get_symbol(line);
+      until endOfStatement(symbol);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, actualCall <& " - ILLEGAL FUNCTION CALL");
+      repeat
+        symbol := get_symbol(line);
+      until endOfStatement(symbol);
+    end if;
+  end func;
+
+
 const proc: exec_print (inout string: symbol, inout string: line) is func
   local
     var string: unused_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
     var integer: tabSpcArg is 1;
+    var boolean: writeNewline is TRUE;
     var integer: position is 0;
     var integer: implicit_semicolon_pos is -1;
   begin
@@ -5253,8 +5278,9 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
           end if;
           write(log, "TAB(" <& tabSpcArg <& ")");
         else
-          error_marker;
-          write(err, "TAB(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+          writeNewline := FALSE;
+          illegalFunctionCall("TAB(" <& tabSpcArg <& ")",
+                              symbol, line);
         end if;
       elsif symbol = "SPC" then
         symbol := get_symbol(line);
@@ -5266,8 +5292,9 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
           write(win, "" rpad tabSpcArg);
           write(log, "SPC(" <& tabSpcArg <& ")");
         else
-          error_marker;
-          write(err, "SPC(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+          writeNewline := FALSE;
+          illegalFunctionCall("SPC(" <& tabSpcArg <& ")",
+                              symbol, line);
         end if;
       elsif symbol = "USING" then
         exec_print_using(win, symbol, line);
@@ -5291,7 +5318,9 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
         end if;
       end if;
       if endOfStatement(symbol) then
-        writeln(win);
+        if writeNewline then
+          writeln(win);
+        end if;
         if symbol = ":" then
           # A colon can be a statement separator or it encodes a line break.
           if continueWithPrintStatement(line) then
@@ -5340,6 +5369,7 @@ const proc: exec_print (inout file: outFile,
     var string: param1 is "";
     var float: num1 is 0.0;
     var integer: tabSpcArg is 1;
+    var boolean: writeNewline is TRUE;
     var integer: implicit_semicolon_pos is -1;
     var integer: column is 1;
     var integer: padding is 1;
@@ -5362,8 +5392,9 @@ const proc: exec_print (inout file: outFile,
             end if;
             write(log, "TAB(" <& tabSpcArg <& ")");
           else
-            error_marker;
-            write(err, "TAB(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+            writeNewline := FALSE;
+            illegalFunctionCall("TAB(" <& tabSpcArg <& ")",
+                                symbol, line);
           end if;
         elsif symbol = "SPC" then
           symbol := get_symbol(line);
@@ -5376,8 +5407,9 @@ const proc: exec_print (inout file: outFile,
             column +:= tabSpcArg;
             write(log, "SPC(" <& tabSpcArg <& ")");
           else
-            error_marker;
-            write(err, "SPC(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+            writeNewline := FALSE;
+            illegalFunctionCall("SPC(" <& tabSpcArg <& ")",
+                                symbol, line);
           end if;
         elsif isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, unused_name);
@@ -5403,7 +5435,9 @@ const proc: exec_print (inout file: outFile,
           end if;
         end if;
         if endOfStatement(symbol) then
-          writeln(outFile);
+          if writeNewline then
+            writeln(outFile);
+          end if;
         elsif symbol = ";" then
           symbol := get_symbol(line);
           write(log, "; ");
