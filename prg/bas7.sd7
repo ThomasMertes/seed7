@@ -5222,6 +5222,7 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
     var string: unused_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
+    var integer: tabSpcArg is 1;
     var integer: position is 0;
     var integer: implicit_semicolon_pos is -1;
   begin
@@ -5245,17 +5246,29 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        if column(win) < round(num1) then
-          write(win, "" rpad round(num1) - column(win));
+        tabSpcArg := round(num1);
+        if tabSpcArg >= 1 then
+          if column(win) < tabSpcArg then
+            write(win, "" rpad tabSpcArg - column(win));
+          end if;
+          write(log, "TAB(" <& tabSpcArg <& ")");
+        else
+          error_marker;
+          write(err, "TAB(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
         end if;
-        write(log, "TAB(" <& round(num1) <& ")");
       elsif symbol = "SPC" then
         symbol := get_symbol(line);
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        write(win, "" rpad round(num1));
-        write(log, "SPC(" <& round(num1) <& ")");
+        tabSpcArg := round(num1);
+        if tabSpcArg >= 0 then
+          write(win, "" rpad tabSpcArg);
+          write(log, "SPC(" <& tabSpcArg <& ")");
+        else
+          error_marker;
+          write(err, "SPC(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+        end if;
       elsif symbol = "USING" then
         exec_print_using(win, symbol, line);
       elsif isStringExpr(symbol) then
@@ -5326,6 +5339,7 @@ const proc: exec_print (inout file: outFile,
     var string: unused_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
+    var integer: tabSpcArg is 1;
     var integer: implicit_semicolon_pos is -1;
     var integer: column is 1;
     var integer: padding is 1;
@@ -5339,20 +5353,32 @@ const proc: exec_print (inout file: outFile,
           expect("(", symbol, line);
           num1 := exec_expr(symbol, line);
           expect(")", symbol, line);
-          if column < round(num1) then
-            padding := round(num1) - column;
-            write(outFile, "" rpad padding);
-            column := round(num1);
+          tabSpcArg := round(num1);
+          if tabSpcArg >= 1 then
+            if column < tabSpcArg then
+              padding := tabSpcArg - column;
+              write(outFile, "" rpad padding);
+              column := tabSpcArg;
+            end if;
+            write(log, "TAB(" <& tabSpcArg <& ")");
+          else
+            error_marker;
+            write(err, "TAB(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
           end if;
-          write(log, "TAB(" <& round(num1) <& ")");
         elsif symbol = "SPC" then
           symbol := get_symbol(line);
           expect("(", symbol, line);
           num1 := exec_expr(symbol, line);
           expect(")", symbol, line);
-          write(outFile, "" rpad round(num1));
-          column +:= round(num1);
-          write(log, "SPC(" <& round(num1) <& ")");
+          tabSpcArg := round(num1);
+          if tabSpcArg >= 0 then
+            write(outFile, "" rpad tabSpcArg);
+            column +:= tabSpcArg;
+            write(log, "SPC(" <& tabSpcArg <& ")");
+          else
+            error_marker;
+            write(err, "SPC(" <& tabSpcArg <& ") - ILLEGAL FUNCTION CALL");
+          end if;
         elsif isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, unused_name);
           write(outFile, param1);
