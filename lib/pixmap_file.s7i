@@ -215,7 +215,7 @@ const proc: v_scroll (inout pixmapFontFile: fontFile,
           fontFile.minY + line_delta(fontFile.font) * (lower - count),
           column_delta(fontFile.font) * succ(right - left),
           line_delta(fontFile.font) * count,
-          black);
+          background(fontFile.font));
     elsif count < 0 then
       copyArea(fontFile.win, fontFile.win,
           fontFile.minX + column_delta(fontFile.font) * pred(left),
