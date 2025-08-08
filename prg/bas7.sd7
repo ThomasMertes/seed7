@@ -7965,15 +7965,16 @@ const proc: setup_graphic is func
     if screenMode <> -1 then
       screen(1024, 768);
       clear(curr_win, light_cyan);
-      win := openPixmapFontFile(curr_win);
-      color(win, black, light_cyan);
+      scr := openPixmapFontFile(curr_win);
+      color(scr, black, light_cyan);
       KEYBOARD := GRAPH_KEYBOARD;
+      win := openWindow(scr, 1, 1, 24, 32);
       OUT := win;
       IN := openEcho(KEYBOARD, win);
       IN := openLine(IN);
-      scale(win, 4);
+      scale(scr, 4);
       currentFont := font8x8;
-      setFont(win, currentFont);
+      setFont(scr, currentFont);
       screenMode := -1;
     end if;
   end func;
@@ -8019,7 +8020,7 @@ const proc: exec_call_char (inout string: symbol, inout string: line) is func
         right := not right;
       end for;
       currentFont.fontPictures @:= [patternChar] charPicture;
-      setFont(win, currentFont);
+      setFont(scr, currentFont);
       patternStartPos +:= 16;
       incr(patternChar);
     until patternStartPos > length(patternArgument);
