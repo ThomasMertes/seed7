@@ -88,6 +88,7 @@ const integer: ILLEGAL_FUNCTION_CALL is  5;  # Illegal function call
 const integer: DIVISION_BY_ZERO      is 11;  # Division by zero
 const integer: TYPE_MISMATCH         is 13;  # Type mismatch
 const integer: RESUME_WITHOUT_ERROR  is 20;  # RESUME without error
+const integer: WHILE_WITHOUT_WEND    is 29;  # WHILE without WEND
 const integer: WEND_WITHOUT_WHILE    is 30;  # WEND without WHILE
 const integer: BAD_FILE_NUMBER       is 52;  # Bad file number
 const integer: FILE_NOT_FOUND        is 53;  # File not found
@@ -9943,9 +9944,17 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               until endOfStatement(symbol);
               line_marker;
               writeln(log, "CONTINUE AFTER WEND");
+            elsif on_error_label <> "" then
+              error_code := WHILE_WITHOUT_WEND;
+              line_marker;
+              writeln(log, error_code <& " WHILE WITHOUT WEND " <&
+                  " - ON ERROR GOTO " <& on_error_label);
+              goto_on_error(on_error_label, line);
+              symbol := "";
+              line := "";
             else
               error_marker(param1);
-              writeln(err, "NO CORRESPONDING \"WEND\" FOUND FOR \"WHILE\"");
+              writeln(err, "WHILE WITHOUT WEND.");
             end if;
           end if;
         when {"WIDTH"}:
