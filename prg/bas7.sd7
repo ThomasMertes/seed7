@@ -338,15 +338,19 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *  after the BASIC symbol. A BASIC symbol can be:
  *    - A name: A letter followed by letters, digits or '.'.
  *              Optionally a '$', '%', '!', '#' or '&' can be added.
- *    - An integer number: A sequence of digits.
- *    - A float number: A sequence of digits which contains one
+ *    - An integer literal: A sequence of digits.
+ *    - A float literal: A sequence of digits which contains one
  *              decimal point. An optional exponent may follow. If
  *              an exponent is present the decimal point may be
  *              omitted. The exponent is introduced with 'E' or 'e'
  *              followed by an optional sign ('+' or '-') and a
- *              sequence of digits. If the float number does start
+ *              sequence of digits. If the float literal does start
  *              with '.' a '0' is added in front of the returned
  *              symbol.
+ *    - A double precision literal: It is like a float literal except
+ *              that a 'D' or 'd' is used to identify the exponent.
+ *              In the returned literal the 'D' or 'd' is replaced
+ *              with 'E'.
  *    - A hex literal: It starts with '&H' or '&h' followed by hex
  *              digits. A hex literal is converted to decimal and the
  *              decimal literal is returned.
@@ -375,6 +379,7 @@ const func string: get_symbol (inout string: line) is func
     var integer: leng is 0;
     var integer: start is 0;
     var integer: index is 0;
+    var integer: posOfD is 0;
     var char: ch is ' ';
   begin
     leng := length(line);
@@ -425,6 +430,10 @@ const func string: get_symbol (inout string: line) is func
               until ch not in digit_char;
             end if;
           end if;
+          if ch = 'D' or ch = 'd' then
+            posOfD := succ(index - start);
+            ch := 'E';
+          end if;
           if ch = 'E' or ch = 'e' then
             incr(index);
             if index <= leng then
@@ -457,6 +466,9 @@ const func string: get_symbol (inout string: line) is func
             incr(index);
           end if;
           symbol := line[start .. pred(index)];
+          if posOfD <> 0 then
+            symbol @:= [posOfD] 'E';
+          end if;
           line := line[index .. ];
         when {'.'}:
           incr(index);
@@ -469,6 +481,10 @@ const func string: get_symbol (inout string: line) is func
                 ch := ' ';
               end if;
             until ch not in digit_char;
+            if ch = 'D' or ch = 'd' then
+              posOfD := index - start + 2;
+              ch := 'E';
+            end if;
             if ch = 'E' or ch = 'e' then
               incr(index);
               if index <= leng then
@@ -501,6 +517,9 @@ const func string: get_symbol (inout string: line) is func
               incr(index);
             end if;
             symbol := "0" & line[start .. pred(index)];
+            if posOfD <> 0 then
+              symbol @:= [posOfD] 'E';
+            end if;
             line := line[index .. ];
           else
             symbol := ".";
