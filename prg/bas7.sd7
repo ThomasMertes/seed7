@@ -80,6 +80,8 @@ const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
 const integer: TEXT_COLUMNS is 80;
 
+var boolean: keepForVariableInRange is FALSE;
+
 const set of char: basic_name_char is alphanum_char | {'.'};
 const set of char: number_suffix is {'%', '!', '#', '&'};
 const set of char: numeric_var_suffix is {'%', '!', '#'};
@@ -4127,14 +4129,23 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
 const proc: exec_next_decision (inout string: symbol, inout string: line,
     val string: variable_name, in string: nameList) is func
   local
-    var float: num1 is 0.0;
+    var float: currentValue is 0.0;
+    var float: nextValue is 0.0;
+    var boolean: stayInLoop is FALSE;
   begin
     if length(forLoop) >= 1 and variable_name = forLoop[1].varName then
-      num1 := getNumericVar(variable_name);
-      if (forLoop[1].stepValue > 0.0 and num1 + forLoop[1].stepValue <= forLoop[1].endValue) or
-         (forLoop[1].stepValue < 0.0 and num1 + forLoop[1].stepValue >= forLoop[1].endValue) then
+      currentValue := getNumericVar(variable_name);
+      nextValue := currentValue + forLoop[1].stepValue;
+      if keepForVariableInRange then
+        stayInLoop := (forLoop[1].stepValue > 0.0 and nextValue <= forLoop[1].endValue) or
+                      (forLoop[1].stepValue < 0.0 and nextValue >= forLoop[1].endValue);
+      else
+        stayInLoop := (forLoop[1].stepValue > 0.0 and currentValue < forLoop[1].endValue) or
+                      (forLoop[1].stepValue < 0.0 and currentValue > forLoop[1].endValue);
+      end if;
+      if stayInLoop then
         line_marker;
-        setNumericVar(variable_name, num1 + forLoop[1].stepValue);
+        setNumericVar(variable_name, nextValue);
         file_line_number := forLoop[1].bodyLine;
         statement_label := prg[file_line_number].linenum;
         line := prg[file_line_number].line[forLoop[1].bodyColumn .. ];
@@ -4143,14 +4154,19 @@ const proc: exec_next_decision (inout string: symbol, inout string: line,
         else
           symbol := "";
         end if;
-        write(log, "NEXT " <& variable_name <& " = " <& num1 + forLoop[1].stepValue <&
+        write(log, "NEXT " <& variable_name <& " = " <& nextValue <&
             " CONTINUE THE \"FOR " <& variable_name <& "\" LOOP AT LINE ");
         line_marker;
         writeln(log);
       else
-        incl(var_value_from_for_loop, variable_name);
         line_marker;
-        writeln(log, "NEXT " <& variable_name <& " = " <& num1 <& " END FOR");
+        if keepForVariableInRange then
+          writeln(log, "NEXT " <& variable_name <& " = " <& currentValue <& " END FOR");
+        else
+          setNumericVar(variable_name, nextValue);
+          writeln(log, "NEXT " <& variable_name <& " = " <& nextValue <& " END FOR");
+        end if;
+        incl(var_value_from_for_loop, variable_name);
         forLoop := forLoop[2 .. ];
         if length(forLoop) >= 1 and forLoop[1].varName <> variable_name and
             nameInList(forLoop[1].varName, nameList) then
