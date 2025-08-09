@@ -88,6 +88,7 @@ const integer: ILLEGAL_FUNCTION_CALL is  5;  # Illegal function call
 const integer: DIVISION_BY_ZERO      is 11;  # Division by zero
 const integer: TYPE_MISMATCH         is 13;  # Type mismatch
 const integer: RESUME_WITHOUT_ERROR  is 20;  # RESUME without error
+const integer: WEND_WITHOUT_WHILE    is 30;  # WEND without WHILE
 const integer: BAD_FILE_NUMBER       is 52;  # Bad file number
 const integer: FILE_NOT_FOUND        is 53;  # File not found
 
@@ -9906,9 +9907,17 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               line_marker;
               writeln(log, "WEND - END WHILE");
             end if;
+          elsif on_error_label <> "" then
+            error_code := WEND_WITHOUT_WHILE;
+            line_marker;
+            writeln(log, error_code <& " WEND WITHOUT WHILE " <&
+                " - ON ERROR GOTO " <& on_error_label);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
           else
             error_marker;
-            writeln(err, "UNEXPECTED \"WEND\"");
+            writeln(err, "WEND WITHOUT WHILE.");
           end if;
         when {"WHILE"}:
           index1 := file_line_number;
