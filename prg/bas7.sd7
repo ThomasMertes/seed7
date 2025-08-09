@@ -4374,17 +4374,17 @@ const proc: exec_else (inout string: symbol, inout string: line) is func
 const proc: exec_for (inout string: symbol, inout string: line) is func
   local
     var string: variable_name is "";
-    var float: num1 is 0.0;
-    var float: num2 is 0.0;
-    var float: num3 is 0.0;
+    var float: startValue is 0.0;
+    var float: endValue is 0.0;
+    var float: stepValue is 0.0;
     var integer: index1 is 0;
     var string: label is "";
   begin
     variable_name := get_symbol(line);
     symbol := get_symbol(line);
     expect("=", symbol, line);
-    num1 := exec_expr(symbol, line);
-    setNumericVar(variable_name, num1);
+    startValue := exec_expr(symbol, line);
+    setNumericVar(variable_name, startValue);
     if symbol = "TO" then
       symbol := get_symbol(line);
     elsif startsWith(symbol, "TO") then
@@ -4393,19 +4393,19 @@ const proc: exec_for (inout string: symbol, inout string: line) is func
     else
       error_expect("TO", symbol);
     end if;
-    num2 := exec_expr(symbol, line);
+    endValue := exec_expr(symbol, line);
     if symbol = "STEP" then
       symbol := get_symbol(line);
-      num3 := exec_expr(symbol, line);
+      stepValue := exec_expr(symbol, line);
     elsif startsWith(symbol, "STEP") then
       line := symbol[5 ..] & line;
       symbol := get_symbol(line);
-      num3 := exec_expr(symbol, line);
+      stepValue := exec_expr(symbol, line);
     else
-      num3 := 1.0;
+      stepValue := 1.0;
     end if;
-    if (num3 > 0.0 and num1 <= num2) or
-       (num3 < 0.0 and num1 >= num2) then
+    if (stepValue > 0.0 and startValue <= endValue) or
+       (stepValue < 0.0 and startValue >= endValue) then
       if symbol = "'" or symbol = "REM" then
         index1 := succ(length(prg[file_line_number].line));
       else
@@ -4413,17 +4413,17 @@ const proc: exec_for (inout string: symbol, inout string: line) is func
       end if;
       forLoop := [] (forLoopDescrType.value) & forLoop;
       forLoop[1].varName := variable_name;
-      forLoop[1].endValue := num2;
-      forLoop[1].stepValue := num3;
+      forLoop[1].endValue := endValue;
+      forLoop[1].stepValue := stepValue;
       forLoop[1].bodyLine := file_line_number;
       forLoop[1].bodyColumn := index1;
       line_marker;
-      writeln(log, "FOR " <& variable_name <& "=" <& num1 <&
-          " TO " <& num2 <& " STEP " <& num3);
+      writeln(log, "FOR " <& variable_name <& "=" <& startValue <&
+          " TO " <& endValue <& " STEP " <& stepValue);
     else
       line_marker;
-      writeln(log, "EMPTY FOR " <& variable_name <& "=" <& num1 <&
-          " TO " <& num2 <& " STEP " <& num3);
+      writeln(log, "EMPTY FOR " <& variable_name <& "=" <& startValue <&
+          " TO " <& endValue <& " STEP " <& stepValue);
       label := statement_label;
       if not find_next(symbol, line, variable_name) then
         error_marker(label);
