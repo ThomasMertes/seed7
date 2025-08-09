@@ -350,7 +350,7 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *              with '.' a '0' is added in front of the returned
  *              symbol.
  *    - A double precision literal: It is like a float literal except
- *              that a 'D' or 'd' is used to identify the exponent.
+ *              that a 'D' or 'd' is used to introduce the exponent.
  *              In the returned literal the 'D' or 'd' is replaced
  *              with 'E'.
  *    - A hex literal: It starts with '&H' or '&h' followed by hex
@@ -4487,14 +4487,14 @@ const proc: exec_next (inout string: symbol, inout string: line) is func
     elsif on_error_label <> "" then
       error_code := 1; # NEXT without FOR
       line_marker;
-      writeln(log, error_code <& " NEXT " <& variable_name <& " WITHOUT FOR" <&
+      writeln(log, error_code <& " NEXT WITHOUT FOR" <&
           " - ON ERROR GOTO " <& on_error_label);
       goto_on_error(on_error_label, line);
       symbol := "";
       line := "";
     else
       error_marker;
-      writeln(err, "NEXT " <& variable_name <& " WITHOUT FOR");
+      writeln(err, "NEXT WITHOUT FOR");
       repeat
         symbol := get_symbol(line);
       until endOfStatement(symbol);
