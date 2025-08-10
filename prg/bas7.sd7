@@ -687,7 +687,8 @@ const func boolean: isNumericExpr (in string: symbol) is
   return symbol in numeric_functions or
          symbol not in string_var_name or
          symbol <> "" and
-        (symbol[1] in letter_char - defstr_var or
+        (symbol[1] = '(' or
+         symbol[1] in letter_char - defstr_var or
          symbol[length(symbol)] in numeric_var_suffix);
 
 
