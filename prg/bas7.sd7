@@ -683,6 +683,14 @@ const func boolean: isStringVar (in string: symbol) is
          not symbol[length(symbol)] in numeric_var_suffix);
 
 
+const func boolean: isNumericExpr (in string: symbol) is
+  return symbol in numeric_functions or
+         symbol not in string_var_name or
+         symbol <> "" and
+        (symbol[1] in letter_char - defstr_var or
+         symbol[length(symbol)] in numeric_var_suffix);
+
+
 const func boolean: isNumericVar (in string: symbol) is
   return symbol not in string_var_name or
          symbol <> "" and
@@ -4101,6 +4109,11 @@ const proc: exec_let (in var string: variable_name,
           setStringVar(variable_name, param1);
           line_marker;
           writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+        elsif symbol in numeric_functions then
+          num1 := exec_expr(symbol, line);
+          setNumericVar(variable_name, num1);
+          line_marker;
+          writeln(log, "LET " <& variable_name <& "=" <& num1);
         else
           typeMismatch(variable_name, symbol, line);
         end if;
@@ -4111,7 +4124,7 @@ const proc: exec_let (in var string: variable_name,
       append_index(variable_name, symbol, line);
       if symbol = "=" then
         symbol := get_symbol(line);
-        if not isStringExpr(symbol) then
+        if isNumericExpr(symbol) then
           num1 := exec_expr(symbol, line);
           setNumericVar(variable_name, num1);
           line_marker;
@@ -8502,6 +8515,11 @@ const proc: exec_let (inout string: symbol, inout string: line,
               line_marker;
               writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
             end if;
+          elsif symbol in numeric_functions then
+            num1 := exec_expr(symbol, line);
+            setNumericVar(variable_name, num1);
+            line_marker;
+            writeln(log, "LET " <& variable_name <& "=" <& num1);
           else
             typeMismatch(variable_name, symbol, line);
           end if;
@@ -8512,7 +8530,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
         variable_name := get_name(symbol, line);
         if symbol = "=" then
           symbol := get_symbol(line);
-          if not isStringExpr(symbol) then
+          if isNumericExpr(symbol) then
             num1 := exec_expr(symbol, line);
             if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
               line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
