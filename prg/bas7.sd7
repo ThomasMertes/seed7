@@ -4010,6 +4010,81 @@ const proc: exec_gosub (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: typeMismatch (in string: variable_name,
+    inout string: symbol, inout string: line) is func
+  begin
+    if on_error_label <> "" then
+      error_code := TYPE_MISMATCH;
+      line_marker;
+      writeln(log, error_code <& " TYPE MISMATCH - LET " <&
+              variable_name <& "=" <& symbol <&
+              " - ON ERROR GOTO " <& on_error_label);
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "TYPE MISMATCH - LET " <& variable_name <& "=" <& symbol);
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+    end if;
+  end func;
+
+
+const proc: assignmentExpected (in string: variable_name,
+    inout string: symbol, inout string: line) is func
+  begin
+    if on_error_label <> "" then
+      error_code := SYNTAX_ERROR;
+      line_marker;
+      writeln(log, error_code <& " SYNTAX ERROR - \"=\" EXPECTED AFTER " <&
+              variable_name <& " - FOUND " <& literal(symbol) <&
+              " - ON ERROR GOTO " <& on_error_label);
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "\"=\" EXPECTED AFTER " <& variable_name <&
+              " - FOUND " <& literal(symbol) <& ".");
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+    end if;
+  end func;
+
+
+const proc: variableExpected (in string: variable_name,
+    inout string: symbol, inout string: line) is func
+  begin
+    if on_error_label <> "" then
+      error_code := SYNTAX_ERROR;
+      line_marker;
+      writeln(log, error_code <& " SYNTAX ERROR - VARIABLE EXPECTED - FOUND " <&
+              literal(variable_name) <& " - ON ERROR GOTO " <& on_error_label);
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(variable_name) <& ".");
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+    end if;
+  end func;
+
+
 const proc: exec_let (in var string: variable_name,
     inout string: symbol, inout string: line) is func
   local
@@ -4021,31 +4096,34 @@ const proc: exec_let (in var string: variable_name,
       append_index(variable_name, symbol, line);
       if symbol = "=" then
         symbol := get_symbol(line);
-        param1 := exec_str_expr(symbol, line, unused_name);
-        setStringVar(variable_name, param1);
-        line_marker;
-        writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+        if isStringExpr(symbol) then
+          param1 := exec_str_expr(symbol, line, unused_name);
+          setStringVar(variable_name, param1);
+          line_marker;
+          writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+        else
+          typeMismatch(variable_name, symbol, line);
+        end if;
       else
-        error_marker;
-        writeln(err, "\"=\" EXPECTED AFTER " <& literal(variable_name) <&
-            " - FOUND " <& literal(symbol) <& ".");
+        assignmentExpected(variable_name, symbol, line);
       end if;
     elsif isNumericVar(variable_name) then
       append_index(variable_name, symbol, line);
       if symbol = "=" then
         symbol := get_symbol(line);
-        num1 := exec_expr(symbol, line);
-        setNumericVar(variable_name, num1);
-        line_marker;
-        writeln(log, "LET " <& variable_name <& "=" <& num1);
+        if not isStringExpr(symbol) then
+          num1 := exec_expr(symbol, line);
+          setNumericVar(variable_name, num1);
+          line_marker;
+          writeln(log, "LET " <& variable_name <& "=" <& num1);
+        else
+          typeMismatch(variable_name, symbol, line);
+        end if;
       else
-        error_marker;
-        writeln(err, "\"=\" EXPECTED AFTER " <& literal(variable_name) <&
-            " - FOUND " <& literal(symbol) <& ".");
+        assignmentExpected(variable_name, symbol, line);
       end if;
     else
-      error_marker;
-      writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(variable_name) <& ".");
+      variableExpected(variable_name, symbol, line);
     end if;
   end func;
 
@@ -8412,50 +8490,53 @@ const proc: exec_let (inout string: symbol, inout string: line,
         backup_line := backup_line[.. length(backup_line) - length(line)];
         if symbol = "=" then
           symbol := get_symbol(line);
-          param1 := exec_str_expr(symbol, line, unused_name);
-          if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
-            line := backup_line[3 ..] & "\"" & param1 & "\"" & symbol & line;
-            line_marker;
-            writeln(log, "IF RECOGNIZED: IF " <& literal(line));
-            exec_if(symbol, line, process_next);
+          if isStringExpr(symbol) then
+            param1 := exec_str_expr(symbol, line, unused_name);
+            if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+              line := backup_line[3 ..] & "\"" & param1 & "\"" & symbol & line;
+              line_marker;
+              writeln(log, "IF RECOGNIZED: IF " <& literal(line));
+              exec_if(symbol, line, process_next);
+            else
+              setStringVar(variable_name, param1);
+              line_marker;
+              writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+            end if;
           else
-            setStringVar(variable_name, param1);
-            line_marker;
-            writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+            typeMismatch(variable_name, symbol, line);
           end if;
         else
-          error_marker;
-          writeln(err, "\"=\" EXPECTED AFTER " <& literal(variable_name) <&
-              " - FOUND " <& literal(symbol) <& ".");
+          assignmentExpected(variable_name, symbol, line);
         end if;
       elsif isNumericVar(symbol) then
         variable_name := get_name(symbol, line);
         if symbol = "=" then
           symbol := get_symbol(line);
-          num1 := exec_expr(symbol, line);
-          if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
-            line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
-            line_marker;
-            writeln(log, "IF RECOGNIZED: IF " <& literal(line));
-            exec_if(symbol, line, process_next);
-          elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
-            line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
-            line_marker;
-            writeln(log, "FOR RECOGNIZED: FOR " <& literal(line));
-            exec_for(symbol, line);
+          if not isStringExpr(symbol) then
+            num1 := exec_expr(symbol, line);
+            if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+              line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
+              line_marker;
+              writeln(log, "IF RECOGNIZED: IF " <& literal(line));
+              exec_if(symbol, line, process_next);
+            elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
+              line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
+              line_marker;
+              writeln(log, "FOR RECOGNIZED: FOR " <& literal(line));
+              exec_for(symbol, line);
+            else
+              setNumericVar(variable_name, num1);
+              line_marker;
+              writeln(log, "LET " <& variable_name <& "=" <& num1);
+            end if;
           else
-            setNumericVar(variable_name, num1);
-            line_marker;
-            writeln(log, "LET " <& variable_name <& "=" <& num1);
+            typeMismatch(variable_name, symbol, line);
           end if;
         else
-          error_marker;
-          writeln(err, "\"=\" EXPECTED AFTER " <& literal(variable_name) <&
-              " - FOUND " <& literal(symbol) <& ".");
+          assignmentExpected(variable_name, symbol, line);
         end if;
       else
-        error_marker;
-        writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
+        variableExpected(variable_name, symbol, line);
       end if;
     end if;
   end func;
