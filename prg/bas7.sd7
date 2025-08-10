@@ -4110,11 +4110,6 @@ const proc: exec_let (in var string: variable_name,
           setStringVar(variable_name, param1);
           line_marker;
           writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
-        elsif symbol in numeric_functions then
-          num1 := exec_expr(symbol, line);
-          setNumericVar(variable_name, num1);
-          line_marker;
-          writeln(log, "LET " <& variable_name <& "=" <& num1);
         else
           typeMismatch(variable_name, symbol, line);
         end if;
@@ -8516,11 +8511,6 @@ const proc: exec_let (inout string: symbol, inout string: line,
               line_marker;
               writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
             end if;
-          elsif symbol in numeric_functions then
-            num1 := exec_expr(symbol, line);
-            setNumericVar(variable_name, num1);
-            line_marker;
-            writeln(log, "LET " <& variable_name <& "=" <& num1);
           else
             typeMismatch(variable_name, symbol, line);
           end if;
