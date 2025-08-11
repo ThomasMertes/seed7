@@ -6177,35 +6177,37 @@ const proc: exec_display (inout string: symbol, inout string: line) is func
     write(log, "DISPLAY ");
     if symbol in display_keywords then
       repeat
-        if symbol = "AT" then
-          symbol := get_symbol(line);
-          expect("(", symbol, line);
-          row := round(exec_expr(symbol, line));
-          expect(",", symbol, line);
-          column := round(exec_expr(symbol, line));
-          expect(")", symbol, line);
-          write(log, "AT(" <& row <& ", " <& column <& ") ");
-          setPos(win, row, column);
-        end if;
-        if symbol = "BEEP" then
-          symbol := get_symbol(line);
-          write(log, "DISPLAY **BEEP ");
-        end if;
-        if symbol = "ERASE" then
-          symbol := get_symbol(line);
-          expect("ALL", symbol, line);
-          clear(win);
-          write(log, "ERASE ALL ");
-        end if;
-        if symbol = "SIZE" then
-          symbol := get_symbol(line);
-          expect("(", symbol, line);
-          count := round(exec_expr(symbol, line));
-          expect(")", symbol, line);
-          write(win, " " mult count);
-          write(win, "\b" mult count);
-          write(log, "SIZE(" <& count <& ") ");
-        end if;
+        case symbol of
+          when {"AT"}:
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            row := round(exec_expr(symbol, line));
+            expect(",", symbol, line);
+            column := round(exec_expr(symbol, line));
+            expect(")", symbol, line);
+            write(log, "AT(" <& row <& ", " <& column <& ") ");
+            setPos(win, row, column);
+          when {"BEEP"}:
+            symbol := get_symbol(line);
+            write(log, "DISPLAY **BEEP ");
+          when {"ERASE"}:
+            symbol := get_symbol(line);
+            expect("ALL", symbol, line);
+            clear(win);
+            write(log, "ERASE ALL ");
+          when {"SIZE"}:
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            count := round(exec_expr(symbol, line));
+            expect(")", symbol, line);
+            write(win, " " mult count);
+            write(win, "\b" mult count);
+            write(log, "SIZE(" <& count <& ") ");
+          otherwise:
+            error_marker;
+            writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
+            symbol := get_symbol(line);
+        end case;
       until symbol not in display_keywords;
       expect(":", symbol, line);
       write(log, ": ");
@@ -8229,6 +8231,7 @@ const proc: exec_call_clear (inout string: symbol, inout string: line) is func
     setup_graphic;
     symbol := get_symbol(line);
     clear(curr_win, light_cyan);
+    setPos(win, 1, 1);
     line_marker;
     writeln(log, "CALL CLEAR");
   end func;
@@ -8326,6 +8329,7 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     expect(",", symbol, line);
     status_variable := get_name(symbol, line);
     expect(")", symbol, line);
+    flush(win);
     if inputReady(KEYBOARD) then
       setNumericVar(return_variable, float(ord(getc(KEYBOARD))));
       setNumericVar(status_variable, 1.0);
