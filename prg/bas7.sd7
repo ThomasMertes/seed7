@@ -8291,38 +8291,46 @@ const proc: exec_call_char (inout string: symbol, inout string: line) is func
     var boolean: right is FALSE;
     var integer: number is 0;
     var integer: bit is 0;
+    var boolean: done is FALSE;
   begin
     setup_graphic;
     symbol := get_symbol(line);
     expect("(", symbol, line);
-    character_code := round(exec_expr(symbol, line));
-    expect(",", symbol, line);
-    patternArgument := exec_str_expr(symbol, line, unused_name);
-    expect(")", symbol, line);
-    patternChar := char(character_code);
     repeat
-      pattern := patternArgument[patternStartPos len 16];
-      patternLine := 1;
-      for pos range 1 to length(pattern) do
-        number := integer(pattern[pos fixLen 1], 16);
-        for bit range 1 to 4 do
-          if odd(number) then
-            charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
+      character_code := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      patternArgument := exec_str_expr(symbol, line, unused_name);
+      patternChar := char(character_code);
+      repeat
+        pattern := patternArgument[patternStartPos len 16];
+        patternLine := 1;
+        for pos range 1 to length(pattern) do
+          number := integer(pattern[pos fixLen 1], 16);
+          for bit range 1 to 4 do
+            if odd(number) then
+              charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
+            end if;
+            number >>:= 1;
+          end for;
+          if right then
+            incr(patternLine);
           end if;
-          number >>:= 1;
+          right := not right;
         end for;
-        if right then
-          incr(patternLine);
-        end if;
-        right := not right;
-      end for;
-      currentFont.fontPictures @:= [patternChar] charPicture;
-      setFont(scr, currentFont);
-      patternStartPos +:= 16;
-      incr(patternChar);
-    until patternStartPos > length(patternArgument);
-    line_marker;
-    writeln(log, "CALL CHAR(" <& character_code <& ", " <& literal(patternArgument) <& ")");
+        currentFont.fontPictures @:= [patternChar] charPicture;
+        setFont(scr, currentFont);
+        patternStartPos +:= 16;
+        incr(patternChar);
+      until patternStartPos > length(patternArgument);
+      line_marker;
+      writeln(log, "CALL CHAR(" <& character_code <& ", " <& literal(patternArgument) <& ")");
+      if symbol = "," then
+        symbol := get_symbol(line);
+      else
+        expect(")", symbol, line);
+        done := TRUE;
+      end if;
+    until done;
   end func;
 
 
