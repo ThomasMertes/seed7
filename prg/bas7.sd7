@@ -6162,6 +6162,106 @@ const proc: exec_linput (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_accept (inout string: symbol, inout string: line) is func
+  local
+    const set of string: accept_keywords is {"AT", "VALIDATE", "BEEP", "ERASE", "SIZE"};
+    var integer: row is 0;
+    var integer: column is 0;
+    var string: allowed is "";
+    var string: unused_name is "";
+    var integer: count is 0;
+    var string: variable_name is "";
+    var string: stri is "";
+    var float: num1 is 0.0;
+  begin
+    line_marker;
+    write(log, "ACCEPT ");
+    if symbol in accept_keywords then
+      repeat
+        case symbol of
+          when {"AT"}:
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            row := round(exec_expr(symbol, line));
+            expect(",", symbol, line);
+            column := round(exec_expr(symbol, line));
+            expect(")", symbol, line);
+            write(log, "AT(" <& row <& ", " <& column <& ") ");
+            setPos(win, row, column);
+          when {"VALIDATE"}:
+            symbol := get_symbol(line);
+            if symbol = "(" then
+              write(log, "VALIDATE");
+              repeat
+                write(log, symbol);
+                symbol := get_symbol(line);
+                if symbol = "UALPHA" or symbol = "DIGIT" or symbol="NUMERIC" then
+                  write(log, symbol);
+                  symbol := get_symbol(line);
+                elsif isStringExpr(symbol) then
+                  allowed := exec_str_expr(symbol, line, unused_name);
+                  write(log, literal(allowed));
+                end if;
+              until symbol <> ",";
+              expect(")", symbol, line);
+              write(log, ") ");
+            else
+              error_marker;
+              writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
+            end if;
+          when {"BEEP"}:
+            symbol := get_symbol(line);
+            write(log, "DISPLAY **BEEP ");
+          when {"ERASE"}:
+            symbol := get_symbol(line);
+            expect("ALL", symbol, line);
+            clear(win);
+            write(log, "ERASE ALL ");
+          when {"SIZE"}:
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            count := round(exec_expr(symbol, line));
+            expect(")", symbol, line);
+            write(win, " " mult count);
+            write(win, "\b" mult count);
+            write(log, "SIZE(" <& count <& ") ");
+          otherwise:
+            error_marker;
+            writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
+            symbol := get_symbol(line);
+        end case;
+      until symbol not in accept_keywords;
+      expect(":", symbol, line);
+      write(log, ": ");
+    end if;
+    if isStringVar(symbol) then
+      variable_name := get_name(symbol, line);
+      write(log, variable_name);
+      flush(log);
+      readln(stri);
+      flush(win);
+      setStringVar(variable_name, stri);
+      writeln(log, " <- " <& literal(stri));
+    elsif isNumericVar(symbol) then
+      variable_name := get_name(symbol, line);
+      write(log, variable_name);
+      flush(log);
+      stri := read_input_number(IN);
+      flush(win);
+      block
+        num1 := float(stri);
+        setNumericVar(variable_name, num1);
+        writeln(log, " <- " <& literal(stri));
+      exception
+        catch RANGE_ERROR:
+          error_marker;
+          writeln(err, "NUMBER EXPECTED FOR ACCEPT OF " <& variable_name <&
+                  " FOUND " <& literal(stri) <& ".");
+      end block;
+    end if;
+  end func;
+
+
 const proc: exec_display (inout string: symbol, inout string: line) is func
   local
     const set of string: display_keywords is {"AT", "BEEP", "ERASE", "SIZE"};
@@ -8584,6 +8684,16 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
       case symbol of
         when {""}:
           noop;
+        when {"ACCEPT"}:
+          symbol := get_symbol(line);
+          if symbol = "=" or symbol = "("  or symbol = "[" then
+            exec_let("ACCEPT", symbol, line);
+          elsif symbol = ":" and "ACCEPT" in usedLabel then
+            line_marker;
+            writeln(log, "SKIP LABEL: ACCEPT");
+          else
+            exec_accept(symbol, line);
+          end if;
         when {"BEEP"}:
           symbol := get_symbol(line);
           line_marker;
