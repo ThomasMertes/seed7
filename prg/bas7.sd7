@@ -44,8 +44,8 @@
 (*  REM, RESET, RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET,   *)
 (*  RTRIM$, **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP,    *)
 (*  **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, *)
-(*  SUBEND, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER, **TYPE,     *)
-(*  UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#           *)
+(*  SUBEND, SUBEXIT, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER,    *)
+(*  **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#   *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -262,7 +262,7 @@ const set of string: not_allowed_as_label is {
     "PLAY",      "POKE",      "PRINT",     "PUT",       "RANDOMIZE", "READ",
     "REDIM",     "REM",       "RESET",     "RESTORE",   "RESUME",    "RETURN",
     "RUN",       "SCREEN",    "SEEK",      "SELECT",    "SLEEP",     "STOP",
-    "SUB",       "SYSTEM",    "WEND",      "WRITE"};
+    "SUB",       "SUBEXIT",   "SYSTEM",    "WEND",      "WRITE"};
 
 const array color: loresColor is [0] (
     black,
@@ -10050,6 +10050,19 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             symbol := get_symbol(line);
             error_marker;
             writeln(err, "SUBEND - RETURN WITHOUT CALL.");
+          end if;
+        when {"SUBEXIT"}:
+          if length(gosubReturn) >= 1 then
+            check_loop_stacks_before_return("SUBEXIT " & gosubReturn[1].subName);
+            line_marker;
+            write(log, "SUBEXIT " <& gosubReturn[1].subName <& " - RETURN TO ");
+            do_return(symbol, line);
+            line_marker;
+            writeln(log);
+          else
+            symbol := get_symbol(line);
+            error_marker;
+            writeln(err, "SUBEXIT - RETURN WITHOUT CALL.");
           end if;
         when {"TEXT"}:
           symbol := get_symbol(line);
