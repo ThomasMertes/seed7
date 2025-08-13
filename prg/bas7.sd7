@@ -482,7 +482,7 @@ const func string: get_symbol (inout string: line) is func
             incr(index);
           end if;
           symbol := line[start .. pred(index)];
-          if posOfD <> 0 then
+          if posOfD <> 0 and posOfD <= length(symbol) then
             symbol @:= [posOfD] 'E';
           end if;
           line := line[index .. ];
@@ -533,7 +533,7 @@ const func string: get_symbol (inout string: line) is func
               incr(index);
             end if;
             symbol := "0" & line[start .. pred(index)];
-            if posOfD <> 0 then
+            if posOfD <> 0 and posOfD <= length(symbol) then
               symbol @:= [posOfD] 'E';
             end if;
             line := line[index .. ];
