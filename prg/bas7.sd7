@@ -2881,6 +2881,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         stri1 := exec_str_expr(symbol, line, unused_name);
         expect(")", symbol, line);
+        write(log, "VAL(" <& literal(stri1) <& ") -> ");
         stri2 := get_symbol(stri1);
         if stri2 = "-" then
           stri2 &:= get_symbol(stri1);
@@ -2893,7 +2894,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           catch RANGE_ERROR:
             exprResult := 0.0;
         end block;
-        writeln(log, "VAL(" <& literal(stri2) <& ") -> " <& exprResult);
+        writeln(log, exprResult);
       when {"VARPTR"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
