@@ -6810,7 +6810,8 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
               reclen := length(getStringVar(variable_name));
               error_marker;
               writeln(err, "GET #" <& file_number <&
-                  " FILE HAS NO RECORD LENGTH SPECIFIED - USE THE SIZE OF THE VARIABLE: " <& reclen);
+                  " FILE HAS NO RECORD LENGTH SPECIFIED - USE THE SIZE OF THE VARIABLE " <&
+                  variable_name <& ": " <& reclen);
             else
               reclen := 0;
               error_marker;
@@ -6819,7 +6820,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             end if;
           end if;
           if reclen <> 0 then
-            # writeln(log, "seek(succ(prd(" <& position <& ") * " <& reclen <& ")) " <&
+            # writeln(log, "seek(succ(pred(" <& position <& ") * " <& reclen <& ")) " <&
             #         succ(pred(position) * reclen));
             seek(inFile, succ(pred(position) * reclen));
           end if;
