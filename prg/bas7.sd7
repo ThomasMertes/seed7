@@ -168,7 +168,10 @@ var stringSet: var_value_from_for_loop is stringSet.value;
 
 const type: string_hash is hash [string] string;
 var string_hash: string_var is string_hash.EMPTY_HASH;
+
 var stringSet: string_var_name is stringSet.value;
+var stringSet: integer_var_name is stringSet.value;
+var stringSet: double_var_name is stringSet.value;
 
 const type: image_hash is hash [string] PRIMITIVE_WINDOW;
 var image_hash: image_var is image_hash.EMPTY_HASH;
@@ -7077,10 +7080,14 @@ const proc: exec_dim (in boolean: isRedim, inout string: symbol,
               typeName := parseType(symbol, line);
               if typeName = "STRING" then
                 incl(string_var_name, variableName);
-                 if symbol = "*" then
+                if symbol = "*" then
                   symbol := get_symbol(line);
                   factor := round(exec_expr(symbol, line));
                 end if;
+              elsif typeName = "INTEGER" then
+                incl(integer_var_name, variableName);
+              elsif typeName = "DOUBLE" then
+                incl(double_var_name, variableName);
               end if;
             else
               typeName := "";
@@ -7126,6 +7133,10 @@ const proc: exec_dim (in boolean: isRedim, inout string: symbol,
                   setStringVar(variableName, "" lpad factor);
                 end if;
               end if;
+            elsif typeName = "INTEGER" then
+              incl(integer_var_name, variableName);
+            elsif typeName = "DOUBLE" then
+              incl(double_var_name, variableName);
             end if;
           else
             typeName := "";
