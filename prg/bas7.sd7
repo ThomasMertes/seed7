@@ -7007,6 +7007,7 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
     var string: typeName is "";
     var integer: dimension is 0;
     var boolean: finished is FALSE;
+    var integer: factor is 0;
   begin
     symbol := get_symbol(line);
     if symbol = "SHARED" then
@@ -7063,6 +7064,13 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
             typeName := parseType(symbol, line);
             if typeName = "STRING" then
               incl(string_var_name, variableName);
+              if symbol = "*" then
+                symbol := get_symbol(line);
+                factor := round(exec_expr(symbol, line));
+                if factor > 0 then
+                  setStringVar(variableName, "" lpad factor);
+                end if;
+              end if;
             end if;
           else
             typeName := "";
@@ -7071,6 +7079,9 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
           write(log, "DIM " <& variableName);
           if typeName <> "" then
             write(log, " AS " <& typeName);
+            if factor > 0 then
+              write(log, " * " <& factor);
+            end if;
           end if;
           writeln(log);
         end if;
