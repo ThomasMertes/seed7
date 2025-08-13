@@ -10089,6 +10089,23 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             line_marker;
             writeln(log, "TEXT");
           end if;
+        when { "TIMER"}:
+          symbol := get_symbol(line);
+          if symbol = "=" or symbol = "("  or symbol = "[" then
+            exec_let("TIMER", symbol, line);
+          elsif symbol = ":" and "TIMER" in usedLabel then
+            line_marker;
+            writeln(log, "SKIP LABEL: TEXT");
+          elsif symbol in {"ON", "OFF", "STOP"} then
+            line_marker;
+            writeln(log, "**TIMER " <& symbol);
+            symbol := get_symbol(line);
+          else
+            error_marker;
+            writeln(err, "\"ON\", \"OFF\" or \"STOP\" EXPECTED AFTER " <&
+                    "\"TIMER\" - FOUND " <& literal(symbol));
+            symbol := get_symbol(line);
+          end if;
         when {"TYPE"}:
           exec_type(symbol, line);
         when {"VTAB"}:
