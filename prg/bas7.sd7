@@ -6984,7 +6984,8 @@ const func string: parseType (inout string: symbol, inout string: line) is func
 
 
 const proc: initArray (in var string: arrayName, in boolean: isStringVar,
-    in integer: dimension, in dimensionType: dimensionBounds) is func
+    in integer: dimension, in dimensionType: dimensionBounds,
+    in integer: factor) is func
   local
     var integer: index is 0;
   begin
@@ -6994,15 +6995,17 @@ const proc: initArray (in var string: arrayName, in boolean: isStringVar,
       else
         arrayName &:= ",";
       end if;
-      for index range dimensionBounds[dimension].lbound to dimensionBounds[dimension].ubound do
+      for index range dimensionBounds[dimension].lbound to
+                      dimensionBounds[dimension].ubound do
         if dimension = length(dimensionBounds) then
           if isStringVar then
-            setStringVar(arrayName & str(index) & ")", "");
+            setStringVar(arrayName & str(index) & ")", "" lpad factor);
           else
             setNumericVar(arrayName & str(index) & ")", 0.0);
           end if;
         else
-          initArray(arrayName & str(index), isStringVar, succ(dimension), dimensionBounds);
+          initArray(arrayName & str(index), isStringVar, succ(dimension),
+                    dimensionBounds, factor);
         end if;
       end for;
     end if;
@@ -7047,11 +7050,16 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
               typeName := parseType(symbol, line);
               if typeName = "STRING" then
                 incl(string_var_name, variableName);
+                 if symbol = "*" then
+                  symbol := get_symbol(line);
+                  factor := round(exec_expr(symbol, line));
+                end if;
               end if;
             else
               typeName := "";
             end if;
-            initArray(variableName, isStringVar(variableName), 1, dimensionBounds);
+            initArray(variableName, isStringVar(variableName), 1,
+                      dimensionBounds, max(0, factor));
             # writeln(log, "addr=" <& varptr(variableName) <& " name=" <& variableName);
             ignore(varptr(variableName));
             line_marker;
@@ -7066,6 +7074,9 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
             write(log, ")");
             if typeName <> "" then
               write(log, " AS " <& typeName);
+              if factor > 0 then
+                write(log, " * " <& factor);
+              end if;
             end if;
             writeln(log);
           end if;
