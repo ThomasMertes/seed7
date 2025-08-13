@@ -7396,7 +7396,7 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
     var integer: imageByte is 0;
     var integer: colorNum is 0;
   begin
-    if bytes <> "" then
+    if length(bytes) >= 4 then
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
@@ -7440,7 +7440,7 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
     var integer: colorNum is 0;
     const array color: palette1 is [] (black, light_green, light_red, brown);
   begin
-    if bytes <> "" then
+    if length(bytes) >= 4 then
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
@@ -7482,7 +7482,7 @@ const func PRIMITIVE_WINDOW: getEgaImageFromBytes (in string: bytes) is func
     var integer: imageByte is 0;
     var integer: colorNum is 0;
   begin
-    if bytes <> "" then
+    if length(bytes) >= 4 then
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
@@ -7523,7 +7523,7 @@ const func PRIMITIVE_WINDOW: getVgaImageFromBytes (in string: bytes) is func
     var integer: byteIndex is 0;
     var integer: imageByte is 0;
   begin
-    if bytes <> "" then
+    if length(bytes) >= 4 then
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE) mdiv 8;
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
