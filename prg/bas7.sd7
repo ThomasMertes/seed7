@@ -1890,6 +1890,13 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         symbol := get_symbol(line);
         exprResult := str_mm_dd_yyyy(time(NOW), "-");
         writeln(log, "DATE$ -> " <& literal(exprResult));
+      when {"ENVIRON$"}:
+        symbol := get_symbol(line);
+        expect("(", symbol, line);
+        stri1 := exec_str_expr(symbol, line, unused_name);
+        expect(")", symbol, line);
+        exprResult := getenv(stri1);
+        writeln(log, "ENVIRON$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
       when {"HEX$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
