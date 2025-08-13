@@ -7277,22 +7277,28 @@ const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: b
   result
     var string: bloadName is "";
   local
-    var integer: twoTimes is 0;
+    var string: stri is "";
     var integer: number is 0;
-    var integer: count is 0;
     var char: ch is ' ';
   begin
-    for twoTimes range 1 to 2 do
-      number := ord(getc(aFile));
-      for count range 1 to number do
-        ch := getc(aFile);
-        incr(byteIndex);
-        if ch >= '\128;' then
-          ch := char(ord(ch) - 128);
+    for 2 do
+      ch := getc(aFile);
+      if ch <> EOF then
+        number := ord(ch);
+        stri := gets(aFile, number);
+        byteIndex +:= succ(length(stri));
+        if length(stri) = number then
+          for key number range stri do
+            ch := stri[number];
+            if ch >= '\128;' then
+              stri @:= [number] char(ord(ch) - 128);
+            end if;
+          end for;
+          bloadName &:= stri;
         end if;
-        bloadName &:= str(ch);
-      end for;
+      end if;
     end for;
+    # writeln(log, "readVarNameFromBloadFile -> " <& literal(bloadName));
   end func;
 
 
@@ -7305,6 +7311,8 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
     var string: bloadName is "";
     var integer: address is 0;
     var file: aFile is STD_NULL;
+    var string: header is "";
+    var string: data is "";
     var integer: sizeInBytes is 0;
     var integer: byteIndex is 0;
     var string: name_start is "";
@@ -7344,9 +7352,10 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
       # writeln(log, "name_end=" <& name_end);
       aFile := basicOpen(file_name, "r");
       if aFile <> STD_NULL then
-        if getc(aFile) = '\16#FD;' then
-          ignore(gets(aFile, 4));
-          sizeInBytes := ord(getc(aFile)) + 256 * ord(getc(aFile));
+        header := gets(aFile, 7);
+        if length(header) = 7 and header[1] = '\16#FD;' then
+          # header[2 fixLen 4] is the original segment and offset.
+          sizeInBytes := bytes2Int(header[6 fixLen 2], UNSIGNED, LE);
           writeln(log, "sizeInBytes=" <& sizeInBytes);
           for byteIndex range 0 to pred(sizeInBytes) step 2 do
             if intIndex > ubound then
@@ -7371,10 +7380,13 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
                 byteIndex := sizeInBytes;
               end if;
             end if;
-            number := ord(getc(aFile)) + 256 * ord(getc(aFile));
-            setNumericVar(name_start & str(intIndex) & name_end, float(number));
-            # writeln(log, name_start & str(intIndex) & name_end <& "=" <& float(number));
-            incr(intIndex);
+            if byteIndex < sizeInBytes then
+              data := gets(aFile, 2);
+              number := bytes2Int(data[1 fixLen 2], UNSIGNED, LE);
+              setNumericVar(name_start & str(intIndex) & name_end, float(number));
+              # writeln(log, name_start & str(intIndex) & name_end <& "=" <& float(number));
+              incr(intIndex);
+            end if;
           end for;
         end if;
         close(aFile);
