@@ -235,6 +235,7 @@ const type: boundsType is new struct
 
 const type: dimensionType is array boundsType;
 
+var integer: option_base is 0;
 var float: lastRandomNumber is 0.0;
 var integer: screenMode is 0;
 var integer: currX is 0;
@@ -7028,7 +7029,7 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
               bounds.lbound := bounds.ubound;
               bounds.ubound := round(exec_expr(symbol, line));
             else
-              bounds.lbound := 0;
+              bounds.lbound := option_base;
             end if;
             dimensionBounds &:= [] (bounds);
           until symbol <> ",";
@@ -9659,11 +9660,29 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         when {"OPEN"}:
           exec_open(symbol, line);
         when {"OPTION"}:
-          line_marker;
-          writeln(log, "OPTION " <& line);
-          repeat
+          symbol := get_symbol(line);
+          if symbol = "=" or symbol = "("  or symbol = "[" then
+            exec_let("OPTION", symbol, line);
+          elsif symbol = ":" and "OPTION" in usedLabel then
+            line_marker;
+            writeln(log, "SKIP LABEL: OPTION");
+          elsif symbol = "BASE" then
             symbol := get_symbol(line);
-          until endOfStatement(symbol);
+            index1 := round(exec_expr(symbol, line));
+            if index1 in {0, 1} then
+              option_base := index1;
+              line_marker;
+              writeln(log, "OPTION " <& index1);
+            else
+              error_marker;
+              writeln(err, "0 or 1 EXPECTED AS \"OPTION BASE\" - FOUND " <&
+                      index1 <& ".");
+            end if;
+          else
+            error_marker;
+            writeln(err, "\"BASE\" EXPECTED AFTER \"OPTION\" - FOUND " <&
+                    literal(symbol) <& ".");
+          end if;
         when {"OUT"}:
           symbol := get_symbol(line);
           if symbol = "=" or symbol = "("  or symbol = "[" then
