@@ -7380,21 +7380,27 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
-      image := newPixmap(width, height);
-      bytesPerLine := pred(width) mdiv 8 + 1;
-      for yPos range 0 to pred(height) do
-        lineStartByte := yPos * bytesPerLine;
-        for xPos range 0 to pred(width) do
-          colorNum := 0;
-          byteIndex := lineStartByte + xPos mdiv 8;
-          imageByte := ord(bytes[5 + byteIndex]);
-          if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
-            point(image, xPos, yPos, white);
-          else
-            point(image, xPos, yPos, black);
-          end if;
+      if width >= 1 and height >= 1 then
+        image := newPixmap(width, height);
+        bytesPerLine := pred(width) mdiv 8 + 1;
+        for yPos range 0 to pred(height) do
+          lineStartByte := yPos * bytesPerLine;
+          for xPos range 0 to pred(width) do
+            colorNum := 0;
+            byteIndex := lineStartByte + xPos mdiv 8;
+            imageByte := ord(bytes[5 + byteIndex]);
+            if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
+              point(image, xPos, yPos, white);
+            else
+              point(image, xPos, yPos, black);
+            end if;
+          end for;
         end for;
-      end for;
+      else
+        error_marker;
+        writeln(err, "IMAGE WIDTH AND HEIGHT ARE " <&
+                width <& ", " <& height);
+      end if;
     end if;
   end func;
 
@@ -7419,18 +7425,24 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       width := width div 2;
-      image := newPixmap(width, height);
-      bytesPerLine := pred(width) mdiv 4 + 1;
-      for yPos range 0 to pred(height) do
-        lineStartByte := yPos * bytesPerLine;
-        for xPos range 0 to pred(width) do
-          colorNum := 0;
-          byteIndex := lineStartByte + xPos mdiv 4;
-          imageByte := ord(bytes[5 + byteIndex]);
-          colorNum := (imageByte >> (6 - xPos mod 4 * 2)) mod 4;
-          point(image, xPos, yPos, palette1[succ(colorNum)]);
+      if width >= 1 and height >= 1 then
+        image := newPixmap(width, height);
+        bytesPerLine := pred(width) mdiv 4 + 1;
+        for yPos range 0 to pred(height) do
+          lineStartByte := yPos * bytesPerLine;
+          for xPos range 0 to pred(width) do
+            colorNum := 0;
+            byteIndex := lineStartByte + xPos mdiv 4;
+            imageByte := ord(bytes[5 + byteIndex]);
+            colorNum := (imageByte >> (6 - xPos mod 4 * 2)) mod 4;
+            point(image, xPos, yPos, palette1[succ(colorNum)]);
+          end for;
         end for;
-      end for;
+      else
+        error_marker;
+        writeln(err, "IMAGE WIDTH AND HEIGHT ARE " <&
+                width <& ", " <& height);
+      end if;
     end if;
   end func;
 
@@ -7454,20 +7466,26 @@ const func PRIMITIVE_WINDOW: getEgaImageFromBytes (in string: bytes) is func
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
-      image := newPixmap(width, height);
-      bytesPerLine := pred(width) mdiv 8 + 1;
-      for yPos range 0 to pred(height) do
-        lineStartByte := yPos * 4 * bytesPerLine;
-        for xPos range 0 to pred(width) do
-          colorNum := 0;
-          for colorBitNum range 0 to 3 do
-            byteIndex := lineStartByte + colorBitNum * bytesPerLine + xPos mdiv 8;
-            imageByte := ord(bytes[5 + byteIndex]);
-            colorNum +:= ((imageByte >> (7 - xPos mod 8)) mod 2) << colorBitNum;
+      if width >= 1 and height >= 1 then
+        image := newPixmap(width, height);
+        bytesPerLine := pred(width) mdiv 8 + 1;
+        for yPos range 0 to pred(height) do
+          lineStartByte := yPos * 4 * bytesPerLine;
+          for xPos range 0 to pred(width) do
+            colorNum := 0;
+            for colorBitNum range 0 to 3 do
+              byteIndex := lineStartByte + colorBitNum * bytesPerLine + xPos mdiv 8;
+              imageByte := ord(bytes[5 + byteIndex]);
+              colorNum +:= ((imageByte >> (7 - xPos mod 8)) mod 2) << colorBitNum;
+            end for;
+            point(image, xPos, yPos, color_num(colorNum));
           end for;
-          point(image, xPos, yPos, color_num(colorNum));
         end for;
-      end for;
+      else
+        error_marker;
+        writeln(err, "IMAGE WIDTH AND HEIGHT ARE " <&
+                width <& ", " <& height);
+      end if;
     end if;
   end func;
 
@@ -7489,16 +7507,22 @@ const func PRIMITIVE_WINDOW: getVgaImageFromBytes (in string: bytes) is func
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE) mdiv 8;
       height := bytes2Int(bytes[3 fixLen 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
-      image := newPixmap(width, height);
-      bytesPerLine := width;
-      for yPos range 0 to pred(height) do
-        lineStartByte := yPos * bytesPerLine;
-        for xPos range 0 to pred(width) do
-          byteIndex := lineStartByte + xPos;
-          imageByte := ord(bytes[5 + byteIndex]);
-          point(image, xPos, yPos, color_num(imageByte));
+      if width >= 1 and height >= 1 then
+        image := newPixmap(width, height);
+        bytesPerLine := width;
+        for yPos range 0 to pred(height) do
+          lineStartByte := yPos * bytesPerLine;
+          for xPos range 0 to pred(width) do
+            byteIndex := lineStartByte + xPos;
+            imageByte := ord(bytes[5 + byteIndex]);
+            point(image, xPos, yPos, color_num(imageByte));
+          end for;
         end for;
-      end for;
+      else
+        error_marker;
+        writeln(err, "IMAGE WIDTH AND HEIGHT ARE " <&
+                width <& ", " <& height);
+      end if;
     end if;
   end func;
 
