@@ -6984,6 +6984,30 @@ const func string: parseType (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: deallocateArray (in string: arrayName) is func
+  local
+    var string: varName is "";
+    var string: indexPart is "";
+  begin
+    for varName range keys(numeric_var) do
+      if startsWith(varName, arrayName) then
+        indexPart := varName[succ(length(arrayName)) ..];
+        if indexPart <> "" and (indexPart[1] = '[' or indexPart[1] = '(') then
+          excl(numeric_var, varName);
+        end if;
+      end if;
+    end for;
+    for varName range keys(string_var) do
+      if startsWith(varName, arrayName) then
+        indexPart := varName[succ(length(arrayName)) ..];
+        if indexPart <> "" and (indexPart[1] = '[' or indexPart[1] = '(') then
+          excl(numeric_var, varName);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const proc: initArray (in var string: arrayName, in boolean: isStringVar,
     in integer: dimension, in dimensionType: dimensionBounds,
     in integer: factor) is func
@@ -7013,7 +7037,8 @@ const proc: initArray (in var string: arrayName, in boolean: isStringVar,
   end func;
 
 
-const proc: exec_dim (inout string: symbol, inout string: line) is func
+const proc: exec_dim (in boolean: isRedim, inout string: symbol,
+    inout string: line) is func
   local
     var string: variableName is "";
     var dimensionType: dimensionBounds is 0 times boundsType.value;
@@ -7059,12 +7084,19 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
             else
               typeName := "";
             end if;
+            if isRedim then
+              deallocateArray(variableName);
+            end if;
             initArray(variableName, isStringVar(variableName), 1,
                       dimensionBounds, max(0, factor));
             # writeln(log, "addr=" <& varptr(variableName) <& " name=" <& variableName);
             ignore(varptr(variableName));
             line_marker;
-            write(log, "DIM " <& variableName <& "(");
+            if isRedim then
+              write(log, "REDIM " <& variableName <& "(");
+            else
+              write(log, "DIM " <& variableName <& "(");
+            end if;
             for dimension range 1 to length(dimensionBounds) do
               if dimension <> 1 then
                 write(log, ", ");
@@ -7098,7 +7130,11 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
             typeName := "";
           end if;
           line_marker;
-          write(log, "DIM " <& variableName);
+          if isRedim then
+            write(log, "REDIM " <& variableName);
+          else
+            write(log, "DIM " <& variableName);
+          end if;
           if typeName <> "" then
             write(log, " AS " <& typeName);
             if factor > 0 then
@@ -8634,7 +8670,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
         exec_clear(symbol, line);
       elsif startsWith(symbol, "DIM") then
         line := symbol[4 ..] & line;
-        exec_dim(symbol, line);
+        exec_dim(FALSE, symbol, line);
       elsif symbol in label then
         param1 := symbol;
         symbol := get_symbol(line);
@@ -9051,7 +9087,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             writeln(log, "DELAY " <& num1);
           end if;
         when {"DIM"}:
-          exec_dim(symbol, line);
+          exec_dim(FALSE, symbol, line);
         when {"DISPLAY"}:
           symbol := get_symbol(line);
           if symbol = "=" or symbol = "("  or symbol = "[" then
@@ -9836,11 +9872,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         when {"READ"}:
           exec_read(symbol, line);
         when {"REDIM"}:
-          line_marker;
-          writeln(log, "REDIM " <& line);
-          repeat
-            symbol := get_symbol(line);
-          until endOfStatement(symbol);
+          exec_dim(TRUE, symbol, line);
         when {"REM"}:
           symbol := "";
           line_marker;
