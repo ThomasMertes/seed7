@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "console.s7i";
   include "draw.s7i";
   include "stdfont24.s7i";
+  include "magic.s7i";
 
 
 const proc: writeMessage (in string: message) is func
@@ -78,6 +79,26 @@ const proc: findFileWithName (in array string: fileList, in string: fileName, in
     end while;
     if index > length(fileList) then
       index := 0;
+    end if;
+  end func;
+
+
+const func boolean: isGraphicFile (in string: filePath) is func
+  result
+    var boolean: isGraphicFile is FALSE;
+  local
+    const set of string: imageMagic is {
+        BMP_MAGIC, GIF_MAGIC_87, GIF_MAGIC_89, ICO_MAGIC,
+        JPEG_MAGIC, PBM_ASCII_MAGIC, PBM_BINARY_MAGIC, PGM_ASCII_MAGIC,
+        PGM_BINARY_MAGIC, PNG_MAGIC, PPM_ASCII_MAGIC, PPM_BINARY_MAGIC,
+        TIFF_MAGIC_LE, TIFF_MAGIC_BE};
+    var file: aFile is STD_NULL;
+    var string: magicBytes is "";
+  begin
+    aFile := open(filePath, "r");
+    if aFile <> STD_NULL then
+      isGraphicFile := getMagic(aFile) in imageMagic;
+      close(aFile);
     end if;
   end func;
 
@@ -246,7 +267,8 @@ const proc: main is func
       dirPath := getcwd & "/";
       fileList := readDir(getcwd);
     end if;
-    if index = 0 or not hasImageExtension(dirPath & fileList[index]) then
+    if index = 0 or not (hasImageExtension(dirPath & fileList[index]) or
+        isGraphicFile(dirPath & fileList[index])) then
       nextImageFile(dirPath, fileList, index);
     end if;
     repeat
