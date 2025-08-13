@@ -6785,6 +6785,9 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
     var boolean: with_position is FALSE;
     var integer: reclen is 0;
     var string: variable_name is "";
+    var boolean: isInteger is FALSE;
+    var boolean: isFloat is FALSE;
+    var boolean: isDouble is FALSE;
     var string: field is "";
     var boolean: okay is TRUE;
   begin
@@ -6804,6 +6807,15 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
           if isStringVar(symbol) then
             variable_name := get_name(symbol, line);
+          elsif symbol in integer_var_name then
+            isInteger := TRUE;
+            variable_name := get_name(symbol, line);
+          elsif symbol in double_var_name then
+            isDouble := TRUE;
+            variable_name := get_name(symbol, line);
+          else
+            isFloat := TRUE;
+            variable_name := get_name(symbol, line);
           end if;
         end if;
       end if;
@@ -6821,7 +6833,15 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
               writeln(err, "GET #" <& file_number <&
                   " FILE HAS NO RECORD LENGTH SPECIFIED - USE THE FIELD SIZE: " <& reclen);
             elsif variable_name <> "" then
-              reclen := length(getStringVar(variable_name));
+              if isInteger then
+                reclen := 2;
+              elsif isFloat then
+                reclen := 4;
+              elsif isDouble then
+                reclen := 8;
+              else
+                reclen := length(getStringVar(variable_name));
+              end if;
               error_marker;
               writeln(err, "GET #" <& file_number <&
                   " FILE HAS NO RECORD LENGTH SPECIFIED - USE THE SIZE OF THE VARIABLE " <&
@@ -6862,8 +6882,19 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             setStringVar(field, gets(inFile, length(getStringVar(field))));
           end for;
         elsif variable_name <> "" then
-          setStringVar(variable_name, gets(inFile,
-              length(getStringVar(variable_name))));
+          if isInteger then
+            setNumericVar(variable_name,
+                          float(bytes2Int(gets(inFile, 2), UNSIGNED, LE)));
+          elsif isFloat then
+            setNumericVar(variable_name,
+                          mbfBits2Float(bin32(gets(inFile, 4), LE)));
+          elsif isDouble then
+            setNumericVar(variable_name,
+                          mbfBits2Float(bin64(gets(inFile, 8), LE)));
+          else
+            setStringVar(variable_name, gets(inFile,
+                         length(getStringVar(variable_name))));
+          end if;
         else
           error_marker;
           writeln(err, "GET #" <& file_number <&
@@ -6880,8 +6911,14 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
                   literal(getStringVar(field)));
           end for;
         elsif variable_name <> "" then
-          write(log, ", " <& variable_name <& "=" <&
-                literal(getStringVar(variable_name)));
+          write(log, ", " <& variable_name <& "=");
+          if isInteger then
+            write(log, round(getNumericVar(variable_name)));
+          elsif isFloat or isDouble then
+            write(log, getNumericVar(variable_name));
+          else
+            write(log, literal(getStringVar(variable_name)));
+          end if;
         end if;
         writeln(log);
       end if;
