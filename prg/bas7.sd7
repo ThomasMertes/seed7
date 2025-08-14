@@ -10672,6 +10672,11 @@ const proc: preprocessLine (in var string: line) is func
           symbol = "THEN" or symbol = "ELSE" or
           symbol = "RESTORE" or symbol = "RUN" then
         label := get_symbol(line);
+        if (symbol = "THEN" or symbol = "ELSE") and
+            (label = "GOTO" or label = "GOSUB" or
+             label = "RESTORE" or label = "RUN") then
+          label := get_symbol(line);
+        end if;
         symbol := get_symbol(line);
         if endOfStatement(symbol) and
             label not in not_allowed_as_label and
