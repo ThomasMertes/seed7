@@ -868,6 +868,9 @@ objectType str_hashcode (listType arguments)
     striType stri;
 
   /* str_hashcode */
+    logFunction(printf("str_hashcode(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
     isit_stri(arg_1(arguments));
     stri = take_stri(arg_1(arguments));
     return bld_int_temp(hashCode(stri));

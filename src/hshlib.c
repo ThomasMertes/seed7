@@ -626,6 +626,15 @@ objectType hsh_contains (listType arguments)
     objectType result;
 
   /* hsh_contains */
+    logFunction(printf("hsh_contains(");
+                trace1(arg_1(arguments));
+                printf(", ");
+                trace1(arg_2(arguments));
+                printf(", ");
+                trace1(arg_3(arguments));
+                printf(", ");
+                trace1(arg_4(arguments));
+                printf(")\n"););
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
