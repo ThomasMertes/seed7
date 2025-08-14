@@ -8750,7 +8750,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
       elsif startsWith(symbol, "ELSE") and not startsWith(symbol, "ELSEIF") then
         line := symbol[5 ..] & line;
         exec_else(symbol, line);
-      elsif startsWith(symbol, "NEXT") then
+      elsif startsWith(symbol, "NEXT") and symbol not in usedLabel then
         line := symbol[5 ..] & line;
         exec_next(symbol, line);
       elsif startsWith(symbol, "ON") then
