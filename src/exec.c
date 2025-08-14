@@ -237,18 +237,21 @@ static inline void par_init (locListType form_param_list,
             } /* if */
             break;
           case REFPARAMOBJECT:
-/*            printf("ref param formal ");
+/*          printf("ref param formal " FMT_U_MEM ": ",
+                   (memSizeType) form_param->local.object);
             trace1(form_param->local.object);
-            printf(" %lu\nparam value ", (unsigned long) form_param->local.object);
+            printf("\nparam value " FMT_U_MEM ": ",
+                   (memSizeType) param_value);
             trace1(param_value);
-            printf(" %lu\n", (unsigned long) param_value); */
+            printf("\n");  */
             form_param->local.object->value.objValue = param_value;
             if (TEMP_OBJECT(param_value)) {
               CLEAR_TEMP_FLAG(param_value);
               SET_TEMP2_FLAG(param_value);
               /* printf("ref to temp ");
               trace1(form_param->local.object);
-              printf(" %lu\n", (unsigned long) form_param->local.object); */
+              printf(" " FMT_U_MEM "\n",
+                     (memSizeType) form_param->local.object); */
             } else {
               CLEAR_TEMP2_FLAG(param_value);
               param_list_elem->obj = NULL;
