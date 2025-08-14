@@ -175,6 +175,7 @@ var string_hash: string_var is string_hash.EMPTY_HASH;
 
 var stringSet: string_var_name is stringSet.value;
 var stringSet: integer_var_name is stringSet.value;
+var stringSet: single_var_name is stringSet.value;
 var stringSet: double_var_name is stringSet.value;
 
 const type: image_hash is hash [string] PRIMITIVE_WINDOW;
@@ -7132,6 +7133,7 @@ const proc: exec_dim (in boolean: isRedim, inout string: symbol,
               end if;
             else
               typeName := "";
+              incl(single_var_name, variableName);
             end if;
             if isRedim then
               deallocateArray(variableName);
@@ -7181,6 +7183,7 @@ const proc: exec_dim (in boolean: isRedim, inout string: symbol,
             end if;
           else
             typeName := "";
+            incl(single_var_name, variableName);
           end if;
           line_marker;
           if isRedim then
