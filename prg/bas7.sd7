@@ -151,6 +151,10 @@ var string: data_line is "";
 var string: varseg_variable is "";
 
 var set of char: defstr_var is (set of char).EMPTY_SET;
+var set of char: defdbl_var is (set of char).EMPTY_SET;
+var set of char: defint_var is (set of char).EMPTY_SET;
+var set of char: deflng_var is (set of char).EMPTY_SET;
+var set of char: defsng_var is (set of char).EMPTY_SET;
 
 const type: defFnType is new struct
     var string: name is "";
@@ -7202,7 +7206,8 @@ const proc: exec_dim (in boolean: isRedim, inout string: symbol,
   end func;
 
 
-const proc: exec_defType_numeric (inout string: symbol, inout string: line) is func
+const proc: exec_defType_numeric (inout set of char: defxxx_var,
+    inout string: symbol, inout string: line) is func
   local
     var string: statement is "";
     var string: param1 is "";
@@ -7212,6 +7217,7 @@ const proc: exec_defType_numeric (inout string: symbol, inout string: line) is f
   begin
     statement := symbol;
     symbol := get_symbol(line);
+    defxxx_var := (set of char).EMPTY_SET;
     okay := FALSE;
     repeat
       if length(symbol) = 1 and symbol >= "A" and symbol <= "Z" then
@@ -7223,6 +7229,7 @@ const proc: exec_defType_numeric (inout string: symbol, inout string: line) is f
             param2 := symbol;
             symbol := get_symbol(line);
             for ch1 range param1[1] to param2[1] do
+              incl(defxxx_var, ch1);
               excl(defstr_var, ch1);
             end for;
             line_marker;
@@ -7232,6 +7239,7 @@ const proc: exec_defType_numeric (inout string: symbol, inout string: line) is f
             writeln(err, "ILLEGAL " <& statement <& " " <& param1 <& "-" <& symbol);
           end if;
         else
+          incl(defxxx_var, param1[1]);
           excl(defstr_var, param1[1]);
           line_marker;
           writeln(log, statement <& " " <& param1);
@@ -7405,7 +7413,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
         if length(header) = 7 and header[1] = '\16#FD;' then
           # header[2 fixLen 4] is the original segment and offset.
           sizeInBytes := bytes2Int(header[6 fixLen 2], UNSIGNED, LE);
-          writeln(log, "sizeInBytes=" <& sizeInBytes);
+          # writeln(log, "sizeInBytes=" <& sizeInBytes);
           for byteIndex range 0 to pred(sizeInBytes) step 2 do
             if intIndex > ubound then
               # writeln(log, "varptr(arrayName)=" <& varptr(arrayName));
@@ -9137,13 +9145,13 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             end if;
           end if;
         when {"DEFDBL"}:
-          exec_defType_numeric(symbol, line);
+          exec_defType_numeric(defdbl_var, symbol, line);
         when {"DEFINT"}:
-          exec_defType_numeric(symbol, line);
+          exec_defType_numeric(defint_var, symbol, line);
         when {"DEFLNG"}:
-          exec_defType_numeric(symbol, line);
+          exec_defType_numeric(deflng_var, symbol, line);
         when {"DEFSNG"}:
-          exec_defType_numeric(symbol, line);
+          exec_defType_numeric(defsng_var, symbol, line);
         when {"DEFSTR"}:
           exec_defstr(symbol, line);
         when {"DELAY"}:
