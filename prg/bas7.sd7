@@ -9310,16 +9310,20 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
               end if;
             end if;
           elsif symbol = "DO" or symbol = "LOOP" then
+            line_marker;
+            write(log, "EXIT " <& symbol);
             param1 := statement_label;
             symbol := find_loop(line);
             if symbol = "LOOP" then
               doLoop := doLoop[2 .. ];
+              write(log, " - CONTINUE AFTER \"LOOP\" IN LINE ");
               line_marker;
+              writeln(log);
               repeat
                 symbol := get_symbol(line);
               until endOfStatement(symbol);
-              writeln(log, "EXIT DO");
             else
+              writeln(log);
               error_marker(param1);
               writeln(err, "NO CORRESPONDING \"LOOP\" FOUND FOR \"EXIT DO\"");
             end if;
