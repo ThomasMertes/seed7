@@ -710,6 +710,27 @@ const func boolean: isNumericVar (in string: symbol) is
          symbol[length(symbol)] in numeric_var_suffix);
 
 
+const func boolean: isIntegerVar (in string: symbol) is
+  return symbol in integer_var_name or
+         symbol <> "" and
+        (symbol[1] in defint_var or
+         symbol[length(symbol)] = '%');
+
+
+const func boolean: isSingleVar (in string: symbol) is
+  return symbol in single_var_name or
+         symbol <> "" and
+        (symbol[1] in defsng_var or
+         symbol[length(symbol)] = '!');
+
+
+const func boolean: isDoubleVar (in string: symbol) is
+  return symbol in double_var_name or
+         symbol <> "" and
+        (symbol[1] in defdbl_var or
+         symbol[length(symbol)] = '#');
+
+
 const proc: error_marker is func
   begin
     write(err, " ***** ");
@@ -6791,7 +6812,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
     var integer: reclen is 0;
     var string: variable_name is "";
     var boolean: isInteger is FALSE;
-    var boolean: isFloat is FALSE;
+    var boolean: isSingle is FALSE;
     var boolean: isDouble is FALSE;
     var string: field is "";
     var boolean: okay is TRUE;
@@ -6812,14 +6833,14 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
           if isStringVar(symbol) then
             variable_name := get_name(symbol, line);
-          elsif symbol in integer_var_name then
+          elsif isIntegerVar(symbol) then
             isInteger := TRUE;
             variable_name := get_name(symbol, line);
-          elsif symbol in double_var_name then
-            isDouble := TRUE;
+          elsif isSingleVar(symbol) then
+            isSingle := TRUE;
             variable_name := get_name(symbol, line);
-          else
-            isFloat := TRUE;
+          elsif isDoubleVar(symbol) then
+            isDouble := TRUE;
             variable_name := get_name(symbol, line);
           end if;
         end if;
@@ -6840,7 +6861,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             elsif variable_name <> "" then
               if isInteger then
                 reclen := 2;
-              elsif isFloat then
+              elsif isSingle then
                 reclen := 4;
               elsif isDouble then
                 reclen := 8;
@@ -6889,13 +6910,13 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
         elsif variable_name <> "" then
           if isInteger then
             setNumericVar(variable_name,
-                          float(bytes2Int(gets(inFile, 2), UNSIGNED, LE)));
-          elsif isFloat then
+                          float(bytes2Int(gets(inFile, 2), SIGNED, LE)));
+          elsif isSingle then
             setNumericVar(variable_name,
-                          mbfBits2Float(bin32(gets(inFile, 4), LE)));
+                          float(bin32(gets(inFile, 4), LE)));
           elsif isDouble then
             setNumericVar(variable_name,
-                          mbfBits2Float(bin64(gets(inFile, 8), LE)));
+                          float(bin64(gets(inFile, 8), LE)));
           else
             setStringVar(variable_name, gets(inFile,
                          length(getStringVar(variable_name))));
@@ -6919,7 +6940,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
           write(log, ", " <& variable_name <& "=");
           if isInteger then
             write(log, round(getNumericVar(variable_name)));
-          elsif isFloat or isDouble then
+          elsif isSingle or isDouble then
             write(log, getNumericVar(variable_name));
           else
             write(log, literal(getStringVar(variable_name)));
