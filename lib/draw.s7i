@@ -599,6 +599,7 @@ const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
 (**
  *  Create a new pixmap with the given ''width'' and ''height''.
  *  @return the created pixmap.
+ *  @exception RANGE_ERROR If ''height'' or ''width'' are negative or zero.
  *)
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
 
@@ -610,6 +611,7 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
  *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
  *  areas outside of ''sourceWin'' are colored with black.
  *  @return the created pixmap.
+ *  @exception RANGE_ERROR If ''height'' or ''width'' are negative or zero.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
     in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET_PIXMAP";

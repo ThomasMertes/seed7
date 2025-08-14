@@ -1104,11 +1104,11 @@ bstriType drwGetPixelData (const_winType sourceWindow)
 
 
 /**
- *  Create a new pixmap with the given 'width' and 'height'.
+ *  Create a new pixmap with the given 'width' and 'height' from 'sourceWindow'.
  *  A rectangle with the upper left corner at (left, upper) and the given
  *  'width' and 'height' is copied from 'sourceWindow' to the new pixmap.
- *  @exception RANGE_ERROR If 'height' or 'width' are negative.
- *  @return the new pixmap.
+ *  @return the created pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative or zero.
  */
 winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
     intType width, intType height)
@@ -1320,6 +1320,11 @@ void drwPLine (const_winType actual_window,
 
 
 
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  @return the created pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative or zero.
+ */
 winType drwNewPixmap (intType width, intType height)
 
   {
