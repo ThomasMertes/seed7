@@ -9639,11 +9639,23 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             writeln(log, "**INVERSE");
           end if;
         when {"KEY"}:
-          line_marker;
-          writeln(log, "**KEY " <& line);
-          repeat
+          symbol := get_symbol(line);
+          if symbol = "=" or symbol = "("  or symbol = "[" then
+            exec_let("KEY", symbol, line);
+          elsif symbol = ":" and "KEY" in usedLabel then
+            line_marker;
+            writeln(log, "SKIP LABEL: KEY");
+          elsif symbol in {"ON", "OFF", "LIST"} then
+            line_marker;
+            writeln(log, "**KEY " <& symbol);
             symbol := get_symbol(line);
-          until endOfStatement(symbol);
+          else
+            index1 := round(exec_expr(symbol, line));
+            expect(",", symbol, line);
+            param1 := exec_str_expr(symbol, line, variable_name);
+            line_marker;
+            writeln(log, "**KEY " <& index1 <& ", " <& literal(param1));
+          end if;
         when {"LINE"}:
           symbol := get_symbol(line);
           if symbol = "INPUT" or symbol = "INPUT#" then
@@ -10343,7 +10355,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             exec_let("TIMER", symbol, line);
           elsif symbol = ":" and "TIMER" in usedLabel then
             line_marker;
-            writeln(log, "SKIP LABEL: TEXT");
+            writeln(log, "SKIP LABEL: TIMER");
           elsif symbol in {"ON", "OFF", "STOP"} then
             line_marker;
             writeln(log, "**TIMER " <& symbol);
