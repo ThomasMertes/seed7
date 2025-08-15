@@ -6940,7 +6940,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
         else
           error_marker;
           writeln(err, "GET #" <& file_number <&
-                  " - NO STRING VARIABLE PRESENT");
+                  " - FIELD SPECIFICATION MISSING AND NO VARIABLE PRESENT");
         end if;
         line_marker;
         write(log, "GET #" <& file_number <& ", ");
