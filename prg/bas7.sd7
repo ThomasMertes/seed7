@@ -4225,8 +4225,12 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         if on_error_label <> "" then
           error_code := ILLEGAL_FUNCTION_CALL;
           line_marker;
-          writeln(log, error_code <& " ILLEGAL FUNCTION CALL - MID$" <&
-              " - ON ERROR GOTO " <& on_error_label);
+          write(log, error_code <& " ILLEGAL FUNCTION CALL - MID$(" <&
+              variable_name <& ", " <& position);
+          if with_length then
+            write(log, ", " <& requested_length);
+          end if;
+          writeln(log, ") - ON ERROR GOTO " <& on_error_label);
           goto_on_error(on_error_label, line);
           symbol := "";
           line := "";
@@ -4245,11 +4249,13 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         var_value := var_value[ .. pred(position)] & stri[ .. length] &
             var_value[position + length ..];
         setStringVar(variable_name, var_value);
+        line_marker;
         write(log, "MID$(" <& variable_name <& ", " <& position);
         if with_length then
           write(log, ", " <& requested_length);
         end if;
         writeln(log, ")=" <& literal(stri));
+        writeln(log, variable_name <& "=" <& literal(var_value));
       end if;
     else
       if on_error_label <> "" then
