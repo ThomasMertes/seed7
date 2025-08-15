@@ -4290,13 +4290,8 @@ const proc: exec_next_decision (inout string: symbol, inout string: line,
     if length(forLoop) >= 1 and variable_name = forLoop[1].varName then
       currentValue := getNumericVar(variable_name);
       nextValue := currentValue + forLoop[1].stepValue;
-      if keepForVariableInRange then
-        stayInLoop := (forLoop[1].stepValue > 0.0 and nextValue <= forLoop[1].endValue) or
-                      (forLoop[1].stepValue < 0.0 and nextValue >= forLoop[1].endValue);
-      else
-        stayInLoop := (forLoop[1].stepValue > 0.0 and currentValue < forLoop[1].endValue) or
-                      (forLoop[1].stepValue < 0.0 and currentValue > forLoop[1].endValue);
-      end if;
+      stayInLoop := (forLoop[1].stepValue > 0.0 and nextValue <= forLoop[1].endValue) or
+                    (forLoop[1].stepValue < 0.0 and nextValue >= forLoop[1].endValue);
       if stayInLoop then
         line_marker;
         setNumericVar(variable_name, nextValue);
