@@ -7517,9 +7517,12 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
           writeln(err, "FILE NOT FOUND " <& literal(file_name));
         end if;
       end if;
+      line_marker;
+      writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& variable_name <& ")");
+    else
+      line_marker;
+      writeln(log, "**BLOAD " <& literal(file_name) <& ", " <& address);
     end if;
-    line_marker;
-    writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& variable_name <& ")");
   end func;
 
 
@@ -9174,10 +9177,13 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
                 writeln(log, "**DEF SEG = VARSEG(" <& varseg_variable <& ")");
               else
                 index1 := round(exec_expr(symbol, line));
+                varseg_variable := "";
                 line_marker;
-                writeln(log, "**DEF SEG = " <& index1);
+                writeln(log, "**DEF SEG = &H" <& index1 RADIX 16 lpad0 4 <&
+                    " (" <& index1 <& ")");
               end if;
             else
+              varseg_variable := "";
               line_marker;
               writeln(log, "**DEF SEG");
             end if;
