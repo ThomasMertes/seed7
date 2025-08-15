@@ -1240,6 +1240,10 @@ objectType dcl_var (listType arguments)
             } /* if */
           } /* if */
           free_expression(value);
+          if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
+            current_object->value.blockValue->params =
+                get_param_list(current_object->descriptor.property->params, &err_info);
+          } /* if */
         } /* if */
       } /* if */
       shrink_stack();
