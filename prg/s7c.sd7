@@ -5552,16 +5552,6 @@ const proc: process_object (in reference: current_object) is func
   end func;
 
 
-const proc: process_library_import_object (in reference: current_object) is func
-
-  local
-    var expr_type: c_expr is expr_type.value;
-  begin
-    process_object_declaration(current_object, c_expr);
-    global_c_expr := expr_type.value;
-  end func;
-
-
 const proc: declare_failed_inline_functions (inout expr_type: c_expr) is func
 
   local
@@ -8458,18 +8448,10 @@ const proc: pass_2 (in string: source, in program: prog,
             globalObjects := globalObjects(prog);
             if compileLibrary then
               writeln("Compile library");
-              for obj range globalObjects do
-                if endsWith(path(prog), file(obj)) then
-                  process_object(obj);
-                else
-                  process_library_import_object(obj);
-                end if;
-              end for;
-            else
-              for obj range globalObjects do
-                process_object(obj);
-              end for;
             end if;
+            for obj range globalObjects do
+              process_object(obj);
+            end for;
             process_global_declarations(prog);
             close(c_prog);
             writeln(count.declarations  <& " declarations processed");
