@@ -8889,6 +8889,28 @@ static int extractPostgresOid (const char* pgTypeFileName)
         if (!anOidWasFound) {
           fprintf(logFile, "\rExtracting OIDs failed.\n");
           doRemove("pg_type.h");
+        } else if (!compileAndLinkWithOptionsOk("#include <stdio.h>\n#include \"pg_type.h\"\n"
+                                                "int main(int argc,char *argv[]){\n"
+                                                "switch (argc) {\n"
+                                                "  case BOOLOID: case BYTEAOID: case CHAROID:\n"
+                                                "  case VARCHAROID: case NAMEOID: \n"
+                                                "  case INT2OID: case INT4OID: case INT8OID:\n"
+                                                "  case FLOAT4OID: case FLOAT8OID:\n"
+                                                "  case REGPROCOID: case TEXTOID:\n"
+                                                "  case OIDOID: case TIDOID: case XIDOID:\n"
+                                                "  case CIDOID: case OIDVECTOROID:\n"
+                                                "  case DATEOID: case TIMEOID:\n"
+                                                "  case TIMETZOID: case TIMESTAMPOID:\n"
+                                                "  case TIMESTAMPTZOID: case INTERVALOID:\n"
+                                                "    printf(\"0\\n\");\n"
+                                                "    break;\n"
+                                                "  default:\n"
+                                                "    printf(\"1\\n\");\n"
+                                                "    break;\n"
+                                                "} return 0;}\n", "", "")) {
+          fprintf(logFile, "\rEssential OIDs missing in generated pg_type.h.\n");
+          doRemove("pg_type.h");
+          anOidWasFound = 0;
         } /* if */
       } /* if */
       fclose(pgTypeFile);
