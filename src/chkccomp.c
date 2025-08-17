@@ -8955,25 +8955,29 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
     const char *pgTypeInclude = NULL;
 
   /* findPgTypeH */
-    if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type.h>\n"
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "#include <server/catalog/pg_type.h>\n"
                                     "int main(int argc,char *argv[]){"
                                     "printf(\"%d\\n\", INT4OID == 23);\n"
                                     "return 0;}\n",
                                     includeOption, "")) {
       pgTypeInclude = "server/catalog/pg_type.h";
-    } else if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type_d.h>\n"
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                           "#include <server/catalog/pg_type_d.h>\n"
                                            "int main(int argc,char *argv[]){"
                                            "printf(\"%d\\n\", INT4OID == 23);\n"
                                            "return 0;}\n",
                                            includeOption, "")) {
       pgTypeInclude = "server/catalog/pg_type_d.h";
-    } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type.h>\n"
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                           "#include <catalog/pg_type.h>\n"
                                            "int main(int argc,char *argv[]){"
                                            "printf(\"%d\\n\", INT4OID == 23);\n"
                                            "return 0;}\n",
                                            includeOption, "")) {
       pgTypeInclude = "catalog/pg_type.h";
-    } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type_d.h>\n"
+    } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                           "#include <catalog/pg_type_d.h>\n"
                                            "int main(int argc,char *argv[]){"
                                            "printf(\"%d\\n\", INT4OID == 23);\n"
                                            "return 0;}\n",
@@ -8981,25 +8985,29 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
       pgTypeInclude = "catalog/pg_type_d.h";
     } else {
       appendOption(includeOption, serverIncludeOption);
-      if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type.h>\n"
+      if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                      "#include <server/catalog/pg_type.h>\n"
                                       "int main(int argc,char *argv[]){"
                                       "printf(\"%d\\n\", INT4OID == 23);\n"
                                       "return 0;}\n",
                                       includeOption, "")) {
         pgTypeInclude = "server/catalog/pg_type.h";
-      } else if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type_d.h>\n"
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <server/catalog/pg_type_d.h>\n"
                                              "int main(int argc,char *argv[]){"
                                              "printf(\"%d\\n\", INT4OID == 23);\n"
                                              "return 0;}\n",
                                              includeOption, "")) {
         pgTypeInclude = "server/catalog/pg_type_d.h";
-      } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type.h>\n"
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <catalog/pg_type.h>\n"
                                              "int main(int argc,char *argv[]){"
                                              "printf(\"%d\\n\", INT4OID == 23);\n"
                                              "return 0;}\n",
                                              includeOption, "")) {
         pgTypeInclude = "catalog/pg_type.h";
-      } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type_d.h>\n"
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <catalog/pg_type_d.h>\n"
                                              "int main(int argc,char *argv[]){"
                                              "printf(\"%d\\n\", INT4OID == 23);\n"
                                              "return 0;}\n",
@@ -9009,7 +9017,8 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
         pgTypeInclude = "server/catalog/pg_type.h";
       } /* if */
     } /* if */
-    sprintf(testProgram, "#include <%s>\n"
+    sprintf(testProgram, "#include <stdio.h>\n"
+                         "#include <%s>\n"
                          "int main(int argc,char *argv[]){"
                          "printf(\"%%d\\n\", INT4OID == 23);\n"
                          "return 0;}\n",
