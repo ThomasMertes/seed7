@@ -7543,11 +7543,11 @@ static void determineLibraryProperties(FILE *versionFile)
       escapeString(versionFile, initializer_macro64);
       fprintf(versionFile, "\"\n");
     } else if (initializer_macro32 != NULL) {
-      fprintf(versionFile, "#define INITIALIZER_MACRO \"");
+      fprintf(versionFile, "#define DEFINE_INITIALIZER_MACRO \"");
       escapeString(versionFile, initializer_macro32);
       fprintf(versionFile, "\"\n");
     } else {
-      fputs("#define INITIALIZER_MACRO \"\"\n", versionFile);
+      fputs("#define DEFINE_INITIALIZER_MACRO \"\"\n", versionFile);
     } /* if */
     fprintf(logFile, " determined\n");
   } /* determineLibraryProperties */
