@@ -519,6 +519,29 @@ const type: ccConfigType is new struct
     var string: MACRO_DEFS                    is "";
 
     (**
+     *  Function attribute to invoke a function before calling main.
+     *   ... insert CONSTRUCTOR_ATTRIBUTE ...
+     *   void initialize (void) {
+     *     ... do some initialization ...
+     *   }
+     *)
+    var string: CONSTRUCTOR_ATTRIBUTE         is "";
+
+    (**
+     *  Define INITIALIZER macro which can define an initializer function.
+     *  An initializer function is invoked before calling main.
+     *  In order to use the INITIALIZER macro the string
+     *  DEFINE_INITIALIZER_MACRO must be added to the C source code.
+     *  Afterwards the INITIALIZER macro can be used to define an
+     *  initializer function:
+     *   INITIALIZER(initialize)
+     *   static void initialize (void) {
+     *     ... do some initialization ...
+     *   }
+     *)
+    var string: DEFINE_INITIALIZER_MACRO      is "";
+
+    (**
      *  Name of the signal that is raised if a signed integer overflow
      *  occurs. OVERFLOW_SIGNAL is an empty string, if a signed integer
      *  overflow does not raise a signal. The C compiler option
@@ -667,6 +690,11 @@ const type: ccConfigType is new struct
      *  C compiler option to optimize with a level of -O3.
      *)
     var array string: CC_OPT_OPTIMIZE_3       is 0 times "";
+
+    (**
+     *  C compiler option to produce position independent code.
+     *)
+    var string: CC_OPT_POSITION_INDEPENDENT_CODE is "";
 
     (**
      *  C compiler option to generate traps for signed integer overflow.
