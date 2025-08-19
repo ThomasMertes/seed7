@@ -2171,6 +2171,8 @@ striType cmdConfigValue (const const_striType name)
       opt = CC_OPT_OPTIMIZE_2;
     } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_3") == 0) {
       opt = CC_OPT_OPTIMIZE_3;
+    } else if (strcmp(opt_name, "CC_OPT_POSITION_INDEPENDENT_CODE") == 0) {
+      opt = CC_OPT_POSITION_INDEPENDENT_CODE;
     } else if (strcmp(opt_name, "CC_OPT_TRAP_OVERFLOW") == 0) {
       opt = CC_OPT_TRAP_OVERFLOW;
     } else if (strcmp(opt_name, "CC_OPT_VERSION_INFO") == 0) {
@@ -2306,6 +2308,10 @@ striType cmdConfigValue (const const_striType name)
     } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
       /* Use string literal concatenation: */
       opt = MACRO_DEFS  OS_ISNAN_DEFINITION;
+    } else if (strcmp(opt_name, "CONSTRUCTOR_ATTRIBUTE") == 0) {
+      opt = CONSTRUCTOR_ATTRIBUTE;
+    } else if (strcmp(opt_name, "DEFINE_INITIALIZER_MACRO") == 0) {
+      opt = DEFINE_INITIALIZER_MACRO;
     } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
       opt = OVERFLOW_SIGNAL_STR;
     } else if (strcmp(opt_name, "BUILTIN_ADD_OVERFLOW") == 0) {
