@@ -160,6 +160,8 @@
  *      C programs are compiled with a 64-bit C compiler.
  *  CC_OPT_LINK_TIME_OPTIMIZATION: (optional)
  *      Contains the compiler option for link time optimization (e.g.: "-flto").
+ *  CC_OPT_POSITION_INDEPENDENT_CODE: (optional)
+ *      Contains the compiler option to generate position independent code.
  *  LINKER_OPT_STATIC_LINKING: (optional)
  *      Contains the linker option to force static linking (e.g.: "-static").
  *  LINKER_OPT_DYN_LINK_LIBS: (optional)
@@ -7365,6 +7367,193 @@ static void determinePartialLinking (FILE *versionFile)
 
 
 
+static char *getConstructorAttribute (void)
+
+  {
+    char fileName[NAME_SIZE];
+    char *constructor_attribute = NULL;
+
+  /* getConstructorAttribute */
+    if (compileWithOptionsOk("int num=1;\n"
+                             "__attribute__ ((constructor)) void init (void) {\n"
+                             "  num=2;\n"
+                             "}\n", "")) {
+      sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+      if (rename(fileName, "ctest_lib" OBJECT_FILE_EXTENSION) == 0) {
+        if (compileWithOptionsOk("#include <stdio.h>\n"
+                                 "extern int num;\n"
+                                 "int main(int argc,char *argv[])\n"
+                                 "{printf(\"%d\\n\", num);\n"
+                                 "return 0;}\n", "")) {
+          sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+          if (rename(fileName, "ctest_main" OBJECT_FILE_EXTENSION) == 0) {
+            if (doLink("ctest_lib" OBJECT_FILE_EXTENSION
+                       " ctest_main" OBJECT_FILE_EXTENSION, "")) {
+              if (doTest() == 2) {
+                constructor_attribute = "__attribute__ ((constructor))";
+              } /* if */
+            } /* if */
+            doRemove("ctest_main" OBJECT_FILE_EXTENSION);
+          } /* if */
+        } /* if */
+        doRemove("ctest_lib" OBJECT_FILE_EXTENSION);
+      } /* if */
+    } /* if */
+    return constructor_attribute;
+  } /* getConstructorAttribute */
+
+
+
+static char *getInitializerMacro64 (void)
+  {
+    char fileName[NAME_SIZE];
+    char *initializer_macro64 = NULL;
+
+  /* getInitializerMacro64 */
+    if (compileWithOptionsOk("int num=1;\n"
+                             "#pragma section(\".CRT$XCU\",read)\n"
+                             "#define INITIALIZER(f) "
+                             "static void f(void); "
+                             "__declspec(allocate(\".CRT$XCU\")) "
+                             "void (*f##_)(void) = f; "
+                             "__pragma(comment(linker,\"/include:\" #f \"_\"))\n"
+                             "INITIALIZER(initialize)\n"
+                             "static void initialize(void) {\n"
+                             "  num=2;\n"
+                             "}\n", "")) {
+      sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+      if (rename(fileName, "ctest_lib" OBJECT_FILE_EXTENSION) == 0) {
+        if (compileWithOptionsOk("#include <stdio.h>\n"
+                                 "extern int num;\n"
+                                 "int main(int argc,char *argv[])\n"
+                                 "{printf(\"%d\\n\", num);\n"
+                                 "return 0;}\n", "")) {
+          sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+          if (rename(fileName, "ctest_main" OBJECT_FILE_EXTENSION) == 0) {
+            if (doLink("ctest_lib" OBJECT_FILE_EXTENSION
+                       " ctest_main" OBJECT_FILE_EXTENSION, "")) {
+              if (doTest() == 2) {
+                initializer_macro64 = "#pragma section(\".CRT$XCU\",read)\n"
+                                      "#define INITIALIZER(f) "
+                                      "static void f(void); "
+                                      "__declspec(allocate(\".CRT$XCU\")) "
+                                      "void (*f##_)(void) = f; "
+                                      "__pragma(comment(linker,\"/include:\" #f \"_\"))\n";
+              } /* if */
+            } /* if */
+            doRemove("ctest_main" OBJECT_FILE_EXTENSION);
+          } /* if */
+        } /* if */
+        doRemove("ctest_lib" OBJECT_FILE_EXTENSION);
+      } /* if */
+    } /* if */
+    return initializer_macro64;
+  } /* getInitializerMacro64 */
+
+
+
+static char *getInitializerMacro32 (void)
+  {
+    char fileName[NAME_SIZE];
+    char *initializer_macro32 = NULL;
+
+  /* getInitializerMacro32 */
+    if (compileWithOptionsOk("int num=1;\n"
+                             "#pragma section(\".CRT$XCU\",read)\n"
+                             "#define INITIALIZER(f) "
+                             "static void f(void); "
+                             "__declspec(allocate(\".CRT$XCU\")) "
+                             "void (*f##_)(void) = f; "
+                             "__pragma(comment(linker,\"/include:_\" #f \"_\"))\n"
+                             "INITIALIZER(initialize)\n"
+                             "static void initialize(void) {\n"
+                             "  num=2;\n"
+                             "}\n", "")) {
+      sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+      if (rename(fileName, "ctest_lib" OBJECT_FILE_EXTENSION) == 0) {
+        if (compileWithOptionsOk("#include <stdio.h>\n"
+                                 "extern int num;\n"
+                                 "int main(int argc,char *argv[])\n"
+                                 "{printf(\"%d\\n\", num);\n"
+                                 "return 0;}\n", "")) {
+          sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+          if (rename(fileName, "ctest_main" OBJECT_FILE_EXTENSION) == 0) {
+            if (doLink("ctest_lib" OBJECT_FILE_EXTENSION
+                       " ctest_main" OBJECT_FILE_EXTENSION, "")) {
+              if (doTest() == 2) {
+                initializer_macro32 = "#pragma section(\".CRT$XCU\",read)\n"
+                                      "#define INITIALIZER(f) "
+                                      "static void f(void); "
+                                      "__declspec(allocate(\".CRT$XCU\")) "
+                                      "void (*f##_)(void) = f; "
+                                      "__pragma(comment(linker,\"/include:_\" #f \"_\"))\n";
+              } /* if */
+            } /* if */
+            doRemove("ctest_main" OBJECT_FILE_EXTENSION);
+          } /* if */
+        } /* if */
+        doRemove("ctest_lib" OBJECT_FILE_EXTENSION);
+      } /* if */
+    } /* if */
+    return initializer_macro32;
+  } /* getInitializerMacro32 */
+
+
+
+static void determineLibraryProperties(FILE *versionFile)
+
+  {
+    char *cc_opt_position_independent_code = NULL;
+    char *constructor_attribute;
+    char *initializer_macro64;
+    char *initializer_macro32;
+
+  /* determineLibraryProperties */
+    fprintf(logFile, "Library options and initialization: ");
+#ifdef CC_OPT_POSITION_INDEPENDENT_CODE
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "int main (int argc, char *argv[]) {\n"
+                                    "printf(\"%d\\n\", 1);\n"
+                                    "return 0; }\n",
+                                    CC_OPT_POSITION_INDEPENDENT_CODE, "") &&
+        doTest() == 1) {
+      cc_opt_position_independent_code = CC_OPT_POSITION_INDEPENDENT_CODE;
+    } else {
+      fprintf(logFile, "\n *** The position independent code option %s does not work.\n",
+              CC_OPT_POSITION_INDEPENDENT_CODE);
+    } /* if */
+#endif
+    if (cc_opt_position_independent_code != NULL) {
+      fprintf(versionFile, "#define CC_OPT_POSITION_INDEPENDENT_CODE \"%s\"\n",
+              cc_opt_position_independent_code);
+    } else {
+      fprintf(versionFile, "#define CC_OPT_POSITION_INDEPENDENT_CODE \"\"\n");
+    } /* if */
+    constructor_attribute = getConstructorAttribute();
+    initializer_macro64 = getInitializerMacro64();
+    initializer_macro32 = getInitializerMacro32();
+    if (constructor_attribute != NULL) {
+      fprintf(versionFile, "#define CONSTRUCTOR_ATTRIBUTE \"%s\"\n",
+              constructor_attribute);
+    } else {
+      fputs("#define CONSTRUCTOR_ATTRIBUTE \"\"\n", versionFile);
+    } /* if */
+    if (initializer_macro64 != NULL) {
+      fprintf(versionFile, "#define INITIALIZER_MACRO \"");
+      escapeString(versionFile, initializer_macro64);
+      fprintf(versionFile, "\"\n");
+    } else if (initializer_macro32 != NULL) {
+      fprintf(versionFile, "#define INITIALIZER_MACRO \"");
+      escapeString(versionFile, initializer_macro32);
+      fprintf(versionFile, "\"\n");
+    } else {
+      fputs("#define INITIALIZER_MACRO \"\"\n", versionFile);
+    } /* if */
+    fprintf(logFile, " determined\n");
+  } /* determineLibraryProperties */
+
+
+
 static void appendOption (char *options, const char *optionToAppend)
 
   {
@@ -10857,6 +11046,7 @@ int main (int argc, char **argv)
     fprintf(logFile, " done\n");
     determineOptionForLinkTimeOptimization(versionFile);
     determinePartialLinking(versionFile);
+    determineLibraryProperties(versionFile);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
     determineNullDevice(versionFile);
