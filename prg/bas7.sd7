@@ -6430,8 +6430,8 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
     var boolean: path_okay is TRUE;
     var string: path is "";
   begin
-    # writeln("basicOpen(\"" <& filePath <& "\")");
-    if filePath <> "" then
+    # writeln(log, "basicOpen(" <& literal(filePath) <& ")");
+    if filePath <> "" and pos(filePath, '\0;') = 0 then
       filePath := convDosPath(filePath);
       pathElems := split(filePath, '/');
       if length(pathElems) >= 1 and pathElems[1] = "" then
