@@ -697,17 +697,25 @@ const func boolean: isStringVar (in string: symbol) is
 
 const func boolean: isNumericExpr (in string: symbol) is
   return symbol in numeric_functions or
-         symbol not in string_var_name or
+         symbol in integer_var_name or
+         symbol in long_var_name or
+         symbol in single_var_name or
+         symbol in double_var_name or
          symbol <> "" and
         (symbol[1] = '(' or
+         symbol[1] <> '\"' and symbol not in string_var_name or
          symbol[1] in letter_char - defstr_var or
          symbol[length(symbol)] in numeric_var_suffix);
 
 
 const func boolean: isNumericVar (in string: symbol) is
-  return symbol not in string_var_name or
+  return symbol in integer_var_name or
+         symbol in long_var_name or
+         symbol in single_var_name or
+         symbol in double_var_name or
          symbol <> "" and
-        (symbol[1] in letter_char - defstr_var or
+        (symbol[1] <> '\"' and symbol not in string_var_name or
+         symbol[1] in letter_char - defstr_var or
          symbol[length(symbol)] in numeric_var_suffix);
 
 
