@@ -5185,12 +5185,16 @@ const func boolean: continueWithPrintStatement (in var string: line) is func
     var boolean: continueWithPrintStatement is FALSE;
   local
     var string: symbol is "";
+    var string: variable_name is "";
   begin
     repeat
       symbol := get_symbol(line);
     until symbol <> ":";
     if symbol = "" or symbol[1] = '\"' or symbol = "TAB" then
       continueWithPrintStatement := TRUE;
+    elsif isStringVar(symbol) or isNumericVar(symbol) then
+      variable_name := get_name(symbol, line);
+      continueWithPrintStatement := symbol in {",", ";"};
     end if;
   end func;
 
