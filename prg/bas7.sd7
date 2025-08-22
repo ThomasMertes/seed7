@@ -8699,6 +8699,12 @@ const proc: exec_call_sound (inout string: symbol, inout string: line) is func
     frequency := round(exec_expr(symbol, line));
     expect(",", symbol, line);
     volume := round(exec_expr(symbol, line));
+    while symbol = "," do
+      symbol := get_symbol(line);
+      frequency := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      volume := round(exec_expr(symbol, line));
+    end while;
     expect(")", symbol, line);
     line_marker;
     writeln(log, "CALL SOUND(" <& duration <& ", " <& frequency <& ", " <& volume <& ")");
