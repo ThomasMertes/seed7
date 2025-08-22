@@ -2819,10 +2819,24 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       when {"POS"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
-        num1 := exec_expr(symbol, line);
-        expect(")", symbol, line);
-        exprResult := float(column(win));
-        writeln(log, "POS -> " <& exprResult);
+        if isNumericExpr(symbol) then
+          writeln(log, "numeric " <& symbol);
+          num1 := exec_expr(symbol, line);
+          expect(")", symbol, line);
+          exprResult := float(column(win));
+          writeln(log, "POS -> " <& exprResult);
+        else
+          writeln(log, "string " <& symbol);
+          stri1 := exec_str_expr(symbol, line, unused_name);
+          expect(",", symbol, line);
+          stri2 := exec_str_expr(symbol, line, unused_name);
+          expect(",", symbol, line);
+          index1 := round(exec_expr(symbol, line));
+          expect(")", symbol, line);
+          exprResult := float(pos(stri1, stri2, index1));
+          write(log, "POS(" <& literal(stri1) <& ", " <& literal(stri2) <&
+              ", " <& index1 <& ") -> " <& exprResult);
+        end if;
       when {"RND"}:
         symbol := get_symbol(line);
         if symbol = "(" then
