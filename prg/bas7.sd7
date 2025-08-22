@@ -810,7 +810,7 @@ const func string: varptrStri (in string: variable_name) is func
     var integer: address is 0;
   begin
     address := varptr(variable_name);
-    addrStri := "\3;" & bytes(address, UNSIGNED, LE);
+    addrStri := "\3;" & bytes(address, UNSIGNED, LE, 2);
   end func;
 
 
