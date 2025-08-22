@@ -2671,28 +2671,33 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         writeln(log, "**INP(" <& index1 <& ") -> " <& exprResult);
       when {"INSTR"}:
         symbol := get_symbol(line);
-        expect("(", symbol, line);
-        if isStringExpr(symbol) then
-          index1 := 1;
-        else
-          index1 := round(exec_expr(symbol, line));
-          expect(",", symbol, line);
-        end if;
-        stri1 := exec_str_expr(symbol, line, unused_name);
-        expect(",", symbol, line);
-        stri2 := exec_str_expr(symbol, line, unused_name);
-        expect(")", symbol, line);
-        if index1 >= 1 then
-          exprResult := float(pos(stri1, stri2, index1));
-          write(log, "INSTR(");
-          if index1 <> 1 then
-            write(log, index1 <& ", ");
+        if symbol = "(" then
+          symbol := get_symbol(line);
+          if isStringExpr(symbol) then
+            index1 := 1;
+          else
+            index1 := round(exec_expr(symbol, line));
+            expect(",", symbol, line);
           end if;
-          writeln(log, literal(stri1) <& ", " <& literal(stri2) <& ") -> " <& exprResult);
+          stri1 := exec_str_expr(symbol, line, unused_name);
+          expect(",", symbol, line);
+          stri2 := exec_str_expr(symbol, line, unused_name);
+          expect(")", symbol, line);
+          if index1 >= 1 then
+            exprResult := float(pos(stri1, stri2, index1));
+            write(log, "INSTR(");
+            if index1 <> 1 then
+              write(log, index1 <& ", ");
+            end if;
+            writeln(log, literal(stri1) <& ", " <& literal(stri2) <& ") -> " <& exprResult);
+          else
+            error_marker;
+            writeln(err, "INSTR(" <& index1 <& ", " <& literal(stri1) <& ", " <&
+                literal(stri2) <& ") - ILLEGAL FUNCTION CALL");
+          end if;
         else
-          error_marker;
-          writeln(err, "INSTR(" <& index1 <& ", " <& literal(stri1) <& ", " <&
-              literal(stri2) <& ") - ILLEGAL FUNCTION CALL");
+          exprResult := getNumericVar("INSTR");
+          writeln(log, "INSTR is " <& exprResult);
         end if;
       when {"INT"}:
         symbol := get_symbol(line);
