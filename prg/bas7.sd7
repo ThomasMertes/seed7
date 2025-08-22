@@ -97,7 +97,7 @@ const integer: BAD_FILE_MODE         is 54;  # Bad file mode
 
 var boolean: keepForVariableInRange is FALSE;
 
-const set of char: basic_name_char is alphanum_char | {'.'};
+const set of char: basic_name_char is alphanum_char | {'_', '.'};
 const set of char: number_suffix is {'%', '!', '#', '&'};
 const set of char: numeric_var_suffix is {'%', '!', '#'};
 
