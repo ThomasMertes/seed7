@@ -374,19 +374,21 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *              sequence of digits. If the float literal does start
  *              with '.' a '0' is added in front of the returned
  *              symbol.
- *    - A double precision literal: It is like a float literal except
- *              that a 'D' or 'd' is used to introduce the exponent.
- *              In the returned literal the 'D' or 'd' is replaced
- *              with 'E'.
- *    - A hex literal: It starts with '&H' or '&h' followed by hex
+ *    - A double precision literal: A float literal where 'D' or 'd'
+ *              is used to introduce the exponent. In the returned
+ *              literal the 'D' or 'd' is replaced with 'E'.
+ *    - A hex literal: An introducing '&H' or '&h' followed by hex
  *              digits. A hex literal is converted to decimal and the
  *              decimal literal is returned.
- *    - An octal literal: It starts with '&O' or '&o' followed by
+ *    - An octal literal: An introducing '&O' or '&o' followed by
  *              octal digits. An octal literal is converted to decimal
  *              and the decimal literal is returned.
  *    - A string literal: A sequence of characters enclosed in double
- *              quotation marks. A string literal is returned with the
- *              introducing " but without the ending " .
+ *              quotation marks. Quotation marks in the string literal
+ *              are represented by double quotation marks. The string
+ *              literal is returned with the introducing " but without
+ *              the ending " . In the returned literal double
+ *              quotation marks are replaced with single ones.
  *    - A special symbol: The symbols '<>', '<=' and '>=' are special
  *              symbols consisting of two characters. There can be a
  *              spaces and tabs between the two characters. Such
@@ -397,6 +399,8 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *    - A one character symbol: If no other symbols can be
  *              recognized a symbol consisting of one character is
  *              created. E.g.: '=', '+', '-'.
+ *  Suffixes like '%', '!', '#' and '&' are removed from numeric
+ *  literals.
  *  @return the BASIC symbol or "" at the end of the line.
  *)
 const func string: get_symbol (inout string: line) is func
@@ -595,10 +599,14 @@ const func string: get_symbol (inout string: line) is func
           line := line[index .. ];
         when {'"'}:
           repeat
+            repeat
+              incr(index);
+            until index > leng or line[index] = '"';
+            symbol &:= line[start .. pred(index)];
             incr(index);
-          until index > leng or line[index] = '"';
-          symbol := line[start .. pred(index)];
-          line := line[succ(index) .. ];
+            start := index;
+          until index > leng or line[index] <> '"';
+          line := line[index .. ];
         when {'<'}:
           # Sometimes <> or <= are written as < > or < =
           repeat
