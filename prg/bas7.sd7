@@ -254,6 +254,7 @@ var integer: currY is 0;
 var integer: foreground_color is 0;
 var integer: background_color is 0;
 var bitmapFont: currentFont is bitmapFont.value;
+var integer: currentKeyUnit is 5;
 
 var set of string: numeric_functions is {
     "ABS",      "ASC",      "ATN",      "CDBL",     "CINT",     "CLNG",
@@ -8688,8 +8689,8 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     var integer: key_unit is 0;
     var string: return_variable is "";
     var string: status_variable is "";
-    var char: key_pressed is ' ';
-    var integer: key_code is -1;
+    var char: keyPressed is ' ';
+    var integer: keyCode is -1;
     var integer: status is 0;
   begin
     setup_graphic;
@@ -8702,95 +8703,132 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     status_variable := get_name(symbol, line);
     expect(")", symbol, line);
     flush(win);
-    if inputReady(KEYBOARD) then
-      key_pressed := getc(KEYBOARD);
-      if key_unit = 0 then
-        case key_pressed of
-          when {KEY_F1, KEY_SFT_F1, KEY_CTL_F1, KEY_ALT_F1}:
-            key_code :=  1;  # SHIFT A (AID)
-          when {KEY_LEFT, KEY_SFT_LEFT, KEY_CTL_LEFT, KEY_ALT_LEFT}:
-            key_code :=  8;  # SHIFT S (LEFT ARROW)
-          when {KEY_RIGHT, KEY_SFT_RIGHT, KEY_CTL_RIGHT, KEY_ALT_RIGHT}:
-            key_code :=  9;  # SHIFT D (RIGHT ARROW)
-          when {KEY_UP, KEY_SFT_UP, KEY_CTL_UP, KEY_ALT_UP}:
-            key_code := 11;  # SHIFT E (UP ARROW)
-          when {KEY_DOWN, KEY_SFT_DOWN, KEY_CTL_DOWN, KEY_ALT_DOWN}:
-            key_code := 10;  # SHIFT X (DOWN ARROW)
-          when {KEY_HOME, KEY_SFT_HOME, KEY_CTL_HOME, KEY_ALT_HOME}:
-            key_code := 14;  # SHIFT W (BEGIN)
-          when {KEY_PGUP, KEY_SFT_PGUP, KEY_CTL_PGUP, KEY_ALT_PGUP}:
-            key_code := 15;  # SHIFT Z (BACK)
-          when {KEY_PGDN, KEY_SFT_PGDN, KEY_CTL_PGDN, KEY_ALT_PGDN}:
-            key_code :=  6;  # SHIFT R (REDO)
-          when {KEY_INS, KEY_SFT_INS, KEY_CTL_INS, KEY_ALT_INS}:
-            key_code :=  4;  # SHIFT G (INS)
-          when {KEY_DEL, KEY_SFT_DEL, KEY_CTL_DEL, KEY_ALT_DEL}:
-            key_code :=  3;  # SHIFT F (DEL)
-          when {KEY_MENU, KEY_SFT_MENU, KEY_CTL_MENU, KEY_ALT_MENU}:
-            key_code := 12;  # SHIFT V (CMD)
-          when {KEY_BS, KEY_SFT_BS, KEY_CTL_BS, KEY_ALT_BS}:
-            key_code :=  7;  # SHIFT T (ERASE)
-          when {KEY_NL, KEY_SFT_NL, KEY_CTL_NL, KEY_ALT_NL}:
-            key_code := 13;
-          otherwise:
-            key_code := ord(key_pressed);
-        end case;
-      elsif key_unit = 1 then
-        case upper(key_pressed) of
-          when {'X'}: key_code :=  0;
-          when {'A'}: key_code :=  1;
-          when {'S'}: key_code :=  2;
-          when {'D'}: key_code :=  3;
-          when {'W'}: key_code :=  4;
-          when {'E'}: key_code :=  5;
-          when {'R'}: key_code :=  6;
-          when {'2'}: key_code :=  7;
-          when {'3'}: key_code :=  8;
-          when {'4'}: key_code :=  9;
-          when {'5'}: key_code := 10;
-          when {'T'}: key_code := 11;
-          when {'F'}: key_code := 12;
-          when {'V'}: key_code := 13;
-          when {'C'}: key_code := 14;
-          when {'Z'}: key_code := 15;
-          # SHIFT     key_code := 16;
-          when {' '}: key_code := 17;
-          when {'Q'}: key_code := 18;
-          when {'1'}: key_code := 19;
-        end case;
-      elsif key_unit = 2 then
-        case upper(key_pressed) of
-          when {'M'}:    key_code :=  0;
-          when {'H'}:    key_code :=  1;
-          when {'J'}:    key_code :=  2;
-          when {'K'}:    key_code :=  3;
-          when {'U'}:    key_code :=  4;
-          when {'I'}:    key_code :=  5;
-          when {'O'}:    key_code :=  6;
-          when {'7'}:    key_code :=  7;
-          when {'8'}:    key_code :=  8;
-          when {'9'}:    key_code :=  9;
-          when {'0'}:    key_code := 10;
-          when {'P'}:    key_code := 11;
-          when {'L'}:    key_code := 12;
-          when {KEY_NL}: key_code := 13;
-          when {'.'}:    key_code := 14;
-          when {'N'}:    key_code := 15;
-          when {'B'}:    key_code := 16;
-          when {'G'}:    key_code := 17;
-          when {'Y'}:    key_code := 18;
-          when {'6'}:    key_code := 19;
-        end case;
+    if key_unit < 0 or key_unit > 5 then
+      error_marker;
+      writeln(err, "CALL KEY(" <& key_unit <& ", " <& return_variable <&
+              ", " <& status_variable <& ") - KEY-UNIT NOT IN ALLOWED RANGE.");
+    elsif return_variable = status_variable and key_unit <> 0 then
+      currentKeyUnit := key_unit;
+      line_marker;
+      writeln(log, "CALL KEY(" <& key_unit <& ", " <& return_variable <&
+              ", " <& status_variable <& ")");
+    else
+      if inputReady(KEYBOARD) then
+        keyPressed := getc(KEYBOARD);
+        if key_unit <> 0 then
+          currentKeyUnit := key_unit;
+        end if;
+        if currentKeyUnit in {3, 4, 5} then
+          case keyPressed of
+            when {KEY_F1, KEY_SFT_F1, KEY_CTL_F1, KEY_ALT_F1,
+                  KEY_DEL, KEY_SFT_DEL, KEY_CTL_DEL, KEY_ALT_DEL}:
+              keyCode :=  3;  # FCTN 1 / SHIFT F (DEL)
+            when {KEY_F2, KEY_SFT_F2, KEY_CTL_F2, KEY_ALT_F2,
+                  KEY_INS, KEY_SFT_INS, KEY_CTL_INS, KEY_ALT_INS}:
+              keyCode :=  4;  # FCTN 2 / SHIFT G (INS)
+            when {KEY_F3, KEY_SFT_F3, KEY_CTL_F3, KEY_ALT_F3}:
+              keyCode :=  7;  # FCTN 3 / SHIFT T (ERASE)
+            when {KEY_F4, KEY_SFT_F4, KEY_CTL_F4, KEY_ALT_F4}:
+              keyCode :=  2;  # FCTN 4 / SHIFT C (CLEAR)
+            when {KEY_F5, KEY_SFT_F5, KEY_CTL_F5, KEY_ALT_F5}:
+              keyCode := 14;  # FCTN 5 / SHIFT W (BEGIN)
+            when {KEY_F6, KEY_SFT_F6, KEY_CTL_F6, KEY_ALT_F6}:
+              keyCode := 12;  # FCTN 6 / SHIFT V (PROC'D)
+            when {KEY_F7, KEY_SFT_F7, KEY_CTL_F7, KEY_ALT_F7}:
+              keyCode :=  1;  # FCTN 7 / SHIFT A (AID)
+            when {KEY_F8, KEY_SFT_F8, KEY_CTL_F8, KEY_ALT_F8}:
+              keyCode :=  6;  # FCTN 8 / SHIFT R (REDO)
+            when {KEY_F9, KEY_SFT_F9, KEY_CTL_F9, KEY_ALT_F9}:
+              keyCode := 15;  # FCTN 9 / SHIFT Z (BACK)
+            when {KEY_F11, KEY_SFT_F11, KEY_CTL_F11, KEY_ALT_F11}:
+              keyCode :=  5;  # FCTN = / SHIFT Q (QUIT)
+            when {KEY_LEFT, KEY_SFT_LEFT, KEY_CTL_LEFT, KEY_ALT_LEFT}:
+              keyCode :=  8;  # FCTN S / SHIFT S (LEFT ARROW)
+            when {KEY_RIGHT, KEY_SFT_RIGHT, KEY_CTL_RIGHT, KEY_ALT_RIGHT}:
+              keyCode :=  9;  # FCTN D / SHIFT D (RIGHT ARROW)
+            when {KEY_UP, KEY_SFT_UP, KEY_CTL_UP, KEY_ALT_UP}:
+              keyCode := 11;  # FCTN E / SHIFT E (UP ARROW)
+            when {KEY_DOWN, KEY_SFT_DOWN, KEY_CTL_DOWN, KEY_ALT_DOWN}:
+              keyCode := 10;  # FCTN X / SHIFT X (DOWN ARROW)
+            when {KEY_NL, KEY_SFT_NL, KEY_CTL_NL, KEY_ALT_NL}:
+              keyCode := 13;  # ENTER
+            otherwise:
+              if currentKeyUnit = 3 then
+                if keyPressed >= ' ' and keyPressed <= '\128;' then
+                  keyCode := ord(upper(keyPressed));
+                end if;
+              else
+                if keyPressed < ' ' then
+                  keyCode := ord(keyPressed) + 128;
+                elsif keyPressed <= '\128;' then
+                  keyCode := ord(keyPressed);
+                end if;
+              end if;
+          end case;
+          if currentKeyUnit = 4 and keyCode <> -1 then
+            if keyCode > 128 then
+              keyCode -:= 128;
+            elsif keyCode < 32 then
+              keyCode +:= 128;
+            end if;
+          end if;
+        elsif currentKeyUnit = 1 then
+          case upper(keyPressed) of
+            when {'X'}: keyCode :=  0;
+            when {'A'}: keyCode :=  1;
+            when {'S'}: keyCode :=  2;
+            when {'D'}: keyCode :=  3;
+            when {'W'}: keyCode :=  4;
+            when {'E'}: keyCode :=  5;
+            when {'R'}: keyCode :=  6;
+            when {'2'}: keyCode :=  7;
+            when {'3'}: keyCode :=  8;
+            when {'4'}: keyCode :=  9;
+            when {'5'}: keyCode := 10;
+            when {'T'}: keyCode := 11;
+            when {'F'}: keyCode := 12;
+            when {'V'}: keyCode := 13;
+            when {'C'}: keyCode := 14;
+            when {'Z'}: keyCode := 15;
+            # SHIFT     keyCode := 16;
+            when {' '}: keyCode := 17;
+            when {'Q'}: keyCode := 18;
+            when {'1'}: keyCode := 19;
+          end case;
+        elsif currentKeyUnit = 2 then
+          case upper(keyPressed) of
+            when {'M'}:    keyCode :=  0;
+            when {'H'}:    keyCode :=  1;
+            when {'J'}:    keyCode :=  2;
+            when {'K'}:    keyCode :=  3;
+            when {'U'}:    keyCode :=  4;
+            when {'I'}:    keyCode :=  5;
+            when {'O'}:    keyCode :=  6;
+            when {'7'}:    keyCode :=  7;
+            when {'8'}:    keyCode :=  8;
+            when {'9'}:    keyCode :=  9;
+            when {'0'}:    keyCode := 10;
+            when {'P'}:    keyCode := 11;
+            when {'L'}:    keyCode := 12;
+            when {KEY_NL}: keyCode := 13;
+            when {'.'}:    keyCode := 14;
+            when {'N'}:    keyCode := 15;
+            when {'B'}:    keyCode := 16;
+            when {'G'}:    keyCode := 17;
+            when {'Y'}:    keyCode := 18;
+            when {'6'}:    keyCode := 19;
+          end case;
+        end if;
+        if keyCode <> -1 then
+          status := 1;
+        end if;
       end if;
-      if key_code <> -1 then
-        status := 1;
-      end if;
+      setNumericVar(return_variable, float(keyCode));
+      setNumericVar(status_variable, float(status));
+      line_marker;
+      writeln(log, "CALL KEY(" <& key_unit <& ", " <& return_variable <&
+              ", " <& status_variable <& ") -> " <& keyCode <& ", " <& status);
     end if;
-    setNumericVar(return_variable, float(key_code));
-    setNumericVar(status_variable, float(status));
-    line_marker;
-    writeln(log, "CALL KEY(" <& key_unit <& ", " <& return_variable <&
-            ", " <& status_variable <& ") -> " <& key_code <& ", " <& status);
   end func;
 
 
