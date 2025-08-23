@@ -8704,37 +8704,87 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     flush(win);
     if inputReady(KEYBOARD) then
       key_pressed := getc(KEYBOARD);
-      case key_pressed of
-        when {KEY_F1, KEY_SFT_F1, KEY_CTL_F1, KEY_ALT_F1}:
-          key_code :=  1;  # SHIFT A (AID)
-        when {KEY_LEFT, KEY_SFT_LEFT, KEY_CTL_LEFT, KEY_ALT_LEFT}:
-          key_code :=  8;  # SHIFT S (LEFT ARROW)
-        when {KEY_RIGHT, KEY_SFT_RIGHT, KEY_CTL_RIGHT, KEY_ALT_RIGHT}:
-          key_code :=  9;  # SHIFT D (RIGHT ARROW)
-        when {KEY_UP, KEY_SFT_UP, KEY_CTL_UP, KEY_ALT_UP}:
-          key_code := 11;  # SHIFT E (UP ARROW)
-        when {KEY_DOWN, KEY_SFT_DOWN, KEY_CTL_DOWN, KEY_ALT_DOWN}:
-          key_code := 10;  # SHIFT X (DOWN ARROW)
-        when {KEY_HOME, KEY_SFT_HOME, KEY_CTL_HOME, KEY_ALT_HOME}:
-          key_code := 14;  # SHIFT W (BEGIN)
-        when {KEY_PGUP, KEY_SFT_PGUP, KEY_CTL_PGUP, KEY_ALT_PGUP}:
-          key_code := 15;  # SHIFT Z (BACK)
-        when {KEY_PGDN, KEY_SFT_PGDN, KEY_CTL_PGDN, KEY_ALT_PGDN}:
-          key_code :=  6;  # SHIFT R (REDO)
-        when {KEY_INS, KEY_SFT_INS, KEY_CTL_INS, KEY_ALT_INS}:
-          key_code :=  4;  # SHIFT G (INS)
-        when {KEY_DEL, KEY_SFT_DEL, KEY_CTL_DEL, KEY_ALT_DEL}:
-          key_code :=  3;  # SHIFT F (DEL)
-        when {KEY_MENU, KEY_SFT_MENU, KEY_CTL_MENU, KEY_ALT_MENU}:
-          key_code := 12;  # SHIFT V (CMD)
-        when {KEY_BS, KEY_SFT_BS, KEY_CTL_BS, KEY_ALT_BS}:
-          key_code :=  7;  # SHIFT T (ERASE)
-        when {KEY_NL, KEY_SFT_NL, KEY_CTL_NL, KEY_ALT_NL}:
-          key_code := 13;
-        otherwise:
-          key_code := ord(key_pressed);
-      end case;
-      status := 1;
+      if key_unit = 0 then
+        case key_pressed of
+          when {KEY_F1, KEY_SFT_F1, KEY_CTL_F1, KEY_ALT_F1}:
+            key_code :=  1;  # SHIFT A (AID)
+          when {KEY_LEFT, KEY_SFT_LEFT, KEY_CTL_LEFT, KEY_ALT_LEFT}:
+            key_code :=  8;  # SHIFT S (LEFT ARROW)
+          when {KEY_RIGHT, KEY_SFT_RIGHT, KEY_CTL_RIGHT, KEY_ALT_RIGHT}:
+            key_code :=  9;  # SHIFT D (RIGHT ARROW)
+          when {KEY_UP, KEY_SFT_UP, KEY_CTL_UP, KEY_ALT_UP}:
+            key_code := 11;  # SHIFT E (UP ARROW)
+          when {KEY_DOWN, KEY_SFT_DOWN, KEY_CTL_DOWN, KEY_ALT_DOWN}:
+            key_code := 10;  # SHIFT X (DOWN ARROW)
+          when {KEY_HOME, KEY_SFT_HOME, KEY_CTL_HOME, KEY_ALT_HOME}:
+            key_code := 14;  # SHIFT W (BEGIN)
+          when {KEY_PGUP, KEY_SFT_PGUP, KEY_CTL_PGUP, KEY_ALT_PGUP}:
+            key_code := 15;  # SHIFT Z (BACK)
+          when {KEY_PGDN, KEY_SFT_PGDN, KEY_CTL_PGDN, KEY_ALT_PGDN}:
+            key_code :=  6;  # SHIFT R (REDO)
+          when {KEY_INS, KEY_SFT_INS, KEY_CTL_INS, KEY_ALT_INS}:
+            key_code :=  4;  # SHIFT G (INS)
+          when {KEY_DEL, KEY_SFT_DEL, KEY_CTL_DEL, KEY_ALT_DEL}:
+            key_code :=  3;  # SHIFT F (DEL)
+          when {KEY_MENU, KEY_SFT_MENU, KEY_CTL_MENU, KEY_ALT_MENU}:
+            key_code := 12;  # SHIFT V (CMD)
+          when {KEY_BS, KEY_SFT_BS, KEY_CTL_BS, KEY_ALT_BS}:
+            key_code :=  7;  # SHIFT T (ERASE)
+          when {KEY_NL, KEY_SFT_NL, KEY_CTL_NL, KEY_ALT_NL}:
+            key_code := 13;
+          otherwise:
+            key_code := ord(key_pressed);
+        end case;
+      elsif key_unit = 1 then
+        case upper(key_pressed) of
+          when {'X'}: key_code :=  0;
+          when {'A'}: key_code :=  1;
+          when {'S'}: key_code :=  2;
+          when {'D'}: key_code :=  3;
+          when {'W'}: key_code :=  4;
+          when {'E'}: key_code :=  5;
+          when {'R'}: key_code :=  6;
+          when {'2'}: key_code :=  7;
+          when {'3'}: key_code :=  8;
+          when {'4'}: key_code :=  9;
+          when {'5'}: key_code := 10;
+          when {'T'}: key_code := 11;
+          when {'F'}: key_code := 12;
+          when {'V'}: key_code := 13;
+          when {'C'}: key_code := 14;
+          when {'Z'}: key_code := 15;
+          # SHIFT     key_code := 16;
+          when {' '}: key_code := 17;
+          when {'Q'}: key_code := 18;
+          when {'1'}: key_code := 19;
+        end case;
+      elsif key_unit = 2 then
+        case upper(key_pressed) of
+          when {'M'}:    key_code :=  0;
+          when {'H'}:    key_code :=  1;
+          when {'J'}:    key_code :=  2;
+          when {'K'}:    key_code :=  3;
+          when {'U'}:    key_code :=  4;
+          when {'I'}:    key_code :=  5;
+          when {'O'}:    key_code :=  6;
+          when {'7'}:    key_code :=  7;
+          when {'8'}:    key_code :=  8;
+          when {'9'}:    key_code :=  9;
+          when {'0'}:    key_code := 10;
+          when {'P'}:    key_code := 11;
+          when {'L'}:    key_code := 12;
+          when {KEY_NL}: key_code := 13;
+          when {'.'}:    key_code := 14;
+          when {'N'}:    key_code := 15;
+          when {'B'}:    key_code := 16;
+          when {'G'}:    key_code := 17;
+          when {'Y'}:    key_code := 18;
+          when {'6'}:    key_code := 19;
+        end case;
+      end if;
+      if key_code <> -1 then
+        status := 1;
+      end if;
     end if;
     setNumericVar(return_variable, float(key_code));
     setNumericVar(status_variable, float(status));
