@@ -10004,12 +10004,17 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             if index1 in {0, 1} then
               option_base := index1;
               line_marker;
-              writeln(log, "OPTION " <& index1);
+              writeln(log, "OPTION BASE " <& option_base);
             else
               error_marker;
               writeln(err, "0 or 1 EXPECTED AS \"OPTION BASE\" - FOUND " <&
                       index1 <& ".");
             end if;
+          elsif symbol = "BASE0" or symbol = "BASE1" then
+            option_base := integer(symbol[5 ..]);
+            symbol := get_symbol(line);
+            line_marker;
+            writeln(log, "OPTION BASE " <& option_base);
           else
             error_marker;
             writeln(err, "\"BASE\" EXPECTED AFTER \"OPTION\" - FOUND " <&
