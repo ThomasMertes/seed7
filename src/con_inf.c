@@ -158,7 +158,8 @@ static void strelem_fwrite (const strElemType *stri, memSizeType length,
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* strelem_fwrite */
-    /* printf("strelem_fwrite length: " FMT_U_MEM "\n", length); */
+    logFunction(printf("strelem_fwrite length(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) stri, length););
     for (; length >= WRITE_STRI_BLOCK_SIZE;
         stri += WRITE_STRI_BLOCK_SIZE, length -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, stri, (memSizeType) WRITE_STRI_BLOCK_SIZE);
@@ -495,6 +496,8 @@ static void doWrite (const strElemType *stri, memSizeType length)
     unsigned char *new_attr;
 
   /* doWrite */
+    logFunction(printf("doWrite(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) stri, length););
     if (cursor_line <= con->height && length != 0) {
       new_line = &con->chars[cursor_line - 1][cursor_column - 1];
       new_attr = &con->attributes[cursor_line - 1][cursor_column - 1];
