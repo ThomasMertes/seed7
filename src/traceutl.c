@@ -150,7 +150,13 @@ void prot_cstri (const_cstriType cstri)
 
         stri = cstri_to_stri(cstri);
         if (stri != NULL) {
+#ifdef CONSOLE_UTF8
+          ut8Write(protfile, stri);
+#elif defined CONSOLE_WCHAR
           conWrite(stri);
+#else
+          filWrite(protfile, stri);
+#endif
           FREE_STRI(stri);
         } else {
           fputs(cstri, protfile->cFile);
@@ -194,7 +200,13 @@ void prot_cstri8 (const const_cstriType cstri8)
       if (protfile->cFile == stdout) {
         stri = cstri8_to_stri(cstri8, &err_info);
         if (stri != NULL) {
+#ifdef CONSOLE_UTF8
+          ut8Write(protfile, stri);
+#elif defined CONSOLE_WCHAR
           conWrite(stri);
+#else
+          filWrite(protfile, stri);
+#endif
           FREE_STRI(stri);
         } else {
           fputs(cstri8, protfile->cFile);
@@ -323,7 +335,13 @@ void prot_string (const striType stri)
         protfile->cFile = stdout;
       } /* if */
       if (protfile->cFile == stdout) {
+#ifdef CONSOLE_UTF8
+        ut8Write(protfile, stri);
+#elif defined CONSOLE_WCHAR
         conWrite(stri);
+#else
+        filWrite(protfile, stri);
+#endif
       } else {
         ut8Write(protfile, stri);
       } /* if */
