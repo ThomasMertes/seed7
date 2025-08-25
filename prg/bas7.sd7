@@ -4210,15 +4210,14 @@ const proc: exec_let (in var string: variable_name,
             line_marker;
             writeln(log, "LET " <& variable_name <& "=" <& num1);
           else
+            line_marker;
+            writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
             if on_error_label <> "" then
               line_marker;
               writeln(log, "ON ERROR GOTO " <& on_error_label);
               goto_on_error(on_error_label, line);
               symbol := "";
               line := "";
-            else
-              line_marker;
-              writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
             end if;
           end if;
         else
@@ -9067,15 +9066,14 @@ const proc: exec_let (inout string: symbol, inout string: line,
                 writeln(log, "LET " <& variable_name <& "=" <& num1);
               end if;
             else
+              line_marker;
+              writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
               if on_error_label <> "" then
                 line_marker;
                 writeln(log, "ON ERROR GOTO " <& on_error_label);
                 goto_on_error(on_error_label, line);
                 symbol := "";
                 line := "";
-              else
-                line_marker;
-                writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
               end if;
             end if;
           else
