@@ -2485,14 +2485,22 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := float(round(num1));
+        if num1 >= 0.0 then
+          exprResult := floor(num1 + 0.5);
+        else
+          exprResult := ceil(num1 - 0.5);
+        end if;
         writeln(log, "CINT(" <& num1 <& ") -> " <& exprResult);
       when {"CLNG"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := float(round(num1));
+        if num1 >= 0.0 then
+          exprResult := floor(num1 + 0.5);
+        else
+          exprResult := ceil(num1 - 0.5);
+        end if;
         writeln(log, "CLNG(" <& num1 <& ") -> " <& exprResult);
       when {"COS"}:
         symbol := get_symbol(line);
@@ -2641,7 +2649,11 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := float(trunc(num1));
+        if num1 >= 0.0 then
+          exprResult := floor(num1);
+        else
+          exprResult := ceil(num1);
+        end if;
         writeln(log, "FIX(" <& num1 <& ") -> " <& exprResult);
       when {"FN"}:
         variable_name := get_name(symbol, line);
@@ -3132,9 +3144,9 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
           end if;
         exception
           catch NUMERIC_ERROR:
+            exprResult := NaN;
             if on_error_label <> "" then
               error_code := DIVISION_BY_ZERO;
-              exprResult := NaN;
             end if;
             error_marker;
             writeln(err, "DIVISION BY ZERO (" <&
