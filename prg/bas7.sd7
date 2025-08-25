@@ -23,30 +23,30 @@
 (*  This basic interpreter implements the following functions and   *)
 (*  statements ( ** means recognized but not implemented):          *)
 (*                                                                  *)
-(*  ABS, ACCEPT, ASC, ATN, **BEEP, BLOAD, **CALL, CASE, CDBL,       *)
-(*  CHAIN, CHR$, CINT, **CIRCLE, CLEAR, CLNG, CLOSE, CLS, **COLOR,  *)
-(*  COMMAND$, **COMMON, CONST, COS, CSNG, CSRLIN, CVD, CVDMBF, CVI, *)
-(*  CVL, CVS, CVSMBF, DATA, DATE$, **DECLARE, DECR, DEF FN,         *)
-(*  **DEF SEG, DEFDBL, DEFINT, DEFLNG, DEFSNG, DEFSTR, DELAY, DIM,  *)
-(*  DISPLAY, DO, DO UNTIL, DO WHILE, **DRAW, ELSE, ELSEIF, END,     *)
-(*  ENDIF, ENVIRON$, EOF, **ERASE, ERL, ERR, ERROR, EXIT DO,        *)
-(*  EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR, FRE, FREEFILE,         *)
-(*  **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO, GOTO OF, GR,      *)
-(*  HEX$, HGR, HOME, HPLOT, HTAB, IF THEN, IF GOSUB, IF GOTO, INCR, *)
-(*  INKEY$, **INP, INPUT, INPUT#, INPUT$, INSTR, INT, **INVERSE,    *)
-(*  **KEY, LBOUND, LCASE$, LEFT$, LEN, LET, LINE INPUT,             *)
-(*  LINE INPUT#, LINPUT, LINPUT#, LOCATE, LOF, LOG, LOOP,           *)
-(*  LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$, MKDMBF$,      *)
-(*  MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$, ON ERROR,      *)
-(*  ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE,     *)
-(*  **OUT, **PAINT, **PALETTE, **PCOPY, **PEEK, **PLAY, PLOT,       *)
-(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING,       *)
-(*  **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET,     *)
-(*  RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET, RTRIM$,       *)
-(*  **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP, **SOUND,   *)
-(*  SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, SUBEND,  *)
-(*  SUBEXIT, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER, **TYPE,    *)
-(*  UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#           *)
+(*  ABS, ACCEPT, ASC, ATN, **BEEP, BLOAD, **BSAVE, **CALL, CASE,    *)
+(*  CDBL, CHAIN, CHR$, CINT, **CIRCLE, CLEAR, CLNG, CLOSE, CLS,     *)
+(*  **COLOR, COMMAND$, **COMMON, CONST, COS, CSNG, CSRLIN, CVD,     *)
+(*  CVDMBF, CVI, CVL, CVS, CVSMBF, DATA, DATE$, **DECLARE, DECR,    *)
+(*  DEF FN, **DEF SEG, DEFDBL, DEFINT, DEFLNG, DEFSNG, DEFSTR,      *)
+(*  DELAY, DIM, DISPLAY, DO, DO UNTIL, DO WHILE, **DRAW, ELSE,      *)
+(*  ELSEIF, END, ENDIF, ENVIRON$, EOF, **ERASE, ERL, ERR, ERROR,    *)
+(*  EXIT DO, EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR, FRE,          *)
+(*  FREEFILE, **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO,         *)
+(*  GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB, IF THEN, IF GOSUB,   *)
+(*  IF GOTO, INCR, INKEY$, **INP, INPUT, INPUT#, INPUT$, INSTR,     *)
+(*  INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$, LEN, LET,         *)
+(*  LINE INPUT, LINE INPUT#, LINPUT, LINPUT#, LOCATE, LOF, LOG,     *)
+(*  LOOP, LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$,         *)
+(*  MKDMBF$, MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$,       *)
+(*  ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,        *)
+(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PCOPY, **PEEK,        *)
+(*  **PLAY, PLOT, **POINT, **POKE, POS, PRESET, PRINT, PRINT#,      *)
+(*  PRINT USING, **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM,    *)
+(*  REM, RESET, RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET,   *)
+(*  RTRIM$, **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP,    *)
+(*  **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, *)
+(*  SUBEND, SUBEXIT, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER,    *)
+(*  **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#   *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -7615,6 +7615,24 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_bsave (inout string: symbol, inout string: line) is func
+  local
+    var string: unused_name is "";
+    var string: file_name is "";
+    var float: offset is 0.0;
+    var float: length is 0.0;
+  begin
+    symbol := get_symbol(line);
+    file_name := exec_str_expr(symbol, line, unused_name);
+    expect(",", symbol, line);
+    offset := exec_expr(symbol, line);
+    expect(",", symbol, line);
+    length := exec_expr(symbol, line);
+    line_marker;
+    writeln(log, "**BSAVE " <& literal(file_name) <& ", " <& offset <& ", " <& length);
+  end func;
+
+
 const proc: exec_files (inout string: symbol, inout string: line) is func
   local
     var string: filespec is "";
@@ -9156,6 +9174,8 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           writeln(log, "**BEEP");
         when {"BLOAD"}:
           exec_bload(symbol, line);
+        when {"BSAVE"}:
+          exec_bsave(symbol, line);
         when {"CALL"}:
           symbol := get_symbol(line);
           if symbol in subprogram then
