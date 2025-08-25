@@ -3138,7 +3138,7 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
       num2 := exec_negation(symbol, line);
       if op = "*" then
         exprResult := num1 * num2;
-      else
+      elsif not isNaN(num1) and not isNaN(num2) then
         block
           if op = "/" then
             exprResult := num1 / num2;
@@ -3160,6 +3160,8 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
             writeln(err, "DIVISION BY ZERO (" <&
                     num1 <& " " <& op <& " " <& num2 <& ")");
         end block;
+      else
+        exprResult := NaN;
       end if;
     end while;
   end func;
