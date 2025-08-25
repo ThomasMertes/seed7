@@ -405,6 +405,9 @@ const func reference: sysVar (in program: aProgram, in string: name)     is acti
 const func integer: errorCount (in program: aProgram)                    is action "PRG_ERROR_COUNT";
 
 
+(**
+ *  Enumeration type describing possible parse errors.
+ *)
 const type: errorType is new enum
     OUT_OF_HEAP_SPACE,
     EOF_ENCOUNTERED,
@@ -481,6 +484,11 @@ const func string: str (in errorType: error) is
 enable_output(errorType);
 
 
+(**
+ *  Type to describe an actual parse error found by a parse function.
+ *  It contains information about the error, file, line, column,
+ *  error message and error line.
+ *)
 const type: parseError is new struct
     var errorType: error is errorType.value;
     var string: fileName is "";
