@@ -2460,6 +2460,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           exprResult := float(ord(stri1[1]));
           writeln(log, "ASC(" <& literal(stri1) <& ") -> " <& exprResult);
         else
+          if on_error_label <> "" then
+            error_code := ILLEGAL_FUNCTION_CALL;
+            exprResult := NaN;
+          end if;
           error_marker;
           writeln(err, "ASC(\"\") - ILLEGAL FUNCTION CALL");
         end if;
@@ -2766,6 +2770,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           exprResult := log(num1);
           writeln(log, "LOG(" <& num1 <& ") -> " <& exprResult);
         else
+          if on_error_label <> "" then
+            error_code := ILLEGAL_FUNCTION_CALL;
+            exprResult := NaN;
+          end if;
           error_marker;
           writeln(err, "LOG(" <& num1 <& ") - ILLEGAL FUNCTION CALL");
         end if;
@@ -2907,6 +2915,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           exprResult := sqrt(num1);
           writeln(log, "SQR(" <& num1 <& ") -> " <& exprResult);
         else
+          if on_error_label <> "" then
+            error_code := ILLEGAL_FUNCTION_CALL;
+            exprResult := NaN;
+          end if;
           error_marker;
           writeln(err, "SQR(" <& num1 <& ") - ILLEGAL FUNCTION CALL");
         end if;
@@ -3122,24 +3134,11 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
           catch NUMERIC_ERROR:
             if on_error_label <> "" then
               error_code := DIVISION_BY_ZERO;
-              writeln(log);
-              line_marker;
-              writeln(log, error_code <& " DIVISION BY ZERO (" <&
-                      num1 <& " " <& op <& " " <& num2 <& ")" <&
-                      " - ON ERROR GOTO " <& on_error_label);
-              goto_on_error(on_error_label, line);
-              symbol := "";
-              line := "";
-            else
-              error_marker;
-              writeln(err, "DIVISION BY ZERO (" <&
-                      num1 <& " " <& op <& " " <& num2 <& ")");
+              exprResult := NaN;
             end if;
-            if num1 >= 0.0 then
-              exprResult := Infinity;
-            else
-              exprResult := -Infinity;
-            end if;
+            error_marker;
+            writeln(err, "DIVISION BY ZERO (" <&
+                    num1 <& " " <& op <& " " <& num2 <& ")");
         end block;
       end if;
     end while;
@@ -4206,9 +4205,22 @@ const proc: exec_let (in var string: variable_name,
         symbol := get_symbol(line);
         if isNumericExpr(symbol) then
           num1 := exec_expr(symbol, line);
-          setNumericVar(variable_name, num1);
-          line_marker;
-          writeln(log, "LET " <& variable_name <& "=" <& num1);
+          if not isNaN(num1) then
+            setNumericVar(variable_name, num1);
+            line_marker;
+            writeln(log, "LET " <& variable_name <& "=" <& num1);
+          else
+            if on_error_label <> "" then
+              line_marker;
+              writeln(log, "ON ERROR GOTO " <& on_error_label);
+              goto_on_error(on_error_label, line);
+              symbol := "";
+              line := "";
+            else
+              line_marker;
+              writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
+            end if;
+          end if;
         else
           typeMismatch(variable_name, symbol, line);
         end if;
@@ -5527,18 +5539,33 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
         write(win, param1);
         write(log, literal(param1));
       elsif symbol <> ";" and symbol <> "," and not endOfStatement(symbol) then
-        write(win, " ");
-        write(log, " ");
         num1 := exec_expr(symbol, line);
-        param1 := str(num1);
-        if param1[length(param1) - 1 .. ] = ".0" then
-          param1 := param1[ .. length(param1) - 2];
-        end if;
-        write(win, param1);
-        write(log, num1);
-        if not endOfStatement(symbol) then
+        if not isNaN(num1) then
           write(win, " ");
           write(log, " ");
+          param1 := str(num1);
+          if param1[length(param1) - 1 .. ] = ".0" then
+            param1 := param1[ .. length(param1) - 2];
+          end if;
+          write(win, param1);
+          write(log, num1);
+          if not endOfStatement(symbol) then
+            write(win, " ");
+            write(log, " ");
+          end if;
+        else
+          if on_error_label <> "" then
+            writeNewline := FALSE;
+            writeln(log);
+            line_marker;
+            writeln(log, "ON ERROR GOTO " <& on_error_label);
+            repeat
+              symbol := get_symbol(line);
+            until endOfStatement(symbol);
+            goto_on_error(on_error_label, line);
+            symbol := "";
+            line := "";
+          end if;
         end if;
       end if;
       if endOfStatement(symbol) then
@@ -9023,20 +9050,33 @@ const proc: exec_let (inout string: symbol, inout string: line,
           symbol := get_symbol(line);
           if isNumericExpr(symbol) then
             num1 := exec_expr(symbol, line);
-            if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
-              line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
-              line_marker;
-              writeln(log, "IF RECOGNIZED: IF " <& literal(line));
-              exec_if(symbol, line, process_next);
-            elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
-              line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
-              line_marker;
-              writeln(log, "FOR RECOGNIZED: FOR " <& literal(line));
-              exec_for(symbol, line);
+            if not isNaN(num1) then
+              if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+                line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
+                line_marker;
+                writeln(log, "IF RECOGNIZED: IF " <& literal(line));
+                exec_if(symbol, line, process_next);
+              elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
+                line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
+                line_marker;
+                writeln(log, "FOR RECOGNIZED: FOR " <& literal(line));
+                exec_for(symbol, line);
+              else
+                setNumericVar(variable_name, num1);
+                line_marker;
+                writeln(log, "LET " <& variable_name <& "=" <& num1);
+              end if;
             else
-              setNumericVar(variable_name, num1);
-              line_marker;
-              writeln(log, "LET " <& variable_name <& "=" <& num1);
+              if on_error_label <> "" then
+                line_marker;
+                writeln(log, "ON ERROR GOTO " <& on_error_label);
+                goto_on_error(on_error_label, line);
+                symbol := "";
+                line := "";
+              else
+                line_marker;
+                writeln(log, "LET " <& variable_name <& " NOT EXECUTED AFTER ERROR");
+              end if;
             end if;
           else
             typeMismatch(variable_name, symbol, line);
