@@ -1568,11 +1568,19 @@ const proc: append_index (inout string: name, inout string: symbol, inout string
     if symbol = "(" or symbol = "[" then
       symbol := get_symbol(line);
       num := exec_expr(symbol, line);
-      name &:= "(" & str(round(num));
+      if not isNaN(num) then
+        name &:= "(" & str(round(num));
+      else
+        name &:= "(?";
+      end if;
       while symbol = "," do
         symbol := get_symbol(line);
         num := exec_expr(symbol, line);
-        name &:= "," & str(round(num));
+        if not isNaN(num) then
+          name &:= "," & str(round(num));
+        else
+          name &:= ",?";
+        end if;
       end while;
       if symbol <> ")" and symbol <> "]" then
         error_expect2(")", "]", symbol);
