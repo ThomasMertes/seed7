@@ -86,6 +86,7 @@ const integer: SYNTAX_ERROR          is  2;  # Syntax error
 const integer: RETURN_WITHOUT_GOSUB  is  3;  # RETURN without GOSUB
 const integer: OUT_OF_DATA           is  4;  # Out of data
 const integer: ILLEGAL_FUNCTION_CALL is  5;  # Illegal function call
+const integer: OVERFLOW              is  6;  # Overflow
 const integer: DIVISION_BY_ZERO      is 11;  # Division by zero
 const integer: TYPE_MISMATCH         is 13;  # Type mismatch
 const integer: RESUME_WITHOUT_ERROR  is 20;  # RESUME without error
@@ -3045,6 +3046,15 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
               error_marker;
               writeln(err, "ERROR IN PARSE NUMBER " <& literal(symbol) <& ".");
           end block;
+          if exprResult = Infinity then
+            if on_error_label <> "" then
+              error_code := OVERFLOW;
+              exprResult := NaN;
+            end if;
+            error_marker;
+            writeln(err, "OVERFLOW (" <& literal(symbol) <&
+                    ") - RETURN " <& exprResult);
+          end if;
           symbol := get_symbol(line);
         elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
           if symbol in def_fn_list then
@@ -3141,9 +3151,19 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
       elsif not isNaN(num1) and not isNaN(num2) then
         block
           if op = "/" then
-            exprResult := num1 / num2;
-            if abs(exprResult) = Infinity or isNaN(exprResult) then
+            if num2 = 0.0 then
               raise NUMERIC_ERROR;
+            else
+              exprResult := num1 / num2;
+              if abs(exprResult) = Infinity then
+                if on_error_label <> "" then
+                  error_code := OVERFLOW;
+                  exprResult := NaN;
+                end if;
+                error_marker;
+                writeln(err, "OVERFLOW (" <& num1 <& " " <& op <&
+                        " " <& num2 <& ") - RETURN " <& exprResult);
+              end if;
             end if;
           elsif op = "\\" then
             exprResult := float(round(num1) div round(num2));
