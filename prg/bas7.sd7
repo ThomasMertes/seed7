@@ -387,10 +387,9 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *              and the decimal literal is returned.
  *    - A string literal: A sequence of characters enclosed in double
  *              quotation marks. Quotation marks in the string literal
- *              are represented by double quotation marks. The string
- *              literal is returned with the introducing " but without
- *              the ending " . In the returned literal double
- *              quotation marks are replaced with single ones.
+ *              are represented with two consecutive quotation marks.
+ *              The string literal is returned with the introducing "
+ *              but without the ending " .
  *    - A special symbol: The symbols '<>', '<=' and '>=' are special
  *              symbols consisting of two characters. There can be a
  *              spaces and tabs between the two characters. Such
