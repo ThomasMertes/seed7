@@ -718,7 +718,14 @@ const func string: trimValue (attr string, in string: stri) is
 const func string: str (in string: stri)                       is action "STR_STR";
 
 
+(**
+ *  Convert a ''string'' to a ''string'' literal.
+ *  @return the ''string'' literal.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *)
 const func string: literal (in string: stri)                   is action "STR_LIT";
+
+
 const func string: c_literal (in string: stri)                 is action "STR_CLIT";
 
 
