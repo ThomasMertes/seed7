@@ -7527,7 +7527,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
     var string: variable_name is "";
     var string: arrayName is "";
     var string: bloadName is "";
-    var integer: address is 0;
+    var integer: offset is 0;
     var file: aFile is STD_NULL;
     var string: header is "";
     var string: data is "";
@@ -7544,8 +7544,8 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
     file_name := exec_str_expr(symbol, line, unused_name);
     if symbol = "," then
       symbol := get_symbol(line);
-      address := round(exec_expr(symbol, line));
-      variable_name := varname(address);
+      offset := round(exec_expr(symbol, line));
+      variable_name := varname(offset);
     end if;
     if variable_name = "" then
       variable_name := varseg_variable;
@@ -7639,7 +7639,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
       writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& variable_name <& ")");
     else
       line_marker;
-      writeln(log, "**BLOAD " <& literal(file_name) <& ", " <& address);
+      writeln(log, "**BLOAD " <& literal(file_name) <& ", " <& offset);
     end if;
   end func;
 
@@ -7648,17 +7648,33 @@ const proc: exec_bsave (inout string: symbol, inout string: line) is func
   local
     var string: unused_name is "";
     var string: file_name is "";
-    var float: offset is 0.0;
-    var float: length is 0.0;
+    var integer: offset is 0;
+    var integer: length is 0;
+    var string: variable_name is "";
+    var integer: segment is 0;
+    var string: header is "";
   begin
     symbol := get_symbol(line);
     file_name := exec_str_expr(symbol, line, unused_name);
     expect(",", symbol, line);
-    offset := exec_expr(symbol, line);
+    offset := round(exec_expr(symbol, line));
+    variable_name := varname(offset);
+    if variable_name = "" then
+      variable_name := varseg_variable;
+    end if;
     expect(",", symbol, line);
-    length := exec_expr(symbol, line);
-    line_marker;
-    writeln(log, "**BSAVE " <& literal(file_name) <& ", " <& offset <& ", " <& length);
+    length := round(exec_expr(symbol, line));
+    if variable_name <> "" then
+      header := "\16#fd;" &
+                bytes(segment, UNSIGNED, LE, 2) &
+                bytes(offset, UNSIGNED, LE, 2) &
+                bytes(length, UNSIGNED, LE, 2);
+      line_marker;
+      writeln(log, "BSAVE " <& literal(file_name) <& ", VARPTR(" <& variable_name <& "), " <& length);
+    else
+      line_marker;
+      writeln(log, "**BSAVE " <& literal(file_name) <& ", " <& offset <& ", " <& length);
+    end if;
   end func;
 
 
