@@ -3148,6 +3148,15 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
       num2 := exec_negation(symbol, line);
       if op = "*" then
         exprResult := num1 * num2;
+        if abs(exprResult) = Infinity then
+          if on_error_label <> "" then
+            error_code := OVERFLOW;
+            exprResult := NaN;
+          end if;
+          error_marker;
+          writeln(err, "OVERFLOW (" <& num1 <& " * " <& num2 <&
+                  ") - RETURN " <& exprResult);
+        end if;
       elsif not isNaN(num1) and not isNaN(num2) then
         block
           if op = "/" then
