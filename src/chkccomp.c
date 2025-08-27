@@ -7539,7 +7539,7 @@ static void determineLibraryProperties(FILE *versionFile)
       fputs("#define CONSTRUCTOR_ATTRIBUTE \"\"\n", versionFile);
     } /* if */
     if (initializer_macro64 != NULL) {
-      fprintf(versionFile, "#define INITIALIZER_MACRO \"");
+      fprintf(versionFile, "#define DEFINE_INITIALIZER_MACRO \"");
       escapeString(versionFile, initializer_macro64);
       fprintf(versionFile, "\"\n");
     } else if (initializer_macro32 != NULL) {
