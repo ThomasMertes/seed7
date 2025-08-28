@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  db7.sd7       Database inspector with browser interface.        *)
-(*  Copyright (C) 2017 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 2017, 2019, 2022  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
