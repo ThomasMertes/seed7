@@ -283,7 +283,7 @@ const func float: abs (in complex: number) is
 (**
  *  Compute the square of the absolute value of a complex number.
  *  To compute the absolute value of a complex number it is necessary
- *  to compute a square root. This function omits the the square root.
+ *  to compute a square root. This function omits the square root.
  *  The function ''sqrAbs'' can be used as performance optimization
  *  if absolute values are compared. Instead of
  *   if abs(z) < 2.0 then ...
