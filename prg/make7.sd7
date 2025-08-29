@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  make7.sd7     Make utility to manage the compilation process    *)
-(*  Copyright (C) 2010 - 2014  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2014, 2021, 2023 - 2025  Thomas Mertes     *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
