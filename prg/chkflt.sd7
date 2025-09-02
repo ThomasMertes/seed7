@@ -3897,6 +3897,76 @@ const func boolean: check_str_1 is func
       okay := FALSE;
     end if;
 
+    if  str(-1.0e-308) <> "-0." & "0" mult 307 & "1" or
+        str(-1.0e-307) <> "-0." & "0" mult 306 & "1" or
+        str(-1.0e-300) <> "-0." & "0" mult 299 & "1" or
+        str(-1.0e-275) <> "-0." & "0" mult 274 & "1" or
+        str(-1.0e-250) <> "-0." & "0" mult 249 & "1" or
+        str(-1.0e-225) <> "-0." & "0" mult 224 & "1" or
+        str(-1.0e-200) <> "-0." & "0" mult 199 & "1" or
+        str(-1.0e-175) <> "-0." & "0" mult 174 & "1" or
+        str(-1.0e-150) <> "-0." & "0" mult 149 & "1" or
+        str(-1.0e-125) <> "-0." & "0" mult 124 & "1" or
+        str(-1.0e-101) <> "-0." & "0" mult 100 & "1" or
+        str(-1.0e-100) <> "-0." & "0" mult  99 & "1" or
+        str(-1.0e-99)  <> "-0." & "0" mult  98 & "1" or
+        str(-1.0e-75)  <> "-0." & "0" mult  74 & "1" or
+        str(-1.0e-50)  <> "-0." & "0" mult  49 & "1" or
+        str(-1.0e-25)  <> "-0." & "0" mult  24 & "1" or
+        str(-1.0e-20)  <> "-0.00000000000000000001" or
+        str(-1.0e-15)  <> "-0.000000000000001" or
+        str(-1.0e-11)  <> "-0.00000000001" or
+        str(-1.0e-10)  <> "-0.0000000001"  or
+        str(-1.0e-9)   <> "-0.000000001"   or
+        str(-1.0e-2)   <> "-0.01"   or
+        str(-1.0e-1)   <> "-0.1"    or
+        str(-1.0e0)    <> "-1.0"    or
+        str(-1.0e1)    <> "-10.0"   or
+        str(-1.0e2)    <> "-100.0"  or
+        str(-1.0e9)    <> "-1000000000.0"  or
+        str(-1.0e10)   <> "-10000000000.0"  or
+        str(-1.0e11)   <> "-100000000000.0"  or
+        str(-1.0e15)   <> "-1000000000000000.0"  or
+        str(-1.0e20)   <> "-100000000000000000000.0" then
+      writeln(" ***** Str function for float does not work correctly. (12)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(-1.0e-308)) <> "-0." & "0" mult 307 & "1" or
+        str(floatExpr(-1.0e-307)) <> "-0." & "0" mult 306 & "1" or
+        str(floatExpr(-1.0e-300)) <> "-0." & "0" mult 299 & "1" or
+        str(floatExpr(-1.0e-275)) <> "-0." & "0" mult 274 & "1" or
+        str(floatExpr(-1.0e-250)) <> "-0." & "0" mult 249 & "1" or
+        str(floatExpr(-1.0e-225)) <> "-0." & "0" mult 224 & "1" or
+        str(floatExpr(-1.0e-200)) <> "-0." & "0" mult 199 & "1" or
+        str(floatExpr(-1.0e-175)) <> "-0." & "0" mult 174 & "1" or
+        str(floatExpr(-1.0e-150)) <> "-0." & "0" mult 149 & "1" or
+        str(floatExpr(-1.0e-125)) <> "-0." & "0" mult 124 & "1" or
+        str(floatExpr(-1.0e-101)) <> "-0." & "0" mult 100 & "1" or
+        str(floatExpr(-1.0e-100)) <> "-0." & "0" mult  99 & "1" or
+        str(floatExpr(-1.0e-99))  <> "-0." & "0" mult  98 & "1" or
+        str(floatExpr(-1.0e-75))  <> "-0." & "0" mult  74 & "1" or
+        str(floatExpr(-1.0e-50))  <> "-0." & "0" mult  49 & "1" or
+        str(floatExpr(-1.0e-25))  <> "-0." & "0" mult  24 & "1" or
+        str(floatExpr(-1.0e-20))  <> "-0.00000000000000000001" or
+        str(floatExpr(-1.0e-15))  <> "-0.000000000000001" or
+        str(floatExpr(-1.0e-11))  <> "-0.00000000001" or
+        str(floatExpr(-1.0e-10))  <> "-0.0000000001"  or
+        str(floatExpr(-1.0e-9))   <> "-0.000000001"   or
+        str(floatExpr(-1.0e-2))   <> "-0.01"   or
+        str(floatExpr(-1.0e-1))   <> "-0.1"    or
+        str(floatExpr(-1.0e0))    <> "-1.0"    or
+        str(floatExpr(-1.0e1))    <> "-10.0"   or
+        str(floatExpr(-1.0e2))    <> "-100.0"  or
+        str(floatExpr(-1.0e9))    <> "-1000000000.0"  or
+        str(floatExpr(-1.0e10))   <> "-10000000000.0"  or
+        str(floatExpr(-1.0e11))   <> "-100000000000.0"  or
+        str(floatExpr(-1.0e15))   <> "-1000000000000000.0"  or
+        str(floatExpr(-1.0e20))   <> "-100000000000000000000.0" then
+      writeln(" ***** Str function for float does not work correctly. (13)");
+      okay := FALSE;
+    end if;
+
     if  float parse str(1.0e0)    <> 1.0e0    or
         float parse str(1.0e1)    <> 1.0e1    or
         float parse str(1.0e2)    <> 1.0e2    or
@@ -4391,54 +4461,207 @@ const func boolean: check_str_scientific is func
       okay := FALSE;
     end if;
 
-    if  str(          1.0e-308, SCIENTIFIC) <> "1.0e-308" or
-        str(          1.0e-307, SCIENTIFIC) <> "1.0e-307" or
-        str(          1.0e-300, SCIENTIFIC) <> "1.0e-300" or
-        str(          1.0e-275, SCIENTIFIC) <> "1.0e-275" or
-        str(          1.0e-250, SCIENTIFIC) <> "1.0e-250" or
-        str(          1.0e-225, SCIENTIFIC) <> "1.0e-225" or
-        str(          1.0e-200, SCIENTIFIC) <> "1.0e-200" or
-        str(          1.0e-175, SCIENTIFIC) <> "1.0e-175" or
-        str(          1.0e-150, SCIENTIFIC) <> "1.0e-150" or
-        str(          1.0e-125, SCIENTIFIC) <> "1.0e-125" or
-        str(          1.0e-101, SCIENTIFIC) <> "1.0e-101" or
-        str(          1.0e-100, SCIENTIFIC) <> "1.0e-100" or
-        str(          1.0e-99,  SCIENTIFIC) <> "1.0e-99"  or
-        str(          1.0e-75,  SCIENTIFIC) <> "1.0e-75"  or
-        str(          1.0e-50,  SCIENTIFIC) <> "1.0e-50"  or
-        str(          1.0e-25,  SCIENTIFIC) <> "1.0e-25"  or
-        str(          1.0e-20,  SCIENTIFIC) <> "1.0e-20"  or
-        str(          1.0e-15,  SCIENTIFIC) <> "1.0e-15"  or
-        str(          1.0e-11,  SCIENTIFIC) <> "1.0e-11"  or
-        str(          1.0e-10,  SCIENTIFIC) <> "1.0e-10"  or
-        str(          1.0e-9,   SCIENTIFIC) <> "1.0e-9"   or
-        str(          1.0e-2,   SCIENTIFIC) <> "1.0e-2"   or
-        str(          1.0e-1,   SCIENTIFIC) <> "1.0e-1"   or
-        str(          1.0e0,    SCIENTIFIC) <> "1.0e+0"   or
-        str(          1.0e1,    SCIENTIFIC) <> "1.0e+1"   or
-        str(          1.0e2,    SCIENTIFIC) <> "1.0e+2"   or
-        str(          1.0e9,    SCIENTIFIC) <> "1.0e+9"   or
-        str(          1.0e10,   SCIENTIFIC) <> "1.0e+10"  or
-        str(          1.0e11,   SCIENTIFIC) <> "1.0e+11"  or
-        str(          1.0e15,   SCIENTIFIC) <> "1.0e+15"  or
-        str(          1.0e20,   SCIENTIFIC) <> "1.0e+20"  or
-        str(          1.0e25,   SCIENTIFIC) <> "1.0e+25"  or
-        str(          1.0e50,   SCIENTIFIC) <> "1.0e+50"  or
-        str(          1.0e75,   SCIENTIFIC) <> "1.0e+75"  or
-        str(          1.0e99,   SCIENTIFIC) <> "1.0e+99"  or
-        str(          1.0e100,  SCIENTIFIC) <> "1.0e+100" or
-        str(          1.0e101,  SCIENTIFIC) <> "1.0e+101" or
-        str(          1.0e125,  SCIENTIFIC) <> "1.0e+125" or
-        str(          1.0e150,  SCIENTIFIC) <> "1.0e+150" or
-        str(          1.0e175,  SCIENTIFIC) <> "1.0e+175" or
-        str(          1.0e200,  SCIENTIFIC) <> "1.0e+200" or
-        str(          1.0e225,  SCIENTIFIC) <> "1.0e+225" or
-        str(          1.0e250,  SCIENTIFIC) <> "1.0e+250" or
-        str(          1.0e275,  SCIENTIFIC) <> "1.0e+275" or
-        str(          1.0e300,  SCIENTIFIC) <> "1.0e+300" or
-        str(          1.0e307,  SCIENTIFIC) <> "1.0e+307" or
-        str(          1.0e308,  SCIENTIFIC) <> "1.0e+308" then
+    if  str(1.0e-308, SCIENTIFIC) <> "1.0e-308" or
+        str(1.0e-307, SCIENTIFIC) <> "1.0e-307" or
+        str(1.0e-300, SCIENTIFIC) <> "1.0e-300" or
+        str(1.0e-275, SCIENTIFIC) <> "1.0e-275" or
+        str(1.0e-250, SCIENTIFIC) <> "1.0e-250" or
+        str(1.0e-225, SCIENTIFIC) <> "1.0e-225" or
+        str(1.0e-200, SCIENTIFIC) <> "1.0e-200" or
+        str(1.0e-175, SCIENTIFIC) <> "1.0e-175" or
+        str(1.0e-150, SCIENTIFIC) <> "1.0e-150" or
+        str(1.0e-125, SCIENTIFIC) <> "1.0e-125" or
+        str(1.0e-101, SCIENTIFIC) <> "1.0e-101" or
+        str(1.0e-100, SCIENTIFIC) <> "1.0e-100" or
+        str(1.0e-99,  SCIENTIFIC) <> "1.0e-99"  or
+        str(1.0e-75,  SCIENTIFIC) <> "1.0e-75"  or
+        str(1.0e-50,  SCIENTIFIC) <> "1.0e-50"  or
+        str(1.0e-25,  SCIENTIFIC) <> "1.0e-25"  or
+        str(1.0e-20,  SCIENTIFIC) <> "1.0e-20"  or
+        str(1.0e-15,  SCIENTIFIC) <> "1.0e-15"  or
+        str(1.0e-11,  SCIENTIFIC) <> "1.0e-11"  or
+        str(1.0e-10,  SCIENTIFIC) <> "1.0e-10"  or
+        str(1.0e-9,   SCIENTIFIC) <> "1.0e-9"   or
+        str(1.0e-2,   SCIENTIFIC) <> "1.0e-2"   or
+        str(1.0e-1,   SCIENTIFIC) <> "1.0e-1"   or
+        str(1.0e0,    SCIENTIFIC) <> "1.0e+0"   or
+        str(1.0e1,    SCIENTIFIC) <> "1.0e+1"   or
+        str(1.0e2,    SCIENTIFIC) <> "1.0e+2"   or
+        str(1.0e9,    SCIENTIFIC) <> "1.0e+9"   or
+        str(1.0e10,   SCIENTIFIC) <> "1.0e+10"  or
+        str(1.0e11,   SCIENTIFIC) <> "1.0e+11"  or
+        str(1.0e15,   SCIENTIFIC) <> "1.0e+15"  or
+        str(1.0e20,   SCIENTIFIC) <> "1.0e+20"  or
+        str(1.0e25,   SCIENTIFIC) <> "1.0e+25"  or
+        str(1.0e50,   SCIENTIFIC) <> "1.0e+50"  or
+        str(1.0e75,   SCIENTIFIC) <> "1.0e+75"  or
+        str(1.0e99,   SCIENTIFIC) <> "1.0e+99"  or
+        str(1.0e100,  SCIENTIFIC) <> "1.0e+100" or
+        str(1.0e101,  SCIENTIFIC) <> "1.0e+101" or
+        str(1.0e125,  SCIENTIFIC) <> "1.0e+125" or
+        str(1.0e150,  SCIENTIFIC) <> "1.0e+150" or
+        str(1.0e175,  SCIENTIFIC) <> "1.0e+175" or
+        str(1.0e200,  SCIENTIFIC) <> "1.0e+200" or
+        str(1.0e225,  SCIENTIFIC) <> "1.0e+225" or
+        str(1.0e250,  SCIENTIFIC) <> "1.0e+250" or
+        str(1.0e275,  SCIENTIFIC) <> "1.0e+275" or
+        str(1.0e300,  SCIENTIFIC) <> "1.0e+300" or
+        str(1.0e307,  SCIENTIFIC) <> "1.0e+307" or
+        str(1.0e308,  SCIENTIFIC) <> "1.0e+308" then
       writeln(" ***** Scientific str function does not work correctly. (9)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(1.0e-308), SCIENTIFIC) <> "1.0e-308" or
+        str(floatExpr(1.0e-307), SCIENTIFIC) <> "1.0e-307" or
+        str(floatExpr(1.0e-300), SCIENTIFIC) <> "1.0e-300" or
+        str(floatExpr(1.0e-275), SCIENTIFIC) <> "1.0e-275" or
+        str(floatExpr(1.0e-250), SCIENTIFIC) <> "1.0e-250" or
+        str(floatExpr(1.0e-225), SCIENTIFIC) <> "1.0e-225" or
+        str(floatExpr(1.0e-200), SCIENTIFIC) <> "1.0e-200" or
+        str(floatExpr(1.0e-175), SCIENTIFIC) <> "1.0e-175" or
+        str(floatExpr(1.0e-150), SCIENTIFIC) <> "1.0e-150" or
+        str(floatExpr(1.0e-125), SCIENTIFIC) <> "1.0e-125" or
+        str(floatExpr(1.0e-101), SCIENTIFIC) <> "1.0e-101" or
+        str(floatExpr(1.0e-100), SCIENTIFIC) <> "1.0e-100" or
+        str(floatExpr(1.0e-99),  SCIENTIFIC) <> "1.0e-99"  or
+        str(floatExpr(1.0e-75),  SCIENTIFIC) <> "1.0e-75"  or
+        str(floatExpr(1.0e-50),  SCIENTIFIC) <> "1.0e-50"  or
+        str(floatExpr(1.0e-25),  SCIENTIFIC) <> "1.0e-25"  or
+        str(floatExpr(1.0e-20),  SCIENTIFIC) <> "1.0e-20"  or
+        str(floatExpr(1.0e-15),  SCIENTIFIC) <> "1.0e-15"  or
+        str(floatExpr(1.0e-11),  SCIENTIFIC) <> "1.0e-11"  or
+        str(floatExpr(1.0e-10),  SCIENTIFIC) <> "1.0e-10"  or
+        str(floatExpr(1.0e-9),   SCIENTIFIC) <> "1.0e-9"   or
+        str(floatExpr(1.0e-2),   SCIENTIFIC) <> "1.0e-2"   or
+        str(floatExpr(1.0e-1),   SCIENTIFIC) <> "1.0e-1"   or
+        str(floatExpr(1.0e0),    SCIENTIFIC) <> "1.0e+0"   or
+        str(floatExpr(1.0e1),    SCIENTIFIC) <> "1.0e+1"   or
+        str(floatExpr(1.0e2),    SCIENTIFIC) <> "1.0e+2"   or
+        str(floatExpr(1.0e9),    SCIENTIFIC) <> "1.0e+9"   or
+        str(floatExpr(1.0e10),   SCIENTIFIC) <> "1.0e+10"  or
+        str(floatExpr(1.0e11),   SCIENTIFIC) <> "1.0e+11"  or
+        str(floatExpr(1.0e15),   SCIENTIFIC) <> "1.0e+15"  or
+        str(floatExpr(1.0e20),   SCIENTIFIC) <> "1.0e+20"  or
+        str(floatExpr(1.0e25),   SCIENTIFIC) <> "1.0e+25"  or
+        str(floatExpr(1.0e50),   SCIENTIFIC) <> "1.0e+50"  or
+        str(floatExpr(1.0e75),   SCIENTIFIC) <> "1.0e+75"  or
+        str(floatExpr(1.0e99),   SCIENTIFIC) <> "1.0e+99"  or
+        str(floatExpr(1.0e100),  SCIENTIFIC) <> "1.0e+100" or
+        str(floatExpr(1.0e101),  SCIENTIFIC) <> "1.0e+101" or
+        str(floatExpr(1.0e125),  SCIENTIFIC) <> "1.0e+125" or
+        str(floatExpr(1.0e150),  SCIENTIFIC) <> "1.0e+150" or
+        str(floatExpr(1.0e175),  SCIENTIFIC) <> "1.0e+175" or
+        str(floatExpr(1.0e200),  SCIENTIFIC) <> "1.0e+200" or
+        str(floatExpr(1.0e225),  SCIENTIFIC) <> "1.0e+225" or
+        str(floatExpr(1.0e250),  SCIENTIFIC) <> "1.0e+250" or
+        str(floatExpr(1.0e275),  SCIENTIFIC) <> "1.0e+275" or
+        str(floatExpr(1.0e300),  SCIENTIFIC) <> "1.0e+300" or
+        str(floatExpr(1.0e307),  SCIENTIFIC) <> "1.0e+307" or
+        str(floatExpr(1.0e308),  SCIENTIFIC) <> "1.0e+308" then
+      writeln(" ***** Scientific str function does not work correctly. (10)");
+      okay := FALSE;
+    end if;
+
+    if  str(-1.0e-308, SCIENTIFIC) <> "-1.0e-308" or
+        str(-1.0e-307, SCIENTIFIC) <> "-1.0e-307" or
+        str(-1.0e-300, SCIENTIFIC) <> "-1.0e-300" or
+        str(-1.0e-275, SCIENTIFIC) <> "-1.0e-275" or
+        str(-1.0e-250, SCIENTIFIC) <> "-1.0e-250" or
+        str(-1.0e-225, SCIENTIFIC) <> "-1.0e-225" or
+        str(-1.0e-200, SCIENTIFIC) <> "-1.0e-200" or
+        str(-1.0e-175, SCIENTIFIC) <> "-1.0e-175" or
+        str(-1.0e-150, SCIENTIFIC) <> "-1.0e-150" or
+        str(-1.0e-125, SCIENTIFIC) <> "-1.0e-125" or
+        str(-1.0e-101, SCIENTIFIC) <> "-1.0e-101" or
+        str(-1.0e-100, SCIENTIFIC) <> "-1.0e-100" or
+        str(-1.0e-99,  SCIENTIFIC) <> "-1.0e-99"  or
+        str(-1.0e-75,  SCIENTIFIC) <> "-1.0e-75"  or
+        str(-1.0e-50,  SCIENTIFIC) <> "-1.0e-50"  or
+        str(-1.0e-25,  SCIENTIFIC) <> "-1.0e-25"  or
+        str(-1.0e-20,  SCIENTIFIC) <> "-1.0e-20"  or
+        str(-1.0e-15,  SCIENTIFIC) <> "-1.0e-15"  or
+        str(-1.0e-11,  SCIENTIFIC) <> "-1.0e-11"  or
+        str(-1.0e-10,  SCIENTIFIC) <> "-1.0e-10"  or
+        str(-1.0e-9,   SCIENTIFIC) <> "-1.0e-9"   or
+        str(-1.0e-2,   SCIENTIFIC) <> "-1.0e-2"   or
+        str(-1.0e-1,   SCIENTIFIC) <> "-1.0e-1"   or
+        str(-1.0e0,    SCIENTIFIC) <> "-1.0e+0"   or
+        str(-1.0e1,    SCIENTIFIC) <> "-1.0e+1"   or
+        str(-1.0e2,    SCIENTIFIC) <> "-1.0e+2"   or
+        str(-1.0e9,    SCIENTIFIC) <> "-1.0e+9"   or
+        str(-1.0e10,   SCIENTIFIC) <> "-1.0e+10"  or
+        str(-1.0e11,   SCIENTIFIC) <> "-1.0e+11"  or
+        str(-1.0e15,   SCIENTIFIC) <> "-1.0e+15"  or
+        str(-1.0e20,   SCIENTIFIC) <> "-1.0e+20"  or
+        str(-1.0e25,   SCIENTIFIC) <> "-1.0e+25"  or
+        str(-1.0e50,   SCIENTIFIC) <> "-1.0e+50"  or
+        str(-1.0e75,   SCIENTIFIC) <> "-1.0e+75"  or
+        str(-1.0e99,   SCIENTIFIC) <> "-1.0e+99"  or
+        str(-1.0e100,  SCIENTIFIC) <> "-1.0e+100" or
+        str(-1.0e101,  SCIENTIFIC) <> "-1.0e+101" or
+        str(-1.0e125,  SCIENTIFIC) <> "-1.0e+125" or
+        str(-1.0e150,  SCIENTIFIC) <> "-1.0e+150" or
+        str(-1.0e175,  SCIENTIFIC) <> "-1.0e+175" or
+        str(-1.0e200,  SCIENTIFIC) <> "-1.0e+200" or
+        str(-1.0e225,  SCIENTIFIC) <> "-1.0e+225" or
+        str(-1.0e250,  SCIENTIFIC) <> "-1.0e+250" or
+        str(-1.0e275,  SCIENTIFIC) <> "-1.0e+275" or
+        str(-1.0e300,  SCIENTIFIC) <> "-1.0e+300" or
+        str(-1.0e307,  SCIENTIFIC) <> "-1.0e+307" or
+        str(-1.0e308,  SCIENTIFIC) <> "-1.0e+308" then
+      writeln(" ***** Scientific str function does not work correctly. (11)");
+      okay := FALSE;
+    end if;
+
+    if  str(floatExpr(-1.0e-308), SCIENTIFIC) <> "-1.0e-308" or
+        str(floatExpr(-1.0e-307), SCIENTIFIC) <> "-1.0e-307" or
+        str(floatExpr(-1.0e-300), SCIENTIFIC) <> "-1.0e-300" or
+        str(floatExpr(-1.0e-275), SCIENTIFIC) <> "-1.0e-275" or
+        str(floatExpr(-1.0e-250), SCIENTIFIC) <> "-1.0e-250" or
+        str(floatExpr(-1.0e-225), SCIENTIFIC) <> "-1.0e-225" or
+        str(floatExpr(-1.0e-200), SCIENTIFIC) <> "-1.0e-200" or
+        str(floatExpr(-1.0e-175), SCIENTIFIC) <> "-1.0e-175" or
+        str(floatExpr(-1.0e-150), SCIENTIFIC) <> "-1.0e-150" or
+        str(floatExpr(-1.0e-125), SCIENTIFIC) <> "-1.0e-125" or
+        str(floatExpr(-1.0e-101), SCIENTIFIC) <> "-1.0e-101" or
+        str(floatExpr(-1.0e-100), SCIENTIFIC) <> "-1.0e-100" or
+        str(floatExpr(-1.0e-99),  SCIENTIFIC) <> "-1.0e-99"  or
+        str(floatExpr(-1.0e-75),  SCIENTIFIC) <> "-1.0e-75"  or
+        str(floatExpr(-1.0e-50),  SCIENTIFIC) <> "-1.0e-50"  or
+        str(floatExpr(-1.0e-25),  SCIENTIFIC) <> "-1.0e-25"  or
+        str(floatExpr(-1.0e-20),  SCIENTIFIC) <> "-1.0e-20"  or
+        str(floatExpr(-1.0e-15),  SCIENTIFIC) <> "-1.0e-15"  or
+        str(floatExpr(-1.0e-11),  SCIENTIFIC) <> "-1.0e-11"  or
+        str(floatExpr(-1.0e-10),  SCIENTIFIC) <> "-1.0e-10"  or
+        str(floatExpr(-1.0e-9),   SCIENTIFIC) <> "-1.0e-9"   or
+        str(floatExpr(-1.0e-2),   SCIENTIFIC) <> "-1.0e-2"   or
+        str(floatExpr(-1.0e-1),   SCIENTIFIC) <> "-1.0e-1"   or
+        str(floatExpr(-1.0e0),    SCIENTIFIC) <> "-1.0e+0"   or
+        str(floatExpr(-1.0e1),    SCIENTIFIC) <> "-1.0e+1"   or
+        str(floatExpr(-1.0e2),    SCIENTIFIC) <> "-1.0e+2"   or
+        str(floatExpr(-1.0e9),    SCIENTIFIC) <> "-1.0e+9"   or
+        str(floatExpr(-1.0e10),   SCIENTIFIC) <> "-1.0e+10"  or
+        str(floatExpr(-1.0e11),   SCIENTIFIC) <> "-1.0e+11"  or
+        str(floatExpr(-1.0e15),   SCIENTIFIC) <> "-1.0e+15"  or
+        str(floatExpr(-1.0e20),   SCIENTIFIC) <> "-1.0e+20"  or
+        str(floatExpr(-1.0e25),   SCIENTIFIC) <> "-1.0e+25"  or
+        str(floatExpr(-1.0e50),   SCIENTIFIC) <> "-1.0e+50"  or
+        str(floatExpr(-1.0e75),   SCIENTIFIC) <> "-1.0e+75"  or
+        str(floatExpr(-1.0e99),   SCIENTIFIC) <> "-1.0e+99"  or
+        str(floatExpr(-1.0e100),  SCIENTIFIC) <> "-1.0e+100" or
+        str(floatExpr(-1.0e101),  SCIENTIFIC) <> "-1.0e+101" or
+        str(floatExpr(-1.0e125),  SCIENTIFIC) <> "-1.0e+125" or
+        str(floatExpr(-1.0e150),  SCIENTIFIC) <> "-1.0e+150" or
+        str(floatExpr(-1.0e175),  SCIENTIFIC) <> "-1.0e+175" or
+        str(floatExpr(-1.0e200),  SCIENTIFIC) <> "-1.0e+200" or
+        str(floatExpr(-1.0e225),  SCIENTIFIC) <> "-1.0e+225" or
+        str(floatExpr(-1.0e250),  SCIENTIFIC) <> "-1.0e+250" or
+        str(floatExpr(-1.0e275),  SCIENTIFIC) <> "-1.0e+275" or
+        str(floatExpr(-1.0e300),  SCIENTIFIC) <> "-1.0e+300" or
+        str(floatExpr(-1.0e307),  SCIENTIFIC) <> "-1.0e+307" or
+        str(floatExpr(-1.0e308),  SCIENTIFIC) <> "-1.0e+308" then
+      writeln(" ***** Scientific str function does not work correctly. (12)");
       okay := FALSE;
     end if;
   end func;
