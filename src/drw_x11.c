@@ -755,17 +755,23 @@ void drwArc (const_winType actual_window, intType x, intType y,
   /* drwArc */
     logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwArc */
 
@@ -782,18 +788,24 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwPArc */
 
@@ -813,36 +825,47 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, width, col););
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    if ((width & 1) != 0) {
-      diameter = (unsigned int) (2 * radius - width + 1);
-      lineWidth = (unsigned int) width;
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 || width < 1 ||
+                 (unsigned int) width > 2 * (unsigned int) (radius) ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
     } else {
-      diameter = (unsigned int) (2 * radius - width + 2);
-      lineWidth = (unsigned int) (width - 1);
-    } /* if */
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XSetLineAttributes(mydisplay, mygc, lineWidth, LineSolid, CapButt, JoinMiter);
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius + lineWidth / 2), castToInt(y - radius + lineWidth / 2),
-        diameter, diameter, startAng, sweepAng);
-    if ((width & 1) == 0) {
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      if ((width & 1) != 0) {
+        diameter = (unsigned int) (2 * radius - width + 1);
+        lineWidth = (unsigned int) width;
+      } else {
+        diameter = (unsigned int) (2 * radius - width + 2);
+        lineWidth = (unsigned int) (width - 1);
+      } /* if */
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetLineAttributes(mydisplay, mygc, lineWidth, LineSolid, CapButt, JoinMiter);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x - radius + lineWidth / 2 + 1), castToInt(y - radius + lineWidth / 2 + 1),
-          diameter - 2, diameter - 2, startAng, sweepAng);
-    } /* if */
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius + lineWidth / 2), castToInt(y - radius + lineWidth / 2),
+          (int) (x - radius + lineWidth / 2),
+          (int) (y - radius + lineWidth / 2),
           diameter, diameter, startAng, sweepAng);
       if ((width & 1) == 0) {
-        XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x - radius + lineWidth / 2 + 1), castToInt(y - radius + lineWidth / 2 + 1),
+        XDrawArc(mydisplay, to_window(actual_window), mygc,
+            (int) (x - radius + lineWidth / 2 + 1),
+            (int) (y - radius + lineWidth / 2 + 1),
             diameter - 2, diameter - 2, startAng, sweepAng);
       } /* if */
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius + lineWidth / 2),
+            (int) (y - radius + lineWidth / 2),
+            diameter, diameter, startAng, sweepAng);
+        if ((width & 1) == 0) {
+          XDrawArc(mydisplay, to_backup(actual_window), mygc,
+              (int) (x - radius + lineWidth / 2 + 1),
+              (int) (y - radius + lineWidth / 2 + 1),
+              diameter - 2, diameter - 2, startAng, sweepAng);
+        } /* if */
+      } /* if */
+      XSetLineAttributes(mydisplay, mygc, 0, LineSolid, CapButt, JoinMiter);
     } /* if */
-    XSetLineAttributes(mydisplay, mygc, 0, LineSolid, CapButt, JoinMiter);
   } /* drwPFArc */
 
 
@@ -856,26 +879,32 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
   /* drwFArcChord */
     logFunction(printf("drwFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    XSetArcMode(mydisplay, mygc, ArcChord);
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetArcMode(mydisplay, mygc, ArcChord);
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwFArcChord */
 
@@ -892,27 +921,33 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XSetArcMode(mydisplay, mygc, ArcChord);
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetArcMode(mydisplay, mygc, ArcChord);
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwPFArcChord */
 
@@ -927,26 +962,32 @@ void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
   /* drwFArcPieSlice */
     logFunction(printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    XSetArcMode(mydisplay, mygc, ArcPieSlice);
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius),
-        startAng, sweepAng);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetArcMode(mydisplay, mygc, ArcPieSlice);
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius),
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
           startAng, sweepAng);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
+            startAng, sweepAng);
+      } /* if */
     } /* if */
   } /* drwFArcPieSlice */
 
@@ -963,14 +1004,15 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XSetArcMode(mydisplay, mygc, ArcPieSlice);
-    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-    if (unlikely(!inIntRange(x - radius) || !inIntRange(y - radius) ||
-                 !inIntRange(radius) || radius < 0)) {
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
       raise_error(RANGE_ERROR);
     } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetArcMode(mydisplay, mygc, ArcPieSlice);
+      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
       XDrawArc(mydisplay, to_window(actual_window), mygc,
           (int) (x - radius), (int) (y - radius),
           2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
@@ -1102,13 +1144,19 @@ void drwCircle (const_winType actual_window,
   { /* drwCircle */
     logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, radius););
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      } /* if */
     } /* if */
   } /* drwCircle */
 
@@ -1120,14 +1168,20 @@ void drwPCircle (const_winType actual_window,
   { /* drwPCircle */
     logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      } /* if */
     } /* if */
   } /* drwPCircle */
 
@@ -1211,19 +1265,25 @@ void drwFCircle (const_winType actual_window,
   { /* drwFCircle */
     logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, radius););
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      } /* if */
     } /* if */
   } /* drwFCircle */
 
@@ -1235,20 +1295,26 @@ void drwPFCircle (const_winType actual_window,
   { /* drwPFCircle */
     logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x - radius), castToInt(y - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          castToInt(x - radius), castToInt(y - radius),
-          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
+                 x < INT_MIN + radius || x > INT_MAX ||
+                 y < INT_MIN + radius || y > INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          (int) (x - radius), (int) (y - radius),
+          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            (int) (x - radius), (int) (y - radius),
+            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
+      } /* if */
     } /* if */
   } /* drwPFCircle */
 
