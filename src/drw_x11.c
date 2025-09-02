@@ -753,11 +753,16 @@ void drwArc (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwArc */
-    logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f)\n", (memSizeType) actual_window,
+                       x, y, radius, startAngle, sweepAngle););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle););
       raise_error(RANGE_ERROR);
     } else {
       startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -791,6 +796,10 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f, " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
       startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -829,6 +838,11 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
                  (unsigned int) width > 2 * (unsigned int) (radius) ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " FMT_D ", " F_X(08) "): "
+                       "Raises RANGE_ERROR\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, width, col););
       raise_error(RANGE_ERROR);
     } else {
       startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -877,11 +891,17 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwFArcChord */
-    logFunction(printf("drwFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    logFunction(printf("drwFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle););
       raise_error(RANGE_ERROR);
     } else {
       XSetArcMode(mydisplay, mygc, ArcChord);
@@ -917,13 +937,18 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwPFArcChord */
-    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " F_X(08) ")\n",
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
+                       ": Raises RANGE_ERROR\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -960,11 +985,17 @@ void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwFArcPieSlice */
-    logFunction(printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    logFunction(printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle););
       raise_error(RANGE_ERROR);
     } else {
       XSetArcMode(mydisplay, mygc, ArcPieSlice);
@@ -1000,13 +1031,18 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwPFArcPieSlice */
-    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " F_X(08) ")\n",
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
+                      ": Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -1142,11 +1178,15 @@ void drwCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
   { /* drwCircle */
-    logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, radius););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius););
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -1166,11 +1206,15 @@ void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
   { /* drwPCircle */
-    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -1263,11 +1307,15 @@ void drwFCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
   { /* drwFCircle */
-    logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, radius););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius););
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -1293,11 +1341,15 @@ void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
   { /* drwPFCircle */
-    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX)) {
+      logError(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -1724,10 +1776,14 @@ void drwLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2)
 
   { /* drwLine */
-    logFunction(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2););
     if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
                    inIntRange(x2) && inIntRange(y2)))) {
+      logError(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x1, y1, x2, y2););
       raise_error(RANGE_ERROR);
     } else {
       XDrawLine(mydisplay, to_window(actual_window), mygc,
@@ -1745,10 +1801,14 @@ void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 
   { /* drwPLine */
-    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
     if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
                    inIntRange(x2) && inIntRange(y2)))) {
+      logError(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x1, y1, x2, y2, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -2470,15 +2530,19 @@ void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height)
 
   { /* drwRect */
-    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, width, height););
     if (unlikely(!inIntRange(x) || !inIntRange(y) ||
                  width < 0 || width > UINT_MAX ||
                  height < 0 || height > UINT_MAX)) {
+      logError(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, width, height););
       raise_error(RANGE_ERROR);
     } else {
       XFillRectangle(mydisplay, to_window(actual_window), mygc,
-	  (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
+          (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
       if (to_backup(actual_window) != 0) {
         XFillRectangle(mydisplay, to_backup(actual_window), mygc,
             (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
@@ -2492,11 +2556,17 @@ void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
   { /* drwPRect */
-    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, width, height, col););
+    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       width, height, col););
     if (unlikely(!inIntRange(x) || !inIntRange(y) ||
                  width < 0 || width > UINT_MAX ||
                  height < 0 || height > UINT_MAX)) {
+      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
