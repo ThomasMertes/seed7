@@ -230,10 +230,10 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
  *  zero (+0.0) are both converted to "0.0".
  *  @param doubleValue Number to be converted (NaN, Infinity and
  *         -Infinity are not allowed).
- *  @param largeNumber If abs(doubleValue) > largeValue holds
+ *  @param largeNumber If abs(doubleValue) > largeNumber holds
  *         the format %1.1f is used (largeNumber is either
  *         DOUBLE_STR_LARGE_NUMBER or FLOAT_STR_LARGE_NUMBER).
- *  @param format Format to be used if abs(doubleValue) <= largeValue
+ *  @param format Format to be used if abs(doubleValue) <= largeNumber
  *         holds (format is either FMT_E_DBL or FMT_E_FLT).
  *  @param buffer Destination buffer for the decimal representation.
  *  @return the number of characters in the destination buffer.
@@ -263,8 +263,8 @@ memSizeType doubleToCharBuffer (const double doubleValue,
       len = (memSizeType) sprintf(buffer, "%1.1f", doubleValue);
     } else {
       len = (memSizeType) sprintf(buffer, format, doubleValue);
-      logMessage(printf("doubleToCharBuffer: buffer: \"%s\"\n",
-                        buffer););
+      logMessage(printf("doubleToCharBuffer: len=" FMT_U_MEM
+                        ", buffer=\"%s\"\n", len, buffer););
       /* Subtract two more chars for sign and letter 'e': */
       len -= MIN_PRINTED_EXPONENT_DIGITS + 2;
       while (buffer[len] != 'e') {
@@ -338,7 +338,7 @@ memSizeType doubleToFormatE (const floatType number, char *buffer)
   /* doubleToFormatE */
     len = (memSizeType) sprintf(buffer, FMT_E, number);
     logMessage(printf("doubleToFormatE: len=" FMT_U_MEM
-                      " buffer=\"%s\"\n", len, buffer););
+                      ", buffer=\"%s\"\n", len, buffer););
     ePos = strrchr(buffer, 'e');
     if (ePos != NULL) {
       pos = ePos - 1;
