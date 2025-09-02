@@ -41,7 +41,9 @@ extern const rtlValueUnion f_const[];
 #endif
 
 #define DOUBLE_TO_CHAR_BUFFER_SIZE DOUBLE_MAX_EXP10 + 100
-#define FMT_E_BUFFER_SIZE 2 + FMT_E_PRECISION + 2 + MAX_PRINTED_EXPONENT_DIGITS + NULL_TERMINATION_LEN
+/* FMT_E writes numbers with optional sign, one digit, a decimal point, */
+/*       digits, the charater e, an exponent sign and exponent digits.  */
+#define FMT_E_BUFFER_SIZE 3 + FMT_E_PRECISION + 2 + MAX_PRINTED_EXPONENT_DIGITS + NULL_TERMINATION_LEN
 
 
 void setupFloat (void);

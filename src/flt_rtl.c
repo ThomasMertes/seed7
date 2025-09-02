@@ -337,6 +337,8 @@ memSizeType doubleToFormatE (const floatType number, char *buffer)
 
   /* doubleToFormatE */
     len = (memSizeType) sprintf(buffer, FMT_E, number);
+    logMessage(printf("doubleToFormatE: len=" FMT_U_MEM
+                      " buffer=\"%s\"\n", len, buffer););
     ePos = strrchr(buffer, 'e');
     if (ePos != NULL) {
       pos = ePos - 1;
