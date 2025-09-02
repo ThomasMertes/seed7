@@ -1726,11 +1726,16 @@ void drwLine (const_winType actual_window,
   { /* drwLine */
     logFunction(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2););
-    XDrawLine(mydisplay, to_window(actual_window), mygc,
-              castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
-    if (to_backup(actual_window) != 0) {
-      XDrawLine(mydisplay, to_backup(actual_window), mygc,
-                castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
+    if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
+                   inIntRange(x2) && inIntRange(y2)))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XDrawLine(mydisplay, to_window(actual_window), mygc,
+                (int) (x1), (int) (y1), (int) (x2), (int) (y2));
+      if (to_backup(actual_window) != 0) {
+        XDrawLine(mydisplay, to_backup(actual_window), mygc,
+                  (int) (x1), (int) (y1), (int) (x2), (int) (y2));
+      } /* if */
     } /* if */
   } /* drwLine */
 
@@ -1742,12 +1747,17 @@ void drwPLine (const_winType actual_window,
   { /* drwPLine */
     logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XDrawLine(mydisplay, to_window(actual_window), mygc,
-              castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
-    if (to_backup(actual_window) != 0) {
-      XDrawLine(mydisplay, to_backup(actual_window), mygc,
-                castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
+    if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
+                   inIntRange(x2) && inIntRange(y2)))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XDrawLine(mydisplay, to_window(actual_window), mygc,
+                (int) (x1), (int) (y1), (int) (x2), (int) (y2));
+      if (to_backup(actual_window) != 0) {
+        XDrawLine(mydisplay, to_backup(actual_window), mygc,
+                  (int) (x1), (int) (y1), (int) (x2), (int) (y2));
+      } /* if */
     } /* if */
   } /* drwPLine */
 
@@ -2162,9 +2172,13 @@ void drwPoint (const_winType actual_window, intType x, intType y)
   { /* drwPoint */
     logFunction(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y););
-    XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
-    if (to_backup(actual_window) != 0) {
-      XDrawPoint(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y));
+    if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XDrawPoint(mydisplay, to_window(actual_window), mygc, (int) (x), (int) (y));
+      if (to_backup(actual_window) != 0) {
+        XDrawPoint(mydisplay, to_backup(actual_window), mygc, (int) (x), (int) (y));
+      } /* if */
     } /* if */
   } /* drwPoint */
 
@@ -2175,10 +2189,14 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
   { /* drwPPoint */
     logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
-    if (to_backup(actual_window) != 0) {
-      XDrawPoint(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y));
+    if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XDrawPoint(mydisplay, to_window(actual_window), mygc, (int) (x), (int) (y));
+      if (to_backup(actual_window) != 0) {
+        XDrawPoint(mydisplay, to_backup(actual_window), mygc, (int) (x), (int) (y));
+      } /* if */
     } /* if */
   } /* drwPPoint */
 
@@ -2454,11 +2472,17 @@ void drwRect (const_winType actual_window,
   { /* drwRect */
     logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, width, height););
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
-        (unsigned) width, (unsigned) height);
-    if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y),
-          (unsigned) width, (unsigned) height);
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 width < 0 || width > UINT_MAX ||
+                 height < 0 || height > UINT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XFillRectangle(mydisplay, to_window(actual_window), mygc,
+	  (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
+      if (to_backup(actual_window) != 0) {
+        XFillRectangle(mydisplay, to_backup(actual_window), mygc,
+            (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
+      } /* if */
     } /* if */
   } /* drwRect */
 
@@ -2470,12 +2494,18 @@ void drwPRect (const_winType actual_window,
   { /* drwPRect */
     logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, width, height, col););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
-        (unsigned) width, (unsigned) height);
-    if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y),
-          (unsigned) width, (unsigned) height);
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 width < 0 || width > UINT_MAX ||
+                 height < 0 || height > UINT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XFillRectangle(mydisplay, to_window(actual_window), mygc,
+          (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
+      if (to_backup(actual_window) != 0) {
+        XFillRectangle(mydisplay, to_backup(actual_window), mygc,
+            (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
+      } /* if */
     } /* if */
   } /* drwPRect */
 
