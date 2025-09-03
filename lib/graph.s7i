@@ -65,9 +65,6 @@ const proc: DRAW_POINT (inout PRIMITIVE_WINDOW: aWindow,
 const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in pixel: col)                                  is action "DRW_PPOINT";
-const proc: DRAW_LINE (inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x1, in integer: y1,
-    in integer: x2, in integer: y2)                 is action "DRW_LINE";
 const proc: DRAW_PLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2,

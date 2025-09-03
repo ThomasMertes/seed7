@@ -685,9 +685,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_HEIGHT"}:
         programUses.drawLibrary := TRUE;
         process(DRW_HEIGHT, function, params, c_expr);
-      when {"DRW_LINE"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_LINE, function, params, c_expr);
       when {"DRW_NE"}:
         programUses.drawLibrary := TRUE;
         process(DRW_NE, function, params, c_expr);

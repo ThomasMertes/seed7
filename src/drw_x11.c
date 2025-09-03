@@ -1565,31 +1565,6 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
 
 
 
-void drwLine (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2)
-
-  { /* drwLine */
-    logFunction(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x1, y1, x2, y2););
-    if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
-                   inIntRange(x2) && inIntRange(y2)))) {
-      logError(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_D ", " FMT_D "): raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x1, y1, x2, y2););
-      raise_error(RANGE_ERROR);
-    } else {
-      XDrawLine(mydisplay, to_window(actual_window), mygc,
-                (int) (x1), (int) (y1), (int) (x2), (int) (y2));
-      if (to_backup(actual_window) != 0) {
-        XDrawLine(mydisplay, to_backup(actual_window), mygc,
-                  (int) (x1), (int) (y1), (int) (x2), (int) (y2));
-      } /* if */
-    } /* if */
-  } /* drwLine */
-
-
-
 void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 

@@ -367,7 +367,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_GET_PIXMAP_FROM_PIXELS",   drw_get_pixmap_from_pixels,   },
     { "DRW_HASHCODE",                 drw_hashcode,                 },
     { "DRW_HEIGHT",                   drw_height,                   },
-    { "DRW_LINE",                     drw_line,                     },
     { "DRW_NE",                       drw_ne,                       },
     { "DRW_NEW_PIXMAP",               drw_new_pixmap,               },
     { "DRW_OPEN",                     drw_open,                     },

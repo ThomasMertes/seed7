@@ -46,7 +46,6 @@ const ACTION: DRW_GET_PIXMAP                is action "DRW_GET_PIXMAP";
 const ACTION: DRW_GET_PIXMAP_FROM_PIXELS    is action "DRW_GET_PIXMAP_FROM_PIXELS";
 const ACTION: DRW_HASHCODE                  is action "DRW_HASHCODE";
 const ACTION: DRW_HEIGHT                    is action "DRW_HEIGHT";
-const ACTION: DRW_LINE                      is action "DRW_LINE";
 const ACTION: DRW_NE                        is action "DRW_NE";
 const ACTION: DRW_NEW_PIXMAP                is action "DRW_NEW_PIXMAP";
 const ACTION: DRW_OPEN                      is action "DRW_OPEN";
@@ -169,7 +168,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "winType     drwGetPixmapFromPixels (const_arrayType);");
     declareExtern(c_prog, "intType     drwHeight (const_winType);");
     declareExtern(c_prog, "winType     drwImage (int32Type *, memSizeType, memSizeType, boolType);");
-    declareExtern(c_prog, "void        drwLine (const_winType, intType, intType, intType, intType);");
     declareExtern(c_prog, "winType     drwNewPixmap (intType, intType);");
     declareExtern(c_prog, "winType     drwOpen (intType, intType, intType, intType, const const_striType);");
     declareExtern(c_prog, "winType     drwOpenSubWindow (const_winType, intType, intType, intType, intType);");
@@ -552,25 +550,6 @@ const proc: process (DRW_HEIGHT, in reference: function,
     c_expr.expr &:= "drwHeight(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (DRW_LINE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwLine(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

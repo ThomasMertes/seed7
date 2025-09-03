@@ -61,7 +61,6 @@ objectType drw_get_pixmap                (listType arguments);
 objectType drw_get_pixmap_from_pixels    (listType arguments);
 objectType drw_hashcode                  (listType arguments);
 objectType drw_height                    (listType arguments);
-objectType drw_line                      (listType arguments);
 objectType drw_ne                        (listType arguments);
 objectType drw_new_pixmap                (listType arguments);
 objectType drw_open                      (listType arguments);

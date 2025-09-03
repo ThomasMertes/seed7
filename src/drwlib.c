@@ -878,29 +878,6 @@ objectType drw_height (listType arguments)
 
 
 
-objectType drw_line (listType arguments)
-
-  {
-    winType actual_window;
-    intType x1, y1, x2, y2;
-
-  /* drw_line */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    isit_int(arg_5(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x1 = take_int(arg_2(arguments));
-    y1 = take_int(arg_3(arguments));
-    x2 = take_int(arg_4(arguments));
-    y2 = take_int(arg_5(arguments));
-    drwLine(actual_window, x1, y1, x2, y2);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_line */
-
-
-
 objectType drw_ne (listType arguments)
 
   { /* drw_ne */

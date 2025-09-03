@@ -1373,20 +1373,6 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
 
 
 
-void drwLine (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2)
-
-  { /* drwLine */
-    MoveToEx(to_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
-    LineTo(to_hdc(actual_window), castToInt(x2), castToInt(y2));
-    if (to_backup_hdc(actual_window) != 0) {
-      MoveToEx(to_backup_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
-      LineTo(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2));
-    } /* if */
-  } /* drwLine */
-
-
-
 void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 

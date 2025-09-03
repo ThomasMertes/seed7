@@ -1213,14 +1213,6 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
 
 
 
-void drwLine (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2)
-
-  { /* drwLine */
-  } /* drwLine */
-
-
-
 void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 
