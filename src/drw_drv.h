@@ -50,8 +50,6 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col);
 void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col);
-void drwArc2 (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2, intType radius);
 rtlArrayType drwBorder (const_winType actual_window);
 winType drwCapture (intType left, intType upper,
     intType width, intType height);

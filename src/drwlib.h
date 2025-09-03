@@ -36,7 +36,6 @@ objectType gkb_raw_getc                  (listType arguments);
 objectType gkb_select_input              (listType arguments);
 objectType gkb_window                    (listType arguments);
 objectType gkb_word_read                 (listType arguments);
-objectType drw_arc2                      (listType arguments);
 objectType drw_background                (listType arguments);
 objectType drw_border                    (listType arguments);
 objectType drw_capture                   (listType arguments);

@@ -106,9 +106,6 @@ const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PFARCPIESLICE";
-const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x1, in integer: y1, in integer: x2,
-    in integer: y2, in integer: radius)             is action "DRW_ARC2";
 const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,

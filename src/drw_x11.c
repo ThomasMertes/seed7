@@ -944,20 +944,6 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
 
 
 
-void drwArc2 (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2, intType radius)
-
-  { /* drwArc2 */
-/*  printf("drwArc2(%d, %d, %d, %d)\n", x1, y1, radius); */
-    XDrawArc(mydisplay, to_window(actual_window), mygc,
-        castToInt(x1 - radius), castToInt(y1 - radius),
-        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    XDrawLine(mydisplay, to_window(actual_window), mygc,
-        castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
-  } /* drwArc2 */
-
-
-
 /**
  *  Determine the border widths of a window in pixels.
  *  These are the widths of the window decorations in the succession

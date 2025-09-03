@@ -171,14 +171,6 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
 
 
 
-void drwArc2 (const_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2, intType radius)
-
-  { /* drwArc2 */
-  } /* drwArc2 */
-
-
-
 rtlArrayType drwBorder (const_winType actual_window)
 
   { /* drwBorder */
