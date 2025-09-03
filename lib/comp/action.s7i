@@ -745,9 +745,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PUT_SCALED"}:
         programUses.drawLibrary := TRUE;
         process(DRW_PUT_SCALED, function, params, c_expr);
-      when {"DRW_RECT"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_RECT, function, params, c_expr);
       when {"DRW_RGBCOL"}:
         programUses.drawLibrary := TRUE;
         process(DRW_RGBCOL, function, params, c_expr);

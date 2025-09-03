@@ -66,7 +66,6 @@ const ACTION: DRW_PPOINT                    is action "DRW_PPOINT";
 const ACTION: DRW_PRECT                     is action "DRW_PRECT";
 const ACTION: DRW_PUT                       is action "DRW_PUT";
 const ACTION: DRW_PUT_SCALED                is action "DRW_PUT_SCALED";
-const ACTION: DRW_RECT                      is action "DRW_RECT";
 const ACTION: DRW_RGBCOL                    is action "DRW_RGBCOL";
 const ACTION: DRW_SCREEN_HEIGHT             is action "DRW_SCREEN_HEIGHT";
 const ACTION: DRW_SCREEN_WIDTH              is action "DRW_SCREEN_WIDTH";
@@ -185,7 +184,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
     declareExtern(c_prog, "void        drwPut (const_winType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwPutScaled (const_winType, intType, intType, intType, intType, const_winType);");
-    declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
     if config.inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
                                   ccConf.PIXEL_GREEN_MASK <> 0 and
                                   ccConf.PIXEL_BLUE_MASK  <> 0 then
@@ -994,25 +992,6 @@ const proc: process (DRW_PUT_SCALED, in reference: function,
     process_expr(params[5], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process (DRW_RECT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwRect(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

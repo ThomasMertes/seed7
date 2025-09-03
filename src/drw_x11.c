@@ -2281,32 +2281,6 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
 
 
 
-void drwRect (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwRect */
-    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, width, height););
-    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
-                 width < 0 || width > UINT_MAX ||
-                 height < 0 || height > UINT_MAX)) {
-      logError(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_D ", " FMT_D "): raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x, y, width, height););
-      raise_error(RANGE_ERROR);
-    } else {
-      XFillRectangle(mydisplay, to_window(actual_window), mygc,
-          (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
-      if (to_backup(actual_window) != 0) {
-        XFillRectangle(mydisplay, to_backup(actual_window), mygc,
-            (int) (x), (int) (y), (unsigned int) width, (unsigned int) height);
-      } /* if */
-    } /* if */
-  } /* drwRect */
-
-
-
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 

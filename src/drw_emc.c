@@ -2345,14 +2345,6 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
 
 
 
-void drwRect (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwRect */
-  } /* drwRect */
-
-
-
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 

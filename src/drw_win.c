@@ -2005,22 +2005,6 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
 
 
 
-void drwRect (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwRect */
-    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, width, height););
-    Rectangle(to_hdc(actual_window), castToInt(x), castToInt(y),
-              castToInt(x + width), castToInt(y + height));
-    if (to_backup_hdc(actual_window) != 0) {
-      Rectangle(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
-                castToInt(x + width), castToInt(y + height));
-    } /* if */
-  } /* drwRect */
-
-
-
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 

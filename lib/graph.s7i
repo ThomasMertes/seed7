@@ -67,9 +67,6 @@ const proc: DRAW_PLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2,
     in pixel: col)                                  is action "DRW_PLINE";
-const proc: DRAW_RECT (inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y,
-    in integer: width, in integer: height)          is action "DRW_RECT";
 const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,

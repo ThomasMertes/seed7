@@ -1355,29 +1355,6 @@ objectType drw_put_scaled (listType arguments)
 
 
 
-objectType drw_rect (listType arguments)
-
-  {
-    winType actual_window;
-    intType x1, y1, width, height;
-
-  /* drw_rect */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    isit_int(arg_5(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x1 = take_int(arg_2(arguments));
-    y1 = take_int(arg_3(arguments));
-    width = take_int(arg_4(arguments));
-    height = take_int(arg_5(arguments));
-    drwRect(actual_window, x1, y1, width, height);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_rect */
-
-
-
 objectType drw_rgbcol (listType arguments)
 
   { /* drw_rgbcol */

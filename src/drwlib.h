@@ -81,7 +81,6 @@ objectType drw_ppoint                    (listType arguments);
 objectType drw_prect                     (listType arguments);
 objectType drw_put                       (listType arguments);
 objectType drw_put_scaled                (listType arguments);
-objectType drw_rect                      (listType arguments);
 objectType drw_rgbcol                    (listType arguments);
 objectType drw_rot                       (listType arguments);
 objectType drw_screen_height             (listType arguments);

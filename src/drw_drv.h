@@ -97,8 +97,6 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
     const_winType pixmap);
 void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
     intType width, intType height, const_winType pixmap);
-void drwRect (const_winType actual_window,
-    intType x, intType y, intType width, intType height);
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight);

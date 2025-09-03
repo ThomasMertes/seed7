@@ -387,7 +387,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_PRECT",                    drw_prect,                    },
     { "DRW_PUT",                      drw_put,                      },
     { "DRW_PUT_SCALED",               drw_put_scaled,               },
-    { "DRW_RECT",                     drw_rect,                     },
     { "DRW_RGBCOL",                   drw_rgbcol,                   },
  /* { "DRW_ROT",                      drw_rot,                      }, */
  /* { "DRW_SCALE",                    drw_scale,                    }, */
