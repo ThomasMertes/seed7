@@ -656,30 +656,6 @@ objectType drw_fcircle (listType arguments)
 
 
 
-objectType drw_fellipse (listType arguments)
-
-  {
-    winType actual_window;
-    intType x1, y1;
-    intType width, height;
-
-  /* drw_fellipse */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    isit_int(arg_5(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x1 = take_int(arg_2(arguments));
-    y1 = take_int(arg_3(arguments));
-    width = take_int(arg_4(arguments));
-    height = take_int(arg_5(arguments));
-    drwFEllipse(actual_window, x1, y1, width, height);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_fellipse */
-
-
-
 objectType drw_flush (listType arguments)
 
   { /* drw_flush */

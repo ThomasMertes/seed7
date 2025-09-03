@@ -40,7 +40,6 @@ const ACTION: DRW_EQ                        is action "DRW_EQ";
 const ACTION: DRW_FARCCHORD                 is action "DRW_FARCCHORD";
 const ACTION: DRW_FARCPIESLICE              is action "DRW_FARCPIESLICE";
 const ACTION: DRW_FCIRCLE                   is action "DRW_FCIRCLE";
-const ACTION: DRW_FELLIPSE                  is action "DRW_FELLIPSE";
 const ACTION: DRW_FLUSH                     is action "DRW_FLUSH";
 const ACTION: DRW_FPOLY_LINE                is action "DRW_FPOLY_LINE";
 const ACTION: DRW_GEN_POINT_LIST            is action "DRW_GEN_POINT_LIST";
@@ -526,25 +525,6 @@ const proc: process (DRW_FCIRCLE, in reference: function,
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[4], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process (DRW_FELLIPSE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwFEllipse(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

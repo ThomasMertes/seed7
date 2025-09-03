@@ -259,14 +259,6 @@ void drwPFCircle (const_winType actual_window,
 
 
 
-void drwFEllipse (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwFEllipse */
-  } /* drwFEllipse */
-
-
-
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 

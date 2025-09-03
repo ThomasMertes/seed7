@@ -75,8 +75,6 @@ void drwFCircle (const_winType actual_window,
     intType x, intType y, intType radius);
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col);
-void drwFEllipse (const_winType actual_window,
-    intType x, intType y, intType width, intType height);
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
 winType drwEmpty (void);

@@ -1372,30 +1372,6 @@ void drwPFCircle (const_winType actual_window,
 
 
 
-void drwFEllipse (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwFEllipse */
-    logFunction(printf("drwFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, width, height););
-    if (unlikely(width < 1 || height < 1)) {
-      raise_error(RANGE_ERROR);
-    } else {
-      XDrawArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
-      XFillArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
-      if (to_backup(actual_window) != 0) {
-        XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
-        XFillArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
-      } /* if */
-    } /* if */
-  } /* drwFEllipse */
-
-
-
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 

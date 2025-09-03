@@ -928,16 +928,6 @@ void drwPFCircle (const_winType actual_window,
 
 
 
-void drwFEllipse (const_winType actual_window,
-    intType x, intType y, intType width, intType height)
-
-  { /* drwFEllipse */
-    logFunction(printf("drwFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, width, height););
-  } /* drwFEllipse */
-
-
-
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
