@@ -53,8 +53,6 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
 rtlArrayType drwBorder (const_winType actual_window);
 winType drwCapture (intType left, intType upper,
     intType width, intType height);
-void drwCircle (const_winType actual_window,
-    intType x, intType y, intType radius);
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col);
 void drwClear (winType actual_window, intType col);

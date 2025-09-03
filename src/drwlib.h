@@ -39,7 +39,6 @@ objectType gkb_word_read                 (listType arguments);
 objectType drw_background                (listType arguments);
 objectType drw_border                    (listType arguments);
 objectType drw_capture                   (listType arguments);
-objectType drw_circle                    (listType arguments);
 objectType drw_clear                     (listType arguments);
 objectType drw_cmp                       (listType arguments);
 objectType drw_color                     (listType arguments);

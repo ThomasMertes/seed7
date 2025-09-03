@@ -27,7 +27,6 @@
 const ACTION: DRW_BACKGROUND                is action "DRW_BACKGROUND";
 const ACTION: DRW_BORDER                    is action "DRW_BORDER";
 const ACTION: DRW_CAPTURE                   is action "DRW_CAPTURE";
-const ACTION: DRW_CIRCLE                    is action "DRW_CIRCLE";
 const ACTION: DRW_CLEAR                     is action "DRW_CLEAR";
 const ACTION: DRW_CMP                       is action "DRW_CMP";
 const ACTION: DRW_COLOR                     is action "DRW_COLOR";
@@ -148,7 +147,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwBackground (intType);");
     declareExtern(c_prog, "arrayType   drwBorder (const_winType);");
     declareExtern(c_prog, "winType     drwCapture (intType, intType, intType, intType);");
-    declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwClear (winType, intType);");
     declareExtern(c_prog, "void        drwColor (intType);");
     declareExtern(c_prog, "arrayType   drwConvPointList (const const_bstriType);");
@@ -269,23 +267,6 @@ const proc: process (DRW_CAPTURE, in reference: function,
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (DRW_CIRCLE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwCircle(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

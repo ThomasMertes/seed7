@@ -298,27 +298,6 @@ objectType drw_capture (listType arguments)
 
 
 
-objectType drw_circle (listType arguments)
-
-  {
-    winType actual_window;
-    intType x1, y1, radius;
-
-  /* drw_circle */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x1 = take_int(arg_2(arguments));
-    y1 = take_int(arg_3(arguments));
-    radius = take_int(arg_4(arguments));
-    drwCircle(actual_window, x1, y1, radius);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_circle */
-
-
-
 objectType drw_clear (listType arguments)
 
   { /* drw_clear */

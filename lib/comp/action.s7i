@@ -628,9 +628,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_CAPTURE"}:
         programUses.drawLibrary := TRUE;
         process(DRW_CAPTURE, function, params, c_expr);
-      when {"DRW_CIRCLE"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_CIRCLE, function, params, c_expr);
       when {"DRW_CLEAR"}:
         programUses.drawLibrary := TRUE;
         process(DRW_CLEAR, function, params, c_expr);

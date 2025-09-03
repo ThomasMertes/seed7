@@ -732,16 +732,6 @@ rtlArrayType drwBorder (const_winType actual_window)
 
 
 
-void drwCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwCircle */
-    logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, radius););
-  } /* drwCircle */
-
-
-
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

@@ -179,14 +179,6 @@ rtlArrayType drwBorder (const_winType actual_window)
 
 
 
-void drwCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwCircle */
-  } /* drwCircle */
-
-
-
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

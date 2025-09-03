@@ -1032,34 +1032,6 @@ rtlArrayType drwBorder (const_winType actual_window)
 
 
 
-void drwCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwCircle */
-    logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, radius););
-    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
-                 x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
-      logError(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_D "): Raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x, y, radius););
-      raise_error(RANGE_ERROR);
-    } else {
-      XDrawArc(mydisplay, to_window(actual_window), mygc,
-          (int) (x - radius), (int) (y - radius),
-          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-      if (to_backup(actual_window) != 0) {
-        XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            (int) (x - radius), (int) (y - radius),
-            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-      } /* if */
-    } /* if */
-  } /* drwCircle */
-
-
-
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

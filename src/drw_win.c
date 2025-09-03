@@ -884,15 +884,6 @@ rtlArrayType drwBorder (const_winType actual_window)
 
 
 
-void drwCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwCircle */
-    AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y), (unsigned) radius, 0.0, 360.0);
-  } /* drwCircle */
-
-
-
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
