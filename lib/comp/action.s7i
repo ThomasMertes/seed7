@@ -724,9 +724,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PLINE"}:
         programUses.drawLibrary := TRUE;
         process(DRW_PLINE, function, params, c_expr);
-      when {"DRW_POINT"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_POINT, function, params, c_expr);
       when {"DRW_POINTER_XPOS"}:
         programUses.drawLibrary := TRUE;
         process(DRW_POINTER_XPOS, function, params, c_expr);

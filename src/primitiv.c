@@ -380,7 +380,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_PFELLIPSE",                drw_pfellipse,                },
     { "DRW_PIXEL_TO_RGB",             drw_pixel_to_rgb,             },
     { "DRW_PLINE",                    drw_pline,                    },
-    { "DRW_POINT",                    drw_point,                    },
     { "DRW_POINTER_XPOS",             drw_pointer_xpos,             },
     { "DRW_POINTER_YPOS",             drw_pointer_ypos,             },
     { "DRW_POLY_LINE",                drw_poly_line,                },

@@ -60,8 +60,6 @@ const pixel: (attr pixel) . value                          is pixel conv 0;
 
 const type: colorLookupTable is array [0 ..] pixel;
 
-const proc: DRAW_POINT (inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y)                   is action "DRW_POINT";
 const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in pixel: col)                                  is action "DRW_PPOINT";

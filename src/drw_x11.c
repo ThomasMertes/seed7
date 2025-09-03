@@ -1995,26 +1995,6 @@ void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
 
 
 
-void drwPoint (const_winType actual_window, intType x, intType y)
-
-  { /* drwPoint */
-    logFunction(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y););
-    if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
-      logError(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
-                      "raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x, y););
-      raise_error(RANGE_ERROR);
-    } else {
-      XDrawPoint(mydisplay, to_window(actual_window), mygc, (int) (x), (int) (y));
-      if (to_backup(actual_window) != 0) {
-        XDrawPoint(mydisplay, to_backup(actual_window), mygc, (int) (x), (int) (y));
-      } /* if */
-    } /* if */
-  } /* drwPoint */
-
-
-
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   { /* drwPPoint */

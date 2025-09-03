@@ -1753,19 +1753,6 @@ void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
 
 
 
-void drwPoint (const_winType actual_window, intType x, intType y)
-
-  { /* drwPoint */
-    MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-    LineTo(to_hdc(actual_window), castToInt(x + 1), castToInt(y + 1));
-    if (to_backup_hdc(actual_window) != 0) {
-      MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-      LineTo(to_backup_hdc(actual_window), castToInt(x + 1), castToInt(y + 1));
-    } /* if */
-  } /* drwPoint */
-
-
-
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   { /* drwPPoint */

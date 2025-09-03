@@ -74,7 +74,6 @@ objectType drw_pfcircle                  (listType arguments);
 objectType drw_pfellipse                 (listType arguments);
 objectType drw_pixel_to_rgb              (listType arguments);
 objectType drw_pline                     (listType arguments);
-objectType drw_point                     (listType arguments);
 objectType drw_pointer_xpos              (listType arguments);
 objectType drw_pointer_ypos              (listType arguments);
 objectType drw_poly_line                 (listType arguments);

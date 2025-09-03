@@ -59,7 +59,6 @@ const ACTION: DRW_PFCIRCLE                  is action "DRW_PFCIRCLE";
 const ACTION: DRW_PFELLIPSE                 is action "DRW_PFELLIPSE";
 const ACTION: DRW_PIXEL_TO_RGB              is action "DRW_PIXEL_TO_RGB";
 const ACTION: DRW_PLINE                     is action "DRW_PLINE";
-const ACTION: DRW_POINT                     is action "DRW_POINT";
 const ACTION: DRW_POINTER_XPOS              is action "DRW_POINTER_XPOS";
 const ACTION: DRW_POINTER_YPOS              is action "DRW_POINTER_YPOS";
 const ACTION: DRW_POLY_LINE                 is action "DRW_POLY_LINE";
@@ -180,7 +179,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwPFEllipse (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwPixelToRgb (intType, intType *, intType *, intType *);");
     declareExtern(c_prog, "void        drwPLine (const_winType, intType, intType, intType, intType, intType);");
-    declareExtern(c_prog, "void        drwPoint (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwPPoint (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwPRect (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwPolyLine (const_winType, intType, intType, bstriType, intType);");
@@ -881,21 +879,6 @@ const proc: process (DRW_PLINE, in reference: function,
     process_expr(params[5], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process (DRW_POINT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwPoint(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

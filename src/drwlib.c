@@ -1199,25 +1199,6 @@ objectType drw_pline (listType arguments)
 
 
 
-objectType drw_point (listType arguments)
-
-  {
-    winType actual_window;
-    intType x, y;
-
-  /* drw_point */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x = take_int(arg_2(arguments));
-    y = take_int(arg_3(arguments));
-    drwPoint(actual_window, x, y);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_point */
-
-
-
 /**
  *  Return the X position of the pointer relative to the specified window.
  *  The point of origin is the top left corner of the drawing area

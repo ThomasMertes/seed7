@@ -2036,13 +2036,6 @@ void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
 
 
 
-void drwPoint (const_winType actual_window, intType x, intType y)
-
-  { /* drwPoint */
-  } /* drwPoint */
-
-
-
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   {
