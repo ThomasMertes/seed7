@@ -1382,14 +1382,14 @@ void drwFEllipse (const_winType actual_window,
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
         XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
     } /* if */
   } /* drwFEllipse */
@@ -1407,14 +1407,14 @@ void drwPFEllipse (const_winType actual_window,
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
         XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
     } /* if */
   } /* drwPFEllipse */
@@ -1544,17 +1544,25 @@ intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
   /* drwGetPixel */
     logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sourceWindow, x, y););
-    if (to_backup(sourceWindow) != 0) {
-      image = XGetImage(mydisplay, to_backup(sourceWindow),
-                        castToInt(x), castToInt(y), 1, 1,
-                        (unsigned long) -1, ZPixmap);
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) sourceWindow, x, y););
+      raise_error(RANGE_ERROR);
+      pixel = 0;
     } else {
-      image = XGetImage(mydisplay, to_window(sourceWindow),
-                        castToInt(x), castToInt(y), 1, 1,
-                        (unsigned long) -1, ZPixmap);
+      if (to_backup(sourceWindow) != 0) {
+        image = XGetImage(mydisplay, to_backup(sourceWindow),
+                          (int) (x), (int) (y), 1, 1,
+                          (unsigned long) -1, ZPixmap);
+      } else {
+        image = XGetImage(mydisplay, to_window(sourceWindow),
+                          (int) (x), (int) (y), 1, 1,
+                          (unsigned long) -1, ZPixmap);
+      } /* if */
+      pixel = (intType) XGetPixel(image, 0, 0);
+      XDestroyImage(image);
     } /* if */
-    pixel = (intType) XGetPixel(image, 0, 0);
-    XDestroyImage(image);
     logFunction(printf("drwGetPixel --> " F_X(08) "\n", pixel););
     return pixel;
   } /* drwGetPixel */
@@ -2233,6 +2241,9 @@ void drwPoint (const_winType actual_window, intType x, intType y)
     logFunction(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, x, y););
     if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+      logError(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y););
       raise_error(RANGE_ERROR);
     } else {
       XDrawPoint(mydisplay, to_window(actual_window), mygc, (int) (x), (int) (y));
@@ -2247,9 +2258,13 @@ void drwPoint (const_winType actual_window, intType x, intType y)
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   { /* drwPPoint */
-    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
     if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+      logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -2992,7 +3007,14 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
   { /* drwSetPos */
     logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, xPos, yPos););
-    XMoveWindow(mydisplay, to_window(actual_window), castToInt(xPos), castToInt(yPos));
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, xPos, yPos););
+      raise_error(RANGE_ERROR);
+    } else {
+      XMoveWindow(mydisplay, to_window(actual_window), (int) (xPos), (int) (yPos));
+    } /* if */
   } /* drwSetPos */
 
 
