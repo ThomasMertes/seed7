@@ -619,9 +619,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(DCL_GLOBAL, function, params, c_expr);
       when {"DCL_VAR"}:
         process(DCL_VAR, function, params, c_expr);
-      when {"DRW_ARC"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_ARC, function, params, c_expr);
       when {"DRW_ARC2"}:
         programUses.drawLibrary := TRUE;
         process(DRW_ARC2, function, params, c_expr);

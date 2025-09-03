@@ -746,42 +746,6 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 
-void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle)
-
-  {
-    int startAng, sweepAng;
-
-  /* drwArc */
-    logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f)\n", (memSizeType) actual_window,
-                       x, y, radius, startAngle, sweepAngle););
-    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
-                 x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
-      logError(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", %.4f, %.4f): Raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x, y, radius,
-                      startAngle, sweepAngle););
-      raise_error(RANGE_ERROR);
-    } else {
-      startAng = (int) (startAngle * (23040.0 / (2 * PI)));
-      sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
-      XDrawArc(mydisplay, to_window(actual_window), mygc,
-          (int) (x - radius), (int) (y - radius),
-          2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
-          startAng, sweepAng);
-      if (to_backup(actual_window) != 0) {
-        XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            (int) (x - radius), (int) (y - radius),
-            2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
-            startAng, sweepAng);
-      } /* if */
-    } /* if */
-  } /* drwArc */
-
-
-
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 

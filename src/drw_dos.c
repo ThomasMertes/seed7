@@ -138,14 +138,6 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 
-void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle)
-
-  { /* drwArc */
-  } /* drwArc */
-
-
-
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 

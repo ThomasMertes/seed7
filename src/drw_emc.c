@@ -492,16 +492,6 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 
-void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle)
-
-  { /* drwArc */
-    logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-  } /* drwArc */
-
-
-
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 

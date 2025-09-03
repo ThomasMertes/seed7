@@ -24,7 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: DRW_ARC                       is action "DRW_ARC";
 const ACTION: DRW_ARC2                      is action "DRW_ARC2";
 const ACTION: DRW_BACKGROUND                is action "DRW_BACKGROUND";
 const ACTION: DRW_BORDER                    is action "DRW_BORDER";
@@ -147,7 +146,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drawInit (void);");
     declareExtern(c_prog, "intType     drwPointerXpos (const_winType);");
     declareExtern(c_prog, "intType     drwPointerYpos (const_winType);");
-    declareExtern(c_prog, "void        drwArc (const_winType, intType, intType, intType, floatType, floatType);");
     declareExtern(c_prog, "void        drwArc2 (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwBackground (intType);");
     declareExtern(c_prog, "arrayType   drwBorder (const_winType);");
@@ -231,27 +229,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
 
     declareExtern(c_prog, "bstriType   pltAlign (const const_bstriType);");
     declareExtern(c_prog, "bstriType   pltValue (const const_objRefType);");
-  end func;
-
-
-const proc: process (DRW_ARC, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwArc(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

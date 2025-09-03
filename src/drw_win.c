@@ -573,21 +573,6 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 
-void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle)
-
-  {
-    FLOAT startAng, sweepAng;
-
-  /* drwArc */
-    startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
-    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
-    AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y),
-             (unsigned) radius, startAng, sweepAng);
-  } /* drwArc */
-
-
-
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 

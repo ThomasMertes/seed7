@@ -250,32 +250,6 @@ objectType gkb_word_read (listType arguments)
 
 
 
-objectType drw_arc (listType arguments)
-
-  {
-    winType actual_window;
-    intType x, y, radius;
-    floatType ang1, ang2;
-
-  /* drw_arc */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    isit_float(arg_5(arguments));
-    isit_float(arg_6(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x = take_int(arg_2(arguments));
-    y = take_int(arg_3(arguments));
-    radius = take_int(arg_4(arguments));
-    ang1 = take_float(arg_5(arguments));
-    ang2 = take_float(arg_6(arguments));
-    drwArc(actual_window, x, y, radius, ang1, ang2);
-    return SYS_EMPTY_OBJECT;
-  } /* drw_arc */
-
-
-
 objectType drw_arc2 (listType arguments)
 
   {

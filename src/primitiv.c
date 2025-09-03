@@ -342,7 +342,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DCL_VAR",                      dcl_var,                      },
 
 #if WITH_DRAW
-    { "DRW_ARC",                      drw_arc,                      },
     { "DRW_ARC2",                     drw_arc2,                     },
     { "DRW_BACKGROUND",               drw_background,               },
     { "DRW_BORDER",                   drw_border,                   },

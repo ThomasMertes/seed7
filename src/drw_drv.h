@@ -41,8 +41,6 @@ void gkbSelectInput (winType aWindow, charType aKey, boolType active);
 winType gkbWindow (void);
 intType drwPointerXpos (const_winType actual_window);
 intType drwPointerYpos (const_winType actual_window);
-void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle);
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col);
 void drwPFArc (const_winType actual_window, intType x, intType y,
