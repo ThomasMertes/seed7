@@ -221,7 +221,6 @@ const func pixel: rgbPixel (ref integer: red,
 const proc: DRAW_PIXEL_TO_RGB (
     in pixel: col, inout integer: red,
     inout integer: green, inout integer: blue)      is action "DRW_PIXEL_TO_RGB";
-const proc: SET_COLOR (ref pixel: aWindow)          is action "DRW_COLOR";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y, in string: stri,
     ref pixel: col, ref pixel: bkcol)               is action "DRW_TEXT";

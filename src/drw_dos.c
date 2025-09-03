@@ -438,13 +438,6 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
 
 
 
-void drwColor (intType col)
-
-  { /* drwColor */
-  } /* drwColor */
-
-
-
 intType drwScreenHeight (void)
 
   { /* drwScreenHeight */

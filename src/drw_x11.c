@@ -2603,15 +2603,6 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
 
 
 
-void drwColor (intType col)
-
-  { /* drwColor */
-/*  printf("set color = %ld\n", (long) col); */
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
-  } /* drwColor */
-
-
-
 /**
  *  Determine the height of the screen in pixels.
  */

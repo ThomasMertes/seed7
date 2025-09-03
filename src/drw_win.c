@@ -2106,14 +2106,6 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
 
 
 
-void drwColor (intType col)
-
-  { /* drwColor */
-      /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
-  } /* drwColor */
-
-
-
 /**
  *  Determine the height of the screen in pixels.
  */

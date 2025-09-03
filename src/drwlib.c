@@ -321,16 +321,6 @@ objectType drw_cmp (listType arguments)
 
 
 
-objectType drw_color (listType arguments)
-
-  { /* drw_color */
-    isit_int(arg_1(arguments));
-    drwColor(take_int(arg_1(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* drw_color */
-
-
-
 objectType drw_conv_point_list (listType arguments)
 
   { /* drw_conv_point_list */

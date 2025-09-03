@@ -631,9 +631,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_CMP"}:
         programUses.drawLibrary := TRUE;
         process(DRW_CMP, function, params, c_expr);
-      when {"DRW_COLOR"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_COLOR, function, params, c_expr);
       when {"DRW_CONV_POINT_LIST"}:
         programUses.drawLibrary := TRUE;
         process(DRW_CONV_POINT_LIST, function, params, c_expr);

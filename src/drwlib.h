@@ -40,7 +40,6 @@ objectType drw_border                    (listType arguments);
 objectType drw_capture                   (listType arguments);
 objectType drw_clear                     (listType arguments);
 objectType drw_cmp                       (listType arguments);
-objectType drw_color                     (listType arguments);
 objectType drw_conv_point_list           (listType arguments);
 objectType drw_copyarea                  (listType arguments);
 objectType drw_cpy                       (listType arguments);

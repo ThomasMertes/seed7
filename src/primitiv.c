@@ -346,7 +346,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_CAPTURE",                  drw_capture,                  },
     { "DRW_CLEAR",                    drw_clear,                    },
     { "DRW_CMP",                      drw_cmp,                      },
-    { "DRW_COLOR",                    drw_color,                    },
     { "DRW_CONV_POINT_LIST",          drw_conv_point_list,          },
     { "DRW_COPYAREA",                 drw_copyarea,                 },
     { "DRW_CPY",                      drw_cpy,                      },

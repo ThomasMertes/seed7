@@ -56,7 +56,6 @@ winType drwCapture (intType left, intType upper,
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col);
 void drwClear (winType actual_window, intType col);
-void drwColor (intType col);
 rtlArrayType drwConvPointList (const const_bstriType pointList);
 void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
