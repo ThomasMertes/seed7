@@ -107,9 +107,6 @@ const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW: aWindow,
     in pixel: col)                                  is action "DRW_PFARCCHORD";
 const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
-    in float: startAngle, in float: sweepAngle)     is action "DRW_FARCPIESLICE";
-const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PFARCPIESLICE";
 const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW: aWindow,

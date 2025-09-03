@@ -52,7 +52,6 @@ objectType drw_create                    (listType arguments);
 objectType drw_destr                     (listType arguments);
 objectType drw_empty                     (listType arguments);
 objectType drw_eq                        (listType arguments);
-objectType drw_farcpieslice              (listType arguments);
 objectType drw_flush                     (listType arguments);
 objectType drw_fpoly_line                (listType arguments);
 objectType drw_gen_point_list            (listType arguments);

@@ -37,7 +37,6 @@ const ACTION: DRW_CONV_POINT_LIST           is action "DRW_CONV_POINT_LIST";
 const ACTION: DRW_COPYAREA                  is action "DRW_COPYAREA";
 const ACTION: DRW_CPY                       is action "DRW_CPY";
 const ACTION: DRW_EQ                        is action "DRW_EQ";
-const ACTION: DRW_FARCPIESLICE              is action "DRW_FARCPIESLICE";
 const ACTION: DRW_FLUSH                     is action "DRW_FLUSH";
 const ACTION: DRW_FPOLY_LINE                is action "DRW_FPOLY_LINE";
 const ACTION: DRW_GEN_POINT_LIST            is action "DRW_GEN_POINT_LIST";
@@ -164,7 +163,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "genericType drwCreateGeneric (const genericType);");
     declareExtern(c_prog, "void        drwDestr (const winType);");
     declareExtern(c_prog, "void        drwDestrGeneric (const genericType);");
-    declareExtern(c_prog, "void        drwFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType);");
     declareExtern(c_prog, "winType     drwEmpty (void);");
     declareExtern(c_prog, "void        drwFlush (void);");
     declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
@@ -462,27 +460,6 @@ const proc: process (DRW_EQ, in reference: function,
     c_expr.expr &:= ") == (";
     getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (DRW_FARCPIESLICE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwFArcPieSlice(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

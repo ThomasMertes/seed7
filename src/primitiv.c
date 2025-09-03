@@ -358,7 +358,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_DESTR",                    drw_destr,                    },
     { "DRW_EMPTY",                    drw_empty,                    },
     { "DRW_EQ",                       drw_eq,                       },
-    { "DRW_FARCPIESLICE",             drw_farcpieslice,             },
     { "DRW_FLUSH",                    drw_flush,                    },
     { "DRW_FPOLY_LINE",               drw_fpoly_line,               },
     { "DRW_GEN_POINT_LIST",           drw_gen_point_list,           },

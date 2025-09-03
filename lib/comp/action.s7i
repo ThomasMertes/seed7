@@ -658,9 +658,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_EQ"}:
         programUses.drawLibrary := TRUE;
         process(DRW_EQ, function, params, c_expr);
-      when {"DRW_FARCPIESLICE"}:
-        programUses.drawLibrary := TRUE;
-        process(DRW_FARCPIESLICE, function, params, c_expr);
       when {"DRW_FLUSH"}:
         programUses.drawLibrary := TRUE;
         process(DRW_FLUSH, function, params, c_expr);

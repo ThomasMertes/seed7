@@ -781,14 +781,6 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
 
 
 
-void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle)
-
-  { /* drwFArcPieSlice */
-  } /* drwFArcPieSlice */
-
-
-
 void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
