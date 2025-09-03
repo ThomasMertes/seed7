@@ -1523,7 +1523,6 @@ const proc: main is func
     screen(640, 480);
     selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, black);
-    color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
     screen := open(curr_win);
     panel := open(curr_win, 0, Y_MAXIMUM + 11);

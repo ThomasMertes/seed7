@@ -8044,7 +8044,6 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
       end case;
       if screenMode <> 0 and curr_win <> PRIMITIVE_WINDOW.value then
         clear(curr_win, white);
-        color(white, black);
         scr := open(curr_win);
         KEYBOARD := GRAPH_KEYBOARD;
         OUT := win;
@@ -9797,7 +9796,6 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             win := open(curr_win, 8);
             if curr_win <> PRIMITIVE_WINDOW.value then
               clear(curr_win, black);
-              color(white, black);
               scr := open(curr_win);
               KEYBOARD := GRAPH_KEYBOARD;
               OUT := win;
@@ -9820,7 +9818,6 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             win := open(curr_win, 8);
             if curr_win <> PRIMITIVE_WINDOW.value then
               clear(curr_win, black);
-              color(white, black);
               scr := open(curr_win);
               KEYBOARD := GRAPH_KEYBOARD;
               OUT := win;

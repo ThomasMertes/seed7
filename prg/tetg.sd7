@@ -451,7 +451,6 @@ const proc: main is func
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, white);
-    color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
     info_sheet := openPixmapFontFile(curr_win, 336, 7);
     setFont(info_sheet, stdFont9);

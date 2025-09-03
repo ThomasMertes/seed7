@@ -286,7 +286,6 @@ const proc: main is func
 	begin
 		screen(WINDOW_WIDTH, WINDOW_HEIGHT);
 		clear(curr_win, white);
-		color(white, black);
 		KEYBOARD := GRAPH_KEYBOARD;
 		info_sheet := openPixmapFontFile(curr_win, 3, AREA_LENGTH + 1);
 		setFont(info_sheet, stdFont9);

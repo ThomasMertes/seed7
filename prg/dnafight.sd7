@@ -1299,7 +1299,6 @@ const proc: main is func
   begin
     screen(640, 480);
     clear(curr_win, white);
-    color(black, white);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := open(curr_win);
     color(scr, black, white);
