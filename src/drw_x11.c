@@ -1376,21 +1376,34 @@ void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
   { /* drwPFEllipse */
-    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, width, height, col););
-    if (unlikely(width < 1 || height < 1)) {
+    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       width, height, col););
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
+      logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
+               (int) (x), (int) (y),
+               (unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
+               (int) (x), (int) (y),
+               (unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
         XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
+                 (int) (x), (int) (y),
+                 (unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y), (unsigned int) width, (unsigned int) height, 0, 23040);
+                 (int) (x), (int) (y),
+                 (unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
     } /* if */
   } /* drwPFEllipse */
