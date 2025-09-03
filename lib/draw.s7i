@@ -64,17 +64,12 @@ const proc: screen (in integer: width, in integer: height) is func
   end func;
 
 
-const proc: color (in color: col) is func
-  begin
-    SET_COLOR(colorPixel(col));
-  end func;
+# The undocumented function color(col) is deprecated. Calls of it should be removed.
+const proc: color (in color: col) is noop;
 
 
-const proc: color (in color: col1, in color: col2) is func
-  begin
-    SET_COLOR(colorPixel(col1));
-    SET_BACKGROUND(colorPixel(col2));
-  end func;
+# The undocumented function color(col, col) is deprecated. Calls of it should be removed.
+const proc: color (in color: col1, in color: col2) is noop;
 
 
 (**
