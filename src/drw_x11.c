@@ -2603,15 +2603,6 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
 
 
 
-void drwBackground (intType col)
-
-  { /* drwBackground */
-/*  printf("set color = %ld\n", (long) col); */
-    XSetBackground(mydisplay, mygc, (unsigned long) col);
-  } /* drwBackground */
-
-
-
 void drwColor (intType col)
 
   { /* drwColor */

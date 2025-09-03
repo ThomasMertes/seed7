@@ -2106,13 +2106,6 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
 
 
 
-void drwBackground (intType col)
-
-  { /* drwBackground */
-  } /* drwBackground */
-
-
-
 void drwColor (intType col)
 
   { /* drwColor */

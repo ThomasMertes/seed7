@@ -250,16 +250,6 @@ objectType gkb_word_read (listType arguments)
 
 
 
-objectType drw_background (listType arguments)
-
-  { /* drw_background */
-    isit_int(arg_1(arguments));
-    drwBackground(take_int(arg_1(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* drw_background */
-
-
-
 /**
  *  Determine the border widths of a window in pixels.
  *  These are the widths of the window decorations in the succession

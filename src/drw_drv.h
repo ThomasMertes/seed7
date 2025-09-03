@@ -100,7 +100,6 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight);
-void drwBackground (intType col);
 intType drwScreenHeight (void);
 intType drwScreenWidth (void);
 void drwSetContent (const_winType actual_window, const_winType pixmap);

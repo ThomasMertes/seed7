@@ -24,7 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: DRW_BACKGROUND                is action "DRW_BACKGROUND";
 const ACTION: DRW_BORDER                    is action "DRW_BORDER";
 const ACTION: DRW_CAPTURE                   is action "DRW_CAPTURE";
 const ACTION: DRW_CLEAR                     is action "DRW_CLEAR";
@@ -141,7 +140,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drawInit (void);");
     declareExtern(c_prog, "intType     drwPointerXpos (const_winType);");
     declareExtern(c_prog, "intType     drwPointerYpos (const_winType);");
-    declareExtern(c_prog, "void        drwBackground (intType);");
     declareExtern(c_prog, "arrayType   drwBorder (const_winType);");
     declareExtern(c_prog, "winType     drwCapture (intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwClear (winType, intType);");
@@ -219,17 +217,6 @@ const proc: drw_prototypes (inout file: c_prog) is func
 
     declareExtern(c_prog, "bstriType   pltAlign (const const_bstriType);");
     declareExtern(c_prog, "bstriType   pltValue (const const_objRefType);");
-  end func;
-
-
-const proc: process (DRW_BACKGROUND, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwBackground(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 
