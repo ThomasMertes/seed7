@@ -885,16 +885,6 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
 
 
 
-void drwFCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwFCircle */
-    logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, radius););
-  } /* drwFCircle */
-
-
-
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

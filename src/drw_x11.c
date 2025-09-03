@@ -1303,40 +1303,6 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
 
 
 
-void drwFCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwFCircle */
-    logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, radius););
-    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
-                 x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
-      logError(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_D "): Raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x, y, radius););
-      raise_error(RANGE_ERROR);
-    } else {
-      XDrawArc(mydisplay, to_window(actual_window), mygc,
-          (int) (x - radius), (int) (y - radius),
-          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-      XFillArc(mydisplay, to_window(actual_window), mygc,
-          (int) (x - radius), (int) (y - radius),
-          2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-      if (to_backup(actual_window) != 0) {
-        XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            (int) (x - radius), (int) (y - radius),
-            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-        XFillArc(mydisplay, to_backup(actual_window), mygc,
-            (int) (x - radius), (int) (y - radius),
-            2 * (unsigned int) (radius), 2 * (unsigned int) (radius), 0, 23040);
-      } /* if */
-    } /* if */
-  } /* drwFCircle */
-
-
-
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

@@ -1048,14 +1048,6 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
 
 
 
-void drwFCircle (const_winType actual_window,
-    intType x, intType y, intType radius)
-
-  { /* drwFCircle */
-  } /* drwFCircle */
-
-
-
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 

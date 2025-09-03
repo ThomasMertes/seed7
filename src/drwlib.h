@@ -54,7 +54,6 @@ objectType drw_empty                     (listType arguments);
 objectType drw_eq                        (listType arguments);
 objectType drw_farcchord                 (listType arguments);
 objectType drw_farcpieslice              (listType arguments);
-objectType drw_fcircle                   (listType arguments);
 objectType drw_flush                     (listType arguments);
 objectType drw_fpoly_line                (listType arguments);
 objectType drw_gen_point_list            (listType arguments);

@@ -89,9 +89,6 @@ const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW: aWindow,
     in pixel: col)                                  is action "DRW_CLEAR";
 const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
-    in integer: radius)                             is action "DRW_FCIRCLE";
-const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y,
     in integer: radius, in pixel: col)              is action "DRW_PFCIRCLE";
 const proc: DRAW_ARC(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,

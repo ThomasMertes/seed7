@@ -71,8 +71,6 @@ rtlArrayType drwConvPointList (const const_bstriType pointList);
 void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
     intType dest_x, intType dest_y);
-void drwFCircle (const_winType actual_window,
-    intType x, intType y, intType radius);
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col);
 void drwPFEllipse (const_winType actual_window,
