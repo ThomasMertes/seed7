@@ -1336,7 +1336,6 @@ const proc: displayRoom (in roomType: current_room) is func
       end for;
     end for;
     rect(8, BUTTON_YPOS_MIN, 300, 50, black);
-    color(white, black);
     for number range 1 to length(current_room.description) do
       setPos(screen, pred(BUTTON_TEXT_LINE1 + number), 2);
       write(screen, current_room.description[number]);
@@ -1372,7 +1371,6 @@ const proc: displayMonster is func
 const proc: objectLegend (inout graphObj: currObject, in integer: line) is func
   begin
     put(curr_win, LEGEND_XPOS, LEGEND_YPOS_MIN + pred(line) * PIXMAP_SIZE, getPixmap(currObject));
-    color(white, black);
     setPos(screen, 2 * line, LEGEND_COLUMN);
     if currObject.adjective <> "" then
       write(screen, currObject.adjective & " " & currObject.name);
@@ -1449,7 +1447,6 @@ const proc: collectedTreasures is func
   begin
     rect(LEGEND_XPOS, 0, width(curr_win) - LEGEND_XPOS,
         BORDER_DIST + PIXMAP_SIZE * 14, black);
-    color(white, black);
     setPos(screen, 2 * line - 1, LEGEND_COLUMN);
     write(screen, "You have collected");
     setPos(screen, 2 * line, LEGEND_COLUMN);
@@ -1463,7 +1460,6 @@ const proc: collectedTreasures is func
       end if;
     end for;
     if line = 2 then
-      color(white, black);
       setPos(screen, 2 * line, LEGEND_COLUMN);
       write(screen, "NONE");
     end if;
@@ -1477,7 +1473,6 @@ const proc: killedMonsters is func
   begin
     rect(LEGEND_XPOS, 15 * PIXMAP_SIZE, width(curr_win) - LEGEND_XPOS,
         BORDER_DIST + PIXMAP_SIZE * 7, black);
-    color(white, black);
     setPos(screen, 2 * line - 1, LEGEND_COLUMN);
     write(screen, "You have killed");
     setPos(screen, 2 * line, LEGEND_COLUMN);
@@ -1507,7 +1502,6 @@ const proc: killedMonsters is func
       end if;
     end for;
     if line = 17 then
-      color(white, black);
       setPos(screen, 2 * line, LEGEND_COLUMN);
       write(screen, "NONE");
     end if;
@@ -1548,7 +1542,6 @@ const proc: displayInventoryList is func
   begin
     line := succ(getInventoryStartLine);
     if player.inventory = itemSet.EMPTY_SET then
-      color(white, black);
       setPos(screen, 2 * line, LEGEND_COLUMN);
       write(screen, "Nothing");
       incr(line);
@@ -1570,7 +1563,6 @@ const proc: displayInventory is func
     startLine := getInventoryStartLine;
     rect(LEGEND_XPOS, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
         182, PIXMAP_SIZE * (card(player.inventory) + 2), black);
-    color(white, black);
     setPos(screen, 2 * startLine, LEGEND_COLUMN);
     write(screen, "Inventory");
     displayInventoryList;
@@ -1582,7 +1574,6 @@ const proc: displayMessage is func
     var integer: number is 0;
   begin
     rect(186, BUTTON_YPOS_MIN, 346, 70, black);
-    color(screen, white, black);
     for number range 1 to length(message) do
       setPos(screen, BUTTON_TEXT_LINE1 + pred(number), 32);
       write(screen, message[number]);
@@ -1873,7 +1864,6 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
           150, PIXMAP_SIZE, light_gray);
       put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
           symbol);
-      color(white, black);
       setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
       write(screen, name);
       displayInventoryList;
@@ -1888,7 +1878,6 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
         else
           put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
               symbol);
-          color(white, black);
           setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
           write(screen, name);
         end if;
@@ -1916,7 +1905,6 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
         else
           put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
               symbol);
-          color(white, black);
           setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
           write(screen, name);
         end if;
@@ -1941,7 +1929,6 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
       rect(LEGEND_XPOS, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
           182, PIXMAP_SIZE, black);
       setPos(screen, 2 * startLine, LEGEND_COLUMN);
-      color(white, black);
       write(screen, "Inventory");
       box(LEGEND_XPOS - 3, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE - 3,
           187, succ(card(player.inventory))  * PIXMAP_SIZE + 6, black);
