@@ -8184,9 +8184,33 @@ const proc: exec_line (inout string: symbol, inout string: line) is func
       end if;
     end if;
     if param1 = "BF" then
-      rectTo(x1, y1, currX, currY, color_num(col));
+      if x1 <= currX then
+        if y1 <= currY then
+          rectTo(x1, y1, currX, currY, color_num(col));
+        else
+          rectTo(x1, currY, currX, y1, color_num(col));
+        end if;
+      else
+        if y1 <= currY then
+          rectTo(currX, y1, x1, currY, color_num(col));
+        else
+          rectTo(x1, currY, currX, y1, color_num(col));
+        end if;
+      end if;
     elsif param1 = "B" then
-      boxTo(x1, y1, currX, currY, color_num(col));
+      if x1 <= currX then
+        if y1 <= currY then
+          boxTo(x1, y1, currX, currY, color_num(col));
+        else
+          boxTo(x1, currY, currX, y1, color_num(col));
+        end if;
+      else
+        if y1 <= currY then
+          boxTo(currX, y1, x1, currY, color_num(col));
+        else
+          boxTo(x1, currY, currX, y1, color_num(col));
+        end if;
+      end if;
     else
       lineTo(x1, y1, currX, currY, color_num(col));
     end if;
