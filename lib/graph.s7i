@@ -97,9 +97,6 @@ const proc: DRAW_ARC(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PARC";
-const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y, in integer: radius,
-    in float: startAngle, in float: sweepAngle)     is action "DRW_FARCCHORD";
 const proc: DRAW_ARC(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,

@@ -45,8 +45,6 @@ void drwArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle);
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col);
-void drwFArcChord (const_winType actual_window, intType x, intType y,
-    intType radius, floatType startAngle, floatType sweepAngle);
 void drwPFArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle,
     intType width, intType col);

@@ -163,14 +163,6 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
 
 
 
-void drwFArcChord (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2)
-
-  { /* drwFArcChord */
-  } /* drwFArcChord */
-
-
-
 void drwPFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType ang1, floatType ang2, intType col)
 
