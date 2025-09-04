@@ -1105,9 +1105,9 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
     if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 !inIntRange(dest_x) || !inIntRange(dest_y) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX ||
+                 !inIntRange(dest_x) || !inIntRange(dest_y))) {
       logError(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
                       ", " FMT_D "): Raises RANGE_ERROR\n",
@@ -1282,8 +1282,8 @@ winType drwCapture (intType left, intType upper,
                        ", " FMT_D ")\n",
                        left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
       logError(printf("drwCapture(" FMT_D ", " FMT_D ", " FMT_D
                       ", " FMT_D "): Raises RANGE_ERROR\n",
                       left, upper, width, height););
@@ -1445,9 +1445,10 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sourceWindow, left, upper, width, height););
-    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+    if (unlikely(width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX ||
+                 left < INT_MIN || left > INT_MAX - width ||
+                 upper < INT_MIN || upper > INT_MAX - height)) {
       logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D "): Raises RANGE_ERROR\n",
                       (memSizeType) sourceWindow, left, upper, width, height););
@@ -1623,8 +1624,8 @@ winType drwNewPixmap (intType width, intType height)
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n",
                        width, height););
-    if (unlikely(!inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+    if (unlikely(width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
       logError(printf("drwNewPixmap(" FMT_D ", " FMT_D "): "
                       "raises RANGE_ERROR\n",
                       width, height););
@@ -1672,7 +1673,8 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
   /* drwNewBitmap */
     logFunction(printf("drwNewBitmap(" FMT_D ", " FMT_D ")\n",
                        width, height););
-    if (unlikely(width < 1 || height < 1)) {
+    if (unlikely(width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
       logError(printf("drwNewBitmap(" FMT_D ", " FMT_D "): "
                       "raises RANGE_ERROR\n",
                       width, height););
@@ -1749,7 +1751,9 @@ winType drwOpen (intType xPos, intType yPos,
 
             result->window = XCreateSimpleWindow(mydisplay,
                 DefaultRootWindow(mydisplay),
-                myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
+                myhint.x, myhint.y,
+                (unsigned int) myhint.width,
+                (unsigned int) myhint.height,
                 5, myforeground, mybackground);
             enter_window((winType) result, result->window);
 
@@ -1909,7 +1913,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
             parent = DefaultRootWindow(mydisplay);
           } /* if */
           result->window = XCreateSimpleWindow(mydisplay, parent,
-              (int) xPos, (int) yPos, (unsigned) width, (unsigned) height,
+              (int) xPos, (int) yPos,
+              (unsigned int) width, (unsigned int) height,
               0, myforeground, mybackground);
           enter_window((winType) result, result->window);
 
@@ -2294,8 +2299,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
                        (memSizeType) destWindow, xDest, yDest,
                        width, height, (memSizeType) pixmap););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
-                 !inIntRange(width) || width < 0 ||
-                 !inIntRange(height) || height < 0)) {
+                 width < 0 || width > UINT_MAX ||
+                 height < 0 || height > UINT_MAX)) {
       logError(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D ", " FMT_U_MEM"): "
                       "raises RANGE_ERROR\n",
@@ -2330,7 +2335,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
       XRenderSetPictureTransform(mydisplay, picture, &transform);
       XRenderComposite(mydisplay, PictOpOver, picture, 0, dest,
                        0, 0, /* source (x, y) */ 0, 0, /* mask (x, y) */
-                       (int) xDest, (int) yDest, (unsigned int) width, (unsigned int) height);
+                       (int) xDest, (int) yDest,
+                       (unsigned int) width, (unsigned int) height);
       XRenderFreePicture(mydisplay, picture);
       XRenderFreePicture(mydisplay, dest);
       if (to_backup(destWindow) != 0) {
@@ -2784,8 +2790,8 @@ void drwSetSize (winType actual_window, intType width, intType height)
   { /* drwSetSize */
     logFunction(printf("drwSetSize(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, width, height););
-    if (unlikely(width < 1 || width > INT_MAX ||
-                 height < 1 || height > INT_MAX)) {
+    if (unlikely(width < 1 || width > UINT_MAX ||
+                 height < 1 || height > UINT_MAX)) {
       logError(printf("drwSetSize(" FMT_D ", " FMT_D "): "
                       "Illegal window dimensions\n",
                       width, height););
