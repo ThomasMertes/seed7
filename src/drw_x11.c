@@ -805,10 +805,10 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, width, col););
-    if (unlikely(radius < 0 || radius > UINT_MAX / 2 || width < 1 ||
-                 (unsigned int) width > 2 * (unsigned int) (radius) ||
+    if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
                  y < INT_MIN + radius || y > INT_MAX ||
+                 width < 1 || width > radius ||
                  os_isnan(startAngle) || os_isnan(sweepAngle) ||
                  startAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
                  startAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)) ||
