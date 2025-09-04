@@ -39,6 +39,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "math.h"
+#include "float.h"
 #include "limits.h"
 
 #undef WITH_XSHAPE_EXTENSION
@@ -759,7 +761,12 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                        startAngle, sweepAngle, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
+                 y < INT_MIN + radius || y > INT_MAX ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 startAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)) ||
+                 sweepAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 sweepAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)))) {
       logError(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
                       ", %.4f, %.4f, " F_X(08) "): Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y, radius,
@@ -801,12 +808,17 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 || width < 1 ||
                  (unsigned int) width > 2 * (unsigned int) (radius) ||
                  x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
+                 y < INT_MIN + radius || y > INT_MAX ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 startAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)) ||
+                 sweepAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 sweepAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)))) {
       logError(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " FMT_D ", " F_X(08) "): "
-                       "Raises RANGE_ERROR\n",
-                       (memSizeType) actual_window, x, y, radius,
-                       startAngle, sweepAngle, width, col););
+                      ", %.4f, %.4f, " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, width, col););
       raise_error(RANGE_ERROR);
     } else {
       startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -861,12 +873,17 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                        startAngle, sweepAngle, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
+                 y < INT_MIN + radius || y > INT_MAX ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 startAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)) ||
+                 sweepAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 sweepAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)))) {
       logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
-                       ": Raises RANGE_ERROR\n",
-                       (memSizeType) actual_window, x, y, radius,
-                       startAngle, sweepAngle, col););
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
+                      ": Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned long) col);
@@ -909,7 +926,12 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                        startAngle, sweepAngle, col););
     if (unlikely(radius < 0 || radius > UINT_MAX / 2 ||
                  x < INT_MIN + radius || x > INT_MAX ||
-                 y < INT_MIN + radius || y > INT_MAX)) {
+                 y < INT_MIN + radius || y > INT_MAX ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 startAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)) ||
+                 sweepAngle < (floatType) INT_MIN / (23040.0 / (2 * PI)) ||
+                 sweepAngle > (floatType) INT_MAX / (23040.0 / (2 * PI)))) {
       logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
                       ": Raises RANGE_ERROR\n",
