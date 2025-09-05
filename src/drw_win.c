@@ -1518,24 +1518,32 @@ void drwPLine (const_winType actual_window,
     logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
                        ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
-    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (unlikely(current_pen == NULL)) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
+                   inIntRange(x2) && inIntRange(y2)))) {
+      logError(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x1, y1, x2, y2, col););
+      raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      MoveToEx(to_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
-      LineTo(to_hdc(actual_window), castToInt(x2), castToInt(y2));
-      SetPixel(to_hdc(actual_window), castToInt(x2), castToInt(y2), (COLORREF) col);
-      SelectObject(to_hdc(actual_window), old_pen);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        MoveToEx(to_backup_hdc(actual_window), castToInt(x1), castToInt(y1), NULL);
-        LineTo(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2));
-        SetPixel(to_backup_hdc(actual_window), castToInt(x2), castToInt(y2), (COLORREF) col);
-        SelectObject(to_backup_hdc(actual_window), old_pen);
+      /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      if (unlikely(current_pen == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        MoveToEx(to_hdc(actual_window), (int) (x1), (int) (y1), NULL);
+        LineTo(to_hdc(actual_window), (int) (x2), (int) (y2));
+        SetPixel(to_hdc(actual_window), (int) (x2), (int) (y2), (COLORREF) col);
+        SelectObject(to_hdc(actual_window), old_pen);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          MoveToEx(to_backup_hdc(actual_window), (int) (x1), (int) (y1), NULL);
+          LineTo(to_backup_hdc(actual_window), (int) (x2), (int) (y2));
+          SetPixel(to_backup_hdc(actual_window), (int) (x2), (int) (y2), (COLORREF) col);
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+        } /* if */
+        DeleteObject(current_pen);
       } /* if */
-      DeleteObject(current_pen);
     } /* if */
   } /* drwPLine */
 
