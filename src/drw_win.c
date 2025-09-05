@@ -2195,62 +2195,75 @@ void drwPRect (const_winType actual_window,
                        ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        width, height, col););
-    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
-#ifdef OUT_OF_ORDER
-    if (width == 0 && height == 0) {
-      printf("width == 0 && height == 0\n");
-    } /* if */
-    if (width == 1 && height == 1) {
-      printf("width == 1 && height == 1\n");
-    } /* if */
-#endif
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    current_brush = CreateSolidBrush((COLORREF) col);
-    if (unlikely(current_pen == NULL || current_brush == NULL)) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(width < 0 || width > INT_MAX ||
+                 height < 0 || height > INT_MAX ||
+                 x < INT_MIN || x > INT_MAX - width ||
+                 y < INT_MIN || y > INT_MAX - height)) {
+      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
+      raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      if (width == 1) {
-        if (height == 1) {
-          SetPixel(to_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
-        } else {
-          MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-          LineTo(to_hdc(actual_window), castToInt(x), castToInt(y + height));
-        } /* if */
-      } else {
-        if (height == 1) {
-          MoveToEx(to_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-          LineTo(to_hdc(actual_window), castToInt(x + width), castToInt(y));
-        } else {
-          Rectangle(to_hdc(actual_window), castToInt(x), castToInt(y), castToInt(x + width), castToInt(y + height));
-        } /* if */
+      /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
+#ifdef OUT_OF_ORDER
+      if (width == 0 && height == 0) {
+        printf("width == 0 && height == 0\n");
       } /* if */
-      SelectObject(to_hdc(actual_window), old_pen);
-      SelectObject(to_hdc(actual_window), old_brush);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+      if (width == 1 && height == 1) {
+        printf("width == 1 && height == 1\n");
+      } /* if */
+#endif
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      if (unlikely(current_pen == NULL || current_brush == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
         if (width == 1) {
           if (height == 1) {
-            SetPixel(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
+            SetPixel(to_hdc(actual_window), (int) (x), (int) (y), (COLORREF) col);
           } else {
-            MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-            LineTo(to_backup_hdc(actual_window), castToInt(x), castToInt(y + height));
+            MoveToEx(to_hdc(actual_window), (int) (x), (int) (y), NULL);
+            LineTo(to_hdc(actual_window), (int) (x), (int) (y + height));
           } /* if */
         } else {
           if (height == 1) {
-            MoveToEx(to_backup_hdc(actual_window), castToInt(x), castToInt(y), NULL);
-            LineTo(to_backup_hdc(actual_window), castToInt(x + width), castToInt(y));
+            MoveToEx(to_hdc(actual_window), (int) (x), (int) (y), NULL);
+            LineTo(to_hdc(actual_window), (int) (x + width), (int) (y));
           } else {
-            Rectangle(to_backup_hdc(actual_window), castToInt(x), castToInt(y), castToInt(x + width), castToInt(y + height));
+            Rectangle(to_hdc(actual_window), (int) (x), (int) (y),
+                      (int) (x + width), (int) (y + height));
           } /* if */
         } /* if */
-        SelectObject(to_backup_hdc(actual_window), old_pen);
-        SelectObject(to_backup_hdc(actual_window), old_brush);
+        SelectObject(to_hdc(actual_window), old_pen);
+        SelectObject(to_hdc(actual_window), old_brush);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          if (width == 1) {
+            if (height == 1) {
+              SetPixel(to_backup_hdc(actual_window), (int) (x), (int) (y), (COLORREF) col);
+            } else {
+              MoveToEx(to_backup_hdc(actual_window), (int) (x), (int) (y), NULL);
+              LineTo(to_backup_hdc(actual_window), (int) (x), (int) (y + height));
+            } /* if */
+          } else {
+            if (height == 1) {
+              MoveToEx(to_backup_hdc(actual_window), (int) (x), (int) (y), NULL);
+              LineTo(to_backup_hdc(actual_window), (int) (x + width), (int) (y));
+            } else {
+              Rectangle(to_backup_hdc(actual_window), (int) (x), (int) (y),
+                        (int) (x + width), (int) (y + height));
+            } /* if */
+          } /* if */
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SelectObject(to_backup_hdc(actual_window), old_brush);
+        } /* if */
+        DeleteObject(current_pen);
+        DeleteObject(current_brush);
       } /* if */
-      DeleteObject(current_pen);
-      DeleteObject(current_brush);
     } /* if */
   } /* drwPRect */
 
