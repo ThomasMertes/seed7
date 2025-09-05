@@ -975,22 +975,33 @@ void drwPCircle (const_winType actual_window,
     logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (unlikely(current_pen == NULL)) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(radius < 0 || radius > INT_MAX ||
+                 x < INT_MIN || x > INT_MAX - radius ||
+                 y < INT_MIN || y > INT_MAX - radius)) {
+      logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius, col););
+      raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      MoveToEx(to_hdc(actual_window), castToInt(x + radius), castToInt(y), NULL);
-      AngleArc(to_hdc(actual_window), castToInt(x), castToInt(y), (unsigned) radius, 0.0, 360.0);
-      SelectObject(to_hdc(actual_window), old_pen);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        MoveToEx(to_backup_hdc(actual_window), castToInt(x + radius), castToInt(y), NULL);
-        AngleArc(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (unsigned) radius, 0.0, 360.0);
-        SelectObject(to_backup_hdc(actual_window), old_pen);
+      /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      if (unlikely(current_pen == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        MoveToEx(to_hdc(actual_window), (int) (x + radius), (int) (y), NULL);
+        AngleArc(to_hdc(actual_window), (int) (x), (int) (y),
+                 (unsigned) radius, 0.0, 360.0);
+        SelectObject(to_hdc(actual_window), old_pen);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          MoveToEx(to_backup_hdc(actual_window), (int) (x + radius), (int) (y), NULL);
+          AngleArc(to_backup_hdc(actual_window), (int) (x), (int) (y),
+                   (unsigned) radius, 0.0, 360.0);
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+        } /* if */
+        DeleteObject(current_pen);
       } /* if */
-      DeleteObject(current_pen);
     } /* if */
   } /* drwPCircle */
 
