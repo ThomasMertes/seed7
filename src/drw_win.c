@@ -847,16 +847,26 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                        ", " FMT_D ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
-    if (sweepAngle != 0.0) {
-      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
-      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
+    startAng = (FLOAT) (startAngle * (360.0 / (2.0 * PI)));
+    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2.0 * PI)));
+    if (unlikely(radius <= 0 || radius > INT_MAX ||
+                 !inIntRange(x) || !inIntRange(y) ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAng == POSITIVE_INFINITY ||
+                 startAng == NEGATIVE_INFINITY ||
+                 sweepAng == POSITIVE_INFINITY ||
+                 sweepAng == NEGATIVE_INFINITY)) {
+      logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
+                      ": Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col););
+      raise_error(RANGE_ERROR);
+    } else if (sweepAngle != 0.0) {
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       current_brush = CreateSolidBrush((COLORREF) col);
       if (unlikely(current_pen == NULL || current_brush == NULL)) {
         raise_error(MEMORY_ERROR);
-      } else if (unlikely(!inIntRange(x) || !inIntRange(x) ||
-                          !inIntRange(radius) || radius < 0)) {
-        raise_error(RANGE_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
