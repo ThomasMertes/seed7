@@ -248,26 +248,48 @@ const proc: rect (inout array array pixel: image,
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the window ''win''.
- *  The top left edge of the rectangle is at (x1, y1) and the lower right
- *  edge is at (x2, y2).
+ *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
  *)
 const proc: rectTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    DRAW_PRECT(win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+    if x1 <= x2 then
+      if y1 <= y2 then
+        DRAW_PRECT(win, x1, y1, succ(x2 - x1), succ(y2 - y1), colorPixel(col));
+      else
+        DRAW_PRECT(win, x1, y2, succ(x2 - x1), succ(y1 - y2), colorPixel(col));
+      end if;
+    else
+      if y1 <= y2 then
+        DRAW_PRECT(win, x2, y1, succ(x1 - x1), succ(y2 - y1), colorPixel(col));
+      else
+        DRAW_PRECT(win, x2, y2, succ(x1 - x2), succ(y1 - y2), colorPixel(col));
+      end if;
+    end if;
   end func;
 
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the current window ''curr_win''.
- *  The top left edge of the rectangle is at (x1, y1) and the lower right
- *  edge is at (x2, y2).
+ *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
  *)
 const proc: rectTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    DRAW_PRECT(curr_win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+    if x1 <= x2 then
+      if y1 <= y2 then
+        DRAW_PRECT(curr_win, x1, y1, succ(x2 - x1), succ(y2 - y1), colorPixel(col));
+      else
+        DRAW_PRECT(curr_win, x1, y2, succ(x2 - x1), succ(y1 - y2), colorPixel(col));
+      end if;
+    else
+      if y1 <= y2 then
+        DRAW_PRECT(curr_win, x2, y1, succ(x1 - x2), succ(y2 - y1), colorPixel(col));
+      else
+        DRAW_PRECT(curr_win, x2, y2, succ(x1 - x2), succ(y1 - y2), colorPixel(col));
+      end if;
+    end if;
   end func;
 
 
@@ -310,8 +332,7 @@ const proc: box (in integer: x, in integer: y,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the window ''win''.
- *  The top left edge of the rectangle is at (x1, y1) and the lower right
- *  edge is at (x2, y2).
+ *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
  *)
 const proc: boxTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
@@ -329,8 +350,7 @@ const proc: boxTo (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the current window ''curr_win''.
- *  The top left edge of the rectangle is at (x1, y1) and the lower right
- *  edge is at (x2, y2).
+ *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
  *)
 const proc: boxTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
