@@ -2307,7 +2307,10 @@ void filSetbuf (fileType aFile, intType mode, intType size)
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        mode, size););
     cFile = aFile->cFile;
-    if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filSetbuf: Attempt to set the file buffering of a closed file.\n"););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
       logError(printf("filSetbuf(%d, " FMT_D ", " FMT_D "): "
                       "Mode or size not in allowed range.\n",
                       safe_fileno(cFile), mode, size););
