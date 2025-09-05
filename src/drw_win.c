@@ -40,12 +40,14 @@
 #include "string.h"
 #include "limits.h"
 #include "math.h"
+#include "float.h"
 #include "windows.h"
 
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "flt_rtl.h"
 #include "kbd_drv.h"
 #include "rtl_err.h"
 
@@ -586,15 +588,22 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
-    if (unlikely(!inIntRange(x) || !inIntRange(x) || !inIntRange(radius) || radius <= 0)) {
+    startAng = (FLOAT) (startAngle * (360.0 / (2.0 * PI)));
+    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2.0 * PI)));
+    if (unlikely(radius <= 0 || radius > INT_MAX ||
+                 x <= INT_MIN + radius || x >= INT_MAX - radius ||
+                 y <= INT_MIN + radius || y >= INT_MAX - radius ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAng == POSITIVE_INFINITY ||
+                 startAng == NEGATIVE_INFINITY ||
+                 sweepAng == POSITIVE_INFINITY ||
+                 sweepAng == NEGATIVE_INFINITY)) {
       logError(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
                       ", %.4f, %.4f, " F_X(08) "): Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y, radius,
                       startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
-      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
-      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       if (unlikely(current_pen == NULL)) {
         raise_error(MEMORY_ERROR);
