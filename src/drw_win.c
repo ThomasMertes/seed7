@@ -1161,27 +1161,39 @@ void drwPFEllipse (const_winType actual_window,
                        ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        width, height, col););
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    current_brush = CreateSolidBrush((COLORREF) col);
-    if (unlikely(current_pen == NULL || current_brush == NULL)) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX ||
+                 x < INT_MIN || x > INT_MAX - width ||
+                 y < INT_MIN || y > INT_MAX - height)) {
+      logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
+      raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      Ellipse(to_hdc(actual_window), castToInt(x), castToInt(y),
-              castToInt(x + width), castToInt(y + height));
-      SelectObject(to_hdc(actual_window), old_pen);
-      SelectObject(to_hdc(actual_window), old_brush);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        Ellipse(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
-                castToInt(x + width), castToInt(y + height));
-        SelectObject(to_backup_hdc(actual_window), old_pen);
-        SelectObject(to_backup_hdc(actual_window), old_brush);
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      if (unlikely(current_pen == NULL || current_brush == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+        Ellipse(to_hdc(actual_window), (int) (x), (int) (y),
+                (int) (x + width), (int) (y + height));
+        SelectObject(to_hdc(actual_window), old_pen);
+        SelectObject(to_hdc(actual_window), old_brush);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          Ellipse(to_backup_hdc(actual_window), (int) (x), (int) (y),
+                  (int) (x + width), (int) (y + height));
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SelectObject(to_backup_hdc(actual_window), old_brush);
+        } /* if */
+        DeleteObject(current_pen);
+        DeleteObject(current_brush);
       } /* if */
-      DeleteObject(current_pen);
-      DeleteObject(current_brush);
     } /* if */
   } /* drwPFEllipse */
 
