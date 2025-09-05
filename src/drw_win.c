@@ -1325,7 +1325,15 @@ intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
   /* drwGetPixel */
     logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sourceWindow, x, y););
-    pixel = (intType) GetPixel(to_hdc(sourceWindow), castToInt(x), castToInt(y));
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) sourceWindow, x, y););
+      raise_error(RANGE_ERROR);
+      pixel = 0;
+    } else {
+      pixel = (intType) GetPixel(to_hdc(sourceWindow), (int) (x), (int) (y));
+    } /* if */
     logFunction(printf("drwGetPixel --> " F_X(08) "\n", pixel););
     return pixel;
   } /* drwGetPixel */
@@ -2365,9 +2373,16 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
   { /* drwSetPos */
     logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, xPos, yPos););
-    SetWindowPos(to_hwnd(actual_window), 0, castToInt(xPos), castToInt(yPos), 0, 0,
-        /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
-    gkbInputReady();
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, xPos, yPos););
+      raise_error(RANGE_ERROR);
+    } else {
+      SetWindowPos(to_hwnd(actual_window), 0, (int) (xPos), (int) (yPos), 0, 0,
+          /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
+      gkbInputReady();
+    } /* if */
   } /* drwSetPos */
 
 
