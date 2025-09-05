@@ -1913,9 +1913,16 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
     logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
-    SetPixel(to_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
-    if (to_backup_hdc(actual_window) != 0) {
-      SetPixel(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
+    if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+      logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " F_X(08) "): raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      SetPixel(to_hdc(actual_window), (int) (x), (int) (y), (COLORREF) col);
+      if (to_backup_hdc(actual_window) != 0) {
+        SetPixel(to_backup_hdc(actual_window), (int) (x), (int) (y), (COLORREF) col);
+      } /* if */
     } /* if */
   } /* drwPPoint */
 
