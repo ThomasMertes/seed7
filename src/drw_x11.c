@@ -775,6 +775,11 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     } else {
       startAng = (int) (startAngle * (23040.0 / (2.0 * PI)));
       sweepAng = (int) (sweepAngle * (23040.0 / (2.0 * PI)));
+      if (sweepAng < -23040) {
+        sweepAng = -23040;
+      } else if (sweepAng > 23040) {
+        sweepAng = 23040;
+      } /* if */
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
           (int) (x - radius), (int) (y - radius),
@@ -823,6 +828,11 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
     } else {
       startAng = (int) (startAngle * (23040.0 / (2.0 * PI)));
       sweepAng = (int) (sweepAngle * (23040.0 / (2.0 * PI)));
+      if (sweepAng < -23040) {
+        sweepAng = -23040;
+      } else if (sweepAng > 23040) {
+        sweepAng = 23040;
+      } /* if */
       if ((width & 1) != 0) {
         diameter = (unsigned int) (2 * radius - width + 1);
         lineWidth = (unsigned int) width;
@@ -886,10 +896,15 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                       startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
-      XSetForeground(mydisplay, mygc, (unsigned long) col);
-      XSetArcMode(mydisplay, mygc, ArcChord);
       startAng = (int) (startAngle * (23040.0 / (2.0 * PI)));
       sweepAng = (int) (sweepAngle * (23040.0 / (2.0 * PI)));
+      if (sweepAng < -23040) {
+        sweepAng = -23040;
+      } else if (sweepAng > 23040) {
+        sweepAng = 23040;
+      } /* if */
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetArcMode(mydisplay, mygc, ArcChord);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
           (int) (x - radius), (int) (y - radius),
           2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
@@ -939,10 +954,15 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                       startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
     } else {
-      XSetForeground(mydisplay, mygc, (unsigned long) col);
-      XSetArcMode(mydisplay, mygc, ArcPieSlice);
       startAng = (int) (startAngle * (23040.0 / (2.0 * PI)));
       sweepAng = (int) (sweepAngle * (23040.0 / (2.0 * PI)));
+      if (sweepAng < -23040) {
+        sweepAng = -23040;
+      } else if (sweepAng > 23040) {
+        sweepAng = 23040;
+      } /* if */
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetArcMode(mydisplay, mygc, ArcPieSlice);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
           (int) (x - radius), (int) (y - radius),
           2 * (unsigned int) (radius), 2 * (unsigned int) (radius),
