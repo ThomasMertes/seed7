@@ -991,9 +991,9 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
     if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 !inIntRange(dest_x) || !inIntRange(dest_y) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX ||
+                 !inIntRange(dest_x) || !inIntRange(dest_y))) {
       logError(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
                       ", " FMT_D "): Raises RANGE_ERROR\n",
@@ -1164,8 +1164,8 @@ winType drwCapture (intType left, intType upper,
                        ", " FMT_D ")\n",
                        left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
       logError(printf("drwCapture(" FMT_D ", " FMT_D ", " FMT_D
                       ", " FMT_D "): Raises RANGE_ERROR\n",
                       left, upper, width, height););
@@ -1281,8 +1281,8 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
                        ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sourceWindow, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
       logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D "): Raises RANGE_ERROR\n",
                       (memSizeType) sourceWindow, left, upper, width, height););
@@ -1364,8 +1364,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
                        width, height, hasAlphaChannel););
-    if (unlikely(width < 1 || width > INTTYPE_MAX ||
-                 height < 1 || height > INTTYPE_MAX)) {
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX ||
+                 (unsigned int) height > MAX_MEMSIZETYPE / (unsigned int) width)) {
       logError(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d): "
                       "Raises RANGE_ERROR\n",
                       width, height, hasAlphaChannel););
@@ -1454,8 +1455,8 @@ winType drwNewPixmap (intType width, intType height)
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n",
                        width, height););
-    if (unlikely(!inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
       logError(printf("drwNewPixmap(" FMT_D ", " FMT_D "): "
                       "raises RANGE_ERROR\n",
                       width, height););
@@ -2041,8 +2042,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
                        (memSizeType) destWindow, xDest, yDest,
                        width, height, (memSizeType) pixmap););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
-                 !inIntRange(width) || width < 0 ||
-                 !inIntRange(height) || height < 0)) {
+                 width < 0 || width > INT_MAX ||
+                 height < 0 || height > INT_MAX)) {
       logError(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D ", " FMT_U_MEM"): "
                       "raises RANGE_ERROR\n",
