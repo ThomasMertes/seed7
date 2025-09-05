@@ -206,7 +206,7 @@ const proc: vline (in integer: x1, in integer: y1,
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the window ''win''.
- *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  The top left corner of the rectangle is at (x1, y1). The size of the
  *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: rect (inout PRIMITIVE_WINDOW: win,
@@ -219,7 +219,7 @@ const proc: rect (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the current window ''curr_win''.
- *  The top left edge of the rectangle is at (x, y). The size of the
+ *  The top left corner of the rectangle is at (x, y). The size of the
  *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: rect (in integer: x, in integer: y,
@@ -248,7 +248,8 @@ const proc: rect (inout array array pixel: image,
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the window ''win''.
- *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
+ *  One corner of the rectangle is at (x1, y1) and the other corner is at (x2, y2).
+ *  The two corners must be diagonally opposite to each other.
  *)
 const proc: rectTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
@@ -272,7 +273,8 @@ const proc: rectTo (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws a filled rectangle with the color ''col'' to the current window ''curr_win''.
- *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
+ *  One corner of the rectangle is at (x1, y1) and the other corner is at (x2, y2).
+ *  The two corners must be diagonally opposite to each other.
  *)
 const proc: rectTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -295,7 +297,7 @@ const proc: rectTo (in integer: x1, in integer: y1,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the window ''win''.
- *  The top left edge of the rectangle is at (x, y). The size of the
+ *  The top left corner of the rectangle is at (x, y). The size of the
  *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: box (inout PRIMITIVE_WINDOW: win,
@@ -314,7 +316,7 @@ const proc: box (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the current window ''curr_win''.
- *  The top left edge of the rectangle is at (x, y). The size of the
+ *  The top left corner of the rectangle is at (x, y). The size of the
  *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: box (in integer: x, in integer: y,
@@ -332,7 +334,8 @@ const proc: box (in integer: x, in integer: y,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the window ''win''.
- *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
+ *  One corner of the rectangle is at (x1, y1) and the other corner is at (x2, y2).
+ *  The two corners must be diagonally opposite to each other.
  *)
 const proc: boxTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
@@ -350,7 +353,8 @@ const proc: boxTo (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws an empty rectangle with the color ''col'' to the current window ''curr_win''.
- *  One edge of the rectangle is at (x1, y1) and other edge is at (x2, y2).
+ *  One corner of the rectangle is at (x1, y1) and the other corner is at (x2, y2).
+ *  The two corners must be diagonally opposite to each other.
  *)
 const proc: boxTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -543,7 +547,7 @@ const proc: polyLine (in integer: x, in integer: y, in pointList: points, in col
 
 (**
  *  Draws a filled polygon with the color ''col'' to the window ''win''.
- *  The corners of the polygon are given with ''points''.
+ *  The edges of the polygon are given with ''points''.
  *  The polygon is drawn at the position (x, y).
  *)
 const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
@@ -555,7 +559,7 @@ const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
 
 (**
  *  Draws a filled polygon with the color ''col'' to the current window ''curr_win''.
- *  The corners of the polygon are given with ''points''.
+ *  The edges of the polygon are given with ''points''.
  *  The polygon is drawn at the position (x, y).
  *)
 const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
@@ -572,7 +576,7 @@ const proc: paint (in integer: x, in integer: y, in integer: col) is func
 
 (**
  *  Put ''pixmap'' to the given position at ''destWindow''.
- *  The top left edge of ''pixmap'' is put at (''xDest'', ''yDest'').
+ *  The top left corner of ''pixmap'' is put at (''xDest'', ''yDest'').
  *  @param destWindow Destination Window.
  *  @param xDest X-coordinate of the destination position.
  *  @param yDest Y-coordinate of the destination position.
@@ -584,7 +588,7 @@ const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
 
 (**
  *  Put ''pixmap'' to the given position at the current window 'curr_win'.
- *  The top left edge of ''pixmap'' is put at (''xDest'', ''yDest'').
+ *  The top left corner of ''pixmap'' is put at (''xDest'', ''yDest'').
  *  @param xDest X-coordinate of the destination position.
  *  @param yDest Y-coordinate of the destination position.
  *  @param pixmap Source window to be put to the destination.
@@ -598,7 +602,7 @@ const proc: put (in integer: xDest, in integer: yDest,
 
 (**
  *  Put a scaled ''pixmap'' to the given rectangle at ''destWindow''.
- *  The top left edge of the destination rectangle is at (''xDest'', ''yDest'').
+ *  The top left corner of the destination rectangle is at (''xDest'', ''yDest'').
  *  @param destWindow Destination Window.
  *  @param xDest X-coordinate of the destination rectangle.
  *  @param yDest Y-coordinate of the destination rectangle.
