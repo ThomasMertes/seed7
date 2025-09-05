@@ -600,7 +600,8 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                  (int) x + (int) (cos(startAngle) * (double) radius),
                  (int) y - (int) (sin(startAngle) * (double) radius),
                  (LPPOINT) NULL);
-        AngleArc(to_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y,
+                 (unsigned int) radius, startAng, sweepAng);
         SelectObject(to_hdc(actual_window), old_pen);
         if (to_backup_hdc(actual_window) != 0) {
           old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
@@ -608,7 +609,8 @@ void drwPArc (const_winType actual_window, intType x, intType y,
                    (int) x + (int) (cos(startAngle) * (double) radius),
                    (int) y - (int) (sin(startAngle) * (double) radius),
                    (LPPOINT) NULL);
-          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y,
+                   (unsigned int) radius, startAng, sweepAng);
           SelectObject(to_backup_hdc(actual_window), old_pen);
         } /* if */
         DeleteObject(current_pen);
@@ -739,7 +741,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                  (int) x + (int) (cos(startAngle) * (double) radius),
                  (int) y - (int) (sin(startAngle) * (double) radius),
                  (LPPOINT) NULL);
-        AngleArc(to_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y,
+                 (DWORD) radius, startAng, sweepAng);
         EndPath(to_hdc(actual_window));
         StrokeAndFillPath(to_hdc(actual_window));
         SelectObject(to_hdc(actual_window), old_pen);
@@ -752,7 +755,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                    (int) x + (int) (cos(startAngle) * (double) radius),
                    (int) y - (int) (sin(startAngle) * (double) radius),
                    (LPPOINT) NULL);
-          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y,
+                   (DWORD) radius, startAng, sweepAng);
           EndPath(to_backup_hdc(actual_window));
           StrokeAndFillPath(to_backup_hdc(actual_window));
           SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -796,7 +800,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
         old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
         BeginPath(to_hdc(actual_window));
         MoveToEx(to_hdc(actual_window), (int) x, (int) y, (LPPOINT) NULL);
-        AngleArc(to_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y,
+                 (DWORD) radius, startAng, sweepAng);
         LineTo(to_hdc(actual_window), (int) x, (int) y);
         EndPath(to_hdc(actual_window));
         StrokeAndFillPath(to_hdc(actual_window));
@@ -807,7 +812,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
           old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
           BeginPath(to_backup_hdc(actual_window));
           MoveToEx(to_backup_hdc(actual_window), (int) x, (int) y, (LPPOINT) NULL);
-          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y,
+                   (DWORD) radius, startAng, sweepAng);
           LineTo(to_backup_hdc(actual_window), (int) x, (int) y);
           EndPath(to_backup_hdc(actual_window));
           StrokeAndFillPath(to_backup_hdc(actual_window));
