@@ -159,7 +159,11 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    if (!read_buffer_empty(cInFile)) {
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filInputReady: Called with a closed file.\n"););
+      raise_error(FILE_ERROR);
+      inputReady = FALSE;
+    } else if (!read_buffer_empty(cInFile)) {
       inputReady = TRUE;
     } else {
       file_no = os_fileno(cInFile);
@@ -214,35 +218,41 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    file_no = os_fileno(cInFile);
-    if (unlikely(file_no == -1)) {
-      logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(cInFile), safe_fileno(cInFile),
-                      errno, strerror(errno)););
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filInputReady: Called with a closed file.\n"););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
     } else {
-      /* printf("file_no=%d\n", file_no); */
-      flags = fcntl(file_no, F_GETFL);
-      fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
-      ch = getc(cInFile);
-      saved_errno = errno;
-      /* printf("errno=%d ", saved_errno); */
-      if (ch == EOF) {
-        if (feof(cInFile)) {
-          clearerr(cInFile);
-          inputReady = TRUE;
-        } else if (saved_errno == EAGAIN || saved_errno == EIO) {
-          inputReady = FALSE;
+      file_no = os_fileno(cInFile);
+      if (unlikely(file_no == -1)) {
+        logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(cInFile), safe_fileno(cInFile),
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+        inputReady = FALSE;
+      } else {
+        /* printf("file_no=%d\n", file_no); */
+        flags = fcntl(file_no, F_GETFL);
+        fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
+        ch = getc(cInFile);
+        saved_errno = errno;
+        /* printf("errno=%d ", saved_errno); */
+        if (ch == EOF) {
+          if (feof(cInFile)) {
+            clearerr(cInFile);
+            inputReady = TRUE;
+          } else if (saved_errno == EAGAIN || saved_errno == EIO) {
+            inputReady = FALSE;
+          } else {
+            inputReady = TRUE;
+          } /* if */
         } else {
+          ungetc(ch, cInFile);
           inputReady = TRUE;
         } /* if */
-      } else {
-        ungetc(ch, cInFile);
-        inputReady = TRUE;
+        fcntl(file_no, F_SETFL, flags);
       } /* if */
-      fcntl(file_no, F_SETFL, flags);
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
                        safe_fileno(cInFile), inputReady););

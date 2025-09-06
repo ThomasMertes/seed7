@@ -134,8 +134,23 @@ int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
  */
 boolType filInputReady (fileType inFile)
 
-  { /* filInputReady */
-    return TRUE;
+  {
+    boolType inputReady;
+
+  /* filInputReady */
+    logFunction(printf("filInputReady(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    if (unlikely(inFile->cFile == NULL)) {
+      logError(printf("filInputReady: Called with a closed file.\n"););
+      raise_error(FILE_ERROR);
+      inputReady = FALSE;
+    } else {
+      inputReady = TRUE;
+    } /* if */
+    logFunction(printf("filInputReady(%d) --> %d\n",
+                       safe_fileno(inFile->cFile), inputReady););
+    return inputReady;
   } /* filInputReady */
 
 

@@ -210,77 +210,83 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    file_no = os_fileno(cInFile);
-    if (unlikely(file_no == -1)) {
-      logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(cInFile), safe_fileno(cInFile),
-                      errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      inputReady = FALSE;
-    } else if (unlikely(os_fstat(file_no, &stat_buf) != 0)) {
-      logError(printf("filInputReady(%d): fstat(%d, *) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(cInFile), safe_fileno(cInFile),
-                      errno, strerror(errno)););
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filInputReady: Called with a closed file.\n"););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
     } else {
-      if (S_ISREG(stat_buf.st_mode)) {
-        inputReady = TRUE;
-      } else if (S_ISCHR(stat_buf.st_mode)) {
-        /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
-        if (!read_buffer_empty(cInFile)) {
+      file_no = os_fileno(cInFile);
+      if (unlikely(file_no == -1)) {
+        logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(cInFile), safe_fileno(cInFile),
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+        inputReady = FALSE;
+      } else if (unlikely(os_fstat(file_no, &stat_buf) != 0)) {
+        logError(printf("filInputReady(%d): fstat(%d, *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(cInFile), safe_fileno(cInFile),
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+        inputReady = FALSE;
+      } else {
+        if (S_ISREG(stat_buf.st_mode)) {
           inputReady = TRUE;
-        } else if (file_no == 0) {
-          inputReady = stdinReady();
-          /* printf("stdinReady()=%d\n", result); */
-        } else {
-          fileHandle = (HANDLE) _get_osfhandle(file_no);
-          if (unlikely(fileHandle == (HANDLE) -1)) {
-            logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
-                            "errno=%d\nerror: %s\n",
-                            safe_fileno(cInFile), safe_fileno(cInFile),
-                            errno, strerror(errno)););
-            raise_error(FILE_ERROR);
-            inputReady = FALSE;
+        } else if (S_ISCHR(stat_buf.st_mode)) {
+          /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
+          if (!read_buffer_empty(cInFile)) {
+            inputReady = TRUE;
+          } else if (file_no == 0) {
+            inputReady = stdinReady();
+            /* printf("stdinReady()=%d\n", result); */
           } else {
-            inputReady = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
-          } /* if */
-        } /* if */
-      } else if (S_ISFIFO(stat_buf.st_mode)) {
-        /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
-        if (!read_buffer_empty(cInFile)) {
-          inputReady = TRUE;
-        } else {
-          fileHandle = (HANDLE) _get_osfhandle(file_no);
-          if (unlikely(fileHandle == (HANDLE) -1)) {
-            logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
-                            "errno=%d\nerror: %s\n",
-                            safe_fileno(cInFile), safe_fileno(cInFile),
-                            errno, strerror(errno)););
-            raise_error(FILE_ERROR);
-            inputReady = FALSE;
-          } else {
-            if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
-              inputReady = totalBytesAvail >= 1;
-            } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(cInFile)) {
-              inputReady = TRUE;
-            } else {
-              logError(printf("filInputReady(%d): PeekNamedPipe(" FMT_U_MEM ", ...) failed:\n"
+            fileHandle = (HANDLE) _get_osfhandle(file_no);
+            if (unlikely(fileHandle == (HANDLE) -1)) {
+              logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
                               "errno=%d\nerror: %s\n",
-                              safe_fileno(cInFile), (memSizeType) fileHandle,
+                              safe_fileno(cInFile), safe_fileno(cInFile),
                               errno, strerror(errno)););
               raise_error(FILE_ERROR);
               inputReady = FALSE;
+            } else {
+              inputReady = WaitForSingleObject(fileHandle, 0) == WAIT_OBJECT_0;
             } /* if */
           } /* if */
+        } else if (S_ISFIFO(stat_buf.st_mode)) {
+          /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
+          if (!read_buffer_empty(cInFile)) {
+            inputReady = TRUE;
+          } else {
+            fileHandle = (HANDLE) _get_osfhandle(file_no);
+            if (unlikely(fileHandle == (HANDLE) -1)) {
+              logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              safe_fileno(cInFile), safe_fileno(cInFile),
+                              errno, strerror(errno)););
+              raise_error(FILE_ERROR);
+              inputReady = FALSE;
+            } else {
+              if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
+                inputReady = totalBytesAvail >= 1;
+              } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(cInFile)) {
+                inputReady = TRUE;
+              } else {
+                logError(printf("filInputReady(%d): PeekNamedPipe(" FMT_U_MEM ", ...) failed:\n"
+                                "errno=%d\nerror: %s\n",
+                                safe_fileno(cInFile), (memSizeType) fileHandle,
+                                errno, strerror(errno)););
+                raise_error(FILE_ERROR);
+                inputReady = FALSE;
+              } /* if */
+            } /* if */
+          } /* if */
+        } else {
+          logError(printf("filInputReady(%d): Unknown file type %d.\n",
+                          safe_fileno(cInFile), stat_buf.st_mode & S_IFMT););
+          raise_error(FILE_ERROR);
+          inputReady = FALSE;
         } /* if */
-      } else {
-        logError(printf("filInputReady(%d): Unknown file type %d.\n",
-                        safe_fileno(cInFile), stat_buf.st_mode & S_IFMT););
-        raise_error(FILE_ERROR);
-        inputReady = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
