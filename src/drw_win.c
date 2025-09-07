@@ -785,8 +785,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
                  sweepAng == POSITIVE_INFINITY ||
                  sweepAng == NEGATIVE_INFINITY)) {
       logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
-                       ": Raises RANGE_ERROR\n",
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
+                       "Raises RANGE_ERROR\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
@@ -857,8 +857,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
                  sweepAng == POSITIVE_INFINITY ||
                  sweepAng == NEGATIVE_INFINITY)) {
       logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_D ", %.4f, %.4f, " F_X(08) ")"
-                      ": Raises RANGE_ERROR\n",
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y, radius,
                       startAngle, sweepAngle, col););
       raise_error(RANGE_ERROR);
@@ -1387,13 +1387,15 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
   /* drwGetPixmap */
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) sourceWindow, left, upper, width, height););
+                       (memSizeType) sourceWindow, left, upper,
+                       width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
       logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D "): Raises RANGE_ERROR\n",
-                      (memSizeType) sourceWindow, left, upper, width, height););
+                      (memSizeType) sourceWindow, left, upper,
+                      width, height););
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
@@ -1523,14 +1525,17 @@ void drwPLine (const_winType actual_window,
     HPEN current_pen;
 
   /* drwPLine */
-    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", " FMT_D ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x1, y1, x2, y2, col););
+    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x1, y1,
+                       x2, y2, col););
     if (unlikely(!(inIntRange(x1) && inIntRange(y1) &&
                    inIntRange(x2) && inIntRange(y2)))) {
-      logError(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
-                      (memSizeType) actual_window, x1, y1, x2, y2, col););
+      logError(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x1, y1,
+                      x2, y2, col););
       raise_error(RANGE_ERROR);
     } else {
       /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
@@ -1574,7 +1579,7 @@ winType drwNewPixmap (intType width, intType height)
     if (unlikely(width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
       logError(printf("drwNewPixmap(" FMT_D ", " FMT_D "): "
-                      "raises RANGE_ERROR\n",
+                      "Raises RANGE_ERROR\n",
                       width, height););
       raise_error(RANGE_ERROR);
       pixmap = NULL;
@@ -1895,7 +1900,7 @@ void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
                        (memSizeType) aWindow, xPos, yPos););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
       logError(printf("drwSetPointerPos(" FMT_U_MEM ", " FMT_D
-                      ", " FMT_D "): raises RANGE_ERROR\n",
+                      ", " FMT_D "): Raises RANGE_ERROR\n",
                       (memSizeType) aWindow, xPos, yPos););
       raise_error(RANGE_ERROR);
     } else {
@@ -1921,9 +1926,9 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
     logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
-    if (unlikely(!(inIntRange(x) && inIntRange(y)))) {
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
       logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " F_X(08) "): raises RANGE_ERROR\n",
+                      ", " F_X(08) "): Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y, col););
       raise_error(RANGE_ERROR);
     } else {
@@ -2127,7 +2132,7 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
                        (memSizeType) pixmap););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest))) {
       logError(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D
-                      ", " FMT_U_MEM "): raises RANGE_ERROR\n",
+                      ", " FMT_U_MEM "): Raises RANGE_ERROR\n",
                       (memSizeType) destWindow, xDest, yDest,
                       (memSizeType) pixmap););
       raise_error(RANGE_ERROR);
@@ -2173,7 +2178,7 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
                  height < 0 || height > INT_MAX)) {
       logError(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D ", " FMT_U_MEM"): "
-                      "raises RANGE_ERROR\n",
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) destWindow, xDest, yDest,
                       width, height, (memSizeType) pixmap););
       raise_error(RANGE_ERROR);
@@ -2211,8 +2216,9 @@ void drwPRect (const_winType actual_window,
                  height < 0 || height > INT_MAX ||
                  x < INT_MIN || x > INT_MAX - width ||
                  y < INT_MIN || y > INT_MAX - height)) {
-      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", " FMT_D ", " F_X(08) "): raises RANGE_ERROR\n",
+      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y,
                       width, height, col););
       raise_error(RANGE_ERROR);
@@ -2379,7 +2385,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
                        (memSizeType) actual_window, xPos, yPos););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
       logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
-                      "raises RANGE_ERROR\n",
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, xPos, yPos););
       raise_error(RANGE_ERROR);
     } else if (is_pixmap(actual_window)) {
@@ -2505,7 +2511,7 @@ void drwText (const_winType actual_window, intType x, intType y,
                  stri->size >= (unsigned int) INT_MAX)) {
       logError(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", \"%s\", " F_X(08) ", " F_X(08) "): "
-                      "raises RANGE_ERROR\n",
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y,
                       striAsUnquotedCStri(stri), col, bkcol););
       raise_error(RANGE_ERROR);
