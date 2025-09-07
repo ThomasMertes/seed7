@@ -1994,7 +1994,8 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
       result = NULL;
     } else {
       len = num_elements >> 1;
-      if (unlikely(len > MAX_BSTRI_LEN / sizeof(POINT) || len > MAX_MEM_INDEX)) {
+      if (unlikely(len > MAX_BSTRI_LEN / sizeof(POINT) ||
+                   len > MAX_MEM_INDEX)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -2065,19 +2066,28 @@ void drwPolyLine (const_winType actual_window,
           raise_error(MEMORY_ERROR);
         } else {
           old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-          MoveToEx(to_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
+          MoveToEx(to_hdc(actual_window), (int) x + points[0].x,
+                   (int) y + points[0].y, NULL);
           for (pos = 1; pos < numPoints; pos++) {
-            LineTo(to_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
+            LineTo(to_hdc(actual_window), (int) x + points[pos].x,
+                   (int) y + points[pos].y);
           } /* for */
-          SetPixel(to_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
+          SetPixel(to_hdc(actual_window),
+                   (int) x + points[numPoints - 1].x,
+                   (int) y + points[numPoints - 1].y, (COLORREF) col);
           SelectObject(to_hdc(actual_window), old_pen);
           if (to_backup_hdc(actual_window) != 0) {
-            old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-            MoveToEx(to_backup_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
+            old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window),
+                                          current_pen);
+            MoveToEx(to_backup_hdc(actual_window),
+                     (int) x + points[0].x, (int) y + points[0].y, NULL);
             for (pos = 1; pos < numPoints; pos++) {
-              LineTo(to_backup_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
+              LineTo(to_backup_hdc(actual_window),
+                     (int) x + points[pos].x, (int) y + points[pos].y);
             } /* for */
-            SetPixel(to_backup_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
+            SetPixel(to_backup_hdc(actual_window),
+                     (int) x + points[numPoints - 1].x,
+                     (int) y + points[numPoints - 1].y, (COLORREF) col);
             SelectObject(to_backup_hdc(actual_window), old_pen);
           } /* if */
           DeleteObject(current_pen);
@@ -2122,17 +2132,21 @@ void drwFPolyLine (const_winType actual_window,
       } /* for */
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       current_brush = CreateSolidBrush((COLORREF) col);
-      if (unlikely(current_pen == NULL || current_brush == NULL || numPoints > INT_MAX)) {
+      if (unlikely(current_pen == NULL || current_brush == NULL ||
+                   numPoints > INT_MAX)) {
         raise_error(MEMORY_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window),
+                                          current_brush);
         Polygon(to_hdc(actual_window), points, (int) numPoints);
         SelectObject(to_hdc(actual_window), old_pen);
         SelectObject(to_hdc(actual_window), old_brush);
         if (to_backup_hdc(actual_window) != 0) {
-          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window),
+                                        current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window),
+                                            current_brush);
           Polygon(to_backup_hdc(actual_window), points, (int) numPoints);
           SelectObject(to_backup_hdc(actual_window), old_pen);
           SelectObject(to_backup_hdc(actual_window), old_brush);
