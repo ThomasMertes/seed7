@@ -1976,6 +1976,8 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
   {
     memSizeType num_elements;
     memSizeType len;
+    intType x;
+    intType y;
     POINT *points;
     memSizeType pos;
     bstriType result;
@@ -2003,8 +2005,16 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
           if (len > 0) {
             points = (POINT *) result->mem;
             for (pos = 0; pos < len; pos++) {
-              points[pos].x = castToLong(xyArray->arr[ pos << 1     ].value.intValue);
-              points[pos].y = castToLong(xyArray->arr[(pos << 1) + 1].value.intValue);
+              x = xyArray->arr[ pos << 1     ].value.intValue;
+              y = xyArray->arr[(pos << 1) + 1].value.intValue;
+              if (unlikely(x < INT_MIN / 2 || x > INT_MAX / 2 ||
+                           y < INT_MIN / 2 || y > INT_MAX / 2)) {
+                raise_error(RANGE_ERROR);
+                return NULL;
+              } else {
+                points[pos].x = (long) (x);
+                points[pos].y = (long) (y);
+              } /* if */
             } /* for */
           } /* if */
         } /* if */
@@ -2038,30 +2048,40 @@ void drwPolyLine (const_winType actual_window,
                        ", " FMT_U_MEM ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        (memSizeType) point_list, col););
-    points = (POINT *) point_list->mem;
-    numPoints = point_list->size / sizeof(POINT);
-    if (numPoints >= 2) {
-      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-      if (unlikely(current_pen == NULL)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-        MoveToEx(to_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
-        for (pos = 1; pos < numPoints; pos++) {
-          LineTo(to_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
-        } /* for */
-        SetPixel(to_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
-        SelectObject(to_hdc(actual_window), old_pen);
-        if (to_backup_hdc(actual_window) != 0) {
-          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-          MoveToEx(to_backup_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
+    if (unlikely(x < INT_MIN / 2 || x > INT_MAX / 2 ||
+                 y < INT_MIN / 2 || y > INT_MAX / 2)) {
+      logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_U_MEM ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      (memSizeType) point_list, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      points = (POINT *) point_list->mem;
+      numPoints = point_list->size / sizeof(POINT);
+      if (numPoints >= 2) {
+        current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+        if (unlikely(current_pen == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+          MoveToEx(to_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
           for (pos = 1; pos < numPoints; pos++) {
-            LineTo(to_backup_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
+            LineTo(to_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
           } /* for */
-          SetPixel(to_backup_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
-          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SetPixel(to_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
+          SelectObject(to_hdc(actual_window), old_pen);
+          if (to_backup_hdc(actual_window) != 0) {
+            old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+            MoveToEx(to_backup_hdc(actual_window), (int) x + points[0].x, (int) y + points[0].y, NULL);
+            for (pos = 1; pos < numPoints; pos++) {
+              LineTo(to_backup_hdc(actual_window), (int) x + points[pos].x, (int) y + points[pos].y);
+            } /* for */
+            SetPixel(to_backup_hdc(actual_window), (int) x + points[numPoints - 1].x, (int) y + points[numPoints - 1].y, (COLORREF) col);
+            SelectObject(to_backup_hdc(actual_window), old_pen);
+          } /* if */
+          DeleteObject(current_pen);
         } /* if */
-        DeleteObject(current_pen);
       } /* if */
     } /* if */
   } /* drwPolyLine */
@@ -2085,36 +2105,46 @@ void drwFPolyLine (const_winType actual_window,
                        ", " FMT_U_MEM ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        (memSizeType) point_list, col););
-    points = (POINT *) point_list->mem;
-    numPoints = point_list->size / sizeof(POINT);
-    for (pos = 0; pos < numPoints; pos++) {
-      points[pos].x += (int) x;
-      points[pos].y += (int) y;
-    } /* for */
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    current_brush = CreateSolidBrush((COLORREF) col);
-    if (unlikely(current_pen == NULL || current_brush == NULL || numPoints > INT_MAX)) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(x < INT_MIN / 2 || x > INT_MAX / 2 ||
+                 y < INT_MIN / 2 || y > INT_MAX / 2)) {
+      logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_U_MEM ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      (memSizeType) point_list, col););
+      raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      Polygon(to_hdc(actual_window), points, (int) numPoints);
-      SelectObject(to_hdc(actual_window), old_pen);
-      SelectObject(to_hdc(actual_window), old_brush);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        Polygon(to_backup_hdc(actual_window), points, (int) numPoints);
-        SelectObject(to_backup_hdc(actual_window), old_pen);
-        SelectObject(to_backup_hdc(actual_window), old_brush);
+      points = (POINT *) point_list->mem;
+      numPoints = point_list->size / sizeof(POINT);
+      for (pos = 0; pos < numPoints; pos++) {
+        points[pos].x += (int) x;
+        points[pos].y += (int) y;
+      } /* for */
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      if (unlikely(current_pen == NULL || current_brush == NULL || numPoints > INT_MAX)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+        Polygon(to_hdc(actual_window), points, (int) numPoints);
+        SelectObject(to_hdc(actual_window), old_pen);
+        SelectObject(to_hdc(actual_window), old_brush);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          Polygon(to_backup_hdc(actual_window), points, (int) numPoints);
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SelectObject(to_backup_hdc(actual_window), old_brush);
+        } /* if */
+        DeleteObject(current_pen);
+        DeleteObject(current_brush);
       } /* if */
-      DeleteObject(current_pen);
-      DeleteObject(current_brush);
+      for (pos = 0; pos < numPoints; pos++) {
+        points[pos].x -= (int) x;
+        points[pos].y -= (int) y;
+      } /* for */
     } /* if */
-    for (pos = 0; pos < numPoints; pos++) {
-      points[pos].x -= (int) x;
-      points[pos].y -= (int) y;
-    } /* for */
   } /* drwFPolyLine */
 
 
