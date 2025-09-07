@@ -2029,8 +2029,10 @@ void drwPolyLine (const_winType actual_window,
     HPEN current_pen;
 
   /* drwPolyLine */
-    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
+    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       (memSizeType) point_list, col););
     points = (POINT *) point_list->mem;
     numPoints = point_list->size / sizeof(POINT);
     if (numPoints >= 2) {
@@ -2074,8 +2076,10 @@ void drwFPolyLine (const_winType actual_window,
     HBRUSH current_brush;
 
   /* drwFPolyLine */
-    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
+    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       (memSizeType) point_list, col););
     points = (POINT *) point_list->mem;
     numPoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < numPoints; pos++) {
@@ -2378,6 +2382,10 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
                       "raises RANGE_ERROR\n",
                       (memSizeType) actual_window, xPos, yPos););
       raise_error(RANGE_ERROR);
+    } else if (is_pixmap(actual_window)) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Window is pixmap\n",
+                      (memSizeType) actual_window, xPos, yPos););
     } else {
       SetWindowPos(to_hwnd(actual_window), 0, (int) (xPos), (int) (yPos), 0, 0,
           /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);

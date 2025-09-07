@@ -2015,7 +2015,7 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
                        (memSizeType) actual_window, closeAction););
     if (closeAction < 0 || closeAction > 2) {
       logError(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D "): "
-                      "Close action not in allowed range\n", 
+                      "Close action not in allowed range\n",
                       (memSizeType) actual_window, closeAction););
       raise_error(RANGE_ERROR);
     } else {
@@ -2818,6 +2818,11 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
       logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
                       "raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, xPos, yPos););
+      raise_error(RANGE_ERROR);
+    } else if (is_pixmap(actual_window)) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Window is pixmap\n",
                       (memSizeType) actual_window, xPos, yPos););
       raise_error(RANGE_ERROR);
     } else {
