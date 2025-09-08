@@ -999,26 +999,39 @@ void drwPFEllipse (const_winType actual_window,
                        ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        width, height, col););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
-        context.beginPath();
-        context.ellipse($1, $2, $3 / 2, $4 / 2, 0, 0, 2 * Math.PI);
-        context.fill();
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(actual_window), castToInt(x + width / 2), castToInt(y + height / 2),
-        castToInt(width), castToInt(height), (int) (col & 0xffffff));
-    if (unlikely(successInfo != 0)) {
+    if (unlikely(width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX ||
+                 x < INT_MIN || x > INT_MAX - width ||
+                 y < INT_MIN || y > INT_MAX - height)) {
       logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", " FMT_D ", " F_X(08) "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) actual_window, x, y, width, height, col,
-                      to_window(actual_window)););
-      raise_error(GRAPHIC_ERROR);
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
+          context.beginPath();
+          context.ellipse($1, $2, $3 / 2, $4 / 2, 0, 0, 2 * Math.PI);
+          context.fill();
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(actual_window), (int) (x + width / 2), (int) (y + height / 2),
+          (int) (width), (int) (height), (int) (col & 0xffffff));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, x, y,
+                        width, height, col,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPFEllipse */
 
