@@ -5570,12 +5570,12 @@ const proc: write_file_head is func
 
   begin
     writeln(c_prog, temp_marker);
-    writeln(c_prog, "#include <stdlib.h>");
-    writeln(c_prog, "#include <stdio.h>");
-    writeln(c_prog, "#include <string.h>");
-    writeln(c_prog, "#include <math.h>");
-    writeln(c_prog, "#include <setjmp.h>");
-    writeln(c_prog, "#include <signal.h>");
+    writeln(c_prog, "#include <stdlib.h>\n\
+                    \#include <stdio.h>\n\
+                    \#include <string.h>\n\
+                    \#include <math.h>\n\
+                    \#include <setjmp.h>\n\
+                    \#include <signal.h>");
     writeln(c_prog, "typedef short int          int16Type;");
     writeln(c_prog, "typedef unsigned short int uint16Type;");
     writeln(c_prog, "typedef " <& ccConf.INT32TYPE <& " int32Type;");
@@ -5651,192 +5651,192 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "} *bstriType;");
     writeln(c_prog, "typedef const struct bstriStruct  *const_bstriType;");
-    writeln(c_prog, "typedef struct fileStruct {");
-    writeln(c_prog, "  cFileType cFile;");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "} *fileType;");
+    writeln(c_prog, "typedef struct fileStruct {\n\
+                    \  cFileType cFile;\n\
+                    \  uintType usage_count;\n\
+                    \} *fileType;");
     writeln(c_prog, "typedef const struct fileStruct  *const_fileType;");
-    writeln(c_prog, "typedef struct setStruct {");
-    writeln(c_prog, "  intType min_position;");
-    writeln(c_prog, "  intType max_position;");
-    writeln(c_prog, "  bitSetType bitset[1];");
-    writeln(c_prog, "} *setType;");
+    writeln(c_prog, "typedef struct setStruct {\n\
+                    \  intType min_position;\n\
+                    \  intType max_position;\n\
+                    \  bitSetType bitset[1];\n\
+                    \} *setType;");
     writeln(c_prog, "typedef const struct setStruct  *const_setType;");
-    writeln(c_prog, "typedef struct {");
-    writeln(c_prog, "  int dummy;");
-    writeln(c_prog, "} bigIntRecord;");
+    writeln(c_prog, "typedef struct {\n\
+                    \  int dummy;\n\
+                    \} bigIntRecord;");
     writeln(c_prog, "typedef bigIntRecord *bigIntType;");
     writeln(c_prog, "typedef const bigIntRecord *const_bigIntType;");
-    writeln(c_prog, "typedef struct pollStruct {");
-    writeln(c_prog, "  int dummy;");
-    writeln(c_prog, "} *pollType;");
+    writeln(c_prog, "typedef struct pollStruct {\n\
+                    \  int dummy;\n\
+                    \} *pollType;");
     writeln(c_prog, "typedef const struct pollStruct *const_pollType;");
-    writeln(c_prog, "typedef struct winStruct {");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "} *winType;");
+    writeln(c_prog, "typedef struct winStruct {\n\
+                    \  uintType usage_count;\n\
+                    \} *winType;");
     writeln(c_prog, "typedef const struct winStruct *const_winType;");
-    writeln(c_prog, "typedef struct processStruct {");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "  fileType stdIn;");
-    writeln(c_prog, "  fileType stdOut;");
-    writeln(c_prog, "  fileType stdErr;");
-    writeln(c_prog, "} *processType;");
+    writeln(c_prog, "typedef struct processStruct {\n\
+                    \  uintType usage_count;\n\
+                    \  fileType stdIn;\n\
+                    \  fileType stdOut;\n\
+                    \  fileType stdErr;\n\
+                    \} *processType;");
     writeln(c_prog, "typedef const struct processStruct *const_processType;");
-    writeln(c_prog, "typedef struct databaseStruct {");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "} *databaseType;");
+    writeln(c_prog, "typedef struct databaseStruct {\n\
+                    \  uintType usage_count;\n\
+                    \} *databaseType;");
     writeln(c_prog, "typedef const struct databaseStruct *const_databaseType;");
-    writeln(c_prog, "typedef struct sqlStmtStruct {");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "} *sqlStmtType;");
+    writeln(c_prog, "typedef struct sqlStmtStruct {\n\
+                    \  uintType usage_count;\n\
+                    \} *sqlStmtType;");
     writeln(c_prog, "typedef const struct sqlStmtStruct *const_sqlStmtType;");
-    writeln(c_prog, "typedef struct progStruct {");
-    writeln(c_prog, "  uintType usage_count;");
-    writeln(c_prog, "} *progType;");
-    writeln(c_prog, "typedef const struct progStruct *const_progType;");
-    writeln(c_prog, "typedef struct typeStruct *typeType;");
-    writeln(c_prog, "typedef const struct typeStruct *const_typeType;");
-    writeln(c_prog, "typedef struct rtlArrayStruct *arrayType;");
-    writeln(c_prog, "typedef const struct rtlArrayStruct *const_arrayType;");
-    writeln(c_prog, "typedef struct rtlHashStruct *hashType;");
-    writeln(c_prog, "typedef const struct rtlHashStruct *const_hashType;");
-    writeln(c_prog, "typedef struct rtlStructStruct *structType;");
-    writeln(c_prog, "typedef const struct rtlStructStruct *const_structType;");
-    writeln(c_prog, "typedef struct rtlStructStruct *interfaceType;");
-    writeln(c_prog, "typedef const struct rtlStructStruct *const_interfaceType;");
-    writeln(c_prog, "typedef struct identStruct *identType;");
-    writeln(c_prog, "typedef const struct identStruct *const_identType;");
-    writeln(c_prog, "typedef struct entityStruct *entityType;");
-    writeln(c_prog, "typedef const struct entityStruct *const_entityType;");
-    writeln(c_prog, "typedef struct propertyStruct *propertyType;");
-    writeln(c_prog, "typedef const struct propertyStruct *const_propertyType;");
-    writeln(c_prog, "typedef struct objectStruct *objRefType;");
-    writeln(c_prog, "typedef const struct objectStruct *const_objRefType;");
-    writeln(c_prog, "typedef struct listStruct *listType;");
-    writeln(c_prog, "typedef const struct listStruct *const_listType;");
-    writeln(c_prog, "typedef objRefType (*actType) (listType);");
-    writeln(c_prog, "typedef int socketType;");
+    writeln(c_prog, "typedef struct progStruct {\n\
+                    \  uintType usage_count;\n\
+                    \} *progType;");
+    writeln(c_prog, "typedef const struct progStruct *const_progType;\n\
+                    \typedef struct typeStruct *typeType;\n\
+                    \typedef const struct typeStruct *const_typeType;\n\
+                    \typedef struct rtlArrayStruct *arrayType;\n\
+                    \typedef const struct rtlArrayStruct *const_arrayType;\n\
+                    \typedef struct rtlHashStruct *hashType;\n\
+                    \typedef const struct rtlHashStruct *const_hashType;\n\
+                    \typedef struct rtlStructStruct *structType;\n\
+                    \typedef const struct rtlStructStruct *const_structType;\n\
+                    \typedef struct rtlStructStruct *interfaceType;\n\
+                    \typedef const struct rtlStructStruct *const_interfaceType;\n\
+                    \typedef struct identStruct *identType;\n\
+                    \typedef const struct identStruct *const_identType;\n\
+                    \typedef struct entityStruct *entityType;\n\
+                    \typedef const struct entityStruct *const_entityType;\n\
+                    \typedef struct propertyStruct *propertyType;\n\
+                    \typedef const struct propertyStruct *const_propertyType;\n\
+                    \typedef struct objectStruct *objRefType;\n\
+                    \typedef const struct objectStruct *const_objRefType;\n\
+                    \typedef struct listStruct *listType;\n\
+                    \typedef const struct listStruct *const_listType;\n\
+                    \typedef objRefType (*actType) (listType);\n\
+                    \typedef int socketType;");
     writeln(c_prog, "typedef uint" <& ccConf.GENERIC_SIZE <& "Type genericType;");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  genericType   genericValue;");
-    writeln(c_prog, "  typeType      typeValue;");
-    writeln(c_prog, "  boolType      boolValue;");
-    writeln(c_prog, "  enumType      enumValue;");
-    writeln(c_prog, "  intType       intValue;");
-    writeln(c_prog, "  bigIntType    bigIntValue;");
-    writeln(c_prog, "  floatType     floatValue;");
-    writeln(c_prog, "  charType      charValue;");
-    writeln(c_prog, "  striType      striValue;");
-    writeln(c_prog, "  bstriType     bstriValue;");
-    writeln(c_prog, "  fileType      fileValue;");
-    writeln(c_prog, "  socketType    socketValue;");
-    writeln(c_prog, "  pollType      pollValue;");
-    writeln(c_prog, "  setType       setValue;");
-    writeln(c_prog, "  winType       winValue;");
-    writeln(c_prog, "  processType   processValue;");
-    writeln(c_prog, "  progType      progValue;");
-    writeln(c_prog, "  databaseType  databaseValue;");
-    writeln(c_prog, "  sqlStmtType   sqlStmtValue;");
-    writeln(c_prog, "  arrayType     arrayValue;");
-    writeln(c_prog, "  hashType      hashValue;");
-    writeln(c_prog, "  structType    structValue;");
-    writeln(c_prog, "  interfaceType interfaceValue;");
-    writeln(c_prog, "  objRefType    objRefValue;");
-    writeln(c_prog, "  listType      listValue;");
-    writeln(c_prog, "  actType       actValue;");
-    writeln(c_prog, "  ustriType     ustriValue;");
-    writeln(c_prog, "} rtlValueUnion;");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  genericType         genericValue;");
-    writeln(c_prog, "  const_typeType      typeValue;");
-    writeln(c_prog, "  boolType            boolValue;");
-    writeln(c_prog, "  enumType            enumValue;");
-    writeln(c_prog, "  intType             intValue;");
-    writeln(c_prog, "  const_bigIntType    bigIntValue;");
-    writeln(c_prog, "  floatType           floatValue;");
-    writeln(c_prog, "  charType            charValue;");
-    writeln(c_prog, "  const_striType      striValue;");
-    writeln(c_prog, "  const_bstriType     bstriValue;");
-    writeln(c_prog, "  fileType            fileValue;");
-    writeln(c_prog, "  socketType          socketValue;");
-    writeln(c_prog, "  const_pollType      pollValue;");
-    writeln(c_prog, "  const_setType       setValue;");
-    writeln(c_prog, "  const_winType       winValue;");
-    writeln(c_prog, "  const_processType   processValue;");
-    writeln(c_prog, "  const_progType      progValue;");
-    writeln(c_prog, "  const_arrayType     arrayValue;");
-    writeln(c_prog, "  const_hashType      hashValue;");
-    writeln(c_prog, "  const_structType    structValue;");
-    writeln(c_prog, "  const_interfaceType interfaceValue;");
-    writeln(c_prog, "  const_objRefType    objRefValue;");
-    writeln(c_prog, "  const_listType      listValue;");
-    writeln(c_prog, "  actType             actValue;");
-    writeln(c_prog, "} const_rtlValueUnion;");
-    writeln(c_prog, "typedef struct rtlObjectStruct {");
-    writeln(c_prog, "  rtlValueUnion value;");
-    writeln(c_prog, "} rtlObjectType;");
-    writeln(c_prog, "typedef const struct rtlObjectStruct const_rtlObjectType;");
-    writeln(c_prog, "typedef intType (*intfunctype)();");
-    writeln(c_prog, "typedef uint32Type posType;");
-    writeln(c_prog, "typedef unsigned int lineNumType;");
-    writeln(c_prog, "typedef unsigned int fileNumType;");
-    writeln(c_prog, "typedef int priorityType;");
-    writeln(c_prog, "typedef uint16Type categoryType;");
-    writeln(c_prog, "typedef struct identStruct {");
-    writeln(c_prog, "  ustriType name;");
-    writeln(c_prog, "  memSizeType length;");
-    writeln(c_prog, "  identType next1;");
-    writeln(c_prog, "  identType next2;");
-    writeln(c_prog, "  entityType entity;");
-    writeln(c_prog, "  void *prefix_token;");
-    writeln(c_prog, "  void *infix_token;");
-    writeln(c_prog, "  priorityType prefix_priority;");
-    writeln(c_prog, "  priorityType infix_priority;");
-    writeln(c_prog, "  priorityType left_token_priority;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "typedef struct entityStruct {");
-    writeln(c_prog, "  identType ident;");
-    writeln(c_prog, "  objRefType syobject;");
-    writeln(c_prog, "  listType fparam_list;");
-    writeln(c_prog, "  union {");
-    writeln(c_prog, "    void *owner;");
-    writeln(c_prog, "    entityType next;");
-    writeln(c_prog, "  } data;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "typedef struct propertyStruct {");
-    writeln(c_prog, "  entityType entity;");
-    writeln(c_prog, "  void *params;");
-    writeln(c_prog, "  fileNumType file_number;");
-    writeln(c_prog, "  lineNumType line;");
-    writeln(c_prog, "  unsigned int syNumberInLine;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  propertyType property;");
-    writeln(c_prog, "  posType posinfo;");
-    writeln(c_prog, "} descriptorUnion;");
-    writeln(c_prog, "struct objectStruct {");
-    writeln(c_prog, "  typeType type_of;");
-    writeln(c_prog, "  descriptorUnion descriptor;");
-    writeln(c_prog, "  rtlValueUnion value;");
-    writeln(c_prog, "  categoryType objcategory;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "struct typeStruct {");
-    writeln(c_prog, "  objRefType match_obj;");
-    writeln(c_prog, "  typeType meta;");
-    writeln(c_prog, "  typeType func_type;");
-    writeln(c_prog, "  typeType varfunc_type;");
-    writeln(c_prog, "  typeType result_type;");
-    writeln(c_prog, "  boolType is_varfunc_type;");
-    writeln(c_prog, "  boolType is_type_type;");
-    writeln(c_prog, "  int in_param_type;");
-    writeln(c_prog, "  void *interfaces;");
-    writeln(c_prog, "  const_identType name;");
-    writeln(c_prog, "  progType owningProg;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "struct listStruct {");
-    writeln(c_prog, "  listType next;");
-    writeln(c_prog, "  objRefType obj;");
-    writeln(c_prog, "};");
+    writeln(c_prog, "typedef union {\n\
+                    \  genericType   genericValue;\n\
+                    \  typeType      typeValue;\n\
+                    \  boolType      boolValue;\n\
+                    \  enumType      enumValue;\n\
+                    \  intType       intValue;\n\
+                    \  bigIntType    bigIntValue;\n\
+                    \  floatType     floatValue;\n\
+                    \  charType      charValue;\n\
+                    \  striType      striValue;\n\
+                    \  bstriType     bstriValue;\n\
+                    \  fileType      fileValue;\n\
+                    \  socketType    socketValue;\n\
+                    \  pollType      pollValue;\n\
+                    \  setType       setValue;\n\
+                    \  winType       winValue;\n\
+                    \  processType   processValue;\n\
+                    \  progType      progValue;\n\
+                    \  databaseType  databaseValue;\n\
+                    \  sqlStmtType   sqlStmtValue;\n\
+                    \  arrayType     arrayValue;\n\
+                    \  hashType      hashValue;\n\
+                    \  structType    structValue;\n\
+                    \  interfaceType interfaceValue;\n\
+                    \  objRefType    objRefValue;\n\
+                    \  listType      listValue;\n\
+                    \  actType       actValue;\n\
+                    \  ustriType     ustriValue;\n\
+                    \} rtlValueUnion;");
+    writeln(c_prog, "typedef union {\n\
+                    \  genericType         genericValue;\n\
+                    \  const_typeType      typeValue;\n\
+                    \  boolType            boolValue;\n\
+                    \  enumType            enumValue;\n\
+                    \  intType             intValue;\n\
+                    \  const_bigIntType    bigIntValue;\n\
+                    \  floatType           floatValue;\n\
+                    \  charType            charValue;\n\
+                    \  const_striType      striValue;\n\
+                    \  const_bstriType     bstriValue;\n\
+                    \  fileType            fileValue;\n\
+                    \  socketType          socketValue;\n\
+                    \  const_pollType      pollValue;\n\
+                    \  const_setType       setValue;\n\
+                    \  const_winType       winValue;\n\
+                    \  const_processType   processValue;\n\
+                    \  const_progType      progValue;\n\
+                    \  const_arrayType     arrayValue;\n\
+                    \  const_hashType      hashValue;\n\
+                    \  const_structType    structValue;\n\
+                    \  const_interfaceType interfaceValue;\n\
+                    \  const_objRefType    objRefValue;\n\
+                    \  const_listType      listValue;\n\
+                    \  actType             actValue;\n\
+                    \} const_rtlValueUnion;");
+    writeln(c_prog, "typedef struct rtlObjectStruct {\n\
+                    \  rtlValueUnion value;\n\
+                    \} rtlObjectType;");
+    writeln(c_prog, "typedef const struct rtlObjectStruct const_rtlObjectType;\n\
+                    \typedef intType (*intfunctype)();\n\
+                    \typedef uint32Type posType;\n\
+                    \typedef unsigned int lineNumType;\n\
+                    \typedef unsigned int fileNumType;\n\
+                    \typedef int priorityType;\n\
+                    \typedef uint16Type categoryType;");
+    writeln(c_prog, "typedef struct identStruct {\n\
+                    \  ustriType name;\n\
+                    \  memSizeType length;\n\
+                    \  identType next1;\n\
+                    \  identType next2;\n\
+                    \  entityType entity;\n\
+                    \  void *prefix_token;\n\
+                    \  void *infix_token;\n\
+                    \  priorityType prefix_priority;\n\
+                    \  priorityType infix_priority;\n\
+                    \  priorityType left_token_priority;\n\
+                    \};");
+    writeln(c_prog, "typedef struct entityStruct {\n\
+                    \  identType ident;\n\
+                    \  objRefType syobject;\n\
+                    \  listType fparam_list;\n\
+                    \  union {\n\
+                    \    void *owner;\n\
+                    \    entityType next;\n\
+                    \  } data;\n\
+                    \};");
+    writeln(c_prog, "typedef struct propertyStruct {\n\
+                    \  entityType entity;\n\
+                    \  void *params;\n\
+                    \  fileNumType file_number;\n\
+                    \  lineNumType line;\n\
+                    \  unsigned int syNumberInLine;\n\
+                    \};");
+    writeln(c_prog, "typedef union {\n\
+                    \  propertyType property;\n\
+                    \  posType posinfo;\n\
+                    \} descriptorUnion;");
+    writeln(c_prog, "struct objectStruct {\n\
+                    \  typeType type_of;\n\
+                    \  descriptorUnion descriptor;\n\
+                    \  rtlValueUnion value;\n\
+                    \  categoryType objcategory;\n\
+                    \};");
+    writeln(c_prog, "struct typeStruct {\n\
+                    \  objRefType match_obj;\n\
+                    \  typeType meta;\n\
+                    \  typeType func_type;\n\
+                    \  typeType varfunc_type;\n\
+                    \  typeType result_type;\n\
+                    \  boolType is_varfunc_type;\n\
+                    \  boolType is_type_type;\n\
+                    \  int in_param_type;\n\
+                    \  void *interfaces;\n\
+                    \  const_identType name;\n\
+                    \  progType owningProg;\n\
+                    \};");
+    writeln(c_prog, "struct listStruct {\n\
+                    \  listType next;\n\
+                    \  objRefType obj;\n\
+                    \};");
     writeln(c_prog, "struct rtlArrayStruct {");
     writeln(c_prog, "  intType min_position;");
     writeln(c_prog, "  intType max_position;");
@@ -5845,42 +5845,42 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "  rtlObjectType arr[1];");
     writeln(c_prog, "};");
-    writeln(c_prog, "struct rtlStructStruct {");
-    writeln(c_prog, "  memSizeType usage_count;");
-    writeln(c_prog, "  uint32Type type_num;");
-    writeln(c_prog, "  rtlObjectType stru[1];");
-    writeln(c_prog, "};");
-    writeln(c_prog, "typedef struct freeListElemStruct {");
-    writeln(c_prog, "  struct freeListElemStruct *next;");
-    writeln(c_prog, "} *freeListElemType;");
+    writeln(c_prog, "struct rtlStructStruct {\n\
+                    \  memSizeType usage_count;\n\
+                    \  uint32Type type_num;\n\
+                    \  rtlObjectType stru[1];\n\
+                    \};");
+    writeln(c_prog, "typedef struct freeListElemStruct {\n\
+                    \  struct freeListElemStruct *next;\n\
+                    \} *freeListElemType;");
     writeln(c_prog, "typedef struct rtlHashElemStruct *hashElemType;");
     writeln(c_prog, "typedef const struct rtlHashElemStruct *const_hashElemType;");
     writeln(c_prog, "typedef struct rtlHashElemStruct *const hashElemType_const;");
-    writeln(c_prog, "struct rtlHashElemStruct {");
-    writeln(c_prog, "  hashElemType next_less;");
-    writeln(c_prog, "  hashElemType next_greater;");
-    writeln(c_prog, "  rtlObjectType key;");
-    writeln(c_prog, "  rtlObjectType data;");
-    writeln(c_prog, "};");
-    writeln(c_prog, "struct rtlHashStruct {");
-    writeln(c_prog, "  unsigned int bits;");
-    writeln(c_prog, "  unsigned int mask;");
-    writeln(c_prog, "  unsigned int table_size;");
-    writeln(c_prog, "  memSizeType size;");
-    writeln(c_prog, "  hashElemType table[1];");
-    writeln(c_prog, "};");
-    writeln(c_prog, "typedef struct hashElemListStruct {");
-    writeln(c_prog, "  struct hashElemListStruct *next;");
-    writeln(c_prog, "  hashElemType obj;");
-    writeln(c_prog, "} *hashElemListType;");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  uint32Type bits;");
-    writeln(c_prog, "  float aFloat;");
-    writeln(c_prog, "} float2BitsUnion;");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  uint64Type bits;");
-    writeln(c_prog, "  double aDouble;");
-    writeln(c_prog, "} double2BitsUnion;");
+    writeln(c_prog, "struct rtlHashElemStruct {\n\
+                    \  hashElemType next_less;\n\
+                    \  hashElemType next_greater;\n\
+                    \  rtlObjectType key;\n\
+                    \  rtlObjectType data;\n\
+                    \};");
+    writeln(c_prog, "struct rtlHashStruct {\n\
+                    \  unsigned int bits;\n\
+                    \  unsigned int mask;\n\
+                    \  unsigned int table_size;\n\
+                    \  memSizeType size;\n\
+                    \  hashElemType table[1];\n\
+                    \};");
+    writeln(c_prog, "typedef struct hashElemListStruct {\n\
+                    \  struct hashElemListStruct *next;\n\
+                    \  hashElemType obj;\n\
+                    \} *hashElemListType;");
+    writeln(c_prog, "typedef union {\n\
+                    \  uint32Type bits;\n\
+                    \  float aFloat;\n\
+                    \} float2BitsUnion;");
+    writeln(c_prog, "typedef union {\n\
+                    \  uint64Type bits;\n\
+                    \  double aDouble;\n\
+                    \} double2BitsUnion;");
     writeln(c_prog, "typedef intType (*hashCodeFuncType) (genericType);");
     writeln(c_prog, "typedef intType (*compareType) (genericType, genericType);");
     writeln(c_prog, "typedef genericType (*createFuncType) (genericType);");
@@ -5953,48 +5953,48 @@ const proc: write_file_head is func
     writeln(c_prog, "extern struct fileStruct stdoutFileRecord;");
     writeln(c_prog, "extern struct fileStruct stderrFileRecord;");
     writeln(c_prog, "typedef int errInfoType;");
-    writeln(c_prog, "#define OKAY_NO_ERROR   0");
-    writeln(c_prog, "#define MEMORY_ERROR    1");
-    writeln(c_prog, "#define NUMERIC_ERROR   2");
-    writeln(c_prog, "#define OVERFLOW_ERROR  3");
-    writeln(c_prog, "#define RANGE_ERROR     4");
-    writeln(c_prog, "#define INDEX_ERROR     5");
-    writeln(c_prog, "#define FILE_ERROR      6");
-    writeln(c_prog, "#define DATABSE_ERROR   7");
-    writeln(c_prog, "#define GRAPHIC_ERROR   8");
-    writeln(c_prog, "#define ACTION_ERROR    9");
-    writeln(c_prog, "#define CREATE_ERROR   10");
-    writeln(c_prog, "#define DESTROY_ERROR  11");
-    writeln(c_prog, "#define COPY_ERROR     12");
-    writeln(c_prog, "#define IN_ERROR       13");
+    writeln(c_prog, "#define OKAY_NO_ERROR   0\n\
+                    \#define MEMORY_ERROR    1\n\
+                    \#define NUMERIC_ERROR   2\n\
+                    \#define OVERFLOW_ERROR  3\n\
+                    \#define RANGE_ERROR     4\n\
+                    \#define INDEX_ERROR     5\n\
+                    \#define FILE_ERROR      6\n\
+                    \#define DATABSE_ERROR   7\n\
+                    \#define GRAPHIC_ERROR   8\n\
+                    \#define ACTION_ERROR    9\n\
+                    \#define CREATE_ERROR   10\n\
+                    \#define DESTROY_ERROR  11\n\
+                    \#define COPY_ERROR     12\n\
+                    \#define IN_ERROR       13");
     writeln(c_prog, ccConf.MACRO_DEFS);
     writeln(c_prog, "#define ovfChk(x) unlikely(x)");
     writeln(c_prog, "#define divChk(x) unlikely(x)");
     writeln(c_prog, "#define numChk(x) unlikely(x)");
     writeln(c_prog, "#define idxChk(x) unlikely(x)");
     writeln(c_prog, "#define rngChk(x) unlikely(x)");
-    writeln(c_prog, "#define push_stack(stack,elem) \\");
-    writeln(c_prog, "{\\");
-    writeln(c_prog, "  hashElemListType new_head = (hashElemListType)(malloc(sizeof(struct hashElemListStruct)));\\");
-    writeln(c_prog, "  if (new_head == NULL) {\\");
-    writeln(c_prog, "    raiseError(MEMORY_ERROR);\\");
-    writeln(c_prog, "  } else {\\");
-    writeln(c_prog, "    new_head->next = stack;\\");
-    writeln(c_prog, "    new_head->obj = elem;\\");
-    writeln(c_prog, "    stack = new_head;\\");
-    writeln(c_prog, "  }\\");
-    writeln(c_prog, "}");
-    writeln(c_prog, "#define pop_stack(stack,elem) \\");
-    writeln(c_prog, "{\\");
-    writeln(c_prog, "  hashElemListType old_head = stack;\\");
-    writeln(c_prog, "  if (old_head == NULL) {\\");
-    writeln(c_prog, "    elem = NULL;\\");
-    writeln(c_prog, "  } else {\\");
-    writeln(c_prog, "    stack = old_head->next;\\");
-    writeln(c_prog, "    elem = old_head->obj;\\");
-    writeln(c_prog, "    free(old_head);\\");
-    writeln(c_prog, "  }\\");
-    writeln(c_prog, "}");
+    writeln(c_prog, "#define push_stack(stack,elem) \\\n\
+                    \{\\\n\
+                    \  hashElemListType new_head = (hashElemListType)(malloc(sizeof(struct hashElemListStruct)));\\\n\
+                    \  if (new_head == NULL) {\\\n\
+                    \    raiseError(MEMORY_ERROR);\\\n\
+                    \  } else {\\\n\
+                    \    new_head->next = stack;\\\n\
+                    \    new_head->obj = elem;\\\n\
+                    \    stack = new_head;\\\n\
+                    \  }\\\n\
+                    \}");
+    writeln(c_prog, "#define pop_stack(stack,elem) \\\n\
+                    \{\\\n\
+                    \  hashElemListType old_head = stack;\\\n\
+                    \  if (old_head == NULL) {\\\n\
+                    \    elem = NULL;\\\n\
+                    \  } else {\\\n\
+                    \    stack = old_head->next;\\\n\
+                    \    elem = old_head->obj;\\\n\
+                    \    free(old_head);\\\n\
+                    \  }\\\n\
+                    \}");
     if ccConf.HAS_SIGSETJMP then
       writeln(c_prog, "#define do_setjmp(jump_buf) sigsetjmp(jump_buf, 1)");
       writeln(c_prog, "typedef sigjmp_buf catch_type;");
@@ -6013,37 +6013,37 @@ const proc: write_file_head is func
     if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
       writeln(c_prog, "static unsigned int profile_size;");
-      writeln(c_prog, "struct profileElement {");
-      writeln(c_prog, "  intType time;");
-      writeln(c_prog, "  intType count;");
-      writeln(c_prog, "  intType depth;");
-      writeln(c_prog, "  char *file;");
-      writeln(c_prog, "  intType line;");
-      writeln(c_prog, "  char *name;");
-      writeln(c_prog, "};");
+      writeln(c_prog, "struct profileElement {\n\
+                      \  intType time;\n\
+                      \  intType count;\n\
+                      \  intType depth;\n\
+                      \  char *file;\n\
+                      \  intType line;\n\
+                      \  char *name;\n\
+                      \};");
       writeln(c_prog, "static struct profileElement *profile;");
       writeln(c_prog, "static void initProfile (void);");
-      writeln(c_prog, "static int cmpProfileElement (const void *elem1, const void *elem2)");
-      writeln(c_prog, "{");
-      writeln(c_prog, "  int signumValue;");
-      writeln(c_prog, "  if (((struct profileElement *) elem1)->time <");
-      writeln(c_prog, "      ((struct profileElement *) elem2)->time) {");
-      writeln(c_prog, "    signumValue = 1;");
-      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->time >");
-      writeln(c_prog, "             ((struct profileElement *) elem2)->time) {");
-      writeln(c_prog, "    signumValue = -1;");
-      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->count <");
-      writeln(c_prog, "             ((struct profileElement *) elem2)->count) {");
-      writeln(c_prog, "    signumValue = 1;");
-      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->count >");
-      writeln(c_prog, "             ((struct profileElement *) elem2)->count) {");
-      writeln(c_prog, "    signumValue = -1;");
-      writeln(c_prog, "  } else {");
-      writeln(c_prog, "    signumValue = strcmp(((struct profileElement *) elem1)->name,");
-      writeln(c_prog, "                         ((struct profileElement *) elem2)->name);");
-      writeln(c_prog, "  }");
-      writeln(c_prog, "  return signumValue;");
-      writeln(c_prog, "}");
+      writeln(c_prog, "static int cmpProfileElement (const void *elem1, const void *elem2)\n\
+                      \{\n\
+                      \  int signumValue;\n\
+                      \  if (((struct profileElement *) elem1)->time <\n\
+                      \      ((struct profileElement *) elem2)->time) {\n\
+                      \    signumValue = 1;\n\
+                      \  } else if (((struct profileElement *) elem1)->time >\n\
+                      \             ((struct profileElement *) elem2)->time) {\n\
+                      \    signumValue = -1;\n\
+                      \  } else if (((struct profileElement *) elem1)->count <\n\
+                      \             ((struct profileElement *) elem2)->count) {\n\
+                      \    signumValue = 1;\n\
+                      \  } else if (((struct profileElement *) elem1)->count >\n\
+                      \             ((struct profileElement *) elem2)->count) {\n\
+                      \    signumValue = -1;\n\
+                      \  } else {\n\
+                      \    signumValue = strcmp(((struct profileElement *) elem1)->name,\n\
+                      \                         ((struct profileElement *) elem2)->name);\n\
+                      \  }\n\
+                      \  return signumValue;\n\
+                      \}");
     end if;
   end func;
 
