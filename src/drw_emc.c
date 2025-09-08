@@ -830,26 +830,35 @@ void drwPCircle (const_winType actual_window,
     logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        context.lineWidth=1;
-        context.strokeStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
-        context.beginPath();
-        context.arc($1, $2, $3, 0, 2 * Math.PI);
-        context.stroke();
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(actual_window), castToInt(x), castToInt(y),
-        castToInt(radius), (int) (col & 0xffffff));
-    if (unlikely(successInfo != 0)) {
-      logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) actual_window, x, y, radius, col,
-                      to_window(actual_window)););
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 radius <= 0 || radius > INT_MAX)) {
+      logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, radius, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          context.lineWidth=1;
+          context.strokeStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
+          context.beginPath();
+          context.arc($1, $2, $3, 0, 2 * Math.PI);
+          context.stroke();
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(actual_window), (int) (x), (int) (y),
+          (int) (radius), (int) (col & 0xffffff));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " FMT_D ", " F_X(08) "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, x, y, radius, col,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPCircle */
 
