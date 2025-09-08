@@ -1126,25 +1126,33 @@ intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
   /* drwGetPixel */
     logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sourceWindow, x, y););
-    col = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        let canvasColor = context.getImageData(x, y, 1, 1).data; // rgba e [0,255]
-        let r = canvasColor[0];
-        let g = canvasColor[1];
-        let b = canvasColor[2];
-        return canvasColor[0] << 16 | canvasColor[1] << 8 | canvasColor[2]
-      } else {
-        return -1;
-      }
-    }, to_window(sourceWindow), castToInt(x), castToInt(y));
-    if (unlikely(col == -1)) {
-      logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
-                         "windowId not found: %d\n",
-                         (memSizeType) sourceWindow, x, y,
-                         to_window(sourceWindow)););
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) sourceWindow, x, y););
+      raise_error(RANGE_ERROR);
       col = 0;
+    } else {
+      col = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          let canvasColor = context.getImageData(x, y, 1, 1).data; // rgba e [0,255]
+          let r = canvasColor[0];
+          let g = canvasColor[1];
+          let b = canvasColor[2];
+          return canvasColor[0] << 16 | canvasColor[1] << 8 | canvasColor[2]
+        } else {
+          return -1;
+        }
+      }, to_window(sourceWindow), (int) (x), (int) (y));
+      if (unlikely(col == -1)) {
+        logError(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) sourceWindow, x, y,
+                        to_window(sourceWindow)););
+        raise_error(GRAPHIC_ERROR);
+        col = 0;
+      } /* if */
     } /* if */
     logFunction(printf("drwGetPixel --> " F_X(08) "\n", (intType) col););
     return (intType) col;
