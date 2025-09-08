@@ -369,6 +369,8 @@ intType getWindowLeftPos (const const_winType aWindow)
     logFunction(printf("getWindowLeftPos(" FMT_U_MEM ")\n",
                        (memSizeType) aWindow););
     if (is_pixmap(aWindow)) {
+      logError(printf("getWindowLeftPos(" FMT_U_MEM "): Window is pixmap\n",
+                      (memSizeType) aWindow););
       raise_error(RANGE_ERROR);
       xPos = 0;
     } else if (is_tab(aWindow)) {
@@ -419,6 +421,8 @@ intType getWindowTopPos (const const_winType aWindow)
     logFunction(printf("getWindowTopPos(" FMT_U_MEM ")\n",
                        (memSizeType) aWindow););
     if (is_pixmap(aWindow)) {
+      logError(printf("getWindowTopPos(" FMT_U_MEM "): Window is pixmap\n",
+                      (memSizeType) aWindow););
       raise_error(RANGE_ERROR);
       yPos = 0;
     } else if (is_tab(aWindow)) {
@@ -575,9 +579,11 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
         castToInt(width), (width & 1) != 0, (int) (col & 0xffffff));
     if (unlikely(successInfo != 0)) {
       logError(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", %.4f, %.4f, " FMT_D ", " F_X(08) "): windowId not found: %d\n",
+                      ", %.4f, %.4f, " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
                       (memSizeType) actual_window, x, y, radius,
-                      startAngle, sweepAngle, width, col, to_window(actual_window)););
+                      startAngle, sweepAngle, width, col,
+                      to_window(actual_window)););
       raise_error(GRAPHIC_ERROR);
     } /* if */
   } /* drwPFArc */
@@ -591,8 +597,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     int successInfo;
 
   /* drwPFArcChord */
-    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " F_X(08) ")\n",
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
     if (sweepAngle < 0.0) {
@@ -615,10 +621,12 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle,
         (int) (col & 0xffffff));
     if (unlikely(successInfo != 0)) {
-      logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", %.4f, %.4f, " F_X(08) "): windowId not found: %d\n",
+      logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
+                      "windowId not found: %d\n",
                       (memSizeType) actual_window, x, y, radius,
-                      startAngle, sweepAngle, col, to_window(actual_window)););
+                      startAngle, sweepAngle, col,
+                      to_window(actual_window)););
       raise_error(GRAPHIC_ERROR);
     } /* if */
   } /* drwPFArcChord */
@@ -632,8 +640,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     int successInfo;
 
   /* drwPFArcPieSlice */
-    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " F_X(08) ")\n",
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", %.4f, %.4f, " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, col););
     if (sweepAngle < 0.0) {
@@ -657,10 +665,12 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle,
         (int) (col & 0xffffff));
     if (unlikely(successInfo != 0)) {
-      logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", %.4f, %.4f, " F_X(08) "): windowId not found: %d\n",
+      logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
+                      "windowId not found: %d\n",
                       (memSizeType) actual_window, x, y, radius,
-                      startAngle, sweepAngle, col, to_window(actual_window)););
+                      startAngle, sweepAngle, col,
+                      to_window(actual_window)););
       raise_error(GRAPHIC_ERROR);
     } /* if */
   } /* drwPFArcPieSlice */
@@ -683,6 +693,8 @@ rtlArrayType drwBorder (const_winType actual_window)
     logFunction(printf("drwBorder(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
     if (is_pixmap(actual_window)) {
+      logError(printf("drwBorder(" FMT_U_MEM "): Window is pixmap\n",
+                      (memSizeType) actual_window););
       raise_error(RANGE_ERROR);
       border = NULL;
     } else {
@@ -739,7 +751,8 @@ void drwPCircle (const_winType actual_window,
     int successInfo;
 
   /* drwPCircle */
-    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
@@ -805,13 +818,19 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
 
   /* drwCopyArea */
     logFunction(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
-                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", " FMT_D ")\n",
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
     if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  !inIntRange(dest_x) || !inIntRange(dest_y) ||
                  width < 1 || height < 1)) {
+      logError(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
+                      FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " FMT_D "): Raises RANGE_ERROR\n",
+                      (memSizeType) src_window, (memSizeType) dest_window,
+                      src_x, src_y, width, height, dest_x, dest_y););
       raise_error(RANGE_ERROR);
     } else {
       successInfo = EM_ASM_INT({
@@ -829,8 +848,8 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
         castToInt(width), castToInt(height), castToInt(dest_x), castToInt(dest_y));
       if (unlikely(successInfo != 0)) {
         logError(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
-                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
-                        "windowId not found: %d or %d\n",
+                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                        ", " FMT_D "): windowId not found: %d or %d\n",
                         (memSizeType) src_window, (memSizeType) dest_window,
                         src_x, src_y, width, height, dest_x, dest_y,
                         to_window(src_window), to_window(dest_window)););
@@ -848,7 +867,8 @@ void drwPFCircle (const_winType actual_window,
     int successInfo;
 
   /* drwPFCircle */
-    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
@@ -881,9 +901,10 @@ void drwPFEllipse (const_winType actual_window,
     int successInfo;
 
   /* drwPFEllipse */
-    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, width, height, col););
+    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       width, height, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
@@ -898,8 +919,9 @@ void drwPFEllipse (const_winType actual_window,
     }, to_window(actual_window), castToInt(x + width / 2), castToInt(y + height / 2),
         castToInt(width), castToInt(height), (int) (col & 0xffffff));
     if (unlikely(successInfo != 0)) {
-      logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
-                      ", " F_X(08) "): windowId not found: %d\n",
+      logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
                       (memSizeType) actual_window, x, y, width, height, col,
                       to_window(actual_window)););
       raise_error(GRAPHIC_ERROR);
@@ -1054,11 +1076,17 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
     emc_winType pixmap = NULL;
 
   /* drwGetPixmap */
-    logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) sourceWindow, left, upper, width, height););
+    logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) sourceWindow, left, upper,
+                       width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
+      logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D "): Raises RANGE_ERROR\n",
+                      (memSizeType) sourceWindow, left, upper,
+                      width, height););
       raise_error(RANGE_ERROR);
     } else {
 
@@ -1081,9 +1109,10 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
           castToInt(width), castToInt(height));
 
       if (unlikely(windowId == 0)) {
-        logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
-                        "): Failed to get pixmap.\n",
-                        (memSizeType) sourceWindow, left, upper, width, height););
+        logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " FMT_D ", " FMT_D "): Failed to get pixmap.\n",
+                        (memSizeType) sourceWindow, left, upper,
+                        width, height););
         raise_error(GRAPHIC_ERROR);
       } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
@@ -1141,6 +1170,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
                        width, height, hasAlphaChannel););
     if (unlikely(width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
+      logError(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d): "
+                      "Raises RANGE_ERROR\n",
+                      width, height, hasAlphaChannel););
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else {
@@ -1183,8 +1215,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
       }, (int *) image_data, (int) width, (int) height, (int) hasAlphaChannel);
 
       if (unlikely(windowId == 0)) {
-        logError(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM
-                        "): Failed to create pixmap.\n", width, height););
+        logError(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ", %d): "
+                        "Failed to create pixmap.\n",
+                        width, height, hasAlphaChannel););
         raise_error(GRAPHIC_ERROR);
       } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
@@ -1220,8 +1253,10 @@ void drwPLine (const_winType actual_window,
     int successInfo;
 
   /* drwPLine */
-    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x1, y1, x2, y2, col););
+    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x1, y1,
+                       x2, y2, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
@@ -1260,9 +1295,13 @@ winType drwNewPixmap (intType width, intType height)
     emc_winType pixmap = NULL;
 
   /* drwNewPixmap */
-    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
+    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n",
+                       width, height););
     if (unlikely(!inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
+      logError(printf("drwNewPixmap(" FMT_D ", " FMT_D "): "
+                      "Raises RANGE_ERROR\n",
+                      width, height););
       raise_error(RANGE_ERROR);
     } else {
 
@@ -2014,6 +2053,9 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
     logFunction(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) actual_window, closeAction););
     if (closeAction < 0 || closeAction > 2) {
+      logError(printf("drwSetCloseAction(" FMT_U_MEM ", " FMT_D "): "
+                      "Close action not in allowed range\n",
+                      (memSizeType) actual_window, closeAction););
       raise_error(RANGE_ERROR);
     } else {
       to_var_close_action(actual_window) = (int) closeAction;
@@ -2042,7 +2084,8 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
     int successInfo;
 
   /* drwPPoint */
-    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
@@ -2108,6 +2151,9 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
                        xyArray->min_position, xyArray->max_position););
     num_elements = arraySize(xyArray);
     if (unlikely(num_elements & 1)) {
+      logError(printf("drwGenPointList(" FMT_D " .. " FMT_D "): "
+                      "Number of elements odd\n",
+                      xyArray->min_position, xyArray->max_position););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -2151,9 +2197,16 @@ void drwPolyLine (const_winType actual_window,
     int successInfo;
 
   /* drwPolyLine */
-    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
+    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       (memSizeType) point_list, col););
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_U_MEM ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      (memSizeType) point_list, col););
       raise_error(RANGE_ERROR);
     } else {
       coords = (int *) point_list->mem;
@@ -2177,9 +2230,11 @@ void drwPolyLine (const_winType actual_window,
         }, to_window(actual_window), (int) x, (int) y, numCoords, (int) coords,
             (int) (col & 0xffffff));
         if (unlikely(successInfo != 0)) {
-          logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
+          logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                          ", " FMT_U_MEM ", " F_X(08) "): "
                           "windowId not found: %d\n",
-                          (memSizeType) actual_window, x, y, (memSizeType) point_list, col,
+                          (memSizeType) actual_window, x, y,
+                          (memSizeType) point_list, col,
                           to_window(actual_window)););
           raise_error(GRAPHIC_ERROR);
         } /* if */
@@ -2198,9 +2253,16 @@ void drwFPolyLine (const_winType actual_window,
     int successInfo;
 
   /* drwFPolyLine */
-    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
+    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       (memSizeType) point_list, col););
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_U_MEM ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      (memSizeType) point_list, col););
       raise_error(RANGE_ERROR);
     } else {
       coords = (int *) point_list->mem;
@@ -2224,9 +2286,11 @@ void drwFPolyLine (const_winType actual_window,
         }, to_window(actual_window), (int) x, (int) y, numCoords, (int) coords,
             (int) (col & 0xffffff));
         if (unlikely(successInfo != 0)) {
-          logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
+          logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                          ", " FMT_U_MEM ", " F_X(08) "): "
                           "windowId not found: %d\n",
-                          (memSizeType) actual_window, x, y, (memSizeType) point_list, col,
+                          (memSizeType) actual_window, x, y,
+                          (memSizeType) point_list, col,
                           to_window(actual_window)););
           raise_error(GRAPHIC_ERROR);
         } /* if */
@@ -2250,6 +2314,10 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
                        xDest, yDest, (memSizeType) pixmap,
                        pixmap != NULL ? to_window(pixmap) : 0););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest))) {
+      logError(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_U_MEM "): Raises RANGE_ERROR\n",
+                      (memSizeType) destWindow, xDest, yDest,
+                      (memSizeType) pixmap););
       raise_error(RANGE_ERROR);
     } else if (pixmap != NULL && to_window(pixmap) != 0) {
       /* A pixmap value of NULL or a pixmap with a window of 0 */
@@ -2305,6 +2373,11 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
                  !inIntRange(width) || width < 0 ||
                  !inIntRange(height) || height < 0)) {
+      logError(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " FMT_U_MEM"): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) destWindow, xDest, yDest,
+                      width, height, (memSizeType) pixmap););
       raise_error(RANGE_ERROR);
     } else if (pixmap != NULL && to_window(pixmap) != 0) {
       /* A pixmap value of NULL or a pixmap with a window of 0 */
@@ -2352,8 +2425,10 @@ void drwPRect (const_winType actual_window,
     int successInfo;
 
   /* drwPRect */
-    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-                       (memSizeType) actual_window, x, y, width, height, col););
+    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       width, height, col););
     successInfo = EM_ASM_INT({
       if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
@@ -2473,8 +2548,14 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
                        (memSizeType) actual_window, to_window(actual_window),
                        xPos, yPos););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, xPos, yPos););
       raise_error(RANGE_ERROR);
     } else if (is_pixmap(actual_window)) {
+      logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Window is pixmap\n",
+                      (memSizeType) actual_window, xPos, yPos););
       raise_error(RANGE_ERROR);
     } else {
       if (is_subwindow(actual_window)) {
@@ -2640,11 +2721,16 @@ void drwText (const_winType actual_window, intType x, intType y,
     int successInfo;
 
   /* drwText */
-    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", \"%s\", "
-                       F_X(08) ", " F_X(08) ")\n",
+    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                       ", \"%s\", " F_X(08) ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        striAsUnquotedCStri(stri), col, bkcol););
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", \"%s\", " F_X(08) ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      striAsUnquotedCStri(stri), col, bkcol););
       raise_error(RANGE_ERROR);
     } else {
       stri8 = stri_to_cstri8(stri, &err_info);
@@ -2672,8 +2758,9 @@ void drwText (const_winType actual_window, intType x, intType y,
             (int) (col & 0xffffff), (int) (bkcol & 0xffffff));
         free_cstri8(stri8, stri);
         if (unlikely(successInfo != 0)) {
-          logError(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", \"%s\", "
-                          F_X(08) ", " F_X(08) "): windowId not found: %d\n",
+          logError(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                          ", \"%s\", " F_X(08) ", " F_X(08) "): "
+                          "windowId not found: %d\n",
                           (memSizeType) actual_window, x, y,
                           striAsUnquotedCStri(stri), col, bkcol,
                           to_window(actual_window)););
@@ -2773,6 +2860,8 @@ intType drwXPos (const_winType actual_window)
     logFunction(printf("drwXPos(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
     if (is_pixmap(actual_window)) {
+      logError(printf("drwXPos(" FMT_U_MEM "): Window is pixmap\n",
+                      (memSizeType) actual_window););
       raise_error(RANGE_ERROR);
       xPos = 0;
     } else {
