@@ -2555,23 +2555,36 @@ void drwPRect (const_winType actual_window,
                        ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y,
                        width, height, col););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
-        context.fillRect($1, $2, $3, $4);
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(actual_window), castToInt(x), castToInt(y),
-        castToInt(width), castToInt(height), (int) (col & 0xffffff));
-    if (unlikely(successInfo != 0)) {
-      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) actual_window, x, y, width, height, col,
-                      to_window(actual_window)););
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 width < 0 || width > INT_MAX ||
+                 height < 0 || height > INT_MAX)) {
+      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y,
+                      width, height, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
+          context.fillRect($1, $2, $3, $4);
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(actual_window), (int) (x), (int) (y),
+          (int) (width), (int) (height), (int) (col & 0xffffff));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, x, y,
+                        width, height, col,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPRect */
 
