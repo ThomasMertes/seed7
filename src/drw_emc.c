@@ -2206,22 +2206,29 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
     logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
                        ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
-        context.fillRect($1, $2, 1, 1);
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(actual_window), castToInt(x), castToInt(y), (int) (col & 0xffffff));
-    if (unlikely(successInfo != 0)) {
-      logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) "): "
-                      "windowId not found: %d\n",
-                      (memSizeType) actual_window, x, y, col,
-                      to_window(actual_window)););
-      raise_error(GRAPHIC_ERROR);
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                      ", " F_X(08) "): Raises RANGE_ERROR\n",
+                      (memSizeType) actual_window, x, y, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
+          context.fillRect($1, $2, 1, 1);
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(actual_window), (int) (x), (int) (y), (int) (col & 0xffffff));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " F_X(08) "): windowId not found: %d\n",
+                        (memSizeType) actual_window, x, y, col,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPPoint */
 
