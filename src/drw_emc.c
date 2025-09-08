@@ -634,6 +634,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   {
+    double startAng;
+    double endAng;
     int successInfo;
 
   /* drwPFArcChord */
@@ -645,29 +647,45 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
       startAngle += sweepAngle;
       sweepAngle = -sweepAngle;
     } /* if */
-    successInfo = EM_ASM_INT({
-      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
-        let context = mapIdToContext[$0];
-        context.fillStyle = "#" + ("000000" + $6.toString(16)).slice(-6);
-        context.beginPath();
-        context.arc($1, $2, $3, $4, $5);
-        context.lineTo($1 + Math.cos($4) * $3, $2 + Math.sin($4) * $3);
-        context.fill();
-        return 0;
-      } else {
-        return 1;
-      }
-    }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
-        (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle,
-        (int) (col & 0xffffff));
-    if (unlikely(successInfo != 0)) {
+    startAng = (2 * PI) - startAngle - sweepAngle;
+    endAng = (2 * PI) - startAngle;
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 radius <= 0 || radius > INT_MAX ||
+                 os_isnan(startAngle) || os_isnan(sweepAngle) ||
+                 startAng == POSITIVE_INFINITY ||
+                 startAng == NEGATIVE_INFINITY ||
+                 endAng == POSITIVE_INFINITY ||
+                 endAng == NEGATIVE_INFINITY)) {
       logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
                       ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
-                      "windowId not found: %d\n",
+                      "Raises RANGE_ERROR\n",
                       (memSizeType) actual_window, x, y, radius,
-                      startAngle, sweepAngle, col,
-                      to_window(actual_window)););
-      raise_error(GRAPHIC_ERROR);
+                      startAngle, sweepAngle, col););
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+          let context = mapIdToContext[$0];
+          context.fillStyle = "#" + ("000000" + $6.toString(16)).slice(-6);
+          context.beginPath();
+          context.arc($1, $2, $3, $4, $5);
+          context.lineTo($1 + Math.cos($4) * $3, $2 + Math.sin($4) * $3);
+          context.fill();
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(actual_window), (int) (x), (int) (y), (int) (radius),
+          startAng, endAng, (int) (col & 0xffffff));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D
+                        ", " FMT_D ", %.4f, %.4f, " F_X(08) "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, x, y, radius,
+                        startAngle, sweepAngle, col,
+                        to_window(actual_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
     } /* if */
   } /* drwPFArcChord */
 
