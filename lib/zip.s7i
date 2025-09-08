@@ -2382,7 +2382,7 @@ const func file: openEncryptFile (inout zipArchive: zip,
       decrypted := decrypt(aKey, data[.. 12]);
       if decrypted[length(decrypted)] = char(ord(header.crc_32 >> 24) mod 256) or
           (header.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) and
-	  decrypted[length(decrypted)] = char((header.last_mod_file_time >> 8) mod 256)) then
+          decrypted[length(decrypted)] = char((header.last_mod_file_time >> 8) mod 256)) then
         # A byte from crc32 fits or a byte from the modification time fits.
         decrypted := decrypt(aKey, data[13 ..]);
         encryptFile := openStriFile(decrypted);

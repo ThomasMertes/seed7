@@ -328,7 +328,7 @@ void decl_const (nodeType node_level, errInfoType *err_info)
             PROPERTY_LINE_NUM(declared_object) == 0) {
           declared_object->descriptor.property->file_number = in_file.file_number;
           declared_object->descriptor.property->line = in_file.line;
-	} /* if */
+        } /* if */
         decl_value(typeof_object, declared_object, is_dollar_type, err_info);
       } /* if */
       shrink_stack();
