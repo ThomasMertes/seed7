@@ -79,8 +79,8 @@ typedef struct fetchDataStruct {
 
 typedef struct {
     uintType        usage_count;
-    sqlFuncType     sqlFunc;
     dbType          db;
+    sqlFuncType     sqlFunc;
     SQLHSTMT        ppStmt;
     memSizeType     param_array_size;
     bindDataType    param_array;

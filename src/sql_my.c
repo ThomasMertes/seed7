@@ -82,8 +82,8 @@ typedef struct {
 
 typedef struct {
     uintType       usage_count;
-    sqlFuncType    sqlFunc;
     dbType         db;
+    sqlFuncType    sqlFunc;
     MYSQL_STMT    *ppStmt;
     memSizeType    param_array_size;
     MYSQL_BIND    *param_array;

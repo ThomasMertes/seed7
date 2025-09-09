@@ -684,6 +684,7 @@ typedef struct databaseStruct {
 
 typedef struct sqlStmtStruct {
     uintType usage_count;
+    databaseType db;
     /* The rest of the structure is only accessible for the driver */
   } sqlStmtRecord;
 

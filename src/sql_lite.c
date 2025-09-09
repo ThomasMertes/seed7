@@ -75,8 +75,8 @@ typedef struct {
 
 typedef struct {
     uintType      usage_count;
-    sqlFuncType   sqlFunc;
     dbType        db;
+    sqlFuncType   sqlFunc;
     sqlite3_stmt *ppStmt;
     memSizeType   param_array_size;
     bindDataType  param_array;

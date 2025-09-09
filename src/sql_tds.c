@@ -84,8 +84,8 @@ typedef struct {
 
 typedef struct {
     uintType        usage_count;
-    sqlFuncType     sqlFunc;
     dbType          db;
+    sqlFuncType     sqlFunc;
     DBPROCESS      *dbproc;
     striType       *stmtPartArray;
     memSizeType     stmtPartArrayCharCount;

@@ -105,8 +105,8 @@ typedef struct {
 
 typedef struct {
     uintType       usage_count;
-    sqlFuncType    sqlFunc;
     dbType         db;
+    sqlFuncType    sqlFunc;
     OCIEnv        *oci_environment;
     OCIError      *oci_error;
     OCISvcCtx     *oci_service_context;

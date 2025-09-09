@@ -75,8 +75,8 @@ typedef struct {
 
 typedef struct {
     uintType        usage_count;
-    sqlFuncType     sqlFunc;
     dbType          db;
+    sqlFuncType     sqlFunc;
     isc_stmt_handle ppStmt;
     XSQLDA         *in_sqlda;
     XSQLDA         *out_sqlda;
