@@ -66,6 +66,14 @@ void dbLibError (const char *funcName, const char *dbFuncName,
 
 
 
+void dbNotOpen (const char *funcName)
+
+  { /* dbNotOpen */
+    dbLibError(funcName, funcName, "Database is not open.\n");
+  } /* dbNotOpen */
+
+
+
 void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
     const char *file, int line)
 

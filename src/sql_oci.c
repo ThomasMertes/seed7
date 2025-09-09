@@ -4162,8 +4162,9 @@ static void sqlCommit (databaseType database)
     if (unlikely(db->oci_environment == NULL ||
                  db->oci_service_context == NULL ||
                  db->oci_error == NULL)) {
+      dbNotOpen("sqlCommit");
       logError(printf("sqlCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       OCITransCommit(db->oci_service_context,
                      db->oci_error,
@@ -4283,8 +4284,9 @@ static boolType sqlGetAutoCommit (databaseType database)
     if (unlikely(db->oci_environment == NULL ||
                  db->oci_service_context == NULL ||
                  db->oci_error == NULL)) {
+      dbNotOpen("sqlGetAutoCommit");
       logError(printf("sqlGetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
     } else {
       autoCommit = db->autoCommit;
@@ -4342,8 +4344,9 @@ static sqlStmtType sqlPrepare (databaseType database,
     if (unlikely(db->oci_environment == NULL ||
                  db->oci_service_context == NULL ||
                  db->oci_error == NULL)) {
+      dbNotOpen("sqlPrepare");
       logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = RANGE_ERROR;
+      err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       statementStri = processStatementStri(sqlStatementStri, &numBindParameters, &err_info);
@@ -4433,8 +4436,9 @@ static void sqlRollback (databaseType database)
     if (unlikely(db->oci_environment == NULL ||
                  db->oci_service_context == NULL ||
                  db->oci_error == NULL)) {
+      dbNotOpen("sqlRollback");
       logError(printf("sqlRollback: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       OCITransRollback(db->oci_service_context,
                        db->oci_error,
@@ -4457,8 +4461,9 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
     if (unlikely(db->oci_environment == NULL ||
                  db->oci_service_context == NULL ||
                  db->oci_error == NULL)) {
+      dbNotOpen("sqlSetAutoCommit");
       logError(printf("sqlSetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       db->autoCommit = autoCommit;
     } /* if */

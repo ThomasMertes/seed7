@@ -3166,8 +3166,9 @@ static void sqlCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == 0)) {
+      dbNotOpen("sqlCommit");
       logError(printf("sqlCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       isc_commit_transaction(status_vector,
                              &db->trans_handle);
@@ -3370,8 +3371,9 @@ static sqlStmtType sqlPrepare (databaseType database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     if (unlikely(db->connection == 0)) {
+      dbNotOpen("sqlPrepare");
       logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = RANGE_ERROR;
+      err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       query = stri_to_cstri8_buf(sqlStatementStri, &queryLength);

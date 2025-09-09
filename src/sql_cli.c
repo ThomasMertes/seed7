@@ -5120,8 +5120,9 @@ static void sqlCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      dbNotOpen("sqlCommit");
       logError(printf("sqlCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(SQLEndTran(SQL_HANDLE_DBC, db->connection,
                                    SQL_COMMIT) != SQL_SUCCESS)) {
       setDbErrorMsg("sqlCommit", "SQLEndTran",
@@ -5275,8 +5276,9 @@ static boolType sqlGetAutoCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      dbNotOpen("sqlGetAutoCommit");
       logError(printf("sqlGetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
     } else if (unlikely(SQLGetConnectAttrW(db->connection,
         SQL_ATTR_AUTOCOMMIT, &autoCommitState, 0, NULL) != SQL_SUCCESS)) {
@@ -5339,8 +5341,9 @@ static sqlStmtType sqlPrepare (databaseType database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      dbNotOpen("sqlPrepare");
       logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = RANGE_ERROR;
+      err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       statementStri = processStatementStri(sqlStatementStri, &err_info);
@@ -5434,8 +5437,9 @@ static void sqlRollback (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      dbNotOpen("sqlRollback");
       logError(printf("sqlRollback: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(SQLEndTran(SQL_HANDLE_DBC, db->connection,
                                    SQL_ROLLBACK) != SQL_SUCCESS)) {
       setDbErrorMsg("sqlRollback", "SQLEndTran",
@@ -5460,8 +5464,9 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
                        (memSizeType) database, autoCommit););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      dbNotOpen("sqlSetAutoCommit");
       logError(printf("sqlSetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       if (autoCommit) {
         autoCommitState = (SQLPOINTER) SQL_AUTOCOMMIT_ON;

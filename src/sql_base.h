@@ -51,6 +51,7 @@ EXTERN dbErrorRecord dbError;
 
 void dbLibError (const char *funcName, const char *dbFuncName,
                  const char *format, ...);
+void dbNotOpen (const char *funcName);
 void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
                         const char *file, int line);
 void dllErrorMessage (const char *funcName, const char *dbFuncName,

@@ -1934,8 +1934,9 @@ static void sqlCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlCommit");
       logError(printf("sqlCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       if (sqlite3_get_autocommit(db->connection) != 0) {
         sqlite3_exec(db->connection, "COMMIT", NULL, NULL, NULL);
@@ -2060,8 +2061,9 @@ static boolType sqlGetAutoCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlGetAutoCommit");
       logError(printf("sqlGetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
     } else {
       autoCommit = sqlite3_get_autocommit(db->connection) != 0;
@@ -2116,8 +2118,9 @@ static sqlStmtType sqlPrepare (databaseType database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlPrepare");
       logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = RANGE_ERROR;
+      err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       query = stri_to_cstri8_buf(sqlStatementStri, &queryLength);
@@ -2196,8 +2199,9 @@ static void sqlRollback (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlRollback");
       logError(printf("sqlRollback: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       if (sqlite3_get_autocommit(db->connection) != 0) {
         sqlite3_exec(db->connection, "ROLLBACK", NULL, NULL, NULL);
@@ -2220,8 +2224,9 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
                        (memSizeType) database, autoCommit););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlSetAutoCommit");
       logError(printf("sqlSetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       inAutoCommitMode = sqlite3_get_autocommit(db->connection) != 0;
       if (inAutoCommitMode != autoCommit) {

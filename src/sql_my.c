@@ -2317,8 +2317,9 @@ static void sqlCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlCommit");
       logError(printf("sqlCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(mysql_commit(db->connection) != 0)) {
       setDbErrorMsg("sqlCommit", "mysql_commit",
                     mysql_errno(db->connection),
@@ -2452,8 +2453,9 @@ static boolType sqlGetAutoCommit (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlGetAutoCommit");
       logError(printf("sqlGetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
     } else {
       /* There seems to be no function to retrieve the current         */
@@ -2511,8 +2513,9 @@ static sqlStmtType sqlPrepare (databaseType database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlPrepare");
       logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = RANGE_ERROR;
+      err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       statementStri = processStatementStri(sqlStatementStri, db->backslashEscapes);
@@ -2606,8 +2609,9 @@ static void sqlRollback (databaseType database)
                        (memSizeType) database););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlRollback");
       logError(printf("sqlRollback: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(mysql_rollback(db->connection) != 0)) {
       setDbErrorMsg("sqlRollback", "mysql_rollback",
                     mysql_errno(db->connection),
@@ -2631,8 +2635,9 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
                        (memSizeType) database, autoCommit););
     db = (dbType) database;
     if (unlikely(db->connection == NULL)) {
+      dbNotOpen("sqlSetAutoCommit");
       logError(printf("sqlSetAutoCommit: Database is not open.\n"););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(mysql_autocommit(db->connection, autoCommit) != 0)) {
       setDbErrorMsg("sqlSetAutoCommit", "mysql_autocommit",
                     mysql_errno(db->connection),
