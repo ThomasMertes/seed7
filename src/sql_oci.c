@@ -4159,9 +4159,16 @@ static void sqlCommit (databaseType database)
     logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    OCITransCommit(db->oci_service_context,
-                   db->oci_error,
-                   OCI_DEFAULT);
+    if (unlikely(db->oci_environment == NULL ||
+                 db->oci_service_context == NULL ||
+                 db->oci_error == NULL)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      OCITransCommit(db->oci_service_context,
+                     db->oci_error,
+                     OCI_DEFAULT);
+    } /* if */
     logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
@@ -4273,7 +4280,15 @@ static boolType sqlGetAutoCommit (databaseType database)
     logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    autoCommit = db->autoCommit;
+    if (unlikely(db->oci_environment == NULL ||
+                 db->oci_service_context == NULL ||
+                 db->oci_error == NULL)) {
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = db->autoCommit;
+    } /* if */
     logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
     return autoCommit;
   } /* sqlGetAutoCommit */
@@ -4324,69 +4339,76 @@ static sqlStmtType sqlPrepare (databaseType database,
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    statementStri = processStatementStri(sqlStatementStri, &numBindParameters, &err_info);
-    if (statementStri == NULL) {
-      preparedStmt = NULL;
+    if (unlikely(db->oci_environment == NULL ||
+                 db->oci_service_context == NULL ||
+                 db->oci_error == NULL)) {
+      logError(printf("sqlPrepare: Database is not open.\n"););
+      err_info = RANGE_ERROR;
     } else {
-      query = stri_to_cstri8_buf(statementStri, &queryLength);
-      if (unlikely(query == NULL)) {
-        err_info = MEMORY_ERROR;
+      statementStri = processStatementStri(sqlStatementStri, &numBindParameters, &err_info);
+      if (statementStri == NULL) {
         preparedStmt = NULL;
       } else {
-        /* printf("query: \"%s\"\n", query); */
-        if (queryLength > UB4MAXVAL) {
-          /* It is not possible to cast queryLength to ub4. */
-          logError(printf("sqlPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
-                          queryLength););
-          err_info = RANGE_ERROR;
-          preparedStmt = NULL;
-        } else if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecordOci,
-                                  count.prepared_stmt, count.prepared_stmt_bytes)) {
+        query = stri_to_cstri8_buf(statementStri, &queryLength);
+        if (unlikely(query == NULL)) {
           err_info = MEMORY_ERROR;
+          preparedStmt = NULL;
         } else {
-          /* printf("sqlPrepare: query: %s\n", query); */
-          memset(preparedStmt, 0, sizeof(preparedStmtRecordOci));
-          if (OCIHandleAlloc(db->oci_environment, (void **) &preparedStmt->ppStmt,
-                             OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS ||
-              OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
-                             (OraText *) query, (ub4) queryLength,
-                             OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
-            setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
-            logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
-                            dbError.message););
-            FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
-                         count.prepared_stmt, count.prepared_stmt_bytes);
-            err_info = DATABASE_ERROR;
+          /* printf("query: \"%s\"\n", query); */
+          if (queryLength > UB4MAXVAL) {
+            /* It is not possible to cast queryLength to ub4. */
+            logError(printf("sqlPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
+                            queryLength););
+            err_info = RANGE_ERROR;
             preparedStmt = NULL;
+          } else if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecordOci,
+                                    count.prepared_stmt, count.prepared_stmt_bytes)) {
+            err_info = MEMORY_ERROR;
           } else {
-            preparedStmt->usage_count = 1;
-            preparedStmt->sqlFunc = db->sqlFunc;
-            preparedStmt->oci_environment = db->oci_environment;
-            preparedStmt->oci_error = db->oci_error;
-            preparedStmt->oci_service_context = db->oci_service_context;
-            preparedStmt->charSetId = db->charSetId;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-            preparedStmt->fetchFinished = TRUE;
-            preparedStmt->db = db;
-            if (db->usage_count != 0) {
-              db->usage_count++;
-            } /* if */
-            err_info = setupParameters(preparedStmt, numBindParameters);
-            if (unlikely(err_info != OKAY_NO_ERROR)) {
-              preparedStmt->result_array = NULL;
-            } else {
-              err_info = setupResult(preparedStmt);
-            } /* if */
-            if (unlikely(err_info != OKAY_NO_ERROR)) {
-              freePreparedStmt((sqlStmtType) preparedStmt);
+            /* printf("sqlPrepare: query: %s\n", query); */
+            memset(preparedStmt, 0, sizeof(preparedStmtRecordOci));
+            if (OCIHandleAlloc(db->oci_environment, (void **) &preparedStmt->ppStmt,
+                               OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS ||
+                OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
+                               (OraText *) query, (ub4) queryLength,
+                               OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
+              setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
+              logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
+                              dbError.message););
+              FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
+                           count.prepared_stmt, count.prepared_stmt_bytes);
+              err_info = DATABASE_ERROR;
               preparedStmt = NULL;
+            } else {
+              preparedStmt->usage_count = 1;
+              preparedStmt->sqlFunc = db->sqlFunc;
+              preparedStmt->oci_environment = db->oci_environment;
+              preparedStmt->oci_error = db->oci_error;
+              preparedStmt->oci_service_context = db->oci_service_context;
+              preparedStmt->charSetId = db->charSetId;
+              preparedStmt->executeSuccessful = FALSE;
+              preparedStmt->fetchOkay = FALSE;
+              preparedStmt->fetchFinished = TRUE;
+              preparedStmt->db = db;
+              if (db->usage_count != 0) {
+                db->usage_count++;
+              } /* if */
+              err_info = setupParameters(preparedStmt, numBindParameters);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                preparedStmt->result_array = NULL;
+              } else {
+                err_info = setupResult(preparedStmt);
+              } /* if */
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                freePreparedStmt((sqlStmtType) preparedStmt);
+                preparedStmt = NULL;
+              } /* if */
             } /* if */
           } /* if */
+          free_cstri8(query, statementStri);
         } /* if */
-        free_cstri8(query, statementStri);
+        FREE_STRI2(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
       } /* if */
-      FREE_STRI2(statementStri, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -4407,9 +4429,16 @@ static void sqlRollback (databaseType database)
     logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    OCITransRollback(db->oci_service_context,
-                   db->oci_error,
-                   OCI_DEFAULT);
+    if (unlikely(db->oci_environment == NULL ||
+                 db->oci_service_context == NULL ||
+                 db->oci_error == NULL)) {
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      OCITransRollback(db->oci_service_context,
+                       db->oci_error,
+                       OCI_DEFAULT);
+    } /* if */
     logFunction(printf("sqlRollback -->\n"););
   } /* sqlRollback */
 
@@ -4424,7 +4453,14 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
     logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
                        (memSizeType) database, autoCommit););
     db = (dbType) database;
-    db->autoCommit = autoCommit;
+    if (unlikely(db->oci_environment == NULL ||
+                 db->oci_service_context == NULL ||
+                 db->oci_error == NULL)) {
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      db->autoCommit = autoCommit;
+    } /* if */
     logFunction(printf("sqlSetAutoCommit -->\n"););
   } /* sqlSetAutoCommit */
 
