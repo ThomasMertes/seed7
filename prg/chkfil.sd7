@@ -857,7 +857,6 @@ const proc: check_automatic_close is func
 const proc: check_use_after_close is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
     var string: test_file_name is "";
     var file: aFile is STD_NULL;
   begin
@@ -869,86 +868,46 @@ const proc: check_use_after_close is func
     writeln(aFile, "asdfasdfsdf");
 
     close(aFile);
-    block
-      writeln(aFile, "yxcvjhkjh");
+    if not raisesFileError(writeln(aFile, "yxcvjhkjh")) then
       writeln("Write to a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(length(aFile));
+    end if;
+    if not raisesFileError(ignore(length(aFile))) then
       writeln("Length of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigLength(aFile));
+    end if;
+    if not raisesFileError(ignore(bigLength(aFile))) then
       writeln("BigLength of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(seekable(aFile));
+    end if;
+    if not raisesFileError(ignore(seekable(aFile))) then
       writeln("Seekable of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(tell(aFile));
+    end if;
+    if not raisesFileError(ignore(tell(aFile))) then
       writeln("Tell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigTell(aFile));
+    end if;
+    if not raisesFileError(ignore(bigTell(aFile))) then
       writeln("BigTell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 10);
+    end if;
+    if not raisesFileError(seek(aFile, 10)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 10_);
+    end if;
+    if not raisesFileError(seek(aFile, 10_)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      truncate(aFile, 5);
+    end if;
+    if not raisesFileError(truncate(aFile, 5)) then
       writeln("Truncate of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      flush(aFile);
+    end if;
+    if not raisesFileError(flush(aFile)) then
       writeln("Flush of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
+    end if;
 
     aFile := open(test_file_name, "r");
     if gets(aFile, 6) <> "asdfas" then
@@ -957,122 +916,66 @@ const proc: check_use_after_close is func
     end if;
 
     close(aFile);
-    block
-      ignore(length(aFile));
+    if not raisesFileError(ignore(length(aFile))) then
       writeln("Length of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigLength(aFile));
+    end if;
+    if not raisesFileError(ignore(bigLength(aFile))) then
       writeln("BigLength of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(seekable(aFile));
+    end if;
+    if not raisesFileError(ignore(seekable(aFile))) then
       writeln("Seekable of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(tell(aFile));
+    end if;
+    if not raisesFileError(ignore(tell(aFile))) then
       writeln("Tell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigTell(aFile));
+    end if;
+    if not raisesFileError(ignore(bigTell(aFile))) then
       writeln("BigTell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 7);
+    end if;
+    if not raisesFileError(seek(aFile, 7)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 7_);
+    end if;
+    if not raisesFileError(seek(aFile, 7_)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      truncate(aFile, 5);
+    end if;
+    if not raisesFileError(truncate(aFile, 5)) then
       writeln("Truncate of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(hasNext(aFile));
+    end if;
+    if not raisesFileError(ignore(hasNext(aFile))) then
       writeln("HasNext for a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(eof(aFile));
+    end if;
+    if not raisesFileError(ignore(eof(aFile))) then
       writeln("Eof for a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getc(aFile));
+    end if;
+    if not raisesFileError(ignore(getc(aFile))) then
       writeln("Getc from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(gets(aFile, 2));
+    end if;
+    if not raisesFileError(ignore(gets(aFile, 2))) then
       writeln("Gets from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getwd(aFile));
+    end if;
+    if not raisesFileError(ignore(getwd(aFile))) then
       writeln("Getwd from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getln(aFile));
+    end if;
+    if not raisesFileError(ignore(getln(aFile))) then
       writeln("Getln from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
+    end if;
 
     removeFile(test_file_name);
 
-    if okay and number = 24 then
+    if okay then
       writeln("File operations with a closed file fail as they should.");
     else
       writeln(" ***** File operations with a closed file do not fail.");
@@ -1368,7 +1271,6 @@ const proc: check_automatic_close_utf8 is func
 const proc: check_use_after_close_utf8 is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
     var string: test_file_name is "";
     var file: aFile is STD_NULL;
   begin
@@ -1380,86 +1282,46 @@ const proc: check_use_after_close_utf8 is func
     writeln(aFile, "asdfasdfsdf");
 
     close(aFile);
-    block
-      writeln(aFile, "yxcvjhkjh");
+    if not raisesFileError(writeln(aFile, "yxcvjhkjh")) then
       writeln("Write to a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(length(aFile));
+    end if;
+    if not raisesFileError(ignore(length(aFile))) then
       writeln("Length of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigLength(aFile));
+    end if;
+    if not raisesFileError(ignore(bigLength(aFile))) then
       writeln("BigLength of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(seekable(aFile));
+    end if;
+    if not raisesFileError(ignore(seekable(aFile))) then
       writeln("Seekable of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(tell(aFile));
+    end if;
+    if not raisesFileError(ignore(tell(aFile))) then
       writeln("Tell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigTell(aFile));
+    end if;
+    if not raisesFileError(ignore(bigTell(aFile))) then
       writeln("BigTell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 10);
+    end if;
+    if not raisesFileError(seek(aFile, 10)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 10_);
+    end if;
+    if not raisesFileError(seek(aFile, 10_)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      truncate(aFile, 5);
+    end if;
+    if not raisesFileError(truncate(aFile, 5)) then
       writeln("Truncate of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      flush(aFile);
+    end if;
+    if not raisesFileError(flush(aFile)) then
       writeln("Flush of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
+    end if;
 
     aFile := openUtf8(test_file_name, "r");
     if gets(aFile, 6) <> "asdfas" then
@@ -1468,122 +1330,66 @@ const proc: check_use_after_close_utf8 is func
     end if;
 
     close(aFile);
-    block
-      ignore(length(aFile));
+    if not raisesFileError(ignore(length(aFile))) then
       writeln("Length of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigLength(aFile));
+    end if;
+    if not raisesFileError(ignore(bigLength(aFile))) then
       writeln("BigLength of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(seekable(aFile));
+    end if;
+    if not raisesFileError(ignore(seekable(aFile))) then
       writeln("Seekable of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(tell(aFile));
+    end if;
+    if not raisesFileError(ignore(tell(aFile))) then
       writeln("Tell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(bigTell(aFile));
+    end if;
+    if not raisesFileError(ignore(bigTell(aFile))) then
       writeln("BigTell of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 7);
+    end if;
+    if not raisesFileError(seek(aFile, 7)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      seek(aFile, 7_);
+    end if;
+    if not raisesFileError(seek(aFile, 7_)) then
       writeln("Seek of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      truncate(aFile, 5);
+    end if;
+    if not raisesFileError(truncate(aFile, 5)) then
       writeln("Truncate of a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(hasNext(aFile));
+    end if;
+    if not raisesFileError(ignore(hasNext(aFile))) then
       writeln("HasNext for a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(eof(aFile));
+    end if;
+    if not raisesFileError(ignore(eof(aFile))) then
       writeln("Eof for a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getc(aFile));
+    end if;
+    if not raisesFileError(ignore(getc(aFile))) then
       writeln("Getc from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(gets(aFile, 2));
+    end if;
+    if not raisesFileError(ignore(gets(aFile, 2))) then
       writeln("Gets from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getwd(aFile));
+    end if;
+    if not raisesFileError(ignore(getwd(aFile))) then
       writeln("Getwd from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
-    block
-      ignore(getln(aFile));
+    end if;
+    if not raisesFileError(ignore(getln(aFile))) then
       writeln("Getln from a closed file succeeds.");
       okay := FALSE;
-    exception
-      catch FILE_ERROR:
-        incr(number);
-    end block;
+    end if;
 
     removeFile(test_file_name);
 
-    if okay and number = 24 then
+    if okay then
       writeln("File operations with a closed UTF-8 file fail as they should.");
     else
       writeln(" ***** File operations with a closed UTF-8 file do not fail.");
