@@ -3165,29 +3165,34 @@ static void sqlCommit (databaseType database)
     logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    isc_commit_transaction(status_vector,
-                           &db->trans_handle);
-    if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
-      setDbErrorMsg("sqlCommit", "isc_commit_transaction",
-                    status_vector);
-      logError(printf("sqlCommit: isc_commit_transaction error:\n%s\n",
-                      dbError.message););
-      raise_error(DATABASE_ERROR);
+    if (unlikely(db->connection == 0)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
     } else {
-      /* Set transaction handle to zero for isc_start_transaction(). */
-      db->trans_handle = 0;
-      isc_start_transaction(status_vector,
-                            &db->trans_handle,
-                            1,
-                            &db->connection,
-                            (unsigned short) sizeof(isc_tbp),
-                            isc_tbp);
+      isc_commit_transaction(status_vector,
+                             &db->trans_handle);
       if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
-        setDbErrorMsg("sqlCommit", "isc_start_transaction",
+        setDbErrorMsg("sqlCommit", "isc_commit_transaction",
                       status_vector);
-        logError(printf("sqlCommit: isc_start_transaction error:\n%s\n",
+        logError(printf("sqlCommit: isc_commit_transaction error:\n%s\n",
                         dbError.message););
         raise_error(DATABASE_ERROR);
+      } else {
+        /* Set transaction handle to zero for isc_start_transaction(). */
+        db->trans_handle = 0;
+        isc_start_transaction(status_vector,
+                              &db->trans_handle,
+                              1,
+                              &db->connection,
+                              (unsigned short) sizeof(isc_tbp),
+                              isc_tbp);
+        if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
+          setDbErrorMsg("sqlCommit", "isc_start_transaction",
+                        status_vector);
+          logError(printf("sqlCommit: isc_start_transaction error:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } /* if */
       } /* if */
     } /* if */
   } /* sqlCommit */
@@ -3364,7 +3369,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    if (db->connection == 0) {
+    if (unlikely(db->connection == 0)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
