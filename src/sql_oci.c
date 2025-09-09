@@ -4344,6 +4344,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                  db->oci_error == NULL)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
+      preparedStmt = NULL;
     } else {
       statementStri = processStatementStri(sqlStatementStri, &numBindParameters, &err_info);
       if (statementStri == NULL) {
