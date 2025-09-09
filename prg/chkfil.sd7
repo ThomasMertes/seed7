@@ -52,46 +52,29 @@ const string: testString is "\0;\A\B\C\D\E\F\G\H^I^J\K\L\M\N\O\
                             \àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ\0;";
 
 
-const func boolean: raisesRangeError (in func file: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var file: exprResult is STD_NULL;
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
+
+    const func boolean: raisesRangeError (in func aType: expression) is func
+      result
+        var boolean: raisesRangeError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch RANGE_ERROR:
+            raisesRangeError := TRUE;
+        end block;
+      end func;
+
   end func;
 
 
-const func boolean: raisesRangeError (in func string: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var string: exprResult is "";
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesRangeError (in proc: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  begin
-    block
-      expression;
-    exception
-      catch RANGE_ERROR: raisesRangeError := TRUE;
-    end block;
-  end func;
+DECLARE_RAISES_RANGE_ERROR(void);
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(file);
 
 
 const proc: DECLARE_RAISES_FILE_ERROR (in type: aType) is func
