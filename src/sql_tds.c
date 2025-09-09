@@ -1583,6 +1583,7 @@ static void sqlClose (databaseType database)
       dbclose(db->dbproc);
       db->dbproc = NULL;
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 

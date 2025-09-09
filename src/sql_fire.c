@@ -2305,6 +2305,7 @@ static void sqlClose (databaseType database)
         raise_error(err_info);
       } /* if */
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 

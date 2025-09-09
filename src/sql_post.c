@@ -2186,6 +2186,7 @@ static void sqlClose (databaseType database)
       PQfinish(db->connection);
       db->connection = NULL;
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 

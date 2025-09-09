@@ -1199,6 +1199,7 @@ static void sqlClose (databaseType database)
       sqlite3_close(db->connection);
       db->connection = NULL;
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 

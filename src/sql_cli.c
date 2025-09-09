@@ -4040,6 +4040,7 @@ static void sqlClose (databaseType database)
       SQLFreeHandle(SQL_HANDLE_ENV, db->sql_environment);
       db->sql_environment = SQL_NULL_HANDLE;
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 

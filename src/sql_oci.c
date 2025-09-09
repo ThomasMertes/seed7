@@ -3388,6 +3388,7 @@ static void sqlClose (databaseType database)
       OCIHandleFree(db->oci_environment, OCI_HTYPE_ENV);
       db->oci_environment = NULL;
     } /* if */
+    db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
