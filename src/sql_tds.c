@@ -85,6 +85,7 @@ typedef struct {
 typedef struct {
     uintType        usage_count;
     sqlFuncType     sqlFunc;
+    dbType          db;
     DBPROCESS      *dbproc;
     striType       *stmtPartArray;
     memSizeType     stmtPartArrayCharCount;
@@ -417,6 +418,13 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
         } /* if */
       } /* for */
       FREE_TABLE(preparedStmt->result_array, resultDataRecordTds, preparedStmt->result_array_size);
+    } /* if */
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordTds,
                  count.prepared_stmt, count.prepared_stmt_bytes);
@@ -2518,6 +2526,10 @@ static sqlStmtType sqlPrepare (databaseType database,
           preparedStmt->sqlFunc = db->sqlFunc;
           preparedStmt->dbproc = db->dbproc;
           preparedStmt->stmtPartArray = stmtPartArray;
+          preparedStmt->db = db;
+          if (db->usage_count != 0) {
+            db->usage_count++;
+          } /* if */
           err_info = setStmtPartArrayCharCount(preparedStmt, numBindParameters);
           if (likely(err_info == OKAY_NO_ERROR)) {
             err_info = setupParameters(preparedStmt, numBindParameters);
