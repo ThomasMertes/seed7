@@ -981,6 +981,10 @@ const func boolean: check_use_after_close2 (inout file: aFile) is func
       writeln("Getln from a closed file succeeds.");
       okay := FALSE;
     end if;
+    if not raisesFileError(getTerminatedString(aFile, '\16#ff;')) then
+      writeln("GetTerminatedString from a closed file succeeds.");
+      okay := FALSE;
+    end if;
   end func;
 
 
