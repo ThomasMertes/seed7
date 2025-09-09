@@ -870,20 +870,10 @@ const proc: check_automatic_close is func
   end func;
 
 
-const proc: check_use_after_close is func
-  local
+const func boolean: check_use_after_close1 (inout file: aFile) is func
+  result
     var boolean: okay is TRUE;
-    var string: test_file_name is "";
-    var file: aFile is STD_NULL;
   begin
-    repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
-    until fileType(test_file_name) = FILE_ABSENT;
-
-    aFile := open(test_file_name, "w");
-    writeln(aFile, "asdfasdfsdf");
-
-    close(aFile);
     if not raisesFileError(writeln(aFile, "yxcvjhkjh")) then
       writeln("Write to a closed file succeeds.");
       okay := FALSE;
@@ -924,14 +914,13 @@ const proc: check_use_after_close is func
       writeln("Flush of a closed file succeeds.");
       okay := FALSE;
     end if;
+  end func;
 
-    aFile := open(test_file_name, "r");
-    if gets(aFile, 6) <> "asdfas" then
-      writeln("Reading from the test file failed.");
-      okay := FALSE;
-    end if;
 
-    close(aFile);
+const func boolean: check_use_after_close2 (inout file: aFile) is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if not raisesFileError(length(aFile)) then
       writeln("Length of a closed file succeeds.");
       okay := FALSE;
@@ -986,6 +975,37 @@ const proc: check_use_after_close is func
     end if;
     if not raisesFileError(getln(aFile)) then
       writeln("Getln from a closed file succeeds.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_use_after_close is func
+  local
+    var boolean: okay is TRUE;
+    var string: test_file_name is "";
+    var file: aFile is STD_NULL;
+  begin
+    repeat
+      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+    until fileType(test_file_name) = FILE_ABSENT;
+
+    aFile := open(test_file_name, "w");
+    writeln(aFile, "asdfasdfsdf");
+
+    close(aFile);
+    if not check_use_after_close1(aFile) then
+      okay := FALSE;
+    end if;
+
+    aFile := open(test_file_name, "r");
+    if gets(aFile, 6) <> "asdfas" then
+      writeln("Reading from the test file failed.");
+      okay := FALSE;
+    end if;
+
+    close(aFile);
+    if not check_use_after_close2(aFile) then
       okay := FALSE;
     end if;
 
@@ -1298,44 +1318,7 @@ const proc: check_use_after_close_utf8 is func
     writeln(aFile, "asdfasdfsdf");
 
     close(aFile);
-    if not raisesFileError(writeln(aFile, "yxcvjhkjh")) then
-      writeln("Write to a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(length(aFile)) then
-      writeln("Length of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(bigLength(aFile)) then
-      writeln("BigLength of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seekable(aFile)) then
-      writeln("Seekable of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(tell(aFile)) then
-      writeln("Tell of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(bigTell(aFile)) then
-      writeln("BigTell of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seek(aFile, 10)) then
-      writeln("Seek of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seek(aFile, 10_)) then
-      writeln("Seek of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(truncate(aFile, 5)) then
-      writeln("Truncate of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(flush(aFile)) then
-      writeln("Flush of a closed file succeeds.");
+    if not check_use_after_close1(aFile) then
       okay := FALSE;
     end if;
 
@@ -1346,60 +1329,7 @@ const proc: check_use_after_close_utf8 is func
     end if;
 
     close(aFile);
-    if not raisesFileError(length(aFile)) then
-      writeln("Length of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(bigLength(aFile)) then
-      writeln("BigLength of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seekable(aFile)) then
-      writeln("Seekable of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(tell(aFile)) then
-      writeln("Tell of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(bigTell(aFile)) then
-      writeln("BigTell of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seek(aFile, 7)) then
-      writeln("Seek of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(seek(aFile, 7_)) then
-      writeln("Seek of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(truncate(aFile, 5)) then
-      writeln("Truncate of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(hasNext(aFile)) then
-      writeln("HasNext for a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(eof(aFile)) then
-      writeln("Eof for a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(getc(aFile)) then
-      writeln("Getc from a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(gets(aFile, 2)) then
-      writeln("Gets from a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(getwd(aFile)) then
-      writeln("Getwd from a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(getln(aFile)) then
-      writeln("Getln from a closed file succeeds.");
+    if not check_use_after_close2(aFile) then
       okay := FALSE;
     end if;
 
