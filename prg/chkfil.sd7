@@ -29,6 +29,7 @@ $ include "seed7_05.s7i";
   include "console.s7i";
   include "keybd.s7i";
   include "utf8.s7i";
+  include "iobuffer.s7i";
 
 # The file size for the seek test has been reduced, such that not
 # so much disk space is needed. This was necessary because some
@@ -897,6 +898,10 @@ const func boolean: check_use_after_close1 (inout file: aFile) is func
       writeln("Flush of a closed file succeeds.");
       okay := FALSE;
     end if;
+    if not raisesFileError(setbuf(aFile, IO_NO_BUFFERING, 0)) then
+      writeln("Setbuf of a closed file succeeds.");
+      okay := FALSE;
+    end if;
   end func;
 
 
@@ -966,6 +971,10 @@ const func boolean: check_use_after_close2 (inout file: aFile) is func
     end if;
     if not raisesFileError(getTerminatedString(aFile, '\16#ff;')) then
       writeln("GetTerminatedString from a closed file succeeds.");
+      okay := FALSE;
+    end if;
+    if not raisesFileError(setbuf(aFile, IO_NO_BUFFERING, 0)) then
+      writeln("Setbuf of a closed file succeeds.");
       okay := FALSE;
     end if;
   end func;
