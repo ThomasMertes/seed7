@@ -679,6 +679,7 @@ typedef struct processStruct {
 
 typedef struct databaseStruct {
     uintType usage_count;
+    boolType isOpen;
     /* The rest of the structure is only accessible for the driver */
   } databaseRecord;
 

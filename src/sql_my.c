@@ -63,6 +63,7 @@
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     MYSQL       *connection;
@@ -2975,6 +2976,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                 } else {
                   memset(database, 0, sizeof(dbRecordMy));
                   database->usage_count = 1;
+                  database->isOpen = TRUE;
                   database->sqlFunc = sqlFunc;
                   database->driver = DB_CATEGORY_MYSQL;
                   database->connection = connection;

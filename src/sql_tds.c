@@ -66,6 +66,7 @@
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     DBPROCESS   *dbproc;
@@ -2857,6 +2858,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     } else {
                       memset(database, 0, sizeof(dbRecordTds));
                       database->usage_count = 1;
+                      database->isOpen = TRUE;
                       database->sqlFunc = sqlFunc;
                       database->driver = DB_CATEGORY_TDS;
                       database->dbproc = dbproc;

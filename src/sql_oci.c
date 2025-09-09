@@ -66,6 +66,7 @@
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     OCIEnv      *oci_environment;
@@ -4933,6 +4934,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
               } else {
                 memset(database, 0, sizeof(dbRecordOci));
                 database->usage_count = 1;
+                database->isOpen = TRUE;
                 database->sqlFunc = sqlFunc;
                 database->driver = DB_CATEGORY_OCI;
                 database->oci_environment     = db.oci_environment;

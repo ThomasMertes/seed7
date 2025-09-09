@@ -81,6 +81,7 @@ typedef struct {
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     PGconn      *connection;
@@ -3720,6 +3721,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
             } else {
               memset(database, 0, sizeof(dbRecordPost));
               database->usage_count = 1;
+              database->isOpen = TRUE;
               database->sqlFunc = sqlFunc;
               database->driver = DB_CATEGORY_POSTGRESQL;
               database->connection = db.connection;

@@ -31,6 +31,7 @@
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     SQLHENV      sql_environment;
@@ -5745,6 +5746,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       /* printf("maxConcurrentActivities: %lu\n", (unsigned long) maxConcurrentActivities); */
       memset(database, 0, sizeof(dbRecordCli));
       database->usage_count = 1;
+      database->isOpen = TRUE;
       database->sqlFunc = sqlFunc;
       database->driver = driver;
       database->sql_environment = sql_environment;

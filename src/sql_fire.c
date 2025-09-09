@@ -63,6 +63,7 @@
 
 typedef struct {
     uintType      usage_count;
+    boolType      isOpen;
     sqlFuncType   sqlFunc;
     intType       driver;
     isc_db_handle connection;
@@ -3776,6 +3777,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                   } else {
                     memset(database, 0, sizeof(dbRecordFire));
                     database->usage_count = 1;
+                    database->isOpen = TRUE;
                     database->sqlFunc = sqlFunc;
                     database->driver = DB_CATEGORY_FIREBIRD;
                     database->connection = db_handle;

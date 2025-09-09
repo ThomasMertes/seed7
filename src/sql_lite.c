@@ -64,6 +64,7 @@
 
 typedef struct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
     sqlite3     *connection;
@@ -2477,6 +2478,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
                             fileName8););
           memset(database, 0, sizeof(dbRecordLite));
           database->usage_count = 1;
+          database->isOpen = TRUE;
           database->sqlFunc = sqlFunc;
           database->driver = DB_CATEGORY_SQLITE;
           database->connection = connection;
