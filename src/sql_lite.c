@@ -76,6 +76,7 @@ typedef struct {
 typedef struct {
     uintType      usage_count;
     sqlFuncType   sqlFunc;
+    dbType        db;
     sqlite3_stmt *ppStmt;
     memSizeType   param_array_size;
     bindDataType  param_array;
@@ -329,6 +330,13 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->param_array, bindDataRecordLite, preparedStmt->param_array_size);
     } /* if */
     sqlite3_finalize(preparedStmt->ppStmt);
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
+    } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordLite,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -2168,6 +2176,10 @@ static sqlStmtType sqlPrepare (databaseType database,
               preparedStmt->executeSuccessful = FALSE;
               preparedStmt->fetchOkay = FALSE;
               preparedStmt->fetchFinished = TRUE;
+              preparedStmt->db = db;
+              if (db->usage_count != 0) {
+                db->usage_count++;
+              } /* if */
               err_info = setupParameters(preparedStmt);
             } /* if */
             if (unlikely(err_info != OKAY_NO_ERROR)) {
