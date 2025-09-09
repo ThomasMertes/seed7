@@ -954,11 +954,15 @@ const func boolean: check_use_after_close2 (inout file: aFile) is func
       okay := FALSE;
     end if;
     if not raisesFileError(hasNext(aFile)) then
-      writeln("HasNext for a closed file succeeds.");
+      writeln("HasNext of a closed file succeeds.");
+      okay := FALSE;
+    end if;
+    if not raisesFileError(inputReady(aFile)) then
+      writeln("InputReady of a closed file succeeds.");
       okay := FALSE;
     end if;
     if not raisesFileError(eof(aFile)) then
-      writeln("Eof for a closed file succeeds.");
+      writeln("Eof of a closed file succeeds.");
       okay := FALSE;
     end if;
     if not raisesFileError(getc(aFile)) then
