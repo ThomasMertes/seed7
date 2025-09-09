@@ -3354,6 +3354,8 @@ static void sqlClose (databaseType database)
     dbType db;
 
   /* sqlClose */
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (db->oci_service_context != NULL &&
         db->oci_error != NULL &&
@@ -3386,6 +3388,7 @@ static void sqlClose (databaseType database)
       OCIHandleFree(db->oci_environment, OCI_HTYPE_ENV);
       db->oci_environment = NULL;
     } /* if */
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
