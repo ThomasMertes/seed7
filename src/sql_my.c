@@ -2316,7 +2316,10 @@ static void sqlCommit (databaseType database)
     logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    if (unlikely(mysql_commit(db->connection) != 0)) {
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(mysql_commit(db->connection) != 0)) {
       setDbErrorMsg("sqlCommit", "mysql_commit",
                     mysql_errno(db->connection),
                     mysql_error(db->connection));
@@ -2448,9 +2451,15 @@ static boolType sqlGetAutoCommit (databaseType database)
     logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    /* There seems to be no function to retrieve the current         */
-    /* autocommit mode. Therefore the mode is retrieved from the db. */
-    autoCommit = db->autoCommit;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      /* There seems to be no function to retrieve the current         */
+      /* autocommit mode. Therefore the mode is retrieved from the db. */
+      autoCommit = db->autoCommit;
+    } /* if */
     logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
     return autoCommit;
   } /* sqlGetAutoCommit */
@@ -2501,7 +2510,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    if (db->connection == NULL) {
+    if (unlikely(db->connection == NULL)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
@@ -2596,7 +2605,10 @@ static void sqlRollback (databaseType database)
     logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    if (unlikely(mysql_rollback(db->connection) != 0)) {
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(mysql_rollback(db->connection) != 0)) {
       setDbErrorMsg("sqlRollback", "mysql_rollback",
                     mysql_errno(db->connection),
                     mysql_error(db->connection));
@@ -2618,7 +2630,10 @@ static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
     logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
                        (memSizeType) database, autoCommit););
     db = (dbType) database;
-    if (unlikely(mysql_autocommit(db->connection, autoCommit) != 0)) {
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(mysql_autocommit(db->connection, autoCommit) != 0)) {
       setDbErrorMsg("sqlSetAutoCommit", "mysql_autocommit",
                     mysql_errno(db->connection),
                     mysql_error(db->connection));
