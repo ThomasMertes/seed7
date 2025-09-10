@@ -69,6 +69,7 @@ void dbLibError (const char *funcName, const char *dbFuncName,
 void dbNotOpen (const char *funcName)
 
   { /* dbNotOpen */
+    logFunction(printf("dbNotOpen(\"%s\")\n", funcName););
     dbLibError(funcName, funcName, "Database is not open.\n");
   } /* dbNotOpen */
 
