@@ -1033,7 +1033,7 @@ void filClose (fileType aFile)
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        aFile != NULL ? aFile->usage_count : (uintType) 0););
     if (unlikely(aFile->cFile == NULL)) {
-      logError(printf("filClose: fclose(NULL)\n"););
+      logError(printf("filClose: Called with a closed file.\n"););
       raise_error(FILE_ERROR);
     } else {
 #if FCLOSE_FAILS_AFTER_PREVIOUS_ERROR
@@ -2048,7 +2048,7 @@ void filPclose (fileType aPipe)
                        aPipe != NULL ? safe_fileno(aPipe->cFile) : 0););
 #if HAS_POPEN
     if (unlikely(aPipe->cFile == NULL)) {
-      logError(printf("filPclose: fclose(NULL)\n"););
+      logError(printf("filPclose: Called with a closed file.\n"););
       raise_error(FILE_ERROR);
     } else if (unlikely(os_pclose(aPipe->cFile) == -1)) {
       logError(printf("filPclose: pclose(%d) failed:\n"
