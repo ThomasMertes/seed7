@@ -59,12 +59,14 @@
 
 typedef struct dbStruct {
     uintType     usage_count;
+    boolType     isOpen;
     sqlFuncType  sqlFunc;
     intType      driver;
   } dbRecord, *dbType;
 
 typedef struct preparedStmtStruct {
     uintType     usage_count;
+    dbType       db;
     sqlFuncType  sqlFunc;
   } preparedStmtRecord, *preparedStmtType;
 
