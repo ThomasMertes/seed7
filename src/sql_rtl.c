@@ -520,10 +520,16 @@ void sqlClose (databaseType database)
   { /* sqlClose */
     logFunction(printf("sqlClose(" FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) database,
-                       database != NULL ? database->usage_count : (uintType) 0););
+                       database != NULL ? database->usage_count
+                                        : (uintType) 0););
     if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlClose == NULL)) {
+                 !database->isOpen)) {
+      dbNotOpen("sqlClose");
+      logError(printf("sqlClose(" FMT_U_MEM "): Database is not open.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlClose == NULL)) {
       logError(printf("sqlClose(" FMT_U_MEM "): Database not okay.\n",
                       (memSizeType) database););
       raise_error(RANGE_ERROR);
