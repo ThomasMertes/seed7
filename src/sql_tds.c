@@ -371,7 +371,9 @@ static void freeDatabase (databaseType database)
   /* freeDatabase */
     logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
                        (memSizeType) database););
-    sqlClose(database);
+    if (database->isOpen) {
+      sqlClose(database);
+    } /* if */
     db = (dbType) database;
     FREE_RECORD2(db, dbRecordTds, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
