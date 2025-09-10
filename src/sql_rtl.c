@@ -97,6 +97,14 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                       (memSizeType) sqlStatement, pos,
                       bigHexCStri(value)););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindBigInt");
+      logError(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bigHexCStri(value)););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt(sqlStatement, pos, value);
     } /* if */
@@ -132,6 +140,15 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                       bigHexCStri(numerator),
                       bigHexCStri(denominator)););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindBigRat");
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bigHexCStri(numerator),
+                      bigHexCStri(denominator)););
+      raise_error(DATABASE_ERROR);
 #if !ENCODE_INFINITY && !ENCODE_NAN
     } else if (unlikely(bigEqSignedDigit(denominator, 0))) {
       raise_error(RANGE_ERROR);
@@ -177,6 +194,14 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
                       (memSizeType) sqlStatement, pos,
                       value ? "TRUE" : "FALSE"););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindBool");
+      logError(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      value ? "TRUE" : "FALSE"););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool(sqlStatement, pos, value);
     } /* if */
@@ -209,6 +234,14 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
                       (memSizeType) sqlStatement, pos,
                       bstriAsUnquotedCStri(bstri)););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindBStri");
+      logError(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bstriAsUnquotedCStri(bstri)););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri(sqlStatement, pos, bstri);
     } /* if */
@@ -247,6 +280,17 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                       year, month, day,
                       hour, minute, second, micro_second););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindDuration");
+      logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration(sqlStatement, pos,
           year, month, day, hour, minute, second, micro_second);
@@ -277,6 +321,13 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindFloat");
+      logError(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos, value););
+      raise_error(DATABASE_ERROR);
 #if !ENCODE_INFINITY
     } else if (unlikely(value == POSITIVE_INFINITY || value == NEGATIVE_INFINITY)) {
       raise_error(RANGE_ERROR);
@@ -314,6 +365,13 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindInt");
+      logError(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos, value););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt(sqlStatement, pos, value);
     } /* if */
@@ -341,6 +399,13 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindNull");
+      logError(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull(sqlStatement, pos);
     } /* if */
@@ -373,6 +438,14 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos,
                       (memSizeType) sqlStatement, pos,
                       striAsUnquotedCStri(stri)););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindStri");
+      logError(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      striAsUnquotedCStri(stri)););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri(sqlStatement, pos, stri);
     } /* if */
@@ -416,6 +489,19 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                       hour, minute, second, micro_second,
                       time_zone););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlBindTime");
+      logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                      FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second,
+                      time_zone););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime(sqlStatement, pos,
           year, month, day, hour, minute, second, micro_second, time_zone);
@@ -478,6 +564,14 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnBigInt");
+      logError(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt(
           sqlStatement, column);
@@ -521,6 +615,13 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnBigRat");
+      logError(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
     } else {
       oldNumerator = *numerator;
       oldDenominator = *denominator;
@@ -570,6 +671,14 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = FALSE;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnBool");
+      logError(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = FALSE;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool(
           sqlStatement, column);
@@ -610,6 +719,14 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnBStri");
+      logError(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(
           sqlStatement, column);
@@ -647,6 +764,13 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnDuration");
+      logError(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration(sqlStatement, column,
           year, month, day, hour, minute, second, micro_second);
@@ -692,6 +816,14 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = 0.0;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnFloat");
+      logError(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = 0.0;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat(
           sqlStatement, column);
@@ -731,6 +863,14 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
+      columnValue = 0;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnInt");
+      logError(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
       columnValue = 0;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt(sqlStatement,
@@ -772,6 +912,14 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnStri");
+      logError(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
     } else {
       columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri(
           sqlStatement, column);
@@ -809,6 +957,13 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlColumnTime");
+      logError(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime(sqlStatement, column,
           year, month, day, hour, minute, second,
@@ -1333,6 +1488,14 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       isNull = FALSE;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlIsNull");
+      logError(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      isNull = FALSE;
     } else {
       isNull = ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull(sqlStatement,
           column);
@@ -1441,6 +1604,13 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                       (memSizeType) sqlStatement););
       raise_error(RANGE_ERROR);
       columnCount = 0;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlStmtColumnCount");
+      logError(printf("sqlStmtColumnCount(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
     } else {
       columnCount = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(
           sqlStatement);
@@ -1466,6 +1636,14 @@ striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
+      name = NULL;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlStmtColumnName");
+      logError(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
       name = NULL;
     } else {
       name = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName(sqlStatement,
