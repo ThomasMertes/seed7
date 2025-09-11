@@ -89,11 +89,9 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos,
                        bigHexCStri(value)););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       bigHexCStri(value)););
       raise_error(RANGE_ERROR);
@@ -102,6 +100,14 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       dbNotOpen("sqlBindBigInt");
       logError(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bigHexCStri(value)););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt == NULL)) {
+      dbNoFuncPtr("sqlBindBigInt");
+      logError(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       bigHexCStri(value)););
       raise_error(DATABASE_ERROR);
@@ -131,11 +137,9 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                        (memSizeType) sqlStatement, pos,
                        bigHexCStri(numerator),
                        bigHexCStri(denominator)););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       bigHexCStri(numerator),
                       bigHexCStri(denominator)););
@@ -145,6 +149,15 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       dbNotOpen("sqlBindBigRat");
       logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bigHexCStri(numerator),
+                      bigHexCStri(denominator)););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL)) {
+      dbNoFuncPtr("sqlBindBigRat");
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       bigHexCStri(numerator),
                       bigHexCStri(denominator)););
@@ -186,11 +199,9 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos,
                        value ? "TRUE" : "FALSE"););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       value ? "TRUE" : "FALSE"););
       raise_error(RANGE_ERROR);
@@ -199,6 +210,14 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       dbNotOpen("sqlBindBool");
       logError(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      value ? "TRUE" : "FALSE"););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool == NULL)) {
+      dbNoFuncPtr("sqlBindBool");
+      logError(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       value ? "TRUE" : "FALSE"););
       raise_error(DATABASE_ERROR);
@@ -226,11 +245,9 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos,
                        bstriAsUnquotedCStri(bstri)););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       bstriAsUnquotedCStri(bstri)););
       raise_error(RANGE_ERROR);
@@ -239,6 +256,14 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
       dbNotOpen("sqlBindBStri");
       logError(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      bstriAsUnquotedCStri(bstri)););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri == NULL)) {
+      dbNoFuncPtr("sqlBindBStri");
+      logError(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       bstriAsUnquotedCStri(bstri)););
       raise_error(DATABASE_ERROR);
@@ -269,13 +294,11 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
                        hour, minute, second, micro_second););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
                       F_D(04) "-" F_D(02) "-" F_D(02) " "
                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       year, month, day,
                       hour, minute, second, micro_second););
@@ -287,6 +310,17 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                       F_D(04) "-" F_D(02) "-" F_D(02) " "
                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration == NULL)) {
+      dbNoFuncPtr("sqlBindDuration");
+      logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       year, month, day,
                       hour, minute, second, micro_second););
@@ -314,11 +348,9 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
   { /* sqlBindFloat */
     logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
                        (memSizeType) sqlStatement, pos, value););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindFloat == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -326,6 +358,13 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
       dbNotOpen("sqlBindFloat");
       logError(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos, value););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindFloat == NULL)) {
+      dbNoFuncPtr("sqlBindFloat");
+      logError(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(DATABASE_ERROR);
 #if !ENCODE_INFINITY
@@ -358,11 +397,9 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
   { /* sqlBindInt */
     logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos, value););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -370,6 +407,13 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       dbNotOpen("sqlBindInt");
       logError(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos, value););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt == NULL)) {
+      dbNoFuncPtr("sqlBindInt");
+      logError(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos, value););
       raise_error(DATABASE_ERROR);
     } else {
@@ -392,11 +436,9 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
   { /* sqlBindNull */
     logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -404,6 +446,13 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
       dbNotOpen("sqlBindNull");
       logError(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull == NULL)) {
+      dbNoFuncPtr("sqlBindNull");
+      logError(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos););
       raise_error(DATABASE_ERROR);
     } else {
@@ -430,11 +479,9 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos,
     logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos,
                        striAsUnquotedCStri(stri)););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri == NULL)) {
+    if (unlikely(sqlStatement == NULL)){
       logError(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       striAsUnquotedCStri(stri)););
       raise_error(RANGE_ERROR);
@@ -443,6 +490,14 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos,
       dbNotOpen("sqlBindStri");
       logError(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      striAsUnquotedCStri(stri)););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri == NULL)) {
+      dbNoFuncPtr("sqlBindStri");
+      logError(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       striAsUnquotedCStri(stri)););
       raise_error(DATABASE_ERROR);
@@ -476,14 +531,12 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                        year, month, day,
                        hour, minute, second, micro_second,
                        time_zone););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                       F_D(04) "-" F_D(02) "-" F_D(02) " "
                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
                       FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, pos,
                       year, month, day,
                       hour, minute, second, micro_second,
@@ -497,6 +550,19 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
                       FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second,
+                      time_zone););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime == NULL)) {
+      dbNoFuncPtr("sqlBindTime");
+      logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                      FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, pos,
                       year, month, day,
                       hour, minute, second, micro_second,
@@ -537,7 +603,7 @@ void sqlClose (databaseType database)
                         ((dbType) database)->sqlFunc->sqlClose == NULL)) {
       dbNoFuncPtr("sqlClose");
       logError(printf("sqlClose(" FMT_U_MEM "): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else {
@@ -570,11 +636,9 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
   /* sqlColumnBigInt */
     logFunction(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
@@ -583,6 +647,14 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnBigInt");
       logError(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt == NULL)) {
+      dbNoFuncPtr("sqlColumnBigInt");
+      logError(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = NULL;
@@ -622,11 +694,9 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
   /* sqlColumnBigRat */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -634,6 +704,13 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
       dbNotOpen("sqlColumnBigRat");
       logError(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat == NULL)) {
+      dbNoFuncPtr("sqlColumnBigRat");
+      logError(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
     } else {
@@ -677,11 +754,9 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
   /* sqlColumnBool */
     logFunction(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = FALSE;
@@ -690,6 +765,14 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnBool");
       logError(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = FALSE;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool == NULL)) {
+      dbNoFuncPtr("sqlColumnBool");
+      logError(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = FALSE;
@@ -725,11 +808,9 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
   /* sqlColumnBStri */
     logFunction(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
@@ -738,6 +819,14 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnBStri");
       logError(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri == NULL)) {
+      dbNoFuncPtr("sqlColumnBStri");
+      logError(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = NULL;
@@ -771,11 +860,9 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
   { /* sqlColumnDuration */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *)\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -783,6 +870,13 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       dbNotOpen("sqlColumnDuration");
       logError(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration == NULL)) {
+      dbNoFuncPtr("sqlColumnDuration");
+      logError(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
     } else {
@@ -822,11 +916,9 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
   /* sqlColumnFloat */
     logFunction(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = 0.0;
@@ -835,6 +927,14 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnFloat");
       logError(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = 0.0;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat == NULL)) {
+      dbNoFuncPtr("sqlColumnFloat");
+      logError(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = 0.0;
@@ -870,11 +970,9 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
   /* sqlColumnInt */
     logFunction(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = 0;
@@ -883,6 +981,14 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnInt");
       logError(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = 0;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt == NULL)) {
+      dbNoFuncPtr("sqlColumnInt");
+      logError(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = 0;
@@ -918,11 +1024,9 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
   /* sqlColumnStri */
     logFunction(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       columnValue = NULL;
@@ -931,6 +1035,14 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlColumnStri");
       logError(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      columnValue = NULL;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri == NULL)) {
+      dbNoFuncPtr("sqlColumnStri");
+      logError(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       columnValue = NULL;
@@ -964,11 +1076,9 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
   { /* sqlColumnTime */
     logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
@@ -976,6 +1086,13 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
       dbNotOpen("sqlColumnTime");
       logError(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime == NULL)) {
+      dbNoFuncPtr("sqlColumnTime");
+      logError(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
     } else {
@@ -1017,7 +1134,7 @@ void sqlCommit (databaseType database)
                         ((dbType) database)->sqlFunc->sqlCommit == NULL)) {
       dbNoFuncPtr("sqlCommit");
       logError(printf("sqlCommit(" FMT_U_MEM "): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else {
@@ -1420,7 +1537,11 @@ void sqlExecute (sqlStmtType sqlStatement)
       /* Do nothing */
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute == NULL)) {
-      raise_error(RANGE_ERROR);
+      dbNoFuncPtr("sqlExecute");
+      logError(printf("sqlExecute(" FMT_U_MEM "): "
+                      "Function pointer missing.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute(sqlStatement);
     } /* if */
@@ -1452,7 +1573,11 @@ boolType sqlFetch (sqlStmtType sqlStatement)
       fetchOkay = FALSE;
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {
-      raise_error(RANGE_ERROR);
+      dbNoFuncPtr("sqlFetch");
+      logError(printf("sqlFetch(" FMT_U_MEM "): "
+                      "Function pointer missing.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
       fetchOkay = FALSE;
     } else {
       fetchOkay = ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch(sqlStatement);
@@ -1491,7 +1616,7 @@ boolType sqlGetAutoCommit (databaseType database)
                         ((dbType) database)->sqlFunc->sqlGetAutoCommit == NULL)) {
       dbNoFuncPtr("sqlGetAutoCommit");
       logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
@@ -1522,11 +1647,9 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
   /* sqlIsNull */
     logFunction(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       isNull = FALSE;
@@ -1535,6 +1658,14 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlIsNull");
       logError(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      isNull = FALSE;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull == NULL)) {
+      dbNoFuncPtr("sqlIsNull");
+      logError(printf("sqlIsNull(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       isNull = FALSE;
@@ -1585,7 +1716,7 @@ sqlStmtType sqlPrepare (databaseType database,
                         ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
       dbNoFuncPtr("sqlPrepare");
       logError(printf("sqlPrepare(" FMT_U_MEM ", \"%s\"): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database,
                       striAsUnquotedCStri(sqlStatementStri)););
       raise_error(DATABASE_ERROR);
@@ -1623,7 +1754,7 @@ void sqlRollback (databaseType database)
                         ((dbType) database)->sqlFunc->sqlRollback == NULL)) {
       dbNoFuncPtr("sqlRollback");
       logError(printf("sqlRollback(" FMT_U_MEM "): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else {
@@ -1657,7 +1788,7 @@ void sqlSetAutoCommit (databaseType database, boolType autoCommit)
                         ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
       dbNoFuncPtr("sqlSetAutoCommit");
       logError(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d): "
-                      "Function pointers missing.\n",
+                      "Function pointer missing.\n",
                       (memSizeType) database, autoCommit););
       raise_error(DATABASE_ERROR);
     } else {
@@ -1682,11 +1813,9 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
   /* sqlStmtColumnCount */
     logFunction(printf("sqlStmtColumnCount(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlStmtColumnCount(" FMT_U_MEM "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement););
       raise_error(RANGE_ERROR);
       columnCount = 0;
@@ -1695,6 +1824,13 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
       dbNotOpen("sqlStmtColumnCount");
       logError(printf("sqlStmtColumnCount(" FMT_U_MEM "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL)) {
+      dbNoFuncPtr("sqlStmtColumnCount");
+      logError(printf("sqlStmtColumnCount(" FMT_U_MEM "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement););
       raise_error(DATABASE_ERROR);
     } else {
@@ -1715,11 +1851,9 @@ striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
   /* sqlStmtColumnName */
     logFunction(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, column););
-    if (unlikely(sqlStatement == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName == NULL)) {
+    if (unlikely(sqlStatement == NULL)) {
       logError(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D "): "
-                      "SQL statement not okay.\n",
+                      "SQL statement is empty.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       name = NULL;
@@ -1728,6 +1862,14 @@ striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
       dbNotOpen("sqlStmtColumnName");
       logError(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D "): "
                       "Database is not open.\n",
+                      (memSizeType) sqlStatement, column););
+      raise_error(DATABASE_ERROR);
+      name = NULL;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName == NULL)) {
+      dbNoFuncPtr("sqlStmtColumnName");
+      logError(printf("sqlStmtColumnName(" FMT_U_MEM ", " FMT_D "): "
+                      "Function pointer missing.\n",
                       (memSizeType) sqlStatement, column););
       raise_error(DATABASE_ERROR);
       name = NULL;
