@@ -657,7 +657,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
             inlineParam[variable][1].actualParam <> NIL and
             not varChangedInStatements(inlineParam[variable][1].actualParam, statements) and
             (statements not in inlineParam or
-	      inlineParam[statements][1].actualParam = NIL or
+              inlineParam[statements][1].actualParam = NIL or
               not varChangedInStatements(inlineParam[variable][1].actualParam,
                                          inlineParam[statements][1].actualParam)) then
           intRangeOfVariable @:= [inlineParam[variable][1].actualParam] variableRange;
