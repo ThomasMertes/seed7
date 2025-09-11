@@ -522,20 +522,28 @@ void sqlClose (databaseType database)
                        (memSizeType) database,
                        database != NULL ? database->usage_count
                                         : (uintType) 0););
-    if (unlikely(database == NULL ||
-                 !database->isOpen)) {
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlClose(" FMT_U_MEM "): "
+                      "Database is empty.\n",
+                      (memSizeType) database););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(!database->isOpen)) {
       dbNotOpen("sqlClose");
-      logError(printf("sqlClose(" FMT_U_MEM "): Database is not open.\n",
+      logError(printf("sqlClose(" FMT_U_MEM "): "
+                      "Database is not open.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
                         ((dbType) database)->sqlFunc->sqlClose == NULL)) {
-      logError(printf("sqlClose(" FMT_U_MEM "): Database not okay.\n",
+      dbNoFuncPtr("sqlClose");
+      logError(printf("sqlClose(" FMT_U_MEM "): "
+                      "Function pointers missing.\n",
                       (memSizeType) database););
-      raise_error(RANGE_ERROR);
+      raise_error(DATABASE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlClose(database);
     } /* if */
+    logFunction(printf("sqlClose -->\n"););
   } /* sqlClose */
 
 
@@ -994,12 +1002,24 @@ void sqlCommit (databaseType database)
   { /* sqlCommit */
     logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlCommit == NULL)) {
-      logError(printf("sqlCommit(" FMT_U_MEM "): Database not okay.\n",
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlCommit(" FMT_U_MEM "): "
+                      "Database is empty.\n",
                       (memSizeType) database););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(!database->isOpen)) {
+      dbNotOpen("sqlCommit");
+      logError(printf("sqlCommit(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlCommit == NULL)) {
+      dbNoFuncPtr("sqlCommit");
+      logError(printf("sqlCommit(" FMT_U_MEM "): "
+                      "Function pointers missing.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlCommit(database);
     } /* if */
@@ -1317,7 +1337,9 @@ intType sqlDriver (databaseType database)
     logFunction(printf("sqlDriver(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     if (unlikely(database == NULL)) {
-      logError(printf("sqlDriver: Database is not open.\n"););
+      logError(printf("sqlDriver(" FMT_U_MEM "): "
+                      "Database is empty.\n",
+                      (memSizeType) database););
       raise_error(RANGE_ERROR);
       driver = 0;
     } else {
@@ -1452,12 +1474,26 @@ boolType sqlGetAutoCommit (databaseType database)
   /* sqlGetAutoCommit */
     logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
                        (memSizeType) database););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlGetAutoCommit == NULL)) {
-      logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): Database not okay.\n",
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): "
+                      "Database is empty.\n",
                       (memSizeType) database););
       raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else if (unlikely(!database->isOpen)) {
+      dbNotOpen("sqlGetAutoCommit");
+      logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
+      autoCommit = FALSE;
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlGetAutoCommit == NULL)) {
+      dbNoFuncPtr("sqlGetAutoCommit");
+      logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): "
+                      "Function pointers missing.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
       autoCommit = FALSE;
     } else {
       autoCommit = ((dbType) database)->sqlFunc->sqlGetAutoCommit(database);
@@ -1530,11 +1566,29 @@ sqlStmtType sqlPrepare (databaseType database,
     logFunction(printf("sqlPrepare(" FMT_U_MEM ", \"%s\")\n",
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
-      logError(printf("sqlPrepare: Database is not open.\n"););
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlPrepare(" FMT_U_MEM ", \"%s\"): "
+                      "Database is empty.\n",
+                      (memSizeType) database,
+                      striAsUnquotedCStri(sqlStatementStri)););
       raise_error(RANGE_ERROR);
+      preparedStmt = NULL;
+    } else if (unlikely(!database->isOpen)) {
+      dbNotOpen("sqlPrepare");
+      logError(printf("sqlPrepare(" FMT_U_MEM ", \"%s\"): "
+                      "Database is not open.\n",
+                      (memSizeType) database,
+                      striAsUnquotedCStri(sqlStatementStri)););
+      raise_error(DATABASE_ERROR);
+      preparedStmt = NULL;
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
+      dbNoFuncPtr("sqlPrepare");
+      logError(printf("sqlPrepare(" FMT_U_MEM ", \"%s\"): "
+                      "Function pointers missing.\n",
+                      (memSizeType) database,
+                      striAsUnquotedCStri(sqlStatementStri)););
+      raise_error(DATABASE_ERROR);
       preparedStmt = NULL;
     } else {
       preparedStmt = ((dbType) database)->sqlFunc->sqlPrepare(database, sqlStatementStri);
@@ -1554,12 +1608,24 @@ void sqlRollback (databaseType database)
   { /* sqlRollback */
     logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
                        (memSizeType) database););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlRollback == NULL)) {
-      logError(printf("sqlRollback(" FMT_U_MEM "): Database not okay.\n",
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlRollback(" FMT_U_MEM "): "
+                      "Database is empty.\n",
                       (memSizeType) database););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(!database->isOpen)) {
+      dbNotOpen("sqlRollback");
+      logError(printf("sqlRollback(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlRollback == NULL)) {
+      dbNoFuncPtr("sqlRollback");
+      logError(printf("sqlRollback(" FMT_U_MEM "): "
+                      "Function pointers missing.\n",
+                      (memSizeType) database););
+      raise_error(DATABASE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlRollback(database);
     } /* if */
@@ -1576,10 +1642,24 @@ void sqlSetAutoCommit (databaseType database, boolType autoCommit)
   { /* sqlSetAutoCommit */
     logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
                        (memSizeType) database, autoCommit););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d): "
+                      "Database is empty.\n",
+                      (memSizeType) database, autoCommit););
       raise_error(RANGE_ERROR);
+    } else if (unlikely(!database->isOpen)) {
+      dbNotOpen("sqlSetAutoCommit");
+      logError(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d): "
+                      "Database is not open.\n",
+                      (memSizeType) database, autoCommit););
+      raise_error(DATABASE_ERROR);
+    } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
+                        ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
+      dbNoFuncPtr("sqlSetAutoCommit");
+      logError(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d): "
+                      "Function pointers missing.\n",
+                      (memSizeType) database, autoCommit););
+      raise_error(DATABASE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlSetAutoCommit(database, autoCommit);
     } /* if */

@@ -47,7 +47,8 @@ EXTERN dbErrorRecord dbError;
 
 #define dbInconsistent(funcName, dbFuncName) \
     dbInconsistentMsg(funcName, dbFuncName, __FILE__, __LINE__)
-
+#define dbNoFuncPtr(funcName) \
+    dbInconsistentMsg(funcName, funcName, __FILE__, __LINE__)
 
 void dbLibError (const char *funcName, const char *dbFuncName,
                  const char *format, ...);
