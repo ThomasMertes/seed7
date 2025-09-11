@@ -212,7 +212,7 @@ const proc: readTgaColorMappedImageLine8 (inout pixelArray: imageLine,
 
 
 const proc: readTgaColorMappedImage8 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -232,7 +232,7 @@ const proc: readTgaColorMappedImage8 (inout pixelImage: image,
 
 
 const proc: readTgaUncompressedColorMapped (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
@@ -272,7 +272,7 @@ const proc: readTgaTrueColorImageLine16 (inout pixelArray: imageLine,
 
 
 const proc: readTgaTrueColorImage16 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -309,7 +309,7 @@ const proc: readTgaTrueColorImageLine24 (inout pixelArray: imageLine,
 
 
 const proc: readTgaTrueColorImage24 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -346,7 +346,7 @@ const proc: readTgaTrueColorImageLine32 (inout pixelArray: imageLine,
 
 
 const proc: readTgaTrueColorImage32 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -366,7 +366,7 @@ const proc: readTgaTrueColorImage32 (inout pixelImage: image,
 
 
 const proc: readTgaUncompressedTrueColor (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
@@ -420,7 +420,7 @@ const proc: readTgaGrayscaleImageLine8 (inout pixelArray: imageLine,
 
 
 const proc: readTgaGrayscaleImage8 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -457,7 +457,7 @@ const proc: readTgaGrayscaleImageLine16 (inout pixelArray: imageLine,
 
 
 const proc: readTgaGrayscaleImage16 (inout pixelImage: image,
-    inout tgaHeader: header, in string: pixelData) is func
+    in tgaHeader: header, in string: pixelData) is func
   local
     var integer: line is 0;
     var integer: byteIndexStart is 1;
@@ -477,7 +477,7 @@ const proc: readTgaGrayscaleImage16 (inout pixelImage: image,
 
 
 const proc: readTgaUncompressedGrayscale (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
@@ -538,7 +538,7 @@ const func string: fromTgaRunLengthEncoding (inout file: tgaFile,
 
 
 const proc: readTgaRleColorMapped (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
@@ -559,7 +559,7 @@ const proc: readTgaRleColorMapped (inout file: tgaFile,
 
 
 const proc: readTgaRleTrueColor (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
@@ -596,7 +596,7 @@ const proc: readTgaRleTrueColor (inout file: tgaFile,
 
 
 const proc: readTgaRleGrayscale (inout file: tgaFile,
-    inout tgaHeader: header, inout pixelImage: image) is func
+    in tgaHeader: header, inout pixelImage: image) is func
   local
     var integer: bytesNeeded is 0;
     var string: pixelData is "";
