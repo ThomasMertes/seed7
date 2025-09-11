@@ -3332,17 +3332,17 @@ const proc: process (STR_POSCPY, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
-    var string: destStri is "";
+    var string: sourceStri is "";
     var expr_type: c_destStri is expr_type.value;
     var expr_type: c_position is expr_type.value;
     var expr_type: c_aStri is expr_type.value;
   begin
     if getConstant(params[6], STRIOBJECT, evaluatedParam) then
-      destStri := getValue(evaluatedParam, string);
-      if length(destStri) = 1 then
-        process_const_str_elemcpy(params[1], params[4], destStri[1], c_expr);
+      sourceStri := getValue(evaluatedParam, string);
+      if length(sourceStri) = 1 then
+        process_const_str_elemcpy(params[1], params[4], sourceStri[1], c_expr);
       else
-        process_const_str_poscpy(params[1], params[4], destStri, c_expr);
+        process_const_str_poscpy(params[1], params[4], sourceStri, c_expr);
       end if;
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_poscpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
