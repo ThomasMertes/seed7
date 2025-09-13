@@ -3679,8 +3679,8 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
           setDbErrorMsg("sqlOpenFire", "isc_attach_database",
                         status_vector);
           logError(printf("sqlOpenFire: isc_attach_database(*, \"%s\", ...  )"
-                          " user: \"%s\", password: \"%s\", error:\n%s\n",
-                          fileName8, loginData->user8, loginData->password8,
+                          " user: \"%s\", password: *, error:\n%s\n",
+                          fileName8, loginData->user8,
                           dbError.message););
           err_info = DATABASE_ERROR;
         } /* if */
@@ -3715,8 +3715,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenFire: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -3818,9 +3817,9 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): Firebird/InterBase driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): "
+                    "Firebird/InterBase driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenFire */

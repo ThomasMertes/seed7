@@ -233,6 +233,12 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
           pos += connectData->uidLength;
         } /* if */
 
+        logFunction(printf("createConnectionString --> TRUE (connectionString=\"");
+                    connectionString[pos] = '\0';
+                    printWstri(connectionString);
+                    printf("%s\")\n",
+                           connectData->pwdLength != 0 ? ";PWD=*" : ""););
+
         if (connectData->pwdLength != 0) {
           connectionString[pos++] = ';';
           memcpy(&connectionString[pos], pwdKey, STRLEN(pwdKey) * sizeof(SQLWCHAR));
@@ -245,9 +251,9 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
         okay = TRUE;
       } /* if */
     } /* if */
-    logFunction(printf("createConnectionString --> %d (connectionString=\"", okay);
-                printWstri(connectionString);
-                printf("\")\n"););
+    logFunction(if (!okay) {
+                  printf("createConnectionString --> FALSE\n");
+                });
     return okay;
   } /* createConnectionString */
 
@@ -352,8 +358,7 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(server));
                 printf("\"%s\", ", striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenInformix: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -427,8 +432,8 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(server));
                 printf("\"%s\", ", striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *): Informix driver not present.\n",
+                       striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenInformix */

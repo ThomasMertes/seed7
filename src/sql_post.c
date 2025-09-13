@@ -3658,8 +3658,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -3691,18 +3690,18 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 dbName8, user8, password8);
             if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
-                              "\"%s\", \"%s\", \"%s\") returns NULL\n",
+                              "\"%s\", \"%s\", *) returns NULL\n",
                               host8[0] == '\0' ? "NULL" : host8,
-                              dbName8, user8, password8););
+                              dbName8, user8););
               err_info = MEMORY_ERROR;
               database = NULL;
             } else if (PQstatus(db.connection) != CONNECTION_OK) {
               setDbErrorMsg("sqlOpenPost", "PQsetdbLogin", db.connection);
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
-                              "\"%s\", \"%s\", \"%s\") error:\n"
+                              "\"%s\", \"%s\", *) error:\n"
                               "status=%d\nerror: %s\n",
                               host8[0] == '\0' ? "NULL" : host8,
-                              dbName8, user8, password8,
+                              dbName8, user8,
                               PQstatus(db.connection),
                               dbError.message););
               err_info = DATABASE_ERROR;
@@ -3762,9 +3761,8 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): PostgreSQL driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): PostgreSQL driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenPost */

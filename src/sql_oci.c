@@ -4776,8 +4776,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenOci: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -4807,7 +4806,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                  printf("connectString1: %s\n", connectData.connectStringService);
                  printf("connectString2: %s\n", connectData.connectStringSid);
                  printf("user:           %s\n", user8);
-                 printf("password:       %s\n", password8); */
+                 printf("password:       *\n"); */
               if (connectData.tnsNameLength              > SB4MAXVAL ||
                   connectData.connectStringServiceLength > SB4MAXVAL ||
                   connectData.connectStringSidLength     > SB4MAXVAL ||
@@ -4984,9 +4983,8 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): OCI driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): OCI driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenOci */

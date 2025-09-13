@@ -482,8 +482,7 @@ databaseType sqlOpenOdbc (const const_striType driver,
                        striAsUnquotedCStri(driver));
                 printf("\"%s\", ", striAsUnquotedCStri(server));
                 printf("\"%s\", ", striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenOdbc: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -510,7 +509,7 @@ databaseType sqlOpenOdbc (const const_striType driver,
             } else {
               /* printf("dbName:   %ls\n", connectData.dbNameW);
                  printf("user:     %ls\n", connectData.userW);
-                 printf("password: %ls\n", connectData.passwordW); */
+                 printf("password: *\n"); */
               if (unlikely(connectData.dbNameW_length   > SHRT_MAX ||
                            connectData.userW_length     > SHRT_MAX ||
                            connectData.passwordW_length > SHRT_MAX)) {
@@ -579,9 +578,8 @@ databaseType sqlOpenOdbc (const const_striType driver,
                     striAsUnquotedCStri(driver));
              printf("\"%s\", ", striAsUnquotedCStri(server));
              printf("\"%s\", ", striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): ODBC driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): ODBC driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenOdbc */

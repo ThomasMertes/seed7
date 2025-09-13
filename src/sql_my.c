@@ -2910,8 +2910,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenMy: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -2954,9 +2953,9 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                                 mysql_errno(connection),
                                 mysql_error(connection));
                   logError(printf("sqlOpenMy: mysql_real_connect(conn, "
-                                  "\"%s\", \"%s\", \"%s\", \"%s\", " FMT_D ") error:\n%s\n",
+                                  "\"%s\", \"%s\", *, \"%s\", " FMT_D ") error:\n%s\n",
                                   host8[0] == '\0' ? "NULL" : host8,
-                                  user8, password8, dbName8, port,
+                                  user8, dbName8, port,
                                   mysql_error(connection)););
                   err_info = DATABASE_ERROR;
                   mysql_close(connection);
@@ -3017,9 +3016,8 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): MariaDB/MySQL driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): MariaDB/MySQL driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenMy */

@@ -176,6 +176,12 @@ static boolType createConnectionString (connectDataType connectData)
           pos += connectData->uidLength;
         } /* if */
 
+        logFunction(printf("createConnectionString --> TRUE (connectionString=\"");
+                    connectionString[pos] = '\0';
+                    printWstri(connectionString);
+                    printf("%s\")\n",
+                           connectData->pwdLength != 0 ? ";PWD=*" : ""););
+
         if (connectData->pwdLength != 0) {
           connectionString[pos++] = ';';
           memcpy(&connectionString[pos], pwdKey, STRLEN(pwdKey) * sizeof(SQLWCHAR));
@@ -188,11 +194,9 @@ static boolType createConnectionString (connectDataType connectData)
         okay = TRUE;
       } /* if */
     } /* if */
-    logFunction(printf("createConnectionString --> %d (connectionString=\"", okay);
-                if (connectData->connectionString != NULL) {
-                  printWstri(connectData->connectionString);
-                }
-                printf("\")\n"););
+    logFunction(if (!okay) {
+                  printf("createConnectionString --> FALSE\n");
+                });
     return okay;
   } /* createConnectionString */
 
@@ -493,8 +497,7 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenSqlServer: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -554,9 +557,8 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): MS SQL-Server driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): MS SQL-Server driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenSqlServer */

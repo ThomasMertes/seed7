@@ -2752,8 +2752,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                        striAsUnquotedCStri(host));
                 printf(FMT_D ", \"%s\", ",
                        port, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenTds: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -2812,7 +2811,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                   DBSETLCHARSET(login, "UTF-8");
                   if ((dbproc = dbopen(login, server)) == NULL) {
                     setDbErrorMsg("sqlOpenTds", "dbopen");
-                    logError(printf("sqlOpenTds: dbopen(\"%s\"/\"***Pwd***\", \"%s\"):\n%s\n",
+                    logError(printf("sqlOpenTds: dbopen(\"%s\"/*, \"%s\"):\n%s\n",
                                     user8, server, dbError.message););
                     err_info = DATABASE_ERROR;
                     dbexit();
@@ -2904,9 +2903,8 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): TDS driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): TDS driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenTds */

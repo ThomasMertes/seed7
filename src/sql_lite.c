@@ -2383,8 +2383,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
   /* sqlOpenLite */
     logFunction(printf("sqlOpenLite(\"%s\", ",
                        striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
+                printf("\"%s\", *)\n", striAsUnquotedCStri(user)););
     if (!findDll()) {
       logError(printf("sqlOpenLite: findDll() failed\n"););
       err_info = DATABASE_ERROR;
@@ -2515,9 +2514,8 @@ databaseType sqlOpenLite (const const_striType host, intType port,
                     striAsUnquotedCStri(host));
              printf(FMT_D ", \"%s\", ",
                     port, striAsUnquotedCStri(dbName));
-             printf("\"%s\", ", striAsUnquotedCStri(user));
-             printf("\"%s\"): SQLite driver not present.\n",
-                    striAsUnquotedCStri(password)););
+             printf("\"%s\", *): SQLite driver not present.\n",
+                    striAsUnquotedCStri(user)););
     raise_error(RANGE_ERROR);
     return NULL;
   } /* sqlOpenLite */
