@@ -3967,22 +3967,26 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                   (year != 0 || month != 1 || day != 1)) {
                 sprintf(datetime2, F_D(04) "-" F_D(02) "-" F_D(02),
                         year, month, day);
+                param->buffer_length = 10;
               } else if (param->paramSize >= 8 &&
                          year == 0 && month == 1 && day == 1) {
                 sprintf(datetime2, F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
                         hour, minute, second, micro_second * 10);
+                param->buffer_length = 16;
               } else if (param->paramSize >= 19) {
                 sprintf(datetime2, F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
                         year, month, day,
                         hour, minute, second, micro_second * 10);
+                param->buffer_length = 27;
+                if (param->paramSize < param->buffer_length) {
+                  datetime2[param->paramSize] = '\0';
+                  param->buffer_length = (memSizeType) param->paramSize;
+                } /* if */
               } else {
                 err_info = RANGE_ERROR;
               } /* if */
               /* printf("datetime2: %s\n", datetime2); */
-              datetime2[param->paramSize] = '\0';
-              /* printf("datetime2: %s\n", datetime2); */
-              param->buffer_length = (memSizeType) param->paramSize;
               /* printf("buffer_length: " FMT_U_MEM "\n", param->buffer_length); */
             } /* if */
             break;
