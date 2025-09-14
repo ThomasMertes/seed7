@@ -117,6 +117,7 @@ static boolType initialized = FALSE;
 
 #define MAX_SOCK_ADDRESS_LEN \
     STRLEN("[01:23:45:67:89:ab:cd:ef]:65535") + NULL_TERMINATION_LEN
+#define SERVICE_NAME_LEN STRLEN("65535") + NULL_TERMINATION_LEN
 
 
 
@@ -1139,7 +1140,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
   {
     cstriType os_hostName;
 #if HAS_GETADDRINFO
-    char serviceName[10];
+    char serviceName[SERVICE_NAME_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1329,7 +1330,7 @@ bstriType socInetLocalAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char serviceName[10];
+    char serviceName[SERVICE_NAME_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1412,7 +1413,7 @@ bstriType socInetServAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char serviceName[10];
+    char serviceName[SERVICE_NAME_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
