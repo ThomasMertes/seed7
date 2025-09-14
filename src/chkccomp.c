@@ -11288,8 +11288,8 @@ int main (int argc, char **argv)
                          "strcpy(stri1, \"za\");\n"
                          "strcpy(stri2, \"az\");\n"
                          "printf(\"%d\\n\",\n"
-                         "       strcmp(stri1, stri2, 2) == 1 &&\n"
-                         "       strcmp(stri2, stri1, 2) == -1);\n"
+                         "       strcmp(stri1, stri2) == 1 &&\n"
+                         "       strcmp(stri2, stri1) == -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define MEMCMP_RETURNS_SIGNUM %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
