@@ -235,7 +235,7 @@ static void fix_capability (void)
     if (terminal_name == NULL) {
       terminal_name = "";
     } /* if */
-    file_name_size = strlen(home_dir_path) + STRLEN("/.term") + strlen(terminal_name);
+    file_name_size = strlen(home_dir_path) + 6 + strlen(terminal_name);
     file_name = malloc(file_name_size + 1);
     if (file_name != NULL) {
       strcpy(file_name, home_dir_path);
@@ -246,7 +246,7 @@ static void fix_capability (void)
       } /* if */
       strcpy(&file_name[len], ".term");
       strcat(file_name, terminal_name);
-      if ((fix_file = fopen(fix_file_name, "r")) != NULL) {
+      if ((fix_file = fopen(file_name, "r")) != NULL) {
         do {
           read_cap_name(fix_file, cap_name, &term_char);
         } while (term_char != ',' && term_char != ':' && term_char != EOF);
