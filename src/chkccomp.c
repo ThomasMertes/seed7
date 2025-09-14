@@ -11301,6 +11301,23 @@ int main (int argc, char **argv)
                          "       memcmp(stri1, stri2, 2) == 1 &&\n"
                          "       memcmp(stri2, stri1, 2) == -1);\n"
                          "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define MEMCMP_WITH_SIZE_0_RETURNS_0 %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "char stri1[3], stri2[3], *stri3, *stri4;\n"
+                         "int size;\n"
+                         "strcpy(stri1, \"za\");\n"
+                         "strcpy(stri2, \"az\");\n"
+                         "stri3 = NULL;\n"
+                         "stri4 = NULL;\n"
+                         "size = 0;\n"
+                         "printf(\"%d\\n\",\n"
+                         "       memcmp(stri1, stri2, size) == 0 &&\n"
+                         "       memcmp(stri2, stri1, size) == 0 &&\n"
+                         "       memcmp(stri1, stri4, size) == 0 &&\n"
+                         "       memcmp(stri3, stri2, size) == 0 &&\n"
+                         "       memcmp(stri3, stri4, size) == 0);\n"
+                         "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMCMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
                          "int main(int argc, char *argv[]){\n"
