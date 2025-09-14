@@ -4303,7 +4303,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
                                "char stri[] = {\n";
     const char *line = "'1','2','3','4','5','6','7','8','9','0',"
                        "'1','2','3','4','5','6','7','8','9','0',\n";
-    const char *programEnd = "};\n"
+    const char *programEnd = "'\\0'};\n"
                              "unsigned int doTest (char *stri) {\n"
                              "char ch = '1';\n"
                              "char *chPtr;\n"
