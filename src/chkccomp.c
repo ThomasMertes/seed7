@@ -8176,10 +8176,12 @@ static int visualDepthOf32BitsSupported (const char *x11IncludeCommand,
                          "if (display == NULL) {\n"
                          "  display = XOpenDisplay(\":0\");\n"
                          "}\n"
-                         "printf(\"%%d\\n\",\n"
-                         "    display != NULL &&\n"
-                         "    XMatchVisualInfo(display, DefaultScreen(display),\n"
-                         "                     32, TrueColor, &vinfo) != 0);\n"
+                         "if (display != NULL) {\n"
+                         "  printf(\"%%d\\n\",\n"
+                         "      XMatchVisualInfo(display, DefaultScreen(display),\n"
+                         "                       32, TrueColor, &vinfo) != 0);\n"
+                         "  XCloseDisplay(display);\n"
+                         "} else { printf(\"0\\n\"); }\n"
                          "return 0;}\n",
             x11IncludeCommand);
     if (compileAndLinkWithOptionsOk(testProgram, includeOption, systemDrawLibs)) {
@@ -8238,6 +8240,7 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
                            "  defaultVisual = XDefaultVisual(display, screen);\n"
                            "  printf(\"%%d\\n\", getHighestSetBit(defaultVisual->%s_mask) << 8 |\n"
                            "          countLowestZeroBits(defaultVisual->%s_mask));\n"
+                           "  XCloseDisplay(display);\n"
                            "} else { printf(\"0\\n\"); }\n"
                            "return 0;}\n",
               x11IncludeCommand, colorNames[colorIndex], colorNames[colorIndex]);
@@ -8407,6 +8410,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                            "  display = XOpenDisplay(\":0\");\n"
                            "}\n"
                            "printf(\"1\\n\");\n"
+                           "if (display != NULL) {\n"
+                           "  XCloseDisplay(display);\n"
+                           "}\n"
                            "return 0;}\n", x11IncludeCommand);
       /* fprintf(logFile, "%s\n", testProgram);
          fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
@@ -8441,6 +8447,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options,
                              "}\n"
                              "if (display != NULL) {\n"
                              "  xrender = XRenderQueryExtension(display, &event_basep, &error_basep);\n"
+                             "  XCloseDisplay(display);\n"
                              "}\n"
                              "printf(\"1\\n\");\n"
                              "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
