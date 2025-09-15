@@ -621,6 +621,7 @@ static basicFontType readfont (char *fontfilename)
 
   {
     FILE *fontfile;
+    memSizeType pos = 0;
     char fontname[256];
     int ch;
     int fontch;
@@ -639,7 +640,13 @@ static basicFontType readfont (char *fontfilename)
 #endif
     if ((fontfile = fopen(fontfilename, "r")) != NULL) {
       if ((result = (basicFontType) malloc(sizeof(basicFontRecord))) != NULL) {
-        fscanf(fontfile, "%s\n", fontname);
+        while ((ch = getc(fontfile)) != EOF && ch != '\n') {
+          if (pos < sizeof(fontname) - 1) {
+            fontname[pos] = ch;
+            pos++;
+          } /* if */
+        } /* while */
+        fontname[pos] = '\0';
         result->name = (char *) malloc(strlen(fontname) + 1);
         strcpy(result->name, fontname);
 #ifdef TRACE_FONT
