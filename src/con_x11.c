@@ -648,7 +648,9 @@ static basicFontType readfont (char *fontfilename)
         } /* while */
         fontname[pos] = '\0';
         result->name = (char *) malloc(strlen(fontname) + 1);
-        strcpy(result->name, fontname);
+        if (result->name != NULL) {
+          strcpy(result->name, fontname);
+        } /* if */
 #ifdef TRACE_FONT
         printf("%s\n", fontname);
         while ((ch = fgetc(fontfile)) != EOF && ch != '\n') {
