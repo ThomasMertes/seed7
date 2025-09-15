@@ -68,8 +68,8 @@
 
 #define SETUPTERM_WORKS_OK
 
-#define CAP_NAME_SIZE  256
-#define STRI_CAP_SIZE 1024
+#define CAP_NAME_BUFFER_SIZE   256
+#define CAP_VALUE_BUFFER_SIZE 1024
 
 
 #ifdef OUT_OF_ORDER
@@ -108,7 +108,7 @@ static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
     } while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
     while (ch != ':' && ch != ',' &&
         ch != '=' && ch != '#' && ch != '|' && ch != EOF) {
-      if (pos < CAP_NAME_SIZE - 1) {
+      if (pos < CAP_NAME_BUFFER_SIZE - 1) {
         cap_name[pos] = (char) ch;
         pos++;
       } /* if */
@@ -139,7 +139,7 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
 
   {
     int from;
-    char to_buf[STRI_CAP_SIZE];
+    char to_buf[CAP_VALUE_BUFFER_SIZE];
     char *to;
     char *cap_value = NULL;
 
@@ -149,7 +149,7 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
     while (from != ',' && from != ':' && from != EOF) {
       if (from == '\\') {
         from = fgetc(fix_file);
-        if (to < &to_buf[STRI_CAP_SIZE]) {
+        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
           switch (from) {
             case 'E':
             case 'e': *to++ = '\033';      break;
@@ -167,7 +167,7 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
 	} /* if */
       } else if (from == '^') {
         from = fgetc(fix_file);
-        if (to < &to_buf[STRI_CAP_SIZE]) {
+        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
           if (from >= 'a' && from <= 'z') {
             *to++ = (char) (from - 'a' + 1);
           } else if (from >= 'A' && from <= 'Z') {
@@ -179,13 +179,13 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
           } /* if */
         } /* if */
       } else {
-        if (to < &to_buf[STRI_CAP_SIZE]) {
+        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
           *to++ = (char) from;
         } /* if */
       } /* if */
       from = fgetc(fix_file);
     } /* while */
-    if (to < &to_buf[STRI_CAP_SIZE]) {
+    if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
       *to = '\0';
       if ((cap_value = (char *) malloc((size_t) (to - to_buf + 1))) != NULL) {
         strcpy(cap_value, to_buf);
@@ -222,7 +222,7 @@ static void fix_capability (void)
     memSizeType file_name_size;
     char *file_name;
     FILE *fix_file;
-    char cap_name[CAP_NAME_SIZE];
+    char cap_name[CAP_NAME_BUFFER_SIZE];
     char *cap_value;
     int term_char;
     size_t len;
