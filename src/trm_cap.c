@@ -141,6 +141,7 @@ int my_tgetnum (char *code)
 int my_tgetflag (char *code)
 
   {
+    memSizeType pos = 1;
     char buffer[33];
     char *found;
     int result = FALSE;
@@ -168,22 +169,27 @@ int my_tgetflag (char *code)
 char *my_tgetstr(char *code, char **area)
 
   {
+    memSizeType pos = 1;
     char buffer[33];
     char *found;
     char *end;
     char *from;
     char to_buf[513];
     char *to;
-    char *result;
+    char *result = NULL;
 
   /* my_tgetstr */
-    result = NULL;
     buffer[0] = ':';
-    strcpy(&buffer[1], code);
-    strcat(buffer, "=");
+    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
+      buffer[pos] = code[pos - 1];
+      pos++;
+    } /* while */
+    buffer[pos] = '=';
+    pos++;
+    buffer[pos] = '\0';
     if ((found = strstr(capabilities, buffer)) != NULL) {
-      if ((end = strchr(found + 4, ':')) != NULL) {
-        from = found + 4;
+      if ((end = strchr(found + pos, ':')) != NULL) {
+        from = found + pos;
         to = to_buf;
         while (from != end) {
           if (*from == '\\') {
