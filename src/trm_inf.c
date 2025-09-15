@@ -68,6 +68,7 @@
 
 #define SETUPTERM_WORKS_OK
 
+#define CAP_NAME_SIZE  256
 #define STRI_CAP_SIZE 1024
 
 
@@ -95,9 +96,10 @@ void tputs (char *, int, int (*) (char ch));
 
 
 
-static void read_cap_name (FILE *fix_file, char *cap_name, int *term_char)
+static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
 
   {
+    memSizeType pos = 0;
     int ch;
 
   /* read_cap_name */
@@ -106,10 +108,13 @@ static void read_cap_name (FILE *fix_file, char *cap_name, int *term_char)
     } while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
     while (ch != ':' && ch != ',' &&
         ch != '=' && ch != '#' && ch != '|' && ch != EOF) {
-      *cap_name++ = (char) ch;
+      if (pos < CAP_NAME_SIZE - 1) {
+        cap_name[pos] = (char) ch;
+        pos++;
+      } /* if */
       ch = fgetc(fix_file);
     } /* while */
-    *cap_name = '\0';
+    cap_name[pos] = '\0';
     *term_char = ch;
   } /* read_cap_name */
 
@@ -214,7 +219,7 @@ static void fix_capability (void)
     memSizeType file_name_size;
     char *file_name;
     FILE *fix_file;
-    char cap_name[256];
+    char cap_name[CAP_NAME_SIZE];
     char *cap_value;
     int term_char;
     size_t len;
