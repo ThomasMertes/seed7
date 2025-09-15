@@ -1006,18 +1006,30 @@ static int x11_setfont (char *fontname)
 
   {
     basicFontType basic_font;
+    memSizeType pos = 0;
     char filename[256];
-    int scale;
-    int slant;
+    char ch;
+    int scale = -1;
+    int slant = 0;
     int result = 0;
 
   /* x11_setfont */
 #ifdef TRACE_FONT
     printf("BEGIN x11_setfont(%s)\n", fontname);
 #endif
-    scale = -1;
-    slant = 0;
-    sscanf(fontname, "%s %d %d", filename, &scale, &slant);
+    while ((ch = fontname[pos]) != '\0' && ch != ' ' &&
+           ch != '\t' && ch != '\r' && ch != '\n') {
+      if (pos < sizeof(filename) - 1) {
+        filename[pos] = ch;
+      } /* if */
+      pos++;
+    } /* while */
+    if (pos < sizeof(filename)) {
+      filename[pos] = '\0';
+    } else {
+      filename[sizeof(filename) - 1] = '\0';
+    } /* if */
+    sscanf(&fontname[pos], "%d %d", &scale, &slant);
     if ((basic_font = get_font(filename)) == NULL) {
       basic_font = get_font("simple");
     } /* if */
@@ -1038,11 +1050,12 @@ static int x11_setfont (char *fontname)
 static void x11_setfont (char *fontname)
 
   {
+    memSizeType pos = 0;
     char filename[256];
-    int letterheight;
-    int letterwidth;
-    int letterdistance;
-    int lineheigth;
+    int letterheight = -1;
+    int letterwidth = -1;
+    int letterdistance = -1;
+    int lineheigth = -1;
     int font_scale;
     int screen_scale;
     int shift_x;
@@ -1061,11 +1074,19 @@ static void x11_setfont (char *fontname)
 
   /* x11_setfont */
 printf("BEGIN x11_setfont(%s)\n", fontname);
-    letterheight = -1;
-    letterwidth = -1;
-    letterdistance = -1;
-    lineheigth = -1;
-    sscanf(fontname, "%s %d %d %d %d", filename,
+    while ((ch = fontname[pos]) != '\0' && ch != ' ' &&
+           ch != '\t' && ch != '\r' && ch != '\n') {
+      if (pos < sizeof(filename) - 1) {
+        filename[pos] = ch;
+      } /* if */
+      pos++;
+    } /* while */
+    if (pos < sizeof(filename)) {
+      filename[pos] = '\0';
+    } else {
+      filename[sizeof(filename) - 1] = '\0';
+    } /* if */
+    sscanf(&fontname[pos], "%d %d %d %d",
         &letterheight, &letterwidth, &letterdistance, &lineheigth);
     scalefile = fopen("scalefile", "w");
     if ((fontfile = fopen(filename, "r")) != NULL) {
