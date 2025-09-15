@@ -938,7 +938,8 @@ static basicFontType get_font (char *fontname)
           file_name = malloc(file_name_size + 1);
           if (file_name != NULL) {
             strcpy(file_name, home_path);
-            if (file_name[strlen(file_name) - 1] != '\\') {
+            if (file_name[0] != '\0' &&
+                file_name[strlen(file_name) - 1] != '/') {
               strcat(file_name, "/");
             } /* if */
             strcat(file_name, "font/");
@@ -1762,8 +1763,9 @@ int conOpen (void)
   /* Initializes and clears the console.                            */
 
   {
-    char *home;
-    char fontname[256];
+    char *home_path;
+    memSizeType font_name_size;
+    char *font_name;
     int result = 0;
 
   /* conOpen */
@@ -1772,13 +1774,23 @@ int conOpen (void)
     fflush(stdout);
 #endif
     if ((mydisplay = XOpenDisplay("")) != NULL) {
-      if ((home = getenv("HOME")) != NULL) {
-        strcpy(fontname, home);
+      if ((home_path = getenv("HOME")) != NULL) {
+        font_name_size = strlen(home_path) + 16;
+        font_name = malloc(font_name_size + 1);
+        if (font_name != NULL) {
+          strcpy(font_name, home_path);
+          if (font_name[0] != '\0' &&
+              font_name[strlen(font_name) - 1] != '/') {
+            strcat(font_name, "/");
+          } /* if */
+          strcat(font_name, "/font/simple.fnt");
+        } else {
+          font_name = "";
+        } /* if */
       } else {
-        fontname[0] = '\0';
+        font_name = "";
       } /* if */
-      strcat(fontname, "/font/simple.fnt");
-      if (x11_setfont(fontname)) {
+      if (x11_setfont(font_name)) {
         if (do_x11_init(100, 100, 640, 960)) {
           maxx = 640;
           maxy = 960;
