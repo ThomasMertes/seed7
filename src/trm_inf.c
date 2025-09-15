@@ -201,7 +201,7 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
     } /* while */
     if (pos < CAP_VALUE_BUFFER_SIZE) {
       value[pos] = '\0';
-      if ((cap_value = (char *) malloc((size_t) (pos + 1))) != NULL) {
+      if ((cap_value = (char *) malloc(pos + 1)) != NULL) {
         strcpy(cap_value, value);
       } /* if */
     } /* if */
