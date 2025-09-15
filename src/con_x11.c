@@ -913,15 +913,15 @@ static basicFontType get_font (char *fontname)
 
   {
     char *home_path;
-    char filename[256];
+    memSizeType file_name_size;
+    char *file_name;
     basicFontType a_font;
-    basicFontType result;
+    basicFontType result = NULL;
 
   /* get_font */
 #ifdef TRACE_FONT
     printf("BEGIN get_font(%s)\n", fontname);
 #endif
-    result = NULL;
     a_font = font_list;
     while (a_font != NULL && result == NULL) {
       if (strcmp(a_font->name, fontname) == 0) {
@@ -934,14 +934,19 @@ static basicFontType get_font (char *fontname)
     if (result == NULL) {
       if ((result = readfont(fontname)) == NULL) {
         if ((home_path = getenv("HOME")) != NULL) {
-          strcpy(filename, home_path);
-          if (filename[strlen(filename) - 1] != '\\') {
-            strcat(filename, "/");
+          file_name_size = strlen(home_path) + 6 + strlen(fontname) + 4;
+          file_name = malloc(file_name_size + 1);
+          if (file_name != NULL) {
+            strcpy(file_name, home_path);
+            if (file_name[strlen(file_name) - 1] != '\\') {
+              strcat(file_name, "/");
+            } /* if */
+            strcat(file_name, "font/");
+            strcat(file_name, fontname);
+            strcat(file_name, ".fnt");
+            result = readfont(file_name);
+            free(file_name);
           } /* if */
-          strcat(filename, "font/");
-          strcat(filename, fontname);
-          strcat(filename, ".fnt");
-          result = readfont(filename);
         } /* if */
       } /* if */
       if (result != NULL) {
