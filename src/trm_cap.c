@@ -143,13 +143,17 @@ int my_tgetflag (char *code)
   {
     char buffer[33];
     char *found;
-    int result;
+    int result = FALSE;
 
   /* my_tgetflag */
-    result = FALSE;
     buffer[0] = ':';
-    strcpy(&buffer[1], code);
-    strcat(buffer, ":");
+    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
+      buffer[pos] = code[pos - 1];
+      pos++;
+    } /* while */
+    buffer[pos] = ':';
+    pos++;
+    buffer[pos] = '\0';
     if ((found = strstr(capabilities, buffer)) != NULL) {
       result = TRUE;
     } /* if */
