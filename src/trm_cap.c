@@ -113,17 +113,22 @@ int my_tgetent (char *capbuf, char *terminal_name)
 int my_tgetnum (char *code)
 
   {
+    memSizeType pos = 1;
     char buffer[33];
     char *found;
-    int result;
+    int result = -1;
 
   /* my_tgetnum */
-    result = -1;
     buffer[0] = ':';
-    strcpy(&buffer[1], code);
-    strcat(buffer, "#");
+    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
+      buffer[pos] = code[pos - 1];
+      pos++;
+    } /* while */
+    buffer[pos] = '#';
+    pos++;
+    buffer[pos] = '\0';
     if ((found = strstr(capabilities, buffer)) != NULL) {
-      sscanf(found + 4, "%d", &result);
+      sscanf(found + pos, "%d", &result);
     } /* if */
 #ifdef TRACE_CAPS
     printf("%s#%d\n", code, result);
