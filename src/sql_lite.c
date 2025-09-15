@@ -92,7 +92,9 @@ typedef struct {
 static sqlFuncType sqlFunc = NULL;
 
 #define DEFAULT_DECIMAL_SCALE 1000
-#define MAX_SIZE_ISO_DURATION 35
+
+/* The format of the ISO duration is: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
+#define MAX_SIZE_ISO_DURATION         1+6 + 4 + 4 + 1+4 + 4 + 3 +7+1
 
 
 #ifdef SQLITE_DLL
