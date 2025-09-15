@@ -68,6 +68,8 @@
 
 #define SETUPTERM_WORKS_OK
 
+#define BUFFER_SIZE 1024
+
 
 #ifdef OUT_OF_ORDER
 #ifdef C_PLUS_PLUS
@@ -132,13 +134,14 @@ static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
 
   {
     int from;
-    char to_buf[513];
+    char to_buf[BUFFER_SIZE];
     char *to;
 
   /* read_stri_cap */
     from = fgetc(fix_file);
     to = to_buf;
-    while (from != ',' && from != ':' && from != EOF) {
+    while (from != ',' && from != ':' && from != EOF &&
+           to < &to_buf[BUFFER_SIZE]) {
       if (from == '\\') {
         from = fgetc(fix_file);
         switch (from) {
@@ -173,7 +176,7 @@ static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
         from = fgetc(fix_file);
       } /* if */
     } /* while */
-    if (to == to_buf) {
+    if (to == to_buf || to >= &to_buf[BUFFER_SIZE]) {
       *cap_value = NULL;
     } else {
       *to = '\0';
