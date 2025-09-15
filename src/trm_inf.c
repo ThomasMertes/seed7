@@ -141,29 +141,20 @@ static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
     while (from != ',' && from != ':' && from != EOF) {
       if (from == '\\') {
         from = fgetc(fix_file);
-        if (from == 'E' || from == 'e') {
-          *to++ = '\033';
-        } else if (from == 'n') {
-          *to++ = '\n';
-        } else if (from == 'l') {
-          *to++ = '\n';
-        } else if (from == 'r') {
-          *to++ = '\r';
-        } else if (from == 't') {
-          *to++ = '\t';
-        } else if (from == 'b') {
-          *to++ = '\b';
-        } else if (from == 'f') {
-          *to++ = '\f';
-        } else if (from == 's') {
-          *to++ = ' ';
-        } else if (from == '0') {
-          *to++ = '\200';
-        } else if (from == EOF) {
-          *to++ = '\\';
-        } else {
-          *to++ = (char) from;
-        } /* if */
+        switch (from) {
+          case 'E':
+          case 'e': *to++ = '\033';      break;
+          case 'n':
+          case 'l': *to++ = '\n';        break;
+          case 'r': *to++ = '\r';        break;
+          case 't': *to++ = '\t';        break;
+          case 'b': *to++ = '\b';        break;
+          case 'f': *to++ = '\f';        break;
+          case 's': *to++ = ' ';         break;
+          case '0': *to++ = '\200';      break;
+          case EOF: *to++ = '\\';        break;
+          default:  *to++ = (char) from; break;
+        } /* switch */
         from = fgetc(fix_file);
       } else if (from == '^') {
         from = fgetc(fix_file);
