@@ -135,61 +135,64 @@ static void read_int_cap (FILE *fix_file, char **cap_value, int *term_char)
 
 
 
-static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
+static char *read_stri_cap (FILE *fix_file, int *term_char)
 
   {
     int from;
     char to_buf[STRI_CAP_SIZE];
     char *to;
+    char *cap_value = NULL;
 
   /* read_stri_cap */
     from = fgetc(fix_file);
     to = to_buf;
-    while (from != ',' && from != ':' && from != EOF &&
-           to < &to_buf[STRI_CAP_SIZE]) {
+    while (from != ',' && from != ':' && from != EOF) {
       if (from == '\\') {
         from = fgetc(fix_file);
-        switch (from) {
-          case 'E':
-          case 'e': *to++ = '\033';      break;
-          case 'n':
-          case 'l': *to++ = '\n';        break;
-          case 'r': *to++ = '\r';        break;
-          case 't': *to++ = '\t';        break;
-          case 'b': *to++ = '\b';        break;
-          case 'f': *to++ = '\f';        break;
-          case 's': *to++ = ' ';         break;
-          case '0': *to++ = '\200';      break;
-          case EOF: *to++ = '\\';        break;
-          default:  *to++ = (char) from; break;
-        } /* switch */
-        from = fgetc(fix_file);
+        if (to < &to_buf[STRI_CAP_SIZE]) {
+          switch (from) {
+            case 'E':
+            case 'e': *to++ = '\033';      break;
+            case 'n':
+            case 'l': *to++ = '\n';        break;
+            case 'r': *to++ = '\r';        break;
+            case 't': *to++ = '\t';        break;
+            case 'b': *to++ = '\b';        break;
+            case 'f': *to++ = '\f';        break;
+            case 's': *to++ = ' ';         break;
+            case '0': *to++ = '\200';      break;
+            case EOF: *to++ = '\\';        break;
+            default:  *to++ = (char) from; break;
+          } /* switch */
+	} /* if */
       } else if (from == '^') {
         from = fgetc(fix_file);
-        if (from >= 'a' && from <= 'z') {
-          *to++ = (char) (from - 'a' + 1);
-        } else if (from >= 'A' && from <= 'Z') {
-          *to++ = (char) (from - 'A' + 1);
-        } else if (from == EOF) {
-          *to++ = '^';
-        } else {
+        if (to < &to_buf[STRI_CAP_SIZE]) {
+          if (from >= 'a' && from <= 'z') {
+            *to++ = (char) (from - 'a' + 1);
+          } else if (from >= 'A' && from <= 'Z') {
+            *to++ = (char) (from - 'A' + 1);
+          } else if (from == EOF) {
+            *to++ = '^';
+          } else {
+            *to++ = (char) from;
+          } /* if */
+        } /* if */
+      } else {
+        if (to < &to_buf[STRI_CAP_SIZE]) {
           *to++ = (char) from;
         } /* if */
-        from = fgetc(fix_file);
-      } else {
-        *to++ = (char) from;
-        from = fgetc(fix_file);
       } /* if */
+      from = fgetc(fix_file);
     } /* while */
-    if (to == to_buf || to >= &to_buf[STRI_CAP_SIZE]) {
-      *cap_value = NULL;
-    } else {
+    if (to < &to_buf[STRI_CAP_SIZE]) {
       *to = '\0';
-      if ((*cap_value = (char *) malloc((size_t) (to - to_buf + 1))) != NULL) {
-        strcpy(*cap_value, to_buf);
+      if ((cap_value = (char *) malloc((size_t) (to - to_buf + 1))) != NULL) {
+        strcpy(cap_value, to_buf);
       } /* if */
     } /* if */
     *term_char = from;
+    return cap_value;
   } /* read_stri_cap */
 
 
@@ -261,7 +264,7 @@ static void fix_capability (void)
               read_int_cap(fix_file, &cap_value, &term_char);
               break;
             case '=':
-              read_stri_cap(fix_file, &cap_value, &term_char);
+              cap_value = read_stri_cap(fix_file, &term_char);
               break;
           } /* switch */
           if (assign_cap(cap_name, "rmkx",  "ke", &keypad_local, cap_value) ||
