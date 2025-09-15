@@ -82,6 +82,7 @@ int tputs (char *, int, int (*) (char ch));
 #define tgetstr  my_tgetstr
 
 #define SEARCHED_BUFFER_SIZE 33
+#define STRI_CAP_SIZE 1024
 
 #define CAPBUF_SIZE 2048
 
@@ -176,7 +177,7 @@ char *my_tgetstr(char *code, char **area)
     char *found;
     char *end;
     char *from;
-    char to_buf[513];
+    char to_buf[STRI_CAP_SIZE];
     char *to;
     char *result = NULL;
 
@@ -193,48 +194,51 @@ char *my_tgetstr(char *code, char **area)
       if ((end = strchr(found + pos, ':')) != NULL) {
         from = found + pos;
         to = to_buf;
-        while (from != end) {
+        while (from != end && to < &to_buf[STRI_CAP_SIZE]) {
           if (*from == '\\') {
             from++;
-            if (*from == 'E' || *from == 'e') {
-              *to++ = '\033';
-            } else if (*from == 'n') {
-              *to++ = '\n';
-            } else if (*from == 'l') {
-              *to++ = '\n';
-            } else if (*from == 'r') {
-              *to++ = '\r';
-            } else if (*from == 't') {
-              *to++ = '\t';
-            } else if (*from == 'b') {
-              *to++ = '\b';
-            } else if (*from == 'f') {
-              *to++ = '\f';
-            } else if (*from == 's') {
-              *to++ = ' ';
-            } else if (*from == '0') {
-              *to++ = '\200';
+            if (from != end) {
+              switch (*from) {
+                case 'E':
+                case 'e': *to++ = '\033'; break;
+                case 'n':
+                case 'l': *to++ = '\n';   break;
+                case 'r': *to++ = '\r';   break;
+                case 't': *to++ = '\t';   break;
+                case 'b': *to++ = '\b';   break;
+                case 'f': *to++ = '\f';   break;
+                case 's': *to++ = ' ';    break;
+                case '0': *to++ = '\200'; break;
+                default:  *to++ = *from;  break;
+                break;
+              } /* switch */
+              from++;
             } else {
-              *to++ = *from;
+              *to++ = '\\';
             } /* if */
-            from++;
           } else if (*from == '^') {
             from++;
-            if (*from >= 'a' && *from <= 'z') {
-              *to++ = *from - 'a' + 1;
-            } else if (*from >= 'A' && *from <= 'Z') {
-              *to++ = *from - 'A' + 1;
+            if (from != end) {
+              if (*from >= 'a' && *from <= 'z') {
+                *to++ = *from - 'a' + 1;
+              } else if (*from >= 'A' && *from <= 'Z') {
+                *to++ = *from - 'A' + 1;
+              } else {
+                *to++ = *from;
+              } /* if */
+              from++;
             } else {
-              *to++ = *from;
+              *to++ = '^';
             } /* if */
-            from++;
           } else {
             *to++ = *from++;
           } /* if */
         } /* while */
-        *to = '\0';
-        if ((result = (char *) malloc(to - to_buf + 1)) != NULL) {
-          strcpy(result, to_buf);
+        if (to < &to_buf[STRI_CAP_SIZE]) {
+          *to = '\0';
+          if ((result = (char *) malloc(to - to_buf + 1)) != NULL) {
+            strcpy(result, to_buf);
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
