@@ -1220,7 +1220,7 @@ static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffe
 static const char *nameOfBufferType (uint16Type buffer_type)
 
   {
-    static char buffer[50];
+    static char buffer[UINT16_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     static const char *const typeNameTable[] = {
       "0",           "SQLT_CHR",    "SQLT_NUM",    "SQLT_INT",    "SQLT_FLT",
       "SQLT_STR",    "SQLT_VNU",    "SQLT_PDN",    "SQLT_LNG",    "SQLT_VCS",

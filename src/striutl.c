@@ -283,7 +283,7 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 cstriType stringify (intType number)
 
   {
-    static char buffer[10];
+    static char buffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
 
   /* stringify */
     sprintf(buffer, FMT_D, number);

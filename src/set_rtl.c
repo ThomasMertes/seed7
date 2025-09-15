@@ -825,7 +825,7 @@ boolType setEq (const const_setType set1, const const_setType set2)
         } /* for */
       } /* if */
       /* 'bitset1' and 'bitset2' might be NULL. In this case 'size' is 0. */
-      /* According to the specification memcmp() returns 0 when size is 0. */
+      /* According to the specification memcmp() returns 0 if size is 0. */
       return memcmp(bitset1, bitset2, size * sizeof(bitSetType)) == 0;
     } /* if */
   } /* setEq */

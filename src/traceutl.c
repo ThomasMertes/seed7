@@ -55,6 +55,7 @@
 #include "findid.h"
 #include "doany.h"
 #include "option.h"
+#include "flt_rtl.h"
 #include "set_rtl.h"
 #include "str_rtl.h"
 #include "ut8_rtl.h"
@@ -222,7 +223,7 @@ void prot_cstri8 (const const_cstriType cstri8)
 void prot_cchar (char ch)
 
   {
-    char buffer[2];
+    char buffer[1 + NULL_TERMINATION_LEN];
 
   /* prot_cchar */
     buffer[0] = ch;
@@ -244,7 +245,7 @@ void prot_writeln (const_cstriType stri)
 void prot_int (intType ivalue)
 
   {
-    char buffer[51];
+    char buffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
 
   /* prot_int */
     sprintf(buffer, FMT_D, ivalue);
@@ -287,7 +288,7 @@ static void prot_bigint_hex (const const_bigIntType bigIntValue)
 void prot_float (floatType floatValue)
 
   {
-    char buffer[51];
+    char buffer[FMT_E_BUFFER_SIZE];
 
   /* prot_float */
     sprintf(buffer, FMT_E, floatValue);
@@ -467,13 +468,13 @@ void printcategory (objectCategory category)
 static char *obj_ptr (objectType anyobject)
 
   {
-    static char out_buf[50];
+    static char buffer[MEMSIZETYPE_HEXADECIMAL_SIZE + NULL_TERMINATION_LEN];
 
   /* obj_ptr */
     logFunction(printf("obj_ptr\n"););
-    sprintf(out_buf, FMT_X_MEM, (memSizeType) anyobject);
+    sprintf(buffer, FMT_X_MEM, (memSizeType) anyobject);
     logFunction(printf("obj_ptr -->\n"););
-    return out_buf;
+    return buffer;
   } /* obj_ptr */
 
 

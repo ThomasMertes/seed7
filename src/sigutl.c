@@ -73,7 +73,7 @@ void shutDrivers (void)
 const_cstriType signalName (int signalNum)
 
   {
-    static char buffer[20];
+    static char buffer[INT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     const_cstriType sigName;
 
   /* signalName */

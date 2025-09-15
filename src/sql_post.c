@@ -500,7 +500,7 @@ static boolType implicitCommit (const_cstriType query)
     while (isalpha(*beyond)) {
       beyond++;
     } /* while */
-    if ((memSizeType) (beyond - startPos) <= sizeof(keyword)) {
+    if ((memSizeType) (beyond - startPos) < sizeof(keyword)) {
       for (pos = startPos; pos != beyond; pos++) {
         keyword[pos - startPos] = (char) toupper(*pos);
       } /* for */
@@ -625,7 +625,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 static const char *nameOfBufferType (Oid buffer_type)
 
   {
-    static char buffer[50];
+    static char buffer[UINT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     const char *typeName;
 
   /* nameOfBufferType */
@@ -718,7 +718,7 @@ static const char *nameOfBufferType (Oid buffer_type)
       case FDW_HANDLEROID:      typeName = "FDW_HANDLEROID"; break;
 #endif
       default:
-        sprintf(buffer, "%d", buffer_type);
+        sprintf(buffer, "%u", buffer_type);
         typeName = buffer;
         break;
     } /* switch */

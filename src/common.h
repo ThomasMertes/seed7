@@ -81,6 +81,11 @@ typedef UINT16TYPE         uint16Type;
 #define FMT_U16      "%hu"
 #define FMT_X16      "%hx"
 
+/* INT16TYPE_DECIMAL_SIZE includes space for the sign */
+#define INT16TYPE_DECIMAL_SIZE   6
+/* UINT16TYPE_DECIMAL_SIZE does not need space for a sign */
+#define UINT16TYPE_DECIMAL_SIZE  5
+
 
 typedef INT32TYPE          int32Type;
 typedef UINT32TYPE         uint32Type;
@@ -208,6 +213,34 @@ typedef uint128Type               doubleUintType;
 #define DECIMAL_DIGITS_IN_INTTYPE DECIMAL_DIGITS_IN_INT64TYPE
 #define uintMostSignificantBit    uint64MostSignificantBit
 #define uintLeastSignificantBit   uint64LeastSignificantBit
+#endif
+
+
+#if INT_SIZE == 16
+#define INT_DECIMAL_SIZE      INT16TYPE_DECIMAL_SIZE
+#define UINT_DECIMAL_SIZE     UINT16TYPE_DECIMAL_SIZE
+#elif INT_SIZE == 32
+#define INT_DECIMAL_SIZE      INT32TYPE_DECIMAL_SIZE
+#define UINT_DECIMAL_SIZE     UINT32TYPE_DECIMAL_SIZE
+#elif INT_SIZE == 64
+#define INT_DECIMAL_SIZE      INT64TYPE_DECIMAL_SIZE
+#define UINT_DECIMAL_SIZE     UINT64TYPE_DECIMAL_SIZE
+#else
+#error "INT_SIZE is neither 16 nor 32 nor 64."
+#endif
+
+
+#if LONG_SIZE == 16
+#define LONG_DECIMAL_SIZE      INT16TYPE_DECIMAL_SIZE
+#define ULONG_DECIMAL_SIZE     UINT16TYPE_DECIMAL_SIZE
+#elif LONG_SIZE == 32
+#define LONG_DECIMAL_SIZE      INT32TYPE_DECIMAL_SIZE
+#define ULONG_DECIMAL_SIZE     UINT32TYPE_DECIMAL_SIZE
+#elif LONG_SIZE == 64
+#define LONG_DECIMAL_SIZE      INT64TYPE_DECIMAL_SIZE
+#define ULONG_DECIMAL_SIZE     UINT64TYPE_DECIMAL_SIZE
+#else
+#error "LONG_SIZE is neither 16 nor 32 nor 64."
 #endif
 
 
@@ -433,7 +466,8 @@ typedef uint32Type         memSizeType;
 #define FMT_D_MEM          FMT_D32
 #define FMT_U_MEM          FMT_U32
 #define FMT_X_MEM          FMT_X32
-#define MEMSIZETYPE_DECIMAL_SIZE  UINT32TYPE_DECIMAL_SIZE
+#define MEMSIZETYPE_DECIMAL_SIZE     UINT32TYPE_DECIMAL_SIZE
+#define MEMSIZETYPE_HEXADECIMAL_SIZE 8
 #define memSizeMostSignificantBit  uint32MostSignificantBit
 #define memSizeLeastSignificantBit uint32LeastSignificantBit
 #elif POINTER_SIZE == 64
@@ -447,7 +481,8 @@ typedef uint64Type         memSizeType;
 #define FMT_D_MEM          FMT_D64
 #define FMT_U_MEM          FMT_U64
 #define FMT_X_MEM          FMT_X64
-#define MEMSIZETYPE_DECIMAL_SIZE  UINT64TYPE_DECIMAL_SIZE
+#define MEMSIZETYPE_DECIMAL_SIZE     UINT64TYPE_DECIMAL_SIZE
+#define MEMSIZETYPE_HEXADECIMAL_SIZE 16
 #define memSizeMostSignificantBit  uint64MostSignificantBit
 #define memSizeLeastSignificantBit uint64LeastSignificantBit
 #endif

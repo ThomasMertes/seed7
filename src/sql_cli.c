@@ -726,7 +726,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 static const char *nameOfSqlType (SQLSMALLINT sql_type)
 
   {
-    static char buffer[50];
+    static char buffer[INT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     const char *typeName;
 
   /* nameOfSqlType */
@@ -787,7 +787,7 @@ static const char *nameOfSqlType (SQLSMALLINT sql_type)
 static const char *nameOfCType (int c_type)
 
   {
-    static char buffer[50];
+    static char buffer[INT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     const char *typeName;
 
   /* nameOfCType */
