@@ -119,7 +119,7 @@ int my_tgetnum (char *code)
     memSizeType pos = 1;
     char searched[SEARCHED_BUFFER_SIZE];
     char *found;
-    int result = -1;
+    int cap_value = -1;
 
   /* my_tgetnum */
     searched[0] = ':';
@@ -131,12 +131,12 @@ int my_tgetnum (char *code)
     pos++;
     searched[pos] = '\0';
     if ((found = strstr(capabilities, searched)) != NULL) {
-      sscanf(found + pos, "%d", &result);
+      sscanf(found + pos, "%d", &cap_value);
     } /* if */
 #ifdef TRACE_CAPS
-    printf("%s#%d\n", code, result);
+    printf("%s#%d\n", code, cap_value);
 #endif
-    return result;
+    return cap_value;
   } /* my_tgetnum */
 
 
@@ -147,7 +147,7 @@ int my_tgetflag (char *code)
     memSizeType pos = 1;
     char searched[SEARCHED_BUFFER_SIZE];
     char *found;
-    int result = FALSE;
+    int cap_value = FALSE;
 
   /* my_tgetflag */
     searched[0] = ':';
@@ -159,12 +159,12 @@ int my_tgetflag (char *code)
     pos++;
     searched[pos] = '\0';
     if ((found = strstr(capabilities, searched)) != NULL) {
-      result = TRUE;
+      cap_value = TRUE;
     } /* if */
 #ifdef TRACE_CAPS
-    printf("%s:%d\n", code, result);
+    printf("%s:%d\n", code, cap_value);
 #endif
-    return result;
+    return cap_value;
   } /* my_tgetflag */
 
 
@@ -179,7 +179,7 @@ char *my_tgetstr(char *code, char **area)
     char *from;
     char to_buf[STRI_CAP_SIZE];
     char *to;
-    char *result = NULL;
+    char *cap_value = NULL;
 
   /* my_tgetstr */
     searched[0] = ':';
@@ -236,16 +236,16 @@ char *my_tgetstr(char *code, char **area)
         } /* while */
         if (to < &to_buf[STRI_CAP_SIZE]) {
           *to = '\0';
-          if ((result = (char *) malloc(to - to_buf + 1)) != NULL) {
-            strcpy(result, to_buf);
+          if ((cap_value = (char *) malloc(to - to_buf + 1)) != NULL) {
+            strcpy(cap_value, to_buf);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_CAPS
-    printf("%s=\"%s\"\n", code, result);
+    printf("%s=\"%s\"\n", code, cap_value);
 #endif
-    return result;
+    return cap_value;
   } /* my_tgetstr */
 #endif
 
