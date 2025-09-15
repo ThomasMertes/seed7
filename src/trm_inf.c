@@ -123,23 +123,23 @@ static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
 static int read_int_cap (FILE *fix_file, int *term_char)
 
   {
+    memSizeType pos = 0;
+    char value[CAP_VALUE_BUFFER_SIZE];
     int from;
-    char to_buf[CAP_VALUE_BUFFER_SIZE];
-    char *to;
     int cap_value = -1;
 
   /* read_int_cap */
     from = fgetc(fix_file);
-    to = to_buf;
     while (from != ',' && from != ':' && from != EOF) {
-      if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
-        *to++ = (char) from;
+      if (pos < CAP_VALUE_BUFFER_SIZE) {
+        value[pos] = (char) from;
+        pos++;
       } /* if */
       from = fgetc(fix_file);
     } /* while */
-    if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
-      *to = '\0';
-      sscanf(to_buf, "%d", &cap_value);
+    if (pos < CAP_VALUE_BUFFER_SIZE) {
+      value[pos] = '\0';
+      sscanf(value, "%d", &cap_value);
     } /* if */
     *term_char = from;
     return cap_value;
