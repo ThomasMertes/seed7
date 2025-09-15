@@ -120,17 +120,29 @@ static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
 
 
 
-static void read_int_cap (FILE *fix_file, char **cap_value, int *term_char)
+static int read_int_cap (FILE *fix_file, int *term_char)
 
   {
     int from;
+    char to_buf[CAP_VALUE_BUFFER_SIZE];
+    char *to;
+    int cap_value = -1;
 
   /* read_int_cap */
     from = fgetc(fix_file);
-    while (from != ',' && from != ':') {
+    to = to_buf;
+    while (from != ',' && from != ':' && from != EOF) {
+      if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
+        *to++ = (char) from;
+      } /* if */
       from = fgetc(fix_file);
     } /* while */
+    if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
+      *to = '\0';
+      sscanf(to_buf, "%d", &cap_value);
+    } /* if */
     *term_char = from;
+    return cap_value;
   } /* read_int_cap */
 
 
@@ -261,7 +273,7 @@ static void fix_capability (void)
             case ':':
               break;
             case '#':
-              read_int_cap(fix_file, &cap_value, &term_char);
+              read_int_cap(fix_file, &term_char);
               break;
             case '=':
               cap_value = read_stri_cap(fix_file, &term_char);
