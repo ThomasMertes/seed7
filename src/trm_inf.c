@@ -150,57 +150,59 @@ static int read_int_cap (FILE *fix_file, int *term_char)
 static char *read_stri_cap (FILE *fix_file, int *term_char)
 
   {
+    memSizeType pos = 0;
+    char value[CAP_VALUE_BUFFER_SIZE];
     int from;
-    char to_buf[CAP_VALUE_BUFFER_SIZE];
-    char *to;
     char *cap_value = NULL;
 
   /* read_stri_cap */
     from = fgetc(fix_file);
-    to = to_buf;
     while (from != ',' && from != ':' && from != EOF) {
       if (from == '\\') {
         from = fgetc(fix_file);
-        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
+        if (pos < CAP_VALUE_BUFFER_SIZE) {
           switch (from) {
             case 'E':
-            case 'e': *to++ = '\033';      break;
+            case 'e': value[pos] = '\033';      break;
             case 'n':
-            case 'l': *to++ = '\n';        break;
-            case 'r': *to++ = '\r';        break;
-            case 't': *to++ = '\t';        break;
-            case 'b': *to++ = '\b';        break;
-            case 'f': *to++ = '\f';        break;
-            case 's': *to++ = ' ';         break;
-            case '0': *to++ = '\200';      break;
-            case EOF: *to++ = '\\';        break;
-            default:  *to++ = (char) from; break;
+            case 'l': value[pos] = '\n';        break;
+            case 'r': value[pos] = '\r';        break;
+            case 't': value[pos] = '\t';        break;
+            case 'b': value[pos] = '\b';        break;
+            case 'f': value[pos] = '\f';        break;
+            case 's': value[pos] = ' ';         break;
+            case '0': value[pos] = '\200';      break;
+            case EOF: value[pos] = '\\';        break;
+            default:  value[pos] = (char) from; break;
           } /* switch */
-	} /* if */
+          pos++;
+        } /* if */
       } else if (from == '^') {
         from = fgetc(fix_file);
-        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
+        if (pos < CAP_VALUE_BUFFER_SIZE) {
           if (from >= 'a' && from <= 'z') {
-            *to++ = (char) (from - 'a' + 1);
+            value[pos] = (char) (from - 'a' + 1);
           } else if (from >= 'A' && from <= 'Z') {
-            *to++ = (char) (from - 'A' + 1);
+            value[pos] = (char) (from - 'A' + 1);
           } else if (from == EOF) {
-            *to++ = '^';
+            value[pos] = '^';
           } else {
-            *to++ = (char) from;
+            value[pos] = (char) from;
           } /* if */
+          pos++;
         } /* if */
       } else {
-        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
-          *to++ = (char) from;
+        if (pos < CAP_VALUE_BUFFER_SIZE) {
+          value[pos] = (char) from;
+          pos++;
         } /* if */
       } /* if */
       from = fgetc(fix_file);
     } /* while */
-    if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
-      *to = '\0';
-      if ((cap_value = (char *) malloc((size_t) (to - to_buf + 1))) != NULL) {
-        strcpy(cap_value, to_buf);
+    if (pos < CAP_VALUE_BUFFER_SIZE) {
+      value[pos] = '\0';
+      if ((cap_value = (char *) malloc((size_t) (pos + 1))) != NULL) {
+        strcpy(cap_value, value);
       } /* if */
     } /* if */
     *term_char = from;
