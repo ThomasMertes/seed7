@@ -81,8 +81,8 @@ int tputs (char *, int, int (*) (char ch));
 #define tgetflag my_tgetflag
 #define tgetstr  my_tgetstr
 
-#define SEARCHED_BUFFER_SIZE 33
-#define STRI_CAP_SIZE 1024
+#define SEARCHED_BUFFER_SIZE    33
+#define CAP_VALUE_BUFFER_SIZE 1024
 
 #define CAPBUF_SIZE 2048
 
@@ -177,7 +177,7 @@ char *my_tgetstr(char *code, char **area)
     char *found;
     char *end;
     char *from;
-    char to_buf[STRI_CAP_SIZE];
+    char to_buf[CAP_VALUE_BUFFER_SIZE];
     char *to;
     char *cap_value = NULL;
 
@@ -194,7 +194,7 @@ char *my_tgetstr(char *code, char **area)
       if ((end = strchr(found + pos, ':')) != NULL) {
         from = found + pos;
         to = to_buf;
-        while (from != end && to < &to_buf[STRI_CAP_SIZE]) {
+        while (from != end && to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
           if (*from == '\\') {
             from++;
             if (from != end) {
@@ -234,7 +234,7 @@ char *my_tgetstr(char *code, char **area)
             *to++ = *from++;
           } /* if */
         } /* while */
-        if (to < &to_buf[STRI_CAP_SIZE]) {
+        if (to < &to_buf[CAP_VALUE_BUFFER_SIZE]) {
           *to = '\0';
           if ((cap_value = (char *) malloc(to - to_buf + 1)) != NULL) {
             strcpy(cap_value, to_buf);
