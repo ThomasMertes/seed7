@@ -81,6 +81,8 @@ int tputs (char *, int, int (*) (char ch));
 #define tgetflag my_tgetflag
 #define tgetstr  my_tgetstr
 
+#define SEARCHED_BUFFER_SIZE 33
+
 #define CAPBUF_SIZE 2048
 
 char capabilities[CAPBUF_SIZE + NULL_TERMINATION_LEN];
@@ -114,20 +116,20 @@ int my_tgetnum (char *code)
 
   {
     memSizeType pos = 1;
-    char buffer[33];
+    char searched[SEARCHED_BUFFER_SIZE];
     char *found;
     int result = -1;
 
   /* my_tgetnum */
-    buffer[0] = ':';
-    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
-      buffer[pos] = code[pos - 1];
+    searched[0] = ':';
+    while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+      searched[pos] = code[pos - 1];
       pos++;
     } /* while */
-    buffer[pos] = '#';
+    searched[pos] = '#';
     pos++;
-    buffer[pos] = '\0';
-    if ((found = strstr(capabilities, buffer)) != NULL) {
+    searched[pos] = '\0';
+    if ((found = strstr(capabilities, searched)) != NULL) {
       sscanf(found + pos, "%d", &result);
     } /* if */
 #ifdef TRACE_CAPS
@@ -142,20 +144,20 @@ int my_tgetflag (char *code)
 
   {
     memSizeType pos = 1;
-    char buffer[33];
+    char searched[SEARCHED_BUFFER_SIZE];
     char *found;
     int result = FALSE;
 
   /* my_tgetflag */
-    buffer[0] = ':';
-    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
-      buffer[pos] = code[pos - 1];
+    searched[0] = ':';
+    while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+      searched[pos] = code[pos - 1];
       pos++;
     } /* while */
-    buffer[pos] = ':';
+    searched[pos] = ':';
     pos++;
-    buffer[pos] = '\0';
-    if ((found = strstr(capabilities, buffer)) != NULL) {
+    searched[pos] = '\0';
+    if ((found = strstr(capabilities, searched)) != NULL) {
       result = TRUE;
     } /* if */
 #ifdef TRACE_CAPS
@@ -170,7 +172,7 @@ char *my_tgetstr(char *code, char **area)
 
   {
     memSizeType pos = 1;
-    char buffer[33];
+    char searched[SEARCHED_BUFFER_SIZE];
     char *found;
     char *end;
     char *from;
@@ -179,15 +181,15 @@ char *my_tgetstr(char *code, char **area)
     char *result = NULL;
 
   /* my_tgetstr */
-    buffer[0] = ':';
-    while (code[pos - 1] != '\0' && pos < sizeof(buffer) - 2) {
-      buffer[pos] = code[pos - 1];
+    searched[0] = ':';
+    while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+      searched[pos] = code[pos - 1];
       pos++;
     } /* while */
-    buffer[pos] = '=';
+    searched[pos] = '=';
     pos++;
-    buffer[pos] = '\0';
-    if ((found = strstr(capabilities, buffer)) != NULL) {
+    searched[pos] = '\0';
+    if ((found = strstr(capabilities, searched)) != NULL) {
       if ((end = strchr(found + pos, ':')) != NULL) {
         from = found + pos;
         to = to_buf;
