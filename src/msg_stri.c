@@ -311,7 +311,7 @@ void appendBigInt (striType *const msg, const const_bigIntType number)
 void appendCharLiteral (striType *const msg, const charType aChar)
 
   {
-    char buffer[51];
+    char buffer[2 + MAXIMUM_UTF32_ESCAPE_WIDTH + NULL_TERMINATION_LEN];
 
   /* appendCharLiteral */
     logFunction(printf("appendCharLiteral(\"%s\", '\\" FMT_U32 ";')\n",

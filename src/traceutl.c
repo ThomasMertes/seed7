@@ -301,7 +301,7 @@ void prot_float (floatType floatValue)
 void prot_char (charType cvalue)
 
   {
-    char buffer[51];
+    char buffer[2 + MAXIMUM_UTF32_ESCAPE_WIDTH + NULL_TERMINATION_LEN];
 
   /* prot_char */
     if (cvalue < 127) {
