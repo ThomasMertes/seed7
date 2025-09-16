@@ -654,15 +654,15 @@ static objectType exec_action (const_objectType act_object,
         if (act_object->type_of->result_type != NULL) {
           if (result != NULL) {
             if (result->type_of != act_object->type_of->result_type) {
-              prot_cstri("** correct action result type from \'");
+              prot_cstri("** correct action result type from '");
               if (result->type_of == NULL) {
                 prot_cstri("*NULL_TYPE*");
               } else {
                 printobject(result->type_of->match_obj);
               } /* if */
-              prot_cstri("\' to \'");
+              prot_cstri("' to '");
               printobject(act_object->type_of->result_type->match_obj);
-              prot_cstri("\' act_object type is ");
+              prot_cstri("' act_object type is ");
               printobject(act_object->type_of->match_obj);
             } /* if */
             if (result->type_of == NULL) {

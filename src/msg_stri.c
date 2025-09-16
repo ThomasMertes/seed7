@@ -318,12 +318,12 @@ void appendCharLiteral (striType *const msg, const charType aChar)
                        striAsUnquotedCStri(*msg), aChar););
     if (aChar < 127) {
       if (aChar < ' ') {
-        sprintf(buffer, "\'%s\'", stri_escape_sequence[aChar]);
+        sprintf(buffer, "'%s'", stri_escape_sequence[aChar]);
       } else {
-        sprintf(buffer, "\'%c\'", (int) aChar);
+        sprintf(buffer, "'%c'", (int) aChar);
       } /* if */
     } else {
-      sprintf(buffer, "\'\\%lu;\'", (unsigned long) aChar);
+      sprintf(buffer, "'\\%lu;'", (unsigned long) aChar);
     } /* if */
     appendCStri(msg, buffer);
     logFunction(printf("appendCharLiteral(\"%s\", '\\" FMT_U32 ";') -->\n",

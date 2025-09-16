@@ -306,12 +306,12 @@ void prot_char (charType cvalue)
   /* prot_char */
     if (cvalue < 127) {
       if (cvalue < ' ') {
-        sprintf(buffer, "\'%s\'", stri_escape_sequence[cvalue]);
+        sprintf(buffer, "'%s'", stri_escape_sequence[cvalue]);
       } else {
-        sprintf(buffer, "\'%c\'", (int) cvalue);
+        sprintf(buffer, "'%c'", (int) cvalue);
       } /* if */
     } else {
-      sprintf(buffer, "\'\\%lu;\'", (unsigned long) cvalue);
+      sprintf(buffer, "'\\%lu;'", (unsigned long) cvalue);
     } /* if */
     prot_cstri(buffer);
   } /* prot_char */
