@@ -583,7 +583,7 @@ striType socAddrNumeric (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    char buffer[40];
+    char buffer[MAX_SOCK_ADDRESS_LEN];
     striType result;
 
   /* socAddrNumeric */
