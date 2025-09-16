@@ -129,7 +129,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
         if (fseek(term_descr_file, 0L, SEEK_END) == 0) {
           end_pos = ftell(term_descr_file);
           /* printf("end_pos=%ld\n", end_pos); */
-          if (end_pos >= 0L &&
+          if (end_pos >= 0L && end_pos < 2147483647L &&
               fseek(term_descr_file, 0L, SEEK_SET) == 0) {
             if (capabilities != NULL) {
               free(capabilities);
