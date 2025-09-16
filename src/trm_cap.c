@@ -50,7 +50,7 @@
 
 
 /* Configuration: */
-#undef EMULATE_TERMCAP
+#define EMULATE_TERMCAP 0
 
 #define CAPBUF_SIZE 2048
 
@@ -75,9 +75,13 @@ int tputs (char *, int, int (*) (char ch));
 
 #endif
 
+/* In old implementations the values below might differ. */
+#define TGETENT_SUCCESS      1
+#define TGETENT_NO_ENTRY     0
+#define TGETENT_NO_TERMCAP (-1)
 
 
-#ifdef EMULATE_TERMCAP
+#if EMULATE_TERMCAP
 #define tgetent  my_tgetent
 #define tgetnum  my_tgetnum
 #define tgetflag my_tgetflag
@@ -86,7 +90,7 @@ int tputs (char *, int, int (*) (char ch));
 #define SEARCHED_BUFFER_SIZE    33
 #define CAP_VALUE_BUFFER_SIZE 1024
 
-char capabilities[CAPBUF_SIZE + NULL_TERMINATION_LEN];
+char *capabilities = NULL;
 
 
 
@@ -96,9 +100,11 @@ int my_tgetent (char *capbuf, char *terminal_name)
     char *home_dir_path;
     memSizeType file_name_size;
     char *file_name;
+    size_t len;
     FILE *term_descr_file;
-    int len;
-    int result;
+    long end_pos;
+    size_t bytes_read;
+    int tgetent_result = TGETENT_NO_ENTRY;
 
   /* my_tgetent */
     home_dir_path = getenv("HOME");
@@ -120,17 +126,34 @@ int my_tgetent (char *capbuf, char *terminal_name)
       strcpy(&file_name[len], ".term");
       strcat(file_name, terminal_name);
       if ((term_descr_file = fopen(file_name, "r")) != NULL) {
-        len = fread(capabilities, 1, CAPBUF_SIZE, term_descr_file);
-        capabilities[len] = '\0';
+        if (fseek(term_descr_file, 0L, SEEK_END) == 0) {
+          end_pos = ftell(term_descr_file);
+          /* printf("end_pos=%ld\n", end_pos); */
+          if (end_pos >= 0L &&
+              fseek(term_descr_file, 0L, SEEK_SET) == 0) {
+            if (capabilities != NULL) {
+              free(capabilities);
+            } /* if */
+            capabilities = malloc((size_t) end_pos + 1);
+            if (capabilities != NULL) {
+              bytes_read = fread(capabilities, 1, (size_t) end_pos, term_descr_file);
+              if (bytes_read == end_pos) {
+                capabilities[bytes_read] = '\0';
+                /* printf("bytes_read=%lu\n", (unsigned long) bytes_read); */
+                /* printf("%s\n", capabilities); */
+                tgetent_result = TGETENT_SUCCESS;
+              } else {
+                free(capabilities);
+                capabilities = NULL;
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
         fclose(term_descr_file);
-        result = 0;
-      } else {
-        capabilities[0] = '\0';
-        result = -1;
       } /* if */
       free(file_name);
     } /* if */
-    return result;
+    return tgetent_result;
   } /* my_tgetent */
 
 
@@ -152,7 +175,8 @@ int my_tgetnum (char *code)
     searched[pos] = '#';
     pos++;
     searched[pos] = '\0';
-    if ((found = strstr(capabilities, searched)) != NULL) {
+    if (capabilities != NULL &&
+        (found = strstr(capabilities, searched)) != NULL) {
       sscanf(found + pos, "%d", &cap_value);
     } /* if */
 #ifdef TRACE_CAPS
@@ -180,7 +204,8 @@ int my_tgetflag (char *code)
     searched[pos] = ':';
     pos++;
     searched[pos] = '\0';
-    if ((found = strstr(capabilities, searched)) != NULL) {
+    if (capabilities != NULL &&
+        (found = strstr(capabilities, searched)) != NULL) {
       cap_value = TRUE;
     } /* if */
 #ifdef TRACE_CAPS
@@ -211,7 +236,8 @@ char *my_tgetstr(char *code, char **area)
     searched[pos] = '=';
     pos++;
     searched[pos] = '\0';
-    if ((found = strstr(capabilities, searched)) != NULL) {
+    if (capabilities != NULL &&
+        (found = strstr(capabilities, searched)) != NULL) {
       if ((end = strchr(found + pos, ':')) != NULL) {
         from = found + pos;
         pos = 0;
@@ -285,7 +311,7 @@ int getcaps (void)
       terminal_name = getenv("TERM");
       tgetent_result = tgetent(capbuf, terminal_name);
       /* printf("tgetent -> %d\n", tgetent_result); */
-      if (tgetent_result == 1) {
+      if (tgetent_result == TGETENT_SUCCESS) {
         area = capbuf;
         insert_line =           tgetstr("al", &area);
         auto_right_margin =    tgetflag("am");
