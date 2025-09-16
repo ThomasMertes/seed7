@@ -116,7 +116,7 @@ static boolType initialized = FALSE;
 #define SHOW_ADDRINFO 0
 
 #define MAX_SOCK_ADDRESS_LEN \
-    STRLEN("[01:23:45:67:89:ab:cd:ef]:65535") + NULL_TERMINATION_LEN
+    STRLEN("[0123:4567:89ab:cdef:0123:4567:89ab:cdef]:65535")
 
 
 
@@ -125,7 +125,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    static char buffer[MAX_SOCK_ADDRESS_LEN];
+    static char buffer[MAX_SOCK_ADDRESS_LEN + NULL_TERMINATION_LEN];
     cstriType result;
 
   /* socAddressCStri */
@@ -583,7 +583,7 @@ striType socAddrNumeric (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    char buffer[MAX_SOCK_ADDRESS_LEN];
+    char buffer[MAX_SOCK_ADDRESS_LEN + NULL_TERMINATION_LEN];
     striType result;
 
   /* socAddrNumeric */
