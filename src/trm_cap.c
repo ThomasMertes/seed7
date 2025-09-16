@@ -301,7 +301,8 @@ char *my_tgetstr(char *code, char **area)
 int getcaps (void)
 
   {
-    static char capbuf[CAPBUF_SIZE + NULL_TERMINATION_LEN];
+    static char capbuf[CAPBUF_SIZE];
+    static char areabuf[CAPBUF_SIZE];
     int tgetent_result;
     char *area;
     char *terminal_name;
@@ -312,7 +313,7 @@ int getcaps (void)
       tgetent_result = tgetent(capbuf, terminal_name);
       /* printf("tgetent -> %d\n", tgetent_result); */
       if (tgetent_result == TGETENT_SUCCESS) {
-        area = capbuf;
+        area = areabuf;
         insert_line =           tgetstr("al", &area);
         auto_right_margin =    tgetflag("am");
         BC =                    tgetstr("bc", &area);
