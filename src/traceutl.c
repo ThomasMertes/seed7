@@ -442,10 +442,10 @@ void prot_block (const_blockType blockValue)
 void prot_heapsize (void)
 
   {
-    char buffer[51];
+    char buffer[MEMSIZETYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
 
   /* prot_heapsize */
-    sprintf(buffer, "%6lu", (unsigned long) heapsize());
+    sprintf(buffer, FMT_U_MEM, heapsize());
     prot_cstri(buffer);
   } /* prot_heapsize */
 
