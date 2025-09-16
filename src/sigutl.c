@@ -157,7 +157,7 @@ static boolType signalDecision (int signalNum, boolType inHandler)
     int ch;
     boolType sigintReceived;
     int position;
-    char buffer[10];
+    char buffer[ULONG_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     long unsigned int exceptionNum;
     boolType resume = FALSE;
 
@@ -192,14 +192,18 @@ static boolType signalDecision (int signalNum, boolType inHandler)
       suspendInterpreter(signalNum);
     } else if (ch == '!') {
       position = 0;
-      while ((ch = fgetc(stdin)) >= (int) ' ' && ch <= (int) '~' && position < 4) {
-        buffer[position] = (char) ch;
-        position++;
+      while ((ch = fgetc(stdin)) >= (int) ' ' && ch <= (int) '~') {
+        if (position < sizeof(buffer) - 1) {
+          buffer[position] = (char) ch;
+          position++;
+        } /* if */
       } /* while */
       buffer[position] = '\0';
       if (position > 0 && buffer[0] >= '0' && buffer[0] <= '9') {
         exceptionNum = strtoul(buffer, NULL, 10);
-        raise_error((int) exceptionNum);
+        if (exceptionNum > OKAY_NO_ERROR && exceptionNum <= ACTION_ERROR) {
+          raise_error((int) exceptionNum);
+        } /* if */
       } /* if */
     } else {
       resume = TRUE;

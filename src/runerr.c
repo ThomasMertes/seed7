@@ -68,8 +68,8 @@ static void continue_question (objectType *exception)
   {
     int ch;
     int position;
-    char buffer[10];
-    long unsigned int exception_num;
+    char buffer[ULONG_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    long unsigned int exceptionNum;
 
   /* continue_question */
     printf("\n*** The following commands are possible:\n"
@@ -87,26 +87,26 @@ static void continue_question (objectType *exception)
       set_fail_flag(TRUE);
     } else if (ch == (int) '/') {
       triggerSigfpe();
-    } /* if */
-    position = 0;
-    while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {
-      buffer[position] = (char) ch;
-      position++;
-      ch = fgetc(stdin);
-    } /* while */
-    buffer[position] = '\0';
-    if (position > 0 && buffer[0] == '!') {
-      if (buffer[1] >= '0' && buffer[1] <= '9') {
-        exception_num = strtoul(&buffer[1], NULL, 10);
-        if (exception_num > OKAY_NO_ERROR && exception_num <= ACTION_ERROR) {
+    } else if (ch == '!') {
+      position = 0;
+      while ((ch = fgetc(stdin)) >= (int) ' ' && ch <= (int) '~') {
+        if (position < sizeof(buffer) - 1) {
+          buffer[position] = (char) ch;
+          position++;
+        } /* if */
+      } /* while */
+      buffer[position] = '\0';
+      if (position > 0 && buffer[0] >= '0' && buffer[0] <= '9') {
+        exceptionNum = strtoul(buffer, NULL, 10);
+        if (exceptionNum > OKAY_NO_ERROR && exceptionNum <= ACTION_ERROR) {
           if (exception != NULL) {
-            *exception = prog->sys_var[exception_num];
+            *exception = prog->sys_var[exceptionNum];
           } else {
-            raise_error((int) exception_num);
+            raise_error((int) exceptionNum);
           } /* if */
         } /* if */
       } else {
-        mapTraceFlags2(&buffer[1], &prog->option_flags);
+        mapTraceFlags2(buffer, &prog->option_flags);
         set_trace(prog->option_flags);
       } /* if */
     } /* if */
