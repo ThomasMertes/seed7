@@ -105,7 +105,7 @@ static boolType keybd_initialized = FALSE;
 #define SIZE_KEY_TABLE 156
 
 static const_cstriType key_table[SIZE_KEY_TABLE];
-static char erase_ch[2];
+static char erase_ch[1 + NULL_TERMINATION_LEN];
 
 static charType key_code[SIZE_KEY_TABLE] = {
 /*   0 */ K_BS,         K_BS,         K_BACKTAB,    K_PAD_CENTER, 0,
