@@ -66,6 +66,9 @@
 #define DO_INIT
 #include "trm_drv.h"
 
+
+/* Configuration: */
+#define USE_FIX_CAPABILITY 0
 #define SETUPTERM_WORKS_OK 1
 
 #define CAP_NAME_BUFFER_SIZE   256
@@ -96,6 +99,7 @@ void tputs (char *, int, int (*) (char ch));
 
 
 
+#if USE_FIX_CAPABILITY
 static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
 
   {
@@ -371,6 +375,7 @@ static void fix_capability (void)
     } /* if */
     logFunction(fprintf(stderr, "fix_capability -->\n"););
   } /* fix_capability */
+#endif
 
 
 
@@ -393,7 +398,9 @@ int getcaps (void)
 #if SETUPTERM_WORKS_OK
         if (setup_result == 0 /*OK*/  &&  errret == 1) {
 #endif
+#if USE_FIX_CAPABILITY
           fix_capability();
+#endif
           caps_initialized = TRUE;
 #if SETUPTERM_WORKS_OK
         } /* if */
