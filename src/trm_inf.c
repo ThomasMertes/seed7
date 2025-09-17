@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  trm_inf.c     Driver for terminfo screen access.                */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2005, 2013, 2015, 2019  Thomas Mertes      */
+/*                2025  Thomas Mertes                               */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
