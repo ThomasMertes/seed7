@@ -94,7 +94,8 @@ static sqlFuncType sqlFunc = NULL;
 #define DEFAULT_DECIMAL_SCALE 1000
 
 /* The format of the ISO duration is: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
-#define MAX_SIZE_ISO_DURATION         1+6 + 4 + 4 + 1+4 + 4 + 3 +7+1
+/*                                    1+6 + 4 + 4 + 1+4 + 4 + 3 +7+1   */
+#define MAX_SIZE_ISO_DURATION STRLEN("P-9999Y-12M-31DT-24H-60M-60.999999S")
 
 
 #ifdef SQLITE_DLL
