@@ -75,29 +75,6 @@
 #define CAP_VALUE_BUFFER_SIZE 1024
 
 
-#ifdef OUT_OF_ORDER
-#ifdef C_PLUS_PLUS
-
-extern "C" int tgetent (char *, char *);
-extern "C" int tgetnum (char *);
-extern "C" int tgetflag (char *);
-extern "C" char *tgetstr(char *, char **);
-extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char ch));
-
-#else
-
-int tgetent (char *, char *);
-int tgetnum (char *);
-int tgetflag (char *);
-char *tgetstr(char *, char **);
-char *tgoto (char *, int, int);
-void tputs (char *, int, int (*) (char ch));
-
-#endif
-#endif
-
-
 
 #if USE_FIX_CAPABILITY
 static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
