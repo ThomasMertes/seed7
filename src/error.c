@@ -1545,10 +1545,14 @@ void err_integer (errorType err, intType number)
 
 
 
+/* Buffer size to write int characters with "\\%u;\" (U+%04x)" */
+#define INT_CHAR_BUFFER_SIZE 1 + UINT_DECIMAL_SIZE + STRLEN(";\" (U+") + \
+                             INT_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+
 void err_cchar (errorType err, int character)
 
   {
-    char buffer[100];
+    char buffer[INT_CHAR_BUFFER_SIZE];
     parseErrorType error;
 
   /* err_cchar */
@@ -1601,10 +1605,14 @@ void err_cchar (errorType err, int character)
 
 
 
+/* Buffer size to write unsigned long characters with " \"\\%lu;\" (U+%04lx)" */
+#define LONG_CHAR_BUFFER_SIZE 3 + ULONG_DECIMAL_SIZE + STRLEN(";\" (U+") + \
+                              LONG_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+
 void err_char (errorType err, charType character)
 
   {
-    char buffer[100];
+    char buffer[LONG_CHAR_BUFFER_SIZE];
     parseErrorType error;
 
   /* err_char */

@@ -3070,6 +3070,22 @@ static void numericProperties (FILE *versionFile)
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{int minExp10;char buffer[128];\n"
+                         "sprintf(buffer, \"%1.10e\", FLT_MIN);\n"
+                         "sscanf(strchr(buffer,'e') + 1, \"%d\", &minExp10);\n"
+                         "printf(\"%d\\n\",minExp10);return 0;}\n")) {
+      fprintf(versionFile, "#define FLOAT_MIN_EXP10 %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int maxExp10;char buffer[128];\n"
+                         "sprintf(buffer, \"%1.10e\", FLT_MAX);\n"
+                         "sscanf(strchr(buffer,'e') + 1, \"%d\", &maxExp10);\n"
+                         "printf(\"%d\\n\",maxExp10);return 0;}\n")) {
+      fprintf(versionFile, "#define FLOAT_MAX_EXP10 %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int minExp10;char buffer[128];\n"
                          "sprintf(buffer, \"%1.10e\", DBL_MIN);\n"
                          "sscanf(strchr(buffer,'e') + 1, \"%d\", &minExp10);\n"
                          "printf(\"%d\\n\",minExp10);return 0;}\n")) {
