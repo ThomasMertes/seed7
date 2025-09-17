@@ -355,6 +355,161 @@ char *my_tgetstr(char *code, char **area)
 
 
 
+#if ANY_LOG_ACTIVE
+void printStriCap (const char *const cap_name,
+                   const char *const cap_value)
+
+  { /* printStriCap */
+    if (cap_value != NULL) {
+      printf("%s=", cap_name);
+      printCapEscapedStri(cap_value);
+      printf(":");
+    } /* if */
+  } /* printStriCap */
+
+
+
+void showCapabilities (const char *const terminal_name)
+
+  { /* showCapabilities */
+    printf("%s:",    terminal_name);
+    printStriCap("al", insert_line);
+    printf("%s",       auto_right_margin ? "am:" : "");
+    printStriCap("bc", BC);
+    printStriCap("cd", clr_eos);
+    printStriCap("ce", clr_eol);
+    printStriCap("cl", clear_screen);
+    printf("co#%d",    columns);
+    printStriCap("cm", cursor_address);
+    printStriCap("cr", carriage_return);
+    printStriCap("dc", delete_character);
+    printStriCap("dl", delete_line);
+    printStriCap("dm", enter_delete_mode);
+    printStriCap("do", cursor_down);
+    printStriCap("ed", exit_delete_mode);
+    printStriCap("ei", exit_insert_mode);
+    printf("%s",       hard_copy ? "hc:" : "");
+    printStriCap("ic", insert_character);
+    printStriCap("im", enter_insert_mode);
+    printStriCap("ip", IP);
+    printStriCap("le", cursor_left);
+    printf("li#%d",    lines);
+    printf("%s",       move_insert_mode ? "mi:" : "");
+    printStriCap("nd", cursor_right);
+    printStriCap("pc", pad_char);
+    printStriCap("ve", cursor_normal);
+    printStriCap("se", exit_standout_mode);
+    printStriCap("so", enter_standout_mode);
+    printStriCap("te", exit_ca_mode);
+    printStriCap("ti", enter_ca_mode);
+    printStriCap("up", cursor_up);
+    printStriCap("vs", cursor_visible);
+    printStriCap("vi", cursor_invisible);
+    printStriCap("mr", enter_reverse_mode);
+    printf("%s",       ceol_standout_glitch ? "xs:" : "");
+    printStriCap("AL", parm_insert_line);
+    printStriCap("DL", parm_delete_line);
+    printStriCap("ke", keypad_local);
+    printStriCap("ks", keypad_xmit);
+    printStriCap("kb", key_backspace);
+    printStriCap("kB", key_btab);
+    printStriCap("K2", key_b2);
+    printStriCap("ka", key_catab);
+    printStriCap("kC", key_clear);
+    printStriCap("kt", key_ctab);
+    printStriCap("kD", key_dc);
+    printStriCap("kL", key_dl);
+    printStriCap("kd", key_down);
+    printStriCap("kM", key_eic);
+    printStriCap("@7", key_end);
+    printStriCap("@8", key_enter);
+    printStriCap("kE", key_eol);
+    printStriCap("kS", key_eos);
+    printStriCap("k0", key_f0);
+    printStriCap("k1", key_f1);
+    printStriCap("k2", key_f2);
+    printStriCap("k3", key_f3);
+    printStriCap("k4", key_f4);
+    printStriCap("k5", key_f5);
+    printStriCap("k6", key_f6);
+    printStriCap("k7", key_f7);
+    printStriCap("k8", key_f8);
+    printStriCap("k9", key_f9);
+    printStriCap("k;", key_f10);
+    printStriCap("F1", key_f11);
+    printStriCap("F2", key_f12);
+    printStriCap("F3", key_f13);
+    printStriCap("F4", key_f14);
+    printStriCap("F5", key_f15);
+    printStriCap("F6", key_f16);
+    printStriCap("F7", key_f17);
+    printStriCap("F8", key_f18);
+    printStriCap("F9", key_f19);
+    printStriCap("FA", key_f20);
+    printStriCap("FB", key_f21);
+    printStriCap("FC", key_f22);
+    printStriCap("FD", key_f23);
+    printStriCap("FE", key_f24);
+    printStriCap("FF", key_f25);
+    printStriCap("FG", key_f26);
+    printStriCap("FH", key_f27);
+    printStriCap("FI", key_f28);
+    printStriCap("FJ", key_f29);
+    printStriCap("FK", key_f30);
+    printStriCap("FK", key_f30);
+    printStriCap("FL", key_f31);
+    printStriCap("FM", key_f32);
+    printStriCap("FN", key_f33);
+    printStriCap("FO", key_f34);
+    printStriCap("FP", key_f35);
+    printStriCap("FQ", key_f36);
+    printStriCap("FR", key_f37);
+    printStriCap("FS", key_f38);
+    printStriCap("FT", key_f39);
+    printStriCap("FU", key_f40);
+    printStriCap("FV", key_f41);
+    printStriCap("FW", key_f42);
+    printStriCap("FX", key_f43);
+    printStriCap("FY", key_f44);
+    printStriCap("FZ", key_f45);
+    printStriCap("Fa", key_f46);
+    printStriCap("Fb", key_f47);
+    printStriCap("Fc", key_f48);
+    printStriCap("Fd", key_f49);
+    printStriCap("Fe", key_f50);
+    printStriCap("Ff", key_f51);
+    printStriCap("Fg", key_f52);
+    printStriCap("Fh", key_f53);
+    printStriCap("Fi", key_f54);
+    printStriCap("Fj", key_f55);
+    printStriCap("Fk", key_f56);
+    printStriCap("Fl", key_f57);
+    printStriCap("Fm", key_f58);
+    printStriCap("Fn", key_f59);
+    printStriCap("Fo", key_f60);
+    printStriCap("Fp", key_f61);
+    printStriCap("Fq", key_f62);
+    printStriCap("Fr", key_f63);
+    printStriCap("@0", key_find);
+    printStriCap("kh", key_home);
+    printStriCap("kI", key_ic);
+    printStriCap("kA", key_il);
+    printStriCap("kl", key_left);
+    printStriCap("kH", key_ll);
+    printStriCap("kN", key_npage);
+    printStriCap("kP", key_ppage);
+    printStriCap("kr", key_right);
+    printStriCap("*6", key_select);
+    printStriCap("kF", key_sf);
+    printStriCap("kR", key_sr);
+    printStriCap("kT", key_stab);
+    printStriCap("ku", key_up);
+    printf("\n");
+  } /* showCapabilities */
+#endif
+
+
+
 int getcaps (void)
 
   {
@@ -508,6 +663,7 @@ int getcaps (void)
           if (cursor_address == NULL) {
             printf("cursor_address == NULL\n");
           } /* if */
+          /* showCapabilities(terminal_name); */
           caps_initialized = TRUE;
         } /* if */
       } /* if */
