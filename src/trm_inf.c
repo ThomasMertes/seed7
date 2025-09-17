@@ -66,7 +66,7 @@
 #define DO_INIT
 #include "trm_drv.h"
 
-#define SETUPTERM_WORKS_OK
+#define SETUPTERM_WORKS_OK 1
 
 #define CAP_NAME_BUFFER_SIZE   256
 #define CAP_VALUE_BUFFER_SIZE 1024
@@ -390,12 +390,12 @@ int getcaps (void)
         setup_result = setupterm(terminal_name, os_fileno(stdout), &errret);
         logMessage(fprintf(stderr, "setupterm --> %d  errret = %d\n",
                            setup_result, errret););
-#ifdef SETUPTERM_WORKS_OK
+#if SETUPTERM_WORKS_OK
         if (setup_result == 0 /*OK*/  &&  errret == 1) {
 #endif
           fix_capability();
           caps_initialized = TRUE;
-#ifdef SETUPTERM_WORKS_OK
+#if SETUPTERM_WORKS_OK
         } /* if */
 #endif
       } /* if */
