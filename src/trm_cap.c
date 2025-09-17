@@ -43,6 +43,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "striutl.h"
 #include "con_drv.h"
 
 #undef EXTERN
@@ -82,38 +83,6 @@ int tputs (char *, int, int (*) (char ch));
 #define TGETENT_SUCCESS      1
 #define TGETENT_NO_ENTRY     0
 #define TGETENT_NO_TERMCAP (-1)
-
-
-
-#if ANY_LOG_ACTIVE
-void printCapEscapedStri (const char *cap_value)
-
-  { /* printCapEscapedStri */
-    if (cap_value != NULL) {
-      while (*cap_value != '\0') {
-        switch (*cap_value) {
-          case '\033': printf("\\e"); break;
-          case '\n':   printf("\\n"); break;
-          case '\r':   printf("\\r"); break;
-          case '\t':   printf("\\t"); break;
-          case '\b':   printf("\\b"); break;
-          case '\f':   printf("\\f"); break;
-          case ' ':    printf("\\s"); break;
-          case ':':    printf("\\:"); break;
-          case '\200': printf("\\0"); break;
-          default:
-            if (*cap_value <= '\032') {
-              printf("^%c", *cap_value - 1 + 'A');
-            } else {
-              printf("%c", *cap_value);
-            } /* if */
-            break;
-        } /* switch */
-        cap_value++;
-      } /* while */
-    } /* if */
-  } /* printCapEscapedStri */
-#endif
 
 
 
@@ -345,9 +314,8 @@ char *my_tgetstr(char *code, char **area)
                 if (cap_value == NULL) {
                   printf("NULL\n");
                 } else {
-                  printf("\"");
-                  printCapEscapedStri(cap_value);
-                  printf("\"\n");
+                  printf("\"%s\"\n",
+                         cstriAsUnquotedCLiteral(cap_value));
 		});
     return cap_value;
   } /* my_tgetstr */
@@ -356,6 +324,36 @@ char *my_tgetstr(char *code, char **area)
 
 
 #if ANY_LOG_ACTIVE
+void printCapEscapedStri (const char *cap_value)
+
+  { /* printCapEscapedStri */
+    if (cap_value != NULL) {
+      while (*cap_value != '\0') {
+        switch (*cap_value) {
+          case '\033': printf("\\e"); break;
+          case '\n':   printf("\\n"); break;
+          case '\r':   printf("\\r"); break;
+          case '\t':   printf("\\t"); break;
+          case '\b':   printf("\\b"); break;
+          case '\f':   printf("\\f"); break;
+          case ' ':    printf("\\s"); break;
+          case ':':    printf("\\:"); break;
+          case '\200': printf("\\0"); break;
+          default:
+            if (*cap_value <= '\032') {
+              printf("^%c", *cap_value - 1 + 'A');
+            } else {
+              printf("%c", *cap_value);
+            } /* if */
+            break;
+        } /* switch */
+        cap_value++;
+      } /* while */
+    } /* if */
+  } /* printCapEscapedStri */
+
+
+
 void printStriCap (const char *const cap_name,
                    const char *const cap_value)
 

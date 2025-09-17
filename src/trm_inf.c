@@ -192,8 +192,13 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
       } /* if */
     } /* if */
     *term_char = from;
-    logFunction(printf("read_stri_cap --> \"%s\"\n",
-                       cstriAsUnquotedCLiteral(cap_value)););
+    logFunction(printf("read_stri_cap --> ");
+                if (cap_value == NULL) {
+                  printf("NULL\n");
+                } else {
+                  printf("\"%s\"\n",
+                         cstriAsUnquotedCLiteral(cap_value));
+		});
     return cap_value;
   } /* read_stri_cap */
 
