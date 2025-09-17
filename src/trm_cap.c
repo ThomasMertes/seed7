@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef USE_TERMCAP
@@ -81,6 +84,39 @@ int tputs (char *, int, int (*) (char ch));
 #define TGETENT_NO_TERMCAP (-1)
 
 
+
+#if ANY_LOG_ACTIVE
+void printCapEscapedStri (const char *cap_value)
+
+  { /* printCapEscapedStri */
+    if (cap_value != NULL) {
+      while (*cap_value != '\0') {
+        switch (*cap_value) {
+          case '\033': printf("\\e"); break;
+          case '\n':   printf("\\n"); break;
+          case '\r':   printf("\\r"); break;
+          case '\t':   printf("\\t"); break;
+          case '\b':   printf("\\b"); break;
+          case '\f':   printf("\\f"); break;
+          case ' ':    printf("\\s"); break;
+          case ':':    printf("\\:"); break;
+          case '\200': printf("\\0"); break;
+          default:
+            if (*cap_value <= '\032') {
+              printf("^%c", *cap_value - 1 + 'A');
+            } else {
+              printf("%c", *cap_value);
+            } /* if */
+            break;
+        } /* switch */
+        cap_value++;
+      } /* while */
+    } /* if */
+  } /* printCapEscapedStri */
+#endif
+
+
+
 #if EMULATE_TERMCAP
 #define tgetent  my_tgetent
 #define tgetnum  my_tgetnum
@@ -107,6 +143,8 @@ int my_tgetent (char *capbuf, char *terminal_name)
     int tgetent_result = TGETENT_NO_ENTRY;
 
   /* my_tgetent */
+    logFunction(printf("my_tgetent(" FMT_U_MEM ", \"%s\")\n",
+                (memSizeType) capbuf, terminal_name););
     home_dir_path = getenv("HOME");
     if (home_dir_path == NULL) {
       home_dir_path = "";
@@ -153,6 +191,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
       } /* if */
       free(file_name);
     } /* if */
+    logFunction(printf("my_tgetent --> %d\n", tgetent_result););
     return tgetent_result;
   } /* my_tgetent */
 
@@ -167,6 +206,7 @@ int my_tgetnum (char *code)
     int cap_value = -1;
 
   /* my_tgetnum */
+    logFunction(printf("my_tgetnum(\"%s\")\n", code););
     searched[0] = ':';
     while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
       searched[pos] = code[pos - 1];
@@ -179,9 +219,8 @@ int my_tgetnum (char *code)
         (found = strstr(capabilities, searched)) != NULL) {
       sscanf(found + pos, "%d", &cap_value);
     } /* if */
-#ifdef TRACE_CAPS
-    printf("%s#%d\n", code, cap_value);
-#endif
+    logFunction(printf("my_tgetnum(\"%s\") --> %d\n",
+                       code, cap_value););
     return cap_value;
   } /* my_tgetnum */
 
@@ -196,6 +235,7 @@ int my_tgetflag (char *code)
     int cap_value = FALSE;
 
   /* my_tgetflag */
+    logFunction(printf("my_tgetflag(\"%s\")\n", code););
     searched[0] = ':';
     while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
       searched[pos] = code[pos - 1];
@@ -208,9 +248,8 @@ int my_tgetflag (char *code)
         (found = strstr(capabilities, searched)) != NULL) {
       cap_value = TRUE;
     } /* if */
-#ifdef TRACE_CAPS
-    printf("%s:%d\n", code, cap_value);
-#endif
+    logFunction(printf("my_tgetflag(\"%s\") --> %d\n",
+                       code, cap_value););
     return cap_value;
   } /* my_tgetflag */
 
@@ -228,6 +267,13 @@ char *my_tgetstr(char *code, char **area)
     char *cap_value = NULL;
 
   /* my_tgetstr */
+    logFunction(printf("my_tgetstr(\"%s\", %s%s" FMT_U_MEM ")\n",
+                       code,
+                       area == NULL ? "NULL " : "",
+                       area != NULL && *area == NULL ?
+                           "(NULL) " : "",
+                       area == NULL ?
+                           (memSizeType) 0 : (memSizeType) *area););
     searched[0] = ':';
     while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
       searched[pos] = code[pos - 1];
@@ -289,9 +335,20 @@ char *my_tgetstr(char *code, char **area)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_CAPS
-    printf("%s=\"%s\"\n", code, cap_value);
-#endif
+    logFunction(printf("my_tgetstr(\"%s\", %s%s" FMT_U_MEM ") --> ",
+                       code,
+                       area == NULL ? "NULL " : "",
+                       area != NULL && *area == NULL ?
+                           "(NULL) " : "",
+                       area == NULL ?
+                       (memSizeType) 0 : (memSizeType) *area);
+                if (cap_value == NULL) {
+                  printf("NULL\n");
+                } else {
+                  printf("\"");
+                  printCapEscapedStri(cap_value);
+                  printf("\"\n");
+		});
     return cap_value;
   } /* my_tgetstr */
 #endif
@@ -308,6 +365,8 @@ int getcaps (void)
     char *terminal_name;
 
   /* getcaps */
+    logFunction(printf("getcaps (caps_initialized=%d)\n",
+                       caps_initialized););
     if (!caps_initialized) {
       terminal_name = getenv("TERM");
       tgetent_result = tgetent(capbuf, terminal_name);
@@ -451,7 +510,8 @@ int getcaps (void)
         caps_initialized = TRUE;
       } /* if */
     } /* if */
-/*  printf("%d <%s>\n", strlen(cursor_address), cursor_address); */
+    /* printf("%d <%s>\n", strlen(cursor_address), cursor_address); */
+    logFunction(printf("getcaps --> %d\n", caps_initialized););
     return caps_initialized;
   } /* getcaps */
 
