@@ -279,6 +279,59 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 
 
 
+cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri)
+
+  {
+    memSizeType originalSize;
+    memSizeType size;
+    ucharType ch;
+    memSizeType idx;
+    memSizeType pos = 0;
+    memSizeType len;
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_CSTRI_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
+
+  /* cstriAsUnquotedCLiteral */
+    if (cstri != NULL) {
+      originalSize = strlen(cstri);
+      size = originalSize;
+      if (size > AND_SO_ON_LIMIT) {
+        size = AND_SO_ON_LIMIT;
+      } /* if */
+      for (idx = 0; idx < size; idx++) {
+        ch = (ucharType) cstri[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            len = strlen(cstri_escape_sequence[ch]);
+            memcpy(&buffer[pos], cstri_escape_sequence[ch], len);
+            pos += len;
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%3o", (unsigned int) ch);
+        } /* if */
+      } /* for */
+      if (originalSize > AND_SO_ON_LIMIT) {
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, originalSize);
+      } /* if */
+    } else {
+      MEMCPY_STRING(buffer, null_byte_string_marker);
+      pos = STRLEN(null_byte_string_marker);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* cstriAsUnquotedCLiteral */
+
+
+
 #if !STRINGIFY_WORKS
 cstriType stringify (intType number)
 

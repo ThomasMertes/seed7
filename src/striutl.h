@@ -69,6 +69,12 @@
  */
 #define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
 
+/**
+ *  The maximum width when an unsigned char (byte) is displayed
+ *  in a C string literal is 4 characters (e.g.: \377 ).
+ */
+#define MAXIMUM_CSTRI_ESCAPE_WIDTH STRLEN("\\377")
+
 extern const const_cstriType stri_escape_sequence[];
 extern const const_cstriType cstri_escape_sequence[];
 
@@ -188,6 +194,7 @@ extern const os_charType emulated_root[];
 
 cstriType striAsUnquotedCStri (const const_striType stri);
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
+cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri);
 #if !STRINGIFY_WORKS
 cstriType stringify (intType number);
 #endif
