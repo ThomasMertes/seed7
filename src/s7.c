@@ -426,10 +426,10 @@ int main (int argc, char **argv)
           setupFloat();
           setupBig();
           drawInit();
-          /* printf("sourceFileArgument: \"");
-             prot_stri(option.sourceFileArgument);
-             printf("\"\n");
-             printf("protFileName: \"%s\"\n", option.protFileName); */
+          logMessage(printf("sourceFileArgument: \"%s\"\n",
+                            striAsUnquotedCStri(option.sourceFileArgument)););
+          logMessage(printf("protFileName: \"%s\"\n",
+                            striAsUnquotedCStri(option.protFileName)););
           if (option.sourceFileArgument == NULL) {
             printf("*** Sourcefile missing\n");
           } else {

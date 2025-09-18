@@ -131,6 +131,8 @@ objectType fil_close (listType arguments)
 
   { /* fil_close */
     isit_file(arg_1(arguments));
+    logFunction(printf("fil_close(" FMT_U_MEM ")\n",
+                       (memSizeType) take_file(arg_1(arguments))););
     filClose(take_file(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* fil_close */
@@ -537,6 +539,10 @@ objectType fil_open (listType arguments)
   { /* fil_open */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
+    logFunction(printf("fil_open(\"%s\", ",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))));
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(take_stri(arg_2(arguments)))););
     return bld_file_temp(
         filOpen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* fil_open */

@@ -2721,7 +2721,8 @@ void filWrite (fileType outFile, const const_striType stri)
     ucharType buffer[BUFFER_SIZE];
 
   /* filWrite */
-    logFunction(printf("filWrite(%s%d, \"%s\")\n",
+    logFunction(printf("filWrite(" FMT_U_MEM " %s%d, \"%s\")\n",
+                       (memSizeType) outFile,
                        outFile == NULL ? "NULL " : "",
                        outFile != NULL ? safe_fileno(outFile->cFile) : 0,
                        striAsUnquotedCStri(stri)););

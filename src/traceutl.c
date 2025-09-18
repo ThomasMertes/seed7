@@ -1736,7 +1736,8 @@ void set_protfile_name (const const_striType protfile_name)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* set_protfile_name */
-    logFunction(printf("set_protfile_name\n"););
+    logFunction(printf("set_protfile_name(\"%s\")\n",
+                       striAsUnquotedCStri(protfile_name)););
     if (protfile_name != NULL && protfile_name->size != 0) {
       os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
       if (unlikely(os_protfile_name != NULL)) {
