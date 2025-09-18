@@ -620,7 +620,7 @@ void drawInit (void)
       mybackground = WhitePixel(mydisplay, myscreen);
       myforeground = BlackPixel(mydisplay, myscreen);
 
-      mygc = XCreateGC(mydisplay, DefaultRootWindow(mydisplay), 0, 0);
+      mygc = XCreateGC(mydisplay, DefaultRootWindow(mydisplay), 0, NULL);
       XSetBackground(mydisplay, mygc, mybackground);
       XSetForeground(mydisplay, mygc, myforeground);
 
@@ -2893,7 +2893,7 @@ void drwSetTransparentColor (winType pixmap, intType col)
             to_window(pixmap), to_width(pixmap), to_height(pixmap), 1);
         /* printf("clip_mask = %lu\n", to_window(pixmap)); */
       } /* if */
-      bitmap_gc = XCreateGC(mydisplay, to_clip_mask(pixmap), 0, 0);
+      bitmap_gc = XCreateGC(mydisplay, to_clip_mask(pixmap), 0, NULL);
       depth = DefaultDepth(mydisplay, myscreen);
       /* printf("depth=%d\n", depth); */
       XSetForeground(mydisplay, bitmap_gc, 1);
