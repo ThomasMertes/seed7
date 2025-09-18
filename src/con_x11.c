@@ -88,7 +88,7 @@ typedef struct scaledFontStruct {
 static Display *mydisplay = NULL;
 static Window mywindow;
 static GC mygc;
-static XEvent myevent;
+static XEvent currentEvent;
 static KeySym mykey;
 static int myscreen;
 static unsigned long myforeground, mybackground;
@@ -162,8 +162,8 @@ charType kbdGetc (void)
       kbd_init();
     } /* if */
     result = K_NONE;
-    XNextEvent(mydisplay, &myevent);
-    switch(myevent.type) {
+    XNextEvent(mydisplay, &currentEvent);
+    switch(currentEvent.type) {
       case Expose:
 #ifdef FLAG_EVENTS
         printf("Expose\n");
@@ -186,27 +186,27 @@ charType kbdGetc (void)
 #ifdef FLAG_EVENTS
         printf("MappingNotify\n");
 #endif
-        XRefreshKeyboardMapping(&myevent.xmapping);
+        XRefreshKeyboardMapping(&currentEvent.xmapping);
         break;
 
       case ButtonPress:
 #ifdef FLAG_EVENTS
         printf("ButtonPress (%d, %d)\n",
-            myevent.xbutton.x, myevent.xbutton.y);
+            currentEvent.xbutton.x, currentEvent.xbutton.y);
 #endif
-        button_line = myevent.xbutton.y;
-        button_column = myevent.xbutton.x;
+        button_line = currentEvent.xbutton.y;
+        button_column = currentEvent.xbutton.x;
         result = K_MOUSE1;
         break;
 
       case KeyPress:
 #ifdef FLAG_EVENTS
         printf("KeyPress\n");
-        printf("xkey.state (%o)\n", myevent.xkey.state);
+        printf("xkey.state (%o)\n", currentEvent.xkey.state);
 #endif
-        count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
+        count = XLookupString(&currentEvent.xkey, buffer, 20, &mykey, 0);
         buffer[count] = '\0';
-        if (myevent.xkey.state & ShiftMask) {
+        if (currentEvent.xkey.state & ShiftMask) {
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
@@ -264,7 +264,7 @@ charType kbdGetc (void)
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & ControlMask) {
+        } else if (currentEvent.xkey.state & ControlMask) {
           switch (mykey) {
             case XK_Return:     result = K_CTL_NL;      break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -322,7 +322,7 @@ charType kbdGetc (void)
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & Mod1Mask) {
+        } else if (currentEvent.xkey.state & Mod1Mask) {
           switch (mykey) {
             case XK_Return:     result = K_UNDEF;       break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -481,7 +481,7 @@ charType kbdGetc (void)
         } /* if */
         break;
       default:
-        printf("Other Event %d\n", myevent.type);
+        printf("Other Event %d\n", currentEvent.type);
         break;
     } /* switch */
 #ifdef TRACE_KBDGETC
