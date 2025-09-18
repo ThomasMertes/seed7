@@ -97,7 +97,7 @@ Atom net_wm_state_skip_taskbar;
 static unsigned long myforeground;
 static unsigned long mybackground;
 static Cursor emptyCursor;
-static GC mygc;
+static GC mygc = NULL;
 static int myscreen;
 
 static boolType init_called = FALSE;
@@ -480,15 +480,21 @@ static winType generateEmptyWindow (void)
 void drawClose (void)
 
   { /* drawClose */
+    logFunction(printf("drawClose()\n"););
+    if (emptyWindow != NULL) {
+      FREE_RECORD2(emptyWindow, x11_winRecord, count.win, count.win_bytes);
+      emptyWindow = NULL;
+    } /* if */
     if (mydisplay != NULL) {
-      if (emptyWindow != NULL) {
+      if (mygc != NULL) {
         XFreeGC(mydisplay, mygc);
-        FREE_RECORD2(emptyWindow, x11_winRecord, count.win, count.win_bytes);
-        emptyWindow = NULL;
+        mygc = NULL;
       } /* if */
       XCloseDisplay(mydisplay);
+      mydisplay = NULL;
       gkbCloseKeyboard();
     } /* if */
+    logFunction(printf("drawClose -->\n"););
   } /* drawClose */
 
 
@@ -500,8 +506,8 @@ void drawInit (void)
 #ifdef OUT_OF_ORDER
     const_cstriType class_text;
 #endif
-    XColor color;
-    static const char data[1] = {0};
+    XColor emptyCursorColor;
+    static const char bitmapData[] = {0, 0, 0, 0, 0, 0, 0, 0};
     Pixmap blankPixmap;
 
   /* drawInit */
@@ -624,8 +630,14 @@ void drawInit (void)
       motifWmHintsProperty = XInternAtom(mydisplay, "_MOTIF_WM_HINTS", True);
       net_wm_state = XInternAtom(mydisplay, "_NET_WM_STATE", False);
       net_wm_state_skip_taskbar = XInternAtom(mydisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
-      blankPixmap = XCreateBitmapFromData(mydisplay, DefaultRootWindow(mydisplay), data, 1, 1);
-      emptyCursor = XCreatePixmapCursor(mydisplay, blankPixmap, blankPixmap, &color, &color, 0, 0);
+      blankPixmap = XCreateBitmapFromData(mydisplay, DefaultRootWindow(mydisplay), bitmapData, 8, 8);
+      memset(&emptyCursorColor, 0, sizeof(XColor));
+      emptyCursorColor.pixel = 0;
+      emptyCursorColor.red = 0;
+      emptyCursorColor.green = 0;
+      emptyCursorColor.blue = 0;
+      emptyCursor = XCreatePixmapCursor(mydisplay, blankPixmap, blankPixmap,
+                                        &emptyCursorColor, &emptyCursorColor, 0, 0);
       XFreePixmap(mydisplay, blankPixmap);
       gkbInitKeyboard();
       init_called = TRUE;
