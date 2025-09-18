@@ -37,6 +37,7 @@
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "rtl_err.h"
 #include "con_drv.h"
 
 #undef EXTERN

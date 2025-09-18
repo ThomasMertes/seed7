@@ -53,6 +53,7 @@
 #include "chr_rtl.h"
 #include "fil_rtl.h"
 #include "ut8_rtl.h"
+#include "con_rtl.h"
 #include "con_drv.h"
 #include "fatal.h"
 
