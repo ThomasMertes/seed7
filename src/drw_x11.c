@@ -96,7 +96,7 @@ Atom net_wm_state;
 Atom net_wm_state_skip_taskbar;
 static unsigned long myforeground;
 static unsigned long mybackground;
-static Cursor emptyCursor;
+static Cursor emptyCursor = 0;
 static GC mygc = NULL;
 static int myscreen;
 
@@ -486,6 +486,10 @@ void drawClose (void)
       emptyWindow = NULL;
     } /* if */
     if (mydisplay != NULL) {
+      if (emptyCursor != 0) {
+        XFreeCursor(mydisplay, emptyCursor);
+        emptyCursor = 0;
+      } /* if */
       if (mygc != NULL) {
         XFreeGC(mydisplay, mygc);
         mygc = NULL;
