@@ -436,7 +436,7 @@ int XChangeWindowAttributes (Display *display, Window window,
 
   /* XChangeWindowAttributes */
     logFunction(printf("XChangeWindowAttributes(" FMT_U_MEM ", " FMT_U_XID
-                       ", %lx, " FMT_U_MEM ")\n",
+                       ", 0x%lx, " FMT_U_MEM ")\n",
                        (memSizeType) display, window, valuemask,
                        (memSizeType) attributes););
     funcResult = ptr_XChangeWindowAttributes(display, window, valuemask,
@@ -547,7 +547,7 @@ GC XCreateGC (Display *display, Drawable drawable, unsigned long valuemask,
     GC gc;
 
   /* XCreateGC */
-    logFunction(printf("XCreateGC(" FMT_U_MEM ", " FMT_U_XID ", %lu, " FMT_U_MEM ")\n",
+    logFunction(printf("XCreateGC(" FMT_U_MEM ", " FMT_U_XID ", 0x%lx, " FMT_U_MEM ")\n",
                        (memSizeType) display, drawable, valuemask,
                        (memSizeType) values););
     gc = ptr_XCreateGC(display, drawable, valuemask, values);
