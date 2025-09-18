@@ -89,7 +89,7 @@ static Display *mydisplay = NULL;
 static Window mywindow;
 static GC mygc;
 static XEvent currentEvent;
-static KeySym mykey;
+static KeySym currentKey;
 static int myscreen;
 static unsigned long myforeground, mybackground;
 
@@ -153,8 +153,8 @@ boolType kbdInputReady (void)
 charType kbdGetc (void)
 
   {
-    int count;
-    char buffer[21];
+    int lookup_count;
+    unsigned char buffer[21];
     charType result;
 
   /* kbdGetc */
@@ -204,15 +204,18 @@ charType kbdGetc (void)
         printf("KeyPress\n");
         printf("xkey.state (%o)\n", currentEvent.xkey.state);
 #endif
-        count = XLookupString(&currentEvent.xkey, buffer, 20, &mykey, 0);
-        buffer[count] = '\0';
+        lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
+                                     20, &currentKey, 0);
+        buffer[lookup_count] = '\0';
         if (currentEvent.xkey.state & ShiftMask) {
-          switch (mykey) {
-            case XK_Return:     result = K_NL;          break;
-            case XK_BackSpace:  result = K_BS;          break;
+          /* printf("ShiftMask\n"); */
+          switch (currentKey) {
+            case XK_Return:     result = K_SFT_NL;      break;
+            case XK_BackSpace:  result = K_SFT_BS;      break;
+            case XK_ISO_Left_Tab:
             case XK_Tab:        result = K_BACKTAB;     break;
-            case XK_Linefeed:   result = K_NL;          break;
-            case XK_Escape:     result = K_ESC;         break;
+            case XK_Linefeed:   result = K_SFT_NL;      break;
+            case XK_Escape:     result = K_SFT_ESC;     break;
             case XK_F1:         result = K_SFT_F1;      break;
             case XK_F2:         result = K_SFT_F2;      break;
             case XK_F3:         result = K_SFT_F3;      break;
@@ -223,28 +226,44 @@ charType kbdGetc (void)
             case XK_F8:         result = K_SFT_F8;      break;
             case XK_F9:         result = K_SFT_F9;      break;
             case XK_F10:        result = K_SFT_F10;     break;
-            case XK_Left:       result = K_LEFT;        break;
-            case XK_Right:      result = K_RIGHT;       break;
-            case XK_Up:         result = K_UP;          break;
-            case XK_Down:       result = K_DOWN;        break;
-            case XK_Home:       result = K_HOME;        break;
-            case XK_End:        result = K_END;         break;
-            case XK_Prior:      result = K_PGUP;        break;
-            case XK_Next:       result = K_PGDN;        break;
-            case XK_Insert:     result = K_INS;         break;
-            case XK_Delete:     result = K_DEL;         break;
-            case XK_KP_4:       result = K_LEFT;        break;
-            case XK_KP_6:       result = K_RIGHT;       break;
-            case XK_KP_8:       result = K_UP;          break;
-            case XK_KP_2:       result = K_DOWN;        break;
-            case XK_KP_7:       result = K_HOME;        break;
-            case XK_KP_1:       result = K_END;         break;
-            case XK_KP_9:       result = K_PGUP;        break;
-            case XK_KP_3:       result = K_PGDN;        break;
-            case XK_KP_0:       result = K_INS;         break;
-            case XK_KP_5:       result = K_UNDEF;       break;
-            case XK_KP_Enter:   result = K_NL;          break;
+            case XK_F11:        result = K_SFT_F11;     break;
+            case XK_F12:        result = K_SFT_F12;     break;
+            case XK_Left:       result = K_SFT_LEFT;    break;
+            case XK_Right:      result = K_SFT_RIGHT;   break;
+            case XK_Up:         result = K_SFT_UP;      break;
+            case XK_Down:       result = K_SFT_DOWN;    break;
+            case XK_Home:       result = K_SFT_HOME;    break;
+            case XK_End:        result = K_SFT_END;     break;
+            case XK_Prior:      result = K_SFT_PGUP;    break;
+            case XK_Next:       result = K_SFT_PGDN;    break;
+            case XK_Insert:     result = K_SFT_INS;     break;
+            case XK_Delete:     result = K_SFT_DEL;     break;
+            case XK_KP_Left:    result = K_SFT_LEFT;    break;
+            case XK_KP_Right:   result = K_SFT_RIGHT;   break;
+            case XK_KP_Up:      result = K_SFT_UP;      break;
+            case XK_KP_Down:    result = K_SFT_DOWN;    break;
+            case XK_KP_Home:    result = K_SFT_HOME;    break;
+            case XK_KP_End:     result = K_SFT_END;     break;
+            case XK_KP_Prior:   result = K_SFT_PGUP;    break;
+            case XK_KP_Next:    result = K_SFT_PGDN;    break;
+            case XK_KP_Insert:  result = K_SFT_INS;     break;
+            case XK_KP_Delete:  result = K_SFT_DEL;     break;
+            case XK_KP_Begin:   result = K_SFT_PAD_CENTER; break;
+            case XK_KP_Enter:   result = K_SFT_NL;      break;
             case XK_KP_Decimal: result = K_DEL;         break;
+            case XK_KP_0:       result = '0';           break;
+            case XK_KP_1:       result = '1';           break;
+            case XK_KP_2:       result = '2';           break;
+            case XK_KP_3:       result = '3';           break;
+            case XK_KP_4:       result = '4';           break;
+            case XK_KP_5:       result = '5';           break;
+            case XK_KP_6:       result = '6';           break;
+            case XK_KP_7:       result = '7';           break;
+            case XK_KP_8:       result = '8';           break;
+            case XK_KP_9:       result = '9';           break;
+            case XK_Menu:       result = K_SFT_MENU;    break;
+            case XK_Print:      result = K_SFT_PRINT;   break;
+            case XK_Pause:      result = K_SFT_PAUSE;   break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -256,21 +275,54 @@ charType kbdGetc (void)
             case XK_Num_Lock:
             case XK_Shift_Lock: result = K_NULLCMD;     break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
+                if (currentEvent.xkey.state & Mod1Mask && /* Left ALT modifier */
+                    ((result >= 'a' && result <= 'z') ||
+                     (result >= 'A' && result <= 'Z'))) {
+                  switch (result) {
+                    case 'a': case 'A': result = K_ALT_A; break;
+                    case 'b': case 'B': result = K_ALT_B; break;
+                    case 'c': case 'C': result = K_ALT_C; break;
+                    case 'd': case 'D': result = K_ALT_D; break;
+                    case 'e': case 'E': result = K_ALT_E; break;
+                    case 'f': case 'F': result = K_ALT_F; break;
+                    case 'g': case 'G': result = K_ALT_G; break;
+                    case 'h': case 'H': result = K_ALT_H; break;
+                    case 'i': case 'I': result = K_ALT_I; break;
+                    case 'j': case 'J': result = K_ALT_J; break;
+                    case 'k': case 'K': result = K_ALT_K; break;
+                    case 'l': case 'L': result = K_ALT_L; break;
+                    case 'm': case 'M': result = K_ALT_M; break;
+                    case 'n': case 'N': result = K_ALT_N; break;
+                    case 'o': case 'O': result = K_ALT_O; break;
+                    case 'p': case 'P': result = K_ALT_P; break;
+                    case 'q': case 'Q': result = K_ALT_Q; break;
+                    case 'r': case 'R': result = K_ALT_R; break;
+                    case 's': case 'S': result = K_ALT_S; break;
+                    case 't': case 'T': result = K_ALT_T; break;
+                    case 'u': case 'U': result = K_ALT_U; break;
+                    case 'v': case 'V': result = K_ALT_V; break;
+                    case 'w': case 'W': result = K_ALT_W; break;
+                    case 'x': case 'X': result = K_ALT_X; break;
+                    case 'y': case 'Y': result = K_ALT_Y; break;
+                    case 'z': case 'Z': result = K_ALT_Z; break;
+                  } /* switch */
+                } /* if */
               } else {
-                printf("undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
         } else if (currentEvent.xkey.state & ControlMask) {
-          switch (mykey) {
+          /* printf("ControlMask\n"); */
+          switch (currentKey) {
             case XK_Return:     result = K_CTL_NL;      break;
-            case XK_BackSpace:  result = K_UNDEF;       break;
-            case XK_Tab:        result = K_UNDEF;       break;
+            case XK_BackSpace:  result = K_CTL_BS;      break;
+            case XK_Tab:        result = K_CTL_TAB;     break;
             case XK_Linefeed:   result = K_CTL_NL;      break;
-            case XK_Escape:     result = K_UNDEF;       break;
+            case XK_Escape:     result = K_CTL_ESC;     break;
             case XK_F1:         result = K_CTL_F1;      break;
             case XK_F2:         result = K_CTL_F2;      break;
             case XK_F3:         result = K_CTL_F3;      break;
@@ -281,6 +333,8 @@ charType kbdGetc (void)
             case XK_F8:         result = K_CTL_F8;      break;
             case XK_F9:         result = K_CTL_F9;      break;
             case XK_F10:        result = K_CTL_F10;     break;
+            case XK_F11:        result = K_CTL_F11;     break;
+            case XK_F12:        result = K_CTL_F12;     break;
             case XK_Left:       result = K_CTL_LEFT;    break;
             case XK_Right:      result = K_CTL_RIGHT;   break;
             case XK_Up:         result = K_CTL_UP;      break;
@@ -291,6 +345,17 @@ charType kbdGetc (void)
             case XK_Next:       result = K_CTL_PGDN;    break;
             case XK_Insert:     result = K_CTL_INS;     break;
             case XK_Delete:     result = K_CTL_DEL;     break;
+            case XK_KP_Left:    result = K_CTL_LEFT;    break;
+            case XK_KP_Right:   result = K_CTL_RIGHT;   break;
+            case XK_KP_Up:      result = K_CTL_UP;      break;
+            case XK_KP_Down:    result = K_CTL_DOWN;    break;
+            case XK_KP_Home:    result = K_CTL_HOME;    break;
+            case XK_KP_End:     result = K_CTL_END;     break;
+            case XK_KP_Prior:   result = K_CTL_PGUP;    break;
+            case XK_KP_Next:    result = K_CTL_PGDN;    break;
+            case XK_KP_Insert:  result = K_CTL_INS;     break;
+            case XK_KP_Delete:  result = K_CTL_DEL;     break;
+            case XK_KP_Begin:   result = K_CTL_PAD_CENTER; break;
             case XK_KP_4:       result = K_CTL_LEFT;    break;
             case XK_KP_6:       result = K_CTL_RIGHT;   break;
             case XK_KP_8:       result = K_CTL_UP;      break;
@@ -300,9 +365,23 @@ charType kbdGetc (void)
             case XK_KP_9:       result = K_CTL_PGUP;    break;
             case XK_KP_3:       result = K_CTL_PGDN;    break;
             case XK_KP_0:       result = K_CTL_INS;     break;
-            case XK_KP_5:       result = K_UNDEF;       break;
-            case XK_KP_Enter:   result = K_CTL_NL;      break;
+            case XK_KP_5:       result = K_CTL_PAD_CENTER; break;
+            case XK_KP_Separator:
             case XK_KP_Decimal: result = K_CTL_DEL;     break;
+            case XK_KP_Enter:   result = K_CTL_NL;      break;
+            case XK_0:          result = K_CTL_0;       break;
+            case XK_1:          result = K_CTL_1;       break;
+            case XK_2:          result = K_CTL_2;       break;
+            case XK_3:          result = K_CTL_3;       break;
+            case XK_4:          result = K_CTL_4;       break;
+            case XK_5:          result = K_CTL_5;       break;
+            case XK_6:          result = K_CTL_6;       break;
+            case XK_7:          result = K_CTL_7;       break;
+            case XK_8:          result = K_CTL_8;       break;
+            case XK_9:          result = K_CTL_9;       break;
+            case XK_Menu:       result = K_CTL_MENU;    break;
+            case XK_Print:      result = K_CTL_PRINT;   break;
+            case XK_Pause:      result = K_CTL_PAUSE;   break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -314,21 +393,23 @@ charType kbdGetc (void)
             case XK_Num_Lock:
             case XK_Shift_Lock: result = K_NULLCMD;     break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
-        } else if (currentEvent.xkey.state & Mod1Mask) {
-          switch (mykey) {
-            case XK_Return:     result = K_UNDEF;       break;
-            case XK_BackSpace:  result = K_UNDEF;       break;
-            case XK_Tab:        result = K_UNDEF;       break;
-            case XK_Linefeed:   result = K_UNDEF;       break;
-            case XK_Escape:     result = K_UNDEF;       break;
+        } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
+                   currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+          /* printf("Mod1Mask or Mod5Mask\n"); */
+          switch (currentKey) {
+            case XK_Return:     result = K_ALT_NL;      break;
+            case XK_BackSpace:  result = K_ALT_BS;      break;
+            case XK_Tab:        result = K_ALT_TAB;     break;
+            case XK_Linefeed:   result = K_ALT_NL;      break;
+            case XK_Escape:     result = K_ALT_ESC;     break;
             case XK_F1:         result = K_ALT_F1;      break;
             case XK_F2:         result = K_ALT_F2;      break;
             case XK_F3:         result = K_ALT_F3;      break;
@@ -339,28 +420,45 @@ charType kbdGetc (void)
             case XK_F8:         result = K_ALT_F8;      break;
             case XK_F9:         result = K_ALT_F9;      break;
             case XK_F10:        result = K_ALT_F10;     break;
-            case XK_Left:       result = K_UNDEF;       break;
-            case XK_Right:      result = K_UNDEF;       break;
-            case XK_Up:         result = K_UNDEF;       break;
-            case XK_Down:       result = K_UNDEF;       break;
-            case XK_Home:       result = K_UNDEF;       break;
-            case XK_End:        result = K_UNDEF;       break;
-            case XK_Prior:      result = K_UNDEF;       break;
-            case XK_Next:       result = K_UNDEF;       break;
-            case XK_Insert:     result = K_UNDEF;       break;
-            case XK_Delete:     result = K_UNDEF;       break;
-            case XK_KP_4:       result = K_UNDEF;       break;
-            case XK_KP_6:       result = K_UNDEF;       break;
-            case XK_KP_8:       result = K_UNDEF;       break;
-            case XK_KP_2:       result = K_UNDEF;       break;
-            case XK_KP_7:       result = K_UNDEF;       break;
-            case XK_KP_1:       result = K_UNDEF;       break;
-            case XK_KP_9:       result = K_UNDEF;       break;
-            case XK_KP_3:       result = K_UNDEF;       break;
-            case XK_KP_0:       result = K_UNDEF;       break;
-            case XK_KP_5:       result = K_UNDEF;       break;
-            case XK_KP_Enter:   result = K_UNDEF;       break;
-            case XK_KP_Decimal: result = K_UNDEF;       break;
+            case XK_F11:        result = K_ALT_F11;     break;
+            case XK_F12:        result = K_ALT_F12;     break;
+            case XK_Left:       result = K_ALT_LEFT;    break;
+            case XK_Right:      result = K_ALT_RIGHT;   break;
+            case XK_Up:         result = K_ALT_UP;      break;
+            case XK_Down:       result = K_ALT_DOWN;    break;
+            case XK_Home:       result = K_ALT_HOME;    break;
+            case XK_End:        result = K_ALT_END;     break;
+            case XK_Prior:      result = K_ALT_PGUP;    break;
+            case XK_Next:       result = K_ALT_PGDN;    break;
+            case XK_Insert:     result = K_ALT_INS;     break;
+            case XK_Delete:     result = K_ALT_DEL;     break;
+            case XK_KP_Left:    result = K_ALT_LEFT;    break;
+            case XK_KP_Right:   result = K_ALT_RIGHT;   break;
+            case XK_KP_Up:      result = K_ALT_UP;      break;
+            case XK_KP_Down:    result = K_ALT_DOWN;    break;
+            case XK_KP_Home:    result = K_ALT_HOME;    break;
+            case XK_KP_End:     result = K_ALT_END;     break;
+            case XK_KP_Prior:   result = K_ALT_PGUP;    break;
+            case XK_KP_Next:    result = K_ALT_PGDN;    break;
+            case XK_KP_Insert:  result = K_ALT_INS;     break;
+            case XK_KP_Delete:  result = K_ALT_DEL;     break;
+            case XK_KP_Begin:   result = K_ALT_PAD_CENTER; break;
+            case XK_KP_4:       result = K_ALT_LEFT;    break;
+            case XK_KP_6:       result = K_ALT_RIGHT;   break;
+            case XK_KP_8:       result = K_ALT_UP;      break;
+            case XK_KP_2:       result = K_ALT_DOWN;    break;
+            case XK_KP_7:       result = K_ALT_HOME;    break;
+            case XK_KP_1:       result = K_ALT_END;     break;
+            case XK_KP_9:       result = K_ALT_PGUP;    break;
+            case XK_KP_3:       result = K_ALT_PGDN;    break;
+            case XK_KP_0:       result = K_ALT_INS;     break;
+            case XK_KP_5:       result = K_ALT_PAD_CENTER; break;
+            case XK_KP_Separator:
+            case XK_KP_Decimal: result = K_ALT_DEL;     break;
+            case XK_KP_Enter:   result = K_ALT_NL;      break;
+            case XK_Menu:       result = K_ALT_MENU;    break;
+            case XK_Print:      result = K_ALT_PRINT;   break;
+            case XK_Pause:      result = K_ALT_PAUSE;   break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -372,7 +470,7 @@ charType kbdGetc (void)
             case XK_Num_Lock:
             case XK_Shift_Lock: result = K_NULLCMD;     break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 switch (buffer[0]) {
                   case '0':     result = K_ALT_0;       break;
                   case '1':     result = K_ALT_1;       break;
@@ -384,44 +482,98 @@ charType kbdGetc (void)
                   case '7':     result = K_ALT_7;       break;
                   case '8':     result = K_ALT_8;       break;
                   case '9':     result = K_ALT_9;       break;
-                  case 'a':     result = K_ALT_A;       break;
-                  case 'b':     result = K_ALT_B;       break;
-                  case 'c':     result = K_ALT_C;       break;
-                  case 'd':     result = K_ALT_D;       break;
-                  case 'e':     result = K_ALT_E;       break;
-                  case 'f':     result = K_ALT_F;       break;
-                  case 'g':     result = K_ALT_G;       break;
-                  case 'h':     result = K_ALT_H;       break;
-                  case 'i':     result = K_ALT_I;       break;
-                  case 'j':     result = K_ALT_J;       break;
-                  case 'k':     result = K_ALT_K;       break;
-                  case 'l':     result = K_ALT_L;       break;
-                  case 'm':     result = K_ALT_M;       break;
-                  case 'n':     result = K_ALT_N;       break;
-                  case 'o':     result = K_ALT_O;       break;
-                  case 'p':     result = K_ALT_P;       break;
-                  case 'q':     result = K_ALT_Q;       break;
-                  case 'r':     result = K_ALT_R;       break;
-                  case 's':     result = K_ALT_S;       break;
-                  case 't':     result = K_ALT_T;       break;
-                  case 'u':     result = K_ALT_U;       break;
-                  case 'v':     result = K_ALT_V;       break;
-                  case 'w':     result = K_ALT_W;       break;
-                  case 'x':     result = K_ALT_X;       break;
-                  case 'y':     result = K_ALT_Y;       break;
-                  case 'z':     result = K_ALT_Z;       break;
+                  case 'a': case 'A': result = K_ALT_A; break;
+                  case 'b': case 'B': result = K_ALT_B; break;
+                  case 'c': case 'C': result = K_ALT_C; break;
+                  case 'd': case 'D': result = K_ALT_D; break;
+                  case 'e': case 'E': result = K_ALT_E; break;
+                  case 'f': case 'F': result = K_ALT_F; break;
+                  case 'g': case 'G': result = K_ALT_G; break;
+                  case 'h': case 'H': result = K_ALT_H; break;
+                  case 'i': case 'I': result = K_ALT_I; break;
+                  case 'j': case 'J': result = K_ALT_J; break;
+                  case 'k': case 'K': result = K_ALT_K; break;
+                  case 'l': case 'L': result = K_ALT_L; break;
+                  case 'm': case 'M': result = K_ALT_M; break;
+                  case 'n': case 'N': result = K_ALT_N; break;
+                  case 'o': case 'O': result = K_ALT_O; break;
+                  case 'p': case 'P': result = K_ALT_P; break;
+                  case 'q': case 'Q': result = K_ALT_Q; break;
+                  case 'r': case 'R': result = K_ALT_R; break;
+                  case 's': case 'S': result = K_ALT_S; break;
+                  case 't': case 'T': result = K_ALT_T; break;
+                  case 'u': case 'U': result = K_ALT_U; break;
+                  case 'v': case 'V': result = K_ALT_V; break;
+                  case 'w': case 'W': result = K_ALT_W; break;
+                  case 'x': case 'X': result = K_ALT_X; break;
+                  case 'y': case 'Y': result = K_ALT_Y; break;
+                  case 'z': case 'Z': result = K_ALT_Z; break;
                   default:
-                    printf("undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                    printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                     break;
                 } /* switch */
               } else {
-                printf("undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
+                result = K_UNDEF;
+              } /* if */
+              break;
+          } /* switch */
+        } else if (currentEvent.xkey.state & Mod2Mask) { /* Num Lock modifier */
+          /* printf("Mod2Mask\n"); */
+          switch (currentKey) {
+            case XK_Return:      result = K_NL;    break;
+            case XK_BackSpace:   result = K_BS;    break;
+            case XK_Tab:         result = K_TAB;   break;
+            case XK_Linefeed:    result = K_NL;    break;
+            case XK_Escape:      result = K_ESC;   break;
+            case XK_F1:          result = K_F1;    break;
+            case XK_F2:          result = K_F2;    break;
+            case XK_F3:          result = K_F3;    break;
+            case XK_F4:          result = K_F4;    break;
+            case XK_F5:          result = K_F5;    break;
+            case XK_F6:          result = K_F6;    break;
+            case XK_F7:          result = K_F7;    break;
+            case XK_F8:          result = K_F8;    break;
+            case XK_F9:          result = K_F9;    break;
+            case XK_F10:         result = K_F10;   break;
+            case XK_F11:         result = K_F11;   break;
+            case XK_F12:         result = K_F12;   break;
+            case XK_Left:        result = K_LEFT;  break;
+            case XK_Right:       result = K_RIGHT; break;
+            case XK_Up:          result = K_UP;    break;
+            case XK_Down:        result = K_DOWN;  break;
+            case XK_Home:        result = K_HOME;  break;
+            case XK_End:         result = K_END;   break;
+            case XK_Prior:       result = K_PGUP;  break;
+            case XK_Next:        result = K_PGDN;  break;
+            case XK_Insert:      result = K_INS;   break;
+            case XK_Delete:      result = K_DEL;   break;
+            case XK_KP_Enter:    result = K_NL;    break;
+            case XK_Menu:        result = K_MENU;  break;
+            case XK_Print:       result = K_PRINT; break;
+            case XK_Pause:       result = K_PAUSE; break;
+            case XK_Shift_L:
+            case XK_Shift_R:
+            case XK_Control_L:
+            case XK_Control_R:
+            case XK_Alt_L:
+            case XK_Alt_R:
+            case XK_Mode_switch:
+            case XK_Caps_Lock:
+            case XK_Num_Lock:
+            case XK_Shift_Lock: result = K_NULLCMD;     break;
+            default:
+              if (lookup_count == 1) {
+                result = buffer[0];
+              } else {
+                printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
         } else {
-          switch (mykey) {
+          /* printf("no mask\n"); */
+          switch (currentKey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
             case XK_Tab:        result = K_TAB;         break;
@@ -437,6 +589,8 @@ charType kbdGetc (void)
             case XK_F8:         result = K_F8;          break;
             case XK_F9:         result = K_F9;          break;
             case XK_F10:        result = K_F10;         break;
+            case XK_F11:        result = K_F11;         break;
+            case XK_F12:        result = K_F12;         break;
             case XK_Left:       result = K_LEFT;        break;
             case XK_Right:      result = K_RIGHT;       break;
             case XK_Up:         result = K_UP;          break;
@@ -447,6 +601,17 @@ charType kbdGetc (void)
             case XK_Next:       result = K_PGDN;        break;
             case XK_Insert:     result = K_INS;         break;
             case XK_Delete:     result = K_DEL;         break;
+            case XK_KP_Left:    result = K_LEFT;        break;
+            case XK_KP_Right:   result = K_RIGHT;       break;
+            case XK_KP_Up:      result = K_UP;          break;
+            case XK_KP_Down:    result = K_DOWN;        break;
+            case XK_KP_Home:    result = K_HOME;        break;
+            case XK_KP_End:     result = K_END;         break;
+            case XK_KP_Prior:   result = K_PGUP;        break;
+            case XK_KP_Next:    result = K_PGDN;        break;
+            case XK_KP_Insert:  result = K_INS;         break;
+            case XK_KP_Delete:  result = K_DEL;         break;
+            case XK_KP_Begin:   result = K_PAD_CENTER;  break;
             case XK_KP_4:       result = K_LEFT;        break;
             case XK_KP_6:       result = K_RIGHT;       break;
             case XK_KP_8:       result = K_UP;          break;
@@ -456,9 +621,12 @@ charType kbdGetc (void)
             case XK_KP_9:       result = K_PGUP;        break;
             case XK_KP_3:       result = K_PGDN;        break;
             case XK_KP_0:       result = K_INS;         break;
-            case XK_KP_5:       result = K_UNDEF;       break;
+            case XK_KP_5:       result = K_PAD_CENTER;  break;
             case XK_KP_Enter:   result = K_NL;          break;
             case XK_KP_Decimal: result = K_DEL;         break;
+            case XK_Menu:       result = K_MENU;        break;
+            case XK_Print:      result = K_PRINT;       break;
+            case XK_Pause:      result = K_PAUSE;       break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -470,10 +638,10 @@ charType kbdGetc (void)
             case XK_Num_Lock:
             case XK_Shift_Lock: result = K_NULLCMD;     break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
@@ -486,7 +654,7 @@ charType kbdGetc (void)
     } /* switch */
 #ifdef TRACE_KBDGETC
     printf("key: \"%s\" %ld %lx %d\n",
-        buffer, (long) mykey, (long) mykey, result);
+        buffer, (long) currentKey, (long) currentKey, result);
 #endif
     return result;
   } /* kbdGetc */
