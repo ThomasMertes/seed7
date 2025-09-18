@@ -1545,14 +1545,18 @@ void err_integer (errorType err, intType number)
 
 
 
-/* Buffer size to write int characters with "\\%u;\" (U+%04x)" */
-#define INT_CHAR_BUFFER_SIZE 1 + UINT_DECIMAL_SIZE + STRLEN(";\" (U+") + \
-                             INT_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+#define INT_CHAR_DESCR_FORMAT "\\%u;\" (U+%04x)"
+#define sprintfIntCharDescr(buf, ch) sprintf(buf, INT_CHAR_DESCR_FORMAT, ch, ch)
+/* Buffer size to write int characters with INT_CHAR_DESCR_FORMAT: */
+#define INT_CHAR_DESCR_BUFFER_SIZE 1 + UINT_DECIMAL_SIZE + STRLEN(";\" (U+") + \
+                                   INT_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+
+
 
 void err_cchar (errorType err, int character)
 
   {
-    char buffer[INT_CHAR_BUFFER_SIZE];
+    char buffer[INT_CHAR_DESCR_BUFFER_SIZE];
     parseErrorType error;
 
   /* err_cchar */
@@ -1596,7 +1600,7 @@ void err_cchar (errorType err, int character)
     if (character >= ' ' && character <= '~') {
       sprintf(buffer, "%c\"", character);
     } else {
-      sprintf(buffer, "\\%u;\" (U+%04x)", character, character);
+      sprintfIntCharDescr(buffer, character);
     } /* if */
     appendCStri(&error->msg, buffer);
     finalizeError(error);
@@ -1605,14 +1609,19 @@ void err_cchar (errorType err, int character)
 
 
 
-/* Buffer size to write unsigned long characters with " \"\\%lu;\" (U+%04lx)" */
-#define LONG_CHAR_BUFFER_SIZE 3 + ULONG_DECIMAL_SIZE + STRLEN(";\" (U+") + \
-                              LONG_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+#define LONG_CHAR_DESCR_FORMAT " \"\\%lu;\" (U+%04lx)"
+#define sprintfLongCharDescr(buf, ch) sprintf(buf, LONG_CHAR_DESCR_FORMAT, \
+                                      (unsigned long) ch, (unsigned long) ch)
+/* Buffer size to write unsigned long characters with LONG_CHAR_DESCR_FORMAT: */
+#define LONG_CHAR_DESCR_BUFFER_SIZE 3 + ULONG_DECIMAL_SIZE + STRLEN(";\" (U+") + \
+                                    LONG_HEXADECIMAL_SIZE + 1 + NULL_TERMINATION_LEN
+
+
 
 void err_char (errorType err, charType character)
 
   {
-    char buffer[LONG_CHAR_BUFFER_SIZE];
+    char buffer[LONG_CHAR_DESCR_BUFFER_SIZE];
     parseErrorType error;
 
   /* err_char */
@@ -1647,8 +1656,7 @@ void err_char (errorType err, charType character)
     if (character >= ' ' && character <= '~') {
       sprintf(buffer, " \"%c\"", (char) character);
     } else {
-      sprintf(buffer, " \"\\%lu;\" (U+%04lx)",
-              (unsigned long) character, (unsigned long) character);
+      sprintfLongCharDescr(buffer, character);
     } /* if */
     appendCStri(&error->msg, buffer);
     finalizeError(error);
