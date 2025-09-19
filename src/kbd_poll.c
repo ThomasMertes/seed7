@@ -667,18 +667,19 @@ boolType kbdInputReady (void)
   {
     struct pollfd poll_fds[1];
     int poll_result;
-    boolType result;
+    boolType inputReady;
 
   /* kbdInputReady */
+    logFunction(printf("kbdInputReady()\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     if (!keybd_initialized) {
       logError(printf("kbdInputReady: kbd_init() failed to open the keyboard.\n"););
       raise_error(FILE_ERROR);
-      result = FALSE;
+      inputReady = FALSE;
     } else if (key_buffer_size > 0) {
-      result = TRUE;
+      inputReady = TRUE;
     } else {
       if (changes) {
         conFlush();
@@ -690,12 +691,13 @@ boolType kbdInputReady (void)
         poll_result = poll(poll_fds, 1, 0);
       } while (unlikely(poll_result == -1 && errno == EINTR));
       if (poll_result == 1) {
-        result = TRUE;
+        inputReady = TRUE;
       } else {
-        result = FALSE;
+        inputReady = FALSE;
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf("kbdInputReady --> %d\n", inputReady););
+    return inputReady;
   } /* kbdInputReady */
 
 
@@ -817,7 +819,7 @@ charType kbdGetc (void)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", result););
+    logFunction(printf("kbdGetc() --> '\\" FMT_U32 ";'\n", result););
     return result;
   } /* kbdGetc */
 

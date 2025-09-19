@@ -898,6 +898,7 @@ void polPoll (const pollType pollData)
       var_conv(pollData)->iterPos = 0;
       var_conv(pollData)->numOfEvents = (memSizeType) poll_result;
     } /* if */
+    logFunction(printf("polPoll -->\n"););
   } /* polPoll */
 
 
