@@ -1561,7 +1561,8 @@ striType followLink (striType startPath, errInfoType *err_info)
  *  Return the absolute path of the current working directory.
  *  If the size of the provided 'buffer' is not sufficient a buffer
  *  with sufficient size is allocated. The allocated buffer must be
- *  freed afterwards with FREE_OS_STRI().
+ *  freed afterwards with FREE_OS_STRI(). But FREE_OS_STRI() should
+ *  only be called if the returned value is not the 'buffer' parameter.
  *  @param buffer Buffer to be used if its size is sufficient.
  *  @param buffer_size Size of 'buffer'.
  *  @param err_info Unchanged if the function succeeds, and
@@ -1578,10 +1579,15 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
     os_striType os_cwd;
 
   /* getOsCwd */
-    logFunction(printf("getOsCwd(*, " FMT_U_MEM ", *)", buffer_size);
-                fflush(stdout););
+    logFunction(printf("getOsCwd(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                       (memSizeType) buffer, buffer_size, *err_info););
     if (unlikely((os_cwd = os_getcwd(buffer, buffer_size)) == NULL)) {
       if (errno == ERANGE || errno == ENAMETOOLONG) {
+        logError(printf("getOsCwd: os_getcwd(" FMT_U_MEM ", "
+                        FMT_U_MEM ") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        (memSizeType) buffer,
+                        buffer_size, errno, strerror(errno)););
         do {
           buffer_size *= 2;
           FREE_OS_STRI(large_buffer);
@@ -1594,12 +1600,17 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
           if (unlikely(!ALLOC_OS_STRI(large_buffer, buffer_size))) {
             *err_info = MEMORY_ERROR;
           } else {
-            /* printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ")\n", buffer_size); */
+            logMessage(printf("getOsCwd: os_getcwd(" FMT_U_MEM ", "
+                              FMT_U_MEM ")\n",
+                              (memSizeType) large_buffer,
+                              buffer_size););
             if (unlikely((os_cwd = os_getcwd(large_buffer, buffer_size)) == NULL)) {
+              logError(printf("getOsCwd: os_getcwd(" FMT_U_MEM ", "
+                              FMT_U_MEM ") failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              (memSizeType) large_buffer,
+                              buffer_size, errno, strerror(errno)););
               if (errno != ERANGE && errno != ENAMETOOLONG) {
-                logError(printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ") failed:\n"
-                                "errno=%d\nerror: %s\n",
-                                buffer_size, errno, strerror(errno)););
                 FREE_OS_STRI(large_buffer);
                 large_buffer = NULL;
                 *err_info = FILE_ERROR;
@@ -1608,8 +1619,10 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
           } /* if */
         } while (os_cwd == NULL && large_buffer != NULL);
       } else {
-        logError(printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ") failed:\n"
+        logError(printf("getOsCwd: os_getcwd(" FMT_U_MEM ", "
+                        FMT_U_MEM ") failed:\n"
                         "errno=%d\nerror: %s\n",
+                        (memSizeType) buffer,
                         buffer_size, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } /* if */
@@ -1625,7 +1638,8 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
       } /* for */
     }
 #endif
-    logFunctionResult(printf("\"" FMT_S_OS "\"\n", os_cwd););
+    logFunction(printf("getOsCwd --> \"" FMT_S_OS "\" (err_info=%d)\n",
+                       os_cwd, *err_info););
     return os_cwd;
   } /* getOsCwd */
 
@@ -1709,7 +1723,7 @@ striType doGetCwd (errInfoType *err_info)
     striType cwd;
 
   /* doGetCwd */
-    logFunction(printf("doGetCwd\n"););
+    logFunction(printf("doGetCwd(%d)\n", *err_info););
     dotStri = chrStrMacro('.', stri1_buffer);
     os_cwd = cp_to_os_path(dotStri, &path_info, err_info);
     if (unlikely(os_cwd == NULL)) {
@@ -1763,7 +1777,7 @@ striType doGetCwd (errInfoType *err_info)
     striType cwd;
 
   /* doGetCwd */
-    logFunction(printf("doGetCwd\n"););
+    logFunction(printf("doGetCwd(%d)\n", *err_info););
 #if EMULATE_ROOT_CWD
     if (IS_EMULATED_ROOT(current_emulated_cwd)) {
       cwd = cp_from_os_path(current_emulated_cwd, err_info);
