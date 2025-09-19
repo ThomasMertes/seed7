@@ -8637,7 +8637,7 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options,
       sprintf(testProgram, "#include<stdio.h>\n#include \"%s\"\n"
                            "int main(int argc,char *argv[]){\n"
                            "TERMINAL *aTerminal;\n"
-                           "int errret;\n"
+                           "int errret=0;\n"
                            "setupterm(\"vt100\", fileno(stdout), &errret);\n"
                            "printf(\"1\\n\");\n"
                            "return 0;}\n", consoleInclude);
