@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -91,6 +94,7 @@ intType conLine (void)
 void conSetpos (intType lin, intType col)
 
   { /* conSetpos */
+    logFunctionX(printf("conSetpos(" FMT_D ", " FMT_D ")\n", lin, col););
 #ifdef CONSOLE_USES_CON_TEXT
     cursor_line = lin;
     cursor_column = col;
@@ -127,6 +131,7 @@ void conWrite (const const_striType stri)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* conWrite */
+    logFunctionX(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
 #ifdef CONSOLE_UTF8
       ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
