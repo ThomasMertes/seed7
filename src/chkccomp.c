@@ -11251,6 +11251,16 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",aUnion.ch==(char)aUnion.gen);return 0;}\n")) {
       fprintf(versionFile, "#define CASTING_GETS_A_UNION_ELEMENT %d\n", doTest() == 1);
     } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\n"
+                         "typedef union{char ch;unsigned long gen;}unionType;\n"
+                         "void test(unsigned long genValue)\n"
+                         "{unionType bUnion;bUnion.gen=genValue;\n"
+                         "printf(\"%d\\n\",bUnion.ch=='X');}\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{unionType aUnion;aUnion.ch='X';\n"
+                         "test(aUnion.gen);return 0;}\n")) {
+      fprintf(versionFile, "#define UNIONS_CAN_CONVERT_TO_GENERIC %d\n", doTest() == 1);
+    } /* if */
     if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[5];\n"
