@@ -2250,6 +2250,10 @@ void filSeek (fileType aFile, intType position)
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
+    logFunction(printf("filSeek(%s%d, " FMT_D ") -->\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       position););
   } /* filSeek */
 
 
@@ -2291,6 +2295,10 @@ boolType filSeekable (fileType aFile)
         seekable = FALSE;
       } /* if */
     } /* if */
+    logFunction(printf("filSeekable(%s%d) --> %d\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       seekable););
     return seekable;
   } /* filSeekable */
 
