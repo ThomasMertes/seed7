@@ -848,9 +848,11 @@ typedef mpz_srcptr  const_bigIntType;
 
 #if VERBOSE_EXCEPTIONS_ACTIVE
 #define logError(logStatements) printf(" *** "); logStatements
+#define log2Error(logStatements) fprintf(stderr, " *** "); logStatements
 #define logErrorIfTrue(cond, logStatements) if (unlikely(cond)) { logError(logStatements) }
 #else
 #define logError(logStatements)
+#define log2Error(logStatements)
 #define logErrorIfTrue(cond, logStatements)
 #endif
 
@@ -866,4 +868,5 @@ typedef mpz_srcptr  const_bigIntType;
 #define logSignalFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logMessageX(logStatements) logStatements
 #define logErrorX(logStatements) printf(" *** "); logStatements
+#define log2ErrorX(logStatements) fprintf(stderr, " *** "); logStatements
 #define logErrorIfTrueX(cond, logStatements) if (unlikely(cond)) { logErrorX(logStatements) }
