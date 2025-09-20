@@ -158,8 +158,8 @@ static void strelem_fwrite (const strElemType *stri, memSizeType length,
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* strelem_fwrite */
-    logFunction(printf("strelem_fwrite length(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) stri, length););
+    log2Function(fprintf(stderr, "strelem_fwrite(" FMT_U_MEM ", " FMT_U_MEM ", %d)\n",
+                         (memSizeType) stri, length, safe_fileno(outFile)););
     for (; length >= WRITE_STRI_BLOCK_SIZE;
         stri += WRITE_STRI_BLOCK_SIZE, length -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, stri, (memSizeType) WRITE_STRI_BLOCK_SIZE);
@@ -209,7 +209,7 @@ static consoleType create_console (int height, int width)
     consoleType new_con;
 
   /* create_console */
-    logFunction(printf("create_console(%d, %d)\n", height, width););
+    log2Function(fprintf(stderr, "create_console(%d, %d)\n", height, width););
     new_con = (consoleType) malloc(sizeof(consoleRecord));
     if (new_con != NULL) {
       new_con->char_data = (strElemType *)
@@ -240,8 +240,8 @@ static consoleType create_console (int height, int width)
         new_con = NULL;
       } /* if */
     } /* if */
-    logFunction(printf("create_console --> " FMT_U_MEM "\n",
-                       (memSizeType) new_con););
+    log2Function(fprintf(stderr, "create_console --> " FMT_U_MEM "\n",
+                         (memSizeType) new_con););
     return new_con;
   } /* create_console */
 
@@ -382,9 +382,11 @@ static int inf_setfont (char *fontname)
 int conHeight (void)
 
   { /* conHeight */
+    log2Function(fprintf(stderr, "conHeight()\n"););
     if (con->size_changed) {
       resize_console();
     } /* if */
+    log2Function(fprintf(stderr, "conHeight --> %d\n", con->height););
     return con->height;
   } /* conHeight */
 
@@ -393,9 +395,11 @@ int conHeight (void)
 int conWidth (void)
 
   { /* conWidth */
+    log2Function(fprintf(stderr, "conWidth()\n"););
     if (con->size_changed) {
       resize_console();
     } /* if */
+    log2Function(fprintf(stderr, "conWidth --> %d\n", con->width););
     return con->width;
   } /* conWidth */
 
@@ -404,7 +408,7 @@ int conWidth (void)
 void conFlush (void)
 
   { /* conFlush */
-    logFunction(fprintf(stderr, "conFlush\n"););
+    log2Function(fprintf(stderr, "conFlush\n"););
     if (console_initialized) {
       if (con->size_changed) {
         resize_console();
@@ -432,7 +436,7 @@ void conFlush (void)
 void conCursor (boolType on)
 
   { /* conCursor */
-    logFunction(fprintf(stderr, "scrCursor(%d)\n", on););
+    log2Function(fprintf(stderr, "conCursor(%d)\n", on););
     cursor_on = on;
     if (on) {
       putctl(cursor_normal); /* cursor normal */
@@ -452,7 +456,7 @@ void conCursor (boolType on)
 void conSetCursor (intType line, intType column)
 
   { /* conSetCursor */
-    logFunction(fprintf(stderr, "scrSetCursor(" FMT_D ", " FMT_D ")\n",
+    log2Function(fprintf(stderr, "conSetCursor(" FMT_D ", " FMT_D ")\n",
                         line, column););
     if (line <= 0 || column <= 0) {
       raise_error(RANGE_ERROR);
@@ -496,8 +500,8 @@ static void doWrite (const strElemType *stri, memSizeType length)
     unsigned char *new_attr;
 
   /* doWrite */
-    logFunction(printf("doWrite(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) stri, length););
+    log2Function(fprintf(stderr, "doWrite(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                         (memSizeType) stri, length););
     if (cursor_line <= con->height && length != 0) {
       new_line = &con->chars[cursor_line - 1][cursor_column - 1];
       new_attr = &con->attributes[cursor_line - 1][cursor_column - 1];
@@ -581,7 +585,7 @@ void conWrite (const const_striType stri)
     const strElemType *found_pos;
 
   /* conWrite */
-    logFunction(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
+    log2Function(fprintf(stderr, "conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
     if (console_initialized) {
       if (con->size_changed) {
         resize_console();
@@ -629,7 +633,7 @@ void conWrite (const const_striType stri)
     } else {
       strelem_fwrite(stri->mem, stri->size, stdout);
     } /* if */
-    logFunction(printf("conWrite -->\n"););
+    log2Function(fprintf(stderr, "conWrite -->\n"););
   } /* conWrite */
 
 
@@ -649,8 +653,8 @@ static void doClear (int startlin, int startcol,
     unsigned char *new_attr;
 
   /* doClear */
-    logFunction(fprintf(stderr, "doClear(%d, %d, %d, %d)\n",
-                        startlin, startcol, stoplin, stopcol););
+    log2Function(fprintf(stderr, "doClear(%d, %d, %d, %d)\n",
+                         startlin, startcol, stoplin, stopcol););
     if (startlin == 1 && stoplin == con->height &&
         startcol == 1 && stopcol == con->width && clear_screen != NULL) {
       putctl(clear_screen); /* clear screen */
@@ -719,8 +723,8 @@ void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol)
 
   { /* conClear */
-    logFunction(fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
-                        startlin, startcol, stoplin, stopcol););
+    log2Function(fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
+                         startlin, startcol, stoplin, stopcol););
     if (con->size_changed) {
       resize_console();
     } /* if */
@@ -957,7 +961,7 @@ static void doDownScroll (int startlin, int startcol,
         } /* if */
       } /* for */
     } else {
-    /* fprintf(stderr, "scrDownScroll: lin1=%d col1=%d lin*=%d col*=%d numLines=%d\n",
+    /* fprintf(stderr, "doDownScroll: lin1=%d col1=%d lin*=%d col*=%d numLines=%d\n",
            startlin, startcol, stoplin, stopcol, numLines); */
       putgoto(cursor_address, 0, stoplin - numLines); /* cursor motion */
 #ifdef TPARM_PRESENT
@@ -1363,7 +1367,7 @@ int conOpen (void)
     int result = 0;
 
   /* conOpen */
-    logFunction(printf("conOpen\n"););
+    log2Function(fprintf(stderr, "conOpen\n"););
     if (!findTermDll()) {
       logError(printf("conOpen: findTermDll() failed.\n"););
       raise_error(FILE_ERROR);
@@ -1417,6 +1421,6 @@ int conOpen (void)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("conOpen --> %d\n", result););
+    log2Function(fprintf(stderr, "conOpen --> %d\n", result););
     return result;
   } /* conOpen */

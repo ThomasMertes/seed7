@@ -99,9 +99,9 @@ static void read_cap_name (FILE *fix_file, char *const cap_name, int *term_char)
     } /* while */
     cap_name[pos] = '\0';
     *term_char = ch;
-    logFunction(printf("read_cap_name(" FMT_X_MEM ", \"%s\", %d) -->\n",
-                       (memSizeType) fix_file,
-                       cap_name, *term_char););
+    log2Function(fprintf(stderr, "read_cap_name(" FMT_X_MEM ", \"%s\", %d) -->\n",
+                         (memSizeType) fix_file,
+                         cap_name, *term_char););
   } /* read_cap_name */
 
 
@@ -128,7 +128,7 @@ static int read_int_cap (FILE *fix_file, int *term_char)
       sscanf(value, "%d", &cap_value);
     } /* if */
     *term_char = from;
-    logFunction(printf("read_int_cap --> %d\n", cap_value););
+    log2Function(fprintf(stderr, "read_int_cap --> %d\n", cap_value););
     return cap_value;
   } /* read_int_cap */
 
@@ -193,13 +193,13 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
       } /* if */
     } /* if */
     *term_char = from;
-    logFunction(printf("read_stri_cap --> ");
-                if (cap_value == NULL) {
-                  printf("NULL\n");
-                } else {
-                  printf("\"%s\"\n",
-                         cstriAsUnquotedCLiteral(cap_value));
-		});
+    log2Function(fprintf(stderr, "read_stri_cap --> ");
+                 if (cap_value == NULL) {
+                   fprintf(stderr, "NULL\n");
+                 } else {
+                   fprintf(stderr, "\"%s\"\n",
+                           cstriAsUnquotedCLiteral(cap_value));
+                 });
     return cap_value;
   } /* read_stri_cap */
 
@@ -212,19 +212,19 @@ static int assign_cap (char *cap_name, const_cstriType terminfo_name,
     int assigned;
 
   /* assign_cap */
-    /* printf("assign_cap(\"%s\", \"%s\", \"%s\", *, *)\n",
-                       cap_name, terminfo_name, termcap_name); */
+    /* fprintf(stderr, "assign_cap(\"%s\", \"%s\", \"%s\", *, *)\n",
+            cap_name, terminfo_name, termcap_name); */
     if (cap_name != NULL &&
         (strcmp(cap_name, terminfo_name) == 0 ||
         strcmp(cap_name, termcap_name) == 0)) {
-      logMessage(printf("%s=\"%s\"\n", cap_name,
-                        cstriAsUnquotedCLiteral(cap_value)););
+      logMessage(fprintf(stderr, "%s=\"%s\"\n", cap_name,
+                         cstriAsUnquotedCLiteral(cap_value)););
       *cap_pointer = cap_value;
       assigned = TRUE;
     } else {
       assigned = FALSE;
     } /* if */
-    /* printf("assign_cap -->%d\n", assigned); */
+    /* fprintf(stderr, "assign_cap -->%d\n", assigned); */
     return assigned;
   } /* assign_cap */
 
@@ -244,7 +244,7 @@ static void fix_capability (void)
     size_t len;
 
   /* fix_capability */
-    logFunction(printf("fix_capability\n"););
+    log2Function(fprintf(stderr, "fix_capability\n"););
     home_dir_path = getenv("HOME");
     if (home_dir_path == NULL) {
       home_dir_path = "";
@@ -269,7 +269,7 @@ static void fix_capability (void)
           read_cap_name(fix_file, cap_name, &term_char);
         } while (term_char != ',' && term_char != ':' && term_char != EOF);
         read_cap_name(fix_file, cap_name, &term_char);
-        logMessage(printf("cap \"%s\" ", cap_name););
+        logMessage(fprintf(stderr, "cap \"%s\" ", cap_name););
         while (term_char != EOF) {
           cap_value = NULL;
           switch (term_char) {
@@ -365,13 +365,13 @@ static void fix_capability (void)
               assign_cap(cap_name, "kf63",  "Fr", &key_f63,      cap_value)) {
           } /* if */
           read_cap_name(fix_file, cap_name, &term_char);
-          logMessage(printf("cap \"%s\" ", cap_name););
+          logMessage(fprintf(stderr, "cap \"%s\" ", cap_name););
         } /* while */
         fclose(fix_file);
       } /* if */
       free(file_name);
     } /* if */
-    logFunction(printf("fix_capability -->\n"););
+    log2Function(fprintf(stderr, "fix_capability -->\n"););
   } /* fix_capability */
 #endif
 
@@ -385,14 +385,14 @@ int getcaps (void)
     int errret;
 
   /* getcaps */
-    logFunction(printf("getcaps (caps_initialized=%d)\n",
-                       caps_initialized););
+    log2Function(fprintf(stderr, "getcaps (caps_initialized=%d)\n",
+                         caps_initialized););
     if (!caps_initialized) {
       if ((terminal_name = getenv("TERM")) != NULL) {
-        logMessage(printf("TERM = \"%s\"\n", terminal_name););
+        logMessage(fprintf(stderr, "TERM = \"%s\"\n", terminal_name););
         errret = 1;
         setup_result = setupterm(terminal_name, os_fileno(stdout), &errret);
-        logMessage(printf("setupterm --> %d  errret = %d\n",
+        logMessage(fprintf(stderr, "setupterm --> %d  errret = %d\n",
                            setup_result, errret););
 #if SETUPTERM_WORKS_OK
         if (setup_result == 0 /*OK*/  &&  errret == 1) {
@@ -406,7 +406,7 @@ int getcaps (void)
 #endif
       } /* if */
     } /* if */
-    logFunction(printf("getcaps --> %d\n", caps_initialized););
+    log2Function(fprintf(stderr, "getcaps --> %d\n", caps_initialized););
     return caps_initialized;
   } /* getcaps */
 

@@ -113,8 +113,8 @@ int my_tgetent (char *capbuf, char *terminal_name)
     int tgetent_result = TGETENT_NO_ENTRY;
 
   /* my_tgetent */
-    logFunction(printf("my_tgetent(" FMT_U_MEM ", \"%s\")\n",
-                (memSizeType) capbuf, terminal_name););
+    log2Function(fprintf(stderr, "my_tgetent(" FMT_U_MEM ", \"%s\")\n",
+                         (memSizeType) capbuf, terminal_name););
     home_dir_path = getenv("HOME");
     if (home_dir_path == NULL) {
       home_dir_path = "";
@@ -136,7 +136,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
       if ((term_descr_file = fopen(file_name, "r")) != NULL) {
         if (fseek(term_descr_file, 0L, SEEK_END) == 0) {
           end_pos = ftell(term_descr_file);
-          /* printf("end_pos=%ld\n", end_pos); */
+          /* fprintf(stderr, "end_pos=%ld\n", end_pos); */
           if (end_pos >= 0L && end_pos < 2147483647L &&
               fseek(term_descr_file, 0L, SEEK_SET) == 0) {
             if (capabilities != NULL) {
@@ -147,8 +147,8 @@ int my_tgetent (char *capbuf, char *terminal_name)
               bytes_read = fread(capabilities, 1, (size_t) end_pos, term_descr_file);
               if (bytes_read == end_pos) {
                 capabilities[bytes_read] = '\0';
-                /* printf("bytes_read=%lu\n", (unsigned long) bytes_read); */
-                /* printf("%s\n", capabilities); */
+                /* fprintf(stderr, "bytes_read=%lu\n", (unsigned long) bytes_read); */
+                /* fprintf(stderr, "%s\n", capabilities); */
                 tgetent_result = TGETENT_SUCCESS;
               } else {
                 free(capabilities);
@@ -161,7 +161,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
       } /* if */
       free(file_name);
     } /* if */
-    logFunction(printf("my_tgetent --> %d\n", tgetent_result););
+    log2Function(fprintf(stderr, "my_tgetent --> %d\n", tgetent_result););
     return tgetent_result;
   } /* my_tgetent */
 
@@ -176,7 +176,7 @@ int my_tgetnum (char *code)
     int cap_value = -1;
 
   /* my_tgetnum */
-    logFunction(printf("my_tgetnum(\"%s\")\n", code););
+    log2Function(fprintf(stderr, "my_tgetnum(\"%s\")\n", code););
     searched[0] = ':';
     while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
       searched[pos] = code[pos - 1];
@@ -189,8 +189,8 @@ int my_tgetnum (char *code)
         (found = strstr(capabilities, searched)) != NULL) {
       sscanf(found + pos, "%d", &cap_value);
     } /* if */
-    logFunction(printf("my_tgetnum(\"%s\") --> %d\n",
-                       code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetnum(\"%s\") --> %d\n",
+                         code, cap_value););
     return cap_value;
   } /* my_tgetnum */
 
@@ -205,7 +205,7 @@ int my_tgetflag (char *code)
     int cap_value = FALSE;
 
   /* my_tgetflag */
-    logFunction(printf("my_tgetflag(\"%s\")\n", code););
+    log2Function(fprintf(stderr, "my_tgetflag(\"%s\")\n", code););
     searched[0] = ':';
     while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
       searched[pos] = code[pos - 1];
@@ -218,8 +218,8 @@ int my_tgetflag (char *code)
         (found = strstr(capabilities, searched)) != NULL) {
       cap_value = TRUE;
     } /* if */
-    logFunction(printf("my_tgetflag(\"%s\") --> %d\n",
-                       code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetflag(\"%s\") --> %d\n",
+                         code, cap_value););
     return cap_value;
   } /* my_tgetflag */
 
@@ -237,7 +237,7 @@ char *my_tgetstr(char *code, char **area)
     char *cap_value = NULL;
 
   /* my_tgetstr */
-    logFunction(printf("my_tgetstr(\"%s\", %s%s" FMT_U_MEM ")\n",
+    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ")\n",
                        code,
                        area == NULL ? "NULL " : "",
                        area != NULL && *area == NULL ?
@@ -305,19 +305,19 @@ char *my_tgetstr(char *code, char **area)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("my_tgetstr(\"%s\", %s%s" FMT_U_MEM ") --> ",
-                       code,
-                       area == NULL ? "NULL " : "",
-                       area != NULL && *area == NULL ?
-                           "(NULL) " : "",
-                       area == NULL ?
-                       (memSizeType) 0 : (memSizeType) *area);
-                if (cap_value == NULL) {
-                  printf("NULL\n");
-                } else {
-                  printf("\"%s\"\n",
-                         cstriAsUnquotedCLiteral(cap_value));
-		});
+    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ") --> ",
+                         code,
+                         area == NULL ? "NULL " : "",
+                         area != NULL && *area == NULL ?
+                             "(NULL) " : "",
+                         area == NULL ?
+                         (memSizeType) 0 : (memSizeType) *area);
+                 if (cap_value == NULL) {
+                   fprintf(stderr, "NULL\n");
+                 } else {
+                   fprintf(stderr, "\"%s\"\n",
+                          cstriAsUnquotedCLiteral(cap_value));
+                 });
     return cap_value;
   } /* my_tgetstr */
 #endif
@@ -331,20 +331,20 @@ void printCapEscapedStri (const char *cap_value)
     if (cap_value != NULL) {
       while (*cap_value != '\0') {
         switch (*cap_value) {
-          case '\033': printf("\\e"); break;
-          case '\n':   printf("\\n"); break;
-          case '\r':   printf("\\r"); break;
-          case '\t':   printf("\\t"); break;
-          case '\b':   printf("\\b"); break;
-          case '\f':   printf("\\f"); break;
-          case ' ':    printf("\\s"); break;
-          case ':':    printf("\\:"); break;
-          case '\200': printf("\\0"); break;
+          case '\033': fprintf(stderr, "\\e"); break;
+          case '\n':   fprintf(stderr, "\\n"); break;
+          case '\r':   fprintf(stderr, "\\r"); break;
+          case '\t':   fprintf(stderr, "\\t"); break;
+          case '\b':   fprintf(stderr, "\\b"); break;
+          case '\f':   fprintf(stderr, "\\f"); break;
+          case ' ':    fprintf(stderr, "\\s"); break;
+          case ':':    fprintf(stderr, "\\:"); break;
+          case '\200': fprintf(stderr, "\\0"); break;
           default:
             if (*cap_value <= '\032') {
-              printf("^%c", *cap_value - 1 + 'A');
+              fprintf(stderr, "^%c", *cap_value - 1 + 'A');
             } else {
-              printf("%c", *cap_value);
+              fprintf(stderr, "%c", *cap_value);
             } /* if */
             break;
         } /* switch */
@@ -355,14 +355,24 @@ void printCapEscapedStri (const char *cap_value)
 
 
 
+void printFlagCap (const char *const cap_name, boolType cap_value)
+
+  { /* printFlagCap */
+    if (cap_value) {
+      fprintf(stderr, "%s:", cap_name);
+    } /* if */
+  } /* printFlagCap */
+
+
+
 void printStriCap (const char *const cap_name,
                    const char *const cap_value)
 
   { /* printStriCap */
     if (cap_value != NULL) {
-      printf("%s=", cap_name);
+      fprintf(stderr, "%s=", cap_name);
       printCapEscapedStri(cap_value);
-      printf(":");
+      fprintf(stderr, ":");
     } /* if */
   } /* printStriCap */
 
@@ -371,14 +381,14 @@ void printStriCap (const char *const cap_name,
 void showCapabilities (const char *const terminal_name)
 
   { /* showCapabilities */
-    printf("%s:",    terminal_name);
+    fprintf(stderr, "%s:", terminal_name);
     printStriCap("al", insert_line);
-    printf("%s",       auto_right_margin ? "am:" : "");
+    printFlagCap("am", auto_right_margin);
     printStriCap("bc", BC);
     printStriCap("cd", clr_eos);
     printStriCap("ce", clr_eol);
     printStriCap("cl", clear_screen);
-    printf("co#%d",    columns);
+    fprintf(stderr, "co#%d", columns);
     printStriCap("cm", cursor_address);
     printStriCap("cr", carriage_return);
     printStriCap("dc", delete_character);
@@ -387,13 +397,13 @@ void showCapabilities (const char *const terminal_name)
     printStriCap("do", cursor_down);
     printStriCap("ed", exit_delete_mode);
     printStriCap("ei", exit_insert_mode);
-    printf("%s",       hard_copy ? "hc:" : "");
+    printFlagCap("hc", hard_copy);
     printStriCap("ic", insert_character);
     printStriCap("im", enter_insert_mode);
     printStriCap("ip", IP);
     printStriCap("le", cursor_left);
-    printf("li#%d",    lines);
-    printf("%s",       move_insert_mode ? "mi:" : "");
+    fprintf(stderr, "li#%d", lines);
+    printFlagCap("mi", move_insert_mode);
     printStriCap("nd", cursor_right);
     printStriCap("pc", pad_char);
     printStriCap("ve", cursor_normal);
@@ -405,7 +415,7 @@ void showCapabilities (const char *const terminal_name)
     printStriCap("vs", cursor_visible);
     printStriCap("vi", cursor_invisible);
     printStriCap("mr", enter_reverse_mode);
-    printf("%s",       ceol_standout_glitch ? "xs:" : "");
+    printFlagCap("xs", ceol_standout_glitch);
     printStriCap("AL", parm_insert_line);
     printStriCap("DL", parm_delete_line);
     printStriCap("ke", keypad_local);
@@ -503,7 +513,7 @@ void showCapabilities (const char *const terminal_name)
     printStriCap("kR", key_sr);
     printStriCap("kT", key_stab);
     printStriCap("ku", key_up);
-    printf("\n");
+    fprintf(stderr, "\n");
   } /* showCapabilities */
 #endif
 
@@ -519,13 +529,13 @@ int getcaps (void)
     char *terminal_name;
 
   /* getcaps */
-    logFunction(printf("getcaps (caps_initialized=%d)\n",
-                       caps_initialized););
+    log2Function(fprintf(stderr, "getcaps (caps_initialized=%d)\n",
+                         caps_initialized););
     if (!caps_initialized) {
       terminal_name = getenv("TERM");
       if (terminal_name != NULL) {
         tgetent_result = tgetent(capbuf, terminal_name);
-        /* printf("tgetent -> %d\n", tgetent_result); */
+        /* fprintf(stderr, "tgetent -> %d\n", tgetent_result); */
         if (tgetent_result == TGETENT_SUCCESS) {
           area = areabuf;
           insert_line =           tgetstr("al", &area);
@@ -660,15 +670,15 @@ int getcaps (void)
           key_stab =              tgetstr("kT", &area);
           key_up =                tgetstr("ku", &area);
           if (cursor_address == NULL) {
-            printf("cursor_address == NULL\n");
+            fprintf(stderr, "cursor_address == NULL\n");
           } /* if */
           /* showCapabilities(terminal_name); */
           caps_initialized = TRUE;
         } /* if */
       } /* if */
     } /* if */
-    /* printf("%d <%s>\n", strlen(cursor_address), cursor_address); */
-    logFunction(printf("getcaps --> %d\n", caps_initialized););
+    /* fprintf(stderr, "%d <%s>\n", strlen(cursor_address), cursor_address); */
+    log2Function(fprintf(stderr, "getcaps --> %d\n", caps_initialized););
     return caps_initialized;
   } /* getcaps */
 
