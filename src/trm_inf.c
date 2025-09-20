@@ -62,6 +62,7 @@
 #include "common.h"
 #include "os_decls.h"
 #include "striutl.h"
+#include "heaputl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -188,7 +189,7 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
     } /* while */
     if (pos < CAP_VALUE_BUFFER_SIZE) {
       value[pos] = '\0';
-      if ((cap_value = (char *) malloc(pos + 1)) != NULL) {
+      if (ALLOC_CSTRI(cap_value, pos)) {
         strcpy(cap_value, value);
       } /* if */
     } /* if */
@@ -254,8 +255,7 @@ static void fix_capability (void)
       terminal_name = "";
     } /* if */
     file_name_size = strlen(home_dir_path) + 6 + strlen(terminal_name);
-    file_name = malloc(file_name_size + 1);
-    if (file_name != NULL) {
+    if (ALLOC_CSTRI(file_name, file_name_size)) {
       strcpy(file_name, home_dir_path);
       len = strlen(file_name);
       if (len > 0 && file_name[len - 1] != '/') {
