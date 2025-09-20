@@ -256,6 +256,26 @@ const type: ccConfigType is new struct
     var boolean: HAS_CBRT                     is FALSE;
 
     (**
+     *  TRUE if casting can be used to get a union element.
+     *  Conversions between integer types can be done with casting or
+     *  with union types. If the sizes of the types differ the endianess
+     *  of the computer plays a role. On little-endian computers the result
+     *  should be the same. On big-endian computers the offsets in a union
+     *  refers to the most significant byte. In this case the conversion
+     *  with a union is not the same as casting.
+     *)
+    var boolean: CASTING_GETS_A_UNION_ELEMENT is FALSE;
+
+    (**
+     *  TRUE if unions can be used to convert to the generic type.
+     *  The type genericType is a large unsigned integer type.
+     *  It is used in arrays and hash tables to store any value.
+     *  If a small type is converted to genericType with a union
+     *  a memory sanitizer might complain about uninitialized data.
+     *)
+    var boolean: UNIONS_CAN_CONVERT_TO_GENERIC is FALSE;
+
+    (**
      *  TRUE if the C compiler limits the length of string literals.
      *  Some C compilers limit the maximum string literal length.
      *  There are limits of 2,048 bytes and 16,384 (16K) bytes.
@@ -958,6 +978,8 @@ const func ccConfigType: getBuiltInConfig is func
     conf.HAS_EXP10                        := boolean(configValue("HAS_EXP10"));
     conf.HAS_EXPM1                        := boolean(configValue("HAS_EXPM1"));
     conf.HAS_CBRT                         := boolean(configValue("HAS_CBRT"));
+    conf.CASTING_GETS_A_UNION_ELEMENT     := boolean(configValue("CASTING_GETS_A_UNION_ELEMENT"));
+    conf.UNIONS_CAN_CONVERT_TO_GENERIC    := boolean(configValue("UNIONS_CAN_CONVERT_TO_GENERIC"));
     conf.LIMITED_CSTRI_LITERAL_LEN        := boolean(configValue("LIMITED_CSTRI_LITERAL_LEN"));
     conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(configValue("SWITCH_WORKS_FOR_INT64TYPE"));
     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(configValue("STMT_BLOCK_IN_PARENTHESES_OK"));
@@ -1120,6 +1142,8 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"HAS_EXP10"}:                        conf.HAS_EXP10                        := boolean(value);
       when {"HAS_EXPM1"}:                        conf.HAS_EXPM1                        := boolean(value);
       when {"HAS_CBRT"}:                         conf.HAS_CBRT                         := boolean(value);
+      when {"CASTING_GETS_A_UNION_ELEMENT"}:     conf.CASTING_GETS_A_UNION_ELEMENT     := boolean(value);
+      when {"UNIONS_CAN_CONVERT_TO_GENERIC"}:    conf.UNIONS_CAN_CONVERT_TO_GENERIC    := boolean(value);
       when {"LIMITED_CSTRI_LITERAL_LEN"}:        conf.LIMITED_CSTRI_LITERAL_LEN        := boolean(value);
       when {"SWITCH_WORKS_FOR_INT64TYPE"}:       conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(value);
       when {"STMT_BLOCK_IN_PARENTHESES_OK"}:     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(value);

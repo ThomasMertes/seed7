@@ -70,6 +70,8 @@ const proc: main is func
     writeln("HAS_EXP10:                        " <& ccConf.HAS_EXP10);
     writeln("HAS_EXPM1:                        " <& ccConf.HAS_EXPM1);
     writeln("HAS_CBRT:                         " <& ccConf.HAS_CBRT);
+    writeln("CASTING_GETS_A_UNION_ELEMENT:     " <& ccConf.CASTING_GETS_A_UNION_ELEMENT);
+    writeln("UNIONS_CAN_CONVERT_TO_GENERIC:    " <& ccConf.UNIONS_CAN_CONVERT_TO_GENERIC);
     writeln("LIMITED_CSTRI_LITERAL_LEN:        " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
     writeln("SWITCH_WORKS_FOR_INT64TYPE:       " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
     writeln("STMT_BLOCK_IN_PARENTHESES_OK:     " <& ccConf.STMT_BLOCK_IN_PARENTHESES_OK);

@@ -2404,6 +2404,10 @@ striType cmdConfigValue (const const_striType name)
       opt = FREXP_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
       opt = FLOAT_ZERO_DIV_ERROR ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CASTING_GETS_A_UNION_ELEMENT") == 0) {
+      opt = CASTING_GETS_A_UNION_ELEMENT ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "UNIONS_CAN_CONVERT_TO_GENERIC") == 0) {
+      opt = UNIONS_CAN_CONVERT_TO_GENERIC ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {
       opt = LIMITED_CSTRI_LITERAL_LEN ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "SWITCH_WORKS_FOR_INT64TYPE") == 0) {
