@@ -723,7 +723,8 @@ void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol)
 
   { /* conClear */
-    log2Function(fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
+    log2Function(fprintf(stderr, "conClear(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol););
     if (con->size_changed) {
       resize_console();
@@ -875,6 +876,9 @@ void conUpScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numLines)
 
   { /* conUpScroll */
+    log2Function(fprintf(stderr, "conUpScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numLines););
     if (con->size_changed) {
       resize_console();
     } /* if */
@@ -1023,6 +1027,9 @@ void conDownScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numLines)
 
   { /* conDownScroll */
+    log2Function(fprintf(stderr, "conDownScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numLines););
     if (con->size_changed) {
       resize_console();
     } /* if */
@@ -1165,6 +1172,9 @@ void conLeftScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   { /* conLeftScroll */
+    log2Function(fprintf(stderr, "conLeftScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numCols););
     if (con->size_changed) {
       resize_console();
     } /* if */
@@ -1311,6 +1321,9 @@ void conRightScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   { /* conRightScroll */
+    log2Function(fprintf(stderr, "conRightScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numCols););
     if (con->size_changed) {
       resize_console();
     } /* if */
