@@ -181,6 +181,7 @@ typedef uint64Type                doubleUintType;
 #define FMT_U                     FMT_U32
 #define FMT_X                     FMT_X32
 #define INTTYPE_DECIMAL_SIZE      INT32TYPE_DECIMAL_SIZE
+#define UINTTYPE_DECIMAL_SIZE     UINT32TYPE_DECIMAL_SIZE
 #define DECIMAL_DIGITS_IN_INTTYPE DECIMAL_DIGITS_IN_INT32TYPE
 #define uintMostSignificantBit    uint32MostSignificantBit
 #define uintLeastSignificantBit   uint32LeastSignificantBit
@@ -210,6 +211,7 @@ typedef uint128Type               doubleUintType;
 #define FMT_U                     FMT_U64
 #define FMT_X                     FMT_X64
 #define INTTYPE_DECIMAL_SIZE      INT64TYPE_DECIMAL_SIZE
+#define UINTTYPE_DECIMAL_SIZE     UINT64TYPE_DECIMAL_SIZE
 #define DECIMAL_DIGITS_IN_INTTYPE DECIMAL_DIGITS_IN_INT64TYPE
 #define uintMostSignificantBit    uint64MostSignificantBit
 #define uintLeastSignificantBit   uint64LeastSignificantBit

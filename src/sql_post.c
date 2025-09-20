@@ -95,6 +95,10 @@ typedef struct {
     boolType     bound;
   } bindDataRecordPost, *bindDataType;
 
+#define STMT_NAME_PREFIX "prepstat_"
+#define STMT_NAME_BUFFER_SIZE STRLEN(STMT_NAME_PREFIX) + \
+                              UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN
+
 typedef struct {
     uintType       usage_count;
     dbType         db;
@@ -102,7 +106,7 @@ typedef struct {
     boolType       integerDatetimes;
     boolType       implicitCommit;
     uintType       stmtNum;
-    char           stmtName[30];
+    char           stmtName[STMT_NAME_BUFFER_SIZE];
     memSizeType    param_array_size;
     bindDataType   param_array;
     Oid           *paramTypes;
@@ -3414,7 +3418,8 @@ static sqlStmtType sqlPrepare (databaseType database,
             memset(preparedStmt, 0, sizeof(preparedStmtRecordPost));
             preparedStmt->stmtNum = db->nextStmtNum;
             db->nextStmtNum++;
-            sprintf(preparedStmt->stmtName, "prepstat_" FMT_U, preparedStmt->stmtNum);
+            sprintf(preparedStmt->stmtName, STMT_NAME_PREFIX FMT_U,
+                    preparedStmt->stmtNum);
             prepare_result = PQprepare(db->connection, preparedStmt->stmtName, query, 0, NULL);
             if (unlikely(prepare_result == NULL)) {
               FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
