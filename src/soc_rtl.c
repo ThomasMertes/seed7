@@ -116,7 +116,7 @@ static boolType initialized = FALSE;
 #define SHOW_ADDRINFO 0
 
 #define MAX_SOCK_ADDRESS_LEN \
-    STRLEN("[0123:4567:89ab:cdef:0123:4567:89ab:cdef]:65535")
+    STRLEN("[0123:4567:89ab:cdef:0123:4567:89ab:cdef]:") + UINT16TYPE_DECIMAL_SIZE
 
 
 
@@ -144,10 +144,10 @@ static const_cstriType socAddressCStri (const const_bstriType address)
           } else {
             const struct sockaddr_in *inet_address = (const struct sockaddr_in *) address->mem;
             uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
-            int port;
+            uint16Type port;
             port = ntohs(inet_address->sin_port);       /* short, network byte order */
 
-            sprintf(buffer, "%d.%d.%d.%d:%d",
+            sprintf(buffer, "%d.%d.%d.%d:" FMT_U16,
                 (ip4_address >> 24) & 255,
                 (ip4_address >> 16) & 255,
                 (ip4_address >>  8) & 255,
@@ -164,7 +164,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
                 (const struct sockaddr_in6 *) address->mem;
             unsigned int digitGroup[8];
             int pos;
-            int port;
+            uint16Type port;
 
             for (pos = 0; pos <= 7; pos++) {
               digitGroup[pos] =
@@ -173,7 +173,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
             } /* for */
             port = ntohs(inet6_address->sin6_port);     /* short, network byte order */
 
-            sprintf(buffer, "[%x:%x:%x:%x:%x:%x:%x:%x]:%d",
+            sprintf(buffer, "[%x:%x:%x:%x:%x:%x:%x:%x]:" FMT_U16,
                 digitGroup[0], digitGroup[1], digitGroup[2], digitGroup[3],
                 digitGroup[4], digitGroup[5], digitGroup[6], digitGroup[7], port);
             result = buffer;
@@ -1247,7 +1247,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           /*
           printf("***** h_errno=%d\n", h_errno);
           printf("***** os_hostName=\"%s\"\n", os_hostName);
-          printf("***** port=%d\n", port);
+          printf("***** port=" FMT_D "\n", port);
           printf("***** hostName=%s\n", striAsUnquotedCStri(hostName));
           */
           host_ent = gethostbyname(os_hostName);
@@ -1266,7 +1266,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
-          printf("Port:           %d\n", port);
+          printf("Port:           " FMT_D "\n", port);
           printf("Address type:   %d\n", host_ent->h_addrtype);
           printf("Address type:   %d\n", AF_INET);
           printf("Address length: %d\n", host_ent->h_length);
@@ -1356,7 +1356,7 @@ bstriType socInetLocalAddr (intType port)
       hints.ai_socktype = SOCK_STREAM;
       getaddrinfo_result = getaddrinfo(NULL, serviceName, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
-        logError(printf("socInetLocalAddr" FMT_D "): "
+        logError(printf("socInetLocalAddr(" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
                         "%s=%d\nerror: %s\n",
@@ -1444,7 +1444,7 @@ bstriType socInetServAddr (intType port)
       hints.ai_flags = AI_PASSIVE;
       getaddrinfo_result = getaddrinfo(NULL, serviceName, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
-        logError(printf("socInetServAddr" FMT_D "): "
+        logError(printf("socInetServAddr(" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
                         "%s=%d\nerror: %s\n",
