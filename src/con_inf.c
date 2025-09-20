@@ -146,7 +146,7 @@ typedef struct {
     boolType size_changed;
   } consoleRecord,  *consoleType;
 
-static consoleType con;
+static consoleType con = NULL;
 
 
 
