@@ -45,6 +45,7 @@
 #include "common.h"
 #include "os_decls.h"
 #include "striutl.h"
+#include "heaputl.h"
 #include "con_drv.h"
 
 #undef EXTERN
@@ -106,7 +107,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
     char *home_dir_path;
     memSizeType file_name_size;
     char *file_name;
-    size_t len;
+    memSizeType len;
     FILE *term_descr_file;
     long end_pos;
     size_t bytes_read;
@@ -123,8 +124,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
       terminal_name = "";
     } /* if */
     file_name_size = strlen(home_dir_path) + 6 + strlen(terminal_name);
-    file_name = malloc(file_name_size + 1);
-    if (file_name != NULL) {
+    if (ALLOC_CSTRI(file_name, file_name_size)) {
       strcpy(file_name, home_dir_path);
       len = strlen(file_name);
       if (len > 0 && file_name[len - 1] != '/') {
@@ -142,8 +142,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
             if (capabilities != NULL) {
               free(capabilities);
             } /* if */
-            capabilities = malloc((size_t) end_pos + 1);
-            if (capabilities != NULL) {
+            if (ALLOC_CSTRI(capabilities, (memSizeType) end_pos)) {
               bytes_read = fread(capabilities, 1, (size_t) end_pos, term_descr_file);
               if (bytes_read == end_pos) {
                 capabilities[bytes_read] = '\0';
@@ -299,7 +298,7 @@ char *my_tgetstr(char *code, char **area)
         } /* while */
         if (pos < CAP_VALUE_BUFFER_SIZE) {
           value[pos] = '\0';
-          if ((cap_value = (char *) malloc(pos + 1)) != NULL) {
+          if (ALLOC_CSTRI(cap_value, pos)) {
             strcpy(cap_value, value);
           } /* if */
         } /* if */
