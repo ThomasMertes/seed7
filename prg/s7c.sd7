@@ -7579,6 +7579,14 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     c_expr.expr &:= ", ";
     c_expr.expr &:= str(pred(arrayMinIdx(const_object) + length(array_list)));
     c_expr.expr &:= ");\n";
+    if not ccConf.UNIONS_CAN_CONVERT_TO_GENERIC then
+      # Avoid that a sanitizer complains about uninitialized data.
+      c_expr.expr &:= "memset(arr[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "]->arr, 0, ";
+      c_expr.expr &:= str(length(array_list));
+      c_expr.expr &:= " * sizeof(rtlObjectType));\n";
+    end if;
     elem_num := 0;
     elem_after_repeat_block := 0;
     for element range array_list do
@@ -7690,6 +7698,11 @@ const proc: init_hash_constants (in reference: const_object, inout expr_type: c_
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "rtlObjectType hash_key;\n";
       c_expr.expr &:= "rtlObjectType hash_data;\n";
+      if not ccConf.UNIONS_CAN_CONVERT_TO_GENERIC then
+        # Avoid that a sanitizer complains about uninitialized data.
+        c_expr.expr &:= "hash_key.value.genericValue=0;\n";
+        c_expr.expr &:= "hash_data.value.genericValue=0;\n";
+      end if;
       elem_num := 1;
       for key_element range hash_key_list do
         c_expr.expr &:= "hash_key";
