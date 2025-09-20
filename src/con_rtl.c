@@ -72,6 +72,9 @@ void conHScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   { /* conHScroll */
+    log2Function(fprintf(stderr, "conHScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numCols););
     if (numCols > 0) {
       conLeftScroll(startlin, startcol, stoplin, stopcol, numCols);
     } else if (numCols < 0) {
@@ -94,7 +97,8 @@ intType conLine (void)
 void conSetpos (intType lin, intType col)
 
   { /* conSetpos */
-    logFunction(printf("conSetpos(" FMT_D ", " FMT_D ")\n", lin, col););
+    log2Function(fprintf(stderr, "conSetpos(" FMT_D ", " FMT_D ")\n",
+                         lin, col););
 #ifdef CONSOLE_USES_CON_TEXT
     cursor_line = lin;
     cursor_column = col;
@@ -108,6 +112,9 @@ void conVScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numLines)
 
   { /* conVScroll */
+    log2Function(fprintf(stderr, "conVScroll(" FMT_D ", " FMT_D ", "
+                         FMT_D ", " FMT_D ", " FMT_D ")\n",
+                         startlin, startcol, stoplin, stopcol, numLines););
     if (numLines > 0) {
       conUpScroll(startlin, startcol, stoplin, stopcol, numLines);
     } else if (numLines < 0) {
@@ -131,7 +138,8 @@ void conWrite (const const_striType stri)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* conWrite */
-    logFunction(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
+    log2Function(fprintf(stderr, "conWrite(\"%s\")\n",
+                         striAsUnquotedCStri(stri)););
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
 #ifdef CONSOLE_UTF8
       ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];

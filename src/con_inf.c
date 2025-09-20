@@ -613,7 +613,8 @@ void conWrite (const const_striType stri)
     const strElemType *found_pos;
 
   /* conWrite */
-    log2Function(fprintf(stderr, "conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
+    log2Function(fprintf(stderr, "conWrite(\"%s\")\n",
+                         striAsUnquotedCStri(stri)););
     if (console_initialized) {
       if (con->size_changed) {
         resize_console();
