@@ -381,26 +381,46 @@ static int inf_setfont (char *fontname)
 
 int conHeight (void)
 
-  { /* conHeight */
+  {
+    int height;
+
+  /* conHeight */
     log2Function(fprintf(stderr, "conHeight()\n"););
-    if (con->size_changed) {
-      resize_console();
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conHeight: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+      height = 0;
+    } else {
+      if (con->size_changed) {
+        resize_console();
+      } /* if */
+      height = con->height;
     } /* if */
-    log2Function(fprintf(stderr, "conHeight --> %d\n", con->height););
-    return con->height;
+    log2Function(fprintf(stderr, "conHeight --> %d\n", height););
+    return height;
   } /* conHeight */
 
 
 
 int conWidth (void)
 
-  { /* conWidth */
+  {
+    int width;
+
+  /* conWidth */
     log2Function(fprintf(stderr, "conWidth()\n"););
-    if (con->size_changed) {
-      resize_console();
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conWidth: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+      width = 0;
+    } else {
+      if (con->size_changed) {
+        resize_console();
+      } /* if */
+      width = con->width;
     } /* if */
-    log2Function(fprintf(stderr, "conWidth --> %d\n", con->width););
-    return con->width;
+    log2Function(fprintf(stderr, "conWidth --> %d\n", width););
+    return width;
   } /* conWidth */
 
 
@@ -437,13 +457,18 @@ void conCursor (boolType on)
 
   { /* conCursor */
     log2Function(fprintf(stderr, "conCursor(%d)\n", on););
-    cursor_on = on;
-    if (on) {
-      putctl(cursor_normal); /* cursor normal */
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conCursor: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
     } else {
-      putctl(cursor_invisible); /* makes cursor invisible */
+      cursor_on = on;
+      if (on) {
+        putctl(cursor_normal); /* cursor normal */
+      } else {
+        putctl(cursor_invisible); /* makes cursor invisible */
+      } /* if */
+      changes = TRUE;
     } /* if */
-    changes = TRUE;
   } /* conCursor */
 
 
@@ -458,7 +483,10 @@ void conSetCursor (intType line, intType column)
   { /* conSetCursor */
     log2Function(fprintf(stderr, "conSetCursor(" FMT_D ", " FMT_D ")\n",
                         line, column););
-    if (line <= 0 || column <= 0) {
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conSetCursor: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else if (line <= 0 || column <= 0) {
       raise_error(RANGE_ERROR);
     } else if (line <= INT_MAX && column <= INT_MAX) {
       if (cursor_line != line || cursor_column != column) {
@@ -726,20 +754,25 @@ void conClear (intType startlin, intType startcol,
     log2Function(fprintf(stderr, "conClear(" FMT_D ", " FMT_D ", "
                          FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol););
-    if (con->size_changed) {
-      resize_console();
-    } /* if */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
-      raise_error(RANGE_ERROR);
-    } else if (startlin <= con->height && startcol <= con->width) {
-      if (stoplin > con->height) {
-        stoplin = con->height;
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conClear: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (con->size_changed) {
+        resize_console();
       } /* if */
-      if (stopcol > con->width) {
-        stopcol = con->width;
+      if (startlin <= 0 || startcol <= 0 ||
+          stoplin < startlin || stopcol < startcol) {
+        raise_error(RANGE_ERROR);
+      } else if (startlin <= con->height && startcol <= con->width) {
+        if (stoplin > con->height) {
+          stoplin = con->height;
+        } /* if */
+        if (stopcol > con->width) {
+          stopcol = con->width;
+        } /* if */
+        doClear((int) startlin, (int) startcol, (int) stoplin, (int) stopcol);
       } /* if */
-      doClear((int) startlin, (int) startcol, (int) stoplin, (int) stopcol);
     } /* if */
   } /* conClear */
 
@@ -879,21 +912,26 @@ void conUpScroll (intType startlin, intType startcol,
     log2Function(fprintf(stderr, "conUpScroll(" FMT_D ", " FMT_D ", "
                          FMT_D ", " FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol, numLines););
-    if (con->size_changed) {
-      resize_console();
-    } /* if */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
-      raise_error(RANGE_ERROR);
-    } else if (startlin <= con->height && startcol <= con->width) {
-      if (stoplin > con->height) {
-        stoplin = con->height;
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conUpScroll: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (con->size_changed) {
+        resize_console();
       } /* if */
-      if (stopcol > con->width) {
-        stopcol = con->width;
+      if (startlin <= 0 || startcol <= 0 ||
+          stoplin < startlin || stopcol < startcol) {
+        raise_error(RANGE_ERROR);
+      } else if (startlin <= con->height && startcol <= con->width) {
+        if (stoplin > con->height) {
+          stoplin = con->height;
+        } /* if */
+        if (stopcol > con->width) {
+          stopcol = con->width;
+        } /* if */
+        doUpScroll((int) startlin, (int) startcol,
+                   (int) stoplin, (int) stopcol, (int) numLines);
       } /* if */
-      doUpScroll((int) startlin, (int) startcol,
-                 (int) stoplin, (int) stopcol, (int) numLines);
     } /* if */
   } /* conUpScroll */
 
@@ -1030,21 +1068,26 @@ void conDownScroll (intType startlin, intType startcol,
     log2Function(fprintf(stderr, "conDownScroll(" FMT_D ", " FMT_D ", "
                          FMT_D ", " FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol, numLines););
-    if (con->size_changed) {
-      resize_console();
-    } /* if */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
-      raise_error(RANGE_ERROR);
-    } else if (startlin <= con->height && startcol <= con->width) {
-      if (stoplin > con->height) {
-        stoplin = con->height;
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conDownScroll: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (con->size_changed) {
+        resize_console();
       } /* if */
-      if (stopcol > con->width) {
-        stopcol = con->width;
+      if (startlin <= 0 || startcol <= 0 ||
+          stoplin < startlin || stopcol < startcol) {
+        raise_error(RANGE_ERROR);
+      } else if (startlin <= con->height && startcol <= con->width) {
+        if (stoplin > con->height) {
+          stoplin = con->height;
+        } /* if */
+        if (stopcol > con->width) {
+          stopcol = con->width;
+        } /* if */
+        doDownScroll((int) startlin, (int) startcol,
+                     (int) stoplin, (int) stopcol, (int) numLines);
       } /* if */
-      doDownScroll((int) startlin, (int) startcol,
-                   (int) stoplin, (int) stopcol, (int) numLines);
     } /* if */
   } /* conDownScroll */
 
@@ -1175,21 +1218,26 @@ void conLeftScroll (intType startlin, intType startcol,
     log2Function(fprintf(stderr, "conLeftScroll(" FMT_D ", " FMT_D ", "
                          FMT_D ", " FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol, numCols););
-    if (con->size_changed) {
-      resize_console();
-    } /* if */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
-      raise_error(RANGE_ERROR);
-    } else if (startlin <= con->height && startcol <= con->width) {
-      if (stoplin > con->height) {
-        stoplin = con->height;
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conLeftScroll: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (con->size_changed) {
+        resize_console();
       } /* if */
-      if (stopcol > con->width) {
-        stopcol = con->width;
+      if (startlin <= 0 || startcol <= 0 ||
+          stoplin < startlin || stopcol < startcol) {
+        raise_error(RANGE_ERROR);
+      } else if (startlin <= con->height && startcol <= con->width) {
+        if (stoplin > con->height) {
+          stoplin = con->height;
+        } /* if */
+        if (stopcol > con->width) {
+          stopcol = con->width;
+        } /* if */
+        doLeftScroll((int) startlin, (int) startcol,
+                     (int) stoplin, (int) stopcol, (int) numCols);
       } /* if */
-      doLeftScroll((int) startlin, (int) startcol,
-                   (int) stoplin, (int) stopcol, (int) numCols);
     } /* if */
   } /* conLeftScroll */
 
@@ -1324,21 +1372,26 @@ void conRightScroll (intType startlin, intType startcol,
     log2Function(fprintf(stderr, "conRightScroll(" FMT_D ", " FMT_D ", "
                          FMT_D ", " FMT_D ", " FMT_D ")\n",
                          startlin, startcol, stoplin, stopcol, numCols););
-    if (con->size_changed) {
-      resize_console();
-    } /* if */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
-      raise_error(RANGE_ERROR);
-    } else if (startlin <= con->height && startcol <= con->width) {
-      if (stoplin > con->height) {
-        stoplin = con->height;
+    if (!console_initialized) {
+      log2Error(fprintf(stderr, "conRightScroll: Console not initialized.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (con->size_changed) {
+        resize_console();
       } /* if */
-      if (stopcol > con->width) {
-        stopcol = con->width;
+      if (startlin <= 0 || startcol <= 0 ||
+          stoplin < startlin || stopcol < startcol) {
+        raise_error(RANGE_ERROR);
+      } else if (startlin <= con->height && startcol <= con->width) {
+        if (stoplin > con->height) {
+          stoplin = con->height;
+        } /* if */
+        if (stopcol > con->width) {
+          stopcol = con->width;
+        } /* if */
+        doRightScroll((int) startlin, (int) startcol,
+                      (int) stoplin, (int) stopcol, (int) numCols);
       } /* if */
-      doRightScroll((int) startlin, (int) startcol,
-                    (int) stoplin, (int) stopcol, (int) numCols);
     } /* if */
   } /* conRightScroll */
 
