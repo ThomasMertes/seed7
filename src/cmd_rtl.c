@@ -2155,6 +2155,8 @@ striType cmdConfigValue (const const_striType name)
     striType configValue = NULL;
 
   /* cmdConfigValue */
+    logFunction(printf("cmdConfigValue(\"%s\")\n",
+                       striAsUnquotedCStri(name)););
     if (unlikely(name->size > MAX_CSTRI_BUFFER_LEN)) {
       opt = "";
     } else if (unlikely(conv_to_cstri(opt_name, name) == NULL)) {
@@ -2447,6 +2449,10 @@ striType cmdConfigValue (const const_striType name)
     if (unlikely(configValue == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("cmdConfigValue(\"%s\") --> ",
+                       striAsUnquotedCStri(name));
+                printf("\"%s\"\n",
+                       striAsUnquotedCStri(configValue)););
     return configValue;
   } /* cmdConfigValue */
 
