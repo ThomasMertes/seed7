@@ -2199,7 +2199,7 @@ static bigIntType bigMDivSizeLess (const const_bigIntType dividend,
     bigIntType quotient;
 
   /* bigMDivSizeLess */
-    logFunction(printf("bigMDivSizeLess(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigMDivSizeLess(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, 1))) {
       raise_error(MEMORY_ERROR);
@@ -2341,7 +2341,7 @@ static bigIntType bigModSizeLess (const const_bigIntType dividend,
     bigIntType modulo;
 
   /* bigModSizeLess */
-    logFunction(printf("bigModSizeLess(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigModSizeLess(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if ((dividend->size == 1 && dividend->bigdigits[0] == 0) ||
         IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) ==
@@ -3223,7 +3223,7 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
     bigIntType sum;
 
   /* bigAdd */
-    logFunction(printf("bigAdd(%s,", bigHexCStri(summand1));
+    logFunction(printf("bigAdd(%s, ", bigHexCStri(summand1));
                 printf("%s)\n", bigHexCStri(summand2)););
     if (summand2->size > summand1->size) {
       help_big = summand1;
@@ -3284,7 +3284,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
     bigIntType resized_big1;
 
   /* bigAddAssign */
-    logFunction(printf("bigAddAssign(%s,", bigHexCStri(*big_variable));
+    logFunction(printf("bigAddAssign(%s, ", bigHexCStri(*big_variable));
                 printf("%s)\n", bigHexCStri(delta)););
     big1 = *big_variable;
     if (big1->size >= delta->size) {
@@ -3460,7 +3460,7 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigAnd */
-    logFunction(printf("bigAnd(%s,", bigHexCStri(big1));
+    logFunction(printf("bigAnd(%s, ", bigHexCStri(big1));
                 printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;
@@ -4553,7 +4553,7 @@ bigIntType bigGcd (const const_bigIntType big1,
     bigIntType gcd;
 
   /* bigGcd */
-    logFunction(printf("bigGcd(%s,", bigHexCStri(big1));
+    logFunction(printf("bigGcd(%s, ", bigHexCStri(big1));
                 printf("%s)\n", bigHexCStri(big2)););
     if (big1->size == 1 && big1->bigdigits[0] == 0) {
       gcd = bigAbs(big2);
@@ -5656,7 +5656,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
     bigIntType quotient;
 
   /* bigMDiv */
-    logFunction(printf("bigMDiv(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigMDiv(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       quotient = bigMDiv1(dividend, divisor->bigdigits[0]);
@@ -5764,7 +5764,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType modulo;
 
   /* bigMod */
-    logFunction(printf("bigMod(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigMod(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       modulo = bigMod1(dividend, divisor->bigdigits[0]);
@@ -5862,7 +5862,7 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
     bigIntType product;
 
   /* bigMult */
-    logFunction(printf("bigMult(%s,", bigHexCStri(factor1));
+    logFunction(printf("bigMult(%s, ", bigHexCStri(factor1));
                 printf("%s)\n", bigHexCStri(factor2)););
     if (IS_NEGATIVE(factor1->bigdigits[factor1->size - 1])) {
       negative = TRUE;
@@ -5912,7 +5912,7 @@ void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
     bigIntType product;
 
   /* bigMultAssign */
-    logFunction(printf("bigMultAssign(%s,", bigHexCStri(*big_variable));
+    logFunction(printf("bigMultAssign(%s, ", bigHexCStri(*big_variable));
                 printf("%s)\n", bigHexCStri(factor)););
     if (factor->size == 1) {
       bigMultAssign1(big_variable, factor->bigdigits[0]);
@@ -6097,7 +6097,7 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigOr */
-    logFunction(printf("bigOr(%s,", bigHexCStri(big1));
+    logFunction(printf("bigOr(%s, ", bigHexCStri(big1));
                 printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;
@@ -6463,11 +6463,12 @@ bigIntType bigRand (const const_bigIntType low,
     bigIntType randomNumber;
 
   /* bigRand */
-    logFunction(printf("bigRand(%s, %s)\n", bigHexCStri(low), bigHexCStri(high)););
+    logFunction(printf("bigRand(%s, ", bigHexCStri(low));
+                printf("%s)\n", bigHexCStri(high)););
     if (unlikely(bigCmp(low, high) > 0)) {
-      logError(printf("bigRand(%s, %s): "
-                      "The range is empty (low > high holds).\n",
-                      bigHexCStri(low), bigHexCStri(high)););
+      logError(printf("bigRand(%s, ", bigHexCStri(low));
+               printf("%s): The range is empty (low > high holds).\n",
+                      bigHexCStri(high)););
       raise_error(RANGE_ERROR);
       randomNumber = NULL;
     } else {
@@ -6862,7 +6863,7 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
     bigIntType difference;
 
   /* bigSbtr */
-    logFunction(printf("bigSbtr(%s,", bigHexCStri(minuend));
+    logFunction(printf("bigSbtr(%s, ", bigHexCStri(minuend));
                 printf("%s)\n", bigHexCStri(subtrahend)););
     if (minuend->size >= subtrahend->size) {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(difference, minuend->size + 1))) {
@@ -6949,7 +6950,7 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
     bigIntType resized_big1;
 
   /* bigSbtrAssign */
-    logFunction(printf("bigSbtrAssign(%s,", bigHexCStri(*big_variable));
+    logFunction(printf("bigSbtrAssign(%s, ", bigHexCStri(*big_variable));
                 printf("%s)\n", bigHexCStri(delta)););
     big1 = *big_variable;
     if (big1->size >= delta->size) {
@@ -7698,7 +7699,7 @@ bigIntType bigXor (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigXor */
-    logFunction(printf("bigXor(%s,", bigHexCStri(big1));
+    logFunction(printf("bigXor(%s, ", bigHexCStri(big1));
                 printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;

@@ -1295,9 +1295,10 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigRat */
-    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s)\n",
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, pos,
-                       bigHexCStri(numerator), bigHexCStri(denominator)););
+                       bigHexCStri(numerator));
+                printf("%s)\n", bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
@@ -1739,9 +1740,10 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         } /* switch */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, column,
-                       bigHexCStri(*numerator), bigHexCStri(*denominator)););
+                       bigHexCStri(*numerator));
+                printf("%s) -->\n", bigHexCStri(*denominator)););
   } /* sqlColumnBigRat */
 
 

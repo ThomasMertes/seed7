@@ -592,11 +592,12 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType quotient;
 
   /* bigDiv */
-    logFunction(printf("bigDiv(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigDiv(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
-      logError(printf("bigDiv(%s, %s): Division by zero.\n",
-                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      logError(printf("bigDiv(%s, ", bigHexCStri(dividend));
+               printf("%s): Division by zero.\n",
+                      bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       quotient = NULL;
     } else {
@@ -626,11 +627,12 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
     bigIntType quotient;
 
   /* bigDivRem */
-    logFunction(printf("bigDivRem(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigDivRem(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
-      logError(printf("bigDiv(%s, %s): Division by zero.\n",
-                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      logError(printf("bigDivRem(%s, ", bigHexCStri(dividend));
+               printf("%s): Division by zero.\n",
+                      bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       quotient = NULL;
     } else {
@@ -1377,11 +1379,12 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
     bigIntType quotient;
 
   /* bigMDiv */
-    logFunction(printf("bigMDiv(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigMDiv(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
-      logError(printf("bigMDiv(%s, %s): Division by zero.\n",
-                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      logError(printf("bigMDiv(%s, ", bigHexCStri(dividend));
+               printf("%s): Division by zero.\n",
+                      bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       quotient = NULL;
     } else {
@@ -1407,11 +1410,12 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType modulo;
 
   /* bigMod */
-    logFunction(printf("bigMod(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigMod(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
-      logError(printf("bigMod(%s, %s): Division by zero.\n",
-                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      logError(printf("bigMod(%s, ", bigHexCStri(dividend));
+               printf("%s): Division by zero.\n",
+                      bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       modulo = NULL;
     } else {
@@ -1765,9 +1769,9 @@ bigIntType bigRand (const const_bigIntType low,
     mpz_init(range_limit);
     mpz_sub(range_limit, high, low);
     if (unlikely(mpz_sgn(range_limit) < 0)) {
-      logError(printf("bigRand(%s, %s): "
-                      "The range is empty (low > high holds).\n",
-                      bigHexCStri(low), bigHexCStri(high)););
+      logError(printf("bigRand(%s, ", bigHexCStri(low));
+               printf("%s): The range is empty (low > high holds).\n",
+                      bigHexCStri(high)););
       raise_error(RANGE_ERROR);
       randomNumber = 0;
     } else {
@@ -1799,11 +1803,12 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType remainder;
 
   /* bigRem */
-    logFunction(printf("bigRem(%s,", bigHexCStri(dividend));
+    logFunction(printf("bigRem(%s, ", bigHexCStri(dividend));
                 printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
-      logError(printf("bigRem(%s, %s): Division by zero.\n",
-                      bigHexCStri(dividend), bigHexCStri(divisor)););
+      logError(printf("bigRem(%s, ", bigHexCStri(dividend));
+               printf("%s): Division by zero.\n",
+                      bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       remainder = NULL;
     } else {

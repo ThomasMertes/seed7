@@ -133,33 +133,33 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
 
   { /* sqlBindBigRat */
-    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s)\n",
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, pos,
-                       bigHexCStri(numerator),
-                       bigHexCStri(denominator)););
+                       bigHexCStri(numerator));
+                printf("%s)\n", bigHexCStri(denominator)););
     if (unlikely(sqlStatement == NULL)) {
-      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
-                      "SQL statement is empty.\n",
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                       (memSizeType) sqlStatement, pos,
-                      bigHexCStri(numerator),
+                      bigHexCStri(numerator));
+               printf("%s): SQL statement is empty.\n",
                       bigHexCStri(denominator)););
       raise_error(RANGE_ERROR);
     } else if (unlikely(sqlStatement->db == NULL ||
                         !sqlStatement->db->isOpen)) {
       dbNotOpen("sqlBindBigRat");
-      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
-                      "Database is not open.\n",
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                       (memSizeType) sqlStatement, pos,
-                      bigHexCStri(numerator),
+                      bigHexCStri(numerator));
+               printf("%s): Database is not open.\n",
                       bigHexCStri(denominator)););
       raise_error(DATABASE_ERROR);
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL)) {
       dbNoFuncPtr("sqlBindBigRat");
-      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s): "
-                      "Function pointer missing.\n",
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                       (memSizeType) sqlStatement, pos,
-                      bigHexCStri(numerator),
+                      bigHexCStri(numerator));
+               printf("%s): Function pointer missing.\n",
                       bigHexCStri(denominator)););
       raise_error(DATABASE_ERROR);
 #if !ENCODE_INFINITY && !ENCODE_NAN
@@ -725,9 +725,10 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         bigDestr(oldDenominator);
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, column,
-                       bigHexCStri(*numerator), bigHexCStri(*denominator)););
+                       bigHexCStri(*numerator));
+                printf("%s) -->\n", bigHexCStri(*denominator)););
   } /* sqlColumnBigRat */
 
 

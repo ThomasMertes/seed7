@@ -947,9 +947,10 @@ static int64Type bigRatToScaledInt64 (const const_bigIntType numerator,
     int64Type int64Value = 0;
 
   /* bigRatToScaledInt64 */
-    logFunction(printf("bigRatToScaledInt64(%s, %s, %d, *)\n",
-                       bigHexCStri(numerator), bigHexCStri(denominator),
-                       decimalDigits););
+    logFunction(printf("bigRatToScaledInt64(%s, ",
+                       bigHexCStri(numerator));
+                printf("%s, %d, *)\n",
+                       bigHexCStri(denominator), decimalDigits););
     if (unlikely(bigEqSignedDigit(denominator, 0))) {
       /* Numeric values do not support Infinity and NaN. */
       logError(printf("bigRatToScaledInt64: Decimal values do not support Infinity and NaN.\n"););
@@ -1479,9 +1480,10 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigRat */
-    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s)\n",
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, pos,
-                       bigHexCStri(numerator), bigHexCStri(denominator)););
+                       bigHexCStri(numerator));
+                printf("%s)\n", bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || pos > preparedStmt->in_sqlda->sqld)) {
       logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: %hd.\n",
@@ -2474,9 +2476,10 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         } /* switch */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, ",
                        (memSizeType) sqlStatement, column,
-                       bigHexCStri(*numerator), bigHexCStri(*denominator)););
+                       bigHexCStri(*numerator));
+                printf("%s) -->\n", bigHexCStri(*denominator)););
   } /* sqlColumnBigRat */
 
 
