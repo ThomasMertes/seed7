@@ -779,8 +779,8 @@ memSizeType heapsize (void)
   {
 #if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
     memSizeType flist_bytes;
-#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
     unsigned long num_flist_stri_elems;
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
     memSizeType num_flist_bigint_elems;
 #endif
 #endif

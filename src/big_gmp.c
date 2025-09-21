@@ -185,9 +185,12 @@ cstriType bigHexCStri (const const_bigIntType big1)
     ustriType buffer;
     memSizeType charIndex;
     size_t result_size;
-    cstriType result;
+    static cstriType result = NULL;
 
   /* bigHexCStri */
+    if (result != NULL) {
+      UNALLOC_CSTRI(result, strlen(result));
+    } /* if */
     if (big1 != NULL) {
       sizeInBytes = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
       buffer = (ustriType) malloc(sizeInBytes);

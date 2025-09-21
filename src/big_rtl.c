@@ -417,9 +417,12 @@ cstriType bigHexCStri (const const_bigIntType big1)
     memSizeType len;
     const_cstriType stri_ptr;
     cstriType buffer;
-    cstriType result;
+    static cstriType result = NULL;
 
   /* bigHexCStri */
+    if (result != NULL) {
+      UNALLOC_CSTRI(result, strlen(result));
+    } /* if */
     if (likely(big1 != NULL && big1->size > 0)) {
       if (unlikely(big1->size > (MAX_CSTRI_LEN - hexPrefixLen) /
                                 hexDigitsInByte / (BIGDIGIT_SIZE >> 3) ||

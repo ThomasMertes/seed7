@@ -273,13 +273,8 @@ void prot_bigint (const const_bigIntType bigIntValue)
 
 static void prot_bigint_hex (const const_bigIntType bigIntValue)
 
-  {
-    cstriType cstri;
-
-  /* prot_bigint_hex */
-    cstri = bigHexCStri(bigIntValue);
-    prot_cstri(cstri);
-    UNALLOC_CSTRI(cstri, strlen(cstri));
+  { /* prot_bigint_hex */
+    prot_cstri(bigHexCStri(bigIntValue));
   } /* prot_bigint_hex */
 
 
