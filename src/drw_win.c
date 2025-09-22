@@ -464,11 +464,13 @@ static winType generateEmptyWindow (void)
 void drawClose (void)
 
   { /* drawClose */
+    logFunction(printf("drawClose()\n"););
     if (emptyWindow != NULL) {
       FREE_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes);
       emptyWindow = NULL;
     } /* if */
     gkbCloseKeyboard();
+    logFunction(printf("drawClose -->\n"););
   } /* drawClose */
 
 
@@ -1232,6 +1234,7 @@ void drwFree (winType old_window)
       remove_window(to_hwnd(old_window));
     } /* if */
     FREE_RECORD2(old_window, win_winRecord, count.win, count.win_bytes);
+    logFunction(printf("drwFree -->\n"););
   } /* drwFree */
 
 
