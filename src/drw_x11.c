@@ -2035,7 +2035,7 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
               "", "",
               None, /* argv, argc, */ NULL, 0, &myhint);
 
-          if (parent == 0) {
+          if (to_window(parent_window) == 0) {
             /* The parent of this window is the empty window (root window). */
             omitWindowDecorationsAndTaskbarEntry(result);
           } else {
