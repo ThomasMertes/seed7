@@ -1768,7 +1768,7 @@ winType drwOpen (intType xPos, intType yPos,
  *  @param height Height of the new window.
  *  @return the new generated window.
  */
-winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
+winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     intType width, intType height)
 
   {

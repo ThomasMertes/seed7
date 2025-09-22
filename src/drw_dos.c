@@ -326,7 +326,7 @@ winType drwOpen (intType xPos, intType yPos,
 
 
 
-winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
+winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     intType width, intType height)
 
   { /* drwOpenSubWindow */
