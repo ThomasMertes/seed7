@@ -538,7 +538,8 @@ Pixmap XCreateBitmapFromData (Display *display, Drawable drawable,
                        (memSizeType) display, drawable,
                        (memSizeType) data, width, height););
     pixmap = ptr_XCreateBitmapFromData(display, drawable, data, width, height);
-    logFunction(printf("XCreateBitmapFromData -> " FMT_U_MEM "\n", pixmap););
+    logFunction(printf("XCreateBitmapFromData -> " FMT_D_XID "\n",
+                       pixmap););
     return pixmap;
   } /* XCreateBitmapFromData */
 
@@ -595,7 +596,8 @@ Pixmap XCreatePixmap (Display *display, Drawable drawable, unsigned int width,
                        (memSizeType) display, drawable, width, height,
                        depth););
     pixmap = ptr_XCreatePixmap(display, drawable, width, height, depth);
-    logFunction(printf("XCreatePixmap -> " FMT_U_MEM "\n", pixmap););
+    logFunction(printf("XCreatePixmap -> " FMT_D_XID "\n",
+                       pixmap););
     return pixmap;
   } /* XCreatePixmap */
 
@@ -640,7 +642,7 @@ Window XCreateSimpleWindow (Display *display, Window parent, int x, int y,
                        border_width, border, background););
     window = ptr_XCreateSimpleWindow(display, parent, x, y, width, height,
                                      border_width, border, background);
-    logFunction(printf("XCreateSimpleWindow --> " FMT_U_MEM "\n",
+    logFunction(printf("XCreateSimpleWindow --> " FMT_D_XID "\n",
                        window););
     return window;
   } /* XCreateSimpleWindow */
@@ -987,6 +989,7 @@ int XFreeCursor (Display *display, Cursor cursor)
                        (memSizeType) display, (memSizeType) cursor););
     funcResult = ptr_XFreeCursor(display, cursor);
     logFunction(printf("XFreeCursor --> %d\n", funcResult););
+    return funcResult;
   } /* XFreeCursor */
 
 
@@ -1012,7 +1015,7 @@ int XFreePixmap (Display *display, Pixmap pixmap)
     int funcResult;
 
   /* XFreePixmap */
-    logFunction(printf("XFreePixmap(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+    logFunction(printf("XFreePixmap(" FMT_U_MEM ", " FMT_U_XID ")\n",
                        (memSizeType) display, pixmap););
     funcResult = ptr_XFreePixmap(display, pixmap);
     logFunction(printf("XFreePixmap --> %d\n", funcResult););
@@ -1561,7 +1564,7 @@ XErrorHandler XSetErrorHandler (XErrorHandler handler)
                        (memSizeType) handler););
     funcResult = ptr_XSetErrorHandler(handler);
     logFunction(printf("XSetErrorHandler --> " FMT_U_MEM "\n",
-                       funcResult););
+                       (memSizeType) funcResult););
     return funcResult;
   } /* XSetErrorHandler */
 
@@ -1736,9 +1739,9 @@ int XUndefineCursor (Display *display, Window window)
 
 
 
-extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
-                         int src_x, int src_y, unsigned int src_width,
-                         unsigned int src_height, int dest_x, int dest_y)
+int XWarpPointer (Display *display, Window src_w, Window dest_w,
+                  int src_x, int src_y, unsigned int src_width,
+                  unsigned int src_height, int dest_x, int dest_y)
 
   {
     int funcResult;
@@ -1779,10 +1782,11 @@ void XRenderComposite (Display *display, int op, Picture src,
                        unsigned int width, unsigned int height)
 
   { /* XRenderComposite */
-    logFunction(printf("XRenderComposite(" FMT_U_MEM ", %d, " FMT_U_MEM ", "
-                       FMT_U_MEM ", " FMT_U_MEM ", %d, %d, %d, %d, %d, %d, %u, %u)\n",
-                       (memSizeType) display, op, (memSizeType) src,
-                       (memSizeType) mask, (memSizeType) dst, src_x, src_y,
+    logFunction(printf("XRenderComposite(" FMT_U_MEM ", %d, " FMT_U_XID ", "
+                       FMT_U_XID ", " FMT_U_XID ", %d, %d, "
+                       "%d, %d, %d, %d, %u, %u)\n",
+                       (memSizeType) display, op, src,
+                       mask, dst, src_x, src_y,
                        mask_x, mask_y, dst_x, dst_y, width, height););
     ptr_XRenderComposite(display, op, src, mask, dst, src_x, src_y,
                          mask_x, mask_y, dst_x, dst_y, width, height);
@@ -1807,8 +1811,8 @@ Picture XRenderCreatePicture (Display *display,
                        valuemask, (memSizeType) attributes););
     picture = ptr_XRenderCreatePicture(display, drawable, format, valuemask,
                                        attributes);
-    logFunction(printf("XRenderCreatePicture --> " FMT_U_MEM "\n",
-                       (memSizeType) picture););
+    logFunction(printf("XRenderCreatePicture --> " FMT_D_XID "\n",
+                       picture););
     return picture;
   } /* XRenderCreatePicture */
 
@@ -1835,8 +1839,8 @@ XRenderPictFormat *XRenderFindVisualFormat (Display *display,
 void XRenderFreePicture (Display *display, Picture picture)
 
   { /* XRenderFreePicture */
-    logFunction(printf("XRenderFreePicture(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) display, (memSizeType) picture););
+    logFunction(printf("XRenderFreePicture(" FMT_U_MEM ", " FMT_U_XID ")\n",
+                       (memSizeType) display, picture););
     ptr_XRenderFreePicture(display, picture);
     logFunction(printf("XRenderFreePicture -->\n"););
   } /* XRenderFreePicture */
@@ -1849,8 +1853,8 @@ void XRenderSetPictureTransform (Display *display,
 
   { /* XRenderSetPictureTransform */
     logFunction(printf("XRenderSetPictureTransform(" FMT_U_MEM ", "
-                       FMT_U_MEM ", " FMT_U_MEM ")\n",
-                       (memSizeType) display, (memSizeType) picture,
+                       FMT_U_XID ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, picture,
                        (memSizeType) transform););
     ptr_XRenderSetPictureTransform(display, picture, transform);
     logFunction(printf("XRenderSetPictureTransform -->\n"););
