@@ -110,6 +110,7 @@ typedef struct {
     Pixmap clip_mask;
     boolType is_pixmap;
     boolType is_managed;
+    winType parentWindow;
     unsigned int width;
     unsigned int height;
     unsigned int backupWidth;
@@ -126,6 +127,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_clip_mask(win)        (((const_x11_winType) (win))->clip_mask)
 #define is_pixmap(win)           (((const_x11_winType) (win))->is_pixmap)
 #define is_managed(win)          (((const_x11_winType) (win))->is_managed)
+#define to_parentWindow(win)     (((const_x11_winType) (win))->parentWindow)
 #define to_width(win)            (((const_x11_winType) (win))->width)
 #define to_height(win)           (((const_x11_winType) (win))->height)
 #define to_backupWidth(win)      (((const_x11_winType) (win))->backupWidth)
@@ -139,6 +141,7 @@ typedef const x11_winRecord *const_x11_winType;
 #define to_var_clip_mask(win)        (((x11_winType) (win))->clip_mask)
 #define is_var_pixmap(win)           (((x11_winType) (win))->is_pixmap)
 #define is_var_managed(win)          (((x11_winType) (win))->is_managed)
+#define to_var_parentWindow(win)     (((x11_winType) (win))->parentWindow)
 #define to_var_width(win)            (((x11_winType) (win))->width)
 #define to_var_height(win)           (((x11_winType) (win))->height)
 #define to_var_clear_col(win)        (((x11_winType) (win))->clear_col)
@@ -466,6 +469,7 @@ static winType generateEmptyWindow (void)
       newWindow->clip_mask = 0;
       newWindow->is_pixmap = TRUE;
       newWindow->is_managed = FALSE;
+      newWindow->parentWindow = NULL;
       newWindow->width = 0;
       newWindow->height = 0;
     } /* if */
@@ -1306,6 +1310,15 @@ void drwFree (winType old_window)
       } /* if */
       remove_window(to_window(old_window));
     } /* if */
+    if (to_parentWindow(old_window) != NULL &&
+        to_parentWindow(old_window)->usage_count != 0) {
+      to_parentWindow(old_window)->usage_count--;
+      if (to_parentWindow(old_window)->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n",
+                          (memSizeType) to_parentWindow(old_window)););
+        drwFree(to_parentWindow(old_window));
+      } /* if */
+    } /* if */
     FREE_RECORD2(old_window, x11_winRecord, count.win, count.win_bytes);
   } /* drwFree */
 
@@ -1374,6 +1387,7 @@ winType drwCapture (intType left, intType upper,
           pixmap->clip_mask = 0;
           pixmap->is_pixmap = TRUE;
           pixmap->is_managed = FALSE;
+          pixmap->parentWindow = NULL;
           pixmap->width = (unsigned int) width;
           pixmap->height = (unsigned int) height;
           XPutImage(mydisplay, pixmap->window, mygc, image, (int) left, (int) upper, 0, 0,
@@ -1526,6 +1540,7 @@ winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
       pixmap->clip_mask = 0;
       pixmap->is_pixmap = TRUE;
       pixmap->is_managed = FALSE;
+      pixmap->parentWindow = NULL;
       pixmap->width = (unsigned int) width;
       pixmap->height = (unsigned int) height;
       if (left < 0 || upper < 0 ||
@@ -1628,6 +1643,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
             pixmap->clip_mask = 0;
             pixmap->is_pixmap = TRUE;
             pixmap->is_managed = FALSE;
+            pixmap->parentWindow = NULL;
             pixmap->width = (unsigned int) width;
             pixmap->height = (unsigned int) height;
             XPutImage(mydisplay, pixmap->window, mygc, image, 0, 0, 0, 0,
@@ -1715,6 +1731,7 @@ winType drwNewPixmap (intType width, intType height)
           pixmap->clip_mask = 0;
           pixmap->is_pixmap = TRUE;
           pixmap->is_managed = FALSE;
+          pixmap->parentWindow = NULL;
           pixmap->width = (unsigned int) width;
           pixmap->height = (unsigned int) height;
         } /* if */
@@ -1754,6 +1771,7 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
       pixmap->clip_mask = 0;
       pixmap->is_pixmap = TRUE;
       pixmap->is_managed = FALSE;
+      pixmap->parentWindow = NULL;
       pixmap->width = (unsigned int) width;
       pixmap->height = (unsigned int) height;
     } /* if */
@@ -1824,6 +1842,7 @@ winType drwOpen (intType xPos, intType yPos,
             result->clip_mask = 0;
             result->is_pixmap = FALSE;
             result->is_managed = TRUE;
+            result->parentWindow = NULL;
             result->width = (unsigned int) width;
             result->height = (unsigned int) height;
 
@@ -1890,6 +1909,7 @@ static void omitWindowDecorationsAndTaskbarEntry (x11_winType aWindow)
 
   /* omitWindowDecorationsAndTaskbarEntry */
     aWindow->is_managed = TRUE;
+    aWindow->parentWindow = NULL;
 
     mywmhint.flags = InputHint;
     mywmhint.input = True;
@@ -1992,9 +2012,14 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
               "", "",
               None, /* argv, argc, */ NULL, 0, &myhint);
 
-          if (to_window(parent_window) == 0) {
+          if (parent == 0) {
             /* The parent of this window is the empty window (root window). */
             omitWindowDecorationsAndTaskbarEntry(result);
+          } else {
+            result->parentWindow = parent_window;
+            if (parent_window->usage_count != 0) {
+              parent_window->usage_count++;
+            } /* if */
           } /* if */
 
           setupBackup(result);
