@@ -68,7 +68,7 @@ typedef struct {
     boolType is_subwindow;
     boolType is_substitute;
     boolType is_tab;
-    const_winType parentWindow;
+    winType parentWindow;
     int ignoreFirstResize;
     intType creationTimestamp;
     int width;
@@ -1107,6 +1107,15 @@ void drwFree (winType old_window)
       closeWindow(to_window(old_window));
       remove_window(to_window(old_window));
       setClosePopupState(to_window(old_window), 0);
+    } /* if */
+    if (to_parentWindow(old_window) != NULL &&
+        to_parentWindow(old_window)->usage_count != 0) {
+      to_parentWindow(old_window)->usage_count--;
+      if (to_parentWindow(old_window)->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n",
+                          (memSizeType) to_parentWindow(old_window)););
+        drwFree(to_parentWindow(old_window));
+      } /* if */
     } /* if */
     FREE_RECORD2(old_window, emc_winRecord, count.win, count.win_bytes);
     logFunction(printf("drwFree -->\n"););
@@ -2172,6 +2181,9 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
         result->is_substitute = FALSE;
         result->is_tab = FALSE;
         result->parentWindow = parent_window;
+        if (parent_window->usage_count != 0) {
+          parent_window->usage_count++;
+        } /* if */
         result->ignoreFirstResize = 0;
         result->creationTimestamp = 0;
         result->width = (int) width;
