@@ -603,6 +603,16 @@ typedef struct {
     } data;
   } XClientMessageEvent;
 
+typedef struct {
+    int type;
+    Display *display;
+    unsigned long serial;
+    unsigned char error_code;
+    unsigned char request_code;
+    unsigned char minor_code;
+    XID resourceid;
+  } XErrorEvent;
+
 typedef union _XEvent {
     int type;
     XKeyEvent xkey;
@@ -615,6 +625,7 @@ typedef union _XEvent {
     XSelectionRequestEvent xselectionrequest;
     XSelectionEvent xselection;
     XMappingEvent xmapping;
+    XErrorEvent xerror;
     long pad[24];
   } XEvent;
 
@@ -626,6 +637,9 @@ typedef struct {
     int global_auto_repeat;
     char auto_repeats[32];
   } XKeyboardState;
+
+typedef int (*XErrorHandler) (Display *display,
+                              XErrorEvent *error_event);
 
 #define XA_ATOM ((Atom) 4)
 
@@ -813,6 +827,8 @@ extern int XFillRectangle (Display *display,
                            unsigned int height);
 extern int XFlush (Display *display);
 extern int XFree (void *data);
+extern int XFreeCursor (Display *display,
+                        Cursor cursor);
 extern int XFreeGC (Display *display,
                     GC gc);
 extern int XFreePixmap (Display *display,
@@ -927,6 +943,7 @@ extern int XSetClipOrigin (Display *display,
                            GC gc,
                            int clip_x_origin,
                            int clip_y_origin);
+extern XErrorHandler XSetErrorHandler (XErrorHandler handler);
 extern int XSetForeground (Display *display,
                            GC gc,
                            unsigned long foreground);

@@ -109,6 +109,7 @@ typedef int (*tp_XFillRectangle) (Display *display, Drawable drawable, GC gc, in
                                   unsigned int width, unsigned int height);
 typedef int (*tp_XFlush) (Display *display);
 typedef int (*tp_XFree) (void *data);
+typedef int (*tp_XFreeCursor) (Display *display, Cursor cursor);
 typedef int (*tp_XFreeGC) (Display *display, GC gc);
 typedef int (*tp_XFreePixmap) (Display *display, Pixmap pixmap);
 typedef Status (*tp_XGetGeometry) (Display *display, Drawable drawable,
@@ -171,6 +172,7 @@ typedef int (*tp_XSetBackground) (Display *display, GC gc, unsigned long backgro
 typedef int (*tp_XSetClipMask) (Display *display, GC gc, Pixmap pixmap);
 typedef int (*tp_XSetClipOrigin) (Display *display, GC gc, int clip_x_origin,
                                   int clip_y_origin);
+typedef XErrorHandler (*tp_XSetErrorHandler) (XErrorHandler handler);
 typedef int (*tp_XSetForeground) (Display *display, GC gc, unsigned long foreground);
 typedef int (*tp_XSetFunction) (Display *display, GC gc, int function);
 typedef int (*tp_XSetLineAttributes) (Display *display, GC gc,
@@ -250,6 +252,7 @@ extern tp_XFillPolygon            ptr_XFillPolygon;
 extern tp_XFillRectangle          ptr_XFillRectangle;
 extern tp_XFlush                  ptr_XFlush;
 extern tp_XFree                   ptr_XFree;
+extern tp_XFreeCursor             ptr_XFreeCursor;
 extern tp_XFreeGC                 ptr_XFreeGC;
 extern tp_XFreePixmap             ptr_XFreePixmap;
 extern tp_XGetGeometry            ptr_XGetGeometry;
@@ -281,6 +284,7 @@ extern tp_XSetArcMode             ptr_XSetArcMode;
 extern tp_XSetBackground          ptr_XSetBackground;
 extern tp_XSetClipMask            ptr_XSetClipMask;
 extern tp_XSetClipOrigin          ptr_XSetClipOrigin;
+extern tp_XSetErrorHandler        ptr_XSetErrorHandler;
 extern tp_XSetForeground          ptr_XSetForeground;
 extern tp_XSetFunction            ptr_XSetFunction;
 extern tp_XSetLineAttributes      ptr_XSetLineAttributes;
@@ -337,6 +341,7 @@ extern tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
 #define XFillRectangle          ptr_XFillRectangle
 #define XFlush                  ptr_XFlush
 #define XFree                   ptr_XFree
+#define XFreeCursor             ptr_XFreeCursor
 #define XFreeGC                 ptr_XFreeGC
 #define XFreePixmap             ptr_XFreePixmap
 #define XGetGeometry            ptr_XGetGeometry
@@ -368,6 +373,7 @@ extern tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
 #define XSetBackground          ptr_XSetBackground
 #define XSetClipMask            ptr_XSetClipMask
 #define XSetClipOrigin          ptr_XSetClipOrigin
+#define XSetErrorHandler        ptr_XSetErrorHandler
 #define XSetForeground          ptr_XSetForeground
 #define XSetFunction            ptr_XSetFunction
 #define XSetLineAttributes      ptr_XSetLineAttributes

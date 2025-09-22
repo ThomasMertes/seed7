@@ -119,6 +119,7 @@ FPTR_DECL tp_XFillPolygon            ptr_XFillPolygon = NULL;
 FPTR_DECL tp_XFillRectangle          ptr_XFillRectangle = NULL;
 FPTR_DECL tp_XFlush                  ptr_XFlush = NULL;
 FPTR_DECL tp_XFree                   ptr_XFree = NULL;
+FPTR_DECL tp_XFreeCursor             ptr_XFreeCursor = NULL;
 FPTR_DECL tp_XFreeGC                 ptr_XFreeGC = NULL;
 FPTR_DECL tp_XFreePixmap             ptr_XFreePixmap = NULL;
 FPTR_DECL tp_XGetGeometry            ptr_XGetGeometry = NULL;
@@ -150,6 +151,7 @@ FPTR_DECL tp_XSetArcMode             ptr_XSetArcMode = NULL;
 FPTR_DECL tp_XSetBackground          ptr_XSetBackground = NULL;
 FPTR_DECL tp_XSetClipMask            ptr_XSetClipMask = NULL;
 FPTR_DECL tp_XSetClipOrigin          ptr_XSetClipOrigin = NULL;
+FPTR_DECL tp_XSetErrorHandler        ptr_XSetErrorHandler = NULL;
 FPTR_DECL tp_XSetForeground          ptr_XSetForeground = NULL;
 FPTR_DECL tp_XSetFunction            ptr_XSetFunction = NULL;
 FPTR_DECL tp_XSetLineAttributes      ptr_XSetLineAttributes = NULL;
@@ -218,6 +220,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XFillRectangle          = (tp_XFillRectangle)          dllFunc(x11Dll, "XFillRectangle"))          == NULL ||
             (ptr_XFlush                  = (tp_XFlush)                  dllFunc(x11Dll, "XFlush"))                  == NULL ||
             (ptr_XFree                   = (tp_XFree)                   dllFunc(x11Dll, "XFree"))                   == NULL ||
+            (ptr_XFreeCursor             = (tp_XFreeCursor)             dllFunc(x11Dll, "XFreeCursor"))             == NULL ||
             (ptr_XFreeGC                 = (tp_XFreeGC)                 dllFunc(x11Dll, "XFreeGC"))                 == NULL ||
             (ptr_XFreePixmap             = (tp_XFreePixmap)             dllFunc(x11Dll, "XFreePixmap"))             == NULL ||
             (ptr_XGetGeometry            = (tp_XGetGeometry)            dllFunc(x11Dll, "XGetGeometry"))            == NULL ||
@@ -249,6 +252,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XSetBackground          = (tp_XSetBackground)          dllFunc(x11Dll, "XSetBackground"))          == NULL ||
             (ptr_XSetClipMask            = (tp_XSetClipMask)            dllFunc(x11Dll, "XSetClipMask"))            == NULL ||
             (ptr_XSetClipOrigin          = (tp_XSetClipOrigin)          dllFunc(x11Dll, "XSetClipOrigin"))          == NULL ||
+            (ptr_XSetErrorHandler        = (tp_XSetErrorHandler)        dllFunc(x11Dll, "XSetErrorHandler"))        == NULL ||
             (ptr_XSetForeground          = (tp_XSetForeground)          dllFunc(x11Dll, "XSetForeground"))          == NULL ||
             (ptr_XSetFunction            = (tp_XSetFunction)            dllFunc(x11Dll, "XSetFunction"))            == NULL ||
             (ptr_XSetLineAttributes      = (tp_XSetLineAttributes)      dllFunc(x11Dll, "XSetLineAttributes"))      == NULL ||
@@ -973,6 +977,20 @@ int XFree (void *data)
 
 
 
+int XFreeCursor (Display *display, Cursor cursor)
+
+  {
+    int funcResult;
+
+  /* XFreeCursor */
+    logFunction(printf("XFreeCursor(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, (memSizeType) cursor););
+    funcResult = ptr_XFreeCursor(display, cursor);
+    logFunction(printf("XFreeCursor --> %d\n", funcResult););
+  } /* XFreeCursor */
+
+
+
 int XFreeGC (Display *display, GC gc)
 
   {
@@ -1530,6 +1548,22 @@ int XSetClipOrigin (Display *display, GC gc, int clip_x_origin,
     logFunction(printf("XSetClipOrigin --> %d\n", funcResult););
     return funcResult;
   } /* XSetClipOrigin */
+
+
+
+XErrorHandler XSetErrorHandler (XErrorHandler handler)
+
+  {
+    XErrorHandler funcResult;
+
+  /* XSetErrorHandler */
+    logFunction(printf("XSetErrorHandler(" FMT_U_MEM ")\n",
+                       (memSizeType) handler););
+    funcResult = ptr_XSetErrorHandler(handler);
+    logFunction(printf("XSetErrorHandler --> " FMT_U_MEM "\n",
+                       funcResult););
+    return funcResult;
+  } /* XSetErrorHandler */
 
 
 
