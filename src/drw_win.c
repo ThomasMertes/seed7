@@ -1776,13 +1776,17 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     win_winType newWindow = NULL;
 
   /* drwOpenSubWindow */
-    logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwOpenSubWindow(" FMT_U_MEM ", "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) parent_window,
                        xPos, yPos, width, height););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
-      logError(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
+      logError(printf("drwOpenSubWindow((" FMT_U_MEM ", "
+                      FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
                       "Illegal window dimensions\n",
+                      (memSizeType) parent_window,
                       xPos, yPos, width, height););
       raise_error(RANGE_ERROR);
     } else {

@@ -1294,9 +1294,13 @@ winType drwEmpty (void)
 void drwFree (winType old_window)
 
   { /* drwFree */
-    logFunction(printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+    logFunction(printf("drwFree(" FMT_U_MEM ")"
+                       " (usage=" FMT_U ", window=%lx)\n",
                        (memSizeType) old_window,
-                       old_window != NULL ? old_window->usage_count : (uintType) 0););
+                       old_window != NULL ?
+                           old_window->usage_count : (uintType) 0,
+                       old_window != NULL ?
+                           (unsigned long) to_window(old_window) : 0L););
     if (is_pixmap(old_window)) {
       if (to_window(old_window) != 0) {
         XFreePixmap(mydisplay, to_window(old_window));
@@ -1320,6 +1324,7 @@ void drwFree (winType old_window)
       } /* if */
     } /* if */
     FREE_RECORD2(old_window, x11_winRecord, count.win, count.win_bytes);
+    logFunction(printf("drwFree -->\n"););
   } /* drwFree */
 
 
@@ -1885,9 +1890,11 @@ winType drwOpen (intType xPos, intType yPos,
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
-    logFunction(printf("drwOpen --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwOpen --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%lx)\n",
                        (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
+                       result != NULL ? result->usage_count : (uintType) 0,
+                       result != NULL ? (unsigned long) result->window : 0L););
     return (winType) result;
   } /* drwOpen */
 
@@ -1962,15 +1969,31 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     x11_winType result = NULL;
 
   /* drwOpenSubWindow */
-    logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D
-                       ", " FMT_D ", " FMT_D ")\n",
+    logFunction(printf("drwOpenSubWindow(" FMT_U_MEM
+                       " (usage=" FMT_U ", window=%lx), "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) parent_window,
+                       parent_window != NULL ?
+                           parent_window->usage_count :
+                           (uintType) 0,
+                       parent_window != NULL ?
+                           (unsigned long) to_window(parent_window) :
+                           0L,
                        xPos, yPos, width, height););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
-      logError(printf("drwOpenSubWindow(" FMT_D ", " FMT_D
-                      ", " FMT_D ", " FMT_D "): "
+      logError(printf("drwOpenSubWindow((" FMT_U_MEM
+                      " (usage=" FMT_U ", window=%lx), "
+                      FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
                       "Illegal window dimensions\n",
+                      (memSizeType) parent_window,
+                      parent_window != NULL ?
+                          parent_window->usage_count :
+                          (uintType) 0,
+                      parent_window != NULL ?
+                          (unsigned long) to_window(parent_window) :
+                          0L,
                       xPos, yPos, width, height););
       raise_error(RANGE_ERROR);
     } else {
@@ -2046,9 +2069,11 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
-    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%lx)\n",
                        (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
+                       result != NULL ? result->usage_count : (uintType) 0,
+                       result != NULL ? (unsigned long) result->window : 0L););
     return (winType) result;
   } /* drwOpenSubWindow */
 
