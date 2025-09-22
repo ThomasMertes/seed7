@@ -306,10 +306,11 @@ winType generateEmptyWindow (void)
       newWindow->width = 0;
       newWindow->height = 0;
     } /* if */
-    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ")\n",
                        (memSizeType) newWindow,
-                       newWindow != NULL ? newWindow->window : 0,
-                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+                       newWindow != NULL ?
+                           newWindow->usage_count : (uintType) 0););
     return (winType) newWindow;
   } /* generateEmptyWindow */
 
@@ -338,11 +339,13 @@ void drawShut (void)
 void drawClose (void)
 
   { /* drawClose */
+    logFunction(printf("drawClose()\n"););
     if (emptyWindow != NULL) {
       FREE_RECORD2(emptyWindow, emc_winRecord, count.win, count.win_bytes);
       emptyWindow = NULL;
     } /* if */
     gkbCloseKeyboard();
+    logFunction(printf("drawClose -->\n"););
   } /* drawClose */
 
 
@@ -1088,10 +1091,13 @@ static void closeWindow (int windowId)
 void drwFree (winType old_window)
 
   { /* drwFree */
-    logFunction(printf("drwFree(" FMT_U_MEM ") (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("drwFree(" FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d))\n",
                        (memSizeType) old_window,
-                       old_window != NULL ? to_window(old_window) : 0,
-                       old_window != NULL ? old_window->usage_count : (uintType) 0););
+                       old_window != NULL ?
+                           old_window->usage_count : (uintType) 0,
+                       old_window != NULL ?
+                           to_window(old_window) : 0););
     if (is_pixmap(old_window)) {
       EM_ASM({
         mapIdToCanvas[$0] = undefined;
@@ -1103,8 +1109,7 @@ void drwFree (winType old_window)
       setClosePopupState(to_window(old_window), 0);
     } /* if */
     FREE_RECORD2(old_window, emc_winRecord, count.win, count.win_bytes);
-    logFunction(printf("drwFree(" FMT_U_MEM ") -->\n",
-                       (memSizeType) old_window););
+    logFunction(printf("drwFree -->\n"););
   } /* drwFree */
 
 
@@ -1353,10 +1358,11 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height,
         maxWindowId = pixmap->window;
       } /* if */
     } /* if */
-    logFunction(printf("drwImage --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("drwImage --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d)\n",
                        (memSizeType) pixmap,
-                       pixmap != NULL ? pixmap->window : 0,
-                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0,
+                       pixmap != NULL ? pixmap->window : 0););
     return (winType) pixmap;
   } /* drwImage */
 
@@ -1608,10 +1614,11 @@ int copyWindow (int windowId)
         removeWindowMapping(windowId);
       } /* if */
     } /* if */
-    logFunction(printf("copyWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("copyWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d)\n",
                        (memSizeType) aWindow,
-                       aWindow != NULL ? aWindow->window : 0,
-                       aWindow != NULL ? aWindow->usage_count : (uintType) 0););
+                       aWindow != NULL ? aWindow->usage_count : (uintType) 0,
+                       aWindow != NULL ? aWindow->window : 0););
     return aWindow != NULL ? aWindow->window : 0;
   } /* copyWindow */
 
@@ -1658,10 +1665,10 @@ static winType openSubstituteWindow (intType xPos, intType yPos,
       } /* if */
     } /* if */
     logFunction(printf("openSubstituteWindow --> " FMT_U_MEM
-                       " (window=%d, usage=" FMT_U ")\n",
+                       " (usage=" FMT_U ", window=%d)\n",
                        (memSizeType) newWindow,
-                       newWindow != NULL ? newWindow->window : 0,
-                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0,
+                       newWindow != NULL ? newWindow->window : 0););
     return (winType) newWindow;
   } /* openSubstituteWindow */
 
@@ -2057,10 +2064,11 @@ winType drwOpen (intType xPos, intType yPos,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("drwOpen --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("drwOpen --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d)\n",
                        (memSizeType) result,
-                       result != NULL ? result->window : 0,
-                       result != NULL ? result->usage_count : (uintType) 0););
+                       result != NULL ? result->usage_count : (uintType) 0,
+                       result != NULL ? result->window : 0););
     return (winType) result;
   } /* drwOpen */
 
@@ -2091,19 +2099,27 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     emc_winType result = NULL;
 
   /* drwOpenSubWindow */
-    logFunction(printf("drwOpenSubWindow(" FMT_U_MEM " (window=%d), "
+    logFunction(printf("drwOpenSubWindow(" FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d), "
                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) parent_window,
-                       parent_window != NULL ? to_window(parent_window) : 0,
+                       parent_window != NULL ?
+                           parent_window->usage_count : (uintType) 0,
+                       parent_window != NULL ?
+                           to_window(parent_window) : 0,
                        xPos, yPos, width, height););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
-      logError(printf("drwOpenSubWindow(" FMT_U_MEM " (window=%d), "
+      logError(printf("drwOpenSubWindow(" FMT_U_MEM
+                      " (usage=" FMT_U ", window=%d), "
                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
                       "Illegal window dimensions\n",
                       (memSizeType) parent_window,
-                      parent_window != NULL ? to_window(parent_window) : 0,
+                      parent_window != NULL ?
+                          parent_window->usage_count : (uintType) 0,
+                      parent_window != NULL ?
+                          to_window(parent_window) : 0,
                       xPos, yPos, width, height););
       raise_error(RANGE_ERROR);
     } else {
@@ -2165,10 +2181,11 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
         synchronizeTimAwaitWithGraphicKeyboard();
       } /* if */
     } /* if */
-    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
+    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ", window=%d)\n",
                        (memSizeType) result,
-                       result != NULL ? result->window : 0,
-                       result != NULL ? result->usage_count : (uintType) 0););
+                       result != NULL ? result->usage_count : (uintType) 0,
+                       result != NULL ? result->window : 0););
     return (winType) result;
   } /* drwOpenSubWindow */
 

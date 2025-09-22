@@ -473,9 +473,11 @@ static winType generateEmptyWindow (void)
       newWindow->width = 0;
       newWindow->height = 0;
     } /* if */
-    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ")\n",
                        (memSizeType) newWindow,
-                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+                       newWindow != NULL ?
+                           newWindow->usage_count : (uintType) 0););
     return (winType) newWindow;
   } /* generateEmptyWindow */
 
@@ -1294,8 +1296,8 @@ winType drwEmpty (void)
 void drwFree (winType old_window)
 
   { /* drwFree */
-    logFunction(printf("drwFree(" FMT_U_MEM ")"
-                       " (usage=" FMT_U ", window=%lx)\n",
+    logFunction(printf("drwFree(" FMT_U_MEM
+                       " (usage=" FMT_U ", window=%lx))\n",
                        (memSizeType) old_window,
                        old_window != NULL ?
                            old_window->usage_count : (uintType) 0,
@@ -1974,8 +1976,7 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) parent_window,
                        parent_window != NULL ?
-                           parent_window->usage_count :
-                           (uintType) 0,
+                           parent_window->usage_count : (uintType) 0,
                        parent_window != NULL ?
                            (unsigned long) to_window(parent_window) :
                            0L,
@@ -1983,14 +1984,13 @@ winType drwOpenSubWindow (winType parent_window, intType xPos, intType yPos,
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  width < 1 || width > INT_MAX ||
                  height < 1 || height > INT_MAX)) {
-      logError(printf("drwOpenSubWindow((" FMT_U_MEM
+      logError(printf("drwOpenSubWindow(" FMT_U_MEM
                       " (usage=" FMT_U ", window=%lx), "
                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
                       "Illegal window dimensions\n",
                       (memSizeType) parent_window,
                       parent_window != NULL ?
-                          parent_window->usage_count :
-                          (uintType) 0,
+                          parent_window->usage_count : (uintType) 0,
                       parent_window != NULL ?
                           (unsigned long) to_window(parent_window) :
                           0L,
