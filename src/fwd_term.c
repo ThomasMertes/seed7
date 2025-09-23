@@ -38,6 +38,7 @@
 #include "stdio.h"
 
 #include "common.h"
+#include "striutl.h"
 #include "dll_drv.h"
 
 #undef EXTERN
@@ -84,7 +85,7 @@ static boolType setupDll (const char *dllName)
     static void *x11Dll = NULL;
 
   /* setupDll */
-    logFunction(printf("setupDll(\"%s\")\n", dllName););
+    log2Function(fprintf(stderr, "setupDll(\"%s\")\n", dllName););
     if (x11Dll == NULL) {
       x11Dll = dllOpen(dllName);
       if (x11Dll != NULL) {
@@ -106,7 +107,8 @@ static boolType setupDll (const char *dllName)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("setupDll --> %d\n", x11Dll != NULL););
+    log2Function(fprintf(stderr, "setupDll --> %d\n",
+                         x11Dll != NULL););
     return x11Dll != NULL;
   } /* setupDll */
 
@@ -120,11 +122,11 @@ boolType findTermDll (void)
     boolType found = FALSE;
 
   /* findTermDll */
-    logFunction(printf("findTermDll()\n"););
+    log2Function(fprintf(stderr, "findTermDll()\n"););
     for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
       found = setupDll(dllList[pos]);
     } /* for */
-    logFunction(printf("findTermDll --> %d\n", found););
+    log2Function(fprintf(stderr, "findTermDll --> %d\n", found););
     return found;
   } /* findTermDll */
 
@@ -139,7 +141,7 @@ static int loadCapabilities (const char *term)
     char *area;
 
   /* loadCapabilities */
-    logFunction(printf("loadCapabilities()\n"););
+    log2Function(fprintf(stderr, "loadCapabilities()\n"););
     if (!caps_initialized) {
       return_code = tgetent(NULL, term);
       /* printf(":%d:\n", return_code); */
@@ -275,7 +277,8 @@ static int loadCapabilities (const char *term)
         caps_initialized = TRUE;
       } /* if */
     } /* if */
-    logFunction(printf("loadCapabilities --> %d\n", caps_initialized););
+    log2Function(fprintf(stderr, "loadCapabilities --> %d\n",
+                         caps_initialized););
     return caps_initialized;
   } /* loadCapabilities */
 
@@ -287,10 +290,11 @@ int setupterm (const char *term, int filedes, int *errret)
     int funcResult;
 
   /* setupterm */
-    logFunction(printf("setupterm(\"%s\", %d, *)\n", term, filedes););
+    log2Function(fprintf(stderr, "setupterm(\"%s\", %d, *)\n",
+                         term, filedes););
     /* funcResult = ptr_setupterm(term, filedes, errret); */
     funcResult = !loadCapabilities(term);
-    logFunction(printf("setupterm(\"%s\", %d, %d) --> %d\n",
+    log2Function(fprintf(stderr, "setupterm(\"%s\", %d, %d) --> %d\n",
                        term, filedes, *errret, funcResult););
     return funcResult;
   } /* setupterm */
@@ -304,9 +308,9 @@ int tcgetattr (int fd, struct termios *termios_p)
     int funcResult;
 
   /* tcgetattr */
-    logFunction(printf("tcgetattr(%d, *)\n", fd););
+    log2Function(fprintf(stderr, "tcgetattr(%d, *)\n", fd););
     funcResult = ptr_tcgetattr(fd, termios_p);
-    logFunction(printf("tcgetattr --> %d\n", funcResult););
+    log2Function(fprintf(stderr, "tcgetattr --> %d\n", funcResult););
     return funcResult;
   } /* tcgetattr */
 
@@ -318,9 +322,10 @@ int tcsetattr (int fd, int actions, const struct termios *termios_p)
     int funcResult;
 
   /* tcsetattr */
-    logFunction(printf("tcsetattr(%d, %d, *)\n", fd, actions););
+    log2Function(fprintf(stderr, "tcsetattr(%d, %d, *)\n",
+                         fd, actions););
     funcResult = ptr_tcsetattr(fd, actions, termios_p);
-    logFunction(printf("tcsetattr --> %d\n", funcResult););
+    log2Function(fprintf(stderr, "tcsetattr --> %d\n", funcResult););
     return funcResult;
   } /* tcsetattr */
 #endif
@@ -333,9 +338,11 @@ char *tgoto (const char *cap, int col, int row)
     char *str;
 
   /* tgoto */
-    logFunction(printf("tgoto(\"%s\", %d, %d)\n", cap, col, row););
+    log2Function(fprintf(stderr, "tgoto(\"%s\", %d, %d)\n",
+                         cstriAsUnquotedCLiteral(cap), col, row););
     str = ptr_tgoto(cap, col, row);
-    logFunction(printf("tgoto --> \"%s\"\n", str););
+    log2Function(fprintf(stderr, "tgoto --> \"%s\"\n",
+                         cstriAsUnquotedCLiteral(str)););
     return str;
   } /* tgoto */
 
@@ -347,10 +354,11 @@ int tputs (const char *str, int affcnt, int (*putc)(int))
     int funcResult;
 
   /* tputs */
-    logFunction(printf("tputs(\"%s\", %d, " FMT_U_MEM ")\n",
-                       str, affcnt, (memSizeType) putc););
+    log2Function(fprintf(stderr, "tputs(\"%s\", %d, " FMT_U_MEM ")\n",
+			 cstriAsUnquotedCLiteral(str), affcnt,
+                         (memSizeType) putc););
     funcResult = ptr_tputs(str, affcnt, putc);
-    logFunction(printf("tputs --> %d\n", funcResult););
+    log2Function(fprintf(stderr, "tputs --> %d\n", funcResult););
     return funcResult;
   } /* tputs */
 
