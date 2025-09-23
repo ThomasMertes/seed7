@@ -96,6 +96,7 @@ static sqlFuncType sqlFunc = NULL;
 /* The format of the ISO duration is: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
 /*                                    1+6 + 4 + 4 + 1+4 + 4 + 3 +7+1   */
 #define MAX_SIZE_ISO_DURATION STRLEN("P-9999Y-12M-31DT-24H-60M-60.999999S")
+#define MAX_SIZE_ISO_DATE STRLEN("9999-12-12 23:59:59.999999")
 
 
 #ifdef SQLITE_DLL
@@ -1141,7 +1142,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else if (unlikely(!ALLOC_CSTRI(isoDate, 26))) {
+      } else if (unlikely(!ALLOC_CSTRI(isoDate, MAX_SIZE_ISO_DATE))) {
         raise_error(MEMORY_ERROR);
       } else {
         if (hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
