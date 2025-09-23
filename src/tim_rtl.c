@@ -773,3 +773,156 @@ boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
                        *microSecond, *isTime, okay););
     return okay;
   } /* assignTime */
+
+
+
+boolType assignIsoDuration (const const_ustriType isoDuration,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *minute, intType *second, intType *micro_second)
+  {
+    const_ustriType stri;
+    const_ustriType numStri;
+    boolType datePart = TRUE;
+    boolType aUnitIsPresent = FALSE;
+    boolType negativeSeconds = FALSE;
+    boolType roundUp = FALSE;
+    memSizeType microsecStriLen;
+    char microsecStri[6 + NULL_TERMINATION_LEN];
+    boolType okay = TRUE;
+
+  /* assignIsoDuration */
+    logFunction(printf("assignIsoDuration(\"%s\")\n", isoDuration););
+    *year         = 0;
+    *month        = 0;
+    *day          = 0;
+    *hour         = 0;
+    *minute       = 0;
+    *second       = 0;
+    *micro_second = 0;
+    stri = isoDuration;
+    if (*stri != 'P') {
+      okay = FALSE;
+    } else {
+      stri++;
+      while (*stri != '\0' && okay) {
+        numStri = stri;
+        if (*stri == '-') {
+          stri++;
+        } /* if */
+        stri += strspn((const char *) stri, "0123456789");
+        if (*stri != '\0') {
+          /* printf("switch %c\n", *stri); */
+          switch (*stri) {
+            case 'Y':
+              if (datePart) {
+                okay &= sscanf((const char *) numStri, FMT_D "Y", year) == 1;
+                aUnitIsPresent = okay;
+                stri++;
+              } else {
+                okay = FALSE;
+              } /* if */
+              break;
+            case 'M':
+              if (datePart) {
+                okay &= sscanf((const char *) numStri, FMT_D "M", month) == 1;
+              } else {
+                okay &= sscanf((const char *) numStri, FMT_D "M", minute) == 1;
+              } /* if */
+              aUnitIsPresent = okay;
+              stri++;
+              break;
+            case 'D':
+              if (datePart) {
+                okay &= sscanf((const char *) numStri, FMT_D "D", day) == 1;
+                aUnitIsPresent = okay;
+                stri++;
+              } else {
+                okay = FALSE;
+              } /* if */
+              break;
+            case 'T':
+              if (datePart) {
+                datePart = FALSE;
+                stri++;
+              } else {
+                okay = FALSE;
+              } /* if */
+              break;
+            case 'H':
+              if (datePart) {
+                okay = FALSE;
+              } else {
+                okay &= sscanf((const char *) numStri, FMT_D "H", hour) == 1;
+                aUnitIsPresent = okay;
+                stri++;
+              } /* if */
+              break;
+            case 'S':
+              if (datePart) {
+                okay = FALSE;
+              } else {
+                okay &= sscanf((const char *) numStri, FMT_D "S", second) == 1;
+                aUnitIsPresent = okay;
+                stri++;
+              } /* if */
+              break;
+            case '.':
+              if (datePart) {
+                okay = FALSE;
+              } else {
+                negativeSeconds = *numStri == '-';
+                okay &= sscanf((const char *) numStri, FMT_D ".", second) == 1;
+                if (okay) {
+                  stri++;
+                  numStri = stri;
+                  stri += strspn((const char *) stri, "0123456789");
+                  if (numStri == stri) {
+                    okay = FALSE;
+                  } else {
+                    microsecStriLen = stri - numStri;
+                    if (microsecStriLen > 6) {
+                      roundUp = numStri[6] >= '5';
+                      memcpy(microsecStri, numStri, 6);
+                    } else if (microsecStriLen == 6) {
+                      memcpy(microsecStri, numStri, 6);
+                    } else {
+                      memset(microsecStri, '0', 6 - (microsecStriLen));
+                      memcpy(&microsecStri[6 - (microsecStriLen)],
+                              numStri, microsecStriLen);
+                    } /* if */
+                    microsecStri[6] = '\0';
+                    okay &= sscanf((const char *) microsecStri, FMT_D "S", micro_second) == 1;
+                    if (okay) {
+                      if (roundUp) {
+                        (*micro_second)++;
+                      } /* if */
+                      if (negativeSeconds) {
+                        *micro_second = -*micro_second;
+                      } /* if */
+                      if (*stri == 'S' && stri[1] == '\0') {
+                        aUnitIsPresent = okay;
+                        stri++;
+                      } else {
+                        okay = FALSE;
+                      } /* if */
+                    } /* if */
+                  } /* if */
+                } /* if */
+              } /* if */
+              break;
+            default:
+              okay = FALSE;
+              break;
+          } /* switch */
+        } else {
+          okay = FALSE;
+        } /* if */
+      } /* while */
+    } /* if */
+    if (!aUnitIsPresent) {
+      okay = FALSE;
+    } /* if */
+    logFunction(printf("assignIsoDuration(\"%s\") --> %d\n",
+                       isoDuration, okay););
+    return okay;
+  } /* assignIsoDuration */

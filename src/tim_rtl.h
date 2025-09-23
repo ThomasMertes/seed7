@@ -59,3 +59,6 @@ void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
 boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
     intType *day, intType *hour, intType *minute, intType *second,
     intType *microSecond, boolType *isTime);
+boolType assignIsoDuration (const const_ustriType isoDuration,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *minute, intType *second, intType *micro_second);
