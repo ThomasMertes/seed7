@@ -185,9 +185,9 @@ const func duration: duration (in var string: stri) is func
   local
     var string: numStri is "";
     var boolean: datePart is TRUE;
-    var boolean: secondsPart is TRUE;
-    var integer: seconds is 0;
+    var boolean: aUnitIsPresent is FALSE;
     var boolean: negativeSeconds is FALSE;
+    var boolean: roundUp is FALSE;
   begin
     if not startsWith(stri, "P") then
       raise RANGE_ERROR;
@@ -203,58 +203,94 @@ const func duration: duration (in var string: stri) is func
         if stri <> "" then
           case stri[1] of
             when {'Y'}:
-              aDuration.year_365 := integer(numStri);
-              stri := stri[2 ..];
+              if datePart then
+                aDuration.year_365 := integer(numStri);
+                aUnitIsPresent := TRUE;
+                stri := stri[2 ..];
+              else
+                raise RANGE_ERROR;
+              end if;
             when {'M'}:
               if datePart then
                 aDuration.month_30 := integer(numStri);
               else
                 aDuration.minute := integer(numStri);
               end if;
+              aUnitIsPresent := TRUE;
               stri := stri[2 ..];
             when {'D'}:
-              aDuration.day := integer(numStri);
-              stri := stri[2 ..];
-            when {'T'}:
-              noop;
-            when {'H'}:
-              aDuration.hour := integer(numStri);
-              stri := stri[2 ..];
-            when {'S'}:
-              if secondsPart then
-                aDuration.second := integer(numStri);
+              if datePart then
+                aDuration.day := integer(numStri);
+                aUnitIsPresent := TRUE;
+                stri := stri[2 ..];
               else
-                aDuration.second := seconds;
-                numStri := numStri[.. 6];
-                numStri &:= "0" mult (6 - length(numStri));
-                aDuration.micro_second := integer(numStri);
-                if negativeSeconds then
-                  aDuration.micro_second := -aDuration.micro_second;
+                raise RANGE_ERROR;
+              end if;
+            when {'T'}:
+              if datePart then
+                datePart := FALSE;
+                stri := stri[2 ..];
+              else
+                raise RANGE_ERROR;
+              end if;
+            when {'H'}:
+              if datePart then
+                raise RANGE_ERROR;
+              else
+                aDuration.hour := integer(numStri);
+                aUnitIsPresent := TRUE;
+                stri := stri[2 ..];
+              end if;
+            when {'S'}:
+              if datePart then
+                raise RANGE_ERROR;
+              else
+                aDuration.second := integer(numStri);
+                aUnitIsPresent := TRUE;
+                stri := stri[2 ..];
+              end if;
+            when {'.'}:
+              if datePart then
+                raise RANGE_ERROR;
+              else
+                negativeSeconds := startsWith(numStri, "-");
+                aDuration.second := integer(numStri);
+                stri := stri[2 ..];
+                numStri := getint(stri);
+                if numStri = "" then
+                  raise RANGE_ERROR;
+                else
+                  if length(numStri) > 6 then
+                    roundUp := numStri[7] >= '5';
+                    numStri := numStri[.. 6];
+                  elsif length(numStri) < 6 then
+                    numStri &:= "0" mult (6 - length(numStri));
+                  end if;
+                  aDuration.micro_second := integer(numStri);
+                  if roundUp then
+                    incr(aDuration.micro_second);
+                  end if;
+                  if negativeSeconds then
+                    aDuration.micro_second := -aDuration.micro_second;
+                  end if;
+                  if stri = "S" then
+                    aUnitIsPresent := TRUE;
+                    stri := "";
+                  else
+                    raise RANGE_ERROR;
+                  end if;
                 end if;
               end if;
-              stri := stri[2 ..];
-            when {'.'}:
-              secondsPart := FALSE;
-              negativeSeconds := startsWith(numStri, "-");
-              seconds := integer(numStri);
-              stri := stri[2 ..];
             otherwise:
               raise RANGE_ERROR;
           end case;
-          if startsWith(stri, "T") then
-            if datePart then
-              datePart := FALSE;
-              stri := stri[2 ..];
-            else
-              raise RANGE_ERROR;
-            end if;
-          end if;
         else
           raise RANGE_ERROR;
         end if;
       end while;
     end if;
-    if aDuration.month_30 < -11 or aDuration.month_30 > 11 or
+    if not aUnitIsPresent or
+        aDuration.month_30 < -11 or aDuration.month_30 > 11 or
         aDuration.day < -31 or aDuration.day > 31 or
         aDuration.hour < -23 or aDuration.hour > 23 or
         aDuration.minute < -59 or aDuration.minute > 59 or
