@@ -72,10 +72,10 @@ static tp_tcsetattr     ptr_tcsetattr;
 static tp_tgoto         ptr_tgoto;
 static tp_tputs         ptr_tputs;
 
-static tp_tgetent       tgetent;
-static tp_tgetflag      tgetflag;
-static tp_tgetnum       tgetnum;
-static tp_tgetstr       tgetstr;
+static tp_tgetent       ptr_tgetent;
+static tp_tgetflag      ptr_tgetflag;
+static tp_tgetnum       ptr_tgetnum;
+static tp_tgetstr       ptr_tgetstr;
 
 
 
@@ -96,10 +96,11 @@ static boolType setupDll (const char *dllName)
 #endif
             (ptr_tgoto        = (tp_tgoto)        dllFunc(x11Dll, "tgoto"))        == NULL ||
             (ptr_tputs        = (tp_tputs)        dllFunc(x11Dll, "tputs"))        == NULL ||
-            (tgetent          = (tp_tgetent)      dllFunc(x11Dll, "tgetent"))      == NULL ||
-            (tgetflag         = (tp_tgetflag)     dllFunc(x11Dll, "tgetflag"))     == NULL ||
-            (tgetnum          = (tp_tgetnum)      dllFunc(x11Dll, "tgetnum"))      == NULL ||
-            (tgetstr          = (tp_tgetstr)      dllFunc(x11Dll, "tgetstr"))      == NULL) {
+
+            (ptr_tgetent      = (tp_tgetent)      dllFunc(x11Dll, "tgetent"))      == NULL ||
+            (ptr_tgetflag     = (tp_tgetflag)     dllFunc(x11Dll, "tgetflag"))     == NULL ||
+            (ptr_tgetnum      = (tp_tgetnum)      dllFunc(x11Dll, "tgetnum"))      == NULL ||
+            (ptr_tgetstr      = (tp_tgetstr)      dllFunc(x11Dll, "tgetstr"))      == NULL) {
           logError(printf("setupDll(\"%s\"): "
                           "Opened library successful but some functions are missing.\n",
                           dllName););
@@ -355,11 +356,75 @@ int tputs (const char *str, int affcnt, int (*putc)(int))
 
   /* tputs */
     log2Function(fprintf(stderr, "tputs(\"%s\", %d, " FMT_U_MEM ")\n",
-			 cstriAsUnquotedCLiteral(str), affcnt,
+                         cstriAsUnquotedCLiteral(str), affcnt,
                          (memSizeType) putc););
     funcResult = ptr_tputs(str, affcnt, putc);
     log2Function(fprintf(stderr, "tputs --> %d\n", funcResult););
     return funcResult;
   } /* tputs */
+
+
+
+int tgetent (char *bp, const char *name)
+
+  {
+    int funcResult;
+
+  /* tgetent */
+    log2Function(fprintf(stderr, "tgetent(" FMT_U_MEM ", \"%s\")\n",
+                         (memSizeType) bp, name););
+    funcResult = ptr_tgetent(bp, name);
+    log2Function(fprintf(stderr, "tgetent --> %d\n", funcResult););
+    return funcResult;
+  } /* tgetent */
+
+
+
+int tgetflag (const char *id)
+
+  {
+    int funcResult;
+
+  /* tgetflag */
+    log2Function(fprintf(stderr, "tgetflag(\"%s\")\n", id););
+    funcResult = ptr_tgetflag(id);
+    log2Function(fprintf(stderr, "tgetflag --> %d\n", funcResult););
+    return funcResult;
+  } /* tgetflag */
+
+
+
+int tgetnum (const char *id)
+
+  {
+    int funcResult;
+
+  /* tgetnum */
+    log2Function(fprintf(stderr, "tgetnum(\"%s\")\n", id););
+    funcResult = ptr_tgetnum(id);
+    log2Function(fprintf(stderr, "tgetnum --> %d\n", funcResult););
+    return funcResult;
+  } /* tgetnum */
+
+
+
+char *tgetstr (const char *id, char **area)
+
+  {
+    char *funcResult;
+
+  /* tgetstr */
+    log2Function(fprintf(stderr, "tgetstr(\"%s\", " FMT_U_MEM ")\n",
+                         id, (memSizeType) area););
+    funcResult = ptr_tgetstr(id, area);
+    log2Function(fprintf(stderr, "tgetstr --> ");
+                 if (funcResult == NULL) {
+                   fprintf(stderr, "NULL\n");
+                 } else {
+                   fprintf(stderr, "\"%s\"\n",
+                          cstriAsUnquotedCLiteral(funcResult));
+                 });
+    return funcResult;
+  } /* tgetstr */
 
 #endif

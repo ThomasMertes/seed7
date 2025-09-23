@@ -33,9 +33,14 @@
 #define EXTERN extern
 #endif
 
+extern int setupterm(const char *term, int filedes, int *errret);
 extern char *tgoto (const char *cap, int col, int row);
 extern int tputs (const char *str, int affcnt, int (*putc)(int));
-extern int setupterm(const char *term, int filedes, int *errret);
+
+extern int tgetent (char *bp, const char *name);
+extern int tgetflag (const char *id);
+extern int tgetnum (const char *id);
+extern char *tgetstr (const char *id, char **area);
 
 EXTERN int columns;
 EXTERN int lines;
