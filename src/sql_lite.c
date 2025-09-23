@@ -1525,14 +1525,6 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
   {
     preparedStmtType preparedStmt;
     const_ustriType isoDuration;
-    const_ustriType numStri;
-    const_ustriType stri;
-    boolType datePart = TRUE;
-    boolType secondsPart = TRUE;
-    boolType negativeSeconds = FALSE;
-    intType seconds;
-    memSizeType microsecStriLen;
-    char microsecStri[6 + NULL_TERMINATION_LEN];
     boolType okay = TRUE;
 
   /* sqlColumnDuration */
@@ -1546,95 +1538,23 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
     } else {
-      *year         = 0;
-      *month        = 0;
-      *day          = 0;
-      *hour         = 0;
-      *minute       = 0;
-      *second       = 0;
-      *micro_second = 0;
       logMessage(printf("buffer_type: %s\n",
                         nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt,
                                                              (int) column - 1))););
       isoDuration = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
       /* printf("isoDuration: %lx\n", (unsigned long int) isoDuration); */
-      if (isoDuration != NULL) {
-        stri = isoDuration;
-        if (*stri != 'P') {
-          okay = FALSE;
-        } else {
-          stri++;
-          while (*stri != '\0') {
-            numStri = stri;
-            if (*stri == '-') {
-              stri++;
-            } /* if */
-            stri += strspn((const char *) stri, "0123456789");
-            if (*stri != '\0') {
-              switch (*stri) {
-                case 'Y':
-                  okay &= sscanf((const char *) numStri, FMT_D "Y", year) == 1;
-                  stri++;
-                  break;
-                case 'M':
-                  if (datePart) {
-                    okay &= sscanf((const char *) numStri, FMT_D "M", month) == 1;
-                  } else {
-                    okay &= sscanf((const char *) numStri, FMT_D "M", minute) == 1;
-                  } /* if */
-                  stri++;
-                  break;
-                case 'D':
-                  okay &= sscanf((const char *) numStri, FMT_D "D", day) == 1;
-                  stri++;
-                  break;
-                case 'T':
-                  break;
-                case 'H':
-                  okay &= sscanf((const char *) numStri, FMT_D "H", hour) == 1;
-                  stri++;
-                  break;
-                case 'S':
-                  if (secondsPart) {
-                    okay &= sscanf((const char *) numStri, FMT_D "S", second) == 1;
-                  } else {
-                    *second = seconds;
-                    sprintf(microsecStri, "%.6s", numStri);
-                    microsecStriLen = (memSizeType) (stri - numStri);
-                    if (microsecStriLen < 6) {
-                      memset(&microsecStri[microsecStriLen], '0', 6 - microsecStriLen);
-                      microsecStri[6] = '\0';
-                    } /* if */
-                    okay &= sscanf((const char *) microsecStri, FMT_D "S", micro_second) == 1;
-                    if (negativeSeconds) {
-                      *micro_second = -*micro_second;
-                    } /* if */
-                  } /* if */
-                  stri++;
-                  break;
-                case '.':
-                  secondsPart = FALSE;
-                  negativeSeconds = *numStri == '-';
-                  okay &= sscanf((const char *) numStri, FMT_D ".", &seconds) == 1;
-                  stri++;
-                  break;
-                default:
-                  okay = FALSE;
-                  break;
-              } /* switch */
-              if (*stri == 'T') {
-                if (datePart) {
-                  datePart = FALSE;
-                  stri++;
-                } else {
-                  okay = FALSE;
-                } /* if */
-              } /* if */
-            } else {
-              okay = FALSE;
-            } /* if */
-          } /* while */
-        } /* if */
+      if (isoDuration == NULL) {
+        logMessage(printf("Column is NULL -> Use default value: PT0S\n"););
+        *year         = 0;
+        *month        = 0;
+        *day          = 0;
+        *hour         = 0;
+        *minute       = 0;
+        *second       = 0;
+        *micro_second = 0;
+      } else {
+        okay = assignIsoDuration(isoDuration, year, month, day,
+                                 hour, minute, second, micro_second);
         if (unlikely(!okay)) {
           logError(printf("sqlColumnDuration: Column " FMT_D ": "
                           "Failed to recognize duration: %s\n",
