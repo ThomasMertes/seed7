@@ -662,9 +662,15 @@ static const char *nameOfBufferType (Oid buffer_type)
       case LINEOID:             typeName = "LINEOID"; break;
       case FLOAT4OID:           typeName = "FLOAT4OID"; break;
       case FLOAT8OID:           typeName = "FLOAT8OID"; break;
+#ifdef ABSTIMEOID
       case ABSTIMEOID:          typeName = "ABSTIMEOID"; break;
+#endif
+#ifdef RELTIMEOID
       case RELTIMEOID:          typeName = "RELTIMEOID"; break;
+#endif
+#ifdef TINTERVALOID
       case TINTERVALOID:        typeName = "TINTERVALOID"; break;
+#endif
       case UNKNOWNOID:          typeName = "UNKNOWNOID"; break;
       case CIRCLEOID:           typeName = "CIRCLEOID"; break;
       case CASHOID:             typeName = "CASHOID"; break;
@@ -714,7 +720,9 @@ static const char *nameOfBufferType (Oid buffer_type)
       case TRIGGEROID:          typeName = "TRIGGEROID"; break;
       case LANGUAGE_HANDLEROID: typeName = "LANGUAGE_HANDLEROID"; break;
       case INTERNALOID:         typeName = "INTERNALOID"; break;
+#ifdef OPAQUEOID
       case OPAQUEOID:           typeName = "OPAQUEOID"; break;
+#endif
       case ANYELEMENTOID:       typeName = "ANYELEMENTOID"; break;
       case ANYNONARRAYOID:      typeName = "ANYNONARRAYOID"; break;
       case ANYENUMOID:          typeName = "ANYENUMOID"; break;
