@@ -138,7 +138,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
 #define ERROR_MESSAGE_BUFFER_SIZE 1000
 #define MAX_DATETIME2_LENGTH 27
-#define MAX_DURATION_LENGTH 32
+#define MAX_DURATION_LENGTH 50
 #define CHARS_IN_NAME_BUFFER 256
 #define MAX_WSTRI_TO_UTF8_EXPANSION_FACTOR 4
 
@@ -2370,11 +2370,19 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
     if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
       if (year != 0) {
         if (month != 0) {
-          c_type = SQL_C_INTERVAL_YEAR_TO_MONTH;
-          interval->interval_type = SQL_IS_YEAR_TO_MONTH;
-          interval->interval_sign = year < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.year_month.year  = (SQLUINTEGER) abs((int) year);
-          interval->intval.year_month.month = (SQLUINTEGER) abs((int) month);
+          if (year > 0 && month > 0) {
+            c_type = SQL_C_INTERVAL_YEAR_TO_MONTH;
+            interval->interval_type = SQL_IS_YEAR_TO_MONTH;
+            interval->interval_sign = SQL_FALSE;
+            interval->intval.year_month.year  = (SQLUINTEGER) year;
+            interval->intval.year_month.month = (SQLUINTEGER) month;
+          } else if (year < 0 && month < 0) {
+            c_type = SQL_C_INTERVAL_YEAR_TO_MONTH;
+            interval->interval_type = SQL_IS_YEAR_TO_MONTH;
+            interval->interval_sign = SQL_TRUE;
+            interval->intval.year_month.year  = (SQLUINTEGER) -year;
+            interval->intval.year_month.month = (SQLUINTEGER) -month;
+          } /* if */
         } else {
           c_type = SQL_C_INTERVAL_YEAR;
           interval->interval_type = SQL_IS_YEAR;
@@ -2394,27 +2402,48 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
       } /* if */
     } else if (year == 0 && month == 0) {
       if (day != 0) {
-        if (second != 0) {
-          c_type = SQL_C_INTERVAL_DAY_TO_SECOND;
-          interval->interval_type = SQL_IS_DAY_TO_SECOND;
-          interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
-          interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-          interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-          interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+        if (micro_second != 0) {
+          if ((day >= 0 && hour >= 0 && minute >= 0 && second >= 0 && micro_second >= 0) ||
+              (day <= 0 && hour <= 0 && minute <= 0 && second <= 0 && micro_second <= 0)) {
+            c_type = SQL_C_INTERVAL_DAY_TO_SECOND;
+            interval->interval_type = SQL_IS_DAY_TO_SECOND;
+            interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.day      = (SQLUINTEGER) abs((int) day);
+            interval->intval.day_second.hour     = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute   = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second   = (SQLUINTEGER) abs((int) second);
+            interval->intval.day_second.fraction = (SQLUINTEGER) abs((int) micro_second);
+          } /* if */
+        } else if (second != 0) {
+          if ((day >= 0 && hour >= 0 && minute >= 0 && second >= 0) ||
+              (day <= 0 && hour <= 0 && minute <= 0 && second <= 0)) {
+            c_type = SQL_C_INTERVAL_DAY_TO_SECOND;
+            interval->interval_type = SQL_IS_DAY_TO_SECOND;
+            interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
+            interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+          } /* if */
         } else if (minute != 0) {
-          c_type = SQL_C_INTERVAL_DAY_TO_MINUTE;
-          interval->interval_type = SQL_IS_DAY_TO_MINUTE;
-          interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
-          interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-          interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+          if ((day >= 0 && hour >= 0 && minute >= 0) ||
+              (day <= 0 && hour <= 0 && minute <= 0)) {
+            c_type = SQL_C_INTERVAL_DAY_TO_MINUTE;
+            interval->interval_type = SQL_IS_DAY_TO_MINUTE;
+            interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
+            interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+          } /* if */
         } else if (hour != 0) {
-          c_type = SQL_C_INTERVAL_DAY_TO_HOUR;
-          interval->interval_type = SQL_IS_DAY_TO_HOUR;
-          interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.day  = (SQLUINTEGER) abs((int) day);
-          interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
+          if ((day >= 0 && hour >= 0) ||
+              (day <= 0 && hour <= 0)) {
+            c_type = SQL_C_INTERVAL_DAY_TO_HOUR;
+            interval->interval_type = SQL_IS_DAY_TO_HOUR;
+            interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.day  = (SQLUINTEGER) abs((int) day);
+            interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
+          } /* if */
         } else {
           c_type = SQL_C_INTERVAL_DAY;
           interval->interval_type = SQL_IS_DAY;
@@ -2422,19 +2451,36 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
           interval->intval.day_second.day = (SQLUINTEGER) abs((int) day);
         } /* if */
       } else if (hour != 0) {
-        if (second != 0) {
-          c_type = SQL_C_INTERVAL_HOUR_TO_SECOND;
-          interval->interval_type = SQL_IS_HOUR_TO_SECOND;
-          interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-          interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-          interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+        if (micro_second != 0) {
+          if ((hour >= 0 && minute >= 0 && second >= 0 && micro_second >= 0) ||
+              (hour <= 0 && minute <= 0 && second <= 0 && micro_second <= 0)) {
+            c_type = SQL_C_INTERVAL_HOUR_TO_SECOND;
+            interval->interval_type = SQL_IS_HOUR_TO_SECOND;
+            interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.hour     = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute   = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second   = (SQLUINTEGER) abs((int) second);
+            interval->intval.day_second.fraction = (SQLUINTEGER) abs((int) micro_second);
+          } /* if */
+        } else if (second != 0) {
+          if ((hour >= 0 && minute >= 0 && second >= 0) ||
+              (hour <= 0 && minute <= 0 && second <= 0)) {
+            c_type = SQL_C_INTERVAL_HOUR_TO_SECOND;
+            interval->interval_type = SQL_IS_HOUR_TO_SECOND;
+            interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+          } /* if */
         } else if (minute != 0) {
-          c_type = SQL_C_INTERVAL_HOUR_TO_MINUTE;
-          interval->interval_type = SQL_IS_HOUR_TO_MINUTE;
-          interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-          interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+          if ((hour >= 0 && minute >= 0) ||
+              (hour <= 0 && minute <= 0)) {
+            c_type = SQL_C_INTERVAL_HOUR_TO_MINUTE;
+            interval->interval_type = SQL_IS_HOUR_TO_MINUTE;
+            interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+            interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+          } /* if */
         } else {
           c_type = SQL_C_INTERVAL_HOUR;
           interval->interval_type = SQL_IS_HOUR;
@@ -2442,12 +2488,25 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
           interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
         } /* if */
       } else if (minute != 0) {
-        if (second != 0) {
-          c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
-          interval->interval_type = SQL_IS_MINUTE_TO_SECOND;
-          interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
-          interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-          interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+        if (micro_second != 0) {
+          if ((minute >= 0 && second >= 0 && micro_second >= 0) ||
+              (minute <= 0 && second <= 0 && micro_second <= 0)) {
+            c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
+            interval->interval_type = SQL_IS_MINUTE_TO_SECOND;
+            interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.minute   = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second   = (SQLUINTEGER) abs((int) second);
+            interval->intval.day_second.fraction = (SQLUINTEGER) abs((int) micro_second);
+          } /* if */
+        } else if (second != 0) {
+          if ((minute >= 0 && second >= 0) ||
+              (minute <= 0 && second <= 0)) {
+            c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
+            interval->interval_type = SQL_IS_MINUTE_TO_SECOND;
+            interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+          } /* if */
         } else {
           c_type = SQL_C_INTERVAL_MINUTE;
           interval->interval_type = SQL_IS_MINUTE;
@@ -2455,15 +2514,176 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
           interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
         } /* if */
       } else {
-        c_type = SQL_C_INTERVAL_SECOND;
-        interval->interval_type = SQL_IS_SECOND;
-        interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
-        interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+        if (micro_second != 0) {
+          if ((second >= 0 && micro_second >= 0) ||
+              (second <= 0 && micro_second <= 0)) {
+            c_type = SQL_C_INTERVAL_SECOND;
+            interval->interval_type = SQL_IS_SECOND;
+            interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.second   = (SQLUINTEGER) abs((int) second);
+            interval->intval.day_second.fraction = (SQLUINTEGER) abs((int) micro_second);
+          } /* if */
+        } else {
+          c_type = SQL_C_INTERVAL_SECOND;
+          interval->interval_type = SQL_IS_SECOND;
+          interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
+          interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+        } /* if */
       } /* if */
-      interval->intval.day_second.fraction = (SQLUINTEGER) micro_second;
     } /* if */
     return c_type;
   } /* assignToIntervalStruct */
+
+
+
+static boolType assignInterval (const const_cstriType interval,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *minute, intType *second, intType *micro_second)
+  {
+    const char *apostrophePos;
+    const char *numPos;
+    const char *namePos;
+    memSizeType numLength;
+    memSizeType nameLength;
+    char microsecStri[6 + NULL_TERMINATION_LEN];
+    boolType aUnitIsPresent = FALSE;
+    boolType roundUp = FALSE;
+    boolType doNext = FALSE;
+    boolType okay = TRUE;
+
+  /* assignInterval */
+    logFunction(printf("assignInterval(\"%s\")\n", interval););
+    *year         = 0;
+    *month        = 0;
+    *day          = 0;
+    *hour         = 0;
+    *minute       = 0;
+    *second       = 0;
+    *micro_second = 0;
+    if ((interval[0] == '+' || interval[0] == '-') &&
+        interval[1] == '\'' &&
+        (apostrophePos = strchr(&interval[2], '\'')) != NULL) {
+      numPos = &interval[2];
+      namePos = &apostrophePos[1];
+      while (*namePos == ' ') {
+        namePos++;
+      } /* while */
+      numLength = strspn(numPos, "0123456789");
+      nameLength = strspn(namePos, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      if (memcmp(namePos, "YEAR", nameLength) == 0) {
+        okay = sscanf(numPos, FMT_D, year) == 1;
+        if (okay) {
+          numPos += numLength;
+          if (*numPos == '-') {
+            numPos++;
+            numLength = strspn(numPos, "0123456789");
+            okay = sscanf(numPos, FMT_D, month) == 1 &&
+               numPos + numLength == apostrophePos;
+          } else {
+            okay = numPos == apostrophePos;
+          } /* if */
+        } /* if */
+      } else if (memcmp(namePos, "MONTH", nameLength) == 0) {
+        okay = sscanf(numPos, FMT_D, month) == 1 &&
+           numPos + numLength == apostrophePos;
+      } else {
+        if (memcmp(namePos, "DAY", nameLength) == 0) {
+          okay = sscanf(numPos, FMT_D, day) == 1;
+          if (okay) {
+            aUnitIsPresent = TRUE;
+            numPos += numLength;
+            if (*numPos == ' ') {
+              numPos++;
+              numLength = strspn(numPos, "0123456789");
+              doNext = TRUE;
+            } else {
+              okay = numPos == apostrophePos;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (okay && (doNext || memcmp(namePos, "HOUR", nameLength) == 0)) {
+          doNext = FALSE;
+          okay = sscanf(numPos, FMT_D, hour) == 1;
+          if (okay) {
+            aUnitIsPresent = TRUE;
+            numPos += numLength;
+            if (*numPos == ':') {
+              numPos++;
+              numLength = strspn(numPos, "0123456789");
+              doNext = TRUE;
+            } else {
+              okay = numPos == apostrophePos;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (okay && (doNext || memcmp(namePos, "MINUTE", nameLength) == 0)) {
+          doNext = FALSE;
+          okay = sscanf(numPos, FMT_D, minute) == 1;
+          if (okay) {
+            aUnitIsPresent = TRUE;
+            numPos += numLength;
+            if (*numPos == ':') {
+              numPos++;
+              numLength = strspn(numPos, "0123456789");
+              doNext = TRUE;
+            } else {
+              okay = numPos == apostrophePos;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (okay && (doNext || memcmp(namePos, "SECOND", nameLength) == 0)) {
+          doNext = FALSE;
+          okay = sscanf(numPos, FMT_D, second) == 1;
+          if (okay) {
+            aUnitIsPresent = TRUE;
+            numPos += numLength;
+            if (*numPos == '.') {
+              numPos++;
+              numLength = strspn(numPos, "0123456789");
+              if (numLength > 6) {
+                roundUp = numPos[6] >= '5';
+                memcpy(microsecStri, numPos, 6);
+              } else if (numLength == 6) {
+                memcpy(microsecStri, numPos, 6);
+              } else {
+                memset(microsecStri, '0', 6 - (numLength));
+                memcpy(&microsecStri[6 - (numLength)],
+                        numPos, numLength);
+              } /* if */
+              microsecStri[6] = '\0';
+              okay = sscanf(microsecStri, FMT_D, micro_second) == 1;
+              if (okay) {
+                numPos += numLength;
+                okay = numPos == apostrophePos;
+                if (okay) {
+                  if (roundUp) {
+                    (*micro_second)++;
+                  } /* if */
+                } /* if */
+              } /* if */
+            } else {
+              okay = numPos == apostrophePos;
+            } /* if */
+          } /* if */
+        } /* if */
+        okay &= aUnitIsPresent;
+      } /* if */
+      if (okay && interval[0] == '-') {
+        *year         = -*year;
+        *month        = -*month;
+        *day          = -*day;
+        *hour         = -*hour;
+        *minute       = -*minute;
+        *second       = -*second;
+        *micro_second = -*micro_second;
+      } /* if */
+    } else {
+      okay = FALSE;
+    } /* if */
+    logFunction(printf("assignInterval(\"%s\") --> %d\n",
+                       interval, okay););
+    return okay;
+  } /* assignInterval */
 
 
 
@@ -3379,8 +3599,8 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
             } /* if */
             if (likely(err_info == OKAY_NO_ERROR)) {
               param->buffer_length = sizeof(SQL_INTERVAL_STRUCT);
-              c_type = assignToIntervalStruct((SQL_INTERVAL_STRUCT *)
-                  param->buffer,
+              c_type = assignToIntervalStruct(
+                  (SQL_INTERVAL_STRUCT *) param->buffer,
                   year, month, day, hour, minute, second, micro_second);
               if (unlikely(c_type == 0)) {
                 logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
@@ -4491,6 +4711,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       } else {
         /* printf("length: " FMT_D_LEN "\n", columnData->length); */
         /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        /* printf("c_type: %s\n", nameOfCType(columnDescr->c_type)); */
         switch (columnDescr->dataType) {
           case SQL_INTERVAL_YEAR:
           case SQL_INTERVAL_MONTH:
@@ -4576,55 +4797,86 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               *micro_second = -*micro_second;
             } /* if */
             break;
+          case SQL_VARCHAR:
           case SQL_WVARCHAR:
             /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-            length = (memSizeType) columnData->length / sizeof(SQLWCHAR);
-            if (unlikely(length > MAX_DURATION_LENGTH)) {
-              logError(printf("sqlColumnDuration: In column " FMT_D
-                              " the duration length of " FMT_U_MEM " is too long.\n",
-                              column, length););
-              err_info = RANGE_ERROR;
-            } else {
-              err_info = conv_sqlwstri_to_cstri(duration,
-                  (SQLWCHAR *) columnData->buffer, length);
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
-                logError(printf("sqlColumnDuration: In column " FMT_D
-                                " the duration contains characters beyond Latin-1.\n",
-                                column););
-              } else {
-                /* printf("sqlColumnDuration: Duration = \"%s\"\n", duration); */
-                if ((length == 8 && duration[2] == ':' && duration[5] == ':')) {
-                  if (unlikely(sscanf(duration,
-                                      F_U(02) ":" F_U(02) ":" F_U(02),
-                                      hour, minute, second) != 3)) {
-                    err_info = RANGE_ERROR;
-                  } else {
-                    *year         = 0;
-                    *month        = 0;
-                    *day          = 0;
-                    *micro_second = 0;
-                  } /* if */
-                } else if (length == 9 && duration[0] == '-' &&
-                           duration[3] == ':' && duration[6] == ':') {
-                  if (unlikely(sscanf(&duration[1],
-                                      F_U(02) ":" F_U(02) ":" F_U(02),
-                                      hour, minute, second) != 3)) {
-                    err_info = RANGE_ERROR;
-                  } else {
-                    *year         = 0;
-                    *month        = 0;
-                    *day          = 0;
-                    *hour         = -*hour;
-                    *minute       = -*minute;
-                    *second       = -*second;
-                    *micro_second = 0;
-                  } /* if */
-                } else {
+            switch (columnDescr->c_type) {
+              case SQL_C_CHAR:
+                length = (memSizeType) columnData->length;
+                if (unlikely(length > MAX_DURATION_LENGTH)) {
                   logError(printf("sqlColumnDuration: In column " FMT_D
-                                  " the duration \"%s\" is unrecognized.\n",
-                                  column, duration););
+                                  " the duration length of " FMT_U_MEM " is too long.\n",
+                                  column, length););
+                  err_info = RANGE_ERROR;
+                } else {
+                  memcpy(duration, columnData->buffer, length);
+                  duration[length] = '\0';
+                } /* if */
+                break;
+              case SQL_C_WCHAR:
+                length = (memSizeType) columnData->length / sizeof(SQLWCHAR);
+                if (unlikely(length > MAX_DURATION_LENGTH)) {
+                  logError(printf("sqlColumnDuration: In column " FMT_D
+                                  " the duration length of " FMT_U_MEM " is too long.\n",
+                                  column, length););
+                  err_info = RANGE_ERROR;
+                } else {
+                  err_info = conv_sqlwstri_to_cstri(duration,
+                      (SQLWCHAR *) columnData->buffer, length);
+                  if (unlikely(err_info != OKAY_NO_ERROR)) {
+                    logError(printf("sqlColumnDuration: In column " FMT_D
+                                    " the duration contains characters beyond Latin-1.\n",
+                                    column););
+                  } /* if */
+                } /* if */
+                break;
+              default:
+                logError(printf("sqlColumnDuration: Column " FMT_D " has the unknown C type %s.\n",
+                                column, nameOfCType(columnDescr->c_type)););
+                err_info =  RANGE_ERROR;
+                break;
+            } /* switch */
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              /* printf("sqlColumnDuration: Duration = \"%s\"\n", duration); */
+              if (length >= 9 && memcmp(duration, "INTERVAL ", 9) == 0) {
+                if (unlikely(!assignInterval(&duration[9], year, month, day,
+                                             hour, minute, second, micro_second))) {
+                  logError(printf("sqlColumnDuration: Column " FMT_D ": "
+                                  "Failed to recognize interval: %s\n",
+                                  column, &duration[9]););
                   err_info = RANGE_ERROR;
                 } /* if */
+              } else if (length == 8 && duration[2] == ':' && duration[5] == ':') {
+                if (unlikely(sscanf(duration,
+                                    F_U(02) ":" F_U(02) ":" F_U(02),
+                                    hour, minute, second) != 3)) {
+                  err_info = RANGE_ERROR;
+                } else {
+                  *year         = 0;
+                  *month        = 0;
+                  *day          = 0;
+                  *micro_second = 0;
+                } /* if */
+              } else if (length == 9 && duration[0] == '-' &&
+                         duration[3] == ':' && duration[6] == ':') {
+                if (unlikely(sscanf(&duration[1],
+                                    F_U(02) ":" F_U(02) ":" F_U(02),
+                                    hour, minute, second) != 3)) {
+                  err_info = RANGE_ERROR;
+                } else {
+                  *year         = 0;
+                  *month        = 0;
+                  *day          = 0;
+                  *hour         = -*hour;
+                  *minute       = -*minute;
+                  *second       = -*second;
+                  *micro_second = 0;
+                } /* if */
+              } else {
+                logError(printf("sqlColumnDuration: In column " FMT_D
+                                " the duration \"%s\" is unrecognized.\n",
+                                column, duration););
+                err_info = RANGE_ERROR;
               } /* if */
             } /* if */
             break;
