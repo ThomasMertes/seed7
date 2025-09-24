@@ -69,6 +69,7 @@
 
 #define ALLOW_REPARENT_NOTIFY
 
+#define LOOKUP_MAX 20
 
 extern Display *mydisplay;
 extern Atom wm_delete_window;
@@ -1261,7 +1262,7 @@ charType gkbGetc (void)
   {
     KeySym currentKey;
     int lookup_count;
-    unsigned char buffer[21];
+    unsigned char buffer[LOOKUP_MAX + NULL_TERMINATION_LEN];
     boolType getNextChar;
     charType result;
 
@@ -1410,7 +1411,7 @@ charType gkbGetc (void)
 
         case KeyPress:
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
-                                       20, &currentKey, 0);
+                                       LOOKUP_MAX, &currentKey, 0);
           buffer[lookup_count] = '\0';
           traceEvent(printf("gkbGetc: KeyPress key.state: %x, currentKey %lx\n",
                             currentEvent.xkey.state, currentKey););
@@ -2063,7 +2064,7 @@ charType gkbGetc (void)
 
         case KeyRelease:
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
-                                       20, &currentKey, 0);
+                                       LOOKUP_MAX, &currentKey, 0);
           buffer[lookup_count] = '\0';
           traceEvent(printf("gkbGetc: KeyRelease key.state: %x, currentKey %lx\n",
                             currentEvent.xkey.state, currentKey););
@@ -2115,7 +2116,7 @@ static boolType processEvents (void)
     KeySym currentKey;
     int num_events;
     int lookup_count;
-    char buffer[21];
+    char buffer[LOOKUP_MAX + NULL_TERMINATION_LEN];
     boolType doFlushAndProcessAnotherEvent = FALSE;
 
   /* processEvents */
@@ -2235,7 +2236,7 @@ static boolType processEvents (void)
 
           case KeyPress:
             lookup_count = XLookupString(&currentEvent.xkey, buffer,
-                                         20, &currentKey, 0);
+                                         LOOKUP_MAX, &currentKey, 0);
             buffer[lookup_count] = '\0';
             traceEvent(printf("processEvents: KeyPress key.state: %x, currentKey %lx\n",
                               currentEvent.xkey.state, currentKey););
@@ -2308,7 +2309,7 @@ static boolType processEvents (void)
 
           case KeyRelease:
             lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
-                                         20, &currentKey, 0);
+                                         LOOKUP_MAX, &currentKey, 0);
             buffer[lookup_count] = '\0';
             traceEvent(printf("processEvents: KeyRelease key.state: %x, currentKey %lx\n",
                               currentEvent.xkey.state, currentKey););
