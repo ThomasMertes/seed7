@@ -6167,6 +6167,87 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
   end func;
 
 
+const proc: testCombinedDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testCombinedDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                       expect &:= duration.value);
+      insert(state, duration("P1Y-1M"),         expect &:= duration("P1Y-1M"));
+      insert(state, duration("P1DT-1H"),        expect &:= duration("P1DT-1H"));
+      insert(state, duration("P1DT-1M"),        expect &:= duration("P1DT-1M"));
+      insert(state, duration("P1DT-1S"),        expect &:= duration("P1DT-1S"));
+      insert(state, duration("P1DT-0.1S"),      expect &:= duration("P1DT-0.1S"));
+      insert(state, duration("PT1H-1M"),        expect &:= duration("PT1H-1M"));
+      insert(state, duration("PT1H-1S"),        expect &:= duration("PT1H-1S"));
+      insert(state, duration("PT1H-0.1S"),      expect &:= duration("PT1H-0.1S"));
+      insert(state, duration("PT1M-1S"),        expect &:= duration("PT1M-1S"));
+      insert(state, duration("PT1M-0.1S"),      expect &:= duration("PT1M-0.1S"));
+      insert(state, duration("P-1Y1M"),         expect &:= duration("P-1Y1M"));
+      insert(state, duration("P-1DT1H"),        expect &:= duration("P-1DT1H"));
+      insert(state, duration("P-1DT1M"),        expect &:= duration("P-1DT1M"));
+      insert(state, duration("P-1DT1S"),        expect &:= duration("P-1DT1S"));
+      insert(state, duration("P-1DT0.1S"),      expect &:= duration("P-1DT0.1S"));
+      insert(state, duration("PT-1H1M"),        expect &:= duration("PT-1H1M"));
+      insert(state, duration("PT-1H1S"),        expect &:= duration("PT-1H1S"));
+      insert(state, duration("PT-1H0.1S"),      expect &:= duration("PT-1H0.1S"));
+      insert(state, duration("PT-1M1S"),        expect &:= duration("PT-1M1S"));
+      insert(state, duration("PT-1M0.1S"),      expect &:= duration("PT-1M0.1S"));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testCombinedDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testCombinedDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching combined duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching combined duration fields does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testAdvancedDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
@@ -6184,7 +6265,6 @@ const proc: testAdvancedDurationField (in database: testDb, in dbCategory: datab
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, NULL,                       expect &:= duration.value);
-      insert(state, duration("P1Y-1M"),         expect &:= duration("P1Y-1M"));
       insert(state, duration("P1Y1D"),          expect &:= duration("P1Y1D"));
       insert(state, duration("P1Y-1D"),         expect &:= duration("P1Y-1D"));
       insert(state, duration("P1YT1H"),         expect &:= duration("P1YT1H"));
@@ -6195,7 +6275,6 @@ const proc: testAdvancedDurationField (in database: testDb, in dbCategory: datab
       insert(state, duration("P1YT-1S"),        expect &:= duration("P1YT-1S"));
       insert(state, duration("P1YT0.1S"),       expect &:= duration("P1YT0.1S"));
       insert(state, duration("P1YT-0.1S"),      expect &:= duration("P1YT-0.1S"));
-      insert(state, duration("P-1Y1M"),         expect &:= duration("P-1Y1M"));
       insert(state, duration("P-1Y1D"),         expect &:= duration("P-1Y1D"));
       insert(state, duration("P-1Y-1D"),        expect &:= duration("P-1Y-1D"));
       insert(state, duration("P-1YT1H"),        expect &:= duration("P-1YT1H"));
@@ -6669,6 +6748,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testTimeStampTzField(testDb, databaseKind);
     testSimpleDurationField(testDb, databaseKind);
     testFractionDurationField(testDb, databaseKind);
+    testCombinedDurationField(testDb, databaseKind);
     testAdvancedDurationField(testDb, databaseKind);
     # testFloatField2(testDb, databaseKind);
     # testBigRatField2(testDb, databaseKind);
