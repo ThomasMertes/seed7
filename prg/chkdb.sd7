@@ -5947,7 +5947,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
   end func;
 
 
-const proc: testDurationField (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testSimpleDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
     var array duration: expect is 0 times duration.value;
@@ -5955,7 +5955,7 @@ const proc: testDurationField (in database: testDb, in dbCategory: databaseKind)
     var integer: row is 1;
   begin
     if state.details then
-      writeln("testDurationField: " <& databaseKind);
+      writeln("testSimpleDurationField: " <& databaseKind);
     end if;
     block
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
@@ -5963,46 +5963,40 @@ const proc: testDurationField (in database: testDb, in dbCategory: databaseKind)
       execute(state.statement);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state, NULL,                       expect &:= duration.value);
-      insert(state, duration("P0D"),            expect &:= duration("P0D"));
-      insert(state, duration("P1Y"),            expect &:= duration("P1Y"));
-      insert(state, duration("P1M"),            expect &:= duration("P1M"));
-      insert(state, duration("P1D"),            expect &:= duration("P1D"));
-      insert(state, duration("PT1H"),           expect &:= duration("PT1H"));
-      insert(state, duration("PT1M"),           expect &:= duration("PT1M"));
-      insert(state, duration("PT1S"),           expect &:= duration("PT1S"));
-      insert(state, duration("PT0.1S"),         expect &:= duration("PT0.1S"));
-      insert(state, duration("P-1Y"),           expect &:= duration("P-1Y"));
-      insert(state, duration("P-1M"),           expect &:= duration("P-1M"));
-      insert(state, duration("P-1D"),           expect &:= duration("P-1D"));
-      insert(state, duration("PT-1H"),          expect &:= duration("PT-1H"));
-      insert(state, duration("PT-1M"),          expect &:= duration("PT-1M"));
-      insert(state, duration("PT-1S"),          expect &:= duration("PT-1S"));
-      insert(state, duration("PT-0.1S"),        expect &:= duration("PT-0.1S"));
-      insert(state, duration("P1Y1M"),          expect &:= duration("P1Y1M"));
-      insert(state, duration("P1Y-1M"),         expect &:= duration("P1Y-1M"));
-      insert(state, duration("P1Y1D"),          expect &:= duration("P1Y1D"));
-      insert(state, duration("P1Y-1D"),         expect &:= duration("P1Y-1D"));
-      insert(state, duration("P1YT1H"),         expect &:= duration("P1YT1H"));
-      insert(state, duration("P1YT-1H"),        expect &:= duration("P1YT-1H"));
-      insert(state, duration("P1YT1M"),         expect &:= duration("P1YT1M"));
-      insert(state, duration("P1YT-1M"),        expect &:= duration("P1YT-1M"));
-      insert(state, duration("P1YT1S"),         expect &:= duration("P1YT1S"));
-      insert(state, duration("P1YT-1S"),        expect &:= duration("P1YT-1S"));
-      insert(state, duration("P1YT0.1S"),       expect &:= duration("P1YT0.1S"));
-      insert(state, duration("P1YT-0.1S"),      expect &:= duration("P1YT-0.1S"));
-      insert(state, duration("P-1Y1M"),         expect &:= duration("P-1Y1M"));
-      insert(state, duration("P-1Y-1M"),        expect &:= duration("P-1Y-1M"));
-      insert(state, duration("P-1Y1D"),         expect &:= duration("P-1Y1D"));
-      insert(state, duration("P-1Y-1D"),        expect &:= duration("P-1Y-1D"));
-      insert(state, duration("P-1YT1H"),        expect &:= duration("P-1YT1H"));
-      insert(state, duration("P-1YT-1H"),       expect &:= duration("P-1YT-1H"));
-      insert(state, duration("P-1YT1M"),        expect &:= duration("P-1YT1M"));
-      insert(state, duration("P-1YT-1M"),       expect &:= duration("P-1YT-1M"));
-      insert(state, duration("P-1YT1S"),        expect &:= duration("P-1YT1S"));
-      insert(state, duration("P-1YT-1S"),       expect &:= duration("P-1YT-1S"));
-      insert(state, duration("P-1YT0.1S"),      expect &:= duration("P-1YT0.1S"));
-      insert(state, duration("P-1YT-0.1S"),     expect &:= duration("P-1YT-0.1S"));
+      insert(state, NULL,                        expect &:= duration.value);
+      insert(state, duration("P0Y"),             expect &:= duration("P0Y"));
+      insert(state, duration("P0M"),             expect &:= duration("P0M"));
+      insert(state, duration("P0D"),             expect &:= duration("P0D"));
+      insert(state, duration("PT0H"),            expect &:= duration("PT0H"));
+      insert(state, duration("PT0M"),            expect &:= duration("PT0M"));
+      insert(state, duration("PT0S"),            expect &:= duration("PT0S"));
+      insert(state, duration("P1Y"),             expect &:= duration("P1Y"));
+      insert(state, duration("P1M"),             expect &:= duration("P1M"));
+      insert(state, duration("P1D"),             expect &:= duration("P1D"));
+      insert(state, duration("PT1H"),            expect &:= duration("PT1H"));
+      insert(state, duration("PT1M"),            expect &:= duration("PT1M"));
+      insert(state, duration("PT1S"),            expect &:= duration("PT1S"));
+      insert(state, duration("P1Y2M"),           expect &:= duration("P1Y2M"));
+      insert(state, duration("P1DT2H"),          expect &:= duration("P1DT2H"));
+      insert(state, duration("P30DT23H"),        expect &:= duration("P30DT23H"));
+      insert(state, duration("P1DT2H3M"),        expect &:= duration("P1DT2H3M"));
+      insert(state, duration("P30DT23H59M"),     expect &:= duration("P30DT23H59M"));
+      insert(state, duration("P1DT2H3M4S"),      expect &:= duration("P1DT2H3M4S"));
+      insert(state, duration("P30DT23H59M59S"),  expect &:= duration("P30DT23H59M59S"));
+
+      insert(state, duration("P-1Y"),               expect &:= duration("P-1Y"));
+      insert(state, duration("P-1M"),               expect &:= duration("P-1M"));
+      insert(state, duration("P-1D"),               expect &:= duration("P-1D"));
+      insert(state, duration("PT-1H"),              expect &:= duration("PT-1H"));
+      insert(state, duration("PT-1M"),              expect &:= duration("PT-1M"));
+      insert(state, duration("PT-1S"),              expect &:= duration("PT-1S"));
+      insert(state, duration("P-1Y-2M"),            expect &:= duration("P-1Y-2M"));
+      insert(state, duration("P-1DT-2H"),           expect &:= duration("P-1DT-2H"));
+      insert(state, duration("P-30DT-23H"),         expect &:= duration("P-30DT-23H"));
+      insert(state, duration("P-1DT-2H-3M"),        expect &:= duration("P-1DT-2H-3M"));
+      insert(state, duration("P-30DT-23H-59M"),     expect &:= duration("P-30DT-23H-59M"));
+      insert(state, duration("P-1DT-2H-3M-4S"),     expect &:= duration("P-1DT-2H-3M-4S"));
+      insert(state, duration("P-30DT-23H-59M-59S"), expect &:= duration("P-30DT-23H-59M-59S"));
 
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
       execute(state.statement);
@@ -6011,7 +6005,7 @@ const proc: testDurationField (in database: testDb, in dbCategory: databaseKind)
         if durationColumn <> expect[row] then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testDurationField: Row: " <& row <&
+            writeln(" *** testSimpleDurationField: Row: " <& row <&
                     " Expected " <& literal(str(expect[row])) <&
                     " found " <& literal(str(durationColumn)));
           end if;
@@ -6019,7 +6013,7 @@ const proc: testDurationField (in database: testDb, in dbCategory: databaseKind)
         if row = 1 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testDurationField: Row: " <& row <&
+            writeln(" *** testSimpleDurationField: Row: " <& row <&
                     " Expected NULL found " <& durationColumn);
           end if;
         end if;
@@ -6040,9 +6034,218 @@ const proc: testDurationField (in database: testDb, in dbCategory: databaseKind)
     execute(state.statement);
 
     if state.okay then
-      writeln("Inserting and fetching duration fields works okay.");
+      writeln("Inserting and fetching simple duration fields works okay.");
     else
-      writeln(" *** Inserting and fetching duration fields does not work okay.");
+      writeln(" *** Inserting and fetching simple duration fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testFractionDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testFractionDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                          expect &:= duration.value);
+      insert(state, duration("PT0.1S"),            expect &:= duration("PT0.1S"));
+      insert(state, duration("PT0.12S"),           expect &:= duration("PT0.12S"));
+      insert(state, duration("PT0.123S"),          expect &:= duration("PT0.123S"));
+      insert(state, duration("PT0.1234S"),         expect &:= duration("PT0.1234S"));
+      insert(state, duration("PT0.12345S"),        expect &:= duration("PT0.12345S"));
+      insert(state, duration("PT0.123456S"),       expect &:= duration("PT0.123456S"));
+      insert(state, duration("PT0.999999S"),       expect &:= duration("PT0.999999S"));
+      insert(state, duration("PT1.1S"),            expect &:= duration("PT1.1S"));
+      insert(state, duration("PT1.12S"),           expect &:= duration("PT1.12S"));
+      insert(state, duration("PT1.123S"),          expect &:= duration("PT1.123S"));
+      insert(state, duration("PT1.1234S"),         expect &:= duration("PT1.1234S"));
+      insert(state, duration("PT1.12345S"),        expect &:= duration("PT1.12345S"));
+      insert(state, duration("PT1.123456S"),       expect &:= duration("PT1.123456S"));
+      insert(state, duration("PT1.999999S"),       expect &:= duration("PT1.999999S"));
+      insert(state, duration("PT1M0.1S"),          expect &:= duration("PT1M0.1S"));
+      insert(state, duration("PT1M0.123456S"),     expect &:= duration("PT1M0.123456S"));
+      insert(state, duration("PT1M0.999999S"),     expect &:= duration("PT1M0.999999S"));
+      insert(state, duration("PT1M2.1S"),          expect &:= duration("PT1M2.1S"));
+      insert(state, duration("PT1M2.123456S"),     expect &:= duration("PT1M2.123456S"));
+      insert(state, duration("PT1M2.999999S"),     expect &:= duration("PT1M2.999999S"));
+      insert(state, duration("PT1H2M0.1S"),        expect &:= duration("PT1H2M0.1S"));
+      insert(state, duration("PT1H2M0.123456S"),   expect &:= duration("PT1H2M0.123456S"));
+      insert(state, duration("PT1H2M0.999999S"),   expect &:= duration("PT1H2M0.999999S"));
+      insert(state, duration("PT1H2M3.1S"),        expect &:= duration("PT1H2M3.1S"));
+      insert(state, duration("PT1H2M3.123456S"),   expect &:= duration("PT1H2M3.123456S"));
+      insert(state, duration("PT1H2M3.999999S"),   expect &:= duration("PT1H2M3.999999S"));
+      insert(state, duration("P1DT2H3M0.1S"),      expect &:= duration("P1DT2H3M0.1S"));
+      insert(state, duration("P1DT2H3M0.123456S"), expect &:= duration("P1DT2H3M0.123456S"));
+      insert(state, duration("P1DT2H3M0.999999S"), expect &:= duration("P1DT2H3M0.999999S"));
+      insert(state, duration("P1DT2H3M4.1S"),      expect &:= duration("P1DT2H3M4.1S"));
+      insert(state, duration("P1DT2H3M4.123456S"), expect &:= duration("P1DT2H3M4.123456S"));
+      insert(state, duration("P1DT2H3M4.999999S"), expect &:= duration("P1DT2H3M4.999999S"));
+
+      insert(state, duration("PT-0.1S"),               expect &:= duration("PT-0.1S"));
+      insert(state, duration("PT-0.12S"),              expect &:= duration("PT-0.12S"));
+      insert(state, duration("PT-0.123S"),             expect &:= duration("PT-0.123S"));
+      insert(state, duration("PT-0.1234S"),            expect &:= duration("PT-0.1234S"));
+      insert(state, duration("PT-0.12345S"),           expect &:= duration("PT-0.12345S"));
+      insert(state, duration("PT-0.123456S"),          expect &:= duration("PT-0.123456S"));
+      insert(state, duration("PT-0.999999S"),          expect &:= duration("PT-0.999999S"));
+      insert(state, duration("PT-1.1S"),               expect &:= duration("PT-1.1S"));
+      insert(state, duration("PT-1.12S"),              expect &:= duration("PT-1.12S"));
+      insert(state, duration("PT-1.123S"),             expect &:= duration("PT-1.123S"));
+      insert(state, duration("PT-1.1234S"),            expect &:= duration("PT-1.1234S"));
+      insert(state, duration("PT-1.12345S"),           expect &:= duration("PT-1.12345S"));
+      insert(state, duration("PT-1.123456S"),          expect &:= duration("PT-1.123456S"));
+      insert(state, duration("PT-1.999999S"),          expect &:= duration("PT-1.999999S"));
+      insert(state, duration("PT-1M-0.1S"),            expect &:= duration("PT-1M-0.1S"));
+      insert(state, duration("PT-1M-0.123456S"),       expect &:= duration("PT-1M-0.123456S"));
+      insert(state, duration("PT-1M-0.999999S"),       expect &:= duration("PT-1M-0.999999S"));
+      insert(state, duration("PT-1M-2.1S"),            expect &:= duration("PT-1M-2.1S"));
+      insert(state, duration("PT-1M-2.123456S"),       expect &:= duration("PT-1M-2.123456S"));
+      insert(state, duration("PT-1M-2.999999S"),       expect &:= duration("PT-1M-2.999999S"));
+      insert(state, duration("PT-1H-2M-0.1S"),         expect &:= duration("PT-1H-2M-0.1S"));
+      insert(state, duration("PT-1H-2M-0.123456S"),    expect &:= duration("PT-1H-2M-0.123456S"));
+      insert(state, duration("PT-1H-2M-0.999999S"),    expect &:= duration("PT-1H-2M-0.999999S"));
+      insert(state, duration("PT-1H-2M-3.1S"),         expect &:= duration("PT-1H-2M-3.1S"));
+      insert(state, duration("PT-1H-2M-3.123456S"),    expect &:= duration("PT-1H-2M-3.123456S"));
+      insert(state, duration("PT-1H-2M-3.999999S"),    expect &:= duration("PT-1H-2M-3.999999S"));
+      insert(state, duration("P-1DT-2H-3M-0.1S"),      expect &:= duration("P-1DT-2H-3M-0.1S"));
+      insert(state, duration("P-1DT-2H-3M-0.123456S"), expect &:= duration("P-1DT-2H-3M-0.123456S"));
+      insert(state, duration("P-1DT-2H-3M-0.999999S"), expect &:= duration("P-1DT-2H-3M-0.999999S"));
+      insert(state, duration("P-1DT-2H-3M-4.1S"),      expect &:= duration("P-1DT-2H-3M-4.1S"));
+      insert(state, duration("P-1DT-2H-3M-4.123456S"), expect &:= duration("P-1DT-2H-3M-4.123456S"));
+      insert(state, duration("P-1DT-2H-3M-4.999999S"), expect &:= duration("P-1DT-2H-3M-4.999999S"));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testFractionDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testFractionDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching fraction duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching fraction duration fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testAdvancedDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testAdvancedDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                       expect &:= duration.value);
+      insert(state, duration("P1Y-1M"),         expect &:= duration("P1Y-1M"));
+      insert(state, duration("P1Y1D"),          expect &:= duration("P1Y1D"));
+      insert(state, duration("P1Y-1D"),         expect &:= duration("P1Y-1D"));
+      insert(state, duration("P1YT1H"),         expect &:= duration("P1YT1H"));
+      insert(state, duration("P1YT-1H"),        expect &:= duration("P1YT-1H"));
+      insert(state, duration("P1YT1M"),         expect &:= duration("P1YT1M"));
+      insert(state, duration("P1YT-1M"),        expect &:= duration("P1YT-1M"));
+      insert(state, duration("P1YT1S"),         expect &:= duration("P1YT1S"));
+      insert(state, duration("P1YT-1S"),        expect &:= duration("P1YT-1S"));
+      insert(state, duration("P1YT0.1S"),       expect &:= duration("P1YT0.1S"));
+      insert(state, duration("P1YT-0.1S"),      expect &:= duration("P1YT-0.1S"));
+      insert(state, duration("P-1Y1M"),         expect &:= duration("P-1Y1M"));
+      insert(state, duration("P-1Y1D"),         expect &:= duration("P-1Y1D"));
+      insert(state, duration("P-1Y-1D"),        expect &:= duration("P-1Y-1D"));
+      insert(state, duration("P-1YT1H"),        expect &:= duration("P-1YT1H"));
+      insert(state, duration("P-1YT-1H"),       expect &:= duration("P-1YT-1H"));
+      insert(state, duration("P-1YT1M"),        expect &:= duration("P-1YT1M"));
+      insert(state, duration("P-1YT-1M"),       expect &:= duration("P-1YT-1M"));
+      insert(state, duration("P-1YT1S"),        expect &:= duration("P-1YT1S"));
+      insert(state, duration("P-1YT-1S"),       expect &:= duration("P-1YT-1S"));
+      insert(state, duration("P-1YT0.1S"),      expect &:= duration("P-1YT0.1S"));
+      insert(state, duration("P-1YT-0.1S"),     expect &:= duration("P-1YT-0.1S"));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testAdvancedDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testAdvancedDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching advanced duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching advanced duration fields does not work okay.");
     end if;
   end func;
 
@@ -6464,7 +6667,9 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testDateTimeField(testDb, databaseKind);
     testTimeStampField(testDb, databaseKind);
     testTimeStampTzField(testDb, databaseKind);
-    testDurationField(testDb, databaseKind);
+    testSimpleDurationField(testDb, databaseKind);
+    testFractionDurationField(testDb, databaseKind);
+    testAdvancedDurationField(testDb, databaseKind);
     # testFloatField2(testDb, databaseKind);
     # testBigRatField2(testDb, databaseKind);
     # testCharField2(testDb, databaseKind);
