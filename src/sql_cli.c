@@ -117,6 +117,13 @@ static sqlFuncType sqlFunc = NULL;
 #else
 #error "sizeof(SQLWCHAR) is neither 2 nor 4."
 #endif
+#if INTERVAL_FRACTION_PRECISION == 6
+#define INTERVAL_FRACTION_FACTOR 1
+#elif INTERVAL_FRACTION_PRECISION == 9
+#define INTERVAL_FRACTION_FACTOR 1000
+#else
+#error "INTERVAL_FRACTION_PRECISION is neither 6 nor 9."
+#endif
 
 /* ODBC provides two possibilities to encode decimal values.        */
 /*  1. As string of decimal digits.                                 */
@@ -2513,7 +2520,7 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
           interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
           interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
         } /* if */
-      } else {
+      } else if (second != 0) {
         if (micro_second != 0) {
           if ((second >= 0 && micro_second >= 0) ||
               (second <= 0 && micro_second <= 0)) {
@@ -2529,7 +2536,13 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
           interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
           interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
         } /* if */
+      } else {
+        c_type = SQL_C_INTERVAL_SECOND;
+        interval->interval_type = SQL_IS_SECOND;
+        interval->interval_sign = micro_second < 0 ? SQL_TRUE : SQL_FALSE;
+        interval->intval.day_second.fraction = (SQLUINTEGER) abs((int) micro_second);
       } /* if */
+      interval->intval.day_second.fraction *= INTERVAL_FRACTION_FACTOR;
     } /* if */
     return c_type;
   } /* assignToIntervalStruct */

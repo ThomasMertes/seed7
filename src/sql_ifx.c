@@ -71,6 +71,7 @@ static void loadBaseDlls (void);
 #define ALLOW_EXECUTE_SUCCESS_WITH_INFO
 #define ALLOW_FETCH_SUCCESS_WITH_INFO
 #define SIZEOF_SQLWCHAR INFORMIX_SIZEOF_SQLWCHAR
+#define INTERVAL_FRACTION_PRECISION 6
 
 #include "sql_cli.c"
 

@@ -73,6 +73,7 @@
 #define TINY_INT_IS_UNSIGNED 1
 #endif
 #define SIZEOF_SQLWCHAR SQL_SERVER_SIZEOF_SQLWCHAR
+#define INTERVAL_FRACTION_PRECISION 9
 
 #include "sql_cli.c"
 

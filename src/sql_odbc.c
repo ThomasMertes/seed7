@@ -75,6 +75,7 @@
 #define loadBaseDlls()
 #define ODBC_DRIVER_FUNCTIONS_NEEDED
 #define SIZEOF_SQLWCHAR ODBC_SIZEOF_SQLWCHAR
+#define INTERVAL_FRACTION_PRECISION 6
 
 #include "sql_cli.c"
 
