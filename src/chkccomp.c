@@ -4822,6 +4822,37 @@ static void determineSocketLib (FILE *versionFile)
                          "return 0;}\n")) {
       fputs("#define UNIX_SOCKETS 1\n", versionFile);
       fputs("#define SOCKET_LIB UNIX_SOCKETS\n", versionFile);
+      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
+          compileAndLinkOk("#include <sys/types.h>\n"
+                           "#include <sys/socket.h>\n"
+                           "#include <netdb.h>\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "struct addrinfo *res;\n"
+                           "struct addrinfo hints;\n"
+                           "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
+                           "return 0;}\n"));
+      if (!compileAndLinkOk("#include <stdio.h>\n"
+                            "#include <sys/types.h>\n"
+                            "#include <sys/socket.h>\n"
+                            "#include <netdb.h>\n"
+                            "int main(int argc,char *argv[]){\n"
+                            "printf(\"%d\\n\", EAI_NODATA);\n"
+                            "return 0;}\n")) {
+        /* fprintf(logFile, "\n ***** EAI_NODATA not defined.\n"); */
+        if (compileAndLinkOk("#include <stdio.h>\n"
+                             "#include <sys/types.h>\n"
+                             "#include <sys/socket.h>\n"
+                             "#include <netdb.h>\n"
+                             "int main(int argc,char *argv[]){\n"
+                             "printf(\"%d\\n\", EAI_NONAME == -2 && EAI_AGAIN == -3);\n"
+                             "return 0;}\n")) {
+          if (doTest() == 1) {
+            /* fprintf(logFile, "\nEAI_NONAME == -2 && EAI_AGAIN == -3.\n"); */
+            /* fprintf(logFile, "Assume that EAI_NODATA is -5.\n"); */
+            fprintf(versionFile, "#define EAI_NODATA (-5)\n");
+          } /* if */
+        } /* if */
+      } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
                                            "int main(int argc,char *argv[])\n"
                                            "{unsigned int sock;\n"
@@ -4830,27 +4861,29 @@ static void determineSocketLib (FILE *versionFile)
                                            "", SYSTEM_LIBS)) {
       fputs("#define WINSOCK_SOCKETS 2\n", versionFile);
       fputs("#define SOCKET_LIB WINSOCK_SOCKETS\n", versionFile);
+      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
+          compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
+                                      "#include <ws2tcpip.h>\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "struct addrinfo *res;\n"
+                                      "struct addrinfo hints;\n"
+                                      "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
+                                      "return 0;}\n",
+                                      "", SYSTEM_LIBS));
+      if (!compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                       "#include <winsock2.h>\n"
+                                       "#include <ws2tcpip.h>\n"
+                                       "int main(int argc,char *argv[]){\n"
+                                       "printf(\"%d\\n\", EAI_NODATA);\n"
+                                       "return 0;}\n",
+                                       "", SYSTEM_LIBS)) {
+        fprintf(logFile, "\n ***** EAI_NODATA not defined.\n");
+      } /* if */
     } else {
       fputs("#define NO_SOCKETS (-1)\n", versionFile);
       fputs("#define SOCKET_LIB NO_SOCKETS\n", versionFile);
+      fputs("#define HAS_GETADDRINFO 0\n", versionFile);
     } /* if */
-    fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
-        compileAndLinkOk("#include <sys/types.h>\n"
-                         "#include <sys/socket.h>\n"
-                         "#include <netdb.h>\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "struct addrinfo *res;\n"
-                         "struct addrinfo hints;\n"
-                         "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
-                         "return 0;}\n") ||
-        compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
-                                    "#include <ws2tcpip.h>\n"
-                                    "int main(int argc,char *argv[]){\n"
-                                    "struct addrinfo *res;\n"
-                                    "struct addrinfo hints;\n"
-                                    "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
-                                    "return 0;}\n",
-                                    "", SYSTEM_LIBS));
   } /* determineSocketLib */
 
 
