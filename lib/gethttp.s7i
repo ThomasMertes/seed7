@@ -267,14 +267,14 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
         fieldName := lower(trim(line[.. pred(colonPos)]));
         case fieldName of
           when {"transfer-encoding"}:
-            header.transferEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+            header.transferEncoding := lower(trim(line[succ(colonPos) ..]));
           when {"content-type"}:
-            header.contentType := trim(line[succ(pos(line, ":")) ..]);
+            header.contentType := trim(line[succ(colonPos) ..]);
             header.charset := getValueOfHeaderAttribute(header.contentType, "charset");
           when {"content-encoding"}:
-            header.contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+            header.contentEncoding := lower(trim(line[succ(colonPos) ..]));
           when {"content-length"}:
-            contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
+            contentLengthStri := trim(line[succ(colonPos) ..]);
             block
               header.contentLength := integer(contentLengthStri);
             exception
@@ -282,7 +282,7 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
                 header.contentLength := -1;
             end block;
           when {"location"}:
-            header.location := trim(line[succ(pos(line, ":")) ..]);
+            header.location := trim(line[succ(colonPos) ..]);
         end case;
       end if;
       line := getln(sock);
