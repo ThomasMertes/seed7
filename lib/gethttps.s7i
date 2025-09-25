@@ -93,6 +93,7 @@ const func string: getHttps (in string: serverName, in integer: portNumber, in s
     locationData.httpsProtocol := TRUE;
     locationData.serverName := serverName;
     locationData.portNumber := portNumber;
+    # show(locationData);
     repeat
       okay := TRUE;
       sock := openHttps(locationData);
@@ -102,6 +103,7 @@ const func string: getHttps (in string: serverName, in integer: portNumber, in s
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           locationData := getHttpLocation(locationData, sock);
+          # show(locationData);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
@@ -135,6 +137,7 @@ const func string: getHttps (in string: location) is func
   begin
     locationData := getHttpLocation(location, httpsDefaultPort);
     locationData.httpsProtocol := TRUE;
+    # show(locationData);
     if proxyServer <> "" then
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;
@@ -148,6 +151,7 @@ const func string: getHttps (in string: location) is func
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           locationData := getHttpLocation(locationData, sock);
+          # show(locationData);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
