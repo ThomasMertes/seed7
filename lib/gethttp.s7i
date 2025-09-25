@@ -255,30 +255,35 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
     var httpHeader: header is httpHeader.value;
   local
     var string: line is "";
-    var string: lowerCaseLine is "";
+    var integer: colonPos is 0;
+    var string: fieldName is "";
     var string: contentLengthStri is "";
   begin
     line := getln(sock);
     while line <> "" do
       # writeln(line);
-      lowerCaseLine := lower(line);
-      if startsWith(lowerCaseLine, "transfer-encoding") then
-        header.transferEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
-      elsif startsWith(lowerCaseLine, "content-type") then
-        header.contentType := trim(line[succ(pos(line, ":")) ..]);
-        header.charset := getValueOfHeaderAttribute(header.contentType, "charset");
-      elsif startsWith(lowerCaseLine, "content-encoding") then
-        header.contentEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
-      elsif startsWith(lowerCaseLine, "content-length") then
-        contentLengthStri := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
-        block
-          header.contentLength := integer(contentLengthStri);
-        exception
-          catch RANGE_ERROR:
-            header.contentLength := -1;
-        end block;
-      elsif startsWith(lowerCaseLine, "location") then
-        header.location := trim(line[succ(pos(line, ":")) ..]);
+      colonPos := pos(line, ':');
+      if colonPos <> 0 then
+        fieldName := lower(trim(line[.. pred(colonPos)]));
+        case fieldName of
+          when {"transfer-encoding"}:
+            header.transferEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+          when {"content-type"}:
+            header.contentType := trim(line[succ(pos(line, ":")) ..]);
+            header.charset := getValueOfHeaderAttribute(header.contentType, "charset");
+          when {"content-encoding"}:
+            header.contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+          when {"content-length"}:
+            contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
+            block
+              header.contentLength := integer(contentLengthStri);
+            exception
+              catch RANGE_ERROR:
+                header.contentLength := -1;
+            end block;
+          when {"location"}:
+            header.location := trim(line[succ(pos(line, ":")) ..]);
+        end case;
       end if;
       line := getln(sock);
     end while;
