@@ -107,6 +107,7 @@ const type: tlsParameters is new struct
     var certAndKey:           clientCertificates       is certAndKey.value;
     var rsaKey:               publicRsaCertificateKey  is rsaKey.value;
     var rsaKey:               privateRsaCertificateKey is rsaKey.value;
+    var ellipticCurve:        publicEccCurve           is ellipticCurve.value;
     var ecPoint:              publicEccCertificateKey  is ecPoint.value;
     var bigInteger:           privateEccCertificateKey is 0_;
     var ellipticCurve:        curve                    is ellipticCurve.value;
@@ -509,9 +510,14 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
         rsaSignature := getRsaSignature(decryptedSignature);
         verified := rsaSignature.signature = signatureHash;
       when {ECDSA_SECP256R1_SHA256}:
+        # The publicEccCertificateKey from the certificate needs
+        # a corresponding publicEccCurve from the certificate.
+        # This publicEccCurve might differ from SECP256R1
+        # which is specified with ECDSA_SECP256R1_SHA256.
         signatureHash := sha256(hashParameter);
         ecdsaSignature := getEcdsaSignature(signatureStri);
-        verified := verify(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
+        verified := verify(parameters.publicEccCurve,
+                           bytes2BigInt(signatureHash, UNSIGNED, BE),
                            ecdsaSignature, parameters.publicEccCertificateKey);
       when {ECDSA_SHA1}:
         signatureHash := sha1(hashParameter);
@@ -519,6 +525,7 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
         verified := verify(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
                            ecdsaSignature, parameters.publicEccCertificateKey);
     end case;
+    # writeln("verified: " <& verified);
   end func;
 
 
@@ -631,6 +638,7 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     # showX509Cert(cert[1]);
     # validateCertificates(cert);
     parameters.publicRsaCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    parameters.publicEccCurve          := cert[1].tbsCertificate.subjectPublicKeyInfo.eCurve;
     parameters.publicEccCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicEccKey;
     # writeln("rsa key: " <& literal(parameters.publicRsaCertificateKey));
     # writeln("ecc key: " <& literal(parameters.publicEccCertificateKey));
