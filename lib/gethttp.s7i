@@ -214,46 +214,87 @@ const func file: openHttp (in string: location) is func
   end func;
 
 
-const func string: getHttp (inout file: sock) is func
+const func string: getHttpStatusCode (inout file: sock) is func
   result
-    var string: data is "";
+    var string: statusCode is "";
   local
     var string: line is "";
-    var string: lowerCaseLine is "";
-    var array string: header is 0 times "";
+    var string: statusInfo is "";
+    var integer: spacePos is 0;
+  begin
+    line := getln(sock);
+    # writeln(line);
+    if startsWith(line, "HTTP") then
+      spacePos := pos(line, " ");
+      if spacePos <> 0 then
+        statusInfo := trim(line[spacePos ..]);
+        spacePos := pos(statusInfo, " ");
+        if spacePos = 0 then
+          statusCode := statusInfo;
+        else
+          statusCode := statusInfo[.. pred(spacePos)];
+        end if;
+      end if;
+    end if;
+    # writeln("getHttpStatusCode --> " <& statusCode);
+  end func;
+
+
+const type: httpHeader is new struct
     var string: transferEncoding is "";
     var string: contentType is "";
     var string: charset is "";
     var string: contentEncoding is "";
-    var string: contentLengthStri is "";
     var integer: contentLength is 0;
-    var integer: chunkSize is 0;
-    var string: buffer is "";
+    var string: location is "";
+  end struct;
+
+
+const func httpHeader: getHttpHeader (inout file: sock) is func
+  result
+    var httpHeader: header is httpHeader.value;
+  local
+    var string: line is "";
+    var string: lowerCaseLine is "";
+    var string: contentLengthStri is "";
   begin
     line := getln(sock);
     while line <> "" do
       # writeln(line);
       lowerCaseLine := lower(line);
       if startsWith(lowerCaseLine, "transfer-encoding") then
-        transferEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
+        header.transferEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
       elsif startsWith(lowerCaseLine, "content-type") then
-        contentType := trim(line[succ(pos(line, ":")) ..]);
-        charset := getValueOfHeaderAttribute(contentType, "charset");
+        header.contentType := trim(line[succ(pos(line, ":")) ..]);
+        header.charset := getValueOfHeaderAttribute(header.contentType, "charset");
       elsif startsWith(lowerCaseLine, "content-encoding") then
-        contentEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
+        header.contentEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
       elsif startsWith(lowerCaseLine, "content-length") then
         contentLengthStri := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
         block
-          contentLength := integer(contentLengthStri);
+          header.contentLength := integer(contentLengthStri);
         exception
           catch RANGE_ERROR:
-            contentLength := -1;
+            header.contentLength := -1;
         end block;
+      elsif startsWith(lowerCaseLine, "location") then
+        header.location := trim(line[succ(pos(line, ":")) ..]);
       end if;
-      header &:= [] (line);
       line := getln(sock);
     end while;
-    if transferEncoding = "chunked" then
+  end func;
+
+
+const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
+  result
+    var string: data is "";
+  local
+    var string: line is "";
+    var integer: chunkSize is 0;
+    var integer: contentLength is 0;
+    var string: buffer is "";
+  begin
+    if header.transferEncoding = "chunked" then
       if not eof(sock) then
         line := getln(sock);
         block
@@ -280,9 +321,10 @@ const func string: getHttp (inout file: sock) is func
           end if;
         end while;
       end if;
-    elsif transferEncoding = "identity" or
-        transferEncoding = "" then
-      if contentLengthStri <> "" then
+    elsif header.transferEncoding = "identity" or
+          header.transferEncoding = "" then
+      if header.contentLength > 0 then
+        contentLength := header.contentLength;
         while contentLength <> 0 and not eof(sock) do
           buffer := gets(sock, contentLength);
           contentLength -:= length(buffer);
@@ -296,7 +338,7 @@ const func string: getHttp (inout file: sock) is func
         end while;
       end if;
     else
-      writeln("Unknown Transfer-Encoding: " <& literal(transferEncoding));
+      writeln("Unknown Transfer-Encoding: " <& literal(header.transferEncoding));
       buffer := gets(sock, 10000000);
       while buffer <> "" do
         data &:= buffer;
@@ -304,35 +346,21 @@ const func string: getHttp (inout file: sock) is func
       end while;
     end if;
     # writeln(length(data));
-    if contentEncoding = "gzip" then
+    if header.contentEncoding = "gzip" then
       data := gunzip(data);
     end if;
-    conv2unicodeByName(data, charset);
+    conv2unicodeByName(data, header.charset);
   end func;
 
 
-const func string: getHttpStatusCode (inout file: sock) is func
+const func string: getHttp (inout file: sock) is func
   result
-    var string: statusCode is "";
+    var string: data is "";
   local
-    var string: line is "";
-    var string: statusInfo is "";
-    var integer: spacePos is 0;
+    var httpHeader: header is httpHeader.value;
   begin
-    line := getln(sock);
-    # writeln(line);
-    if startsWith(line, "HTTP") then
-      spacePos := pos(line, " ");
-      if spacePos <> 0 then
-        statusInfo := trim(line[spacePos ..]);
-        spacePos := pos(statusInfo, " ");
-        if spacePos = 0 then
-          statusCode := statusInfo;
-        else
-          statusCode := statusInfo[.. pred(spacePos)];
-        end if;
-      end if;
-    end if;
+    header := getHttpHeader(sock);
+    data := getHttpBody(sock, header);
   end func;
 
 
@@ -341,41 +369,36 @@ const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
   result
     var httpLocation: locationData is httpLocation.value;
   local
-    var string: line is "";
-    var string: lowerCaseLine is "";
+    var httpHeader: header is httpHeader.value;
     var string: location is "";
   begin
-    line := getln(sock);
-    while line <> "" do
-      # writeln(literal(line));
-      lowerCaseLine := lower(line);
-      if startsWith(lowerCaseLine, "location") then
-        location := trim(line[succ(pos(line, ":")) ..]);
-        if startsWith(location, "http:") then
-          location := trim(location[6 ..]);
-          while startsWith(location, "/") do
-            location := location[2 ..];
-          end while;
-          locationData := getHttpLocation(location, httpDefaultPort);
-        elsif startsWith(location, "https:") then
-          location := trim(location[7 ..]);
-          while startsWith(location, "/") do
-            location := location[2 ..];
-          end while;
-          locationData := getHttpLocation(location, httpsDefaultPort);
-          locationData.httpsProtocol := TRUE;
-        else
-          if not startsWith(location, "/") then
-            location := currentLocationData.path & "/" & location;
-          end if;
-          locationData := getHttpLocation(location, currentLocationData.portNumber);
-          locationData.httpsProtocol := currentLocationData.httpsProtocol;
-          locationData.serverName := currentLocationData.serverName;
-          locationData.hostName := currentLocationData.hostName;
+    header := getHttpHeader(sock);
+    if header.location <> "" then
+      location := header.location;
+      if startsWith(location, "http:") then
+        location := trim(location[6 ..]);
+        while startsWith(location, "/") do
+          location := location[2 ..];
+        end while;
+        locationData := getHttpLocation(location, httpDefaultPort);
+      elsif startsWith(location, "https:") then
+        location := trim(location[7 ..]);
+        while startsWith(location, "/") do
+          location := location[2 ..];
+        end while;
+        locationData := getHttpLocation(location, httpsDefaultPort);
+        locationData.httpsProtocol := TRUE;
+      else
+        if not startsWith(location, "/") then
+          location := currentLocationData.path & "/" & location;
         end if;
+        locationData := getHttpLocation(location, currentLocationData.portNumber);
+        locationData.httpsProtocol := currentLocationData.httpsProtocol;
+        locationData.serverName := currentLocationData.serverName;
+        locationData.hostName := currentLocationData.hostName;
       end if;
-      line := getln(sock);
-    end while;
+    end if;
+    # writeln(literal(getHttpBody(sock, header)));
   end func;
 
 
@@ -398,6 +421,7 @@ const func string: getHttp (in var httpLocation: locationData) is func
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           locationData := getHttpLocation(locationData, sock);
+          # show(locationData);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
