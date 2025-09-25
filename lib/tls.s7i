@@ -511,7 +511,7 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
         verified := rsaSignature.signature = signatureHash;
       when {ECDSA_SECP256R1_SHA256}:
         # The publicEccCertificateKey from the certificate needs
-        # a corresponding publicEccCurve from the certificate.
+        # the corresponding publicEccCurve from the certificate.
         # This publicEccCurve might differ from SECP256R1
         # which is specified with ECDSA_SECP256R1_SHA256.
         signatureHash := sha256(hashParameter);
