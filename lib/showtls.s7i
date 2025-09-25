@@ -329,8 +329,7 @@ const proc: showX509Cert (in x509Cert: cert) is func
       writeln("rsa public modulus len:  " <& bitLength(tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus));
       writeln("rsa public key exponent: " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.exponent radix 16);
     elsif tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm = EC_PUBLIC_KEY then
-      writeln("Elliptic curve: " <&
-              getEllipticCurveFromOid(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters).name);
+      writeln("Elliptic curve: " <& tbsCertificate.subjectPublicKeyInfo.eCurve.name);
       writeln("publicEccKey.x: " <& tbsCertificate.subjectPublicKeyInfo.publicEccKey.x radix 16);
       writeln("publicEccKey.y: " <& tbsCertificate.subjectPublicKeyInfo.publicEccKey.y radix 16);
     end if;
