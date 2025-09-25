@@ -48,6 +48,17 @@ const type: httpLocation is new struct
   end struct;
 
 
+const proc: show (in httpLocation: location) is func
+  begin
+    writeln("httpsProtocol: " <& location.httpsProtocol);
+    writeln("serverName:    " <& location.serverName);
+    writeln("portNumber:    " <& location.portNumber);
+    writeln("hostName:      " <& location.hostName);
+    writeln("path:          " <& location.path);
+    writeln("params:        " <& location.params);
+  end func;
+
+
 (**
  *  Set the proxy server to be used for getHttp.
  *)
