@@ -45,6 +45,7 @@ const type: httpLocation is new struct
     var string: hostName is "";
     var string: path is "";
     var string: params is "";
+    var array string: cookies is 0 times "";
   end struct;
 
 
@@ -156,6 +157,7 @@ const proc: sendGet (inout file: sock, in httpLocation: location) is func
   local
     var string: address is "";
     var string: request is "";
+    var integer: index is 0;
   begin
     address := "/" & location.path;
     if location.params <> "" then
@@ -164,6 +166,16 @@ const proc: sendGet (inout file: sock, in httpLocation: location) is func
     request &:= "GET " <& address <& " HTTP/1.1\r\n";
     request &:= "Host: " <& location.hostName <& "\r\n";
     request &:= "User-Agent: BlackHole" <& "\r\n";
+    if length(location.cookies) <> 0 then
+      request &:= "Cookie: ";
+      for key index range location.cookies do
+        request &:= location.cookies[index];
+        if index < length(location.cookies) then
+          request &:= "; ";
+        end if;
+      end for;
+      request &:= "\r\n";
+    end if;
     request &:= "\r\n";
     write(sock, request);
   end func;
@@ -247,6 +259,7 @@ const type: httpHeader is new struct
     var string: contentEncoding is "";
     var integer: contentLength is 0;
     var string: location is "";
+    var array string: cookies is 0 times "";
   end struct;
 
 
@@ -258,6 +271,8 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
     var integer: colonPos is 0;
     var string: fieldName is "";
     var string: contentLengthStri is "";
+    var string: cookieName is "";
+    var string: cookieValue is "";
   begin
     line := getln(sock);
     while line <> "" do
@@ -283,6 +298,16 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
             end block;
           when {"location"}:
             header.location := trim(line[succ(colonPos) ..]);
+          when {"set-cookie"}:
+            line := line[succ(colonPos) ..];
+            cookieName := getHttpSymbol(line);
+            if getHttpSymbol(line) = "=" then
+              cookieValue := getHttpSymbol(line);
+            else
+              cookieValue := "";
+            end if;
+            # writeln("##### " <& cookieName <& "=" <& cookieValue);
+            header.cookies &:= cookieName & "=" & cookieValue;
         end case;
       end if;
       line := getln(sock);
@@ -403,6 +428,7 @@ const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
         locationData.hostName := currentLocationData.hostName;
       end if;
     end if;
+    locationData.cookies := header.cookies;
     # writeln(literal(getHttpBody(sock, header)));
   end func;
 
