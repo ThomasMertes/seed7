@@ -886,8 +886,8 @@ boolType assignIsoDuration (const const_ustriType isoDuration,
                     } else if (microsecStriLen == 6) {
                       memcpy(microsecStri, numStri, 6);
                     } else {
-                      memset(microsecStri, '0', 6 - (microsecStriLen));
-                      memcpy(&microsecStri[6 - (microsecStriLen)],
+                      memset(microsecStri, '0', 6 - microsecStriLen);
+                      memcpy(&microsecStri[6 - microsecStriLen],
                               numStri, microsecStriLen);
                     } /* if */
                     microsecStri[6] = '\0';

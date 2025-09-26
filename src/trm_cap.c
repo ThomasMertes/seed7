@@ -224,7 +224,7 @@ int my_tgetflag (char *code)
 
 
 
-char *my_tgetstr(char *code, char **area)
+char *my_tgetstr (char *code, char **area)
 
   {
     memSizeType pos = 1;
