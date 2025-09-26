@@ -2321,11 +2321,13 @@ void socWrite (socketType outSocket, const const_striType stri)
                                       cast_send_recv_data(&buf[totally_sent]),
                                       cast_buffer_len(bytes_to_send), 0);
       if (bytes_sent == (memSizeType) -1) {
-        logError(printf("socWrite: send(%d, data, " FMT_U_MEM ") failed:\n"
+        logError(printf("socWrite(%d, \"%s\" (size=" FMT_U_MEM ")): "
+                        "send(%d, data, " FMT_U_MEM ") failed:\n"
                         "%s=%d\nerror: %s\n"
                         "bytes sent successfully: " FMT_U_MEM "\n",
-                        outSocket, bytes_to_send, ERROR_INFORMATION,
-                        totally_sent););
+                        outSocket, striAsUnquotedCStri(stri),
+                        stri->size, outSocket, bytes_to_send,
+                        ERROR_INFORMATION, totally_sent););
         err_info = FILE_ERROR;
       } else {
         totally_sent += bytes_sent;
