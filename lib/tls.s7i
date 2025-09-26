@@ -1734,15 +1734,13 @@ const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
     if serverHelloDone then
       clientKeyExchange := genClientKeyExchange(new_file.parameters);
       # showTlsMsg(clientKeyExchange);
-      write(new_file.sock, clientKeyExchange);
       changeCipherSpec := genChangeCipherSpec(new_file.parameters);
       # showTlsMsg(changeCipherSpec);
-      write(new_file.sock, changeCipherSpec);
       new_file.parameters.writeEncryptedRecords := TRUE;
       finished := genFinished(new_file.parameters);
       # showTlsMsg(finished);
       finished := tlsEncryptRecord(new_file.parameters, finished);
-      write(new_file.sock, finished);
+      write(new_file.sock, clientKeyExchange & changeCipherSpec & finished);
       repeat
         getTlsMsgRecord(new_file.sock, new_file.parseState);
         # writeln(literal(new_file.parseState.message));
