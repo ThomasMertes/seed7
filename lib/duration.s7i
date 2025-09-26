@@ -3,6 +3,8 @@
 (*                                                                  *)
 (*  duration.s7i  Time and date duration support library            *)
 (*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*                2011 - 2015, 2017, 2018, 2022  Thomas Mertes      *)
+(*                2023, 2025  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

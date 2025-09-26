@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cc_conf.s7i   Configuration values for C compiler and runtime.  *)
-(*  Copyright (C) 2013 - 2021  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2025  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

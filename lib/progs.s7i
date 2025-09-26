@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  progs.s7i     Program handling support library                  *)
 (*  Copyright (C) 1991 - 1994, 2004 - 2015, 2020  Thomas Mertes     *)
-(*                2021, 2024  Thomas Mertes                         *)
+(*                2021, 2024, 2025  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
