@@ -379,7 +379,12 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
     if header.contentEncoding = "gzip" then
       data := gunzip(data);
     end if;
-    conv2unicodeByName(data, header.charset);
+    block
+      conv2unicodeByName(data, header.charset);
+    exception
+      catch RANGE_ERROR:
+        data := "";
+    end block;
   end func;
 
 
