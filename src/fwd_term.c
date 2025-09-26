@@ -293,8 +293,8 @@ int setupterm (const char *term, int filedes, int *errret)
   /* setupterm */
     log2Function(fprintf(stderr, "setupterm(\"%s\", %d, *)\n",
                          term, filedes););
-    /* funcResult = ptr_setupterm(term, filedes, errret); */
-    funcResult = !loadCapabilities(term);
+    funcResult = ptr_setupterm(term, filedes, errret);
+    /* funcResult = !loadCapabilities(term); */
     log2Function(fprintf(stderr, "setupterm(\"%s\", %d, %d) --> %d\n",
                        term, filedes, *errret, funcResult););
     return funcResult;
