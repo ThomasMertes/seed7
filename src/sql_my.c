@@ -1229,6 +1229,10 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
           timeValue->hour        = (unsigned int) microsecDuration % 24;
           timeValue->day         = (unsigned int) microsecDuration / 24;
           timeValue->time_type   = MYSQL_TIMESTAMP_DATETIME;
+          logMessage(printf("%04u-%02u-%02u %02u:%02u:%02u %lu, neg=%d, type=%d\n",
+                            timeValue->year, timeValue->month, timeValue->day,
+                            timeValue->hour, timeValue->minute, timeValue->second,
+                            timeValue->second_part, timeValue->neg, timeValue->time_type););
           preparedStmt->executeSuccessful = FALSE;
           preparedStmt->fetchOkay = FALSE;
           preparedStmt->param_data_array[pos - 1].bound = TRUE;
@@ -1880,6 +1884,10 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
           case MYSQL_TYPE_DATETIME:
           case MYSQL_TYPE_TIMESTAMP:
             timeValue = (MYSQL_TIME *) columnData->buffer;
+            logMessage(printf("%04u-%02u-%02u %02u:%02u:%02u %lu, neg=%d, type=%d\n",
+                              timeValue->year, timeValue->month, timeValue->day,
+                              timeValue->hour, timeValue->minute, timeValue->second,
+                              timeValue->second_part, timeValue->neg, timeValue->time_type););
             if (timeValue == NULL) {
               *year         = 0;
               *month        = 0;
