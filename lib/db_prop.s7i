@@ -927,7 +927,7 @@ const func string: durationType (in dbCategory: databaseKind) is func
     var string: durationType is "";
   begin
     case databaseKind of
-      when {DB_MYSQL}:      durationType := "DATETIME";
+      when {DB_MYSQL}:      durationType := "DATETIME(6)";
       when {DB_SQLITE}:     durationType := "VARCHAR(32)";
       when {DB_POSTGRESQL}: durationType := "INTERVAL";
       when {DB_OCI}:        durationType := "INTERVAL DAY TO SECOND";
