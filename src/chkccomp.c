@@ -4812,7 +4812,11 @@ static void determineGrpAndPwFunctions (FILE *versionFile)
 
 static void determineSocketLib (FILE *versionFile)
 
-  { /* determineSocketLib */
+  {
+    int has_getaddrinfo;
+    int eai_nodata;
+
+  /* determineSocketLib */
     if (compileAndLinkOk("#include <sys/types.h>\n"
                          "#include <sys/socket.h>\n"
                          "#include <netdb.h>\n"
@@ -4822,34 +4826,36 @@ static void determineSocketLib (FILE *versionFile)
                          "return 0;}\n")) {
       fputs("#define UNIX_SOCKETS 1\n", versionFile);
       fputs("#define SOCKET_LIB UNIX_SOCKETS\n", versionFile);
-      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
-          compileAndLinkOk("#include <sys/types.h>\n"
-                           "#include <sys/socket.h>\n"
-                           "#include <netdb.h>\n"
-                           "int main(int argc,char *argv[]){\n"
-                           "struct addrinfo *res;\n"
-                           "struct addrinfo hints;\n"
-                           "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
-                           "return 0;}\n"));
-      if (!compileAndLinkOk("#include <stdio.h>\n"
-                            "#include <sys/types.h>\n"
-                            "#include <sys/socket.h>\n"
-                            "#include <netdb.h>\n"
-                            "int main(int argc,char *argv[]){\n"
-                            "printf(\"%d\\n\", EAI_NODATA);\n"
-                            "return 0;}\n")) {
-        /* fprintf(logFile, "\n ***** EAI_NODATA not defined.\n"); */
-        if (compileAndLinkOk("#include <stdio.h>\n"
-                             "#include <sys/types.h>\n"
-                             "#include <sys/socket.h>\n"
-                             "#include <netdb.h>\n"
-                             "int main(int argc,char *argv[]){\n"
-                             "printf(\"%d\\n\", EAI_NONAME == -2 && EAI_AGAIN == -3);\n"
-                             "return 0;}\n")) {
-          if (doTest() == 1) {
-            /* fprintf(logFile, "\nEAI_NONAME == -2 && EAI_AGAIN == -3.\n"); */
-            /* fprintf(logFile, "Assume that EAI_NODATA is -5.\n"); */
-            fprintf(versionFile, "#define EAI_NODATA (-5)\n");
+      has_getaddrinfo = compileAndLinkOk("#include <sys/types.h>\n"
+                                         "#include <sys/socket.h>\n"
+                                         "#include <netdb.h>\n"
+                                         "int main(int argc,char *argv[]){\n"
+                                         "struct addrinfo *res;\n"
+                                         "struct addrinfo hints;\n"
+                                         "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
+                                         "return 0;}\n");
+      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n", has_getaddrinfo);
+      if (has_getaddrinfo) {
+        if (!compileAndLinkOk("#include <stdio.h>\n"
+                              "#include <sys/types.h>\n"
+                              "#include <sys/socket.h>\n"
+                              "#include <netdb.h>\n"
+                              "int main(int argc,char *argv[]){\n"
+                              "printf(\"%d\\n\", EAI_NODATA);\n"
+                              "return 0;}\n")) {
+          /* fprintf(logFile, "\n ***** EAI_NODATA not defined.\n"); */
+          if (compileAndLinkOk("#include <stdio.h>\n"
+                               "#include <sys/types.h>\n"
+                               "#include <sys/socket.h>\n"
+                               "#include <netdb.h>\n"
+                               "int main(int argc,char *argv[]){\n"
+                               "printf(\"%d\\n\", EAI_NONAME == -2 && EAI_AGAIN == -3);\n"
+                               "return 0;}\n")) {
+            if (doTest() == 1) {
+              /* fprintf(logFile, "\nEAI_NONAME == -2 && EAI_AGAIN == -3.\n"); */
+              /* fprintf(logFile, "Assume that EAI_NODATA is -5.\n"); */
+              fprintf(versionFile, "#define EAI_NODATA (-5)\n");
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
@@ -4861,23 +4867,39 @@ static void determineSocketLib (FILE *versionFile)
                                            "", SYSTEM_LIBS)) {
       fputs("#define WINSOCK_SOCKETS 2\n", versionFile);
       fputs("#define SOCKET_LIB WINSOCK_SOCKETS\n", versionFile);
-      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n",
-          compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
-                                      "#include <ws2tcpip.h>\n"
-                                      "int main(int argc,char *argv[]){\n"
-                                      "struct addrinfo *res;\n"
-                                      "struct addrinfo hints;\n"
-                                      "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
-                                      "return 0;}\n",
-                                      "", SYSTEM_LIBS));
-      if (!compileAndLinkWithOptionsOk("#include <stdio.h>\n"
-                                       "#include <winsock2.h>\n"
-                                       "#include <ws2tcpip.h>\n"
-                                       "int main(int argc,char *argv[]){\n"
-                                       "printf(\"%d\\n\", EAI_NODATA);\n"
-                                       "return 0;}\n",
-                                       "", SYSTEM_LIBS)) {
-        fprintf(logFile, "\n ***** EAI_NODATA not defined.\n");
+      has_getaddrinfo = compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
+                                                    "#include <ws2tcpip.h>\n"
+                                                    "int main(int argc,char *argv[]){\n"
+                                                    "struct addrinfo *res;\n"
+                                                    "struct addrinfo hints;\n"
+                                                    "getaddrinfo(\"localhost\", \"80\", &hints, &res);\n"
+                                                    "return 0;}\n",
+                                                    "", SYSTEM_LIBS);
+      fprintf(versionFile, "#define HAS_GETADDRINFO %d\n", has_getaddrinfo);
+      if (has_getaddrinfo) {
+        if (!compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                         "#include <winsock2.h>\n"
+                                         "#include <ws2tcpip.h>\n"
+                                         "int main(int argc,char *argv[]){\n"
+                                         "printf(\"%d\\n\", EAI_NODATA);\n"
+                                         "return 0;}\n",
+                                         "", SYSTEM_LIBS)) {
+          if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                          "#include <winsock2.h>\n"
+                                          "int main(int argc,char *argv[]){\n"
+                                          "printf(\"%d\\n\", WSANO_DATA);\n"
+                                          "return 0;}\n",
+                                          "", SYSTEM_LIBS)) {
+            eai_nodata = doTest();
+            if (eai_nodata != -1) {
+              fprintf(versionFile, "#define EAI_NODATA %d\n", eai_nodata);
+            } else {
+              fprintf(logFile, "\n ***** EAI_NODATA not defined.\n");
+            } /* if */
+          } else {
+            fprintf(logFile, "\n ***** EAI_NODATA not defined.\n");
+          } /* if */
+        } /* if */
       } /* if */
     } else {
       fputs("#define NO_SOCKETS (-1)\n", versionFile);
