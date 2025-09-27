@@ -1139,7 +1139,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
   {
     cstriType os_hostName;
 #if HAS_GETADDRINFO
-    char serviceName[UINT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    char serviceName[UINT16TYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1171,7 +1171,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         result = NULL;
       } else {
 #if HAS_GETADDRINFO
-        sprintf(serviceName, "%u", (unsigned int) port);
+        sprintf(serviceName, FMT_U16, (uint16Type) port);
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -1329,7 +1329,7 @@ bstriType socInetLocalAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char serviceName[UINT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    char serviceName[UINT16TYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1350,7 +1350,7 @@ bstriType socInetLocalAddr (intType port)
       result = NULL;
     } else {
 #if HAS_GETADDRINFO
-      sprintf(serviceName, "%u", (unsigned int) port);
+      sprintf(serviceName, FMT_U16, (uint16Type) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
@@ -1412,7 +1412,7 @@ bstriType socInetServAddr (intType port)
 
   {
 #if HAS_GETADDRINFO
-    char serviceName[UINT_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    char serviceName[UINT16TYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
     struct addrinfo hints;
@@ -1437,7 +1437,7 @@ bstriType socInetServAddr (intType port)
       result = NULL;
     } else {
 #if HAS_GETADDRINFO
-      sprintf(serviceName, "%u", (unsigned int) port);
+      sprintf(serviceName, FMT_U16, (uint16Type) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
