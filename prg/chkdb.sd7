@@ -5947,7 +5947,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
   end func;
 
 
-const proc: testSimpleDurationField (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testPositiveDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
     var array duration: expect is 0 times duration.value;
@@ -5955,7 +5955,7 @@ const proc: testSimpleDurationField (in database: testDb, in dbCategory: databas
     var integer: row is 1;
   begin
     if state.details then
-      writeln("testSimpleDurationField: " <& databaseKind);
+      writeln("testPositiveDurationField: " <& databaseKind);
     end if;
     block
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
@@ -5984,6 +5984,66 @@ const proc: testSimpleDurationField (in database: testDb, in dbCategory: databas
       insert(state, duration("P1DT2H3M4S"),      expect &:= duration("P1DT2H3M4S"));
       insert(state, duration("P30DT23H59M59S"),  expect &:= duration("P30DT23H59M59S"));
 
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testPositiveDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testPositiveDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching positive duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching positive duration fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testNegativeDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testNegativeDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                        expect &:= duration.value);
       insert(state, duration("P-1Y"),               expect &:= duration("P-1Y"));
       insert(state, duration("P-1M"),               expect &:= duration("P-1M"));
       insert(state, duration("P-1D"),               expect &:= duration("P-1D"));
@@ -6005,7 +6065,7 @@ const proc: testSimpleDurationField (in database: testDb, in dbCategory: databas
         if durationColumn <> expect[row] then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testSimpleDurationField: Row: " <& row <&
+            writeln(" *** testNegativeDurationField: Row: " <& row <&
                     " Expected " <& literal(str(expect[row])) <&
                     " found " <& literal(str(durationColumn)));
           end if;
@@ -6013,7 +6073,7 @@ const proc: testSimpleDurationField (in database: testDb, in dbCategory: databas
         if row = 1 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testSimpleDurationField: Row: " <& row <&
+            writeln(" *** testNegativeDurationField: Row: " <& row <&
                     " Expected NULL found " <& durationColumn);
           end if;
         end if;
@@ -6034,14 +6094,14 @@ const proc: testSimpleDurationField (in database: testDb, in dbCategory: databas
     execute(state.statement);
 
     if state.okay then
-      writeln("Inserting and fetching simple duration fields works okay.");
+      writeln("Inserting and fetching negative duration fields works okay.");
     else
-      writeln(" *** Inserting and fetching simple duration fields does not work okay.");
+      writeln(" *** Inserting and fetching negative duration fields does not work okay.");
     end if;
   end func;
 
 
-const proc: testFractionDurationField (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testPositiveFractionDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
     var array duration: expect is 0 times duration.value;
@@ -6049,7 +6109,7 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
     var integer: row is 1;
   begin
     if state.details then
-      writeln("testFractionDurationField: " <& databaseKind);
+      writeln("testPositiveFractionDurationField: " <& databaseKind);
     end if;
     block
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
@@ -6091,6 +6151,66 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
       insert(state, duration("P1DT2H3M4.123456S"), expect &:= duration("P1DT2H3M4.123456S"));
       insert(state, duration("P1DT2H3M4.999999S"), expect &:= duration("P1DT2H3M4.999999S"));
 
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testPositiveFractionDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testPositiveFractionDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching positive fraction duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching positive fraction duration fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testNegativeFractionDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testNegativeFractionDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                          expect &:= duration.value);
       insert(state, duration("PT-0.1S"),               expect &:= duration("PT-0.1S"));
       insert(state, duration("PT-0.12S"),              expect &:= duration("PT-0.12S"));
       insert(state, duration("PT-0.123S"),             expect &:= duration("PT-0.123S"));
@@ -6131,7 +6251,7 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
         if durationColumn <> expect[row] then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testFractionDurationField: Row: " <& row <&
+            writeln(" *** testNegativeFractionDurationField: Row: " <& row <&
                     " Expected " <& literal(str(expect[row])) <&
                     " found " <& literal(str(durationColumn)));
           end if;
@@ -6139,7 +6259,7 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
         if row = 1 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testFractionDurationField: Row: " <& row <&
+            writeln(" *** testNegativeFractionDurationField: Row: " <& row <&
                     " Expected NULL found " <& durationColumn);
           end if;
         end if;
@@ -6160,9 +6280,9 @@ const proc: testFractionDurationField (in database: testDb, in dbCategory: datab
     execute(state.statement);
 
     if state.okay then
-      writeln("Inserting and fetching fraction duration fields works okay.");
+      writeln("Inserting and fetching negative fraction duration fields works okay.");
     else
-      writeln(" *** Inserting and fetching fraction duration fields does not work okay.");
+      writeln(" *** Inserting and fetching negative fraction duration fields does not work okay.");
     end if;
   end func;
 
@@ -6746,8 +6866,10 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testDateTimeField(testDb, databaseKind);
     testTimeStampField(testDb, databaseKind);
     testTimeStampTzField(testDb, databaseKind);
-    testSimpleDurationField(testDb, databaseKind);
-    testFractionDurationField(testDb, databaseKind);
+    testPositiveDurationField(testDb, databaseKind);
+    testNegativeDurationField(testDb, databaseKind);
+    testPositiveFractionDurationField(testDb, databaseKind);
+    testNegativeFractionDurationField(testDb, databaseKind);
     testCombinedDurationField(testDb, databaseKind);
     testAdvancedDurationField(testDb, databaseKind);
     # testFloatField2(testDb, databaseKind);
