@@ -1218,17 +1218,25 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
             microsecDuration = -microsecDuration;
             timeValue->neg    = 1;
           } /* if */
-          timeValue->month       = (unsigned int) monthDuration % 12;
-          timeValue->year        = (unsigned int) monthDuration / 12;
-          timeValue->second_part = (unsigned long) microsecDuration % 1000000;
+          timeValue->month       = (unsigned int) (monthDuration % 12);
+          timeValue->year        = (unsigned int) (monthDuration / 12);
+          timeValue->second_part = (unsigned long) (microsecDuration % 1000000);
           microsecDuration /= 1000000;
-          timeValue->second      = (unsigned int) microsecDuration % 60;
+          timeValue->second      = (unsigned int) (microsecDuration % 60);
           microsecDuration /= 60;
-          timeValue->minute      = (unsigned int) microsecDuration % 60;
+          timeValue->minute      = (unsigned int) (microsecDuration % 60);
           microsecDuration /= 60;
-          timeValue->hour        = (unsigned int) microsecDuration % 24;
-          timeValue->day         = (unsigned int) microsecDuration / 24;
-          timeValue->time_type   = MYSQL_TIMESTAMP_DATETIME;
+          timeValue->hour        = (unsigned int) (microsecDuration % 24);
+          timeValue->day         = (unsigned int) (microsecDuration / 24);
+          if (timeValue->hour == 0 && timeValue->minute == 0 &&
+              timeValue->second == 0 && timeValue->second_part == 0) {
+            timeValue->time_type = MYSQL_TIMESTAMP_DATE;
+          } else if (timeValue->year == 0 && timeValue->month == 0 &&
+                     timeValue->day == 0) {
+            timeValue->time_type = MYSQL_TIMESTAMP_TIME;
+          } else {
+            timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
+          } /* if */
           logMessage(printf("%04u-%02u-%02u %02u:%02u:%02u %lu, neg=%d, type=%d\n",
                             timeValue->year, timeValue->month, timeValue->day,
                             timeValue->hour, timeValue->minute, timeValue->second,
@@ -1884,10 +1892,6 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
           case MYSQL_TYPE_DATETIME:
           case MYSQL_TYPE_TIMESTAMP:
             timeValue = (MYSQL_TIME *) columnData->buffer;
-            logMessage(printf("%04u-%02u-%02u %02u:%02u:%02u %lu, neg=%d, type=%d\n",
-                              timeValue->year, timeValue->month, timeValue->day,
-                              timeValue->hour, timeValue->minute, timeValue->second,
-                              timeValue->second_part, timeValue->neg, timeValue->time_type););
             if (timeValue == NULL) {
               *year         = 0;
               *month        = 0;
@@ -1897,10 +1901,22 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               *second       = 0;
               *micro_second = 0;
             } else {
-              *hour         = timeValue->hour;
-              *minute       = timeValue->minute;
-              *second       = timeValue->second;
-              *micro_second = (intType) timeValue->second_part;
+              logMessage(printf("%04u-%02u-%02u %02u:%02u:%02u %lu, neg=%d, type=%d\n",
+                                timeValue->year, timeValue->month, timeValue->day,
+                                timeValue->hour, timeValue->minute, timeValue->second,
+                                timeValue->second_part, timeValue->neg, timeValue->time_type););
+              if (timeValue->time_type == MYSQL_TIMESTAMP_TIME ||
+                  timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) {
+                *hour         = timeValue->hour;
+                *minute       = timeValue->minute;
+                *second       = timeValue->second;
+                *micro_second = (intType) timeValue->second_part;
+              } else {
+                *hour         = 0;
+                *minute       = 0;
+                *second       = 0;
+                *micro_second = 0;
+              } /* if */
               if (timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
                   timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) {
                 *year      = timeValue->year;
