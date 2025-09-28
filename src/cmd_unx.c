@@ -263,6 +263,7 @@ int unsetenv7 (const char *name)
     size_t nameLen;
     char **p, *c;
     char **found = NULL;
+    memSizeType foundIndex;
     size_t nameCount = 0;
     char **resizedEnviron7;
 
@@ -280,14 +281,15 @@ int unsetenv7 (const char *name)
           } /* if */
         } /* for */
         if (found != NULL) {
+          foundIndex = found - environ7;
           resizedEnviron7 = realloc(environ7, sizeof(char *) * (nameCount));
           if (resizedEnviron7 == NULL) {
             errno = ENOMEM;
             return -1;
           } else {
             environ7 = resizedEnviron7;
-            free(*found);
-            *found = environ7[nameCount - 1];
+            free(environ7[foundIndex]);
+            environ7[foundIndex] = environ7[nameCount - 1];
             environ7[nameCount - 1] = NULL;
           } /* if */
         } /* if */
