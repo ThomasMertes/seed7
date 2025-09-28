@@ -1,0 +1,400 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  lst99bas.sd7  List tokenized TI (Extended) BASIC program.       *)
+(*  Copyright (C) 2016 - 2025  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "chartype.s7i";
+  include "bytedata.s7i";
+  include "bin32.s7i";
+
+
+const array string: tokenTable is [129] (
+    (* 129 *) "ELSE ",
+    (* 130 *) " :: ",
+    (* 131 *) "!",
+    (* 132 *) "IF ",
+    (* 133 *) "GO ",
+    (* 134 *) "GOTO ",
+    (* 135 *) "GOSUB ",
+    (* 136 *) "RETURN ",
+    (* 137 *) "DEF ",
+    (* 138 *) "DIM ",
+    (* 139 *) "END ",
+    (* 140 *) "FOR ",
+    (* 141 *) "LET ",
+    (* 142 *) "BREAK ",
+    (* 143 *) "UNBREAK ",
+    (* 144 *) "TRACE ",
+    (* 145 *) "UNTRACE ",
+    (* 146 *) "INPUT ",
+    (* 147 *) "DATA ",
+    (* 148 *) "RESTORE ",
+    (* 149 *) "RANDOMIZE ",
+    (* 150 *) "NEXT ",
+    (* 151 *) "READ ",
+    (* 152 *) "STOP ",
+    (* 153 *) "DELETE ",
+    (* 154 *) "REM",
+    (* 155 *) "ON ",
+    (* 156 *) "PRINT ",
+    (* 157 *) "CALL ",
+    (* 158 *) "OPTION ",
+    (* 159 *) "OPEN ",
+    (* 160 *) "CLOSE ",
+    (* 161 *) "SUB ",
+    (* 162 *) "DISPLAY ",
+    (* 163 *) "IMAGE ",
+    (* 164 *) "ACCEPT ",
+    (* 165 *) "ERROR ",
+    (* 166 *) "WARNING ",
+    (* 167 *) "SUBEXIT ",
+    (* 168 *) "SUBEND ",
+    (* 169 *) "RUN ",
+    (* 170 *) "LINPUT ",
+    (* 171 *) "**undef**",
+    (* 172 *) "**undef**",
+    (* 173 *) "**undef**",
+    (* 174 *) "**undef**",
+    (* 175 *) "**undef**",
+    (* 176 *) "THEN ",
+    (* 177 *) "TO ",
+    (* 178 *) "STEP ",
+    (* 179 *) ",",
+    (* 180 *) ";",
+    (* 181 *) ":",
+    (* 182 *) ")",
+    (* 183 *) "(",
+    (* 184 *) "&",
+    (* 185 *) "**undef**",
+    (* 186 *) "OR",
+    (* 187 *) "AND",
+    (* 188 *) "XOR",
+    (* 189 *) "NOT",
+    (* 190 *) "=",
+    (* 191 *) "<",
+    (* 192 *) ">",
+    (* 193 *) "+",
+    (* 194 *) "-",
+    (* 195 *) "*",
+    (* 196 *) "/",
+    (* 197 *) "^",
+    (* 198 *) "**undef**",
+    (* 199 *) "**quoted string**",
+    (* 200 *) "**unquoted string**",
+    (* 201 *) "**line number**",
+    (* 202 *) "EOF",
+    (* 203 *) "ABS",
+    (* 204 *) "ATN",
+    (* 205 *) "COS",
+    (* 206 *) "EXP",
+    (* 207 *) "INT",
+    (* 208 *) "LOG",
+    (* 209 *) "SGN",
+    (* 210 *) "SIN",
+    (* 211 *) "SQR",
+    (* 212 *) "TAN",
+    (* 213 *) "LEN",
+    (* 214 *) "CHR$",
+    (* 215 *) "RND",
+    (* 216 *) "SEG$",
+    (* 217 *) "POS",
+    (* 218 *) "VAL",
+    (* 219 *) "STR$",
+    (* 220 *) "ASC",
+    (* 221 *) "PI",
+    (* 222 *) "REC",
+    (* 223 *) "MAX",
+    (* 224 *) "MIN",
+    (* 225 *) "RPT$",
+    (* 226 *) "**undef**",
+    (* 227 *) "**undef**",
+    (* 228 *) "**undef**",
+    (* 229 *) "**undef**",
+    (* 230 *) "**undef**",
+    (* 231 *) "**undef**",
+    (* 232 *) "NUMERIC",
+    (* 233 *) "DIGIT",
+    (* 234 *) "UALPHA",
+    (* 235 *) "SIZE",
+    (* 236 *) "ALL",
+    (* 237 *) "USING ",
+    (* 238 *) "BEEP",
+    (* 239 *) "ERASE",
+    (* 240 *) "AT",
+    (* 241 *) "BASE ",
+    (* 242 *) "**undef**",
+    (* 243 *) "VARIABLE",
+    (* 244 *) "RELATIVE",
+    (* 245 *) "INTERNAL",
+    (* 246 *) "SEQUENTIAL",
+    (* 247 *) "OUTPUT",
+    (* 248 *) "UPDATE",
+    (* 249 *) "APPEND",
+    (* 250 *) "FIXED",
+    (* 251 *) "PERMANENT",
+    (* 252 *) "TAB",
+    (* 253 *) "#",
+    (* 254 *) "VALIDATE");
+
+
+const type: lineTableType is hash [integer] integer;
+
+
+const proc: appendToken(inout string: sourceLine, in string: token) is func
+  begin
+    if sourceLine <> "" and sourceLine[length(sourceLine)] in alphanum_char and
+        token[1] in letter_char then
+      sourceLine &:= " ";
+    end if;
+    sourceLine &:= token;
+  end func;
+
+
+(**
+ *  Decodes a line from the bytes buffer at position pos.
+ *  @param bytes Buffer containing the tokenized program.
+ *  @param pos Current position in the bytes buffer (pos is changed).
+ *  @return the basic source line.
+ *  @exception RANGE_ERROR If an illegal encoding was found.
+ *)
+const func string: decodeTokenizedLine (in string: bytes, inout integer: pos) is func
+  result
+    var string: sourceLine is "";
+  local
+    var integer: lineLength is 0;
+    var integer: code is 0;
+    var string: token is "";
+    var integer: length is 0;
+    var boolean: tokenEndsWithLetter is FALSE;
+    var boolean: insertSpaceBeforeIdentifier is FALSE;
+  begin
+    lineLength := ord(bytes[pos]);
+    pos +:= 1;
+    while pos <= length(bytes) and bytes[pos] <> '\0;' do
+      code := ord(bytes[pos]);
+      case code of
+        when {32 .. 126}:  # ' ' .. '~'
+          if insertSpaceBeforeIdentifier and char(code) in letter_char then
+            sourceLine &:= " ";
+          end if;
+          sourceLine &:= str(char(code));
+          incr(pos);
+        when {129 .. 254} - {199, 200, 201}:  # Token
+          appendToken(sourceLine, tokenTable[code]);
+          tokenEndsWithLetter := sourceLine[length(sourceLine)] in letter_char;
+          incr(pos);
+        when {199}:        # Quoted string
+          length := ord(bytes[pos + 1]);
+          # sourceLine &:= "[Quoted string " <& length <& "] ";
+          sourceLine &:= "\"" &
+                         replace(bytes[pos + 2 fixLen length], "\"", "\"\"") &
+                         "\"";
+          pos +:= 2 + length;
+        when {200}:        # Unquoted string
+          length := ord(bytes[pos + 1]);
+          # sourceLine &:= "[Unquoted string " <& length <& "] ";
+          sourceLine &:= bytes[pos + 2 fixLen length];
+          pos +:= 2 + length;
+        when {201}:        # Line number
+          sourceLine &:= str(bytes2Int(bytes[pos + 1 fixLen 2], UNSIGNED, BE));
+          pos +:= 3;
+        when {255}:        # End of file marker
+          pos := succ(length(bytes));
+        otherwise:
+          writeln("unexpected token: " <& code);
+          writeln(literal(bytes[pos len 10]));
+          raise RANGE_ERROR;
+      end case;
+      if tokenEndsWithLetter then
+        insertSpaceBeforeIdentifier := TRUE;
+        tokenEndsWithLetter := FALSE;
+      else
+        insertSpaceBeforeIdentifier := FALSE;
+      end if;
+    end while;
+    if pos > length(bytes) and code <> 255 then
+      writeln("Unexpected end of line.");
+      writeln(literal(bytes[pos len 10]));
+      raise RANGE_ERROR;
+    else
+      pos +:= 1;  # Consume the null byte at end of line
+    end if;
+  end func;
+
+
+(**
+ *  Convert long format INT/VAR 254 to program.
+ *)
+const func string: convertIntVar254 (in string: bytes, in var integer: pos) is func
+  result
+    var string: program is "";
+  local
+    var integer: checkSum is 0;
+    var integer: lineNumTableLow is 0;
+    var integer: lineNumTableHigh is 0;
+    var integer: length is 0;
+  begin
+    lineNumTableLow  := bytes2Int(bytes[pos + 3 fixLen 2], UNSIGNED, BE);
+    lineNumTableHigh := bytes2Int(bytes[pos + 5 fixLen 2], UNSIGNED, BE);
+    checkSum := ord(bin32(lineNumTableHigh) >< bin32(lineNumTableLow));
+    # writeln("chcksum: " <& checkSum);
+    # writeln("lineNumTableHigh: " <& lineNumTableHigh);
+    # writeln("lineNumTableLow: " <& lineNumTableLow);
+    program := bytes(checkSum,         UNSIGNED, BE, 2) <&
+               bytes(lineNumTableHigh, UNSIGNED, BE, 2) <&
+               bytes(lineNumTableLow,  UNSIGNED, BE, 2) <& "XX";
+    pos +:= 256;
+    while pos <= length(bytes) do
+      length := ord(bytes[pos]);
+      program &:= bytes[succ(pos) fixLen length];
+      pos +:= 256;
+    end while;
+  end func;
+
+
+(**
+ *  Skip optional headers from a DSK file.
+ *)
+const func integer: searchStartOfBasicFile (in string: bytes) is func
+  result
+    var integer: pos is 1;
+  local
+    var integer: checkSum is 0;
+    var integer: lineNumTableHigh is 0;
+    var integer: lineNumTableLow is 0;
+    var string: magicNumber is "";
+  begin
+    repeat
+      checkSum         := bytes2Int(bytes[pos     fixLen 2], UNSIGNED, BE);
+      lineNumTableHigh := bytes2Int(bytes[pos + 2 fixLen 2], UNSIGNED, BE);
+      lineNumTableLow  := bytes2Int(bytes[pos + 4 fixLen 2], UNSIGNED, BE);
+      magicNumber := bytes[pos + 1 len 2];
+      pos +:= 128;  # A DSK file starts with directory entry blocks of 128 bytes.
+    until checkSum <> 0 and
+        checkSum = ord(bin32(lineNumTableHigh) >< bin32(lineNumTableLow)) or
+        magicNumber = "\16#ab;\16#cd;" or
+        pos + 8 >= length(bytes);
+    if pos + 8 < length(bytes) then
+      pos -:= 128;
+    else
+      pos := succ(length(bytes));
+    end if;
+  end func;
+
+
+const proc: writeLines (in string: bytes, in var integer: pos) is func
+  local
+    var integer: checkSum is 0;
+    var integer: lineNumTableHigh is 0;
+    var integer: lineNumTableLow is 0;
+    var integer: endVdpRam is 0;
+    var integer: numberOfLines is 0;
+    var integer: lineRelocation is 0;
+    var integer: lineCount is 0;
+    var string: line is "";
+    var lineTableType: lineTable is lineTableType.value;
+    var integer: lineNum is 0;
+  begin
+    checkSum         := bytes2Int(bytes[pos     fixLen 2], UNSIGNED, BE);
+    lineNumTableHigh := bytes2Int(bytes[pos + 2 fixLen 2], UNSIGNED, BE);
+    lineNumTableLow  := bytes2Int(bytes[pos + 4 fixLen 2], UNSIGNED, BE);
+    endVdpRam        := bytes2Int(bytes[pos + 6 fixLen 2], UNSIGNED, BE);
+    # writeln("chcksum: " <& checkSum);
+    # writeln("lineNumTableHigh: " <& lineNumTableHigh);
+    # writeln("lineNumTableLow: " <& lineNumTableLow);
+    # writeln("endVdpRam: " <& endVdpRam);
+    pos +:= 8;
+    if checkSum <> ord(bin32(lineNumTableHigh) >< bin32(lineNumTableLow)) then
+      writeln(" ***** Check sum wrong.");
+    else
+      numberOfLines := (lineNumTableHigh - lineNumTableLow + 1) div 4;
+      lineRelocation := lineNumTableLow - pred(pos);
+      # writeln("numberOfLines: " <& numberOfLines);
+      # writeln("lineRelocation: " <& lineRelocation);
+      for lineCount range 1 to numberOfLines do
+        lineTable @:= [bytes2Int(bytes[pos fixLen 2], UNSIGNED, BE)]
+            bytes2Int(bytes[pos + 2 fixLen 2], UNSIGNED, BE);
+        # writeln(bytes2Int(bytes[pos fixLen 2], UNSIGNED, BE) <& " " <&
+        #         bytes2Int(bytes[pos + 2 fixLen 2], UNSIGNED, BE));
+        pos +:= 4;
+      end for;
+
+      for lineNum range sort(keys(lineTable)) do
+        write(lineNum <& " ");
+        pos := lineTable[lineNum] - lineRelocation;
+        line := decodeTokenizedLine(bytes, pos);
+        if line = "" then
+          writeln("Couldn't parse program at position " <& pos);
+        else
+          writeln(line);
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const proc: writeLines (in var string: bytes) is func
+  local
+    var integer: pos is 1;
+  begin
+    pos := searchStartOfBasicFile(bytes);
+    # writeln("Start pos: " <& pos);
+    if bytes[pos + 1 len 2] = "\16#ab;\16#cd;" then
+      bytes := convertIntVar254(bytes, pos);
+      pos := 1;
+    end if;
+    if pos <= length(bytes) then
+      writeLines(bytes, pos);
+    else
+      writeln(" ***** No TI-99 Basic checksum found.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: fileName is "";
+    var file: tokenFile is STD_NULL;
+    var string: bytes is "";
+  begin
+    if length(argv(PROGRAM)) = 1 then
+      fileName := argv(PROGRAM)[1];
+      tokenFile := open(fileName, "r");
+      if tokenFile <> STD_NULL then
+        bytes := gets(tokenFile, length(tokenFile));
+        close(tokenFile);
+        writeLines(bytes);
+      else
+        writeln(" ***** Could not open " <& fileName);
+      end if;
+    else
+      writeln("Lst99bas Version 1.0 - List tokenized TI (Extended) BASIC program.");
+      writeln("Copyright (C) 2016 - 2025 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Lst99bas is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.net");
+      writeln;
+      writeln("usage: lst99bas file");
+    end if;
+  end func;
