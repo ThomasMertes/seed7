@@ -1,0 +1,343 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  lst80bas.sd7  List tokenized TRS-80 Level II BASIC program.     *)
+(*  Copyright (C) 2008 - 2025  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "chartype.s7i";
+  include "bytedata.s7i";
+  include "float.s7i";
+
+
+const array string: tokenTable is [128] (
+    (* 128 *) "END",
+    (* 129 *) "FOR",
+    (* 130 *) "RESET",
+    (* 131 *) "SET",
+    (* 132 *) "CLS",
+    (* 133 *) "CMD",
+    (* 134 *) "RANDOM",
+    (* 135 *) "NEXT",
+    (* 136 *) "DATA",
+    (* 137 *) "INPUT",
+    (* 138 *) "DIM",
+    (* 139 *) "READ",
+    (* 140 *) "LET",
+    (* 141 *) "GOTO",
+    (* 142 *) "RUN",
+    (* 143 *) "IF",
+    (* 144 *) "RESTORE",
+    (* 145 *) "GOSUB",
+    (* 146 *) "RETURN",
+    (* 147 *) "REM",
+    (* 148 *) "STOP",
+    (* 149 *) "ELSE",
+    (* 150 *) "TRON",
+    (* 151 *) "TROFF",
+    (* 152 *) "DEFSTR",
+    (* 153 *) "DEFINT",
+    (* 154 *) "DEFSGN",
+    (* 155 *) "DEFDBL",
+    (* 156 *) "LINE",
+    (* 157 *) "EDIT",
+    (* 158 *) "ERROR",
+    (* 159 *) "RESUME",
+    (* 160 *) "OUT",
+    (* 161 *) "ON",
+    (* 162 *) "OPEN",
+    (* 163 *) "FIELD",
+    (* 164 *) "GET",
+    (* 165 *) "PUT",
+    (* 166 *) "CLOSE",
+    (* 167 *) "LOAD",
+    (* 168 *) "MERGE",
+    (* 169 *) "NAME",
+    (* 170 *) "KILL",
+    (* 171 *) "LSET",
+    (* 172 *) "RSET",
+    (* 173 *) "SAVE",
+    (* 174 *) "SYSTEM",
+    (* 175 *) "LPRINT",
+    (* 176 *) "DEF",
+    (* 177 *) "POKE",
+    (* 178 *) "PRINT",
+    (* 179 *) "CONT",
+    (* 180 *) "LIST",
+    (* 181 *) "LLIST",
+    (* 182 *) "DELETE",
+    (* 183 *) "AUTO",
+    (* 184 *) "CLEAR",
+    (* 185 *) "CLOAD",
+    (* 186 *) "CSAVE",
+    (* 187 *) "NEW",
+    (* 188 *) "TAB(",
+    (* 189 *) "TO",
+    (* 190 *) "FN",
+    (* 191 *) "LLIST",
+    (* 192 *) "DELETE",
+    (* 193 *) "AUTO",
+    (* 194 *) "ERL",
+    (* 195 *) "ERR",
+    (* 196 *) "STRING$",
+    (* 197 *) "INSTR",
+    (* 198 *) "POINT",
+    (* 199 *) "TIME$",
+    (* 200 *) "MEM",
+    (* 201 *) "INKEY$",
+    (* 202 *) "THEN",
+    (* 203 *) "NOT",
+    (* 204 *) "STEP",
+    (* 205 *) "+",
+    (* 206 *) "-",
+    (* 207 *) "*",
+    (* 208 *) "/",
+    (* 209 *) "^",
+    (* 210 *) "AND",
+    (* 211 *) "OR",
+    (* 212 *) ">",
+    (* 213 *) "=",
+    (* 214 *) "<",
+    (* 215 *) "SGN",
+    (* 216 *) "INT",
+    (* 217 *) "ABS",
+    (* 218 *) "FRE",
+    (* 219 *) "INP",
+    (* 220 *) "POS",
+    (* 221 *) "SQR",
+    (* 222 *) "RND",
+    (* 223 *) "LOG",
+    (* 224 *) "EXP",
+    (* 225 *) "COS",
+    (* 226 *) "SIN",
+    (* 227 *) "TAN",
+    (* 228 *) "ATN",
+    (* 229 *) "PEEK",
+    (* 230 *) "CVI",
+    (* 231 *) "CVS",
+    (* 232 *) "CVD",
+    (* 233 *) "EOF",
+    (* 234 *) "LOC",
+    (* 235 *) "LOF",
+    (* 236 *) "MKI$",
+    (* 237 *) "MKS$",
+    (* 238 *) "MKD$",
+    (* 239 *) "CINT",
+    (* 240 *) "CSNG",
+    (* 241 *) "CDBL",
+    (* 242 *) "FIX",
+    (* 243 *) "LEN",
+    (* 244 *) "STR$",
+    (* 245 *) "VAL",
+    (* 246 *) "ASC",
+    (* 247 *) "CHR$",
+    (* 248 *) "LEFT$",
+    (* 249 *) "RIGHT$",
+    (* 250 *) "MID$",
+    (* 251 *) "'");
+
+
+const proc: appendToken(inout string: sourceLine, in string: token) is func
+  begin
+    if sourceLine <> "" and sourceLine[length(sourceLine)] in alphanum_char and
+        token[1] in letter_char then
+      sourceLine &:= " ";
+    end if;
+    sourceLine &:= token;
+  end func;
+
+
+(**
+ *  Decodes a line from the bytes buffer at position pos.
+ *  @param bytes Buffer containing the tokenized program.
+ *  @param pos Current position in the bytes buffer (pos is changed).
+ *  @return the basic source line or "" at the end of the program.
+ *  @exception RANGE_ERROR If an illegal encoding was found.
+ *)
+const func string: decodeTokenizedLine (in string: bytes, inout integer: pos) is func
+  result
+    var string: sourceLine is "";
+  local
+    var integer: code is 0;
+    var string: token is "";
+    var boolean: tokenEndsWithLetter is FALSE;
+    var boolean: insertSpaceBeforeIdentifier is FALSE;
+  begin
+    # The first two bytes are the address of the next line.
+    # This address is not needed here.
+    # At the end of the program both bytes are zero.
+    if bytes[pos] = '\0;' and bytes[pos + 1] = '\0;' then
+      pos := succ(length(bytes));
+    else
+      # next two bytes are the line number
+      sourceLine &:= str(bytes2Int(bytes[pos + 2 fixLen 2], UNSIGNED, LE));
+      # writeln("line: " <& sourceLine);
+      sourceLine &:= " ";
+      pos +:= 4;
+      while pos <= length(bytes) and bytes[pos] <> '\0;' do
+        code := ord(bytes[pos]);
+        # writeln("code: " <& code);
+        case code of
+          when {10}:         # Newline
+            # A newline inside a source line is replaced with a space.
+            sourceLine &:= " ";
+            pos +:= 1;
+          when {32, 33}:     # ' ', '!'
+            sourceLine &:= str(char(code));
+            pos +:= 1;
+          when {34}:         # String literal
+            sourceLine &:= '"';
+            incr(pos);
+            # Get the bytes of a string without decoding the tokens.
+            while pos <= length(bytes) and bytes[pos] <> '"' and bytes[pos] <> '\0;' do
+              sourceLine &:= bytes[pos];
+              incr(pos);
+            end while;
+            # A string might not be terminated by "
+            if pos <= length(bytes) and bytes[pos] = '"' then
+              sourceLine &:= '"';
+              incr(pos);
+            end if;
+          when {35 .. 57}:   # '#' .. '9'
+            if insertSpaceBeforeIdentifier and char(code) in digit_char then
+              sourceLine &:= " ";
+            end if;
+            sourceLine &:= str(char(code));
+            incr(pos);
+          when {58}:         # ':'
+            if pos + 2 <= length(bytes) and ord(bytes[succ(pos)]) = 147 and
+                 ord(bytes[pos + 2]) = 251 then
+              # ' is stored as ":REM'" with the bytes 58, 147, 251 (16#3a93fb).
+              # The ":REM" is suppressed when the program is listed.
+              sourceLine &:= "'";
+              pos +:= 3;
+              # Get the bytes of ' without decoding the tokens.
+              while pos <= length(bytes) and bytes[pos] <> '\0;' do
+                sourceLine &:= bytes[pos];
+                if bytes[pos] = '\n' then
+                  sourceLine &:= "' ";
+                end if;
+                incr(pos);
+              end while;
+            elsif pos < length(bytes) and ord(bytes[succ(pos)]) = 149 then
+              # ELSE is stored as ":ELSE" with the bytes 58, 149 (16#3a95).
+              # The ":" is suppressed when the program is listed.
+              appendToken(sourceLine, "ELSE");
+              tokenEndsWithLetter := TRUE;
+              pos +:= 2;
+            else
+              sourceLine &:= ":";
+              incr(pos);
+            end if;
+          when {59 .. 126}:  # ';' .. '~'
+            if insertSpaceBeforeIdentifier and char(code) in letter_char then
+              sourceLine &:= " ";
+            end if;
+            sourceLine &:= str(char(code));
+            pos +:= 1;
+          when {128 .. 251}:  # Token
+            appendToken(sourceLine, tokenTable[code]);
+            if code = 147 then
+              # Get the bytes of REM without decoding the tokens.
+              incr(pos);
+              while pos <= length(bytes) and bytes[pos] <> '\0;' do
+                sourceLine &:= bytes[pos];
+                if bytes[pos] = '\n' then
+                  sourceLine &:= "REM ";
+                end if;
+                incr(pos);
+              end while;
+              decr(pos);
+            elsif code <> 190 then
+              # After "FN" the function name should follow without space.
+              tokenEndsWithLetter := sourceLine[length(sourceLine)] in letter_char;
+            end if;
+            incr(pos);
+          otherwise:
+            writeln(" ***** Unexpected token: " <& code <&
+                      " (" <& code radix 16 lpad0 2 <& ")");
+            raise RANGE_ERROR;
+        end case;
+        if tokenEndsWithLetter then
+          insertSpaceBeforeIdentifier := TRUE;
+          tokenEndsWithLetter := FALSE;
+        else
+          insertSpaceBeforeIdentifier := FALSE;
+        end if;
+      end while;
+      if pos > length(bytes) then
+        writeln(" ***** Unexpected end of line.");
+        raise RANGE_ERROR;
+      else
+        pos +:= 1;  # Consume the null byte at end of line
+      end if;
+    end if;
+  end func;
+
+
+const proc: writeLines (in var string: bytes) is func
+  local
+    var integer: pos is 2;
+    var string: line is "";
+  begin
+    if startsWith(bytes, "\16#ff;") then
+      line := decodeTokenizedLine(bytes, pos);
+      while pos <= length(bytes) do
+        if line = "" then
+          writeln(" ***** Couldn't parse program at position " <& pos);
+        elsif pos <= length(bytes) then
+          writeln(line);
+        end if;
+        line := decodeTokenizedLine(bytes, pos);
+      end while;
+    else
+      writeln(" ***** Magic number (255) for trs-80 basic missing.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: fileName is "";
+    var file: tokenFile is STD_NULL;
+    var string: bytes is "";
+  begin
+    if length(argv(PROGRAM)) = 1 then
+      fileName := argv(PROGRAM)[1];
+      tokenFile := open(fileName, "r");
+      if tokenFile <> STD_NULL then
+        bytes := gets(tokenFile, length(tokenFile));
+        close(tokenFile);
+        writeLines(bytes);
+      else
+        writeln(" ***** Could not open " <& fileName);
+      end if;
+    else
+      writeln("Lst80bas Version 1.0 - List tokenized TRS-80 Level II BASIC program.");
+      writeln("Copyright (C) 2008 - 2025 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Lst80bas is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.net");
+      writeln;
+      writeln("usage: lst80bas file");
+    end if;
+  end func;
