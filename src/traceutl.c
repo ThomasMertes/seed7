@@ -70,6 +70,8 @@
 #include "traceutl.h"
 
 
+#define NODE_NAME_LEN_MAX 4095
+
 static fileRecord protFileRecord = {NULL, 0, FALSE, TRUE};
 static fileType protfile = &protFileRecord;
 static boolType internal_protocol = FALSE;
@@ -463,11 +465,11 @@ void printcategory (objectCategory category)
 static char *obj_ptr (objectType anyobject)
 
   {
-    static char buffer[MEMSIZETYPE_HEXADECIMAL_SIZE + NULL_TERMINATION_LEN];
+    static char buffer[2 + MEMSIZETYPE_HEXADECIMAL_SIZE + NULL_TERMINATION_LEN];
 
   /* obj_ptr */
     logFunction(printf("obj_ptr\n"););
-    sprintf(buffer, FMT_X_MEM, (memSizeType) anyobject);
+    sprintf(buffer, "<" FMT_X_MEM ">", (memSizeType) anyobject);
     logFunction(printf("obj_ptr -->\n"););
     return buffer;
   } /* obj_ptr */
@@ -491,9 +493,7 @@ void printtype (const_typeType anytype)
       } else {
         prot_cstri(" *ANONYM_TYPE* ");
       } /* if */
-      /* prot_cstri(" <");
-      prot_cstri(obj_ptr(anytype->match_obj));
-      prot_cstri(">"); */
+      /* prot_cstri(obj_ptr(anytype->match_obj)); */
     } else {
       prot_cstri(" *NULL_TYPE* ");
     } /* if */
@@ -1351,21 +1351,25 @@ void trace_node (const_nodeType anynode)
 
 
 
-static void list_match_object (const_objectType anyobject, char *buffer)
+static const char *match_object_id (const_objectType anyobject)
 
-  { /* list_match_object */
-    logFunction(printf("list_match_object\n"););
+  {
+    const char *stri;
+
+  /* match_object_id */
+    logFunction(printf("match_object_id\n"););
     if (anyobject != NULL) {
       if (HAS_ENTITY(anyobject)) {
-        strcat(buffer, id_string(GET_ENTITY(anyobject)->ident));
+        stri = id_string(GET_ENTITY(anyobject)->ident);
       } else {
-        strcat(buffer, " *NULL_MATCH_OBJ_ENTITY* ");
+        stri = " *NULL_MATCH_OBJ_ENTITY* ";
       } /* if */
     } else {
-      strcat(buffer, " *NULL_MATCH_OBJ* ");
+      stri = " *NULL_MATCH_OBJ* ";
     } /* if */
-    logFunction(printf("list_match_object -->\n"););
-  } /* list_match_object */
+    logFunction(printf("match_object_id -->\n"););
+    return stri;
+  } /* match_object_id */
 
 
 
@@ -1374,6 +1378,9 @@ static void list_node_names (const_nodeType anynode, char *buffer)
   {
     size_t buf_len;
     size_t buf_len2;
+    const char *stri1;
+    const char *stri2;
+    const char *stri3;
 
   /* list_node_names */
     logFunction(printf("list_node_names\n"););
@@ -1384,63 +1391,76 @@ static void list_node_names (const_nodeType anynode, char *buffer)
           if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
             if (anynode->match_obj->value.typeValue != NULL) {
               if (anynode->match_obj->value.typeValue->name != NULL) {
-                strcat(buffer, id_string(anynode->match_obj->value.typeValue->name));
+                stri1 = id_string(anynode->match_obj->value.typeValue->name);
+                stri2 = "";
               } else if (anynode->match_obj->value.typeValue->result_type != NULL &&
                   anynode->match_obj->value.typeValue->result_type->name != NULL) {
                 if (anynode->match_obj->value.typeValue->is_varfunc_type) {
-                  strcat(buffer, "varfunc ");
+                  stri1 = "varfunc ";
                 } else {
-                  strcat(buffer, "func ");
+                  stri1 = "func ";
                 } /* if */
-                strcat(buffer, id_string(anynode->match_obj->value.typeValue->result_type->name));
+                stri2 = id_string(anynode->match_obj->value.typeValue->result_type->name);
               } else {
-                strcat(buffer, " *ANONYM_TYPE* ");
+                stri1 = " *ANONYM_TYPE* ";
+                stri2 = "";
               } /* if */
             } else {
-              strcat(buffer, " *NULL_TYPE* ");
+              stri1 = " *NULL_TYPE* ";
+              stri2 = "";
             } /* if */
           } else {
-            list_match_object(anynode->match_obj, buffer);
+            stri1 = match_object_id(anynode->match_obj);
+            stri2 = "";
           } /* if */
         } else {
-          strcat(buffer, " *NULL_MATCH_OBJ* ");
+          stri1 = " *NULL_MATCH_OBJ* ";
+          stri2 = "";
         } /* if */
-        strcat(buffer, " <");
-        strcat(buffer, obj_ptr(anynode->match_obj));
-        strcat(buffer, ">");
-        if (anynode->entity != NULL) {
-          if (anynode->entity->data.owner != NULL) {
-            prot_cstri8(buffer);
-            prot_cstri(" is ");
-            printobject(anynode->entity->data.owner->obj);
-            prot_nl();
+        stri3 = obj_ptr(anynode->match_obj);
+        if (buf_len + strlen(stri1) + strlen(stri2) +
+	    strlen(stri3) <= NODE_NAME_LEN_MAX) {
+          strcat(buffer, stri1);
+          strcat(buffer, stri2);
+          strcat(buffer, stri3);
+          if (anynode->entity != NULL) {
+            if (anynode->entity->data.owner != NULL) {
+              prot_cstri8(buffer);
+              prot_cstri(" is ");
+              printobject(anynode->entity->data.owner->obj);
+              prot_nl();
+            } /* if */
           } /* if */
+          buf_len2 = strlen(buffer);
+          if (anynode->symbol != NULL &&
+              buf_len2 + 1 <= NODE_NAME_LEN_MAX) {
+            strcat(buffer, " ");
+            list_node_names(anynode->symbol, buffer);
+            buffer[buf_len2] = '\0';
+          } /* if */
+          if (anynode->inout_param != NULL &&
+              buf_len2 + STRLEN(" inout_param ") <= NODE_NAME_LEN_MAX) {
+            strcat(buffer, " inout_param ");
+            list_node_names(anynode->inout_param, buffer);
+            buffer[buf_len2] = '\0';
+          } /* if */
+          if (anynode->other_param != NULL &&
+              buf_len2 + STRLEN(" other_param ") <= NODE_NAME_LEN_MAX) {
+            strcat(buffer, " other_param ");
+            list_node_names(anynode->other_param, buffer);
+            buffer[buf_len2] = '\0';
+          } /* if */
+          if (anynode->attr != NULL &&
+              buf_len2 + STRLEN(" attr ") <= NODE_NAME_LEN_MAX) {
+            strcat(buffer, " attr ");
+            list_node_names(anynode->attr, buffer);
+            buffer[buf_len2] = '\0';
+          } /* if */
+          buffer[buf_len] = '\0';
+          list_node_names(anynode->next1, buffer);
+          list_node_names(anynode->next2, buffer);
+          buffer[buf_len] = '\0';
         } /* if */
-        buf_len2 = strlen(buffer);
-        if (anynode->symbol != NULL) {
-          strcat(buffer, " ");
-          list_node_names(anynode->symbol, buffer);
-          buffer[buf_len2] = '\0';
-        } /* if */
-        if (anynode->inout_param != NULL) {
-          strcat(buffer, " inout_param ");
-          list_node_names(anynode->inout_param, buffer);
-          buffer[buf_len2] = '\0';
-        } /* if */
-        if (anynode->other_param != NULL) {
-          strcat(buffer, " other_param ");
-          list_node_names(anynode->other_param, buffer);
-          buffer[buf_len2] = '\0';
-        } /* if */
-        if (anynode->attr != NULL) {
-          strcat(buffer, " attr ");
-          list_node_names(anynode->attr, buffer);
-          buffer[buf_len2] = '\0';
-        } /* if */
-        buffer[buf_len] = '\0';
-        list_node_names(anynode->next1, buffer);
-        list_node_names(anynode->next2, buffer);
-        buffer[buf_len] = '\0';
       } else {
         list_node_names(anynode->next1, buffer);
         list_node_names(anynode->next2, buffer);
@@ -1456,7 +1476,7 @@ void trace_nodes (void)
   {
     int position;
     int character;
-    char buffer[4096];
+    char buffer[NODE_NAME_LEN_MAX + NULL_TERMINATION_LEN];
 
   /* trace_nodes */
     logFunction(printf("trace_nodes\n"););
