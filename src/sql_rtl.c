@@ -1827,6 +1827,7 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                       "Database is not open.\n",
                       (memSizeType) sqlStatement););
       raise_error(DATABASE_ERROR);
+      columnCount = 0;
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL)) {
       dbNoFuncPtr("sqlStmtColumnCount");
@@ -1834,6 +1835,7 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                       "Function pointer missing.\n",
                       (memSizeType) sqlStatement););
       raise_error(DATABASE_ERROR);
+      columnCount = 0;
     } else {
       columnCount = ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount(
           sqlStatement);
