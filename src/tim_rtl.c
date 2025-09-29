@@ -879,7 +879,7 @@ boolType assignIsoDuration (const const_ustriType isoDuration,
                   if (numStri == stri) {
                     okay = FALSE;
                   } else {
-                    microsecStriLen = stri - numStri;
+                    microsecStriLen = (memSizeType) (stri - numStri);
                     if (microsecStriLen > 6) {
                       roundUp = numStri[6] >= '5';
                       memcpy(microsecStri, numStri, 6);
