@@ -179,7 +179,9 @@ genericType ustriCreateGeneric (const genericType source)
                                      : ustri););
     if (likely(ustri != NULL)) {
       length = strlen((cstriType) ustri);
-      if (ALLOC_USTRI(result.value.ustriValue, length)) {
+      if (unlikely(!ALLOC_USTRI(result.value.ustriValue, length))) {
+        raise_error(MEMORY_ERROR);
+      } else {
         memcpy(result.value.ustriValue, ustri, length + NULL_TERMINATION_LEN);
       } /* if */
     } else {
