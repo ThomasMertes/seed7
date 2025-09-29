@@ -99,6 +99,7 @@ static void checkForLevelH (void)
 
   {
     FILE *levelFile;
+    FILE *levelRlFile;
     char buffer1[16];
     char buffer2[16];
     long level;
@@ -108,15 +109,19 @@ static void checkForLevelH (void)
     if (levelFile != NULL) {
       fclose(levelFile);
     } else {
-      levelFile = fopen("level_rl.h", "r");
-      if (levelFile != NULL) {
-        fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &level);
-        fclose(levelFile);
-        levelFile = fopen("level.h", "wb");
-        if (levelFile != NULL) {
-          fprintf(levelFile, "#define LEVEL %ld\n", level);
-          fclose(levelFile);
+      levelRlFile = fopen("level_rl.h", "r");
+      if (levelRlFile != NULL) {
+        if (fscanf(levelRlFile, "%15s %15s %ld\n",
+                   buffer1, buffer2, &level) == 3 &&
+            strcmp(buffer1, "#define") == 0 &&
+            strcmp(buffer2, "LEVEL") == 0) {
+          levelFile = fopen("level.h", "wb");
+          if (levelFile != NULL) {
+            fprintf(levelFile, "#define LEVEL %ld\n", level);
+            fclose(levelFile);
+          } /* if */
         } /* if */
+        fclose(levelRlFile);
       } /* if */
     } /* if */
   } /* checkForLevelH */
