@@ -7947,16 +7947,19 @@ static int canLoadDynamicLibrary (const char *dllName)
 
   /* canLoadDynamicLibrary */
 #if LIBRARY_TYPE == WINDOWS_LIBRARIES
-    for (srcChar = &dllName[0], destChar = dllPath;
-         *srcChar != '\0';
-         srcChar++) {
-      if (*srcChar == '/' || *srcChar == '\\') {
-        *destChar++ = '\\';
-        *destChar++ = '\\';
-      } else {
-        *destChar++ = *srcChar;
-      } /* if */
-    } /* for */
+    destChar = dllPath;
+    if (dllName != NULL) {
+      for (srcChar = &dllName[0];
+           *srcChar != '\0';
+           srcChar++) {
+        if (*srcChar == '/' || *srcChar == '\\') {
+          *destChar++ = '\\';
+          *destChar++ = '\\';
+        } else {
+          *destChar++ = *srcChar;
+        } /* if */
+      } /* for */
+    } /* if */
     *destChar = '\0';
     sprintf(testProgram,
             "#include <stdio.h>\n#include <windows.h>\n"
@@ -10925,6 +10928,7 @@ static int getCodePage (void)
                          "return 0; }\n")) {
       codePage = doTest();
     } /* if */
+    return codePage;
   } /* getCodePage */
 #endif
 
