@@ -182,6 +182,8 @@ genericType ustriCreateGeneric (const genericType source)
       if (ALLOC_USTRI(result.value.ustriValue, length)) {
         memcpy(result.value.ustriValue, ustri, length + NULL_TERMINATION_LEN);
       } /* if */
+    } else {
+      result.value.ustriValue = NULL;
     } /* if */
     logFunction(printf("ustriCreateGeneric --> " FMT_U "\n",
                        result.value.genericValue););
