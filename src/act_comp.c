@@ -53,7 +53,7 @@
  *  @return an action which corresponds to the given string.
  *  @exception RANGE_ERROR No such action exists.
  */
-actType actGen (striType actionName)
+actType actGen (const const_striType actionName)
 
   {
     actType anAction;

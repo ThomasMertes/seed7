@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-actType actGen (striType actionName);
+actType actGen (const const_striType actionName);
 actType actIConv (intType ordinal);
 intType actOrd (actType anAction);
 striType actStr (actType anAction);
