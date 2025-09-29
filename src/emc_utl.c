@@ -87,14 +87,18 @@ void doExit (int returnCode)
 
   {
     atExitDataType *atExitElement;
+    atExitDataType *nextElement;
 
   /* doExit */
     logFunction(printf("doExit(%d)\n", returnCode););
     atExitElement = atExitLifoStack;
     while (atExitElement != NULL) {
       atExitElement->function();
-      atExitElement = atExitElement->next;
+      nextElement = atExitElement->next;
+      free(atExitElement);
+      atExitElement = nextElement;
     } /* if */
+    atExitLifoStack = NULL;
     logFunction(printf("doExit() -->\n"););
     EM_ASM({
       if (reloadPageFunction !== null) {
