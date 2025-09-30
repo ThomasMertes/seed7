@@ -932,7 +932,7 @@ const func string: durationType (in dbCategory: databaseKind) is func
       when {DB_POSTGRESQL}: durationType := "INTERVAL";
       when {DB_OCI}:        durationType := "INTERVAL DAY TO SECOND";
       when {DB_FIRE}:       durationType := "TIMESTAMP";
-      when {DB_SQL_SERVER}: durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
+      when {DB_SQL_SERVER}: durationType := "VARCHAR(53)";
       when {DB_DB2}:        durationType := "TIMESTAMP";
     end case;
   end func;
