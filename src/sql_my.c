@@ -1173,9 +1173,12 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
-                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+    } else if (unlikely(year < -INT_MAX || year > INT_MAX ||
+                        month < -12 || month > 12 ||
+                        day < -31 || day > 31 ||
+                        hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 ||
+                        second <= -60 || second >= 60 ||
                         micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
@@ -1199,8 +1202,8 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                                (int64Type) minute) * 60 +
                                (int64Type) second) * 1000000 +
                                (int64Type) micro_second;
-        /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
-           printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+        logMessage(printf("monthDuration: " FMT_D64 "\n", monthDuration););
+        logMessage(printf("microsecDuration: " FMT_D64 "\n", microsecDuration););
         if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
                        (monthDuration <= 0 && microsecDuration <= 0)))) {
           logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
