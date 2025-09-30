@@ -142,6 +142,7 @@ static sqlFuncType sqlFunc = NULL;
 #define DEFAULT_DECIMAL_SCALE 1000
 #define SQLLEN_MAX (SQLLEN) (((SQLULEN) 1 << (8 * sizeof(SQLLEN) - 1)) - 1)
 #define SQLINTEGER_MAX (SQLINTEGER) (((SQLUINTEGER) 1 << (8 * sizeof(SQLINTEGER) - 1)) - 1)
+#define SQLINTEGER_MIN -SQLINTEGER_MAX - (SQLINTEGER) 1
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
 #define ERROR_MESSAGE_BUFFER_SIZE 1000
 #define MAX_DATETIME2_LENGTH 27
@@ -2370,9 +2371,44 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
     intType minute, intType second, intType micro_second)
 
   {
+    int64Type monthDuration;
+    int64Type microsecDuration;
     SQLSMALLINT c_type = 0;
 
   /* assignToIntervalStruct */
+    logFunction(printf("assignToIntervalStruct(" FMT_U_MEM ", P"
+                       FMT_D "Y" FMT_D "M" FMT_D "DT"
+                       FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
+                       (memSizeType) interval,
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
+    /* Normalize the duration */
+    monthDuration = (int64Type) year * 12 + (int64Type) month;
+    microsecDuration = (((((int64Type) day) * 24 +
+                           (int64Type) hour) * 60 +
+                           (int64Type) minute) * 60 +
+                           (int64Type) second) * 1000000 +
+                           (int64Type) micro_second;
+    logMessage(printf("monthDuration: " FMT_D64 "\n", monthDuration););
+    logMessage(printf("microsecDuration: " FMT_D64 "\n", microsecDuration););
+    month        = (intType) (monthDuration % 12);
+    year         = (intType) (monthDuration / 12);
+    micro_second = (intType) (microsecDuration % 1000000);
+    microsecDuration /= 1000000;
+    second       = (intType) (microsecDuration % 60);
+    microsecDuration /= 60;
+    minute       = (intType) (microsecDuration % 60);
+    microsecDuration /= 60;
+    hour         = (intType) (microsecDuration % 24);
+    day          = (intType) (microsecDuration / 24);
+    logMessage(printf("P" FMT_D "Y" FMT_D "M" FMT_D "DT"
+                      FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
+                      year, month, day, hour, minute,
+                      second < 0 || micro_second < 0 ? "-" : "",
+                      intAbs(second), intAbs(micro_second)););
+
+    /* Convert to SQL_INTERVAL_STRUCT */
     memset(interval, 0, sizeof(SQL_INTERVAL_STRUCT));
     if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
       if (year != 0) {
@@ -3575,9 +3611,12 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       err_info = RANGE_ERROR;
-    } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
-                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+    } else if (unlikely(year < SQLINTEGER_MIN || year > SQLINTEGER_MAX ||
+                        month < -12 || month > 12 ||
+                        day < -31 || day > 31 ||
+                        hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 ||
+                        second <= -60 || second >= 60 ||
                         micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       err_info = RANGE_ERROR;
