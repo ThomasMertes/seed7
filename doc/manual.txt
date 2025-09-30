@@ -91,24 +91,27 @@ CONTENTS
   5.21    file
   5.22    text
   5.23    fileSys
-  5.24    database
-  5.25    sqlStatement
-  5.26    process
-  5.27    category
-  5.28    reference
-  5.29    ref_list
-  5.30    structElement
-  5.31    program
-  5.32    ptr
-  5.33    func
-  5.34    varfunc
-  5.35    void
-  5.36    proc
-  5.37    creator
-  5.38    destroyer
-  5.39    type
-  5.40    object
-  5.41    expr
+  5.24    pollData
+  5.25    listener
+  5.26    database
+  5.27    sqlStatement
+  5.28    process
+  5.29    category
+  5.30    reference
+  5.31    ref_list
+  5.32    structElement
+  5.33    program
+  5.34    parseError
+  5.35    ptr
+  5.36    func
+  5.37    varfunc
+  5.38    void
+  5.39    proc
+  5.40    creator
+  5.41    destroyer
+  5.42    type
+  5.43    object
+  5.44    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -1126,7 +1129,7 @@ CONTENTS
     $ include "seed7_05.s7i";
       include "keydescr.s7i";
 
-    const proc: main is func
+    const> proc: main is func
       local
         var string: description is "";
       begin
@@ -1270,54 +1273,59 @@ CONTENTS
   'heads' is written with the ternary operator (?:). If 'heads'
   is TRUE, it writes "heads" otherwise "tails".
 
-  The program below reads a multi-line paragraph:
+  Note that 'return' is not a statement. Instead 'return' is a
+  shortcut for a function declaration with a result variable:
 
-    $ include "seed7_05.s7i";
-
-    const func string: readMultiLineParagraph is func
+    const func boolean: flipCoin is func
       result
-        var string: multiLineParagraph is "";
-      local
-        var string: line is "";
+        var boolean: coinState is FALSE;
       begin
-        repeat
-          write("line: ");
-          line := getln(IN);
-          multiLineParagraph &:= line & "\n";
-        until line = "";
+        coinState := rand(FALSE, TRUE);
       end func;
 
-    const proc: main is func
-      begin
-        writeln("Enter a multi line paragraph. An empty line ends the paragraph.");
-        writeln("\nThe paragraph is:\n" <& readMultiLineParagraph);
-      end func;
+  A result variable is a specific local variable used as function
+  result.
 
-  The declaration of 'readMultiLineParagraph' above contains the construct:
+  The declaration of 'flipCoin' above contains the construct:
 
     func
     ...
     end func
 
-  The function 'readMultiLineParagraph' gets the
-  'func ... end func' construct as value. This construct can be used to initialize
-  functions and procedures. Note that 'proc' is just a shortcut
-  for 'func void' and that 'void' describes the empty type.
-  Inside of the 'func ... end func' construct are the keywords
-  'result', 'local' and 'begin':
+  The function 'flipCoin' gets the 'func ... end func'
+  construct as value. This construct can be used to initialize
+  functions and procedures. Inside of the 'func ... end func'
+  construct the keywords 'result', 'local' and 'begin' can be used:
 
   - The keyword 'result' introduces the declaration of the
     result variable. When the function is finished, it will
-    return the current value of the result variable.
+    return the current value of the result variable. If no
+    assignment to the result variable is done the initialization
+    value of the result value is the function result.
   - The keyword 'local' introduces constant and variable
     declarations that are local to the function.
   - The keyword 'begin' introduces a sequence of statements
     that is executed when the function is called.
 
-  As can be seen from the function 'main' above, the 'result' and
-  'local' parts are optional. If the function type is 'proc',
+  As can be seen from declarations of 'main' above, the 'result'
+  and 'local' parts are optional. If the function type is 'proc',
   the 'result' part must be omitted. For all other functions
   the 'result' part is mandatory.
+
+  The result of a function must be used (assigned, written, used
+  as parameter, etc.). It is not possible to silently ignore the
+  function result by using it as statement. The attempt to use
+  'flipCoin' as statement:
+
+    const proc: main is func
+      begin
+        flipCoin;
+      end func;
+
+  results in a parsing error:
+
+    *** tst609.sd7(8):35: Procedure expected found "func boolean" expression
+        flipCoin;
 
 
 2.10 Parameters
@@ -1760,6 +1768,19 @@ CONTENTS
         var boolean: coinState is FALSE;
       begin
         coinState := rand(FALSE, TRUE);
+      end func;
+
+  A result variable is a specific local variable used as function
+  result. If no assignment to the result variable is done the
+  initialization value of the result value is the function result:
+
+    const func integer: countDigits is func
+      result
+        var integer: count is 0;
+      begin
+        while getc(IN) in {'0' .. '9'} do
+          incr(count);
+        end while;
       end func;
 
   The keyword 'local' allows the introduction of local
@@ -4952,7 +4973,7 @@ to 'newFile'.
                   ( str(A) => A )
       literal(A) Conversion to a literal
                   ( literal("ABC") => "\"ABC\"",
-                    literal("O' \"X\"") => "\"O\' \\\"X\\\"\"" )
+                    literal("O' \"X\"") => "\"O' \\\"X\\\"\"" )
       upper(A)  Conversion to upper case characters
                   ( upper("Upper") => "UPPER" )
       lower(A)  Conversion to lower case characters
@@ -6660,7 +6681,89 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.24 database
+5.24 pollData
+
+    With the type 'pollData' input (checkedEvents) and output
+  (eventFindings) of the function poll() are maintained. The type
+  'pollData' maintains a set of sockets. For every socket the
+  checkedEvents and the eventFindings are maintained. The
+  checkedEvents determine, which events (POLLIN, POLLOUT, or
+  POLLINOUT) should be checked by poll(). The function poll()
+  determines the events found and stores them as eventFindings.
+  The type 'pollData' provides also an iterator, which can be
+  used to iterate over checkedEvents and eventFindings.
+
+    Constants:
+      pollData.value  Default value of pollData (empty pollData)
+    Functions:
+      getCheck(pData, aSocket)  Checked events from pData for aSocket
+                  ( Type of argument aSocket: PRIMITIVE_SOCKET,
+                    Type of result: integer )
+      getCheck(pData, aFile)  Checked events from pData for aFile
+                  ( Type of argument aFile: file,
+                    Type of result: integer )
+      getFinding(pData, aSocket)  Event findings from pData for aSocket
+                  ( Type of argument aSocket: PRIMITIVE_SOCKET,
+                    Type of result: integer )
+      getFinding(pData, aFile)  Event findings from pData for aFile
+                  ( Type of argument aFile: file,
+                    Type of result: integer )
+      hasNext(pData)  Determine if the pData iterator can deliver another file
+                  ( Type of result: boolean )
+      nextFile(pData)  Get the next file from the pData iterator
+                  ( Type of result: file )
+    Statements:
+      clear(pData)  Clears pData
+      addCheck(pData, aSocket, eventsToCheck, aFile)  Add eventsToCheck for aSocket to pData
+                  ( Type of argument aSocket: PRIMITIVE_SOCKET,
+                    Type of argument eventsToCheck: integer,
+                    Type of argument aFile: file )
+      addCheck(pData, aFile, eventsToCheck)  Add eventsToCheck for aFile to pData
+                  ( Type of argument aFile: file,
+                    Type of argument eventsToCheck: integer )
+      removeCheck(pData, aSocket, eventsToCheck) Remove eventsToCheck for aSocket from pData
+                  ( Type of argument aSocket: PRIMITIVE_SOCKET,
+                    Type of argument eventsToCheck: integer )
+      removeCheck(pData, aFile, eventsToCheck)  Remove eventsToCheck for aFile from pData
+                  ( Type of argument aFile: file,
+                    Type of argument eventsToCheck: integer )
+      poll(pData)  Waits for one or more of the checkedEvents from pData
+      iterChecks(pData, pollMode)  Reset the pollData iterator to process checkedEvents
+                  ( Type of argument pollMode: integer )
+      iterFindings(pData, pollMode)  Reset the pollData iterator to process eventFindings
+                  ( Type of argument pollMode: integer )
+      ignore(A) Ignore value
+      for forVar range pData do
+        statements
+      end for   Loop over the values of the pData iterator
+                  ( Type of argument forVar: file,
+                    Type of argument statements: proc )
+
+
+5.25 listener
+
+    The type 'listener' is the interface type for listeners. The
+  'listener' interface is implemented with 'inetListener'. A 'listener'
+  manages its accepted sockets.
+
+    Functions:
+      openInetListener(portNumber)  Create a bound internet listener for a port at localhost
+                  ( Type of argument portNumber: integer )
+      accept(aListener)  Create a new accepted connection socket for aListener
+                  ( Type of result: file )
+    Statements:
+      close(aListener)  Close the listener aListener
+      listen(aListener, backlog)  Listen for socket connections and limit the incoming queue
+                  ( Type of argument backlog: integer )
+      signOn(aListener, sock)  Sign on a socket in a listener
+                  ( Type of argument sock: file )
+      signOff(aListener, sock)  Sign off a socket from a listener
+                  ( Type of argument sock: file )
+      waitForRequest(aListener)  Wait until a request can be read or an incoming connection is accepted
+      ignore(A) Ignore value
+
+
+5.26 database
 
     The type 'database' describes database connections.
   The library "sql_base.s7i" defines functions to manage database connections.
@@ -6706,9 +6809,10 @@ to 'newFile'.
                   ( Type of argument autoCommit: boolean )
       commit(db)  Execute a commit statement for db
       rollback (db)  Execute a rollback statement for db
+      ignore(A) Ignore value
 
 
-5.25 sqlStatement
+5.27 sqlStatement
 
     The type 'sqlStatement' describes prepared sql statements.
 
@@ -6788,9 +6892,10 @@ to 'newFile'.
                   ( Type of argument pos: integer,
                     Type of argument durationData: duration )
       execute(statement)  Execute the specified prepared SQL statement
+      ignore(A) Ignore value
 
 
-5.26 process
+5.28 process
 
     The type 'process' describes processes of the operating system.
   The library "process.s7i" defines functions to create and manage processes.
@@ -6842,7 +6947,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.27 category
+5.29 category
 
     The type 'category' describes the category of a 'reference'.
   The 'category' functions are defined in the library "category.s7i".
@@ -6857,7 +6962,7 @@ to 'newFile'.
       PROCESSOBJECT, ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT,
       REFOBJECT, REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT,
       REFPARAMOBJECT, RESULTOBJECT, LOCALVOBJECT, DATABASEOBJECT,
-      SQLSTMTOBJECT, PROGOBJECT,
+      SQLSTMTOBJECT, PROGOBJECT, ILLEGALOBJECT
     Constants:
       category.value  Default value of category (SYMBOLOBJECT)
     Infix operators:
@@ -6886,6 +6991,10 @@ to 'newFile'.
                   ( Type of argument A: string,
                     category("FLOATOBJECT") => FLOATOBJECT,
                     category("does not exist") => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       ignore(A) Ignore value
       for A range B to C do
@@ -6898,7 +7007,7 @@ to 'newFile'.
                   ( Type of argument D: proc )
 
 
-5.28 reference
+5.30 reference
 
     The type 'reference' describes a reference to an object in the
   abstract syntax tree (AST) of a program. You cannot access the AST
@@ -7059,7 +7168,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.29 ref_list
+5.31 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects. The
   'ref_list' functions are defined in the library "ref_list.s7i".
@@ -7134,7 +7243,7 @@ to 'newFile'.
                     Type of argument statements: proc )
 
 
-5.30 structElement
+5.32 structElement
 
     The type 'structElement' describes an element of a 'struct'.
   A 'structElement' value has two properties:
@@ -7198,9 +7307,11 @@ to 'newFile'.
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
+    Statements:
+      ignore(A) Ignore value
 
 
-5.31 program
+5.33 program
 
     The type 'program' describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -7219,6 +7330,8 @@ to 'newFile'.
                   ( Type of argument A: string )
       parseStri(A)  Parse the string A
                   ( Type of argument A: string )
+      parseStri(A)  Parse the bstring A
+                  ( Type of argument A: bstring )
       evaluate(A, B)  Evaluate the expression B which is part of program A
                   ( Type of result: reference,
                     Type of argument B: reference )
@@ -7227,6 +7340,9 @@ to 'newFile'.
                     Type of argument B: string )
       errorCount(A)  Number of errors in the program A
                   ( Type of result: integer )
+      getError(A, N)  Get error N from program A
+                  ( Type of argument N: integer,
+                    Type of result: parseError )
       globalObjects(A)  List of global defined objects in the program A
                   ( Type of result: ref_list )
       syobject(A, B)  Return object with name B in program A
@@ -7235,12 +7351,36 @@ to 'newFile'.
       match(A, B)  Return object from program A which matches B
                   ( Type of result: reference,
                     Type of argument B: ref_list )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
     Statements:
       execute(A) Execute the program referred by A
       ignore(A) Ignore value
 
 
-5.32 ptr
+5.34 parseError
+
+    The type 'parseError' describes syntactic and semantic errors
+  discovered by the parser. It contains information about the
+  error, file, line, column, error message and error line.
+
+    Elements:
+      var errorType: error is errorType.value;
+      var string: fileName is "";
+      var integer: lineNumber is 0;
+      var integer: columnNumber is 0;
+      var string: message is "";
+      var string: errorLine is "";
+    Functions:
+      getError(A, N)  Get error N from program A
+                  ( Type of argument A: program,
+                    Type of argument N: integer )
+    Statements:
+      ignore(A) Ignore value
+
+
+5.35 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -7267,7 +7407,7 @@ to 'newFile'.
                   ( Type of argument ptrType: type )
 
 
-5.33 func
+5.36 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -7356,7 +7496,7 @@ to 'newFile'.
   parameter is TRUE.
 
 
-5.34 varfunc
+5.37 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -7389,7 +7529,7 @@ to 'newFile'.
   and structs can be used in the usual way.
 
 
-5.35 void
+5.38 void
 
     The type 'void' describes the empty type.
 
@@ -7399,7 +7539,7 @@ to 'newFile'.
       void.value  Default value of void (empty)
 
 
-5.36 proc
+5.39 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -7436,7 +7576,7 @@ to 'newFile'.
                     Type of result: proc )
 
 
-5.37 creator
+5.40 creator
 
     The type 'creator' describes create operators. Create operators ( ::= )
   are used for initializations. They are similar to assignment statements
@@ -7472,7 +7612,7 @@ to 'newFile'.
         number ::= 1;
 
 
-5.38 destroyer
+5.41 destroyer
 
     The type 'destroyer' describes destroy operations. Destroy operations are
   used to free data. They are not called explicitly. Destroy operations are
@@ -7501,7 +7641,7 @@ to 'newFile'.
         destroy(number);
 
 
-5.39 type
+5.42 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -7610,7 +7750,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.40 object
+5.43 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7623,7 +7763,7 @@ to 'newFile'.
       TRACE_OBJ(A)  Write internal information
 
 
-5.41 expr
+5.44 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -13834,6 +13974,122 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     - Seed7 programs can use them always.
     - There are bitmap and vector fonts.
 
+  Below is a "hello world" program which writes "hello world" at
+  clicked positions
+
+    $ include "seed7_05.s7i";
+      include "draw.s7i";
+      include "keybd.s7i";
+      include "text.s7i";
+      include "stdfont24.s7i";
+
+    const proc: main is func
+      local
+        var text: textWindow is text.value;
+        var char: command is ' ';
+      begin
+        screen(640, 480);
+        textWindow := openPixmapFontFile(curr_win);
+        setFont(textWindow, stdFont24);
+        KEYBOARD := GRAPH_KEYBOARD;
+        repeat
+          command := getc(KEYBOARD);
+          if command = KEY_MOUSE1 then
+            setPosXY(textWindow, clickedXPos(KEYBOARD),
+                                 clickedYPos(KEYBOARD));
+            color(textWindow, color(rand(0, 65535),
+                                    rand(0, 65535),
+                                    rand(0, 65535)));
+            write(textWindow, "hello world");
+          end if;
+        until command <> KEY_MOUSE1;
+      end func;
+
+  The functions 'clickedXPos' and 'clickedYPos' return the X and Y
+  coordinates of the mouse cursor at the last time when a mouse
+  button was clicked. The function 'setPosXY' sets the current
+  position of a text window to the given X and Y coordinates. There
+  are two functions named  'color'. The inner function 'color'
+  creates a 'color' from random red, green and blue lights. The
+  outer function 'color' sets the foreground color of a text.
+
+  Below is a program which draws an hourglass at the cursor position
+
+    $ include "seed7_05.s7i";
+      include "draw.s7i";
+      include "keybd.s7i";
+      include "pic32.s7i";
+      include "time.s7i";
+      include "duration.s7i";
+
+    const proc: main is func
+      local
+        var PRIMITIVE_WINDOW: hourglass is PRIMITIVE_WINDOW.value;
+      begin
+        screen(640, 480);
+        hourglass := openSubWindow(curr_win, 1000, 1000,
+                                   length(hourglass_pic[1]),
+                                   length(hourglass_pic));
+        put(hourglass, 0, 0, createPixmap(hourglass_pic, 1, black));
+        KEYBOARD := GRAPH_KEYBOARD;
+        setCursorVisible(curr_win, FALSE);
+        repeat
+          setPos(hourglass, pointerXPos(curr_win) - width(hourglass) div 2,
+                            pointerYPos(curr_win) - height(hourglass) div 2);
+          wait(30000 . MICRO_SECONDS);
+        until inputReady(KEYBOARD);
+      end func;
+
+  The variable 'hourglass' is of type 'PRIMITIVE_WINDOW'. A variable of
+  this type can hold a window (which is on screen) or a pixmap (which is
+  off-screen). The function 'openSubWindow' creates a sub window inside
+  the parent window 'curr_win'. The window 'curr_win' has a title bar.
+  The window created by 'openSubWindow' does not have a title bar or a
+  border. The function 'createPixmap' is used to create the pixmap of an
+  hourglass by using a pattern from the library "pic32.s7i". The function
+  'setCursorVisible' disables the visibility of the mouse cursor in
+  'curr_win'. The functions 'pointerXPos' and 'pointerYPos' return the
+  current X and Y coordinates of the mouse cursor. The function 'setPos'
+  is used to position the 'hourglass' to the cursor position (minus half
+  of the width and height of the hourglass).
+
+  Besides other image formats Seed7 supports "poor man's images" where an
+  array of strings is used to represent an image. E.g.:
+
+    const array string: hourglass_pic is [](
+      " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",       # Mapping from character to color:
+      " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",       # char  | color
+      "   bb XWWWWWWWWWWWWWWWWWWX bb   ",       # ------+---------------
+      "   bbXWWWWWWWWWWWWWWWWWWWWXbb   ",       # space | background color
+      "   bbWWXXXXXXXXXXXXXXXXXXWWbb   ",       #   B   | light_blue
+      "   bbWWX                XWWbb   ",       #   G   | light_green
+      "   bbWWX      YYYY      XWWbb   ",       #   L   | lavender
+      "   bbWWX     YYYYYY     XWWbb   ",       #   M   | light_magenta
+      "   bbXWWX   YYYYYYYY   XWWXbb   ",       #   O   | orange
+      "   bb XWWX YYYYYYYYYY XWWX bb   ",       #   P   | light_pink
+      "   bb  XWWYYYYYYYYYYYYWWX  bb   ",       #   R   | light_red
+      "   bb   XWWYYYYYYYYYYWWX   bb   ",       #   W   | white
+      "   bb    XWWYYYYYYYYWWX    bb   ",       #   X   | black
+      "   bb     XWWYYYYYYWWX     bb   ",       #   Y   | yellow
+      "   bb      XWWYYYYWWX      bb   ",       #   b   | brown
+      "   bb       XWWYYWWX       bb   ",       #   c   | light_cyan
+      "   bb       XWWYYWWX       bb   ",       #   d   | dark_gray
+      "   bb      XWWXYYXWWX      bb   ",       #   f   | forestgreen
+      "   bb     XWWX YY XWWX     bb   ",       #   g   | dark_green
+      "   bb    XWWX  YY  XWWX    bb   ",       #   i   | mint
+      "   bb   XWWX   YY   XWWX   bb   ",       #   l   | middle_blue
+      "   bb  XWWX    YY    XWWX  bb   ",       #   m   | dark_magenta
+      "   bb XWWX     YY     XWWX bb   ",       #   n   | dark_blue
+      "   bbXWWX     YYYY     XWWXbb   ",       #   p   | pink
+      "   bbWWX     YYYYYY     XWWbb   ",       #   r   | dark_red
+      "   bbWWX    YYYYYYYY    XWWbb   ",       #   x   | light_gray
+      "   bbWWX   YYYYYYYYYY   XWWbb   ",       #   y   | middle_gray
+      "   bbWWXXXYYYYYYYYYYYYXXXWWbb   ",       # other | black
+      "   bbXWWWWWWWWWWWWWWWWWWWWXbb   ",
+      "   bb XWWWWWWWWWWWWWWWWWWX bb   ",
+      " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+      " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ");
+
 
 
 
@@ -13941,7 +14197,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BIG_  biglib.c  'bigInteger' operations
     BIN_  binlib.c  'bin32' and 'bin64' operations
     BLN_  blnlib.c  'boolean' operations
-    BST_  bstlib.c  Operations for byte strings
+    BST_  bstlib.c  Operations for 'bstring'
     CHR_  chrlib.c  'char' operations
     CMD_  cmdlib.c  Various directory, file and other commands
     CON_  conlib.c  'console_file' operations
@@ -13960,7 +14216,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PTL_  drwlib.c  pointList operations
     POL_  pollib.c  'pollData' operations
     PRC_  prclib.c  'proc' operations and statements
-    PRG_  prglib.c  Program operations
+    PRG_  prglib.c  'program' operations
     REF_  reflib.c  'reference' operations
     RFL_  rfllib.c  'ref_list' operations
     SCT_  sctlib.c  'struct' operations
@@ -14441,15 +14697,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 15.11 Actions to do graphic output
 
     Action name         drwlib.c function   drw_rtl.c/drw_x11.c/drw_win.c function
-    DRW_ARC             drw_arc             drwArc
-    DRW_ARC2            drw_arc2            drwArc2
-    DRW_BACKGROUND      drw_background      drwBackground
     DRW_BORDER          drw_border          drwBorder
     DRW_CAPTURE         drw_capture         drwCapture
-    DRW_CIRCLE          drw_circle          drwCircle
     DRW_CLEAR           drw_clear           drwClear
     DRW_CMP             drw_cmp             ptrCmp / ptrCmpGeneric
-    DRW_COLOR           drw_color           drwColor
     DRW_CONV_POINT_LIST drw_conv_point_list drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
     DRW_CPY             drw_cpy             drwCpy
@@ -14457,10 +14708,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_DESTR           drw_destr           drwDestr
     DRW_EMPTY           drw_empty
     DRW_EQ              drw_eq              ==
-    DRW_FARCCHORD       drw_farcchord       drwFArcChord
-    DRW_FARCPIESLICE    drw_farcpieslice    drwFArcPieSlice
-    DRW_FCIRCLE         drw_fcircle         drwFCircle
-    DRW_FELLIPSE        drw_fellipse        drwFEllipse
     DRW_FLUSH           drw_flush           drwFlush
     DRW_FPOLY_LINE      drw_fpoly_line      drwFPolyLine
     DRW_GEN_POINT_LIST  drw_gen_point_list  drwGenPointList
@@ -14473,7 +14720,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_GET_PIXMAP_FROM_PIXELS drw_get_pixmap_from_pixels drwGetPixmapFromPixels
     DRW_HASHCODE        drw_hashcode        (intType)(((memSizeType)a)>>6)
     DRW_HEIGHT          drw_height          drwHeight
-    DRW_LINE            drw_line            drwLine
     DRW_NE              drw_ne              !=
     DRW_NEW_PIXMAP      drw_new_pixmap      drwNewPixmap
     DRW_OPEN            drw_open            drwOpen
@@ -14487,7 +14733,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_PFELLIPSE       drw_pfellipse       drwPFEllipse
     DRW_PIXEL_TO_RGB    drw_pixel_to_rgb    drwPixelToRgb
     DRW_PLINE           drw_pline           drwPLine
-    DRW_POINT           drw_point           drwPoint
     DRW_POINTER_XPOS    drw_pointer_xpos    drwPointerXpos
     DRW_POINTER_YPOS    drw_pointer_ypos    drwPointerYpos
     DRW_POLY_LINE       drw_poly_line       drwPolyLine
@@ -14495,7 +14740,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_PRECT           drw_prect           drwPRect
     DRW_PUT             drw_put             drwPut
     DRW_PUT_SCALED      drw_put_scaled      drwPutScaled
-    DRW_RECT            drw_rect            drwRect
     DRW_RGBCOL          drw_rgbcol          drwRgbColor
     DRW_SCREEN_HEIGHT   drw_screen_height   drwScreenHeight
     DRW_SCREEN_WIDTH    drw_screen_width    drwScreenWidth
@@ -15476,16 +15720,15 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   Several Seed7 types correspond to simple C types, which are
   defined in "common.h":
 
-    Seed7 type       C type     Comment
-    boolean          boolType   _Bool, bool or int
-    integer          intType    64-bit signed int
-    float            floatType  64-bit double
-    char             charType   32-bit unsigned int
-    clib_file        fileType   FILE *
-    PRIMITIVE_SOCKET socketType int or unsigned int
+    Seed7 type       C type     C definition       Comment
+    boolean          boolType   _Bool, bool or int Determined by chkccomp.c
+    integer          intType    int64Type          64-bit signed int
+    float            floatType  double             64-bit double precision
+    char             charType   uint32Type         32-bit unsigned int
+    PRIMITIVE_SOCKET socketType int                Cast from os_socketType
 
   Other Seed7 types correspond to C pointers, which point to a struct.
-  Some of this structs are used in all situations: In the interpreter
+  Some of these structs are used in all situations: In the interpreter
   and in the compiler and under different operation systems and with
   different runtime libraries. This invariant structs are defined
   in "common.h" and in "data.h":
@@ -15494,6 +15737,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     string       striType    struct striStruct    UTF-32 encoded, can contain null chars
     set          setType     struct setStruct
     bstring      bstriType   struct bstriStruct   Byte sequence, can contain null bytes
+    clib_file    fileType    struct fileStruct    C FILE * plus usage count and permissions
     reference    objectType  struct objectStruct  Interpreter type for Seed7 objects
     ref_list     listType    struct listStruct    Interpreter type for Seed7 object lists
 
@@ -15516,31 +15760,35 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Seed7 type       C type       Defined as                        Sourcefile  Comment
     bigInteger       bigIntType   struct bigIntStruct *             big_rtl.c   The built-in bigInteger library
-                     bigIntType   mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
+                                  mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
     pollData         pollType     struct select_based_pollStruct *  pol_sel.c   Functions cast it to implementation dependent struct
-                     pollType     struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
-    PRIMITIVE_WINDOW winType      x11_winRecord *                   drw_x11.c   Functions cast from struct winStruct * to x11_winRecord *
-                     winType      win_winRecord *                   drw_win.c   Functions cast from struct winStruct * to win_winRecord *
-                     winType      emc_winRecord *                   drw_emc.c   Functions cast from struct winStruct * to emc_winRecord *
-    database         databaseType dbType                            sql_cli.c   Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_fire.c  Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_lite.c  Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_my.c    Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_oci.c   Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_post.c  Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_tds.c   Functions cast from databaseType to dbType
-    sqlStatement     sqlStmtType  preparedStmtType                  sql_cli.c   Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_fire.c  Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_lite.c  Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_my.c    Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_oci.c   Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_post.c  Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_tds.c   Functions cast from sqlStmtType to preparedStmtType
+                                  struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
+    PRIMITIVE_WINDOW winType      x11_winRecord *                   drw_x11.c   Functions cast from winType to x11_winRecord *
+                                  win_winRecord *                   drw_win.c   Functions cast from winType to win_winRecord *
+                                  emc_winRecord *                   drw_emc.c   Functions cast from winType to emc_winRecord *
+    process          processType  unx_processRecord *               pcs_unx.c   Functions cast from processType to unx_processRecord *
+                                  win_processRecord *               pcs_win.c   Functions cast from processType to win_processRecord *
+    database         databaseType dbRecordCli *                     sql_cli.c   Functions cast from databaseType to dbRecordCli *
+                                  dbRecordFire *                    sql_fire.c  Functions cast from databaseType to dbRecordFire *
+                                  dbRecordLite *                    sql_lite.c  Functions cast from databaseType to dbRecordLite *
+                                  dbRecordMy *                      sql_my.c    Functions cast from databaseType to dbRecordMy *
+                                  dbRecordOci *                     sql_oci.c   Functions cast from databaseType to dbRecordOci *
+                                  dbRecordPost *                    sql_post.c  Functions cast from databaseType to dbRecordPost *
+                                  dbRecordTds *                     sql_tds.c   Functions cast from databaseType to dbRecordTds *
+    sqlStatement     sqlStmtType  preparedStmtRecordCli *           sql_cli.c   Functions cast from sqlStmtType to preparedStmtRecordCli *
+                                  preparedStmtRecordFire *          sql_fire.c  Functions cast from sqlStmtType to preparedStmtRecordFire *
+                                  preparedStmtRecordLite *          sql_lite.c  Functions cast from sqlStmtType to preparedStmtRecordLite *
+                                  preparedStmtRecordMy *            sql_my.c    Functions cast from sqlStmtType to preparedStmtRecordMy *
+                                  preparedStmtRecordOci *           sql_oci.c   Functions cast from sqlStmtType to preparedStmtRecordOci *
+                                  preparedStmtRecordPost *          sql_post.c  Functions cast from sqlStmtType to preparedStmtRecordPost *
+                                  preparedStmtRecordTds *           sql_tds.c   Functions cast from sqlStmtType to preparedStmtRecordTds *
 
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
 
     C type        C definition        Comment
+    int8Type      signed char         It is assumed that a char consists of 8 Bits
+    uint8Type     unsigned char       Unsigned integer type with the size of int8Type
     int16Type     short int           It is assumed that sizeof(short int) == 2
     uint16Type    unsigned short int  Unsigned integer type with the size of int16Type
     int32Type     int                 If sizeof(int) == 4
@@ -15555,11 +15803,15 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     uint128Type   unsigned __int128   If sizeof(unsigned __int128) == 16
                   __uint128_t         If sizeof(__uint128_t) == 16
     uintType      unsigned intType    Unsigned integer type with the size of intType
+    bitSetType    uint64Type          Used in struct setStruct
+    timeStampType int64Type           Used for 64-bit timestamps
     cstriType     char *              String type of the C compiler
     ustriType     unsigned char *     Helpful for unsigned comparisons
     utf16striType uint16Type *        UTF-16 string
     utf32striType uint32Type *        UTF-32 string
-    strElemType   charType            UTF-32 character element of string.
+    strElemType   charType            UTF-32 character element of string
+    scharType     int32Type           Signed charType
+    cFileType     FILE *              The file type used by the C run-tme library
     os_striType   char *              If the OS uses UTF-8 chars
                   wchar_t *           If the OS uses UTF-16 chars
     memSizeType   uint32Type          If C uses 32-bit pointers
@@ -16183,7 +16435,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       Check if the object type is winType.
 
   The header file "objutl.h" defines macros like 'take_bool' and
-  'take_file'. This macros return a value with the requested
+  'take_file'. These macros return a value with the requested
   C implementation type.
 
 
@@ -16302,7 +16554,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 16.7 Memory management macros
 
   The conversion functions mentioned above use macros to do the
-  memory management. Some of this macros are not based on malloc()
+  memory management. Some of these macros are not based on malloc()
   but manage the memory in a stack. Therefore it is important to
   use the correct macro to allocate and free memory. The macros
   below are defined in the header file "striutl.h".
@@ -16562,13 +16814,24 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     - The integer type 'errInfoType' is used to describe an error
       state. Usually a variable or parameter named 'err_info' is used
       to store the error state. The value 'OKAY_NO_ERROR' is used to
-      describe that no error occurred. Values like 'MEMORY_ERROR',
-      'NUMERIC_ERROR', 'OVERFLOW_ERROR', 'RANGE_ERROR', 'INDEX_ERROR',
-      'FILE_ERROR', 'DATABASE_ERROR', 'GRAPHIC_ERROR' and
-      'ACTION_ERROR' describe errors that occurred.
+      describe that no error occurred. Other values (see below)
+      describe errors that occurred.
     - In some situations a function has only one possible error
       situation (e.g. a 'MEMORY_ERROR'). This is handled with functions
       that return NULL in case of a 'MEMORY_ERROR'.
+
+  Error state constants for 'errInfoType' are defined in "common.h":
+
+    #define OKAY_NO_ERROR   0
+    #define MEMORY_ERROR    1
+    #define NUMERIC_ERROR   2
+    #define OVERFLOW_ERROR  3
+    #define RANGE_ERROR     4
+    #define INDEX_ERROR     5
+    #define FILE_ERROR      6
+    #define DATABASE_ERROR  7
+    #define GRAPHIC_ERROR   8
+    #define ACTION_ERROR    9
 
   C code can check the value of the 'err_info' variable, or check if a
   function returns NULL. In case of error it is possible to do some
@@ -16580,14 +16843,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   An actual exception can be triggered with the macro 'raise_error'.
   This macro takes an 'errInfoType' parameter to describe the actual
   exception. Note that all cleaning up must be done before 'raise_error'
-  is called. This macro calls the function 'raise_exception2' with
+  is called. This macro calls the function 'raise_error2' with
   the additional parameters __FILE__ and __LINE__. The function
-  'raise_exception2' has different implementations for interpreted
+  'raise_error2' has different implementations for interpreted
   and compiled programs:
 
-    - In the interpreter 'raise_exception2' sets a fail flag and the
+    - In the interpreter 'raise_error2' sets a fail flag and the
       function is left normally.
-    - In compiled code 'raise_exception2' uses a 'longjmp' to continue
+    - In compiled code 'raise_error2' uses a 'longjmp' to continue
       executing at the handler code of the exception.
 
   That means that 'raise_error' also returns normally in the
@@ -16614,8 +16877,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     void raise_error (errInfoType err_info)
 
       Macro to raise an exception. This macro calls the function
-      raise_exception2 with the additional parameters __FILE__ and
-      __LINE__. The function raise_exception2 has different
+      raise_error2 with the additional parameters __FILE__ and
+      __LINE__. The function raise_error2 has different
       implementations for interpreted and compiled programs.
 
       Parameters:
@@ -16705,6 +16968,48 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     67: UTF-16 byte order mark found "%s" (U+%04x)
         Undefined error
 
+  A program can parse another program and examine the parsing
+  errors of the other program. Below is the source code of the
+  program 's7check.sd7' which is used by the seed7-mode of Emacs
+  to do a static check of a Seed7 source file or library:
+
+    $ include "seed7_05.s7i";
+      include "progs.s7i";
+
+    const proc: main is func
+      local
+        var string: fileName is "";
+        var program: aProgram is program.value;
+        var integer: index is 0;
+        var parseError: anError is parseError.value;
+      begin
+        if length(argv(PROGRAM)) >= 1 then
+          fileName := argv(PROGRAM)[1];
+          if endsWith(fileName, ".s7i") then
+            aProgram := parseStri("$ include \"seed7_05.s7i\";\n\
+                                  \  include " <& literal(fileName) <& ";\n\
+                                  \const proc: main is func begin noop; end func;\n");
+          else
+            aProgram := parseFile(fileName);
+          end if;
+          if errorCount(aProgram) = 0 then
+            writeln("No errors found");
+          else
+            for index range 1 to errorCount(aProgram) do
+              anError := getError(aProgram, index);
+              writeln(anError.fileName <&
+                      "(" <& anError.lineNumber <& "): " <&
+                      anError.error <& ": " <&
+                      anError.message);
+              writeln(anError.errorLine);
+              if anError.columnNumber <> 0 then
+                writeln("-" mult pred(anError.columnNumber) <& "^");
+              end if;
+            end for;
+          end if;
+        end if;
+      end func;
+
 
 17.2 Compilation errors
 
@@ -16717,12 +17022,16 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     2     | Comparison with %s always evaluates to %s.
     2     | Expression raises "%s".
     1     | Catch of "%s" although the checks are suppressed.
-    1     | Catch of otherwise although the checks for %s are suppressed.
+    2     | Catch of otherwise although the checks for %s are suppressed.
     1     | Duplicate when values %s.
     1     | Previous usage of %s.
+    1     | When set is empty.
     1     | When value must be constant.
+    2     | The variable %s is used for two or more inout-parameters (%s).
+    2     | The variable %s is used as inout-parameter (%s) and ref-parameter (%s).
     1     | Forward defined function called.
     1     | Forward definition of the called function.
+    2     | Endless recursion in interface function.
 
 
 17.3 Exceptions

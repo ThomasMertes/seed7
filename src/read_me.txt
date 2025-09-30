@@ -1324,16 +1324,11 @@ DRIVERS
     big_rtl.c  Functions for the built-in bigInteger support.
     cmd_unx.c  Command functions which call the Unix API.
     cmd_win.c  Command functions which call the Windows API.
-    con_cap.c  Driver for termcap console access.
-    con_con.c  Driver for conio console access.
-    con_cur.c  Driver for curses console access.
     con_dos.c  Driver for dos console access.
     con_emc.c  Driver for emcc (JavaScript) console access.
     con_inf.c  Driver for terminfo console access.
-    con_tcp.c  Driver for termcap console access.
     con_wat.c  Driver for watcom console access.
     con_win.c  Driver for windows console access.
-    con_x11.c  Driver for X11 text console access.
     dir_dos.c  Directory functions which call the Dos API.
     dir_win.c  Directory functions which call the Windows API.
     dll_dos.c  Dynamic link library support (dummy).
@@ -1627,6 +1622,9 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
 
   CC_OPT_OPTIMIZE_3: C compiler option to optimize with a level
                      of -O3.
+
+  CC_OPT_POSITION_INDEPENDENT_CODE: C compiler option to produce
+                                    position independent code.
 
   CC_OPT_TRAP_OVERFLOW: C compiler option to generate traps for
                         signed integer overflow. An integer overflow

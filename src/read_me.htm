@@ -1546,16 +1546,11 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 <tr><td>big_rtl.c <td>&nbsp;</td><td>Functions for the built-in bigInteger support.</td></tr>
 <tr><td>cmd_unx.c <td>&nbsp;</td><td>Command functions which call the Unix API.</td></tr>
 <tr><td>cmd_win.c <td>&nbsp;</td><td>Command functions which call the Windows API.</td></tr>
-<tr><td>con_cap.c <td>&nbsp;</td><td>Driver for termcap console access.</td></tr>
-<tr><td>con_con.c <td>&nbsp;</td><td>Driver for conio console access.</td></tr>
-<tr><td>con_cur.c <td>&nbsp;</td><td>Driver for curses console access.</td></tr>
 <tr><td>con_dos.c <td>&nbsp;</td><td>Driver for dos console access.</td></tr>
 <tr><td>con_emc.c <td>&nbsp;</td><td>Driver for emcc (JavaScript) console access.</td></tr>
 <tr><td>con_inf.c <td>&nbsp;</td><td>Driver for terminfo console access.</td></tr>
-<tr><td>con_tcp.c <td>&nbsp;</td><td>Driver for termcap console access.</td></tr>
 <tr><td>con_wat.c <td>&nbsp;</td><td>Driver for watcom console access.</td></tr>
 <tr><td>con_win.c <td>&nbsp;</td><td>Driver for windows console access.</td></tr>
-<tr><td>con_x11.c <td>&nbsp;</td><td>Driver for X11 text console access.</td></tr>
 <tr><td>dir_dos.c <td>&nbsp;</td><td>Directory functions which call the Dos API.</td></tr>
 <tr><td>dir_win.c <td>&nbsp;</td><td>Directory functions which call the Windows API.</td></tr>
 <tr><td>dll_dos.c <td>&nbsp;</td><td>Dynamic link library support (dummy).</td></tr>
@@ -1849,6 +1844,9 @@ of -O2.</td></tr>
 
 <tr><td valign="top">CC_OPT_OPTIMIZE_3: </td><td>C compiler option to optimize with a level
 of -O3.</td></tr>
+
+<tr><td valign="top">CC_OPT_POSITION_INDEPENDENT_CODE: </td><td>C compiler option to produce
+position independent code.</td></tr>
 
 <tr><td valign="top">CC_OPT_TRAP_OVERFLOW: </td><td>C compiler option to generate traps for
 signed integer overflow. An integer overflow

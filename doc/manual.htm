@@ -313,6 +313,8 @@ pre.indent {
 <li><a class="link" href="#types_file"><b>file</b></a></li>
 <li><a class="link" href="#types_text"><b>text</b></a></li>
 <li><a class="link" href="#types_fileSys"><b>fileSys</b></a></li>
+<li><a class="link" href="#types_pollData"><b>pollData</b></a></li>
+<li><a class="link" href="#types_listener"><b>listener</b></a></li>
 <li><a class="link" href="#types_database"><b>database</b></a></li>
 <li><a class="link" href="#types_sqlStatement"><b>sqlStatement</b></a></li>
 <li><a class="link" href="#types_process"><b>process</b></a></li>
@@ -321,6 +323,7 @@ pre.indent {
 <li><a class="link" href="#types_ref_list"><b>ref_list</b></a></li>
 <li><a class="link" href="#types_structElement"><b>structElement</b></a></li>
 <li><a class="link" href="#types_program"><b>program</b></a></li>
+<li><a class="link" href="#types_parseError"><b>parseError</b></a></li>
 <li><a class="link" href="#types_ptr"><b>ptr</b></a></li>
 <li><a class="link" href="#types_func"><b>func</b></a></li>
 <li><a class="link" href="#types_varfunc"><b>varfunc</b></a></li>
@@ -773,7 +776,7 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"hello world"</a>);
   <span class="keywd">end func</span>;
@@ -826,9 +829,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
@@ -849,7 +852,7 @@ What's your name?
   Variables must be defined. The place to to define and initialize
   all variables of a function is after the keyword <span class="keywd">local</span>.
 </p><pre class="indent">
-<span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
 </pre><p>
   This defines the <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'name'</tt>. This definition assigns
   also the initial value <a class="stri" href="#tokens_String_literals">""</a> to <tt>'name'</tt>. The value <a class="stri" href="#tokens_String_literals">""</a> is the empty string
@@ -873,9 +876,9 @@ Hi !
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
@@ -896,9 +899,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
@@ -925,9 +928,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
       <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
@@ -943,9 +946,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"What's your name? "</a>);
     <span class="func_no_ul">readln</span>(name);
@@ -969,9 +972,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_while-statement">while</a> count <span class="op_no_ul">&lt;=</span> 10 <a class="keywd_no_ul" href="#stats_while-statement">do</a>
       <span class="func_no_ul">writeln</span>(count);
@@ -981,7 +984,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </pre><p>
   This program declares a local variable of the type <tt><a class="type" href="#types_integer">integer</a></tt>:
 </p><pre class="indent">
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 1;
 </pre><p>
   The variable <tt>count</tt> above is initialized with <tt>1</tt>.
   The value of a variable can be changed with an <a class="link" href="#stats_Assignment">assignment</a> (<tt><span class="op">:=</span></tt>):
@@ -1021,12 +1024,12 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: celsius <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: celsius <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_while-statement">while</a> fahr <span class="op_no_ul">&lt;=</span> upper <a class="keywd_no_ul" href="#stats_while-statement">do</a>
       celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> 5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32) <span class="op_no_ul">div</span> 9;
@@ -1037,10 +1040,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </pre><p>
   Everything between <a class="comment" href="#tokens_Comments">(* and *)</a> is a <a class="link" href="#tokens_Comments">comment</a>, which is ignored. This
   program contains local constants and variables of the type <tt><a class="type" href="#types_integer">integer</a></tt>.
-  Constant declarations are introduced with <tt><span class="keywd">const</span></tt>:
+  Constant declarations are introduced with <tt><a class="keywd_no_ul" href="#decls_Constant_declarations">const</a></tt>:
 </p><pre class="indent">
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
 </pre><p>
   Like variables constants must be initialized with a value that is
   specified after the keyword <tt><span class="keywd">is</span></tt>. Constants like <tt>upper</tt> cannot be
@@ -1093,13 +1096,13 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <a class="comment" href="#tokens_Line_comments"># This must be included first.</a>
   <span class="keywd">include</span> <span class="lib">"<span class="lib">float.s7i</span>"</span>;     <a class="comment" href="#tokens_Line_comments"># Subsequent includes do not need a $.</a>
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: lower <span class="keywd">is</span> 0;
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_float">float</a>: celsius <span class="keywd">is</span> 0.0;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: lower <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: upper <span class="keywd">is</span> 300;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_integer">integer</a>: increment <span class="keywd">is</span> 20;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: fahr <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_float">float</a>: celsius <span class="keywd">is</span> 0.0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-step-statement">for</a> fahr <a class="keywd_no_ul" href="#stats_for-step-statement">range</a> lower <a class="keywd_no_ul" href="#stats_for-step-statement">to</a> upper <a class="keywd_no_ul" href="#stats_for-step-statement">step</a> increment <a class="keywd_no_ul" href="#stats_for-step-statement">do</a>
       celsius <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">float</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
@@ -1150,10 +1153,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;  <
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> 7 <span class="op_no_ul">times</span> <a class="stri" href="#tokens_String_literals">""</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> 7 <span class="op_no_ul">times</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     weekdayName<span class="op_no_ul">[</span>1<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"monday"</a>;
     weekdayName<span class="op_no_ul">[</span>2<span class="op_no_ul">]</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <a class="stri" href="#tokens_String_literals">"tuesday"</a>;
@@ -1173,10 +1176,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-statement">range</a> 1 <a class="keywd_no_ul" href="#stats_for-statement">to</a> 7 <a class="keywd_no_ul" href="#stats_for-statement">do</a>
       <span class="func_no_ul">writeln</span>(weekdayName<span class="op_no_ul">[</span>number<span class="op_no_ul">]</span>);
@@ -1215,10 +1218,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-each-statement">for</a> name <a class="keywd_no_ul" href="#stats_for-each-statement">range</a> weekdayName <a class="keywd_no_ul" href="#stats_for-each-statement">do</a>
       <span class="func_no_ul">writeln</span>(name);
@@ -1231,11 +1234,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_array">array</a> <a class="type_no_ul" href="#types_string">string</a>: weekdayName <span class="keywd">is</span> [] (<a class="stri" href="#tokens_String_literals">"monday"</a>, <a class="stri" href="#tokens_String_literals">"tuesday"</a>, <a class="stri" href="#tokens_String_literals">"wednesday"</a>, <a class="stri" href="#tokens_String_literals">"thursday"</a>, <a class="stri" href="#tokens_String_literals">"friday"</a>, <a class="stri" href="#tokens_String_literals">"saturday"</a>, <a class="stri" href="#tokens_String_literals">"sunday"</a>);
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-each-key-statement">for</a> name <a class="keywd_no_ul" href="#stats_for-each-key-statement">key</a> index <a class="keywd_no_ul" href="#stats_for-each-key-statement">range</a> weekdayName <a class="keywd_no_ul" href="#stats_for-each-key-statement">do</a>
       <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"day "</a> <span class="op_no_ul">&lt;&amp;</span> index <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a> <span class="op_no_ul">&lt;&amp;</span> name);
@@ -1246,9 +1249,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_for-each-statement">for</a> number <a class="keywd_no_ul" href="#stats_for-each-statement">range</a> [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100) <a class="keywd_no_ul" href="#stats_for-each-statement">do</a>
       <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
@@ -1266,12 +1269,12 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_array">array</a> [<a class="type_no_ul" href="#types_char">char</a>] <a class="type_no_ul" href="#types_string">string</a>: digitName <span class="keywd">is</span>
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_array">array</a> [<a class="type_no_ul" href="#types_char">char</a>] <a class="type_no_ul" href="#types_string">string</a>: digitName <span class="keywd">is</span>
         [<a class="stri" href="#tokens_Character_literals">'0'</a>] (<a class="stri" href="#tokens_String_literals">"zero"</a>, <a class="stri" href="#tokens_String_literals">"one"</a>, <a class="stri" href="#tokens_String_literals">"two"</a>, <a class="stri" href="#tokens_String_literals">"three"</a>, <a class="stri" href="#tokens_String_literals">"four"</a>, <a class="stri" href="#tokens_String_literals">"five"</a>, <a class="stri" href="#tokens_String_literals">"six"</a>, <a class="stri" href="#tokens_String_literals">"seven"</a>, <a class="stri" href="#tokens_String_literals">"eight"</a>, <a class="stri" href="#tokens_String_literals">"nine"</a>);
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
   <span class="keywd">begin</span>
     number <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">rand</span>(1, 9999999);
     <span class="func_no_ul">write</span>(number <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a>);
@@ -1295,7 +1298,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> defines a hash with a <tt><a class="type" href="#types_string">string</a></tt> as index
   and an <tt><a class="type" href="#types_integer">integer</a></tt> as value. This type can be used in a type declaration:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
+<a class="keywd_no_ul" href="#decls_Type_declarations">const</a> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
 </pre><p>
   A hash literal can be used to initialize hash constants or variables:
 </p><pre class="indent">
@@ -1312,9 +1315,9 @@ nameToDigit[name]
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
+<a class="keywd_no_ul" href="#decls_Type_declarations">const</a> <a class="type_no_ul" href="#types_type">type</a>: nameToDigitType <span class="keywd">is</span> <a class="type_no_ul" href="#types_hash">hash</a> [<a class="type_no_ul" href="#types_string">string</a>] <a class="type_no_ul" href="#types_integer">integer</a>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     const <span class="type">nameToDigitType</span>: nameToDigit <span class="keywd">is</span> [] (
         [<a class="stri" href="#tokens_String_literals">"zero"</a> : 0], [<a class="stri" href="#tokens_String_literals">"one"</a> : 1], [<a class="stri" href="#tokens_String_literals">"two"</a>   : 2], [<a class="stri" href="#tokens_String_literals">"three"</a> : 3], [<a class="stri" href="#tokens_String_literals">"four"</a> : 4],
@@ -1348,9 +1351,9 @@ nameToDigit[name]
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a>> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
       <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
@@ -1363,10 +1366,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">key</span> aChar <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
       <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"const char: "</a> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" is "</a> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
@@ -1380,9 +1383,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: innerPlanet <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: innerPlanet <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> innerPlanet <span class="keywd_no_ul">range</span> {<a class="stri" href="#tokens_String_literals">"Mercury"</a>, <a class="stri" href="#tokens_String_literals">"Venus"</a>, <a class="stri" href="#tokens_String_literals">"Earth"</a>, <a class="stri" href="#tokens_String_literals">"Mars"</a>} <span class="keywd_no_ul">do</span>
       <span class="func_no_ul">write</span>(innerPlanet <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">" "</a>);
@@ -1400,10 +1403,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_set">set of</a> <a class="type_no_ul" href="#types_char">char</a>: vowels <span class="keywd">is</span> {<a class="stri" href="#tokens_Character_literals">'a'</a>, <a class="stri" href="#tokens_Character_literals">'e'</a>, <a class="stri" href="#tokens_Character_literals">'i'</a>, <a class="stri" href="#tokens_Character_literals">'o'</a>, <a class="stri" href="#tokens_Character_literals">'u'</a>};
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: letter <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type_no_ul" href="#types_set">set of</a> <a class="type_no_ul" href="#types_char">char</a>: vowels <span class="keywd">is</span> {<a class="stri" href="#tokens_Character_literals">'a'</a>, <a class="stri" href="#tokens_Character_literals">'e'</a>, <a class="stri" href="#tokens_Character_literals">'i'</a>, <a class="stri" href="#tokens_Character_literals">'o'</a>, <a class="stri" href="#tokens_Character_literals">'u'</a>};
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: letter <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> letter <span class="keywd_no_ul">range</span> <a class="stri" href="#tokens_String_literals">"the quick brown fox jumps over the lazy dog"</a> <span class="keywd_no_ul">do</span>
       <a class="keywd_no_ul" href="#stats_if-statement">if</a> letter <span class="op_no_ul">not in</span> vowels <a class="keywd_no_ul" href="#stats_if-statement">then</a>
@@ -1417,10 +1420,10 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd_no_ul">for</span> name <span class="keywd_no_ul">key</span> number <span class="keywd_no_ul">range</span> [0] (<a class="stri" href="#tokens_String_literals">"zero"</a>, <a class="stri" href="#tokens_String_literals">"one"</a>, <a class="stri" href="#tokens_String_literals">"two"</a>, <a class="stri" href="#tokens_String_literals">"three"</a>, <a class="stri" href="#tokens_String_literals">"four"</a>,
                                    <a class="stri" href="#tokens_String_literals">"five"</a>, <a class="stri" href="#tokens_String_literals">"six"</a>, <a class="stri" href="#tokens_String_literals">"seven"</a>, <a class="stri" href="#tokens_String_literals">"eight"</a>, <a class="stri" href="#tokens_String_literals">"nine"</a>) <span class="keywd_no_ul">do</span>
@@ -1432,11 +1435,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: testText <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: controlCharFound <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: testText <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: controlCharFound <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Enter text: "</a>);
     <span class="func_no_ul">readln</span>(testText);
@@ -1456,12 +1459,12 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
-  <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
+  <span class="keywd_no_ul">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_boolean">boolean</a>: heads <span class="keywd">is</span> <span class="var">FALSE</span>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: heads <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
       <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"Press enter to flip the coin. "</a>);
@@ -1478,7 +1481,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <tt><span class="func">flipCoin</span></tt> is to return a random <tt><a class="type_no_ul" href="#types_boolean">boolean</a></tt> value. This is
   done with:
 </p><pre class="indent">
-<span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+<span class="keywd_no_ul">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 </pre><p>
   The actual random value is computed with the expression
 </p><pre class="indent">
@@ -1492,67 +1495,72 @@ heads <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">fli
   <tt>heads</tt> is written with the <span class="link">ternary operator</span> (<tt><span class="op_no_ul">?:</span></tt>). If <tt>heads</tt>
   is <tt><span class="var">TRUE</span></tt>, it writes <tt><a class="stri" href="#tokens_String_literals">"heads"</a></tt> otherwise <tt><a class="stri" href="#tokens_String_literals">"tails"</a></tt>.
 </p><p>
-  The program below reads a multi-line paragraph:
+  Note that <tt><span class="keywd_no_ul">return</span></tt> is not a statement. Instead <tt><span class="keywd_no_ul">return</span></tt> is a
+  shortcut for a function declaration with a <span class="link">result variable</span>:
 </p><pre class="indent">
-$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
-
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: readMultiLineParagraph <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: multiLineParagraph <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
-  <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: line <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is func</span>
+  <span class="keywd_no_ul">result</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
-    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
-      <span class="func_no_ul">write</span>(<a class="stri" href="#tokens_String_literals">"line: "</a>);
-      line <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">getln</span>(<span class="var">IN</span>);
-      multiLineParagraph <span class="op_no_ul">&amp;:=</span> line <span class="op_no_ul">&amp;</span> <a class="stri" href="#tokens_String_literals">"\n"</a>;
-    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> line <span class="op_no_ul">=</span> <a class="stri" href="#tokens_String_literals">""</a>;
-  <span class="keywd">end func</span>;
-
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"Enter a multi line paragraph. An empty line ends the paragraph."</a>);
-    <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"\nThe paragraph is:\n"</a> <span class="op_no_ul">&lt;&amp;</span> readMultiLineParagraph);
-  <span class="keywd">end func</span>;
+    coinState <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
-  The declaration of <tt><span class="func">readMultiLineParagraph</span></tt> above contains the construct:
+  A <span class="link">result variable</span> is a specific local variable used as function
+  result.
+</p><p>
+  The declaration of <tt><span class="func">flipCoin</span></tt> above contains the construct:
 </p><pre class="indent">
 <span class="keywd">func</span>
 ...
 <span class="keywd">end func</span>
 </pre><p>
-  The function <tt><span class="func">readMultiLineParagraph</span></tt> gets the
-  <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt> construct as value. This construct can be used to initialize
-  functions and procedures. Note that <tt><a class="type" href="#types_proc">proc</a></tt> is just a shortcut
-  for <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt> and that <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
-  Inside of the <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt> construct are the keywords
-  <tt><span class="keywd">result</span></tt>, <tt><span class="keywd">local</span></tt> and <tt><span class="keywd">begin</span></tt>:
+  The function <tt><span class="func">flipCoin</span></tt> gets the <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt>
+  construct as value. This construct can be used to initialize
+  functions and procedures. Inside of the <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt>
+  construct the keywords <tt><span class="keywd_no_ul">result</span></tt>, <tt><span class="keywd">local</span></tt> and <tt><span class="keywd">begin</span></tt> can be used:
 </p><ul>
-<li>The keyword <tt><span class="keywd">result</span></tt> introduces the declaration of the
-    result variable. When the function is finished, it will
-    return the current value of the result variable.</li>
+<li>The keyword <tt><span class="keywd_no_ul">result</span></tt> introduces the declaration of the
+    <span class="link">result variable</span>. When the function is finished, it will
+    return the current value of the result variable. If no
+    <a class="link" href="#stats_Assignment">assignment</a> to the result variable is done the <a class="link" href="#decls_Initialization">initialization
+    value</a> of the result value is the function result.</li>
 <li>The keyword <tt><span class="keywd">local</span></tt> introduces constant and variable
     declarations that are local to the function.</li>
 <li>The keyword <tt><span class="keywd">begin</span></tt> introduces a sequence of statements
     that is executed when the function is called.</li>
 </ul><p>
-  As can be seen from the function <tt><span class="func">main</span></tt> above, the <tt><span class="keywd">result</span></tt> and
-  <tt><span class="keywd">local</span></tt> parts are optional. If the function type is <tt><a class="type" href="#types_proc">proc</a></tt>,
-  the <tt><span class="keywd">result</span></tt> part must be omitted. For all other functions
-  the <tt><span class="keywd">result</span></tt> part is mandatory.
-</p>
+  As can be seen from declarations of <tt><span class="func">main</span></tt> above, the <tt><span class="keywd_no_ul">result</span></tt>
+  and <tt><span class="keywd">local</span></tt> parts are optional. If the function type is <tt><a class="type" href="#types_proc">proc</a></tt>,
+  the <tt><span class="keywd_no_ul">result</span></tt> part must be omitted. For all other functions
+  the <tt><span class="keywd_no_ul">result</span></tt> part is mandatory.
+</p><p>
+  The result of a function must be used (<a class="link" href="#stats_Assignment">assigned</a>, written, used
+  as parameter, etc.). It is not possible to silently ignore the
+  function result by using it as statement. The attempt to use
+  <tt><span class="func">flipCoin</span></tt> as statement:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    flipCoin;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
+</p><pre class="indent">
+*** tst609.sd7(8):35: <a class="link" href="#errors_PROC_EXPECTED">Procedure expected found "func boolean" expression</a>
+    flipCoin;
+</pre>
 
 <a name="tutorial_Parameters"><h3>2.10 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameters to describe this situation:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: negate (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is</span>
-  <span class="keywd">return</span> <span class="op_no_ul">-</span>num1;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: negate (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is</span>
+  <span class="keywd_no_ul">return</span> <span class="op_no_ul">-</span>num1;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fib <span class="keywd">is</span> 1;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is func</span>
+  <span class="keywd_no_ul">result</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> num1 <span class="op_no_ul">&lt;></span> 1 <span class="op_no_ul">and</span> num1 <span class="op_no_ul">&lt;></span> 2 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
       fib <a class="op_no_ul" href="#stats_Assignment">:=</a> fib(<span class="func_no_ul">pred</span>(num1)) <span class="op_no_ul">+</span> fib(num1 <span class="op_no_ul">-</span> 2);
@@ -1564,7 +1572,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   parameter like <tt>'num1'</tt> behaves like a constant.
   Trying to change a formal <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: wrong (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: wrong (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     num2 <a class="op_no_ul" href="#stats_Assignment">:=</a> 0;
   <span class="keywd">end func</span>;
@@ -1577,7 +1585,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   When a function wants to change the value of the actual
   parameter it can use an <tt>'<a class="keywd_no_ul" href="#params_inout_parameter">inout</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: reset (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: reset (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     num2 <a class="op_no_ul" href="#stats_Assignment">:=</a> 0;
   <span class="keywd">end func</span>;
@@ -1600,9 +1608,9 @@ reset(8);
   the formal parameter in the function without affecting the
   actual parameter. In this case we use the <tt>'<a class="keywd_no_ul" href="#params_in_var_parameter">in var</a>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: oct_str (<a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: oct_str (<a class="keywd_no_ul" href="#params_in_var_parameter">in var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
+  <span class="keywd_no_ul">result</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> number <span class="op_no_ul">&gt;=</span> 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
       <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
@@ -1613,7 +1621,7 @@ reset(8);
   <span class="keywd">end func</span>;
 </pre><p>
   As you can see this works like a combination of an <tt>'<a class="keywd_no_ul" href="#params_in_parameter">in</a>'</tt>
-  parameter with a local <tt>'<span class="keywd">var</span>'</tt>.
+  parameter with a local <tt>'<a class="keywd_no_ul" href="#decls_Variable_declarations">var</a>'</tt>.
 </p><p>
   Conventionally there are two kinds of parameters:
   <tt>'call by value'</tt> and <tt>'call by reference'</tt>. When taking the
@@ -1681,11 +1689,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"</span><span class="lib">bigint.s7i</span><span class="lib">"</span>;
   <span class="keywd">include</span> <span class="lib">"</span><span class="lib">bigrat.s7i</span><span class="lib">"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: amount)      <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10.0;
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: amount)    <span class="keywd">is</span> <span class="keywd">return</span> <span class="func_no_ul">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_bigRational">bigRational</a>: tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: amount) <span class="keywd">is</span> <span class="keywd">return</span> amount <span class="op_no_ul">/</span> 10_;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: amount)      <span class="keywd">is</span> <span class="keywd_no_ul">return</span> amount <span class="op_no_ul">/</span> 10.0;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:       tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: amount)    <span class="keywd">is</span> <span class="keywd_no_ul">return</span> <span class="func_no_ul">float</span>(amount) <span class="op_no_ul">/</span> 10.0;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_bigRational">bigRational</a>: tenPercent (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_bigInteger">bigInteger</a>: amount) <span class="keywd">is</span> <span class="keywd_no_ul">return</span> amount <span class="op_no_ul">/</span> 10_;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func_no_ul">writeln</span>(tenPercent(123));
     <span class="func_no_ul">writeln</span>(tenPercent(123.0));
@@ -1707,19 +1715,19 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   The following example attempts to overload <tt>addOne</tt>
   with the same parameter type and a different result type:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd">return</span> num <span class="op">+</span> 1;
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:   addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd">return</span> <span class="func_no_ul">float</span>(num) <span class="op">+</span> 1.0;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd_no_ul">return</span> num <span class="op">+</span> 1;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>:   addOne (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: num) <span class="keywd">is</span> <span class="keywd_no_ul">return</span> <span class="func_no_ul">float</span>(num) <span class="op">+</span> 1.0;
 </pre><p>
-  Return type overloading is not supported. Therefore
+  <span class="link">Return type overloading</span> is not supported. Therefore
   the attempt above results in the <a class="link" href="#errors_Parsing_errors">compile-time error</a>:
 </p><pre class="indent">
 *** tst344.sd7(5):34: <a class="link" href="#errors_REDECLARATION">Redeclaration of "addOne (val integer: num)"</a>
 const func float:   addOne (in integer: num) is return float(num) + 1.0;
 ------------------------------------------------------------------------^
-*** tst344.sd7(4):35: <a class="link" href="#errors_PREVIOUS_DECLARATION">Previous declaration of "addOne (val integer: num)"
+*** tst344.sd7(4):35: <a class="link" href="#errors_PREVIOUS_DECLARATION">Previous declaration of "addOne (val integer: num)"</a>
 const func integer: addOne (in integer: num) is return num + 1;
 </pre><p>
-  The absence of return type overloading improves readability,
+  The absence of <span class="link">return type overloading</span> improves readability,
   since:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
     &nbsp;The type of every expression (and sub expression) is independent of the context.
@@ -1733,13 +1741,13 @@ const func integer: addOne (in integer: num) is return num + 1;
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"</span><span class="lib">float.s7i</span><span class="lib">"</span>;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand2) <span class="keywd">is</span>
-    <span class="keywd">return</span> <span class="func_no_ul">float</span>(summand1) <span class="op_no_ul">+</span> summand2;
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand2) <span class="keywd">is</span>
+    <span class="keywd_no_ul">return</span> <span class="func_no_ul">float</span>(summand1) <span class="op_no_ul">+</span> summand2;
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span>
-    <span class="keywd">return</span> summand1 <span class="op_no_ul">+</span> <span class="func_no_ul">float</span>(summand2);
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span>
+    <span class="keywd_no_ul">return</span> summand1 <span class="op_no_ul">+</span> <span class="func_no_ul">float</span>(summand2);
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func_no_ul">writeln</span>(123 <span class="op_no_ul">+</span> 123.456);
     <span class="func_no_ul">writeln</span>(123.456 <span class="op_no_ul">+</span> 123);
@@ -1757,14 +1765,14 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   inside a procedure that has a type as parameter. The library
   <span class="lib">integer.s7i</span> defines the template <tt>DECLARE_MIN_MAX</tt> as:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: DECLARE_MIN_MAX (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Templates">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: DECLARE_MIN_MAX (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: min (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
-        <span class="keywd">return</span> value1 < value2 ? value1 : value2;
+    <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: min (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
+        <span class="keywd_no_ul">return</span> value1 < value2 ? value1 : value2;
 
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: max (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
-        <span class="keywd">return</span> value1 > value2 ? value1 : value2;
+    <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <span class="type">aType</span>: max (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value1, <a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: value2) is
+        <span class="keywd_no_ul">return</span> value1 > value2 ? value1 : value2;
 
   <span class="keywd">end func</span>;
 </pre><p>
@@ -1785,9 +1793,9 @@ DECLARE_MIN_MAX(<a class="type_no_ul" href="#types_float">float</a>);       <a c
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;       <a class="comment" href="#tokens_Line_comments"># Standard Seed7 library</a>
 
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> stri <span class="keywd">range</span> argv(PROGRAM) <span class="keywd">do</span>
       write(stri &lt;& <a class="stri" href="#tokens_String_literals">" "</a>);
@@ -1802,11 +1810,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;   
   <tt><span class="lib">seed7_05.s7i</span></tt> the <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> for <a class="type" href="#types_array">array</a>s is declared as
   follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">arrayType</span>: arr_obj) do
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">baseType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">arrayType</span>: arr_obj) do
               (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements)
             end for <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> number <span class="keywd">range</span> 1 <span class="keywd">to</span> length(arr_obj) <span class="keywd">do</span>
       variable <a class="op_no_ul" href="#stats_Assignment">:=</a> arr_obj[number];
@@ -1827,10 +1835,10 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">type</span>: aType) <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Templates">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_DECLS (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">type</span>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: low) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: high) do
+    <a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: for (<a class="keywd_no_ul" href="#params_inout_parameter">inout</a> <span class="type">aType</span>: variable) range (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: low) to (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <span class="type">aType</span>: high) do
         (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
         variable <a class="op_no_ul" href="#stats_Assignment">:=</a> low;
@@ -1972,23 +1980,36 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
   declaration:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is</span>
-  <span class="keywd">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+  <span class="keywd_no_ul">return</span> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
 </pre><p>
-  Note that <tt>return</tt> is not a statement. Instead <tt>return</tt> is a
-  shortcut for a function declaration with a result variable:
+  Note that <tt><span class="keywd_no_ul">return</span></tt> is not a statement. Instead <tt><span class="keywd_no_ul">return</span></tt> is a
+  shortcut for a function declaration with a <span class="link">result variable</span>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: flipCoin <span class="keywd">is func</span>
-  <span class="keywd">result</span>
+  <span class="keywd_no_ul">result</span>
     <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: coinState <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     coinState <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">rand</span>(<span class="var">FALSE</span>, <span class="var">TRUE</span>);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  A <span class="link">result variable</span> is a specific local variable used as function
+  result. If no <a class="link" href="#stats_Assignment">assignment</a> to the result variable is done the
+  <a class="link" href="#decls_Initialization">initialization value</a> of the result value is the function result:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: countDigits <span class="keywd">is func</span>
+  <span class="keywd_no_ul">result</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: count <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_while-statement">while</a> <span class="func">getc</span>(<span class="var">IN</span>) <span class="op">in</span> {<a class="stri" href="#tokens_Character_literals">'0'</a> .. <a class="stri" href="#tokens_Character_literals">'9'</a>} <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+      <span class="func">incr</span>(count);
+    <a class="keywd_no_ul" href="#stats_while-statement">end</a> <a class="keywd_no_ul" href="#stats_while-statement">while</a>;
   <span class="keywd">end</span> <span class="keywd">func</span>;
 </pre><p>
   The keyword <tt>local</tt> allows the introduction of local
   declarations:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: alphabet <span class="keywd">is func</span>
-  <span class="keywd">result</span>
+  <span class="keywd_no_ul">result</span>
     <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: abc <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
   <span class="keywd">local</span>
     <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_char">char</a>: ch <span class="keywd">is</span> <a class="stri" href="#tokens_Character_literals">' '</a>;
@@ -2001,7 +2022,7 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
   A function with a parameter (<tt>number</tt>) is defined with:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_float">float</a>: inverse (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_float">float</a>: number) <span class="keywd">is</span>
-  <span class="keywd">return</span> 1.0 <span class="op_no_ul">/</span> number;
+  <span class="keywd_no_ul">return</span> 1.0 <span class="op_no_ul">/</span> number;
 </pre><p>
   Procedure and function parameters are explained in <a class="link" href="#params_file_start">chapter 6
   (PARAMETERS)</a>.
@@ -2020,10 +2041,10 @@ number <a class="op_no_ul" href="#stats_Assignment">:=</a> 1;
 <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isOdd (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span> <span class="keywd">forward</span>;
 
 <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isEven (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span>
-  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">TRUE</span> <span class="op_no_ul">:</span> <span class="func">isOdd</span>(<span class="func_no_ul">pred</span>(number));
+  <span class="keywd_no_ul">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">TRUE</span> <span class="op_no_ul">:</span> <span class="func">isOdd</span>(<span class="func_no_ul">pred</span>(number));
 
 <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_boolean">boolean</a>: isOdd (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is</span>
-  <span class="keywd">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">FALSE</span> <span class="op_no_ul">:</span> <span class="func">isEven</span>(<span class="func_no_ul">pred</span>(number));
+  <span class="keywd_no_ul">return</span> number <span class="op_no_ul">=</span> 0 <span class="op_no_ul">?</span> <span class="var_no_ul">FALSE</span> <span class="op_no_ul">:</span> <span class="func">isEven</span>(<span class="func_no_ul">pred</span>(number));
 </pre>
 
 <a name="decls_Interface_declarations"><h4>3.2.5 Interface declarations</h4></a>
@@ -2050,7 +2071,7 @@ type_implements_interface(<span class="type_no_ul">striFile</span>, <a class="ty
   Functions use interface types and implementation types to create new interface values:
 </p><pre class="indent">
 <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_file">file</a>: openStriFile (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type_no_ul" href="#types_string">string</a>: content) <span class="keywd">is</span> <span class="keywd">func</span>
-  <span class="keywd">result</span>
+  <span class="keywd_no_ul">result</span>
     <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_file">file</a>: newFile <span class="keywd">is</span> <span class="var_no_ul">STD_NULL</span>;
   <span class="keywd">local</span>
     <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type_no_ul">striFile</span>: new_striFile <span class="keywd">is</span> <span class="type_no_ul">striFile</span>.value;
@@ -5172,9 +5193,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( rtrim(<span class="stri">" /n xyz /r"</span>) <b>&rArr;</b> <span class="stri">" /n xyz"</span> )
       <span class="func">str</span>(A)    Conversion to <span class="type">string</span>
                   ( str(A) <b>&rArr;</b> A )
-      literal(A) Conversion to a literal
+      <span class="func">literal</span>(A) Conversion to a literal
                   ( literal(<span class="stri">"ABC"</span>) <b>&rArr;</b> <span class="stri">"\"ABC\""</span>,
-                    literal(<span class="stri">"O' \"X\""</span>) <b>&rArr;</b> <span class="stri">"\"O\' \\\"X\\\"\""</span> )
+                    literal(<span class="stri">"O' \"X\""</span>) <b>&rArr;</b> <span class="stri">"\"O' \\\"X\\\"\""</span> )
       <span class="func">upper</span>(A)  Conversion to upper case characters
                   ( upper(<span class="stri">"Upper"</span>) <b>&rArr;</b> <span class="stri">"UPPER"</span> )
       <span class="func">lower</span>(A)  Conversion to lower case characters
@@ -6882,7 +6903,89 @@ enable_output(<span class="type">anEnumType</span>);
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_database"><h3>5.24 database</h3></a>
+<a name="types_pollData"><h3>5.24 pollData</h3></a>
+<p>
+    With the type <tt><span class="type">pollData</span></tt> input (checkedEvents) and output
+  (eventFindings) of the function <tt><span class="func">poll</span></tt> are maintained. The type
+  <tt><span class="type">pollData</span></tt> maintains a set of sockets. For every socket the
+  checkedEvents and the eventFindings are maintained. The
+  checkedEvents determine, which events (POLLIN, POLLOUT, or
+  POLLINOUT) should be checked by <tt><span class="func">poll</span></tt>. The function <tt><span class="func">poll</span></tt>
+  determines the events found and stores them as eventFindings.
+  The type <tt><span class="type">pollData</span></tt> provides also an iterator, which can be
+  used to iterate over checkedEvents and eventFindings.
+</p><pre class="tt">
+    Constants:
+      <span class="type">pollData</span>.<span class="var">value</span>  Default value of <span class="type">pollData</span> (empty pollData)
+    Functions:
+      <span class="func">getCheck</span>(pData, aSocket)  Checked events from pData for aSocket
+                  ( Type of argument aSocket: <span class="type">PRIMITIVE_SOCKET</span>,
+                    Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">getCheck</span>(pData, aFile)  Checked events from pData for aFile
+                  ( Type of argument aFile: <a class="type" href="#types_file">file</a>,
+                    Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">getFinding</span>(pData, aSocket)  Event findings from pData for aSocket
+                  ( Type of argument aSocket: <span class="type">PRIMITIVE_SOCKET</span>,
+                    Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">getFinding</span>(pData, aFile)  Event findings from pData for aFile
+                  ( Type of argument aFile: <a class="type" href="#types_file">file</a>,
+                    Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hasNext</span>(pData)  Determine if the pData iterator can deliver another file
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">nextFile</span>(pData)  Get the next file from the pData iterator
+                  ( Type of result: <a class="type" href="#types_file">file</a> )
+    Statements:
+      <span class="func">clear</span>(pData)  Clears pData
+      <span class="func">addCheck</span>(pData, aSocket, eventsToCheck, aFile)  Add eventsToCheck for aSocket to pData
+                  ( Type of argument aSocket: <span class="type">PRIMITIVE_SOCKET</span>,
+                    Type of argument eventsToCheck: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument aFile: <a class="type" href="#types_file">file</a> )
+      <span class="func">addCheck</span>(pData, aFile, eventsToCheck)  Add eventsToCheck for aFile to pData
+                  ( Type of argument aFile: <a class="type" href="#types_file">file</a>,
+                    Type of argument eventsToCheck: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">removeCheck</span>(pData, aSocket, eventsToCheck) Remove eventsToCheck for aSocket from pData
+                  ( Type of argument aSocket: <span class="type">PRIMITIVE_SOCKET</span>,
+                    Type of argument eventsToCheck: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">removeCheck</span>(pData, aFile, eventsToCheck)  Remove eventsToCheck for aFile from pData
+                  ( Type of argument aFile: <a class="type" href="#types_file">file</a>,
+                    Type of argument eventsToCheck: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">poll</span>(pData)  Waits for one or more of the checkedEvents from pData
+      <span class="func">iterChecks</span>(pData, pollMode)  Reset the pollData iterator to process checkedEvents
+                  ( Type of argument pollMode: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">iterFindings</span>(pData, pollMode)  Reset the pollData iterator to process eventFindings
+                  ( Type of argument pollMode: <a class="type" href="#types_integer">integer</a> )
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
+      <span class="func">for</span> forVar <span class="func">range</span> pData <span class="func">do</span>
+        statements
+      <span class="func">end</span> <span class="func">for</span>   Loop over the values of the pData iterator
+                  ( Type of argument forVar: <a class="type" href="#types_file">file</a>,
+                    Type of argument statements: <a class="type" href="#types_proc">proc</a> )
+</pre><p></p>
+
+<a name="types_listener"><h3>5.25 listener</h3></a>
+<p>
+    The type <tt><span class="type">listener</span></tt> is the interface type for listeners. The
+  <tt><span class="type">listener</span></tt> interface is implemented with <tt><span class="type">inetListener</span></tt>. A <tt><span class="type">listener</span></tt>
+  manages its accepted sockets.
+</p><pre class="tt">
+    Functions:
+      <span class="func">openInetListener</span>(portNumber)  Create a bound internet listener for a port at localhost
+                  ( Type of argument portNumber: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">accept</span>(aListener)  Create a new accepted connection socket for aListener
+                  ( Type of result: <a class="type" href="#types_file">file</a> )
+    Statements:
+      <span class="func">close</span>(aListener)  Close the listener aListener
+      <span class="func">listen</span>(aListener, backlog)  Listen for socket connections and limit the incoming queue
+                  ( Type of argument backlog: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">signOn</span>(aListener, sock)  Sign on a socket in a listener
+                  ( Type of argument sock: <a class="type" href="#types_file">file</a> )
+      <span class="func">signOff</span>(aListener, sock)  Sign off a socket from a listener
+                  ( Type of argument sock: <a class="type" href="#types_file">file</a> )
+      <span class="func">waitForRequest</span>(aListener)  Wait until a request can be read or an incoming connection is accepted
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
+</pre><p></p>
+
+<a name="types_database"><h3>5.26 database</h3></a>
 <p>
     The type <tt><span class="type">database</span></tt> describes database connections.
   The library <span class="stri">"<span class="lib">sql_base.s7i</span>"</span> defines functions to manage database connections.
@@ -6928,9 +7031,10 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument autoCommit: <a class="type" href="#types_boolean">boolean</a> )
       <span class="func">commit</span>(db)  Execute a commit statement for db
       <span class="func">rollback</span> (db)  Execute a rollback statement for db
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_sqlStatement"><h3>5.25 sqlStatement</h3></a>
+<a name="types_sqlStatement"><h3>5.27 sqlStatement</h3></a>
 <p>
     The type <tt><span class="type">sqlStatement</span></tt> describes prepared sql statements.
 </p><pre class="tt">
@@ -7010,9 +7114,10 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument pos: <a class="type" href="#types_integer">integer</a>,
                     Type of argument durationData: <a class="type" href="#types_duration">duration</a> )
       <span class="func">execute</span>(statement)  Execute the specified prepared SQL statement
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_process"><h3>5.26 process</h3></a>
+<a name="types_process"><h3>5.28 process</h3></a>
 <p>
     The type <tt><span class="type">process</span></tt> describes processes of the operating system.
   The library <span class="stri">"<span class="lib">process.s7i</span>"</span> defines functions to create and manage processes.
@@ -7064,7 +7169,7 @@ enable_output(<span class="type">anEnumType</span>);
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_category"><h3>5.27 category</h3></a>
+<a name="types_category"><h3>5.29 category</h3></a>
 <p>
     The type <tt><span class="type">category</span></tt> describes the category of a <tt><a class="type" href="#types_reference">reference</a></tt>.
   The <tt><span class="type">category</span></tt> functions are defined in the library <span class="stri">"<span class="lib">category.s7i</span>"</span>.
@@ -7079,7 +7184,7 @@ enable_output(<span class="type">anEnumType</span>);
       <a name="types_category_PROCESSOBJECT">PROCESSOBJECT</a>, <a name="types_category_ENUMLITERALOBJECT">ENUMLITERALOBJECT</a>, <a name="types_category_CONSTENUMOBJECT">CONSTENUMOBJECT</a>, <a name="types_category_VARENUMOBJECT">VARENUMOBJECT</a>,
       <a name="types_category_REFOBJECT">REFOBJECT</a>, <a name="types_category_REFLISTOBJECT">REFLISTOBJECT</a>, <a name="types_category_EXPROBJECT">EXPROBJECT</a>, <a name="types_category_ACTOBJECT">ACTOBJECT</a>, <a name="types_category_VALUEPARAMOBJECT">VALUEPARAMOBJECT</a>,
       <a name="types_category_REFPARAMOBJECT">REFPARAMOBJECT</a>, <a name="types_category_RESULTOBJECT">RESULTOBJECT</a>, <a name="types_category_LOCALVOBJECT">LOCALVOBJECT</a>, <a name="types_category_DATABASEOBJECT">DATABASEOBJECT</a>,
-      <a name="types_category_SQLSTMTOBJECT">SQLSTMTOBJECT</a>, <a name="types_category_PROGOBJECT">PROGOBJECT</a>,
+      <a name="types_category_SQLSTMTOBJECT">SQLSTMTOBJECT</a>, <a name="types_category_PROGOBJECT">PROGOBJECT</a>, <a name="types_category_ILLEGALOBJECT">ILLEGALOBJECT</a>
     Constants:
       <span class="type">category</span>.<span class="var">value</span>  Default value of <span class="type">category</span> (SYMBOLOBJECT)
     Infix operators:
@@ -7108,6 +7213,10 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     <span class="func">category</span>(<span class="stri">"FLOATOBJECT"</span>) <b>&rArr;</b> FLOATOBJECT,
                     <span class="func">category</span>(<span class="stri">"does not exist"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
       <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">to</span> C <span class="keywd">do</span>
@@ -7120,7 +7229,7 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument D: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_reference"><h3>5.28 reference</h3></a>
+<a name="types_reference"><h3>5.30 reference</h3></a>
 <p>
     The type <tt><span class="type">reference</span></tt> describes a reference to an object in the
   abstract syntax tree (AST) of a program. You cannot access the AST
@@ -7281,7 +7390,7 @@ enable_output(<span class="type">anEnumType</span>);
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ref_list"><h3>5.29 ref_list</h3></a>
+<a name="types_ref_list"><h3>5.31 ref_list</h3></a>
 <p>
     The type <tt><span class="type">ref_list</span></tt> describes a list of <tt><a class="type" href="#types_reference">reference</a></tt> objects. The
   <tt><span class="type">ref_list</span></tt> functions are defined in the library <span class="stri">"<span class="lib">ref_list.s7i</span>"</span>.
@@ -7356,7 +7465,7 @@ enable_output(<span class="type">anEnumType</span>);
                     Type of argument statements: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_structElement"><h3>5.30 structElement</h3></a>
+<a name="types_structElement"><h3>5.32 structElement</h3></a>
 <p>
     The type <tt><span class="type">structElement</span></tt> describes an element of a <tt><a class="type" href="#types_struct">struct</a></tt>.
   A <tt><span class="type">structElement</span></tt> value has two properties:
@@ -7420,9 +7529,11 @@ integer: number
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+    Statements:
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_program"><h3>5.31 program</h3></a>
+<a name="types_program"><h3>5.33 program</h3></a>
 <p>
     The type <tt><span class="type">program</span></tt> describes a Seed7 program. You cannot access
   the program that currently runs. Instead you can parse a program
@@ -7441,6 +7552,8 @@ integer: number
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
       <span class="func">parseStri</span>(A)  Parse the string A
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
+      <span class="func">parseStri</span>(A)  Parse the bstring A
+                  ( Type of argument A: <a class="type" href="#types_bstring">bstring</a> )
       <span class="func">evaluate</span>(A, B)  Evaluate the expression B which is part of program A
                   ( Type of result: <a class="type" href="#types_reference">reference</a>,
                     Type of argument B: <a class="type" href="#types_reference">reference</a> )
@@ -7449,6 +7562,9 @@ integer: number
                     Type of argument B: <a class="type" href="#types_string">string</a> )
       <span class="func">errorCount</span>(A)  Number of errors in the program A
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">getError</span>(A, N)  Get error N from program A
+                  ( Type of argument N: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_parseError">parseError</a> )
       <span class="func">globalObjects</span>(A)  List of global defined objects in the program A
                   ( Type of result: <a class="type" href="#types_ref_list">ref_list</a> )
       <span class="func">syobject</span>(A, B)  Return object with name B in program A
@@ -7457,12 +7573,36 @@ integer: number
       <span class="func">match</span>(A, B)  Return object from program A which matches B
                   ( Type of result: <a class="type" href="#types_reference">reference</a>,
                     Type of argument B: <a class="type" href="#types_ref_list">ref_list</a> )
+      <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
     Statements:
       <span class="func">execute</span>(A) Execute the program referred by A
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ptr"><h3>5.32 ptr</h3></a>
+<a name="types_parseError"><h3>5.34 parseError</h3></a>
+<p>
+    The type <tt><span class="type">parseError</span></tt> describes syntactic and semantic <a class="link" href="#errors_Parsing_errors">errors</a>
+  discovered by the parser. It contains information about the
+  error, file, line, column, error message and error line.
+</p><pre class="tt">
+    Elements:
+      <span class="keywd">var</span> <span class="type">errorType</span>: error <span class="keywd">is</span> <span class="type">errorType</span>.value;
+      <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: fileName <span class="keywd">is</span> "";
+      <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: lineNumber <span class="keywd">is</span> 0;
+      <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: columnNumber <span class="keywd">is</span> 0;
+      <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: message <span class="keywd">is</span> "";
+      <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: errorLine <span class="keywd">is</span> "";
+    Functions:
+      <span class="func">getError</span>(A, N)  Get error N from program A
+                  ( Type of argument A: <a class="type" href="#types_program">program</a>,
+                    Type of argument N: <a class="type" href="#types_integer">integer</a> )
+    Statements:
+      <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
+</pre><p></p>
+
+<a name="types_ptr"><h3>5.35 ptr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_ptr">ptr</a> <span class="type">baseType</span></tt> describes a pointer to an object
   of a <tt><span class="type">baseType</span></tt>. With
@@ -7489,7 +7629,7 @@ integer: number
                   ( Type of argument <span class="type">ptrType</span>: <a class="type" href="#types_type">type</a> )
 </pre><p></p>
 
-<a name="types_func"><h3>5.33 func</h3></a>
+<a name="types_func"><h3>5.36 func</h3></a>
 <p>
     The type <tt><a class="type" href="#types_func">func</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt>. For example: <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a></tt> describes an <tt><a class="type" href="#types_integer">integer</a></tt>
@@ -7578,7 +7718,7 @@ integer: number
   parameter is <tt><span class="var">TRUE</span></tt>.
 </p>
 
-<a name="types_varfunc"><h3>5.34 varfunc</h3></a>
+<a name="types_varfunc"><h3>5.37 varfunc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_varfunc">varfunc</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt> variable. For example: A function which returns an
@@ -7611,7 +7751,7 @@ integer: number
   and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
-<a name="types_void"><h3>5.35 void</h3></a>
+<a name="types_void"><h3>5.38 void</h3></a>
 <p>
     The type <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
 </p><pre class="tt">
@@ -7621,7 +7761,7 @@ integer: number
       <a class="type" href="#types_void">void</a>.<span class="var">value</span>  Default value of <a class="type" href="#types_void">void</a> (empty)
 </pre><p></p>
 
-<a name="types_proc"><h3>5.36 proc</h3></a>
+<a name="types_proc"><h3>5.39 proc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_proc">proc</a></tt> describes procedures. The type <tt><a class="type" href="#types_proc">proc</a></tt>
   is defined as <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt>.
@@ -7658,7 +7798,7 @@ integer: number
                     Type of result: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_creator"><h3>5.37 creator</h3></a>
+<a name="types_creator"><h3>5.40 creator</h3></a>
 <p>
     The type <tt><a class="type" href="#types_creator">creator</a></tt> describes create operators. Create operators ( <tt>::=</tt> )
   are used for initializations. They are similar to <a class="link" href="#stats_Assignment">assignment statements</a>
@@ -7694,7 +7834,7 @@ integer: number
     number ::= 1;
 </pre><p></p>
 
-<a name="types_destroyer"><h3>5.38 destroyer</h3></a>
+<a name="types_destroyer"><h3>5.41 destroyer</h3></a>
 <p>
     The type <tt><a class="type" href="#types_destroyer">destroyer</a></tt> describes destroy operations. Destroy operations are
   used to free data. They are not called explicitly. Destroy operations are
@@ -7723,7 +7863,7 @@ integer: number
     destroy(number);
 </pre><p></p>
 
-<a name="types_type"><h3>5.39 type</h3></a>
+<a name="types_type"><h3>5.42 type</h3></a>
 <p>
     The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
 </p><pre class="indent">
@@ -7832,7 +7972,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p></p>
 
-<a name="types_object"><h3>5.40 object</h3></a>
+<a name="types_object"><h3>5.43 object</h3></a>
 <p>
     The type <tt><a class="type" href="#types_object">object</a></tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7845,7 +7985,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="types_expr"><h3>5.41 expr</h3></a>
+<a name="types_expr"><h3>5.44 expr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_expr">expr</a></tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -13947,7 +14087,7 @@ end while;
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">dialog.s7i</span>"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func">messageWindow</span>(<span class="stri">"hello world"</span>);
   <span class="keywd">end func</span>;
@@ -13959,7 +14099,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">dialog.s7i</span>"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func">screen</span>(640, 480);
     <span class="func">messageWindow</span>(<span class="stri">"hello world"</span>);
@@ -13975,7 +14115,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="func">screen</span>(640, 480);
     <a class="func" href="#stats_Ignoring_values">ignore</a>(<span class="func">getc</span>(<span class="var">GRAPH_KEYBOARD</span>));
@@ -13990,7 +14130,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 </ul><p>
   For that reason a graphic program should do the following assignment:
 </p><pre class="indent">
-<span class="var">KEYBOARD</span> := <span class="var">GRAPH_KEYBOARD</span>;
+<span class="var">KEYBOARD</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">GRAPH_KEYBOARD</span>;
 </pre><p>
   Afterwards it should just use the variable <tt><span class="var">KEYBOARD</span></tt>.
 </p><p>
@@ -14001,18 +14141,18 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
     <span class="func">screen</span>(640, 480);
-    <span class="var">KEYBOARD</span> := <span class="var">GRAPH_KEYBOARD</span>;
-    <span class="keywd">repeat</span>
-      command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
+    <span class="var">KEYBOARD</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">GRAPH_KEYBOARD</span>;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      command <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
       <span class="func">clear</span>(<span class="func">color</span>(1009 * <span class="func">ord</span>(command) <span class="op">mod</span> 65536,
                   4999 * <span class="func">ord</span>(command) <span class="op">mod</span> 65536,
                   9973 * <span class="func">ord</span>(command) <span class="op">mod</span> 65536));
-    <span class="keywd">until</span> command = KEY_ESC;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> command = KEY_ESC;
   <span class="keywd">end func</span>;
 </pre><p>
   The function <tt><span class="func">color</span></tt> creates a <tt><a class="type" href="#types_color">color</a></tt> from red, green and blue lights
@@ -14027,14 +14167,14 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">text.s7i</span>"</span>;
   <span class="keywd">include</span> <span class="lib">"stdfont24.s7i"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">text</span>: textWindow <span class="keywd">is</span> <span class="type">text</span>.value;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type" href="#types_text">text</a>: textWindow <span class="keywd">is</span> <a class="type" href="#types_text">text</a>.value;
   <span class="keywd">begin</span>
     <span class="func">screen</span>(203, 45);
-    textWindow := <span class="func">openPixmapFontFile</span>(curr_win);
+    textWindow <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">openPixmapFontFile</span>(curr_win);
     <span class="func">setFont</span>(textWindow, stdFont24);
-    <span class="func">writeln</span>(textWindow, " hello world");
+    <span class="func">writeln</span>(textWindow, <span class="stri">" hello world"</span>);
     <a class="func" href="#stats_Ignoring_values">ignore</a>(<span class="func">getc</span>(<span class="var">GRAPH_KEYBOARD</span>));
   <span class="keywd">end func</span>;
 </pre><p>
@@ -14056,6 +14196,122 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     <li>Seed7 programs can use them always.</li>
     <li>There are bitmap and vector fonts.</li>
 </ul><p>
+  <a name="graphic_hello_world_at_clicked_positions">Below is a "hello world" program which writes "hello world" at
+  clicked positions</a>
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">text.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"stdfont24.s7i"</span>;
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type" href="#types_text">text</a>: textWindow <span class="keywd">is</span> <a class="type" href="#types_text">text</a>.value;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
+  <span class="keywd">begin</span>
+    <span class="func">screen</span>(640, 480);
+    textWindow <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">openPixmapFontFile</span>(curr_win);
+    <span class="func">setFont</span>(textWindow, stdFont24);
+    <span class="var">KEYBOARD</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">GRAPH_KEYBOARD</span>;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      command <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
+      <a class="keywd_no_ul" href="#stats_if-statement">if</a> command = <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+        <span class="func">setPosXY</span>(textWindow, <span class="func">clickedXPos</span>(KEYBOARD),
+                             <span class="func">clickedYPos</span>(KEYBOARD));
+        <span class="func">color</span>(textWindow, <span class="func">color</span>(<span class="func">rand</span>(0, 65535),
+                                <span class="func">rand</span>(0, 65535),
+                                <span class="func">rand</span>(0, 65535)));
+        <span class="func">write</span>(textWindow, <span class="stri">"hello world"</span>);
+      <a class="keywd_no_ul" href="#stats_if-statement">end</a> <a class="keywd_no_ul" href="#stats_if-statement">if</a>;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> command <span class="op_no_ul">&lt;></span> <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  The functions <tt><span class="func">clickedXPos</span></tt> and <tt><span class="func">clickedYPos</span></tt> return the X and Y
+  coordinates of the mouse cursor at the last time when a mouse
+  button was clicked. The function <tt><span class="func">setPosXY</span></tt> sets the current
+  position of a text window to the given X and Y coordinates. There
+  are two functions named  <tt><span class="func">color</span></tt>. The inner function <tt><span class="func">color</span></tt>
+  creates a <tt><a class="type" href="#types_color">color</a></tt> from random red, green and blue lights. The
+  outer function <tt><span class="func">color</span></tt> sets the foreground color of a text.
+</p><p>
+  <a name="graphic_hourglass_cursor">Below is a program which draws an hourglass at the cursor position</a>
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"pic32.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">time.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">duration.s7i</span>"</span>;
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <span class="type">PRIMITIVE_WINDOW</span>: hourglass <span class="keywd">is</span> <span class="type">PRIMITIVE_WINDOW</span>.value;
+  <span class="keywd">begin</span>
+    <span class="func">screen</span>(640, 480);
+    hourglass <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">openSubWindow</span>(curr_win, 1000, 1000,
+                               <span class="func">length</span>(hourglass_pic[1]),
+                               <span class="func">length</span>(hourglass_pic));
+    <span class="func">put</span>(hourglass, 0, 0, <span class="func">createPixmap</span>(hourglass_pic, 1, black));
+    <span class="var">KEYBOARD</span> <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="var">GRAPH_KEYBOARD</span>;
+    <span class="func">setCursorVisible</span>(curr_win, <span class="var_no_ul">FALSE</span>);
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      <span class="func">setPos</span>(hourglass, <span class="func">pointerXPos</span>(curr_win) - <span class="func">width</span>(hourglass) <span class="op_no_ul">div</span> 2,
+                        <span class="func">pointerYPos</span>(curr_win) - <span class="func">height</span>(hourglass) <span class="op_no_ul">div</span> 2);
+      <span class="func">wait</span>(30000 . MICRO_SECONDS);
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> <span class="func">inputReady</span>(<span class="var">KEYBOARD</span>);
+  <span class="keywd">end func</span>;
+</pre><p>
+  The variable <tt>hourglass</tt> is of type <tt><span class="type">PRIMITIVE_WINDOW</span></tt>. A variable of
+  this type can hold a window (which is on screen) or a pixmap (which is
+  off-screen). The function <tt><span class="func">openSubWindow</span></tt> creates a sub window inside
+  the parent window <tt><span class="var">curr_win</span></tt>. The window <tt><span class="var">curr_win</span></tt> has a title bar.
+  The window created by <tt><span class="func">openSubWindow</span></tt> does not have a title bar or a
+  border. The function <tt><span class="func">createPixmap</span></tt> is used to create the pixmap of an
+  hourglass by using a pattern from the library <tt><span class="lib">"pic32.s7i"</span></tt>. The function
+  <tt><span class="func">setCursorVisible</span></tt> disables the visibility of the mouse cursor in
+  <tt><span class="var">curr_win</span></tt>. The functions <tt><span class="func">pointerXPos</span></tt> and <tt><span class="func">pointerYPos</span></tt> return the
+  current X and Y coordinates of the mouse cursor. The function <tt><span class="func">setPos</span></tt>
+  is used to position the <tt>hourglass</tt> to the cursor position (minus half
+  of the width and height of the hourglass).
+</p><p>
+  Besides other image formats Seed7 supports "poor man's images" where an
+  array of strings is used to represent an image. E.g.:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Constant_declarations">const</a> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: hourglass_pic <span class="keywd">is</span> [](
+  <span class="stri">" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "</span>,       <span class="comment"># Mapping from character to color:</span>
+  <span class="stri">" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "</span>,       <span class="comment"># char  | color</span>
+  <span class="stri">"   bb XWWWWWWWWWWWWWWWWWWX bb   "</span>,       <span class="comment"># ------+---------------</span>
+  <span class="stri">"   bbXWWWWWWWWWWWWWWWWWWWWXbb   "</span>,       <span class="comment"># space | background color</span>
+  <span class="stri">"   bbWWXXXXXXXXXXXXXXXXXXWWbb   "</span>,       <span class="comment">#   B   |</span> <span style="background-color:#0000ff;color:white;">light_blue</span>
+  <span class="stri">"   bbWWX                XWWbb   "</span>,       <span class="comment">#   G   |</span> <span style="background-color:#00ff00;color:black;">light_green</span>
+  <span class="stri">"   bbWWX      YYYY      XWWbb   "</span>,       <span class="comment">#   L   |</span> <span style="background-color:#8080ff;color:white;">lavender</span>
+  <span class="stri">"   bbWWX     YYYYYY     XWWbb   "</span>,       <span class="comment">#   M   |</span> <span style="background-color:#ff00ff;color:black;">light_magenta</span>
+  <span class="stri">"   bbXWWX   YYYYYYYY   XWWXbb   "</span>,       <span class="comment">#   O   |</span> <span style="background-color:#ff8000;color:black;">orange</span>
+  <span class="stri">"   bb XWWX YYYYYYYYYY XWWX bb   "</span>,       <span class="comment">#   P   |</span> <span style="background-color:#ff80ff;color:black;">light_pink</span>
+  <span class="stri">"   bb  XWWYYYYYYYYYYYYWWX  bb   "</span>,       <span class="comment">#   R   |</span> <span style="background-color:#ff0000;color:black;">light_red</span>
+  <span class="stri">"   bb   XWWYYYYYYYYYYWWX   bb   "</span>,       <span class="comment">#   W   |</span> <span style="background-color:#ffffff;color:black;">white</span>
+  <span class="stri">"   bb    XWWYYYYYYYYWWX    bb   "</span>,       <span class="comment">#   X   |</span> <span style="background-color:#000000;color:white;">black</span>
+  <span class="stri">"   bb     XWWYYYYYYWWX     bb   "</span>,       <span class="comment">#   Y   |</span> <span style="background-color:#ffff00;color:black;">yellow</span>
+  <span class="stri">"   bb      XWWYYYYWWX      bb   "</span>,       <span class="comment">#   b   |</span> <span style="background-color:#804000;color:white;">brown</span>
+  <span class="stri">"   bb       XWWYYWWX       bb   "</span>,       <span class="comment">#   c   |</span> <span style="background-color:#80ffff;color:black;">light_cyan</span>
+  <span class="stri">"   bb       XWWYYWWX       bb   "</span>,       <span class="comment">#   d   |</span> <span style="background-color:#404040;color:white;">dark_gray</span>
+  <span class="stri">"   bb      XWWXYYXWWX      bb   "</span>,       <span class="comment">#   f   |</span> <span style="background-color:#228b22;color:white;">forestgreen</span>
+  <span class="stri">"   bb     XWWX YY XWWX     bb   "</span>,       <span class="comment">#   g   |</span> <span style="background-color:#008000;color:white;">dark_green</span>
+  <span class="stri">"   bb    XWWX  YY  XWWX    bb   "</span>,       <span class="comment">#   i   |</span> <span style="background-color:#55df55;color:black;">mint</span>
+  <span class="stri">"   bb   XWWX   YY   XWWX   bb   "</span>,       <span class="comment">#   l   |</span> <span style="background-color:#0000a8;color:white;">middle_blue</span>
+  <span class="stri">"   bb  XWWX    YY    XWWX  bb   "</span>,       <span class="comment">#   m   |</span> <span style="background-color:#800080;color:white;">dark_magenta</span>
+  <span class="stri">"   bb XWWX     YY     XWWX bb   "</span>,       <span class="comment">#   n   |</span> <span style="background-color:#000080;color:white;">dark_blue</span>
+  <span class="stri">"   bbXWWX     YYYY     XWWXbb   "</span>,       <span class="comment">#   p   |</span> <span style="background-color:#ff8080;color:black;">pink</span>
+  <span class="stri">"   bbWWX     YYYYYY     XWWbb   "</span>,       <span class="comment">#   r   |</span> <span style="background-color:#800000;color:white;">dark_red</span>
+  <span class="stri">"   bbWWX    YYYYYYYY    XWWbb   "</span>,       <span class="comment">#   x   |</span> <span style="background-color:#c0c0c0;color:black;">light_gray</span>
+  <span class="stri">"   bbWWX   YYYYYYYYYY   XWWbb   "</span>,       <span class="comment">#   y   |</span> <span style="background-color:#808080;color:white;">middle_gray</span>
+  <span class="stri">"   bbWWXXXYYYYYYYYYYYYXXXWWbb   "</span>,       <span class="comment"># other |</span> <span style="background-color:#000000;color:white;">black</span>
+  <span class="stri">"   bbXWWWWWWWWWWWWWWWWWWWWXbb   "</span>,
+  <span class="stri">"   bb XWWWWWWWWWWWWWWWWWWX bb   "</span>,
+  <span class="stri">" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "</span>,
+  <span class="stri">" bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb "</span>);
+</pre><p>
 </p>
 
 <a name="actions_file_start"></a><p></p>
@@ -14161,9 +14417,9 @@ TYPE_ACTION
     <tr><td><a class="link" href="#actions_ACTION"          >ACT_</a></td>  <td width="20"></td><td>actlib.c</td>  <td width="20"></td><td><tt><span class="type">ACTION</span></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_array"           >ARR_</a></td>  <td width="20"></td><td>arrlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_array">array</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_bigInteger"      >BIG_</a></td>  <td width="20"></td><td>biglib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations</td></tr>
-    <tr><td><a class="link" href="#actions_binary"          >BIN_</a></td>  <td width="20"></td><td>binlib.c</td>  <td width="20"></td><td><tt><span class="type">bin32</span></tt> and <tt><span class="type">bin64</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_binary"          >BIN_</a></td>  <td width="20"></td><td>binlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_bin32">bin32</a></tt> and <tt><a class="type" href="#types_bin64">bin64</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_boolean"         >BLN_</a></td>  <td width="20"></td><td>blnlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_boolean">boolean</a></tt> operations</td></tr>
-    <tr><td><a class="link" href="#actions_bstring"         >BST_</a></td>  <td width="20"></td><td>bstlib.c</td>  <td width="20"></td><td>Operations for byte strings</td></tr>
+    <tr><td><a class="link" href="#actions_bstring"         >BST_</a></td>  <td width="20"></td><td>bstlib.c</td>  <td width="20"></td><td>Operations for <tt><a class="type" href="#types_bstring">bstring</a></tt></td></tr>
     <tr><td><a class="link" href="#actions_char"            >CHR_</a></td>  <td width="20"></td><td>chrlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_char">char</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_commands"        >CMD_</a></td>  <td width="20"></td><td>cmdlib.c</td>  <td width="20"></td><td>Various directory, file and other commands</td></tr>
     <tr><td><a class="link" href="#actions_console_output"  >CON_</a></td>  <td width="20"></td><td>conlib.c</td>  <td width="20"></td><td><tt><span class="type">console_file</span></tt> operations</td></tr>
@@ -14178,18 +14434,18 @@ TYPE_ACTION
     <tr><td><a class="link" href="#actions_interface"       >ITF_</a></td>  <td width="20"></td><td>itflib.c</td>  <td width="20"></td><td>Operations for interface types</td></tr>
     <tr><td><a class="link" href="#actions_console_keyboard">KBD_</a></td>  <td width="20"></td><td>kbdlib.c</td>  <td width="20"></td><td>Keyboard operations</td></tr>
     <tr><td><a class="link" href="#actions_list"            >LST_</a></td>  <td width="20"></td><td>lstlib.c</td>  <td width="20"></td><td>List operations</td></tr>
-    <tr><td><a class="link" href="#actions_process"         >PCS_</a></td>  <td width="20"></td><td>pcslib.c</td>  <td width="20"></td><td><tt><span class="type">process</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_process"         >PCS_</a></td>  <td width="20"></td><td>pcslib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_process">process</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_pointList"       >PTL_</a></td>  <td width="20"></td><td>drwlib.c</td>  <td width="20"></td><td>pointList operations</td></tr>
-    <tr><td><a class="link" href="#actions_pollData"        >POL_</a></td>  <td width="20"></td><td>pollib.c</td>  <td width="20"></td><td><tt><span class="type">pollData</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_pollData"        >POL_</a></td>  <td width="20"></td><td>pollib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_pollData">pollData</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_proc"            >PRC_</a></td>  <td width="20"></td><td>prclib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_proc">proc</a></tt> operations and statements</td></tr>
-    <tr><td><a class="link" href="#actions_program"         >PRG_</a></td>  <td width="20"></td><td>prglib.c</td>  <td width="20"></td><td>Program operations</td></tr>
+    <tr><td><a class="link" href="#actions_program"         >PRG_</a></td>  <td width="20"></td><td>prglib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_program">program</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_reference"       >REF_</a></td>  <td width="20"></td><td>reflib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_reference">reference</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_ref_list"        >RFL_</a></td>  <td width="20"></td><td>rfllib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_struct"          >SCT_</a></td>  <td width="20"></td><td>sctlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_struct">struct</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_structElement"   >SEL_</a></td>  <td width="20"></td><td>sellib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_structElement">structElement</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_set"             >SET_</a></td>  <td width="20"></td><td>setlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_set">set</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_PRIMITIVE_SOCKET">SOC_</a></td>  <td width="20"></td><td>soclib.c</td>  <td width="20"></td><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt> operations</td></tr>
-    <tr><td><a class="link" href="#actions_database"        >SQL_</a></td>  <td width="20"></td><td>sqllib.c</td>  <td width="20"></td><td><tt><span class="type">database</span></tt> operations</td></tr>
+    <tr><td><a class="link" href="#actions_database"        >SQL_</a></td>  <td width="20"></td><td>sqllib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_database">database</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_string"          >STR_</a></td>  <td width="20"></td><td>strlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_string">string</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_time"            >TIM_</a></td>  <td width="20"></td><td>timlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_time">time</a></tt> and <tt><a class="type" href="#types_duration">duration</a></tt> operations</td></tr>
     <tr><td><a class="link" href="#actions_type"            >TYP_</a></td>  <td width="20"></td><td>typlib.c</td>  <td width="20"></td><td><tt><a class="type" href="#types_type">type</a></tt> operations</td></tr>
@@ -14663,15 +14919,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_graphic_output"><h3>15.11 Actions to do graphic output</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>drw_rtl.c/drw_x11.c/drw_win.c function</th></tr>
-    <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
-    <tr><td>DRW_ARC2</td>            <td>drw_arc2</td>            <td>drwArc2</td></tr>
-    <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
     <tr><td>DRW_BORDER</td>          <td>drw_border</td>          <td>drwBorder</td></tr>
     <tr><td>DRW_CAPTURE</td>         <td>drw_capture</td>         <td>drwCapture</td></tr>
-    <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
     <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>ptrCmp / ptrCmpGeneric</td></tr>
-    <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
     <tr><td>DRW_CONV_POINT_LIST</td> <td>drw_conv_point_list</td> <td>drwConvPointList</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
@@ -14679,10 +14930,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_DESTR</td>           <td>drw_destr</td>           <td>drwDestr</td></tr>
     <tr><td>DRW_EMPTY</td>           <td>drw_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>DRW_EQ</td>              <td>drw_eq</td>              <td>==</td></tr>
-    <tr><td>DRW_FARCCHORD</td>       <td>drw_farcchord</td>       <td>drwFArcChord</td></tr>
-    <tr><td>DRW_FARCPIESLICE</td>    <td>drw_farcpieslice</td>    <td>drwFArcPieSlice</td></tr>
-    <tr><td>DRW_FCIRCLE</td>         <td>drw_fcircle</td>         <td>drwFCircle</td></tr>
-    <tr><td>DRW_FELLIPSE</td>        <td>drw_fellipse</td>        <td>drwFEllipse</td></tr>
     <tr><td>DRW_FLUSH</td>           <td>drw_flush</td>           <td>drwFlush</td></tr>
     <tr><td>DRW_FPOLY_LINE</td>      <td>drw_fpoly_line</td>      <td>drwFPolyLine</td></tr>
     <tr><td>DRW_GEN_POINT_LIST</td>  <td>drw_gen_point_list</td>  <td>drwGenPointList</td></tr>
@@ -14695,7 +14942,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_GET_PIXMAP_FROM_PIXELS</td> <td>drw_get_pixmap_from_pixels</td> <td>drwGetPixmapFromPixels</td></tr>
     <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
-    <tr><td>DRW_LINE</td>            <td>drw_line</td>            <td>drwLine</td></tr>
     <tr><td>DRW_NE</td>              <td>drw_ne</td>              <td>!=</td></tr>
     <tr><td>DRW_NEW_PIXMAP</td>      <td>drw_new_pixmap</td>      <td>drwNewPixmap</td></tr>
     <tr><td>DRW_OPEN</td>            <td>drw_open</td>            <td>drwOpen</td></tr>
@@ -14709,7 +14955,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_PFELLIPSE</td>       <td>drw_pfellipse</td>       <td>drwPFEllipse</td></tr>
     <tr><td>DRW_PIXEL_TO_RGB</td>    <td>drw_pixel_to_rgb</td>    <td>drwPixelToRgb</td></tr>
     <tr><td>DRW_PLINE</td>           <td>drw_pline</td>           <td>drwPLine</td></tr>
-    <tr><td>DRW_POINT</td>           <td>drw_point</td>           <td>drwPoint</td></tr>
     <tr><td>DRW_POINTER_XPOS</td>    <td>drw_pointer_xpos</td>    <td>drwPointerXpos</td></tr>
     <tr><td>DRW_POINTER_YPOS</td>    <td>drw_pointer_ypos</td>    <td>drwPointerYpos</td></tr>
     <tr><td>DRW_POLY_LINE</td>       <td>drw_poly_line</td>       <td>drwPolyLine</td></tr>
@@ -14717,7 +14962,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_PRECT</td>           <td>drw_prect</td>           <td>drwPRect</td></tr>
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
     <tr><td>DRW_PUT_SCALED</td>      <td>drw_put_scaled</td>      <td>drwPutScaled</td></tr>
-    <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
     <tr><td>DRW_SCREEN_HEIGHT</td>   <td>drw_screen_height</td>   <td>drwScreenHeight</td></tr>
     <tr><td>DRW_SCREEN_WIDTH</td>    <td>drw_screen_width</td>    <td>drwScreenWidth</td></tr>
@@ -15597,7 +15841,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <span class="type">void</span> <a name="ffi_supDoWurx1">supDoWurx1</a> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">striType</a> name)
   {
     <a class="type" href="#ffi_cstriType">cstriType</a> cName;
-    <a class="type" href="#ffi_errInfoType">errInfoType</a> err_info = OKAY_NO_ERROR;
+    <a class="type" href="#ffi_errInfoType">errInfoType</a> err_info = <a class="exception" href="#ffi_errInfoType_OKAY_NO_ERROR">OKAY_NO_ERROR</a>;
     <span class="type">int</span> wurxResult;
 
     cName = <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>(name, &err_info);
@@ -15607,7 +15851,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
       wurxResult = <a class="func" href="#ffi_doWurx1">doWurx1</a>(cName);
       <a class="func" href="#ffi_free_cstri8">free_cstri8</a>(cName, name);
       <span class="keywd">if</span> (wurxResult != 0) {
-        <a class="func" href="#ffi_raise_error">raise_error</a>(<a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>);
+        <a class="func" href="#ffi_raise_error">raise_error</a>(<a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a>);
       }
     }
   }
@@ -15698,16 +15942,15 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   Several Seed7 types correspond to simple C types, which are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
-    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td>_Bool, bool or int</td></tr>
-    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td>64-bit signed int</td></tr>
-    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td>64-bit double</td></tr>
-    <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_charType">charType</a></td>   <td>32-bit unsigned int</td></tr>
-    <tr><td><tt><span class="type">clib_file</span></tt></td>        <td><a name="ffi_fileType">fileType</a></td>   <td>FILE *</td></tr>
-    <tr><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt></td> <td><a name="ffi_socketType">socketType</a></td> <td>int or unsigned int</td></tr>
+    <tr><th>Seed7 type</th>       <th>C type</th>     <th>C definition</th>       <th>Comment</th></tr>
+    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td><tt><span class="type">_Bool</span></tt>, <tt><span class="type">bool</span></tt> or <tt><span class="type">int</span></tt></td> <td>Determined by chkccomp.c</td></tr>
+    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td><tt><a class="type" href="#ffi_int64Type">int64Type</tt></td>          <td>64-bit signed int</td></tr>
+    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td><tt><span class="type">double</span></tt></td>             <td>64-bit double precision</td></tr>
+    <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_charType">charType</a></td>   <td><tt><a class="type" href="#ffi_uint32Type">uint32Type</a></tt></td>         <td>32-bit unsigned int</td></tr>
+    <tr><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt></td> <td><a name="ffi_socketType">socketType</a></td> <td><tt><span class="type">int</span></tt></td>                <td>Cast from <tt><span class="type">os_socketType</span></tt></td></tr>
 </table><p>
   Other Seed7 types correspond to C pointers, which point to a struct.
-  Some of this structs are used in all situations: In the interpreter
+  Some of these structs are used in all situations: In the interpreter
   and in the compiler and under different operation systems and with
   different runtime libraries. This invariant structs are defined
   in <tt><span class="lib">"common.h"</span></tt> and in <tt><span class="lib">"data.h"</span></tt>:
@@ -15715,7 +15958,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><th>Seed7 type</th>   <th>C type</th>      <th>C struct</th>             <th>Comment</th></tr>
     <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>       <td><a name="ffi_striType">striType</a></td>    <td>struct striStruct</td>    <td>UTF-32 encoded, can contain null chars</td></tr>
     <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>          <td><a name="ffi_setType">setType</a></td>     <td>struct setStruct</td>     <td>&nbsp;</td></tr>
-    <tr><td><tt><span class="type">bstring</span></tt></td>      <td><a name="ffi_bstriType">bstriType</a></td>   <td>struct bstriStruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
+    <tr><td><tt><a class="type" href="#types_bstring">bstring</a></tt></td>      <td><a name="ffi_bstriType">bstriType</a></td>   <td>struct bstriStruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
+    <tr><td><tt><span class="type">clib_file</span></tt></td>    <td><a name="ffi_fileType">fileType</a></td>    <td>struct fileStruct</td>    <td>C <tt>FILE *</tt> plus usage count and permissions</td></tr>
     <tr><td><tt><a class="type" href="#types_reference">reference</a></tt></td>    <td><a name="ffi_objectType">objectType</a></td>  <td>struct objectStruct</td>  <td>Interpreter type for Seed7 objects</td></tr>
     <tr><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt></td>     <td><a name="ffi_listType">listType</a></td>    <td>struct listStruct</td>    <td>Interpreter type for Seed7 object lists</td></tr>
 </table><p>
@@ -15737,32 +15981,36 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   library used:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>       <th>Defined as</th>                        <th>Sourcefile</th>  <th>Comment</th></tr>
-    <tr><td rowspan="2"><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt></td>       <td><a name="ffi_bigIntType">bigIntType</a></td>   <td>struct bigIntStruct *</td>             <td>big_rtl.c</td>   <td>The built-in bigInteger library</td></tr>
-    <tr><td>bigIntType</td>   <td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
-    <tr><td rowspan="2"><tt><span class="type">pollData</span></tt></td>         <td><a name="ffi_pollType">pollType</a></td>     <td>struct select_based_pollStruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td>pollType</td>     <td>struct poll_based_pollStruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td rowspan="3"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_PRIMITIVE_WINDOW"></a><a name="ffi_winType">winType</a></td>      <td>x11_winRecord *</td>                   <td>drw_x11.c</td>   <td>Functions cast from struct winStruct * to x11_winRecord *</td></tr>
-    <tr><td>winType</td>      <td>win_winRecord *</td>                   <td>drw_win.c</td>   <td>Functions cast from struct winStruct * to win_winRecord *</td></tr>
-    <tr><td>winType</td>      <td>emc_winRecord *</td>                   <td>drw_emc.c</td>   <td>Functions cast from struct winStruct * to emc_winRecord *</td></tr>
-    <tr><td rowspan="7"><tt><span class="type">database</span></tt></td>         <td><a name="ffi_databaseType">databaseType</a></td> <td>dbType</td>                            <td>sql_cli.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_fire.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_lite.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_my.c</td>    <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_oci.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_post.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_tds.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td rowspan="7"><tt><span class="type">sqlStatement</span></tt></td>     <td><a name="ffi_sqlStmtType">sqlStmtType</a></td>  <td>preparedStmtType</td>                  <td>sql_cli.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_fire.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_lite.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_my.c</td>    <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_oci.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_post.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_tds.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt></td>       <td rowspan="2"><a name="ffi_bigIntType">bigIntType</a></td>   <td>struct bigIntStruct *</td>             <td>big_rtl.c</td>   <td>The built-in bigInteger library</td></tr>
+    <tr><td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" href="#types_pollData">pollData</a></tt></td>         <td rowspan="2"><a name="ffi_pollType">pollType</a></td>     <td>struct select_based_pollStruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td>struct poll_based_pollStruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td rowspan="3"><tt><a name="ffi_PRIMITIVE_WINDOW"></a><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td rowspan="3"><a name="ffi_winType">winType</a></td>      <td>x11_winRecord *</td>                   <td>drw_x11.c</td>   <td>Functions cast from winType to x11_winRecord *</td></tr>
+    <tr><td>win_winRecord *</td>                   <td>drw_win.c</td>   <td>Functions cast from winType to win_winRecord *</td></tr>
+    <tr><td>emc_winRecord *</td>                   <td>drw_emc.c</td>   <td>Functions cast from winType to emc_winRecord *</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" href="#types_process">process</a></tt></td>          <td rowspan="2"><a name="ffi_processType">processType</a></td>  <td>unx_processRecord *</td>               <td>pcs_unx.c</td>   <td>Functions cast from processType to unx_processRecord *</td></tr>
+    <tr><td>win_processRecord *</td>               <td>pcs_win.c</td>   <td>Functions cast from processType to win_processRecord *</td></tr>
+    <tr><td rowspan="7"><tt><a class="type" href="#types_database">database</a></tt></td>         <td rowspan="7"><a name="ffi_databaseType">databaseType</a></td> <td>dbRecordCli *</td>                     <td>sql_cli.c</td>   <td>Functions cast from databaseType to dbRecordCli *</td></tr>
+    <tr><td>dbRecordFire *</td>                    <td>sql_fire.c</td>  <td>Functions cast from databaseType to dbRecordFire *</td></tr>
+    <tr><td>dbRecordLite *</td>                    <td>sql_lite.c</td>  <td>Functions cast from databaseType to dbRecordLite *</td></tr>
+    <tr><td>dbRecordMy *</td>                      <td>sql_my.c</td>    <td>Functions cast from databaseType to dbRecordMy *</td></tr>
+    <tr><td>dbRecordOci *</td>                     <td>sql_oci.c</td>   <td>Functions cast from databaseType to dbRecordOci *</td></tr>
+    <tr><td>dbRecordPost *</td>                    <td>sql_post.c</td>  <td>Functions cast from databaseType to dbRecordPost *</td></tr>
+    <tr><td>dbRecordTds *</td>                     <td>sql_tds.c</td>   <td>Functions cast from databaseType to dbRecordTds *</td></tr>
+    <tr><td rowspan="7"><tt><a class="type" href="#types_sqlStatement">sqlStatement</a></tt></td>     <td rowspan="7"><a name="ffi_sqlStmtType">sqlStmtType</a></td>  <td>preparedStmtRecordCli *</td>           <td>sql_cli.c</td>   <td>Functions cast from sqlStmtType to preparedStmtRecordCli *</td></tr>
+    <tr><td>preparedStmtRecordFire *</td>          <td>sql_fire.c</td>  <td>Functions cast from sqlStmtType to preparedStmtRecordFire *</td></tr>
+    <tr><td>preparedStmtRecordLite *</td>          <td>sql_lite.c</td>  <td>Functions cast from sqlStmtType to preparedStmtRecordLite *</td></tr>
+    <tr><td>preparedStmtRecordMy *</td>            <td>sql_my.c</td>    <td>Functions cast from sqlStmtType to preparedStmtRecordMy *</td></tr>
+    <tr><td>preparedStmtRecordOci *</td>           <td>sql_oci.c</td>   <td>Functions cast from sqlStmtType to preparedStmtRecordOci *</td></tr>
+    <tr><td>preparedStmtRecordPost *</td>          <td>sql_post.c</td>  <td>Functions cast from sqlStmtType to preparedStmtRecordPost *</td></tr>
+    <tr><td>preparedStmtRecordTds *</td>           <td>sql_tds.c</td>   <td>Functions cast from sqlStmtType to preparedStmtRecordTds *</td></tr>
 </table><p>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>C type</th>        <th>C definition</th>        <th>Comment</th></tr>
+    <tr><td><tt><a class="type" name="ffi_int8Type">int8Type</a></tt></td>      <td>signed char</td>         <td>It is assumed that a char consists of 8 Bits</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint8Type">uint8Type</a></tt></td>     <td>unsigned char</td>       <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int8Type">int8Type</a></tt></td></tr>
     <tr><td><tt><a class="type" name="ffi_int16Type">int16Type</a></tt></td>     <td>short int</td>           <td>It is assumed that sizeof(short int) == 2</td></tr>
     <tr><td><tt><a class="type" name="ffi_uint16Type">uint16Type</a></tt></td>    <td>unsigned short int</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int16Type">int16Type</a></tt></td></tr>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_int32Type">int32Type</a></tt></td>     <td>int</td>                 <td>If sizeof(int) == 4</td></tr>
@@ -15777,11 +16025,15 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_uint128Type">uint128Type</a></tt></td>   <td>unsigned __int128</td>   <td>If sizeof(unsigned __int128) == 16</td></tr>
     <tr><td>__uint128_t</td>         <td>If sizeof(__uint128_t) == 16</td></tr>
     <tr><td><tt><a class="type" name="ffi_uintType">uintType</a></tt></td>      <td>unsigned intType</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_intType">intType</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_bitSetType">bitSetType</a></tt></td>    <td>uint64Type</td>          <td>Used in <tt><a class="type" href="#ffi_setType">struct setStruct</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_timeStampType">timeStampType</a></tt></td> <td>int64Type</td>           <td>Used for 64-bit timestamps</td></tr>
     <tr><td><tt><a class="type" name="ffi_cstriType">cstriType</a></tt></td>     <td>char *</td>              <td>String type of the C compiler</td></tr>
     <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>     <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
     <tr><td><tt><a class="type" name="ffi_utf16striType">utf16striType</a></tt></td> <td>uint16Type *</td>        <td>UTF-16 string</td></tr>
     <tr><td><tt><a class="type" name="ffi_utf32striType">utf32striType</a></tt></td> <td>uint32Type *</td>        <td>UTF-32 string</td></tr>
-    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>   <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt>.</td></tr></tt></td>
+    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>   <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_scharType">scharType</a></tt></td>     <td>int32Type</td>           <td>Signed <tt><a class="type" href="#ffi_charType">charType</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_cFileType">cFileType</span></tt></td>     <td>FILE *</td>              <td>The file type used by the C run-tme library</td></tr>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_os_striType">os_striType</a></tt></td>   <td>char *</td>              <td>If the OS uses UTF-8 chars</td></tr>
     <tr><td>wchar_t *</td>           <td>If the OS uses UTF-16 chars</td></tr>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_memSizeType">memSizeType</a></tt></td>   <td>uint32Type</td>          <td>If C uses 32-bit pointers</td></tr>
@@ -15792,7 +16044,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="ffi_System_variables"><h3>16.2 System variables</h3></a>
 <p>
   The interpreter uses several system variables which are initialized
-  from <a class="link" href="#decls_System_declarations">system declarations.
+  from <a class="link" href="#decls_System_declarations">system declarations</a>.
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th><a class="link" href="#decls_System_declarations">System declaration</a></th>  <th>Seed7 name</th>      <th>C <a class="type_no_ul" href="#ffi_objectType">objectType</a> macro</th>         <th><a class="type_no_ul" href="#ffi_objectType">objectType</a> macro with argument</th></tr>
     <tr><td><tt><a class="link" href="#decls_empty"         >"empty"</a></tt></td>             <td><tt><a class="var_no_ul" href="#types_empty"               >empty</a></tt></td>           <td><tt><a name="ffi_SYS_EMPTY_OBJECT"         >SYS_EMPTY_OBJECT</a></tt></td>           <td><tt>EMPTY_OBJECT(prog)</tt></td></tr>
@@ -15808,7 +16060,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td><tt><a class="link" href="#decls_false"         >"false"</a></tt></td>             <td><tt><span class="var_no_ul">FALSE</span></tt></td>           <td><tt><a name="ffi_SYS_FALSE_OBJECT"         >SYS_FALSE_OBJECT</a></tt></td>           <td><tt>FALSE_OBJECT(prog)</tt></td></tr>
     <tr><td><tt><a class="link" href="#decls_true"          >"true"</a></tt></td>              <td><tt><span class="var_no_ul">TRUE</span></tt></td>            <td><tt><a name="ffi_SYS_TRUE_OBJECT"          >SYS_TRUE_OBJECT</a></tt></td>            <td><tt>TRUE_OBJECT(prog)</tt></td></tr>
     <tr><td><tt><a class="link" href="#decls_expr"          >"expr"</a></tt></td>              <td><tt><a class="type" href="#types_expr"                     >expr</a></tt></td>            <td><tt><a name="ffi_SYS_EXPR_TYPE"            >SYS_EXPR_TYPE</a></tt></td>              <td><tt>EXPR_TYPE(prog)</tt></td></tr>
-    <tr><td><tt><a class="link" href="#decls_f_param"       >"f_param"</a></tt></td>           <td><tt><span class="type"                                        >f_param</a></tt></td>         <td><tt><a name="ffi_SYS_F_PARAM_TYPE"         >SYS_F_PARAM_TYPE</a></tt></td>           <td><tt>F_PARAM_TYPE(prog)</tt></td></tr>
+    <tr><td><tt><a class="link" href="#decls_f_param"       >"f_param"</a></tt></td>           <td><tt><span class="type"                                        >f_param</span></tt></td>         <td><tt><a name="ffi_SYS_F_PARAM_TYPE"         >SYS_F_PARAM_TYPE</a></tt></td>           <td><tt>F_PARAM_TYPE(prog)</tt></td></tr>
     <tr><td><tt><a class="link" href="#decls_integer"       >"integer"</a></tt></td>           <td><tt><a class="type" href="#types_integer"                  >integer</a></tt></td>         <td><tt><a name="ffi_SYS_INT_TYPE"             >SYS_INT_TYPE</a></tt></td>               <td><tt>INT_TYPE(prog)</tt></td></tr>
     <tr><td><tt><a class="link" href="#decls_bigInteger"    >"bigInteger"</a></tt></td>        <td><tt><a class="type" href="#types_bigInteger"               >bigInteger</a></tt></td>      <td><tt><a name="ffi_SYS_BIGINT_TYPE"          >SYS_BIGINT_TYPE</a></tt></td>            <td><tt>BIGINT_TYPE(prog)</tt></td></tr>
     <tr><td><tt><a class="link" href="#decls_char"          >"char"</a></tt></td>              <td><tt><a class="type" href="#types_char"                     >char</a></tt></td>            <td><tt><a name="ffi_SYS_CHAR_TYPE"            >SYS_CHAR_TYPE</a></tt></td>              <td><tt>CHAR_TYPE(prog)</tt></td></tr>
@@ -15880,7 +16132,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Copy an UTF-32 encoded wide string buffer to a Seed7 string.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
-  Function Detail</td></tr></table></p>
+  Function Detail</td></tr></table>
 
   <div><a name="ffi_stri_to_cstri"><h3>stri_to_cstri</h3></a>
 <p>
@@ -15893,8 +16145,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a null character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if stri contains a null character
                           or a character that is higher than the
                           highest allowed ISO-8859-1 character (255).</dd>
 </dl></dd>
@@ -15918,8 +16170,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a null character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if stri contains a null character
                           or a character that is higher than the
                           highest allowed Unicode character (U+10FFFF).</dd>
 </dl></dd>
@@ -15962,8 +16214,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
                           that is higher than the highest
                           allowed ISO-8859-1 character (255).</dd>
 </dl></dd>
@@ -16005,8 +16257,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>length</tt> - Place to return the character length of the result (without '\0').</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
                           that is higher than the highest
                           allowed Unicode character (U+10FFFF).</dd>
 </dl></dd>
@@ -16031,8 +16283,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>length</tt> - Place to return the character length of the result (without '\0').</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
                           that is higher than the highest
                           allowed Unicode character (U+10FFFF).</dd>
 </dl></dd>
@@ -16083,8 +16335,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - Null terminated UTF-8 encoded C string.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
@@ -16104,8 +16356,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>cstri</tt> - UTF-8 encoded C string buffer (not null terminated).</dd>
         <dd><tt>length</tt> - Byte length of the UTF-8 encoded C string buffer.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
@@ -16140,7 +16392,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>wstri</tt> - UTF-16 encoded wide string buffer (not null terminated).</dd>
         <dd><tt>length</tt> - Character length of the UTF-16 encoded wide string buffer.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
@@ -16159,7 +16411,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>wstri</tt> - UTF-32 encoded wide string buffer (not null terminated).</dd>
         <dd><tt>length</tt> - Character length of the UTF-32 encoded wide string buffer.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
@@ -16194,7 +16446,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Convert a path returned by a system call to a Seed7 standard path.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
-  Function Detail</td></tr></table></p>
+  Function Detail</td></tr></table>
 
   <div><a name="ffi_conv_from_os_stri"><h3>conv_from_os_stri</h3></a>
 <p>
@@ -16237,8 +16489,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if the conversion failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>a null terminated os_striType value used by system calls, or
@@ -16259,7 +16511,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>os_stri</tt> - Null terminated os_striType string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>a Seed7 UTF-32 string, or
@@ -16289,8 +16541,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
                     PATH_IS_EMULATED_ROOT if the path is "/", and
                     PATH_NOT_MAPPED if the path cannot be mapped.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if the path is not a standard path.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#ffi_errInfoType_RANGE_ERROR">RANGE_ERROR</a> if the path is not a standard path.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>a null terminated os_striType path used by system calls, or
@@ -16313,7 +16565,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>os_path</tt> - Null terminated os_striType path to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 standard path, or
@@ -16405,7 +16657,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_winType">winType</a>.</td></tr></table></td></tr>
 </table></div><p>
   The header file <tt><span class="lib">"objutl.h"</span></tt> defines macros like <tt><a class="func" href="#ffi_take_bool">take_bool</a></tt> and
-  <tt><a class="func" href="#ffi_take_file">take_file</a></tt>. This macros return a value with the requested
+  <tt><a class="func" href="#ffi_take_file">take_file</a></tt>. These macros return a value with the requested
   C implementation type.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
@@ -16524,7 +16776,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="ffi_Memory_management_macros"><h3>16.7 Memory management macros</h3></a>
 <p>
   The conversion functions mentioned above use macros to do the
-  memory management. Some of this macros are not based on malloc()
+  memory management. Some of these macros are not based on malloc()
   but manage the memory in a stack. Therefore it is important to
   use the correct macro to allocate and free memory. The macros
   below are defined in the header file <tt><span class="lib">"striutl.h"</span></tt>.
@@ -16532,10 +16784,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Macro Summary</td></tr>
 
-    <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_cstri">free_cstri</b> (<a class="type" href="#ffi_cstriType">cstriType</a> cstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
+    <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_cstri">free_cstri</a></b> (<a class="type" href="#ffi_cstriType">cstriType</a> cstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated by <a class="func" href="#ffi_stri_to_cstri">stri_to_cstri</a>().</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_cstri8">free_cstri8</b> (<a class="type" href="#ffi_cstriType">cstriType</a> cstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
+    <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_cstri8">free_cstri8</a></b> (<a class="type" href="#ffi_cstriType">cstriType</a> cstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated by <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>() or <a class="func" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a>().</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_boolType">boolType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_alloc">os_stri_alloc</a></b> (<a class="type" href="#ffi_os_striType">os_striType</a> &amp;var, <a class="type" href="#ffi_memSizeType">memSizeType</a> len)</td></tr>
@@ -16545,7 +16797,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
-  Macro Detail</td></tr></table></p>
+  Macro Detail</td></tr></table>
 
   <div><a name="ffi_free_cstri"><h3>free_cstri</h3></a>
 <p>
@@ -16555,7 +16807,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - The string to be freed.</dd>
-        <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_cstri">stri_to_cstri</a>() was called.</dd>
+        <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_cstri">stri_to_cstri</a>() was called.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_free_cstri8"><h3>free_cstri8</h3></a>
@@ -16566,7 +16818,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - The string to be freed.</dd>
-        <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>() or <a class="func" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a>() was called.</dd>
+        <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>() or <a class="func" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a>() was called.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_os_stri_alloc"><h3>os_stri_alloc</h3></a>
@@ -16601,7 +16853,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <a class="func" href="#ffi_os_stri_free">os_stri_free</a>() in the reverse order of their creation.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>var</tt> - The string to be freed.</dd>
+        <dd><tt>var</tt> - The string to be freed.</dd></dl></dd>
 </dl></div></div>
 
 <a name="ffi_Basic_conversion_functions"><h3>16.8 Basic conversion functions</h3></a>
@@ -16646,7 +16898,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Convert an UTF-32 encoded string to an UTF-16 encoded string.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
-  Function Detail</td></tr></table></p>
+  Function Detail</td></tr></table>
 
   <div><a name="ffi_memcpy_to_strelem"><h3>memcpy_to_strelem</h3></a>
 <p>
@@ -16662,7 +16914,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>dest</tt> - Destination array with UTF-32 encoded characters.</dd>
         <dd><tt>src</tt> - Source array with ISO-8859-1 encoded bytes.</dd>
-        <dd><tt>len</tt> - Number of bytes in 'src' and UTF-32 characters in 'dest'.</dd>
+        <dd><tt>len</tt> - Number of bytes in 'src' and UTF-32 characters in 'dest'.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_memset_to_strelem"><h3>memset_to_strelem</h3></a>
@@ -16675,7 +16927,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>dest</tt> - Destination array with UTF-32 encoded characters.</dd>
         <dd><tt>ch</tt> - UTF-32 encoded character to be filled into 'dest'.</dd>
-        <dd><tt>len</tt> - Specifies how often 'ch' is filled into 'dest'.</dd>
+        <dd><tt>len</tt> - Specifies how often 'ch' is filled into 'dest'.</dd></dl></dd>
 </dl></div>
 <hr />
  <div><a name="ffi_memcpy_from_strelem"><h3>memcpy_from_strelem</h3></a>
@@ -16767,7 +17019,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>strelem</tt> - UTF-32 encoded string to be converted.</dd>
         <dd><tt>len</tt> - Number of UTF-32 characters in strelem.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if *strelem contains a character
+                   <a class="exception" href="#ffi_errInfoType_MEMORY_ERROR">MEMORY_ERROR</a> if *strelem contains a character
                           that is higher than the highest allowed
                           Unicode character (U+10FFFF).</dd>
 </dl></dd>
@@ -16783,33 +17035,44 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p><ul>
     <li>The integer type <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> is used to describe an error
       state. Usually a variable or parameter named <tt><span class="var">err_info</span></tt> is used
-      to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used to
-      describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
-      <tt><span class="exception">NUMERIC_ERROR</span></tt>, <tt><span class="exception">OVERFLOW_ERROR</span></tt>, <tt><span class="exception">RANGE_ERROR</span></tt>, <tt><span class="exception">INDEX_ERROR</span></tt>,
-      <tt><span class="exception">FILE_ERROR</span></tt>, <tt><span class="exception">DATABASE_ERROR</span></tt>, <tt><span class="exception">GRAPHIC_ERROR</span></tt> and
-      <tt><span class="exception">ACTION_ERROR</span></tt> describe errors that occurred.</li>
+      to store the error state. The value <tt><a class="exception" href="#ffi_errInfoType_OKAY_NO_ERROR">OKAY_NO_ERROR</a></tt> is used to
+      describe that no error occurred. Other values (see below)
+      describe errors that occurred.</li>
     <li>In some situations a function has only one possible error
       situation (e.g. a <tt><span class="exception">MEMORY_ERROR</span></tt>). This is handled with functions
       that return NULL in case of a <tt><span class="exception">MEMORY_ERROR</span></tt>.</li>
 </ul><p>
+  Error state constants for <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> are defined in <tt><span class="lib">"common.h"</span></tt>:
+</p><pre class="indent">
+#<span class="keywd">define</span> <a name="ffi_errInfoType_OKAY_NO_ERROR" ><span class="exception">OKAY_NO_ERROR</span></a>   0
+#<span class="keywd">define</span> <a name="ffi_errInfoType_MEMORY_ERROR"  ><span class="exception">MEMORY_ERROR</span></a>    1
+#<span class="keywd">define</span> <a name="ffi_errInfoType_NUMERIC_ERROR" ><span class="exception">NUMERIC_ERROR</span></a>   2
+#<span class="keywd">define</span> <a name="ffi_errInfoType_OVERFLOW_ERROR"><span class="exception">OVERFLOW_ERROR</span></a>  3
+#<span class="keywd">define</span> <a name="ffi_errInfoType_RANGE_ERROR"   ><span class="exception">RANGE_ERROR</span></a>     4
+#<span class="keywd">define</span> <a name="ffi_errInfoType_INDEX_ERROR"   ><span class="exception">INDEX_ERROR</span></a>     5
+#<span class="keywd">define</span> <a name="ffi_errInfoType_FILE_ERROR"    ><span class="exception">FILE_ERROR</span></a>      6
+#<span class="keywd">define</span> <a name="ffi_errInfoType_DATABASE_ERROR"><span class="exception">DATABASE_ERROR</span></a>  7
+#<span class="keywd">define</span> <a name="ffi_errInfoType_GRAPHIC_ERROR" ><span class="exception">GRAPHIC_ERROR</span></a>   8
+#<span class="keywd">define</span> <a name="ffi_errInfoType_ACTION_ERROR"  ><span class="exception">ACTION_ERROR</span></a>    9
+</pre><p>
   C code can check the value of the <tt><span class="var">err_info</span></tt> variable, or check if a
   function returns NULL. In case of error it is possible to do some
   cleaning up. An error situation can be propagated this way over
   several function levels. It is important to assure that an existing
-  error situation (<tt><span class="var">err_info</span></tt> has a value not equal to <tt><span class="exception">OKAY_NO_ERROR</span></tt>)
+  error situation (<tt><span class="var">err_info</span></tt> has a value not equal to <tt><a class="exception" href="#ffi_errInfoType_OKAY_NO_ERROR">OKAY_NO_ERROR</a></tt>)
   is not reset to a situation that no error occurred.
 </p><p>
   An actual exception can be triggered with the macro <tt><a class="func" href="#ffi_raise_error">raise_error</a></tt>.
   This macro takes an <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> parameter to describe the actual
   exception. Note that all cleaning up must be done before <tt><a class="func" href="#ffi_raise_error">raise_error</a></tt>
-  is called. This macro calls the function <tt><span class="func">raise_exception2</span></tt> with
+  is called. This macro calls the function <tt><span class="func">raise_error2</span></tt> with
   the additional parameters __FILE__ and __LINE__. The function
-  <tt><span class="func">raise_exception2</span></tt> has different implementations for interpreted
+  <tt><span class="func">raise_error2</span></tt> has different implementations for interpreted
   and compiled programs:
 </p><ul>
-    <li>In the interpreter <tt><span class="func">raise_exception2</span></tt> sets a fail flag and the
+    <li>In the interpreter <tt><span class="func">raise_error2</span></tt> sets a fail flag and the
       function is left normally.</li>
-    <li>In compiled code <tt><span class="func">raise_exception2</span></tt> uses a <tt><span class="func">longjmp</span></tt> to continue
+    <li>In compiled code <tt><span class="func">raise_error2</span></tt> uses a <tt><span class="func">longjmp</span></tt> to continue
       executing at the handler code of the exception.</li>
 </ul><p>
   That means that <tt><a class="func" href="#ffi_raise_error">raise_error</a></tt> also returns normally in the
@@ -16829,19 +17092,19 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <tr><td width="30"></td><td>Macro to raise an exception.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
-  Function Detail</td></tr></table></p>
+  Function Detail</td></tr></table>
 
   <div><a name="ffi_raise_error"><h3>raise_error</h3></a>
 <p>
     <span class="type">void</span> <b>raise_error</b> (<a class="type" href="#ffi_errInfoType">errInfoType</a> err_info)</p><dl><dd>
 <p>
       Macro to raise an exception. This macro calls the function
-      <span class="func">raise_exception2</span> with the additional parameters __FILE__ and
-      __LINE__. The function <span class="func">raise_exception2</span> has different
+      <span class="func">raise_error2</span> with the additional parameters __FILE__ and
+      __LINE__. The function <span class="func">raise_error2</span> has different
       implementations for interpreted and compiled programs.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>err_info</tt> - The exception to be raised.</dd>
+        <dd><tt>err_info</tt> - The exception to be raised.</dd></dl></dd>
 </dl></div></div>
 
 <a name="errors_file_start"></a><p></p>
@@ -16926,7 +17189,49 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">66:</td> <td width="10"></td><td><a name="errors_SOLITARY_UTF8_START_BYTE"         ></a><a class="link" href="#tokens_SOLITARY_UTF8_START_BYTE_example"         >Solitary UTF-8 start byte found "%s" (U+%04x)</a></td></tr>
     <tr><td align="right">67:</td> <td width="10"></td><td><a name="errors_UTF16_BYTE_ORDER_MARK_FOUND"      ></a><a class="link" href="#tokens_UTF16_BYTE_ORDER_MARK_FOUND_example"      >UTF-16 byte order mark found "%s" (U+%04x)</a></td></tr>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
-</table></dd></dl><p></p>
+</table></dd></dl><p>
+  A program can parse another program and examine the parsing
+  errors of the other program. Below is the source code of the
+  program <span class="lib">s7check.sd7</span> which is used by the seed7-mode of Emacs
+  to do a static check of a Seed7 source file or library:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"<span class="lib">progs.s7i</span>"</span>;
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_string">string</a>: fileName <span class="keywd">is</span> <a class="stri" href="#tokens_String_literals">""</a>;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_program">program</a>: aProgram <span class="keywd">is</span> <a class="type_no_ul" href="#types_program">program</a>.value;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
+    <a class="keywd_no_ul" href="#decls_Variable_declarations">var</a> <a class="type_no_ul" href="#types_parseError">parseError</a>: anError <span class="keywd">is</span> <span class="type">parseError</span>.value;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> <span class="func_no_ul">length</span>(<span class="func_no_ul">argv</span>(PROGRAM)) <span class="op_no_ul">&gt;=</span> 1 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      fileName <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func_no_ul">argv</span>(PROGRAM)[1];
+      <a class="keywd_no_ul" href="#stats_if-statement">if</a> <span class="func_no_ul">endsWith</span>(fileName, <a class="stri" href="#tokens_String_literals">".s7i"</a>) then
+        aProgram <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">parseStri</span>(<a class="stri" href="#tokens_String_literals">"$ include \"seed7_05.s7i\";\n\</a>
+                              <a class="stri" href="#tokens_String_literals">\  include "</a> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(fileName) <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">";\n\</a>
+                              <a class="stri" href="#tokens_String_literals">\const proc: main is func begin noop; end func;\n"</a>);
+      <a class="keywd_no_ul" href="#stats_if-statement">else</a>
+        aProgram <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">parseFile</span>(fileName);
+      <a class="keywd_no_ul" href="#stats_if-statement">end</a> <a class="keywd_no_ul" href="#stats_if-statement">if</a>;
+      <a class="keywd_no_ul" href="#stats_if-statement">if</a> <span class="func">errorCount</span>(aProgram) <span class="op_no_ul">=</span> 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+        <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"No errors found"</a>);
+      <a class="keywd_no_ul" href="#stats_if-statement">else</a>
+        <a class="keywd_no_ul" href="#stats_for-statement">for</a> index <a class="keywd_no_ul" href="#stats_for-statement">range</a> 1 <a class="keywd_no_ul" href="#stats_for-statement">to</a> <span class="func">errorCount</span>(aProgram) <a class="keywd_no_ul" href="#stats_for-statement">do</a>
+          anError <a class="op_no_ul" href="#stats_Assignment">:=</a> <span class="func">getError</span>(aProgram, index);
+          <span class="func_no_ul">writeln</span>(anError.fileName <span class="op_no_ul">&lt;&amp;</span>
+                  <a class="stri" href="#tokens_String_literals">"("</a> <span class="op_no_ul">&lt;&amp;</span> anError.lineNumber <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"): "</a> <span class="op_no_ul">&lt;&amp;</span>
+                  anError.error <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">": "</a> <span class="op_no_ul">&lt;&amp;</span>
+                  anError.message);
+          <span class="func_no_ul">writeln</span>(anError.errorLine);
+          <a class="keywd_no_ul" href="#stats_if-statement">if</a> anError.columnNumber <span class="op_no_ul">&lt;&gt;</span> 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+            <span class="func_no_ul">writeln</span>(<a class="stri" href="#tokens_String_literals">"-"</a> <span class="op_no_ul">mult</span> <span class="func_no_ul">pred</span>(anError.columnNumber) <span class="op_no_ul">&lt;&amp;</span> <a class="stri" href="#tokens_String_literals">"^"</a>);
+          <a class="keywd_no_ul" href="#stats_if-statement">end</a> <a class="keywd_no_ul" href="#stats_if-statement">if</a>;
+        <a class="keywd_no_ul" href="#stats_for-statement">end</a> <a class="keywd_no_ul" href="#stats_for-statement">for</a>;
+      <a class="keywd_no_ul" href="#stats_if-statement">end</a> <a class="keywd_no_ul" href="#stats_if-statement">if</a>;
+    <a class="keywd_no_ul" href="#stats_if-statement">end</a> <a class="keywd_no_ul" href="#stats_if-statement">if</a>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre>
 
 <a name="errors_Compilation_errors"><h3>17.2 Compilation errors</h3></a>
 <p>
@@ -16939,12 +17244,16 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>2     </td><td> Comparison with %s always evaluates to %s.</td></tr>
     <tr><td>2     </td><td> Expression raises "%s".</td></tr>
     <tr><td>1     </td><td> Catch of "%s" although the checks are suppressed.</td></tr>
-    <tr><td>1     </td><td> Catch of otherwise although the checks for %s are suppressed.</td></tr>
+    <tr><td>2     </td><td> Catch of otherwise although the checks for %s are suppressed.</td></tr>
     <tr><td>1     </td><td> Duplicate when values %s.</td></tr>
     <tr><td>1     </td><td> Previous usage of %s.</td></tr>
+    <tr><td>1     </td><td> When set is empty.</td></tr>
     <tr><td>1     </td><td> When value must be constant.</td></tr>
+    <tr><td>2     </td><td> The variable %s is used for two or more inout-parameters (%s).</td></tr>
+    <tr><td>2     </td><td> The variable %s is used as inout-parameter (%s) and ref-parameter (%s).</td></tr>
     <tr><td>1     </td><td> Forward defined function called.</td></tr>
     <tr><td>1     </td><td> Forward definition of the called function.</td></tr>
+    <tr><td>2     </td><td> Endless recursion in interface function.</td></tr>
 </table></dd></dl><p></p>
 
 <a name="errors_Exceptions"><h3>17.3 Exceptions</h3></a>

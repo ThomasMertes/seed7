@@ -1,3 +1,350 @@
+20250930:
+- The LTO-related warnings during the build of Seed7 have been
+  eliminated. Many thanks to "apocelipes" for changing the makefiles
+  to use -flto=auto.
+- The program chkccomp.c has been improved to always define the
+  macro DEFINE_INITIALIZER_MACRO. Many thanks to Bruce Axtens for
+  pointing out that a build with mk_msvc.mak failed.
+- In the FAQ explanations of software maintainability and result
+  variables have been added. The explanations of simple function
+  profiling, readability and variable initialization have been
+  improved. The types parseError, pollData and listener have been
+  added to the explanation about syntax highlighting.
+- Chapters about the types parseError, pollData and listener have
+  been added to the manual. The chapters about the graphics library,
+  the foreign function interface and errors have been improved.
+- The example programs lst80bas.sd7, lst99bas.sd7 and lstgwbas.sd7
+  have been added. These programs decode and list tokenized BASIC
+  programs.
+- The bas7.sd7 (basic interpreter) example program has been
+  improved:
+  - FOR-loops have been changed to match the behavior of other BASIC
+    interpreters.
+  - A warning, if a variable got its value from a for-loop, has been
+    added.
+  - Support for names with underline (_) has been added.
+  - Support for double precision literals has been added.
+  - Support for string literals has been improved to allow quotation
+    marks in string literals.
+  - Support for the OPEN statement has been improved. An additional
+    variant of the OPEN statement is supported now.
+  - The error handling in LET, GET, PUT, MID$, WHILE, WEND, LOAD,
+    BLOAD, CHAIN and RUN statements has been improved.
+  - The error handling in the functions ASC, LOG, SQR, CINT, CLNG,
+    FIX, LEFT$, MID$, RIGHT$, TAB() and SPC() has been improved.
+  - A recognition of OVERFLOW errors has been added for
+    multiplication and division operations.
+  - The ON ERROR handling is reset when a file is loaded.
+  - Constants for error codes have been introduced.
+  - Support for the statements OPTION BASE, REDIM, SUBEXIT, SUBEND
+    and ACCEPT has been added.
+  - Now TIMER and PCOPY statements are recognized.
+  - The support for the statements DEFDBL, DEFINT, DEFLNG, DEFSNG,
+    PRINT, LPRINT, DISPLAY, DEF SEG, BLOAD, BSAVE and OUT has been
+    improved.
+  - The support for the subroutines CHAR, CLEAR, KEY and SOUND has
+    been improved.
+  - Support for the function ENVIRON$ has been added.
+  - The support for the function VARPTR$ has been improved.
+  - Support for an alternate POS function, which searches in a
+    string, has been added.
+  - The support for LONG, INTEGER, FLOAT and DOUBLE variables has
+    been improved in DIM and GET statements.
+  - In CGA, EGA and VGA images checks for the width and height have
+    been added. They are checked for their presence and that they
+    are greater than 0.
+  - The name INSTR is allowed as variable and function
+  - The support for the RUN command in interactive mode has been
+    improved.
+  - If the keyword GOTO or GOSUB follows THEN or ELSE it is not
+    considered to be a label.
+  - The scrolling in graphics mode has been improved.
+  - Support for image variables in SCREEN 9 mode has been added.
+  - The check for the file name extension ".bas" has been fixed to
+    work for short file names.
+  - The logging of DO, LINE INPUT, LINPUT, KEY, LET, NEXT, GET,
+    EXIT, MID$ and VAL has been improved.
+- The pv7.sd7 example program has been improved to display an image
+  if the file extension does not fit but the image magic does fit.
+- The Seed7 compiler (s7c) has been improved:
+  - The handling of dynamic types has been fixed to work correclty
+    if a derived type does not use type_implements_interface().
+  - The initialization of array and hash constants has been improved
+    to avoid that a sanitizer complains about uninitialized data.
+  - The compilation of a library has been improved to generate code
+    for all objects.
+  - The function write_file_head() has been improved to use
+    multi-line string literals.
+- The program chkfil.sd7 has been improved:
+  - A test case for a derived type which does not use
+    type_implements_interface() has been added.
+  - Now templates are used to declare raisesRangeError() and
+    raisesFileError().
+  - The checks for file operations with a closed file have been
+    refactored to use raisesFileError().
+  - The functions check_use_after_close1() and
+    check_use_after_close2() have been added.
+  - Checks have been added to verify that inputReady(),
+    getTerminatedString() and setbuf() with a closed file raise
+    FILE_ERROR.
+- In chkflt.sd7 tests of str() with negative float values have been
+  added.
+- In chkdb.sd7 tests for simple, fraction, combined and advanced
+  durations have been added. Checks for positive and negative
+  durations are done in separate test functions.
+- In duration.s7i the function duration() has been improved to check
+  for more invalid values.
+- The library db_prop.s7i has been improved to allow fractions of a
+  second in MySQL durations. The duration type for MS SQL-Server has
+  been changed as well.
+- In draw.s7i the function rectTo() has been improved to work with
+  any diagonally opposite corners of the rectangle.
+- In draw.s7i the undocumented functions color(col) and
+  color(col,col) are deprecated.
+- Unnecessary calls of color() have been removed from bas7.sd7,
+  castle.sd7, dnafight.sd7, lander.sd7, percolation.sd7 and
+  tetg.sd7.
+- In tls.s7i the ECDSA verification has been improved to use curve
+  and key from the certificate.
+- In tls.s7i the function negotiateSecurityParameters has been
+  improved to avoid writing to broken pipe.
+- The library gethttp.s7i has been improved:
+  - The function getHttp() has been split into getHttpHeader() and
+    getHttpBody().
+  - The function getHttpHeader() has been refactored to use a case
+    statement.
+  - In getHttpHeader() the expression pos(line, ":") has been
+    replaced with colonPos.
+  - The function getHttpLocation() has been refactored to call
+    getHttpHeader().
+  - The functions sendGet() getHttpHeader() and getHttpLocation()
+    have been improved to use cookies in URL redirections.
+  - A function to show a httpLocation has been added.
+  - The function getHttpBody() has been changed to return an empty
+    string if the charset is not supported or the encoding is wrong.
+- In tga.s7i tgaHeader parameters have been changed to be
+  in-parameters if the parameter is not changed.
+- In pixmap_file.s7i the function v_scroll() has been improved to
+  erase an area with the background color.
+- Support for the actions DRW_COLOR, DRW_BACKGROUND, DRW_RECT,
+  DRW_POINT, DRW_LINE, DRW_CIRCLE, DRW_ARC2, DRW_ARC,
+  DRW_FARCPIESLICE, DRW_FARCCHORD, DRW_FCIRCLE and DRW_FELLIPSE has
+  been removed from interpreter and compiler. These actions have not
+  been used for years.
+- The unused source files con_con.c, con_cur.c, con_tcp.c, con_cap.c
+  and con_x11.c have been removed.
+- In common.h macro definitions of integer decimal and hexadecimal
+  sizes have been added (e.g. INT_DECIMAL_SIZE, UINT_DECIMAL_SIZE,
+  INT_HEXADECIMAL_SIZE, LONG_DECIMAL_SIZE, ULONG_DECIMAL_SIZE, ...).
+  These macros are used in various files for declarations of buffers
+  used by integer to decimal or hexadecimal conversions.
+- Definitions of the log2Function() and log2Error() macros have been
+  added to common.h. These macros log to stderr.
+- In drw_x11.c, drw_win.c and drw_emc.c the checks for RANGE_ERROR
+  in the drawing functions for rectangles, points, lines, ellipses,
+  circles, filled circles, arc pie slices, arc chords, arcs and arcs
+  with width have been improved.
+- In drw_x11.c, drw_win.c and drw_emc.c checks have been added to
+  verify that startAngle and sweepAngle are in the allowed range.
+- In drw_x11.c, drw_emc.c and drw_win.c the checks for RANGE_ERROR
+  in the functions drwCopyArea(), drwCapture(), drwGetPixel(),
+  drwGetPixmap(), drwImage(), drwNewPixmap(), drwPutScaled() and
+  drwSetPos() have been improved.
+- The file drw_x11.c has been improved:
+  - Now the static variables emptyCursor and mygc are initialized.
+  - The function drawClose() has been improved to free emptyCursor.
+  - In the function drawInit() an initialization of emptyCursorColor
+    has been added. This avoids that XCreatePixmapCursor() uses
+    undefined XColor data.
+  - The element parentWindow has been added to x11_winRecord. Code
+    to maintain the usage_count of parent windows has been added as
+    well.
+- In drw_emc.c code to maintain the usage_count of the existing
+  parentWindow element of emc_winRecord has been added.
+- In drw_drv.h, drw_dos.c, drw_emc.c, drw_win.c, drw_x11.c and
+  drw_act.s7i the const_ has been removed from the type of the
+  parent_window parameter in drwOpenSubWindow().
+- In drw_win.c the generation and usage of pointList values has been
+  improved to avoid integer overflow. In drwGenPointList() signed
+  31-bit x and y coordinates are accepted and stored in a pointList.
+  In drwPolyLine() and drwFPolyLine signed 31-bit x and y values are
+  accepted. Adding two signed 31-bit integers results in a signed
+  32-bit integer which is allowd in GDI functions.
+- In tim_rtl.c the function assignIsoDuration() has been added. It
+  is called from sqlColumnDuration() in sql_lite.c.
+- Support for the configuration values CONSTRUCTOR_ATTRIBUTE,
+  DEFINE_INITIALIZER_MACRO, CC_OPT_POSITION_INDEPENDENT_CODE,
+  CASTING_GETS_A_UNION_ELEMENT and UNIONS_CAN_CONVERT_TO_GENERIC has
+  been added to cc_conf.s7i, confval.sd7, cmd_rtl.c and chkccomp.c.
+- In dcllib.c the function dcl_var() has been improved to consider
+  parameters of BLOCKOBJECT in a var-declaration.
+- In match.c the function substitute_params() has been improved to
+  assure that created_object is not undefined.
+- In cmd_unx.c the function unsetenv7() has been improved to avoid
+  that 'found' becomes a dangling pointer.
+- In infile.c an include of sys/stat.h has been added if HAS_MMAP is
+  not set.
+- In striutl.c the function cstriAsUnquotedCLiteral() has been
+  added. This function is used for logging in fwd_term.c, trm_cap.c
+  and trm_inf.c.
+- In error.c definitions of sprintfIntCharDescr(),
+  sprintfLongCharDescr(), INT_CHAR_DESCR_BUFFER_SIZE and
+  LONG_CHAR_DESCR_BUFFER_SIZE have been added.
+- In traceutl.c the functions prot_cstri(), prot_cstri8() and
+  prot_string() have been improved to call conWrite() only if
+  CONSOLE_WCHAR is defined.
+- In traceutl.c the function list_node_names() has been improved to
+  avoid a buffer overflow.
+- In big_rtl.c and big_gmp.c a memory leak in bigHexCStri() has been
+  closed. Logging functions have been refactored to call at most one
+  bigHexCStri() in a printf().
+- In emc_utl.c the function doExit() has been improved to free all
+  atExitDataType elements of the atExitLifoStack.
+- In soc_rtl.c the definition of MAX_SOCK_ADDRESS_LEN has been
+  fixed. Declarations of serviceName buffers have been changed as
+  well. Since ports are unsigned 16-bit integers the type uint16Type
+  is used for them.
+- In str_rtl.c the function ustriCmpGeneric() has been improved to
+  assure that the generic value is always initialized. Additionally
+  a MEMORY_ERROR is raised if ALLOC_USTRI() fails.
+- In con_inf.c checks, if the console has been initialized, have
+  been added.
+- In trm_cap.c the functions my_tgetent(), my_tgetnum(),
+  my_tgetflag(), my_tgetstr() and getcaps() have been refactored.
+  Several fixed size buffers have been removed and for the remaining
+  ones buffer overflows are avoided.
+- In trm_cap.c the functions printCapEscapedStri(), printStriCap()
+  and showCapabilities() have been added.
+- In trm_inf.c the functions read_cap_name(), read_int_cap(),
+  read_stri_cap(), assign_cap(), fix_capability() and getcaps() have
+  been refactored. Several fixed size buffers have been removed and
+  for the remaining ones buffer overflows are avoided.
+- In trm_inf.c the function fix_capability() has been deactivated
+  with #define USE_FIX_CAPABILITY 0.
+- The logging of database passwords has been removed in sql_db2.c,
+  sql_fire.c, sql_ifx.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_odbc.c, sql_post.c, sql_srv.c and sql_tds.c.
+- In sql_post.c definitions of htons(), ntohs(), htonl() and ntohl()
+  have been added if necessary.
+- In sql_lite.c, sql_my.c, sql_fire.c and sql_tds.c a link with
+  usage_count from a prepared statement to the database has been
+  added. Now all database drivers maintain the db link in prepared
+  statements.
+- The db link to the database has been added to sqlStmtStruct (in
+  common.h) and preparedStmtStruct (in sql_rtl.c).
+- In sql_cli.c, sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_post.c and sql_tds.c the flag isOpen has been added to to the
+  database struct. The flag isOpen is set when a database is opened
+  and it is cleared when the database is closed with sqlClose().
+- The flag isOpen has been added to databaseStruct (in common.h) and
+  dbStruct (in sql_rtl.c).
+- In sql_rtl.c the functions sqlBindBigInt(), sqlBindBigRat(),
+  sqlBindBool(), sqlBindBStri(), sqlBindDuration(), sqlBindFloat(),
+  sqlBindInt(), sqlBindNull(), sqlBindStri(), sqlBindTime(),
+  sqlColumnBigInt(), sqlColumnBigRat(), sqlColumnBool(),
+  sqlColumnBStri(), sqlColumnDuration(), sqlColumnFloat(),
+  sqlColumnInt(), sqlColumnStri(), sqlColumnTime(), sqlIsNull(),
+  sqlStmtColumnCount() and sqlStmtColumnName() have been changed
+  to raise DATABASE_ERROR if the database of a prepared statement is
+  not open. The usage of an empty prepared statement raises
+  RANGE_ERROR.
+- In sql_rtl.c the functions sqlClose(), sqlCommit(),
+  sqlGetAutoCommit(), sqlPrepare(), sqlRollback() and
+  sqlSetAutoCommit() have been changed to raise DATABASE_ERROR
+  if a closed database is used. The usage of an empty database
+  raises RANGE_ERROR.
+- In sql_rtl.c the checks of function pointers have been refactored.
+  Now a NULL function pointer raises DATABASE_ERROR.
+- In sql_cli.c, sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_post.c and sql_tds.c the function freeDatabase() has been
+  improved to call sqlClose() only if the database is still open.
+- In sql_my.c and sql_oci.c a check if the database is open has been
+  added to sqlCommit(), sqlGetAutoCommit(), sqlPrepare(),
+  sqlRollback() and sqlSetAutoCommit().
+- In sql_fire.c a check if the database is open has been added to
+  sqlCommit() and sqlPrepare().
+- Functions in sql_cli.c, sql_fire.c, sql_lite.c, sql_my.c,
+  sql_oci.c, sql_post.c and sql_tds.c have been changed to raise
+  DATABASE_ERROR if a closed database is used.
+- A definition of INTERVAL_FRACTION_PRECISION has been added to
+  sql_db2.c, sql_ifx.c, sql_odbc.c and sql_srv.c. This constant
+  is used in sql_cli.c to determine the precision of interval
+  fractions in SQL_INTERVAL_STRUCT.
+- In sql_cli.c the binding of time/date values has been fixed (this
+  avoids a heap corruption).
+- In sql_cli.c the binding and reading of intervals (durations) has
+  been improved. The function assignInterval() has been added.
+- In sql_cli.c the function assignToIntervalStruct() has been
+  improved to normalize a duration before converting it to a
+  SQL_INTERVAL_STRUCT. The conversion to SQL_INTERVAL_STRUCT has
+  been improved as well.
+- In sql_lite.c the value MAX_SIZE_ISO_DURATION is computed now.
+- In sql_my.c the function sqlBindDuration() has been improved to
+  avoid unsigned long overflow.
+- The function dbNotOpen() has been added to sql_base.c.
+- In exec.c in the function par_init() the debug prints have been
+  improved.
+- In fil_rtl.c the function filSetbuf() has been improved to raise
+  FILE_ERROR if it is called with a closed file.
+- In fil_dos.c, fil_emc.c, fil_unx.c and fil_win.c the function
+  filInputReady() has been improved to raise FILE_ERROR if it is
+  called with a closed file.
+- In fwd_term.c forwarding of termcap functions has been added.
+- The functions XFreeCursor() and XSetErrorHandler() have been
+  added to fwd_x11.c and x11_x.h.
+- In flt_rtl.h the buffer size for buffers used by
+  doubleToFormatE() has been fixed to consider that negative
+  numbers have the maximum length.
+- The functions continue_question() (in runerr.c) and
+  continue_question() (in sigutl.c) have been refactored.
+- In kbd_inf.c, kbd_poll.c, msg_stri.c, runerr.c, sigutl.c,
+  soc_rtl.c, sql_post.c, gkb_x11.c, sql_lite.c and traceutl.c
+  literals in the code have been replaced by #define constants.
+- The program chkccomp.c has been improved:
+  - Now it determines CONSTRUCTOR_ATTRIBUTE,
+    DEFINE_INITIALIZER_MACRO, CC_OPT_POSITION_INDEPENDENT_CODE,
+    FLOAT_MIN_EXP10, FLOAT_MAX_EXP10, MEMCMP_WITH_SIZE_0_RETURNS_0
+    and UNIONS_CAN_CONVERT_TO_GENERIC.
+  - The functions getConstructorAttribute(),
+    getInitializerMacro64(), getInitializerMacro32() and
+    determineLibraryProperties() have been added.
+  - In extractPostgresOid() a check, if essential OIDs are missing
+    in the generated pg_type.h, has been added.
+  - A test has been added if memcmp() with a size of 0 returns 0
+    even with NULL parameters (MEMCMP_WITH_SIZE_0_RETURNS_0).
+  - An include of stdlib.h has been added to a test program which
+    uses malloc().
+  - Test programs have been improved to free allocated memory.
+  - A buffer overflow is avoided in a test program for array
+    literals.
+  - A superfluous parameter of strcmp() has been removed from a test
+    program.
+  - Test programs have been changed to include stdio.h, if the test
+    uses printf().
+  - Test programs for X11 have been improved to close the display.
+  - Parentheses have been put around -1.
+  - A definition of EAI_NODATA is written to version.h, if it is
+    missing and getaddrinfo() is present.
+  - A return statement has been added to the function getCodePage().
+- In wrdepend.c it is assured that the variable level is not
+  undefined when it is written.
+- The makefile mk_tcc_l.mak has been improved to allow a compilation
+  with tcc if 'X11/extensions/Xrender.h' is missing.
+- A definition of CC_OPT_POSITION_INDEPENDENT_CODE has been added to
+  makefile, mk_clang.mak, mk_cygw.mak, mk_freebsd.mk, mk_linux.mak,
+  mk_mingc.mak, mk_mingw.mak, mk_msys.mak, mk_nmake.mak, mk_osx.mak
+  and mk_osxcl.mak.
+- Logging functions have been added or improved in big_gmp.c,
+  big_rtl.c, cmd_rtl.c, con_inf.c, con_rtl.c, drw_emc.c, drw_win.c,
+  drw_x11.c, fillib.c, fil_rtl.c, flt_rtl.c, fwd_term.c, fwd_x11.c,
+  hshlib.c, kbd_poll.c, pol_unx.c, soc_rtl.c, sql_base.c, sql_cli.c,
+  sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c, sql_post.c,
+  sql_rtl.c, sql_tds.c, strlib.c, s7.c, trm_cap.c, trm_inf.c and
+  traceutl.c.
+- Documentation comments have been added or improved in bas7.sd7,
+  complex.s7i, draw.s7i, flt_rtl.c, listener.s7i, poll.s7i,
+  progs.s7i, string.s7i, drw_emc.c, drw_win.c and drw_x11.c.
+
 20250729:
 - The program chkerr.sd7 has been changed to search include
   libraries in the directory "../lib" as well. This is needed for

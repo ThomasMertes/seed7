@@ -73,6 +73,9 @@ ide7.sd7     Cgi dialog demo program.
 kbd.sd7      Keyboard test program
 klondike.sd7 Klondike solitaire game
 lander.sd7   Lunar lander
+lst80bas.sd7 List tokenized TRS-80 Level II BASIC program.
+lst99bas.sd7 List tokenized TI (Extended) BASIC program.
+lstgwbas.sd7 List tokenized GW-BASIC program.
 mahjong.sd7  Mahjong solitaire game
 make7.sd7    Make utility to manage the compilation process
 mandelbr.sd7 Display the Mandelbrot set

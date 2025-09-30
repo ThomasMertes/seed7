@@ -60,9 +60,10 @@ The design principles are:
    drivers for graphic, console, etc. to compensate for different
    operating systems.
 
- - Readability:
-   Programs are more often read than written. Seed7 uses several
-   approaches to improve readability.
+ - Maintainability:
+   Programs are more often read than written. Changing existing code
+   is much more common than creating new code from scratch. Seed7
+   uses several approaches to improve maintainability.
 
  - Well defined behavior:
    Seed7 has a well-defined behavior in all situations.
@@ -346,12 +347,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-07-29 the number of lines is:
+than 400000 lines of Seed7. For version 2025-09-30 the number of lines is:
 
-  190460  C source files (*.c)
-   14214  C header files (*.h)
-  275726  Seed7 source files (*.sd7)
-  201500  Seed7 library/include files (*.s7i)
+  187859  C source files (*.c)
+   14277  C header files (*.h)
+  278686  Seed7 source files (*.sd7)
+  201436  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -917,9 +918,10 @@ keywords. So the list of keywords defined in the standard libraries can be used.
  - Other predefined operators are: + - * / ** ! << >> & | >< <& ?
  - Predefined types are: array bigInteger bigRational bin32 bin64 bitset
    boolean bstring category char clib_file color complex creator database
-   destroyer duration enum expr file fileSys float func hash integer object
-   proc process program rational reference ref_list set sqlStatement string
-   struct structElement text time type varfunc void PRIMITIVE_WINDOW
+   destroyer duration enum expr file fileSys float func hash integer listener
+   object parseError pollData proc process program rational reference ref_list
+   set sqlStatement string struct structElement text time type varfunc void
+   PRIMITIVE_WINDOW
  - Predefined constants are: E empty EOF FALSE Infinity NaN NIL PI TRUE
  - Predefined variables are: CONSOLE_KEYBOARD GRAPH_KEYBOARD IN KEYBOARD OUT
    STD_CONSOLE STD_ERR STD_IN STD_NULL STD_OUT
@@ -996,7 +998,36 @@ Seed7 compiler supports simple function profiling. You just need to compile a
 program with the option -p. If you execute this program it writes profiling
 data to the file "profile_out", when it is finished. In "profile_out" you find
 a tab-separated table with microseconds, number of calls, place of the function
-and function name.
+and function name:
+
+  usecs     calls      place                  name
+  1700246   1          mandelbr.sd7(170)      main
+  1687761   1          mandelbr.sd7(68)       displayMandelbrotSet
+  1538896   160801     mandelbr.sd7(52)       iterate
+  260271    10020194   complex.s7i(287)       sqrAbs
+  255310    9859393    complex.s7i(250)       *:=
+  252750    9859393    complex.s7i(230)       +:=
+  122427    160801     draw.s7i(95)           point
+  7500      1          draw.s7i(638)          getPixmap
+  4506      161500     draw.s7i(43)           colorPixel
+  4501      160801     complex.s7i(176)       +
+  4413      160801     complex.s7i(48)        complex
+  633       1          draw.s7i(61)           screen
+  421       45         draw.s7i(484)          clear
+  201       13         null_file.s7i(104)     writeln
+  197       13         pixmap_file.s7i(322)   write
+  154       43         pixmapfont.s7i(181)    getFontCharPixmap
+  152       43         bitmapfont.s7i(176)    getFontCharPixmap
+  134       44         bitmapfont.s7i(117)    genPixmap
+  76        654        draw.s7i(217)          rect
+  13        1          bitmapfont.s7i(191)    setFont
+  12        1          pixmapfont.s7i(159)    getFont
+  10        255        color.s7i(79)          color
+  ...
+
+  The functions are ordered by the time they consume. Functions which
+  are called often and consume a lot of time are candidates for
+  performance related refactorings.
 
 
 Is Seed7 case sensitive or case insensitive?
@@ -1112,27 +1143,29 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
  2. The following switch statement is formally correct but probably wrong
 
       switch (number) {
-        case 1:
         case 2:
-          result = 5;
         case 3:
+        case 5:
+          isPrime = 1;
+        case 0:
+        case 1:
         case 4:
-          result = 8;
+          isPrime = 0;
           break;
         default:
-          result = 0;
+          isPrime = -1;
       }
 
     Forgetting break statements in a switch is another possible source of errors
     which is avoided with the case-statement of Seed7:
 
       case number of
-        when {1, 2}:
-          result = 5;
-        when {3, 4}:
-          result = 8;
+        when {2, 3, 5}:
+          isPrime = 1;
+        when {0, 1, 4}:
+          isPrime = 0;
         otherwise:
-          result = 0;
+          isPrime = -1;
       end case;
 
 
@@ -1178,43 +1211,6 @@ Programmers used to dynamically typed languages may be confused by the
 colon. Those languages use something like name: type with the type
 annotation being optional. In Seed7 the specification of the type is
 mandatory.
-
-
-What makes code readable?
-=========================
-
-People often mistake familiarity with a certain kind of syntax for good
-readability. E.g.: If you prefer statements with braces it is harder to read
-statements using keywords instead and vice versa. But you can get accustomed
-to such syntactic things and then they don't hinder readability anymore.
-
-On the other hand, there are things that lead to spaghetti code and being
-accustomed to the syntax does not help. Generally, the term spaghetti code
-can be used for code where information is scattered, and the reader needs
-considerable time to gather this information. E.g.:
-
- - In dynamically typed programming languages, it is often hard to determine
-   the data structures used, since they are not specified. Seed7 variables
-   and types must be declared explicitly. This improves readability.
- - Compilers that do type inference spend most of their time for type
-   checking. This means that a human reader also needs to spend most of the
-   time to understand the types in use. That way type inference makes
-   writing easier and reading harder. The omission of type inference in
-   Seed7 simplifies reading code.
-
-Beyond that, reduced complexity also helps readability:
-
- - Integers and strings follow the "one size fits all" principle. There are
-   no integer types of various sizes and there is just one string type.
- - Computations with bigInteger values can use the usual infix operators (+ - * div rem mdiv mod).
- - There is no need to distinguish between mutable and immutable strings.
- - Comparisons are always done with simple operators (= <> < <= > >=).
- - There is no NULL, so no necessity to check for NULL.
- - There is no inlining of code written in a different language. With inlined
-   foreign code you need to know both languages to understand such a program.
- - Code that uses exceptions has better readability than code where the
-   result of every function must be checked for eventual errors.
- - There are no implicit casts that may make reading harder.
 
 
 Isn't the code unreadable if everybody invents new statements?
@@ -1448,6 +1444,110 @@ the program. You must consider that a program is more often read
 than written.
 
 
+What is software maintainability?
+=================================
+
+Software maintainability refers to the ease with which programs can
+be modified, updated, or repaired. Maintainability is important since
+changing existing code is much more common than creating new code
+from scratch. Program development and programming languages should be
+optimized for changing existing code.
+
+Programs should use descriptive names as well as clear, concise, and
+consistent code. The modularity, the documentation and the test
+coverage also play a role.
+
+A programming language can support or hinder maintainability.
+Seed7 uses several approaches to improve maintainability:
+
+ - With a static type system the structure of types is self documented.
+ - With mandatory declarations the type of variables, parameters and
+   function calls is easy to determine.
+ - With mandatory variable initialization variables never have an
+   undefined value.
+ - Automatic memory management leads to simpler code.
+ - Without pointers the memory management is easier to understand.
+ - There is no NULL, so no necessity to check for it.
+ - Error detection at compile-time is much easier instead of
+   discovering them at run-time.
+ - Seed7 is a structured programming language without goto statements.
+   This way it is easier to follow the flow of control.
+ - Using drivers for operating system files, sockets, graphics and
+   databases avoids unportable system dependend code.
+ - Numerous standard libraries allow writing programs without calling
+   functions from third party libraries.
+ - Types like bigInteger, rational, bigRational and complex support
+   the usual infix operators (e.g. + - * ** rem mdiv mod).
+ - Integers and strings follow the "one size fits all" principle.
+   There are no integer types of various sizes and there is just one
+   string type.
+ - There is no need to distinguish between mutable and immutable
+   strings. There are no immutable strings in Seed7.
+ - Comparisons are always done with simple operators (= <> < <= > >=).
+ - There is no inlining of code written in a different language. With
+   inlined foreign code you need to know both languages to understand
+   such a program.
+ - Code that uses exceptions provides for better readability.
+ - There are no implicit casts that may make reading harder.
+ - Putting a semicolon after an expression does not turn it into a
+   statement. This would ignore the result of the expression. In Seed7
+   the result of an expression must be either used or explicitely
+   ignored.
+ - Seed7 is a memory safe language that has no undefined behavior.
+ - There are no unsafe parts where all safety is thrown out of the window.
+
+
+What makes code readable?
+=========================
+
+People often mistake familiarity with a certain kind of syntax for good
+readability. E.g.: If you prefer statements using braces it is harder to read
+statements using keywords instead and vice versa. But you can get accustomed
+to such syntactic things and then they don't hinder readability anymore.
+
+Readability is not just about syntax. Other things do effect
+readability as well. In some languages the information is scattered,
+and the reader needs considerable time to gather the information.
+
+Consider the dynamically typed example below:
+
+  function getData (mainData, delta) {
+    return mainData.numerator + delta;
+  }
+
+There is little information about the parameter types and the result type
+of 'getData':
+
+ - 'mainData' seems to be an object which has an element named 'numerator'.
+   The type of 'numerator' is unknown and there might be other elements in
+   mainData as well.
+ - 'delta' could be any type compatible with the + operator.
+ - We do not know the function of the + operator. It could add numbers or
+   concatenate strings. If it adds numbers the type of the sum (integer,
+   bigInteger, float, complex, etc.) is also unknown.
+ - What 'getData' returns is unknown. It could return everything returned
+   by the + operator.
+
+To get this information it is necessary to investigate the function
+body (and function bodies are not always as small as in this example).
+To get more information the calls of 'mainData' must be examined as well.
+And even then you might need further investigations at other places.
+Of course an IDE could provide you this type information. But what
+about code from the internet or from a book. In this case you would
+need to copy the code to your IDE in order to understand it.
+
+Compare this to the statically typed example below:
+
+  const func integer: getData (in rational: mainData, in integer: delta) is
+    return mainData.numerator + delta;
+
+The function header contains all the information necessary to call
+'getData'. The parameter types and the result type of 'getData' are
+known. The parameter declarations with 'in' show that the parameters
+cannot be changed by the function. The explicit information improves
+readability. At compile-time the types and other things are checked.
+
+
 Why does a local type declaration trigger an error?
 ===================================================
 
@@ -1514,7 +1614,7 @@ programmer considers as the "right type". A conversion can lose information.
 Seemingly safe conversions may also lose information. E.g. Not all 64-bit
 integer values can be represented as 64-bit float values. It can also lead to
 unplanned behavior if the programmer is not aware of an automatic conversion.
-Readability is improved if conversions are done explicitly. Seed7 is strongly
+Maintainability is improved if conversions are done explicitly. Seed7 is strongly
 typed and uses explicit conversions. E.g.: The conversion from 'integer'
 to 'float' is done with the functions 'flt' and 'float'. Conversions from
 'float' to 'integer' are done with 'round' or 'trunc'. Explicit conversions
@@ -1808,10 +1908,65 @@ the function genStarDescr in the library stars.s7i.
 Why is it necessary to initialize all variables?
 ================================================
 
-Forgetting to initialize a variable is a common source of errors. In some
-programming languages uninitialized variables have a random value which could lead
-to errors. To avoid errors caused by uninitialized variables in Seed7 each variable
-must be initialized when it is declared.
+In C and many other languages it is possible to define a variable
+without initializing it. E.g.:
+
+  #include <stdio.h>
+
+  int main (int argc, char *argv[]) {
+    int number;    /* No initialization */
+
+    printf("%d\n", number);
+    return 0;
+  }
+
+The variable 'number' has an undefined value. No initialization
+value has been copied to it. In this case 'number' has the value
+which is at the memory location of 'number' (or in the register
+of 'number'). So 'number' will have an undefined (garbage) value.
+Uninitialized local pointer variables usually point to some random
+place in memory. All this is seen as performance improvement.
+
+Using an uninitialized local variable triggers undefined behavior.
+The C example program above will print a garbage value. If the
+program is run multiple times various garbage values might show
+off.
+
+Forgetting to initialize a variable is a common source of errors
+in C and similar languages. To avoid such errors in Seed7 every
+variable must be initialized when it is declared. This way
+variables always have a legal value.
+
+  $ include "seed7_05.s7i";
+
+  const proc: main is func
+    local
+      var integer: number is 0;    # Initialization
+    begin
+      writeln(number);
+    end func;
+
+The Seed7 example program above will always print the value 0.
+
+
+What is a result variable?
+==========================
+
+A result variable is a specific local variable used as function result.
+If no assignment to the result variable is done the initialization value
+of the result value is the function result.
+
+Result variables are declared in 'func ... end func' constructs after
+the keyword 'result'. E.g.:
+
+  const func integer: countDigits is func
+    result
+      var integer: count is 0;
+    begin
+      while getc(IN) in {'0' .. '9'} do
+        incr(count);
+      end while;
+    end func;
 
 
 Are there types like byte, small and long?
@@ -3387,7 +3542,7 @@ instead of:
     do_something_useful;
   end while;
 
-A 'goto' or anything like it compromises readability. Non-structured statements
+A 'goto' or anything like it compromises maintainability. Non-structured statements
 are frequently used as shortcuts to avoid restructuring the program's flow.
 Programmers should overcome the temptation to introduce 'break' or 'continue'.
 Usually, this is a sign that the code is too complex and should be refactored.
@@ -3407,7 +3562,7 @@ Instead of insisting on 'break' and 'continue', it would make sense to propose
 structured statements that can replace them.
 
 The 'break' and 'continue' statements are often seen as a trick to get more
-performance at the expense of readability. These performance wins are
+performance at the expense of maintainability. These performance wins are
 questionable. Given todays optimization techniques, the compiler might generate
 the same machine code from clean source code without 'break' and 'continue'.
 
