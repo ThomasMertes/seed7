@@ -2892,15 +2892,15 @@ static boolType setupFuncTable (void)
 
 
 
-static void determineIfBackslashEscapes (dbType database)
+static boolType determineIfBackslashEscapes (dbType database)
 
   {
     striType statementStri;
     sqlStmtType preparedStmt;
     striType data;
+    boolType backslashEscapes = FALSE;
 
   /* determineIfBackslashEscapes */
-    database->backslashEscapes = FALSE;
     statementStri = cstri_to_stri("SELECT '\\\\'");
     if (likely(statementStri != NULL)) {
       preparedStmt = sqlPrepare((databaseType) database, statementStri);
@@ -2911,7 +2911,7 @@ static void determineIfBackslashEscapes (dbType database)
           if (data->size == 1 && data->mem[0] == '\\') {
             /* A select for two backslashes returns just one backslash. */
             /* This happens if the database uses backslash as escape char. */
-            database->backslashEscapes = TRUE;
+            backslashEscapes = TRUE;
           } /* if */
           FREE_STRI(data);
         } /* if */
@@ -2919,9 +2919,9 @@ static void determineIfBackslashEscapes (dbType database)
       } /* if */
       FREE_STRI(statementStri);
     } /* if */
-    logFunction(printf("determineIfBackslashEscapes --> "
-                       "(backslashEscapes=%d)\n",
-                       database->backslashEscapes););
+    logFunction(printf("determineIfBackslashEscapes --> %d\n",
+                       backslashEscapes););
+    return backslashEscapes;
   } /* determineIfBackslashEscapes */
 
 
@@ -3018,7 +3018,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   database->driver = DB_CATEGORY_MYSQL;
                   database->connection = connection;
                   database->autoCommit = TRUE;
-                  determineIfBackslashEscapes(database);
+                  database->backslashEscapes = determineIfBackslashEscapes(database);
                 } /* if */
               } /* if */
             } /* if */
