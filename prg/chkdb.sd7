@@ -5947,6 +5947,76 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
   end func;
 
 
+const proc: testYearMonthDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testYearMonthDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                        expect &:= duration.value);
+      insert(state, duration("P0Y"),             expect &:= duration("P0Y"));
+      insert(state, duration("P0M"),             expect &:= duration("P0M"));
+      insert(state, duration("P1Y"),             expect &:= duration("P1Y"));
+      insert(state, duration("P1M"),             expect &:= duration("P1M"));
+      insert(state, duration("P1Y2M"),           expect &:= duration("P1Y2M"));
+
+      insert(state, duration("P-1Y"),            expect &:= duration("P-1Y"));
+      insert(state, duration("P-1M"),            expect &:= duration("P-1M"));
+      insert(state, duration("P-1Y-2M"),         expect &:= duration("P-1Y-2M"));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testYearMonthDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testYearMonthDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching year-month duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching year-month duration fields does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testPositiveDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
@@ -5964,19 +6034,14 @@ const proc: testPositiveDurationField (in database: testDb, in dbCategory: datab
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, NULL,                        expect &:= duration.value);
-      insert(state, duration("P0Y"),             expect &:= duration("P0Y"));
-      insert(state, duration("P0M"),             expect &:= duration("P0M"));
       insert(state, duration("P0D"),             expect &:= duration("P0D"));
       insert(state, duration("PT0H"),            expect &:= duration("PT0H"));
       insert(state, duration("PT0M"),            expect &:= duration("PT0M"));
       insert(state, duration("PT0S"),            expect &:= duration("PT0S"));
-      insert(state, duration("P1Y"),             expect &:= duration("P1Y"));
-      insert(state, duration("P1M"),             expect &:= duration("P1M"));
       insert(state, duration("P1D"),             expect &:= duration("P1D"));
       insert(state, duration("PT1H"),            expect &:= duration("PT1H"));
       insert(state, duration("PT1M"),            expect &:= duration("PT1M"));
       insert(state, duration("PT1S"),            expect &:= duration("PT1S"));
-      insert(state, duration("P1Y2M"),           expect &:= duration("P1Y2M"));
       insert(state, duration("P1DT2H"),          expect &:= duration("P1DT2H"));
       insert(state, duration("P30DT23H"),        expect &:= duration("P30DT23H"));
       insert(state, duration("P1DT2H3M"),        expect &:= duration("P1DT2H3M"));
@@ -6044,13 +6109,10 @@ const proc: testNegativeDurationField (in database: testDb, in dbCategory: datab
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, NULL,                        expect &:= duration.value);
-      insert(state, duration("P-1Y"),               expect &:= duration("P-1Y"));
-      insert(state, duration("P-1M"),               expect &:= duration("P-1M"));
       insert(state, duration("P-1D"),               expect &:= duration("P-1D"));
       insert(state, duration("PT-1H"),              expect &:= duration("PT-1H"));
       insert(state, duration("PT-1M"),              expect &:= duration("PT-1M"));
       insert(state, duration("PT-1S"),              expect &:= duration("PT-1S"));
-      insert(state, duration("P-1Y-2M"),            expect &:= duration("P-1Y-2M"));
       insert(state, duration("P-1DT-2H"),           expect &:= duration("P-1DT-2H"));
       insert(state, duration("P-30DT-23H"),         expect &:= duration("P-30DT-23H"));
       insert(state, duration("P-1DT-2H-3M"),        expect &:= duration("P-1DT-2H-3M"));
@@ -6866,6 +6928,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testDateTimeField(testDb, databaseKind);
     testTimeStampField(testDb, databaseKind);
     testTimeStampTzField(testDb, databaseKind);
+    testYearMonthDurationField(testDb, databaseKind);
     testPositiveDurationField(testDb, databaseKind);
     testNegativeDurationField(testDb, databaseKind);
     testPositiveFractionDurationField(testDb, databaseKind);
