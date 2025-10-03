@@ -585,12 +585,14 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
     ucharType sqlState8[5 * MAX_WSTRI_TO_UTF8_EXPANSION_FACTOR + NULL_TERMINATION_LEN];
     SQLWCHAR messageText[ERROR_MESSAGE_BUFFER_SIZE];
     ucharType messageText8[ERROR_MESSAGE_BUFFER_SIZE * MAX_WSTRI_TO_UTF8_EXPANSION_FACTOR];
-    SQLINTEGER nativeError;
+    SQLINTEGER nativeError = 0;
     SQLSMALLINT bufferLength;
 
   /* setDbErrorMsg */
     dbError.funcName = funcName;
     dbError.dbFuncName = dbFuncName;
+    memset(sqlState, 0, sizeof(sqlState));
+    memset(messageText, 0, sizeof(messageText));
     returnCode = SQLGetDiagRecW(handleType,
                                 handle,
                                 1,
