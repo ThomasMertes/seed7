@@ -1288,7 +1288,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                       FMT_D16 ":\n%s\n", returnCode, dbError.message););
       err_info = DATABASE_ERROR;
     } else {
-      /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+      logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
       switch (columnDescr->dataType) {
         case SQL_CHAR:
         case SQL_VARCHAR:
@@ -1521,7 +1521,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           break;
       } /* switch */
       if (err_info == OKAY_NO_ERROR) {
-        /* printf("c_type: %s\n", nameOfCType(c_type)); */
+        logMessage(printf("c_type: %s\n", nameOfCType(c_type)););
         /* printf("buffer_length[%d]: " FMT_U_MEM " %d\n",
                column_num, buffer_length, columnDescr->sql_data_at_exec); */
         columnDescr->c_type = c_type;
@@ -2965,8 +2965,8 @@ static errInfoType fetchBlobs (preparedStmtType preparedStmt, fetchDataType fetc
       if (columnDescr->sql_data_at_exec) {
         blobFound = TRUE;
         /* printf("fetchBlobs: length: " FMT_D_LEN "\n", columnDescr->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
-        /* printf("c_type: %s\n", nameOfCType(columnDescr->c_type)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
+        logMessage(printf("c_type: %s\n", nameOfCType(columnDescr->c_type)););
         switch (columnDescr->dataType) {
           case SQL_LONGVARCHAR:
           case SQL_WLONGVARCHAR:
@@ -3158,7 +3158,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_BIT:
             value16 = bigToInt16(value, &err_info);
@@ -3305,7 +3305,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_DECIMAL:
           case SQL_NUMERIC:
@@ -3399,7 +3399,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_BIT:
             c_type = SQL_C_BIT;
@@ -3519,7 +3519,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_BINARY:
           case SQL_VARBINARY:
@@ -3635,7 +3635,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
@@ -3734,7 +3734,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_REAL:
             c_type = SQL_C_FLOAT;
@@ -3829,7 +3829,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_BIT:
             if (unlikely(value < 0 || value > 1)) {
@@ -4048,7 +4048,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_CHAR:
           case SQL_VARCHAR:
@@ -4180,7 +4180,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         param = &preparedStmt->param_array[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(param->dataType)); */
+        logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
           case SQL_TYPE_DATE:
             c_type = SQL_C_TYPE_DATE;
@@ -4372,8 +4372,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_BIT:
             columnValue = bigFromInt32((int32Type)
@@ -4461,8 +4461,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                         columnDescr->buffer_length););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_BIT:
             *numerator = bigFromInt32((int32Type)
@@ -4556,9 +4556,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
-        /* printf("c_type: %s\n", nameOfCType(columnDescr->c_type)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
+        logMessage(printf("c_type: %s\n", nameOfCType(columnDescr->c_type)););
         switch (columnDescr->dataType) {
           case SQL_CHAR:
           case SQL_VARCHAR:
@@ -4689,8 +4689,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_BINARY:
           case SQL_VARBINARY:
@@ -4764,9 +4764,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                         column, columnData->length););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
-        /* printf("c_type: %s\n", nameOfCType(columnDescr->c_type)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
+        logMessage(printf("c_type: %s\n", nameOfCType(columnDescr->c_type)););
         switch (columnDescr->dataType) {
           case SQL_INTERVAL_YEAR:
           case SQL_INTERVAL_MONTH:
@@ -4854,7 +4854,6 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_VARCHAR:
           case SQL_WVARCHAR:
-            /* printf("length: " FMT_D_LEN "\n", columnData->length); */
             switch (columnDescr->c_type) {
               case SQL_C_CHAR:
                 length = (memSizeType) columnData->length;
@@ -5000,8 +4999,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0.0;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_BIT:
             columnValue = (floatType) *(char *) columnData->buffer != 0;
@@ -5086,8 +5085,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_BIT:
             columnValue = *(char *) columnData->buffer != 0;
@@ -5176,9 +5175,9 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
-        /* printf("c_type: %s\n", nameOfCType(columnDescr->c_type)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
+        logMessage(printf("c_type: %s\n", nameOfCType(columnDescr->c_type)););
         switch (columnDescr->dataType) {
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
@@ -5320,8 +5319,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                         column, columnData->length););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("length: " FMT_D_LEN "\n", columnData->length); */
-        /* printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)); */
+        logMessage(printf("length: " FMT_D_LEN "\n", columnData->length););
+        logMessage(printf("dataType: %s\n", nameOfSqlType(columnDescr->dataType)););
         switch (columnDescr->dataType) {
           case SQL_TYPE_DATE:
             dateValue = (SQL_DATE_STRUCT *) columnData->buffer;
@@ -6060,7 +6059,8 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
       database = NULL;
     } else {
-      /* printf("maxConcurrentActivities: %lu\n", (unsigned long) maxConcurrentActivities); */
+      logMessage(printf("maxConcurrentActivities: %lu\n",
+                        (unsigned long) maxConcurrentActivities););
       memset(database, 0, sizeof(dbRecordCli));
       database->usage_count = 1;
       database->isOpen = TRUE;

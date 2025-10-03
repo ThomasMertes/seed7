@@ -2539,7 +2539,7 @@ static void uBigKaratsubaMult (const bigDigitType *const factor1,
     memSizeType sizeHi;
 
   /* uBigKaratsubaMult */
-    /* printf("uBigKaratsubaMult: size=" FMT_U_MEM "\n", size); */
+    logMessage(printf("uBigKaratsubaMult: size=" FMT_U_MEM "\n", size););
     if (size < KARATSUBA_MULT_THRESHOLD) {
       uBigDigitMult(factor1, factor2, size, product);
     } else {
@@ -2619,7 +2619,7 @@ static void uBigKaratsubaSquare (const bigDigitType *const big1,
     memSizeType sizeHi;
 
   /* uBigKaratsubaSquare */
-    /* printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size);); */
+    logMessage(printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size););
     if (size < KARATSUBA_SQUARE_THRESHOLD) {
       uBigDigitSquare(big1, size, square);
     } else {

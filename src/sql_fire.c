@@ -1380,7 +1380,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             *(int16Type *) sqlvar->sqldata = bigToInt16(value, &err_info);
@@ -1506,7 +1506,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_INT64:
             /* printf("sqlBindBigRat: scale: %hd\n", sqlvar->sqlscale); */
@@ -1576,7 +1576,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_BOOLEAN:
           case SQL_SHORT:
@@ -1660,7 +1660,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_BLOB:
             err_info = putBlob(preparedStmt, bstri, sqlvar);
@@ -1767,7 +1767,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
             case SQL_TIMESTAMP:
               tm_time.tm_year = (int) year;
@@ -1851,7 +1851,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_FLOAT:
             *(float *) sqlvar->sqldata = (float) value;
@@ -1916,7 +1916,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
@@ -2039,7 +2039,7 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         if (sqlvar->sqltype & 1) {
           *sqlvar->sqlind = -1;
         } /* if */
@@ -2088,7 +2088,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_TEXT:
             stri8 = stri_to_cstri8_buf(stri, &length);
@@ -2219,7 +2219,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
         sqlvar = &preparedStmt->in_sqlda->sqlvar[pos - 1];
-        /* printf("paramType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
             case SQL_TIMESTAMP:
               tm_time.tm_year = (int) year - 1900;
@@ -2354,7 +2354,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             if (unlikely(sqlvar->sqlscale != 0)) {
@@ -2436,7 +2436,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                         column, *sqlind););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             *numerator = bigFromInt32((int32Type)
@@ -2523,7 +2523,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_BOOLEAN:
           case SQL_SHORT:
@@ -2628,7 +2628,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_TEXT:
             length = sqlvar->sqllen;
@@ -2736,7 +2736,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                         column, *sqlind););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_TIMESTAMP:
             isc_decode_timestamp((ISC_TIMESTAMP *) sqlvar->sqldata, &tm_time);
@@ -2821,7 +2821,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0.0;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             if (sqlvar->sqlscale == 0) {
@@ -2902,7 +2902,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_SHORT:
             if (unlikely(sqlvar->sqlscale != 0)) {
@@ -2986,7 +2986,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_TEXT:
             length = sqlvar->sqllen;
@@ -3117,7 +3117,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                         column, *sqlind););
         raise_error(DATABASE_ERROR);
       } else {
-        /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
+        logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
         switch (sqlvar->sqltype & ~1) {
           case SQL_TIMESTAMP:
             isc_decode_timestamp((ISC_TIMESTAMP *) sqlvar->sqldata, &tm_time);
