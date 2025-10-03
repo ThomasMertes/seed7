@@ -56,6 +56,7 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     intType minute, intType second, intType *timeZone, boolType *isDst);
 void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
     intType *year, intType *month, intType *day);
+boolType dateIsOkay (intType year, intType month, intType day);
 boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
     intType *day, intType *hour, intType *minute, intType *second,
     intType *microSecond, boolType *isTime);

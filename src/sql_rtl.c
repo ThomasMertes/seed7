@@ -38,11 +38,13 @@
 #include "stdio.h"
 #include "math.h"
 #include "float.h"
+#include "time.h"
 
 #include "common.h"
 #include "data_rtl.h"
 #include "striutl.h"
 #include "flt_rtl.h"
+#include "tim_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "sql_base.h"
@@ -568,6 +570,17 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                       hour, minute, second, micro_second,
                       time_zone););
       raise_error(DATABASE_ERROR);
+    } else if (unlikely(!dateIsOkay(year, month, day))) {
+      logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                      FMT_D "): "
+                      "Date not in allowed range.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second,
+                      time_zone););
+      raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime(sqlStatement, pos,
           year, month, day, hour, minute, second, micro_second, time_zone);

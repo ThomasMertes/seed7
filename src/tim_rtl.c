@@ -692,6 +692,27 @@ void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
 
 
 
+boolType dateIsOkay (intType year, intType month, intType day)
+
+  {
+    int leap_year;
+    boolType isOkay;
+
+  /* dateIsOkay */
+    if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+      leap_year = 1;
+    } else {
+      leap_year = 0;
+    } /* if */
+    isOkay = month >= 1 && month <= 12 && day >= 1 &&
+             day <= monthDays[leap_year][month - 1];
+    logFunction(printf("dateIsOkay(" F_D(04) "-" F_D(02) "-" F_D(02) ") --> %d\n",
+                       year, month, day, isOkay););
+    return isOkay;
+  } /* dateIsOkay */
+
+
+
 /**
  *  Assign date and time from a string with the given 'isoDate'.
  *  Possible formats for 'isoData' are "yyyy-mm-dd hh:mm:ss.uuuuuu",
