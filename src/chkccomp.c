@@ -2903,7 +2903,8 @@ static void defineTransferUnions (char * buffer)
       case 4: strcat(buffer, uint32TypeStri); break;
       case 8: strcat(buffer, uint64TypeStri); break;
       default:
-        fprintf(logFile, "\n ***** Size of float (%d) is not in {2, 4, 8}\n");
+        fprintf(logFile, "\n ***** Size of float (%d) is not in {2, 4, 8}\n",
+                sizeof_float);
         break;
     } /* switch */
     strcat(buffer,
@@ -2918,7 +2919,8 @@ static void defineTransferUnions (char * buffer)
       case 4: strcat(buffer, uint32TypeStri); break;
       case 8: strcat(buffer, uint64TypeStri); break;
       default:
-        fprintf(logFile, "\n ***** Size of double (%d) is not in {2, 4, 8}\n");
+        fprintf(logFile, "\n ***** Size of double (%d) is not in {2, 4, 8}\n",
+                sizeof_double);
         break;
     } /* switch */
     strcat(buffer,
