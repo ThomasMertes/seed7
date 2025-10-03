@@ -26,6 +26,7 @@
 /********************************************************************/
 
 #include "stdio.h"
+#include "string.h"
 
 
 
@@ -40,7 +41,12 @@ static long readLevel (const char *const fileName)
   /* readLevel */
     levelFile = fopen(fileName, "r");
     if (levelFile != NULL) {
-      fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &level);
+      if (fscanf(levelFile, "%15s %15s %ld\n",
+                 buffer1, buffer2, &level) != 3 ||
+          strcmp(buffer1, "#define") != 0 ||
+          strcmp(buffer2, "LEVEL") != 0) {
+        level = -1;
+      } /* if */
       fclose(levelFile);
     } else {
       level = -1;
