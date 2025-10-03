@@ -1745,9 +1745,12 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(year < INT32TYPE_MIN || year > INT32TYPE_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
-                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+    } else if (unlikely(year < INT32TYPE_MIN || year > INT32TYPE_MAX ||
+                        month < -12 || month > 12 ||
+                        day < -31 || day > 31 ||
+                        hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 ||
+                        second <= -60 || second >= 60 ||
                         micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
@@ -2071,9 +2074,12 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(year <= INT16TYPE_MIN || year > INT16TYPE_MAX || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
-                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+    } else if (unlikely(year <= INT16TYPE_MIN || year > INT16TYPE_MAX ||
+                        month < 1 || month > 12 ||
+                        day < 1 || day > 31 ||
+                        hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 ||
+                        second < 0 || second >= 60 ||
                         micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
