@@ -637,9 +637,6 @@ objectType dcl_in2 (listType arguments)
               INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
               break;
           } /* switch */
-          /* printf("decl in2 --> %lx ", (unsigned long int) created_object);
-             trace1(created_object);
-             printf(";\n"); */
         } /* if */
         shrink_stack();
       } /* if */
@@ -714,9 +711,6 @@ objectType dcl_in2var (listType arguments)
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
-        /* printf("decl in2var --> %lx ", (unsigned long int) created_object);
-           trace1(created_object);
-           printf(";\n"); */
       } /* if */
       shrink_stack();
     } /* if */
@@ -790,9 +784,6 @@ objectType dcl_inout2 (listType arguments)
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
-        /* printf("decl inout2 --> %lx ", (unsigned long int) created_object);
-           trace1(created_object);
-           printf(";\n"); */
       } /* if */
       shrink_stack();
     } /* if */
@@ -913,9 +904,6 @@ objectType dcl_ref2 (listType arguments)
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
-        /* printf("decl ref2 --> %lx ", (unsigned long int) created_object);
-           trace1(created_object);
-           printf(";\n"); */
       } /* if */
       shrink_stack();
     } /* if */
@@ -1112,9 +1100,6 @@ objectType dcl_val2 (listType arguments)
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
-        /* printf("decl val2 --> %lx ", (unsigned long int) created_object);
-           trace1(created_object);
-           printf(";\n"); */
       } /* if */
       shrink_stack();
     } /* if */
