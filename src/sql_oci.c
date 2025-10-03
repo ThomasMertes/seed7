@@ -2859,10 +2859,10 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         } /* if */
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
-        if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
-          buffer_type = SQLT_INTERVAL_YM;
-        } else if (year == 0 && month == 0) {
+        if (year == 0 && month == 0) {
           buffer_type = SQLT_INTERVAL_DS;
+        } else if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
+          buffer_type = SQLT_INTERVAL_YM;
         } else {
           logError(printf("sqlBindDuration: Neither SQLT_INTERVAL_YM nor SQLT_INTERVAL_DS.\n"););
           err_info = RANGE_ERROR;
