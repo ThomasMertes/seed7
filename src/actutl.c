@@ -138,15 +138,15 @@ static actType searchAction (cstriType actionName)
     } else {
       actionNumber = 0;
     } /* if */
-    /* printf("action number: %u\n", actionNumber); */
 #else
     actionNumber = 0;
     lower = 0;
     upper = actTable.size;
     while (lower + 1 < upper) {
       middle = (lower + upper) >> 1;
-      /* printf("%u %u %u >%s< >%s<\n", lower, middle, upper,
-         actTable.table[middle].name, actionName); */
+      logMessage(printf("%u %u %u >%s< >%s<\n",
+                        lower, middle, upper,
+                        actTable.table[middle].name, actionName););
       if ((comparison = strcmp(actTable.table[middle].name, actionName)) < 0) {
         lower = middle;
       } else if (comparison == 0) {
@@ -157,8 +157,10 @@ static actType searchAction (cstriType actionName)
       } /* if */
     } /* while */
 #endif
+    logMessage(printf("action number: %u\n", actionNumber););
     if (actTable.table != NULL && actionNumber != 0) {
-      /* printf("action(\"%s\")\n", actTable.table[actionNumber].name); */
+      logMessage(printf("action name: \"%s\"\n",
+                        actTable.table[actionNumber].name););
       actionFound = actTable.table[actionNumber].action;
     } else {
       actionFound = NULL;
@@ -250,9 +252,10 @@ static void genActPtrTable (void)
       for (number = 1; number < actEntryMap.size; number++) {
         if (actEntryMap.table[number]->action ==
             actEntryMap.table[number - 1]->action) {
-          /* printf("*** Actions %s and %s implemented by the same function\n",
-              actEntryMap.table[number - 1]->name,
-              actEntryMap.table[number]->name); */
+          logMessage(printf("*** Actions %s and %s implemented "
+                            "by the same function\n",
+                            actEntryMap.table[number - 1]->name,
+                            actEntryMap.table[number]->name););
           /* Remove double entries */
           if ((memSizeType) actEntryMap.table[number - 1] >
               (memSizeType) actEntryMap.table[number]) {
@@ -266,7 +269,8 @@ static void genActPtrTable (void)
           } /* if */
           actEntryMap.size--;
           number--;
-          /* printf("size=%u, number=%u\n", actEntryMap.size, number); */
+          logMessage(printf("size=%u, number=%u\n",
+                            actEntryMap.size, number););
         } /* if */
       } /* for */
     } /* if */
@@ -319,9 +323,10 @@ const_actEntryType getActEntry (actType actionSearched)
       upper = (int) actEntryMap.size;
       while (lower + 1 < upper) {
         middle = (lower + upper) >> 1;
-        /* printf("%d %d %d <" FMT_U_MEM "> <" FMT_U_MEM ">\n", lower, middle, upper,
-            (memSizeType) actEntryMap.table[middle]->action,
-            (memSizeType) actionSearched); */
+        logMessage(printf("%d %d %d <" FMT_U_MEM "> <" FMT_U_MEM ">\n",
+                          lower, middle, upper,
+                          (memSizeType) actEntryMap.table[middle]->action,
+                          (memSizeType) actionSearched););
         if (((memSizeType) actEntryMap.table[middle]->action) <
             ((memSizeType) actionSearched)) {
           lower = middle;
