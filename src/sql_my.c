@@ -728,7 +728,7 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
       preparedStmt->result_data_array = NULL;
     } else {
       num_columns = mysql_num_fields(result_metadata);
-      /* printf("num_columns: %u\n", num_columns); */
+      logMessage(printf("num_columns: %u\n", num_columns););
       if (num_columns == 0) {
         /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
         preparedStmt->result_array_size = 0;
@@ -1800,7 +1800,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               columnValue = NULL;
             } else {
               length = columnData->length_value;
-              /* printf("length: %lu\n", length); */
+              logMessage(printf("length: " FMT_U_MEM "\n", length););
               if (length > 0) {
                 if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
                   raise_error(MEMORY_ERROR);
@@ -2159,7 +2159,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_MEDIUM_BLOB:
           case MYSQL_TYPE_LONG_BLOB:
             length = columnData->length_value;
-            /* printf("length: %lu\n", length); */
+            logMessage(printf("length: " FMT_U_MEM "\n", length););
             if (length > 0) {
               if (preparedStmt->result_data_array[column - 1].binary) {
                 if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, length))) {
@@ -2919,7 +2919,9 @@ static void determineIfBackslashEscapes (dbType database)
       } /* if */
       FREE_STRI(statementStri);
     } /* if */
-    /* printf("backslashEscapes: %d\n", database->backslashEscapes); */
+    logFunction(printf("determineIfBackslashEscapes --> "
+                       "(backslashEscapes=%d)\n",
+                       database->backslashEscapes););
   } /* determineIfBackslashEscapes */
 
 

@@ -786,7 +786,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     } else {
       /* printf("Type: " FMT_D16 ", VarLength: %d\n", dbcol.Type, dbcol.VarLength); */
       columnData->buffer_type = dbcol.Type;
-      /* printf("buffer_type: %s\n", nameOfBufferType(columnData->buffer_type)); */
+      logMessage(printf("buffer_type: %s\n",
+                        nameOfBufferType(columnData->buffer_type)););
       switch (columnData->buffer_type) {
         case SYBCHAR:
           bind_type = STRINGBIND;
@@ -891,7 +892,7 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
   /* setupResult */
     logFunction(printf("setupResult\n"););
     num_columns = dbnumcols(preparedStmt->dbproc);
-    /* printf("num_columns: %d\n", num_columns); */
+    logMessage(printf("num_columns: %d\n", num_columns););
     if (unlikely(num_columns < 0)) {
       dbInconsistent("setupResult", "dbnumcols");
       logError(printf("setupResult: dbnumcols returns negative number: %d\n",

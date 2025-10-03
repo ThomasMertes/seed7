@@ -1304,11 +1304,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } else {
             buffer_length = ((memSizeType) columnDescr->columnSize + 1) * 2;
           } /* if */
-          /* printf("%s:\n", nameOfSqlType(columnDescr->dataType));
-          printf("columnSize: " FMT_U_MEM "\n", columnDescr->columnSize);
-          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
-          printf("buffer_length: " FMT_U_MEM "\n", buffer_length);
-          printf("decimalDigits: " FMT_D16 "\n", columnDescr->decimalDigits); */
+          logMessage(printf("%s:\n",
+                            nameOfSqlType(columnDescr->dataType));
+                     printf("columnSize: " FMT_U_MEM "\n",
+                            columnDescr->columnSize);
+                     printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
+                     printf("buffer_length: " FMT_U_MEM "\n",
+                            buffer_length);
+                     printf("decimalDigits: " FMT_D16 "\n",
+                            columnDescr->decimalDigits););
           break;
         case SQL_WCHAR:
         case SQL_WVARCHAR:
@@ -1320,11 +1324,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } else {
             buffer_length = ((memSizeType) columnDescr->columnSize + 1) * 2;
           } /* if */
-          /* printf("%s:\n", nameOfSqlType(columnDescr->dataType));
-          printf("columnSize: " FMT_U_MEM "\n", columnDescr->columnSize);
-          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
-          printf("buffer_length: " FMT_U_MEM "\n", buffer_length);
-          printf("decimalDigits: " FMT_D16 "\n", columnDescr->decimalDigits); */
+          logMessage(printf("%s:\n",
+                            nameOfSqlType(columnDescr->dataType));
+                     printf("columnSize: " FMT_U_MEM "\n",
+                            columnDescr->columnSize);
+                     printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
+                     printf("buffer_length: " FMT_U_MEM "\n",
+                            buffer_length);
+                     printf("decimalDigits: " FMT_D16 "\n",
+                            columnDescr->decimalDigits););
           break;
         case SQL_BINARY:
         case SQL_VARBINARY:
@@ -1336,11 +1344,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } else {
             buffer_length = (memSizeType) columnDescr->columnSize;
           } /* if */
-          /* printf("%s:\n", nameOfSqlType(columnDescr->dataType));
-          printf("columnSize: " FMT_U_MEM "\n", columnDescr->columnSize);
-          printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
-          printf("buffer_length: " FMT_U_MEM "\n", buffer_length);
-          printf("decimalDigits: " FMT_D16 "\n", columnDescr->decimalDigits); */
+          logMessage(printf("%s:\n",
+                            nameOfSqlType(columnDescr->dataType));
+                     printf("columnSize: " FMT_U_MEM "\n",
+                            columnDescr->columnSize);
+                     printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
+                     printf("buffer_length: " FMT_U_MEM "\n",
+                            buffer_length);
+                     printf("decimalDigits: " FMT_D16 "\n",
+                            columnDescr->decimalDigits););
           break;
         case SQL_LONGVARCHAR:
           if (preparedStmt->db->wideCharsSupported) {
@@ -1392,10 +1404,13 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
             /* leading or trailing zero and a terminating null byte. */
             buffer_length = ((memSizeType) columnDescr->columnSize + 4);
           } /* if */
-          /* printf("SQL_DECIMAL:\n");
-          printf("columnSize: "FMT_U_MEM "\n", columnDescr->columnSize);
-          printf("buffer_length: " FMT_U_MEM "\n", buffer_length);
-          printf("decimalDigits: " FMT_D16 "\n", columnDescr->decimalDigits); */
+          logMessage(printf("SQL_DECIMAL:\n");
+                     printf("columnSize: "FMT_U_MEM "\n",
+                            columnDescr->columnSize);
+                     printf("buffer_length: " FMT_U_MEM "\n",
+                            buffer_length);
+                     printf("decimalDigits: " FMT_D16 "\n",
+                            columnDescr->decimalDigits););
           break;
         case SQL_NUMERIC:
 #if DECODE_NUMERIC_STRUCT
@@ -1413,10 +1428,13 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           /* Place for sign, decimal point and zero byte. */
           buffer_length += 3;
 #endif
-          /* printf("SQL_NUMERIC:\n");
-          printf("columnSize: " FMT_U_MEM "\n", columnDescr->columnSize);
-          printf("buffer_length: " FMT_U_MEM "\n", buffer_length);
-          printf("decimalDigits: " FMT_D16 "\n", columnDescr->decimalDigits); */
+          logMessage(printf("SQL_NUMERIC:\n");
+                     printf("columnSize: " FMT_U_MEM "\n",
+                            columnDescr->columnSize);
+                     printf("buffer_length: " FMT_U_MEM "\n",
+                            buffer_length);
+                     printf("decimalDigits: " FMT_D16 "\n",
+                            columnDescr->decimalDigits););
           break;
         case SQL_REAL:
           c_type = SQL_C_FLOAT;
