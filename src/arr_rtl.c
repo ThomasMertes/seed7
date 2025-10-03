@@ -1981,7 +1981,9 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
 rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 
   { /* arrSort */
-    /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
+    logFunction(printf("arrSort(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) arr1,
+                       arr1->min_position, arr1->max_position););
     rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
     return arr1;
   } /* arrSort */
@@ -1991,7 +1993,9 @@ rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 rtlArrayType arrSortReverse (rtlArrayType arr1, compareType cmp_func)
 
   { /* arrSortReverse */
-    /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
+    logFunction(printf("arrSortReverse(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) arr1,
+                       arr1->min_position, arr1->max_position););
     rtl_qsort_array_reverse(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
     return arr1;
   } /* arrSortReverse */
