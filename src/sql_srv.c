@@ -407,8 +407,8 @@ static boolType connectToLocalServer (connectDataType connectData,
 static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *err_info)
 
   {
-    SQLHENV sql_environment;
-    SQLHDBC sql_connection;
+    SQLHENV sql_environment = NULL;
+    SQLHDBC sql_connection = NULL;
     boolType okay;
     SQLRETURN returnCode = SQL_ERROR;
     SQLSMALLINT outConnectionStringLength;

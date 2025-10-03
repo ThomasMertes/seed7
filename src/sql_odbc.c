@@ -472,8 +472,8 @@ databaseType sqlOpenOdbc (const const_striType driver,
 
   {
     connectDataRecord connectData;
-    SQLHENV sql_environment;
-    SQLHDBC sql_connection;
+    SQLHENV sql_environment = NULL;
+    SQLHDBC sql_connection = NULL;
     SQLRETURN returnCode;
     errInfoType err_info = OKAY_NO_ERROR;
     databaseType database;
