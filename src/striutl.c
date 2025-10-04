@@ -332,6 +332,106 @@ cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri)
 
 
 
+cstriType wstri16AsUnquotedCStri (const const_utf16striType wstri)
+
+  {
+    utf16charType ch;
+    memSizeType idx = 0;
+    memSizeType pos = 0;
+    memSizeType len;
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF16_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
+
+  /* wstri16AsUnquotedCStri */
+    if (wstri != NULL) {
+      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
+        ch = (utf16charType) wstri[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            len = strlen(stri_escape_sequence[ch]);
+            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
+            pos += len;
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
+        } /* if */
+        idx++;
+      } /* while */
+      if (wstri[idx] != '\0') {
+	do {
+	  idx++;
+        } while (wstri[idx] != '\0');
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
+      } /* if */
+    } else {
+      MEMCPY_STRING(buffer, null_string_marker);
+      pos = STRLEN(null_string_marker);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* wstri16AsUnquotedCStri */
+
+
+
+cstriType wstri32AsUnquotedCStri (const const_utf32striType wstri)
+
+  {
+    utf32charType ch;
+    memSizeType idx = 0;
+    memSizeType pos = 0;
+    memSizeType len;
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF32_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
+
+  /* wstri32AsUnquotedCStri */
+    if (wstri != NULL) {
+      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
+        ch = (utf32charType) wstri[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            len = strlen(stri_escape_sequence[ch]);
+            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
+            pos += len;
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
+        } /* if */
+        idx++;
+      } /* while */
+      if (wstri[idx] != '\0') {
+	do {
+	  idx++;
+        } while (wstri[idx] != '\0');
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
+      } /* if */
+    } else {
+      MEMCPY_STRING(buffer, null_string_marker);
+      pos = STRLEN(null_string_marker);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* wstri32AsUnquotedCStri */
+
+
+
 #if !STRINGIFY_WORKS
 cstriType stringify (intType number)
 

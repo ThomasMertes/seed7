@@ -64,6 +64,12 @@
 #define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
 
 /**
+ *  The maximum width when an UTF-16 character is displayed
+ *  in a literal is 12 characters (e.g.: \65535; ).
+ */
+#define MAXIMUM_UTF16_ESCAPE_WIDTH STRLEN("\\65535;")
+
+/**
  *  The maximum width when an unsigned char (byte) is displayed
  *  in a literal is 5 characters (e.g.: \255; ).
  */
@@ -195,6 +201,8 @@ extern const os_charType emulated_root[];
 cstriType striAsUnquotedCStri (const const_striType stri);
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
 cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri);
+cstriType wstri16AsUnquotedCStri (const const_utf16striType wstri);
+cstriType wstri32AsUnquotedCStri (const const_utf32striType wstri);
 #if !STRINGIFY_WORKS
 cstriType stringify (intType number);
 #endif
