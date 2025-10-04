@@ -488,7 +488,7 @@ databaseType sqlOpenOdbc (const const_striType driver,
       logError(printf("sqlOpenOdbc: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
-    } else if (unlikely((connectData.driverW =  stri_to_sqlwstri(driver,
+    } else if (unlikely((connectData.driverW = stri_to_sqlwstri(driver,
                              &connectData.driverW_length, &err_info)) == NULL)) {
       database = NULL;
     } else {
@@ -522,11 +522,28 @@ databaseType sqlOpenOdbc (const const_striType driver,
                   database = NULL;
                 } else {
                   if (connectData.driverW_length == 0 && connectData.serverW_length == 0) {
+                    logMessage(printf("sqlOpenOdbc: SQLConnectW(" FMT_U_MEM ", %s",
+                                      (memSizeType) sql_connection,
+                                      connectData.dbNameW == NULL ? "NULL" : "\"");
+                               if (connectData.dbNameW != NULL) {
+                                 printWstri(connectData.dbNameW);
+                               } /* if */
+                               printf("%s, " FMT_U_MEM ", %s",
+                                      connectData.dbNameW == NULL ? "" : "\"",
+                                      connectData.dbNameW_length,
+                                      connectData.userW == NULL ? "NULL" : "\"");
+                               if (connectData.userW != NULL) {
+                                 printWstri(connectData.userW);
+                               } /* if */
+                               printf("%s, " FMT_U_MEM ", *, *)\n",
+                                      connectData.userW == NULL ? "" : "\"",
+                                      connectData.userW_length););
                     returnCode = SQLConnectW(sql_connection,
                         (SQLWCHAR *) connectData.dbNameW, (SQLSMALLINT) connectData.dbNameW_length,
                         (SQLWCHAR *) connectData.userW, (SQLSMALLINT) connectData.userW_length,
                         (SQLWCHAR *) connectData.passwordW, (SQLSMALLINT) connectData.passwordW_length);
-                    logMessage(printf("SQLConnectW returns " FMT_D16 "\n", returnCode););
+                    logMessage(printf("sqlOpenOdbc: SQLConnectW returns " FMT_D16 "\n",
+                                      returnCode););
                   } else {
                     returnCode = SQL_ERROR;
                   } /* if */
