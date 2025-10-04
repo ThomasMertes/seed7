@@ -250,7 +250,7 @@ static boolType connectToServer (connectDataType connectData,
     SQLWCHAR inConnectionString[4096];
     memSizeType pos = 0;
     SQLWCHAR outConnectionString[4096];
-    SQLSMALLINT outConnectionStringLength;
+    SQLSMALLINT outConnectionStringLength = 0;
     SQLRETURN returnCode;
     boolType okay = TRUE;
 
@@ -287,6 +287,15 @@ static boolType connectToServer (connectDataType connectData,
     logMessage(printf("inConnectionString: %s\n",
                       sqlwstriAsUnquotedCStri(inConnectionString)););
     outConnectionString[0] = '\0';
+    logMessage(printf("connectToServer: SQLDriverConnectW(" FMT_U_MEM
+                      ", NULL, " FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM
+                      ", " FMT_U_MEM ", %d, SQL_DRIVER_NOPROMPT)\n",
+                      (memSizeType) sql_connection,
+                      (memSizeType) inConnectionString,
+                      pos,
+                      (memSizeType) outConnectionString,
+                      sizeof(outConnectionString) / sizeof(SQLWCHAR),
+                      (int) outConnectionStringLength););
     returnCode = SQLDriverConnectW(sql_connection,
                                    NULL, /* GetDesktopWindow(), */
                                    (SQLWCHAR *) inConnectionString,
@@ -330,7 +339,8 @@ static boolType connectToLocalServer (connectDataType connectData,
     boolType okay = FALSE;
 
   /* connectToLocalServer */
-    logFunction(printf("connectToLocalServer\n"););
+    logFunction(printf("connectToLocalServer(*, " FMT_U_MEM ")\n",
+                       (memSizeType) sql_connection););
     inConnectionString[0] = '\0';
     logMessage(printf("inConnectionString: %s\n",
                       sqlwstriAsUnquotedCStri(inConnectionString)););
@@ -404,7 +414,7 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
     SQLHDBC sql_connection = NULL;
     boolType okay;
     SQLRETURN returnCode = SQL_ERROR;
-    SQLSMALLINT outConnectionStringLength;
+    SQLSMALLINT outConnectionStringLength = 0;
     SQLWCHAR outConnectionString[4096];
     databaseType database;
 
@@ -425,10 +435,6 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
             FUNCTION_PRESENT(SQLBrowseConnectW)) {
           okay = connectToLocalServer(connectData, sql_connection);
         } else {
-          dbLibError("doOpenSqlServer", "doOpenSqlServer",
-                     "Cannot open database.\n");
-          logError(printf("doOpenSqlServer:\n%s\n",
-                          dbError.message););
           okay = FALSE;
         } /* if */
         if (!okay && connectData->databaseLength != 0) {
@@ -436,6 +442,15 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
           logMessage(printf("inConnectionString: %s\n",
                             sqlwstriAsUnquotedCStri(connectData->connectionString)););
           outConnectionString[0] = '\0';
+          logMessage(printf("doOpenSqlServer: SQLDriverConnectW(" FMT_U_MEM
+                            ", NULL, " FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM
+                            ", " FMT_U_MEM ", %d, SQL_DRIVER_NOPROMPT)\n",
+                            (memSizeType) sql_connection,
+                            (memSizeType) connectData->connectionString,
+                            connectData->connectionStringLength,
+                            (memSizeType) outConnectionString,
+                            sizeof(outConnectionString) / sizeof(SQLWCHAR),
+                            (int) outConnectionStringLength););
           returnCode = SQLDriverConnectW(sql_connection,
                                          NULL, /* GetDesktopWindow(), */
                                          (SQLWCHAR *) connectData->connectionString,

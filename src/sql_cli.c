@@ -6019,8 +6019,8 @@ static cstriType wstri16AsUnquotedCStri (const const_utf16striType wstri)
         idx++;
       } /* while */
       if (wstri[idx] != '\0') {
-	do {
-	  idx++;
+        do {
+          idx++;
         } while (wstri[idx] != '\0');
         pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
       } /* if */
@@ -6069,8 +6069,8 @@ static cstriType wstri32AsUnquotedCStri (const const_utf32striType wstri)
         idx++;
       } /* while */
       if (wstri[idx] != '\0') {
-	do {
-	  idx++;
+        do {
+          idx++;
         } while (wstri[idx] != '\0');
         pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
       } /* if */
@@ -6092,7 +6092,10 @@ static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* prepareSqlConnection */
-    logFunction(printf("prepareSqlConnection\n"););
+    logFunction(printf("prepareSqlConnection(" FMT_U_MEM ", "
+                       FMT_U_MEM ")\n",
+                       (memSizeType) *sql_environment,
+                       (memSizeType) *connection););
     if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
                        sql_environment) != SQL_SUCCESS) {
       logError(printf("prepareSqlConnection: SQLAllocHandle failed\n"););
@@ -6117,7 +6120,11 @@ static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
       err_info = DATABASE_ERROR;
       SQLFreeHandle(SQL_HANDLE_ENV, *sql_environment);
     } /* if */
-    logFunction(printf("prepareSqlConnection --> %d\n", err_info););
+    logFunction(printf("prepareSqlConnection(" FMT_U_MEM ", "
+                       FMT_U_MEM ") --> %d\n",
+                       (memSizeType) *sql_environment,
+                       (memSizeType) *connection,
+                       err_info););
     return err_info;
   } /* prepareSqlConnection */
 
@@ -6133,7 +6140,10 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
     dbType database;
 
   /* createDbRecord */
-    logFunction(printf("createDbRecord(*, *, " FMT_D ", %d)\n",
+    logFunction(printf("createDbRecord(" FMT_D ", " FMT_D ", "
+                       FMT_D ", %d)\n",
+                       (memSizeType) sql_environment,
+                       (memSizeType) connection,
                        driver, *err_info););
     if (SQLGetInfoW(connection,
                     SQL_MAX_CONCURRENT_ACTIVITIES,
