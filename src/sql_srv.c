@@ -113,12 +113,11 @@ static boolType createConnectionString (connectDataType connectData)
     boolType okay = FALSE;
 
   /* createConnectionString */
-    logFunction(printf("createConnectionString([server=\"");
-                printWstri(connectData->server);
-                printf("\", port=" FMT_D ", database=\"", connectData->port);
-                printWstri(connectData->database);
-                printf("\"])\n"););
-
+    logFunction(printf("createConnectionString([server=\"%s\", port=" FMT_D,
+                       sqlwstriAsUnquotedCStri(connectData->server),
+                       connectData->port);
+                printf(", database=\"%s\"])\n",
+                       sqlwstriAsUnquotedCStri(connectData->database)););
     if (connectData->serverLength == 0) {
       server = localhost;
       serverLength = STRLEN(localhost);
@@ -177,10 +176,9 @@ static boolType createConnectionString (connectDataType connectData)
           pos += connectData->uidLength;
         } /* if */
 
-        logFunction(printf("createConnectionString --> TRUE (connectionString=\"");
-                    connectionString[pos] = '\0';
-                    printWstri(connectionString);
-                    printf("%s\")\n",
+        logFunction(connectionString[pos] = '\0';
+                    printf("createConnectionString --> TRUE (connectionString=\"%s%s\")\n",
+                           sqlwstriAsUnquotedCStri(connectionString),
                            connectData->pwdLength != 0 ? ";PWD=*" : ""););
 
         if (connectData->pwdLength != 0) {
@@ -257,9 +255,9 @@ static boolType connectToServer (connectDataType connectData,
     boolType okay = TRUE;
 
   /* connectToServer */
-    logFunction(printf("connectToServer(\"");
-                printWstri(server);
-                printf("\", " FMT_U_MEM ")\n", serverLength););
+    logFunction(printf("connectToServer(*, " FMT_U_MEM ", \"%s\", " FMT_U_MEM ")\n",
+                       (memSizeType) sql_connection,
+                       sqlwstriAsUnquotedCStri(server), serverLength););
     memcpy(&inConnectionString[pos], serverKey, STRLEN(serverKey) * sizeof(SQLWCHAR));
     pos += STRLEN(serverKey);
     memcpy(&inConnectionString[pos], server, serverLength * sizeof(SQLWCHAR));
@@ -286,9 +284,8 @@ static boolType connectToServer (connectDataType connectData,
       pos += connectData->pwdLength;
     } /* if */
     inConnectionString[pos] = '\0';
-    logMessage(printf("inConnectionString: ");
-               printWstri(inConnectionString);
-               printf("\n"););
+    logMessage(printf("inConnectionString: %s\n",
+                      sqlwstriAsUnquotedCStri(inConnectionString)););
     outConnectionString[0] = '\0';
     returnCode = SQLDriverConnectW(sql_connection,
                                    NULL, /* GetDesktopWindow(), */
@@ -299,9 +296,8 @@ static boolType connectToServer (connectDataType connectData,
                                    &outConnectionStringLength,
                                    SQL_DRIVER_NOPROMPT);
     /* printf("returnCode: %d\n", returnCode); */
-    logMessage(printf("outConnectionString: ");
-               printWstri(outConnectionString);
-               printf("\n"););
+    logMessage(printf("outConnectionString: %s\n",
+                      sqlwstriAsUnquotedCStri(outConnectionString)););
     if (unlikely(returnCode != SQL_SUCCESS &&
                  returnCode != SQL_SUCCESS_WITH_INFO)) {
       setDbErrorMsg("connectToServer", "SQLDriverConnectW",
@@ -336,9 +332,8 @@ static boolType connectToLocalServer (connectDataType connectData,
   /* connectToLocalServer */
     logFunction(printf("connectToLocalServer\n"););
     inConnectionString[0] = '\0';
-    logMessage(printf("inConnectionString: ");
-               printWstri(inConnectionString);
-               printf("\n"););
+    logMessage(printf("inConnectionString: %s\n",
+                      sqlwstriAsUnquotedCStri(inConnectionString)););
     outConnectionString[0] = '\0';
     returnCode = SQLBrowseConnectW(sql_connection,
                                    (SQLWCHAR *) inConnectionString,
@@ -347,9 +342,8 @@ static boolType connectToLocalServer (connectDataType connectData,
                                    sizeof(outConnectionString) / sizeof(SQLWCHAR),
                                    &outConnectionStringLength);
     logMessage(printf("returnCode: %d\n", returnCode);
-               printf("outConnectionString: ");
-               printWstri(outConnectionString);
-               printf("\n"););
+               printf("outConnectionString: %s\n",
+                      sqlwstriAsUnquotedCStri(outConnectionString)););
     if (returnCode == SQL_SUCCESS ||
         returnCode == SQL_SUCCESS_WITH_INFO ||
         returnCode == SQL_NEED_DATA) {
@@ -378,9 +372,8 @@ static boolType connectToLocalServer (connectDataType connectData,
               if (ALLOC_SQLWSTRI(serverName, serverNameLength)) {
                 memcpy(serverName, server, serverNameLength * sizeof(SQLWCHAR));
                 serverName[serverNameLength] = '\0';
-                /* printf("check for server: ");
-                   printWstri(serverName);
-                   printf("\n"); */
+                logMessage(printf("check for server: %s\n",
+                                  sqlwstriAsUnquotedCStri(serverName)););
                 okay = connectToServer(connectData, sql_connection,
                                        serverName, serverNameLength);
                 triedToConnect = TRUE;
@@ -440,9 +433,8 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
         } /* if */
         if (!okay && connectData->databaseLength != 0) {
           /* The connection string must contain a database name. */
-          logMessage(printf("inConnectionString: ");
-                     printWstri(connectData->connectionString);
-                     printf("\n"););
+          logMessage(printf("inConnectionString: %s\n",
+                            sqlwstriAsUnquotedCStri(connectData->connectionString)););
           outConnectionString[0] = '\0';
           returnCode = SQLDriverConnectW(sql_connection,
                                          NULL, /* GetDesktopWindow(), */
@@ -452,10 +444,9 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
                                          sizeof(outConnectionString) / sizeof(SQLWCHAR),
                                          &outConnectionStringLength,
                                          SQL_DRIVER_NOPROMPT);
-          /* printf("returnCode: %d\n", returnCode); */
-          logMessage(printf("outConnectionString: ");
-                     printWstri(outConnectionString);
-                     printf("\n"););
+          logMessage(printf("returnCode: %d\n", returnCode);
+                     printf("outConnectionString: %s\n",
+                            sqlwstriAsUnquotedCStri(outConnectionString)););
           if (unlikely(returnCode != SQL_SUCCESS &&
                        returnCode != SQL_SUCCESS_WITH_INFO)) {
             setDbErrorMsg("sqlOpenSqlServer", "SQLDriverConnectW",

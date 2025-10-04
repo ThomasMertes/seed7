@@ -144,11 +144,11 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
     boolType okay = FALSE;
 
   /* createConnectionString */
-    logFunction(printf("createConnectionString([hostname=\"");
-                printWstri(connectData->hostname);
-                printf("\", port=" FMT_D ", database=\"", connectData->port);
-                printWstri(connectData->database);
-                printf("\"])\n"););
+    logFunction(printf("createConnectionString([hostname=\"%s\", port=" FMT_D,
+                       sqlwstriAsUnquotedCStri(connectData->hostname),
+                       connectData->port);
+                printf(", database=\"%s\"])\n",
+                       sqlwstriAsUnquotedCStri(connectData->database)););
 
     if (connectData->hostnameLength == 0) {
       hostname = localhost;
@@ -234,10 +234,9 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
           pos += connectData->uidLength;
         } /* if */
 
-        logFunction(printf("createConnectionString --> TRUE (connectionString=\"");
-                    connectionString[pos] = '\0';
-                    printWstri(connectionString);
-                    printf("%s\")\n",
+        logFunction(connectionString[pos] = '\0';
+                    printf("createConnectionString --> TRUE (connectionString=\"%s%s\")\n",
+                           sqlwstriAsUnquotedCStri(connectionString),
                            connectData->pwdLength != 0 ? ";PWD=*" : ""););
 
         if (connectData->pwdLength != 0) {

@@ -106,6 +106,7 @@ static sqlFuncType sqlFunc = NULL;
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri16(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri16_to_stri((const_utf16striType) wstri, length, err_info)
 #define copy_to_sqlwstri(wstri, stri, err_info)   stri_to_utf16(wstri, (stri)->mem, (stri)->size, err_info);
+#define sqlwstriAsUnquotedCStri(wstri)            wstri16AsUnquotedCStri(wstri)
 #elif SIZEOF_SQLWCHAR == 4
 #define SIZ_SQLWSTRI(len)                         SIZ_UTF32(len)
 #define MAX_SQLWSTRI_LEN                          MAX_UTF32_LEN
@@ -114,6 +115,7 @@ static sqlFuncType sqlFunc = NULL;
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri32(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri32_to_stri((const_utf32striType) wstri, length, err_info)
 #define copy_to_sqlwstri(wstri, stri, err_info)   (memcpy(wstri, (stri)->mem, (stri)->size * sizeof(SQLWCHAR)), (stri)->size)
+#define sqlwstriAsUnquotedCStri(wstri)            wstri32AsUnquotedCStri(wstri)
 #else
 #error "sizeof(SQLWCHAR) is neither 2 nor 4."
 #endif
@@ -5974,23 +5976,6 @@ static boolType setupFuncTable (void)
     } /* if */
     return sqlFunc != NULL;
   } /* setupFuncTable */
-
-
-
-#if ANY_LOG_ACTIVE
-static void printWstri (const SQLWCHAR *wstri)
-
-  { /* printWstri */
-    while (*wstri != '\0') {
-      if (*wstri <= 255) {
-        printf("%c", (char) *wstri);
-      } else {
-        printf("\\%u;", (unsigned int) *wstri);
-      } /* if */
-      wstri++;
-    } /* while */
-  } /* printWstri */
-#endif
 
 
 
