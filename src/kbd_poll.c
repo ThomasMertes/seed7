@@ -609,6 +609,7 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
+    logFunction(printf("kbd_init\n"););
     if (!findTermDll()) {
       logError(printf("kbd_init: findTermDll() failed.\n"););
     } else {
@@ -658,6 +659,8 @@ static void kbd_init (void)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("kbd_init --> (keybd_initialized=%d)\n",
+                       keybd_initialized););
   } /* kbd_init */
 
 

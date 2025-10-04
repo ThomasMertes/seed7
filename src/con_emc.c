@@ -123,7 +123,8 @@ static void kbd_init (void)
       ]);
     });
     keybd_initialized = TRUE;
-    logFunction(printf("kbd_init -->\n"););
+    logFunction(printf("kbd_init --> (keybd_initialized=%d)\n",
+                       keybd_initialized););
   } /* kbd_init */
 
 

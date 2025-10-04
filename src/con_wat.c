@@ -263,6 +263,7 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
+    logFunction(printf("kbd_init\n"););
     file_no = os_fileno(stdin);
     if (tcgetattr(0, &term_descr) != 0) {
       printf("kbd_init: tcgetattr(%d, ...) failed:\n"
@@ -283,6 +284,8 @@ static void kbd_init (void)
         fflush(stdout);
       } /* if */
     } /* if */
+    logFunction(printf("kbd_init --> (keybd_initialized=%d)\n",
+                       keybd_initialized););
   } /* kbd_init */
 
 

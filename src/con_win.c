@@ -122,7 +122,8 @@ static void kbd_init (void)
         os_atexit(kbdShut);
       } /* if */
     } /* if */
-    logFunction(printf("kbd_init -->\n"););
+    logFunction(printf("kbd_init --> (keybd_initialized=%d)\n",
+                       keybd_initialized););
   } /* kbd_init */
 
 
