@@ -3706,9 +3706,22 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               sprintf(portBuffer, FMT_D, port);
               pgport = portBuffer;
             } /* if */
+            logMessage(printf("sqlOpenPost: PQsetdbLogin(%s%s%s, "
+                              "%s%s%s, NULL, NULL, "
+                              "\"%s\", \"%s\", *)\n",
+                              host8[0] == '\0' ? "" : "\"",
+                              host8[0] == '\0' ? "NULL" : host8,
+                              host8[0] == '\0' ? "" : "\"",
+                              pgport == NULL ? "" : "\"",
+                              pgport == NULL ? "NULL" : pgport,
+                              pgport == NULL ? "" : "\"",
+                              dbName8, user8););
             db.connection = PQsetdbLogin(host8[0] == '\0' ? NULL : host8,
-                pgport, NULL /* pgoptions */, NULL /* pgtty */,
-                dbName8, user8, password8);
+                                         pgport, NULL /* pgoptions */,
+                                         NULL /* pgtty */,
+                                         dbName8, user8, password8);
+            logMessage(printf("sqlOpenPost: db.connection: " FMT_U_MEM "\n",
+                              (memSizeType) db.connection););
             if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
                               "\"%s\", \"%s\", *) returns NULL\n",

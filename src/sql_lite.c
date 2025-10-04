@@ -2382,7 +2382,13 @@ databaseType sqlOpenLite (const const_striType host, intType port,
         /* err_info was set before. */
         database = NULL;
       } else {
+        logMessage(printf("sqlOpenLite: sqlite3_open(%s%s%s, *)\n",
+                          fileName8 == NULL ? "" : "\"",
+                          fileName8 == NULL ? "NULL" : fileName8,
+                          fileName8 == NULL ? "" : "\""););
         open_result = sqlite3_open(fileName8, &connection);
+        logMessage(printf("sqlOpenPost: open_result: %d\n",
+                          open_result););
         if (open_result != SQLITE_OK) {
           if (connection != NULL) {
             setDbErrorMsg("sqlOpenLite", "sqlite3_open", connection);
