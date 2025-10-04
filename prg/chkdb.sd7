@@ -5947,7 +5947,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
   end func;
 
 
-const proc: testYearMonthDurationField (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testPositiveYearMonthDurationField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("durationTest", "durationField", FALSE);
     var array duration: expect is 0 times duration.value;
@@ -5955,7 +5955,7 @@ const proc: testYearMonthDurationField (in database: testDb, in dbCategory: data
     var integer: row is 1;
   begin
     if state.details then
-      writeln("testYearMonthDurationField: " <& databaseKind);
+      writeln("testPositiveYearMonthDurationField: " <& databaseKind);
     end if;
     block
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
@@ -5970,10 +5970,6 @@ const proc: testYearMonthDurationField (in database: testDb, in dbCategory: data
       insert(state, duration("P1M"),             expect &:= duration("P1M"));
       insert(state, duration("P1Y2M"),           expect &:= duration("P1Y2M"));
 
-      insert(state, duration("P-1Y"),            expect &:= duration("P-1Y"));
-      insert(state, duration("P-1M"),            expect &:= duration("P-1M"));
-      insert(state, duration("P-1Y-2M"),         expect &:= duration("P-1Y-2M"));
-
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
       execute(state.statement);
       while fetch(state.statement) do
@@ -5981,7 +5977,7 @@ const proc: testYearMonthDurationField (in database: testDb, in dbCategory: data
         if durationColumn <> expect[row] then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testYearMonthDurationField: Row: " <& row <&
+            writeln(" *** testPositiveYearMonthDurationField: Row: " <& row <&
                     " Expected " <& literal(str(expect[row])) <&
                     " found " <& literal(str(durationColumn)));
           end if;
@@ -5989,7 +5985,7 @@ const proc: testYearMonthDurationField (in database: testDb, in dbCategory: data
         if row = 1 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
-            writeln(" *** testYearMonthDurationField: Row: " <& row <&
+            writeln(" *** testPositiveYearMonthDurationField: Row: " <& row <&
                     " Expected NULL found " <& durationColumn);
           end if;
         end if;
@@ -6010,9 +6006,73 @@ const proc: testYearMonthDurationField (in database: testDb, in dbCategory: data
     execute(state.statement);
 
     if state.okay then
-      writeln("Inserting and fetching year-month duration fields works okay.");
+      writeln("Inserting and fetching positive year-month duration fields works okay.");
     else
-      writeln(" *** Inserting and fetching year-month duration fields does not work okay.");
+      writeln(" *** Inserting and fetching positive year-month duration fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testNegativeYearMonthDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("durationTest", "durationField", FALSE);
+    var array duration: expect is 0 times duration.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testNegativeYearMonthDurationField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & durationType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                        expect &:= duration.value);
+      insert(state, duration("P-1Y"),            expect &:= duration("P-1Y"));
+      insert(state, duration("P-1M"),            expect &:= duration("P-1M"));
+      insert(state, duration("P-1Y-2M"),         expect &:= duration("P-1Y-2M"));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        durationColumn := column(state.statement, 1, duration);
+        if durationColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testNegativeYearMonthDurationField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(durationColumn)));
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testNegativeYearMonthDurationField: Row: " <& row <&
+                    " Expected NULL found " <& durationColumn);
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching negative year-month duration fields works okay.");
+    else
+      writeln(" *** Inserting and fetching negative year-month duration fields does not work okay.");
     end if;
   end func;
 
@@ -6928,7 +6988,8 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testDateTimeField(testDb, databaseKind);
     testTimeStampField(testDb, databaseKind);
     testTimeStampTzField(testDb, databaseKind);
-    testYearMonthDurationField(testDb, databaseKind);
+    testPositiveYearMonthDurationField(testDb, databaseKind);
+    testNegativeYearMonthDurationField(testDb, databaseKind);
     testPositiveDurationField(testDb, databaseKind);
     testNegativeDurationField(testDb, databaseKind);
     testPositiveFractionDurationField(testDb, databaseKind);
