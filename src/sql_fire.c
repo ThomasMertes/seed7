@@ -3629,6 +3629,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* doAttach */
+    logFunction(printf("doAttach(*, \"%s\", *)\n", extension););
     extension_length = strlen(extension);
     if (loginData->fileName8Length < extension_length ||
         memcmp(&loginData->fileName8[loginData->fileName8Length - extension_length],
@@ -3698,6 +3699,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         UNALLOC_CSTRI(fileName8, fileName8Length);
       } /* if */
     } /* if */
+    logFunction(printf("doAttach --> %d\n", err_info););
     return err_info;
   } /* doAttach */
 
