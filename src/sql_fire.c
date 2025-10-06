@@ -997,7 +997,8 @@ static memSizeType getBlobLength (isc_blob_handle blob_handle, errInfoType *err_
     ISC_INT64 totalLength;
 
   /* getBlobLength */
-    logFunction(printf("getBlobLength(" FMT_U32 ", *)\n", blob_handle););
+    logFunction(printf("getBlobLength(" FMT_U32 ", *)\n",
+                       (uint32Type) blob_handle););
     if ((isc_blob_info(status_vector,
                        &blob_handle,
                        sizeof(blob_items),
@@ -3638,7 +3639,10 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* doAttach */
-    logFunction(printf("doAttach(*, \"%s\", *)\n", extension););
+    logFunction(printf("doAttach([file=\"%s\", user=\"%s\"], "
+                       "\"%s\", *)\n",
+                       loginData->fileName8, loginData->user8,
+                       extension););
     extension_length = strlen(extension);
     if (loginData->fileName8Length < extension_length ||
         memcmp(&loginData->fileName8[loginData->fileName8Length - extension_length],
@@ -3659,10 +3663,14 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     if (unlikely(fileName8 == NULL)) {
       err_info = MEMORY_ERROR;
     } else {
+      logMessage(printf("doAttach: fileName8=\"%s\"\n",
+                        cstriAsUnquotedCLiteral(fileName8)););
       charset_length = strlen(charset);
       /* Assume that the setting bytes take less than 256 bytes space. */
       dpb_buffer_length = fileName8Length + loginData->user8Length +
           loginData->password8Length + charset_length + 256;
+      logMessage(printf("doAttach: dpb_buffer_length=" FMT_U_MEM "\n",
+                        dpb_buffer_length););
       if (unlikely(!ALLOC_CSTRI(dpb_buffer, dpb_buffer_length))) {
         err_info = MEMORY_ERROR;
       } else {
@@ -3687,7 +3695,11 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         dpb += charset_length;
         /* Add (unnecessary) null byte, to be on the safe side. */
         *dpb = '\0';
+        logMessage(printf("doAttach: dpb_buffer=\"%s\"\n",
+                          cstriAsUnquotedCLiteral(dpb_buffer)););
         dpb_length = (short) (dpb - dpb_buffer);
+        logMessage(printf("doAttach: dpb_length=%hd\n",
+                          dpb_length););
         /* Set database handle to zero before attaching to a database. */
         *db_handle = 0;
         /* Attach to the database. */
@@ -3708,7 +3720,11 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         UNALLOC_CSTRI(fileName8, fileName8Length);
       } /* if */
     } /* if */
-    logFunction(printf("doAttach --> %d\n", err_info););
+    logFunction(printf("doAttach([file=\"%s\", user=\"%s\"], "
+                       "\"%s\", " FMT_U32 ") --> %d\n",
+                       loginData->fileName8, loginData->user8,
+                       extension, (uint32Type) *db_handle,
+                       err_info););
     return err_info;
   } /* doAttach */
 
@@ -3774,9 +3790,16 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   database = NULL;
                 } else {
+                  logMessage(printf("sqlOpenFire: isc_start_transaction(*, "
+                                    FMT_U32 ", 1, " FMT_U32 ", " FMT_U_MEM
+                                    ", " FMT_U_MEM ")\n",
+                                    (uint32Type) trans_handle,
+                                    (uint32Type) db_handle,
+                                    sizeof(isc_tbp),
+                                    (memSizeType) isc_tbp););
                   if ((isc_start_transaction(status_vector,
                                              &trans_handle,
-                                             1,
+                                             1, /* Number of database handles */
                                              &db_handle,
                                              (unsigned short) sizeof(isc_tbp),
                                              isc_tbp),
