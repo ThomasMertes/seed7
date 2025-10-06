@@ -3200,8 +3200,7 @@ static void sqlCommit (databaseType database)
       logError(printf("sqlCommit: Database is not open.\n"););
       raise_error(DATABASE_ERROR);
     } else {
-      isc_commit_transaction(status_vector,
-                             &db->trans_handle);
+      isc_commit_transaction(status_vector, &db->trans_handle);
       if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
         setDbErrorMsg("sqlCommit", "isc_commit_transaction",
                       status_vector);
@@ -3543,6 +3542,52 @@ static sqlStmtType sqlPrepare (databaseType database,
 
 
 
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+    ISC_STATUS status_vector[20];
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == 0)) {
+      dbNotOpen("sqlRollback");
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(DATABASE_ERROR);
+    } else {
+      isc_rollback_transaction(status_vector, &db->trans_handle);
+      if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
+        setDbErrorMsg("sqlRollback", "isc_rollback_transaction",
+                      status_vector);
+        logError(printf("sqlRollback: isc_rollback_transaction error:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } else {
+        /* Set transaction handle to zero for isc_start_transaction(). */
+        db->trans_handle = 0;
+        isc_start_transaction(status_vector,
+                              &db->trans_handle,
+                              1,
+                              &db->connection,
+                              (unsigned short) sizeof(isc_tbp),
+                              isc_tbp);
+        if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
+          setDbErrorMsg("sqlCommit", "isc_start_transaction",
+                        status_vector);
+          logError(printf("sqlCommit: isc_start_transaction error:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } /* if */
+      } /* if */
+
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
 static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
 
   {
@@ -3660,6 +3705,7 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
         sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
