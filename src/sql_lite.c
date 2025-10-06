@@ -2052,6 +2052,7 @@ static sqlStmtType sqlPrepare (databaseType database,
     cstriType query;
     memSizeType queryLength;
     int prepare_result;
+    sqlite3_stmt *ppStmt = NULL;
     int column_count;
     errInfoType err_info = OKAY_NO_ERROR;
     preparedStmtType preparedStmt;
@@ -2078,36 +2079,37 @@ static sqlStmtType sqlPrepare (databaseType database,
                           queryLength););
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
-        } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordLite,
-                                           count.prepared_stmt, count.prepared_stmt_bytes))) {
-          err_info = MEMORY_ERROR;
         } else {
-          memset(preparedStmt, 0, sizeof(preparedStmtRecordLite));
           prepare_result = sqlite3_prepare(db->connection,
                                            query,
                                            (int) queryLength,
-                                           &preparedStmt->ppStmt,
+                                           &ppStmt,
                                            NULL);
           if (unlikely(prepare_result != SQLITE_OK)) {
             setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
             logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
                             prepare_result, sqlite3_errmsg(db->connection)););
-            FREE_RECORD2(preparedStmt, preparedStmtRecordLite,
-                         count.prepared_stmt, count.prepared_stmt_bytes);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
-            column_count = sqlite3_column_count(preparedStmt->ppStmt);
+            column_count = sqlite3_column_count(ppStmt);
             if (unlikely(column_count < 0)) {
               dbInconsistent("sqlPrepare", "sqlite3_column_count");
               logError(printf("sqlPrepare: Sqlite3_column_count "
                               "returns negative column count: %d\n",
                               column_count););
               err_info = DATABASE_ERROR;
-              preparedStmt->param_array = NULL;
+              sqlite3_finalize(ppStmt);
+              preparedStmt = NULL;
+            } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordLite,
+                                           count.prepared_stmt, count.prepared_stmt_bytes))) {
+              err_info = MEMORY_ERROR;
+              sqlite3_finalize(ppStmt);
             } else {
+              memset(preparedStmt, 0, sizeof(preparedStmtRecordLite));
               preparedStmt->usage_count = 1;
               preparedStmt->sqlFunc = db->sqlFunc;
+              preparedStmt->ppStmt = ppStmt;
               preparedStmt->result_column_count = (unsigned int) column_count;
               preparedStmt->executeSuccessful = FALSE;
               preparedStmt->fetchOkay = FALSE;
@@ -2117,10 +2119,10 @@ static sqlStmtType sqlPrepare (databaseType database,
                 db->usage_count++;
               } /* if */
               err_info = setupParameters(preparedStmt);
-            } /* if */
-            if (unlikely(err_info != OKAY_NO_ERROR)) {
-              freePreparedStmt((sqlStmtType) preparedStmt);
-              preparedStmt = NULL;
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                freePreparedStmt((sqlStmtType) preparedStmt);
+                preparedStmt = NULL;
+              } /* if */
             } /* if */
           } /* if */
         } /* if */
