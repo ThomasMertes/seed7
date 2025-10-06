@@ -365,7 +365,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_data_array, resultDataRecordMy, preparedStmt->result_array_size);
     } /* if */
     mysql_stmt_close(preparedStmt->ppStmt);
-    if (preparedStmt->db->usage_count != 0) {
+    if (preparedStmt->db != NULL &&
+        preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););

@@ -471,7 +471,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->param_array, bindDataRecordFire,
                  (memSizeType) preparedStmt->in_sqlda->sqld);
     } /* if */
-    if (preparedStmt->db->usage_count != 0) {
+    if (preparedStmt->db != NULL &&
+        preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););

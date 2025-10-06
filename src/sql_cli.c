@@ -720,7 +720,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       } /* if */
       SQLFreeHandle(SQL_HANDLE_STMT, preparedStmt->ppStmt);
     } /* if */
-    if (preparedStmt->db->usage_count != 0) {
+    if (preparedStmt->db != NULL &&
+        preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););

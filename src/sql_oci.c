@@ -651,7 +651,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
     } /* if */
     OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
-    if (preparedStmt->db->usage_count != 0) {
+    if (preparedStmt->db != NULL &&
+        preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););

@@ -611,7 +611,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       /* Ignore possible errors. */
       PQclear(deallocate_result);
     } /* if */
-    if (preparedStmt->db->usage_count != 0) {
+    if (preparedStmt->db != NULL &&
+        preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
