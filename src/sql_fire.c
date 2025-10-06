@@ -68,6 +68,7 @@ typedef struct {
     intType       driver;
     isc_db_handle connection;
     isc_tr_handle trans_handle;
+    boolType      autoCommit;
   } dbRecordFire, *dbType;
 
 typedef struct {
@@ -3338,6 +3339,30 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == 0)) {
+      dbNotOpen("sqlGetAutoCommit");
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(DATABASE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = db->autoCommit;
+    } /* if */
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
+
+
+
 static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   {
@@ -3518,6 +3543,27 @@ static sqlStmtType sqlPrepare (databaseType database,
 
 
 
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    if (unlikely(db->connection == 0)) {
+      dbNotOpen("sqlSetAutoCommit");
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(DATABASE_ERROR);
+    } else {
+      db->autoCommit = autoCommit;
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
+
+
+
 static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
 
   {
@@ -3611,8 +3657,10 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlCommit          = &sqlCommit;
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -3826,6 +3874,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     database->driver = DB_CATEGORY_FIREBIRD;
                     database->connection = db_handle;
                     database->trans_handle = trans_handle;
+                    database->autoCommit = TRUE;
                   } /* if */
                 } /* if */
               } /* if */
