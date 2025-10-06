@@ -852,8 +852,12 @@ const proc: testWithAutoCommit (in database: testDb, inout testState: state,
                                               " (" & state.fieldName & " CHAR(32))");
     execute(secondStmt);
 
-    state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
-    if not succeeds(execute(state.statement)) then
+    if not succeeds(state.statement := prepare(testDb, "SELECT * FROM " & state.tableName)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Prepare: Table created by other connection does not exist. (1)");
+      end if;
+    elsif not succeeds(execute(state.statement)) then
       state.okay := FALSE;
       if state.details then
         writeln(" *** Execute: Table created by other connection does not exist. (1)");
@@ -889,8 +893,12 @@ const proc: testWithAutoCommit (in database: testDb, inout testState: state,
       end if;
     end if;
 
-    state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
-    if not succeeds(execute(state.statement)) then
+    if not succeeds(state.statement := prepare(testDb, "SELECT * FROM " & state.tableName)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Prepare: Table created by other connection does not exist. (2)");
+      end if;
+    elsif not succeeds(execute(state.statement)) then
       state.okay := FALSE;
       if state.details then
         writeln(" *** Execute: Table created by other connection does not exist. (3)");
@@ -2170,6 +2178,8 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
 
       insert(testDb, state, "-9223372036854775809.0",   expect &:= -9223372036854775809.0);
       insert(testDb, state, "-9223372036854775808.0",   expect &:= -9223372036854775808.0);
+      insert(testDb, state,  "-922337203685477581.0",   expect &:=  -922337203685477581.0);
+      insert(testDb, state,  "-922337203685477580.0",   expect &:=  -922337203685477580.0);
       insert(testDb, state,    "0.0",                   expect &:=    0.0);
       insert(testDb, state,    "5.9604644775390625e-8", expect &:=    5.9604644775390625e-8);
       insert(testDb, state,    "2.384185791015625e-7",  expect &:=    2.384185791015625e-7);
@@ -2180,6 +2190,8 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
       insert(testDb, state,    "3.5",                   expect &:=    3.5);
       insert(testDb, state,    "4.125",                 expect &:=    4.125);
       insert(testDb, state, "4882.8125",                expect &:= 4882.8125);
+      insert(testDb, state,   "922337203685477580.0",   expect &:=   922337203685477580.0);
+      insert(testDb, state,   "922337203685477581.0",   expect &:=   922337203685477581.0);
       insert(testDb, state,  "9223372036854775807.0",   expect &:=  9223372036854775807.0);
       insert(testDb, state,  "9223372036854775808.0",   expect &:=  9223372036854775808.0);
 
@@ -2306,6 +2318,8 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
 
       insert(testDb, state, "-9223372036854775809.0",   expect &:= -9223372036854775809.0);
       insert(testDb, state, "-9223372036854775808.0",   expect &:= -9223372036854775808.0);
+      insert(testDb, state,  "-922337203685477581.0",   expect &:=  -922337203685477581.0);
+      insert(testDb, state,  "-922337203685477580.0",   expect &:=  -922337203685477580.0);
       insert(testDb, state,    "0.0",                   expect &:=    0.0);
       insert(testDb, state,    "5.9604644775390625e-8", expect &:=    5.9604644775390625e-8);
       insert(testDb, state,    "2.384185791015625e-7",  expect &:=    2.384185791015625e-7);
@@ -2316,6 +2330,8 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
       insert(testDb, state,    "3.5",                   expect &:=    3.5);
       insert(testDb, state,    "4.125",                 expect &:=    4.125);
       insert(testDb, state, "4882.8125",                expect &:= 4882.8125);
+      insert(testDb, state,   "922337203685477580.0",   expect &:=   922337203685477580.0);
+      insert(testDb, state,   "922337203685477581.0",   expect &:=   922337203685477581.0);
       insert(testDb, state,  "9223372036854775807.0",   expect &:=  9223372036854775807.0);
       insert(testDb, state,  "9223372036854775808.0",   expect &:=  9223372036854775808.0);
 

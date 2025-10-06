@@ -752,7 +752,7 @@ const func string: dateTimeType (in dbCategory: databaseKind) is func
       when {DB_SQLITE}:     dateTimeType := "DATETIME";
       when {DB_POSTGRESQL}: dateTimeType := "TIMESTAMP";
       when {DB_OCI}:        dateTimeType := "DATE";
-      when {DB_FIRE}:       dateTimeType := "DATETIME";
+      when {DB_FIRE}:       dateTimeType := "TIMESTAMP";
       when {DB_SQL_SERVER}: dateTimeType := "DATETIME2";
       when {DB_DB2}:        dateTimeType := "TIMESTAMP";
     end case;
