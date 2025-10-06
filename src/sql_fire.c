@@ -100,8 +100,10 @@ typedef struct {
 
 static sqlFuncType sqlFunc = NULL;
 
-static char isc_tbp[] = {isc_tpb_version3, isc_tpb_write,
-                         isc_tpb_concurrency, isc_tpb_wait};
+static char isc_tbp[] = {isc_tpb_version3,
+                         isc_tpb_write,
+                         isc_tpb_concurrency,
+                         isc_tpb_wait};
 static char type_item[] = {isc_info_sql_stmt_type};
 
 #ifndef SQL_BOOLEAN
@@ -439,6 +441,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->ppStmt != 0) {
+      logMessage(printf("freePreparedStmt: isc_dsql_free_statement\n"););
       if (unlikely((isc_dsql_free_statement(status_vector,
                                             &preparedStmt->ppStmt,
                                             DSQL_drop),
@@ -3247,6 +3250,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     } else {
       /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
       if (preparedStmt->executeSuccessful) {
+        logMessage(printf("sqlExecute: isc_dsql_free_statement\n"););
         if (unlikely((isc_dsql_free_statement(status_vector,
                                               &preparedStmt->ppStmt,
                                               DSQL_close),
