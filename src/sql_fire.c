@@ -118,6 +118,14 @@ static char type_item[] = {isc_info_sql_stmt_type};
 #endif
 #endif
 
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+#endif
+
 typedef ISC_STATUS (STDCALL *tp_isc_attach_database) (ISC_STATUS *status_vector,
                                                       short db_name_length,
                                                       char *db_name,
@@ -221,12 +229,12 @@ typedef ISC_STATUS (STDCALL *tp_isc_put_segment) (ISC_STATUS *status_vector,
                                                   char *seg_buffer);
 typedef ISC_STATUS (STDCALL *tp_isc_rollback_transaction) (ISC_STATUS *status_vector,
                                                            isc_tr_handle *trans_handle);
-typedef ISC_STATUS (STDCALL *tp_isc_start_transaction) (ISC_STATUS *status_vector,
-                                                        isc_tr_handle *trans_handle,
-                                                        short db_handle_count,
-                                                        isc_db_handle *db_handle,
-                                                        unsigned short tpb_length,
-                                                        char *tpb_address);
+typedef ISC_STATUS (CDECL *tp_isc_start_transaction) (ISC_STATUS *status_vector,
+                                                      isc_tr_handle *trans_handle,
+                                                      short db_handle_count,
+                                                      isc_db_handle *db_handle,
+                                                      unsigned short tpb_length,
+                                                      char *tpb_address);
 
 static tp_isc_attach_database         ptr_isc_attach_database;
 static tp_isc_blob_info               ptr_isc_blob_info;

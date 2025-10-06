@@ -157,6 +157,14 @@ typedef struct {
 #endif
 #endif
 
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+#endif
+
 ISC_STATUS STDCALL isc_attach_database (ISC_STATUS *status_vector,
                                         short db_name_length,
                                         char *db_name,
@@ -260,12 +268,12 @@ ISC_STATUS STDCALL isc_put_segment (ISC_STATUS *status_vector,
                                     char *seg_buffer);
 ISC_STATUS STDCALL isc_rollback_transaction (ISC_STATUS *status_vector,
                                              isc_tr_handle *trans_handle);
-ISC_STATUS STDCALL isc_start_transaction (ISC_STATUS *status_vector,
-                                          isc_tr_handle *trans_handle,
-                                          short db_handle_count,
-                                          isc_db_handle *db_handle,
-                                          unsigned short tpb_length,
-                                          char *tpb_address);
+ISC_STATUS CDECL isc_start_transaction (ISC_STATUS *status_vector,
+                                        isc_tr_handle *trans_handle,
+                                        short db_handle_count,
+                                        isc_db_handle *db_handle,
+                                        unsigned short tpb_length,
+                                        char *tpb_address);
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }
