@@ -8038,6 +8038,43 @@ static void listDynamicLibs (const char *scopeName, const char *baseDir,
 
 
 
+static void listDynamicLibsInBaseDir (const char *scopeName, const char *baseDir,
+    const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
+
+  {
+    unsigned int nameIndex;
+    int dllPointerSize;
+    char dllPath[PATH_SIZE + 1 + NAME_SIZE];
+
+  /* listDynamicLibsInBaseDir */
+    for (nameIndex = 0;
+         nameIndex < dllNameListLength;
+         nameIndex++) {
+      sprintf(dllPath, "%s/%s", baseDir, dllNameList[nameIndex]);
+      if (dllPath[0] == '/' && isalpha(dllPath[1]) && dllPath[2] == '/') {
+        dllPath[0] = dllPath[1];
+        dllPath[1] = ':';
+      } /* if */
+      fprintf(logFile, "\r%s: DLL / Shared library: %s", scopeName, dllPath);
+      if (fileIsRegular(dllPath)) {
+        fprintf(logFile, " (%s)",
+                canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
+        dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
+        if (dllPointerSize != 0) {
+          fprintf(logFile, " (%d-bit)", dllPointerSize);
+        } /* if */
+      } else {
+        fprintf(logFile, " (missing)");
+      } /* if */
+      fprintf(logFile, "\n");
+      fprintf(versionFile, " \"");
+      escapeString(versionFile, dllPath);
+      fprintf(versionFile, "\",");
+    } /* for */
+  } /* listDynamicLibsInBaseDir */
+
+
+
 static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDllPath,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
 
@@ -8048,7 +8085,7 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
     unsigned int nameIndex;
     int dllPointerSize;
     char dirPath[PATH_SIZE];
-    char filePath[PATH_SIZE + 1 + NAME_SIZE];
+    char dllPath[PATH_SIZE + 1 + NAME_SIZE];
 
   /* listDynamicLibsInSameDir */
     slashPos = strrchr(baseDllPath, '/');
@@ -8072,20 +8109,20 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
       for (nameIndex = 0;
            nameIndex < dllNameListLength;
            nameIndex++) {
-        sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
-        /* printf("filePath: %s\n", filePath); */
-        if (fileIsRegular(filePath)) {
-          /* printf("fileIsRegular(%s)\n", filePath); */
+        sprintf(dllPath, "%s/%s", dirPath, dllNameList[nameIndex]);
+        /* printf("dllPath: %s\n", dllPath); */
+        if (fileIsRegular(dllPath)) {
+          /* printf("fileIsRegular(%s)\n", dllPath); */
           fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)",
-                  scopeName, filePath,
-                  canLoadDynamicLibrary(filePath) ? "present" : "cannot load");
-          dllPointerSize = pointerSizeOfDynamicLibrary(filePath);
+                  scopeName, dllPath,
+                  canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
+          dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
           if (dllPointerSize != 0) {
             fprintf(logFile, " (%d-bit)", dllPointerSize);
           } /* if */
           fprintf(logFile, "\n");
           fprintf(versionFile, " \"");
-          escapeString(versionFile, filePath);
+          escapeString(versionFile, dllPath);
           fprintf(versionFile, "\",");
         } /* if */
       } /* for */
@@ -9063,26 +9100,9 @@ static void determineSqliteDefines (FILE *versionFile,
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
       } /* if */
       if (s7LibDir[0] != '\0') {
-        for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-          sprintf(dllPath, "%s/%s", s7LibDir, dllNameList[nameIndex]);
-          if (dllPath[0] == '/' && isalpha(dllPath[1]) && dllPath[2] == '/') {
-            dllPath[0] = dllPath[1];
-            dllPath[1] = ':';
-          } /* if */
-          fprintf(logFile, "\rSQLite: DLL / Shared library: %s", dllPath);
-          if (fileIsRegular(dllPath)) {
-            fprintf(logFile, " (%s)",
-                    canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
-            dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
-            if (dllPointerSize != 0) {
-              fprintf(logFile, " (%d-bit)", dllPointerSize);
-            } /* if */
-          } else {
-            fprintf(logFile, " (missing)");
-          } /* if */
-          fprintf(logFile, "\n");
-          fprintf(versionFile, " \"%s\",", dllPath);
-        } /* for */
+        listDynamicLibsInBaseDir("SQLite", s7LibDir,
+                                 dllNameList, sizeof(dllNameList) / sizeof(char *),
+                                 versionFile);
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rSQLite: DLL / Shared library: %s (%s)\n",
@@ -9839,7 +9859,7 @@ static void determineFireDefines (FILE *versionFile,
 #ifdef FIRE_DLL
     const char *dllNameList[] = { FIRE_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
-    const char *dllNameList[] = {"libfbclient.so"};
+    const char *dllNameList[] = {"libfbclient.so", "libfbclient.so.2"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
     const char *dllNameList[] = {"libfbclient.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
@@ -9989,6 +10009,11 @@ static void determineFireDefines (FILE *versionFile,
         listDynamicLibs("Firebird", dbHome,
                         dllDirList, sizeof(dllDirList) / sizeof(char *),
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
+      } /* if */
+      if (s7LibDir[0] != '\0') {
+        listDynamicLibsInBaseDir("Firebird", s7LibDir,
+                                 dllNameList, sizeof(dllNameList) / sizeof(char *),
+                                 versionFile);
       } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rFirebird: DLL / Shared library: %s (%s)\n",
