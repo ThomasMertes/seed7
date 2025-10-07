@@ -10213,13 +10213,13 @@ static void determineInformixDefines (FILE *versionFile,
 #ifdef INFORMIX_DLL
     const char *dllNameList[] = { INFORMIX_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
-    const char *dllNameList[] = {"iclit09b.so"};
+    const char *dllNameList[] = {"iclit15a.so", "iclit09b.so"};
     const char *libIfglsDllList[] = {"libifgls.so"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
-    const char *dllNameList[] = {"iclit09b.dylib"};
+    const char *dllNameList[] = {"iclit15a.dylib", "iclit09b.dylib"};
     const char *libIfglsDllList[] = {"libifgls.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
-    const char *dllNameList[] = {"iclit09b.dll"};
+    const char *dllNameList[] = {"iclit15a.dll", "iclit09b.dll"};
     const char *libIfglsDllList[] = {""};
 #endif
     const char *inclDirList[] = {"/incl/cli"};
