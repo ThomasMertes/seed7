@@ -8043,6 +8043,7 @@ static void listDynamicLibsInBaseDir (const char *scopeName, const char *baseDir
 
   {
     unsigned int nameIndex;
+    int dllPresent;
     int dllPointerSize;
     char dllPath[PATH_SIZE + 1 + NAME_SIZE];
 
@@ -8055,16 +8056,18 @@ static void listDynamicLibsInBaseDir (const char *scopeName, const char *baseDir
         dllPath[0] = dllPath[1];
         dllPath[1] = ':';
       } /* if */
-      fprintf(logFile, "\r%s: DLL / Shared library: %s", scopeName, dllPath);
       if (fileIsRegular(dllPath)) {
-        fprintf(logFile, " (%s)",
-                canLoadDynamicLibrary(dllPath) ? "present" : "cannot load");
+        dllPresent = canLoadDynamicLibrary(dllPath);
         dllPointerSize = pointerSizeOfDynamicLibrary(dllPath);
+        fprintf(logFile, "\r%s: DLL / Shared library: %s (%s)",
+                scopeName, dllPath,
+                dllPresent ? "present" : "cannot load");
         if (dllPointerSize != 0) {
           fprintf(logFile, " (%d-bit)", dllPointerSize);
         } /* if */
       } else {
-        fprintf(logFile, " (missing)");
+        fprintf(logFile, "\r%s: DLL / Shared library: %s (missing)",
+                scopeName, dllPath);
       } /* if */
       fprintf(logFile, "\n");
       fprintf(versionFile, " \"");
