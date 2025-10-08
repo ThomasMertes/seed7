@@ -826,16 +826,19 @@ typedef mpz_srcptr  const_bigIntType;
 #define logFunction(logStatements) printf(__FILE__ ": "); logStatements
 #define log2Function(logStatements) fprintf(stderr, __FILE__ ": "); logStatements
 #endif
+#define logFunctionIfTrue(cond, logStatements) if (cond) { logFunction(logStatements) }
 #define logFunctionResult(logStatements) printf(" --> "); logStatements
 #define logSignalFunction(logStatements) printf(__FILE__ ": "); logStatements
 #elif CHECK_STACK
 #define logFunction(logStatements) checkStack(TRUE)
 #define log2Function(logStatements) checkStack(TRUE)
+#define logFunctionIfTrue(cond, logStatements)
 #define logFunctionResult(logStatements)
 #define logSignalFunction(logStatements)
 #else
 #define logFunction(logStatements)
 #define log2Function(logStatements)
+#define logFunctionIfTrue(cond, logStatements)
 #define logFunctionResult(logStatements)
 #define logSignalFunction(logStatements)
 #endif
@@ -864,6 +867,7 @@ typedef mpz_srcptr  const_bigIntType;
 #define log2Function0(logStatements)
 #define logFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define log2FunctionX(logStatements) fprintf(stderr, __FILE__ ": "); logStatements
+#define logFunctionIfTrueX(cond, logStatements) if (cond) { logFunction(logStatements) }
 #define logFunctionResultX(logStatements) printf(" --> "); logStatements
 #define logSignalFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logMessageX(logStatements) logStatements

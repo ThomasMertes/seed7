@@ -251,9 +251,8 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
         okay = TRUE;
       } /* if */
     } /* if */
-    logFunction(if (!okay) {
-                  printf("createConnectionString --> FALSE\n");
-                });
+    logFunctionIfTrue(!okay,
+                      printf("createConnectionString --> FALSE\n"););
     return okay;
   } /* createConnectionString */
 
