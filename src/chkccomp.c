@@ -374,6 +374,7 @@ static const char *makeDirDefinition = NULL;
 static const char *removeDirDefinition = NULL;
 
 static int supportsPartialLinking = 0;
+static const char *linkerOptPartialLinking = NULL;
 
 
 
@@ -7419,7 +7420,7 @@ static void determinePartialLinking (FILE *versionFile)
 
   {
 #ifdef POTENTIAL_PARTIAL_LINKING_OPTIONS
-    const char *potentialPartialLinkingOptions[] = { POTENTIAL_PARTIAL_LINKING_OPTIONS };
+    static const char *potentialPartialLinkingOptions[] = { POTENTIAL_PARTIAL_LINKING_OPTIONS };
 #endif
     unsigned int pos;
     char buffer[BUFFER_SIZE];
@@ -7432,6 +7433,7 @@ static void determinePartialLinking (FILE *versionFile)
       supportsPartialLinking = checkPartialLinking(potentialPartialLinkingOptions[pos]);
       if (supportsPartialLinking) {
         fprintf(logFile, " Supported.\n");
+        linkerOptPartialLinking = potentialPartialLinkingOptions[pos];
         fprintf(versionFile, "#define LINKER_OPT_PARTIAL_LINKING \"%s\"\n",
                 potentialPartialLinkingOptions[pos]);
         sprintf(buffer, "LINKER_OPT_PARTIAL_LINKING = %s\n",
@@ -10181,6 +10183,7 @@ static void determineDb2Defines (FILE *versionFile,
     } /* if */
 #endif
     if (searchForLib) {
+      appendToMakeMacros("DB2_CC_OPTION", "-c");
       /* Handle dynamic libraries: */
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define DB2_DLL");
@@ -10191,6 +10194,8 @@ static void determineDb2Defines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
+    } else {
+      appendToMakeMacros("DB2_CC_OPTION", linkerOptPartialLinking);
     } /* if */
   } /* determineDb2Defines */
 
@@ -10406,6 +10411,7 @@ static void determineInformixDefines (FILE *versionFile,
     } /* if */
 #endif
     if (searchForLib) {
+      appendToMakeMacros("INFORMIX_CC_OPTION", "-c");
       /* Handle dynamic libraries: */
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define INFORMIX_DLL");
@@ -10424,6 +10430,8 @@ static void determineInformixDefines (FILE *versionFile,
                                 rpath, versionFile);
         fprintf(versionFile, "\n");
       } /* if */
+    } else {
+      appendToMakeMacros("INFORMIX_CC_OPTION", linkerOptPartialLinking);
     } /* if */
   } /* determineInformixDefines */
 
@@ -10569,6 +10577,7 @@ static void determineSqlServerDefines (FILE *versionFile,
     } /* if */
 #endif
     if (searchForLib) {
+      appendToMakeMacros("SQL_SERVER_CC_OPTION", "-c");
       /* Handle dynamic libraries: */
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define SQL_SERVER_DLL");
@@ -10579,6 +10588,8 @@ static void determineSqlServerDefines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
+    } else {
+      appendToMakeMacros("SQL_SERVER_CC_OPTION", linkerOptPartialLinking);
     } /* if */
   } /* determineSqlServerDefines */
 

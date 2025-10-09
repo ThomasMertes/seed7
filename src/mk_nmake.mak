@@ -134,15 +134,15 @@ OBJCOPY_PARAMS = \
        -L SQLSetConnectAttrW -L SQLSetDescFieldW -L SQLSetEnvAttr
 
 sql_db2.o: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) $(DB2_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_db2.c -o sql_db2.o
+	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_db2.c $(DB2_LIBS) $(DB2_CC_OPTION) -o sql_db2.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_db2.o
 
 sql_ifx.o: sql_ifx.c
-	$(CC) -c $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) $(INFORMIX_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_ifx.c -o sql_ifx.o
+	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_ifx.c $(INFORMIX_LIBS) $(INFORMIX_CC_OPTION) -o sql_ifx.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_ifx.o
 
 sql_srv.o: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) $(SQL_SERVER_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_srv.c -o sql_srv.o
+	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_srv.c $(SQL_SERVER_LIBS) $(SQL_SERVER_CC_OPTION) -o sql_srv.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_srv.o
 
 all: depend
