@@ -282,16 +282,32 @@ static databaseType doOpenInformix (connectDataType connectData, errInfoType *er
         database = NULL;
       } else {
         if (connectData->hostnameLength == 0 && connectData->port == 0) {
+          logMessage(printf("doOpenInformix: SQLConnectW(" FMT_U_MEM
+                            ", \"%s\", " FMT_U_MEM,
+                            (memSizeType) sql_connection,
+                            sqlwstriAsUnquotedCStri(connectData->database),
+                            connectData->databaseLength);
+                     printf(", \"%s\", " FMT_U_MEM ", *, *)\n",
+                            sqlwstriAsUnquotedCStri(connectData->uid),
+                            connectData->uidLength););
           returnCode = SQLConnectW(sql_connection,
-              (SQLWCHAR *) connectData->database, (SQLSMALLINT) connectData->databaseLength,
-              (SQLWCHAR *) connectData->uid, (SQLSMALLINT) connectData->uidLength,
-              (SQLWCHAR *) connectData->pwd, (SQLSMALLINT) connectData->pwdLength);
-          if ((returnCode != SQL_SUCCESS &&
-               returnCode != SQL_SUCCESS_WITH_INFO)) {
+              connectData->database, (SQLSMALLINT) connectData->databaseLength,
+              connectData->uid, (SQLSMALLINT) connectData->uidLength,
+              connectData->pwd, (SQLSMALLINT) connectData->pwdLength);
+          if (returnCode != SQL_SUCCESS &&
+              returnCode != SQL_SUCCESS_WITH_INFO) {
             setDbErrorMsg("sqlOpenInformix", "SQLConnectW",
                           SQL_HANDLE_DBC, sql_connection);
-            logError(printf("sqlOpenInformix: SQLConnectW:\n%s\n",
-                            dbError.message););
+            logError(printf("sqlOpenInformix: SQLConnectW(" FMT_U_MEM
+                            ", \"%s\", " FMT_U_MEM,
+                            (memSizeType) sql_connection,
+                            sqlwstriAsUnquotedCStri(connectData->database),
+                            connectData->databaseLength);
+                     printf(", \"%s\", " FMT_U_MEM ", *, *):\n"
+                            "returnCode: " FMT_D16 "\n%s\n",
+                            sqlwstriAsUnquotedCStri(connectData->uid),
+                            connectData->uidLength,
+                            returnCode, dbError.message););
           } /* if */
         } else {
           returnCode = SQL_ERROR;
