@@ -107,7 +107,7 @@ static sqlFuncType sqlFunc = NULL;
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri16(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri16_to_stri((const_utf16striType) wstri, length, err_info)
 #define copy_to_sqlwstri(wstri, stri, err_info)   stri_to_utf16(wstri, (stri)->mem, (stri)->size, err_info);
-#define sqlwstriAsUnquotedCStri(wstri)            wstri16AsUnquotedCStri(wstri)
+#define sqlwstriAsUnquotedCStri(wstri)            wstri16AsUnquotedCStri((const const_utf16striType) wstri)
 #elif SIZEOF_SQLWCHAR == 4
 #define SIZ_SQLWSTRI(len)                         SIZ_UTF32(len)
 #define MAX_SQLWSTRI_LEN                          MAX_UTF32_LEN
@@ -116,7 +116,7 @@ static sqlFuncType sqlFunc = NULL;
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri32(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri32_to_stri((const_utf32striType) wstri, length, err_info)
 #define copy_to_sqlwstri(wstri, stri, err_info)   (memcpy(wstri, (stri)->mem, (stri)->size * sizeof(SQLWCHAR)), (stri)->size)
-#define sqlwstriAsUnquotedCStri(wstri)            wstri32AsUnquotedCStri(wstri)
+#define sqlwstriAsUnquotedCStri(wstri)            wstri32AsUnquotedCStri((const const_utf32striType) wstri)
 #else
 #error "sizeof(SQLWCHAR) is neither 2 nor 4."
 #endif
@@ -189,7 +189,7 @@ typedef struct {
 
 #ifdef CLI_DLL
 
-#define FUNCTION_PRESENT(func) ((func) != NULL)
+#define FUNCTION_PRESENT(func) ((ptr_ ## func) != NULL)
 
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL
@@ -491,6 +491,118 @@ static boolType findDll (void)
 
 
 static void sqlClose (databaseType database);
+
+
+
+#if ANY_LOG_ACTIVE || LOG_CLI_FUNCTIONS
+static const char null_string_marker[] = "\\ *NULL_STRING* ";
+
+
+
+static cstriType wstri16AsUnquotedCStri (const const_utf16striType wstri)
+
+  {
+    utf16charType ch;
+    memSizeType idx = 0;
+    memSizeType pos = 0;
+    memSizeType len;
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF16_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
+
+  /* wstri16AsUnquotedCStri */
+    if (wstri != NULL) {
+      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
+        ch = (utf16charType) wstri[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            len = strlen(stri_escape_sequence[ch]);
+            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
+            pos += len;
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
+        } /* if */
+        idx++;
+      } /* while */
+      if (wstri[idx] != '\0') {
+        do {
+          idx++;
+        } while (wstri[idx] != '\0');
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
+      } /* if */
+    } else {
+      MEMCPY_STRING(buffer, null_string_marker);
+      pos = STRLEN(null_string_marker);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* wstri16AsUnquotedCStri */
+
+
+
+static cstriType wstri32AsUnquotedCStri (const const_utf32striType wstri)
+
+  {
+    utf32charType ch;
+    memSizeType idx = 0;
+    memSizeType pos = 0;
+    memSizeType len;
+    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF32_ESCAPE_WIDTH +
+                       AND_SO_ON_LENGTH];
+
+  /* wstri32AsUnquotedCStri */
+    if (wstri != NULL) {
+      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
+        ch = (utf32charType) wstri[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            len = strlen(stri_escape_sequence[ch]);
+            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
+            pos += len;
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
+        } /* if */
+        idx++;
+      } /* while */
+      if (wstri[idx] != '\0') {
+        do {
+          idx++;
+        } while (wstri[idx] != '\0');
+        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
+      } /* if */
+    } else {
+      MEMCPY_STRING(buffer, null_string_marker);
+      pos = STRLEN(null_string_marker);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* wstri32AsUnquotedCStri */
+#endif
+
+
+
+#if LOG_CLI_FUNCTIONS
+#include "sql_log.c"
+#endif
 
 
 
@@ -5999,112 +6111,6 @@ static boolType setupFuncTable (void)
     } /* if */
     return sqlFunc != NULL;
   } /* setupFuncTable */
-
-
-
-#if ANY_LOG_ACTIVE
-static const char null_string_marker[]      = "\\ *NULL_STRING* ";
-
-
-
-static cstriType wstri16AsUnquotedCStri (const const_utf16striType wstri)
-
-  {
-    utf16charType ch;
-    memSizeType idx = 0;
-    memSizeType pos = 0;
-    memSizeType len;
-    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF16_ESCAPE_WIDTH +
-                       AND_SO_ON_LENGTH];
-
-  /* wstri16AsUnquotedCStri */
-    if (wstri != NULL) {
-      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
-        ch = (utf16charType) wstri[idx];
-        if (ch < 127) {
-          if (ch < ' ') {
-            len = strlen(stri_escape_sequence[ch]);
-            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
-            pos += len;
-          } else if (ch == '\\') {
-            memcpy(&buffer[pos], "\\\\", 2);
-            pos += 2;
-          } else if (ch == '\"') {
-            memcpy(&buffer[pos], "\\\"", 2);
-            pos += 2;
-          } else {
-            buffer[pos] = (char) ch;
-            pos++;
-          } /* if */
-        } else {
-          pos += (memSizeType) sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
-        } /* if */
-        idx++;
-      } /* while */
-      if (wstri[idx] != '\0') {
-        do {
-          idx++;
-        } while (wstri[idx] != '\0');
-        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
-      } /* if */
-    } else {
-      MEMCPY_STRING(buffer, null_string_marker);
-      pos = STRLEN(null_string_marker);
-    } /* if */
-    buffer[pos] = '\0';
-    return buffer;
-  } /* wstri16AsUnquotedCStri */
-
-
-
-static cstriType wstri32AsUnquotedCStri (const const_utf32striType wstri)
-
-  {
-    utf32charType ch;
-    memSizeType idx = 0;
-    memSizeType pos = 0;
-    memSizeType len;
-    static char buffer[AND_SO_ON_LIMIT * MAXIMUM_UTF32_ESCAPE_WIDTH +
-                       AND_SO_ON_LENGTH];
-
-  /* wstri32AsUnquotedCStri */
-    if (wstri != NULL) {
-      while (wstri[idx] != '\0' && idx < AND_SO_ON_LIMIT) {
-        ch = (utf32charType) wstri[idx];
-        if (ch < 127) {
-          if (ch < ' ') {
-            len = strlen(stri_escape_sequence[ch]);
-            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
-            pos += len;
-          } else if (ch == '\\') {
-            memcpy(&buffer[pos], "\\\\", 2);
-            pos += 2;
-          } else if (ch == '\"') {
-            memcpy(&buffer[pos], "\\\"", 2);
-            pos += 2;
-          } else {
-            buffer[pos] = (char) ch;
-            pos++;
-          } /* if */
-        } else {
-          pos += (memSizeType) sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
-        } /* if */
-        idx++;
-      } /* while */
-      if (wstri[idx] != '\0') {
-        do {
-          idx++;
-        } while (wstri[idx] != '\0');
-        pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, idx);
-      } /* if */
-    } else {
-      MEMCPY_STRING(buffer, null_string_marker);
-      pos = STRLEN(null_string_marker);
-    } /* if */
-    buffer[pos] = '\0';
-    return buffer;
-  } /* wstri32AsUnquotedCStri */
-#endif
 
 
 
