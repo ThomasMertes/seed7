@@ -3566,6 +3566,141 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
   end func;
 
 
+const proc: testChar1Latin1C1ControlField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("char1Latin1Test", "testChar1Latin1C1ControlField", FALSE);
+    var array string: expect is 0 times "";
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testChar1Latin1C1ControlField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " CHAR)");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= "");
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,  expect &:= "");
+
+      insert(testDb, state, "'\128;'", expect &:= "\128;");
+      insert(testDb, state, "'\129;'", expect &:= "\129;");
+      insert(testDb, state, "'\130;'", expect &:= "\130;");
+      insert(testDb, state, "'\131;'", expect &:= "\131;");
+      insert(testDb, state, "'\132;'", expect &:= "\132;");
+      insert(testDb, state, "'\133;'", expect &:= "\133;");
+      insert(testDb, state, "'\134;'", expect &:= "\134;");
+      insert(testDb, state, "'\135;'", expect &:= "\135;");
+      insert(testDb, state, "'\136;'", expect &:= "\136;");
+      insert(testDb, state, "'\137;'", expect &:= "\137;");
+      insert(testDb, state, "'\138;'", expect &:= "\138;");
+      insert(testDb, state, "'\139;'", expect &:= "\139;");
+      insert(testDb, state, "'\140;'", expect &:= "\140;");
+      insert(testDb, state, "'\141;'", expect &:= "\141;");
+      insert(testDb, state, "'\142;'", expect &:= "\142;");
+      insert(testDb, state, "'\143;'", expect &:= "\143;");
+      insert(testDb, state, "'\144;'", expect &:= "\144;");
+      insert(testDb, state, "'\145;'", expect &:= "\145;");
+      insert(testDb, state, "'\146;'", expect &:= "\146;");
+      insert(testDb, state, "'\147;'", expect &:= "\147;");
+      insert(testDb, state, "'\148;'", expect &:= "\148;");
+      insert(testDb, state, "'\149;'", expect &:= "\149;");
+      insert(testDb, state, "'\150;'", expect &:= "\150;");
+      insert(testDb, state, "'\151;'", expect &:= "\151;");
+      insert(testDb, state, "'\152;'", expect &:= "\152;");
+      insert(testDb, state, "'\153;'", expect &:= "\153;");
+      insert(testDb, state, "'\154;'", expect &:= "\154;");
+      insert(testDb, state, "'\155;'", expect &:= "\155;");
+      insert(testDb, state, "'\156;'", expect &:= "\156;");
+      insert(testDb, state, "'\157;'", expect &:= "\157;");
+      insert(testDb, state, "'\158;'", expect &:= "\158;");
+      insert(testDb, state, "'\159;'", expect &:= "\159;");
+
+      insert(state, "\128;", expect &:= "\128;");
+      insert(state, "\129;", expect &:= "\129;");
+      insert(state, "\130;", expect &:= "\130;");
+      insert(state, "\131;", expect &:= "\131;");
+      insert(state, "\132;", expect &:= "\132;");
+      insert(state, "\133;", expect &:= "\133;");
+      insert(state, "\134;", expect &:= "\134;");
+      insert(state, "\135;", expect &:= "\135;");
+      insert(state, "\136;", expect &:= "\136;");
+      insert(state, "\137;", expect &:= "\137;");
+      insert(state, "\138;", expect &:= "\138;");
+      insert(state, "\139;", expect &:= "\139;");
+      insert(state, "\140;", expect &:= "\140;");
+      insert(state, "\141;", expect &:= "\141;");
+      insert(state, "\142;", expect &:= "\142;");
+      insert(state, "\143;", expect &:= "\143;");
+      insert(state, "\144;", expect &:= "\144;");
+      insert(state, "\145;", expect &:= "\145;");
+      insert(state, "\146;", expect &:= "\146;");
+      insert(state, "\147;", expect &:= "\147;");
+      insert(state, "\148;", expect &:= "\148;");
+      insert(state, "\149;", expect &:= "\149;");
+      insert(state, "\150;", expect &:= "\150;");
+      insert(state, "\151;", expect &:= "\151;");
+      insert(state, "\152;", expect &:= "\152;");
+      insert(state, "\153;", expect &:= "\153;");
+      insert(state, "\154;", expect &:= "\154;");
+      insert(state, "\155;", expect &:= "\155;");
+      insert(state, "\156;", expect &:= "\156;");
+      insert(state, "\157;", expect &:= "\157;");
+      insert(state, "\158;", expect &:= "\158;");
+      insert(state, "\159;", expect &:= "\159;");
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        stringColumn := column(state.statement, 1, string);
+        if stringColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1Latin1C1ControlField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <&
+                    " found " <& literal(stringColumn));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1Latin1C1ControlField: Row: " <& row <&
+                    " Expected NULL found " <& stringColumn);
+          end if;
+        end if;
+        if expect[row] <> "" and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1Latin1C1ControlField: Row: " <& row <&
+                    " Expected " <& expect[row] <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching char(1) fields with LATIN-1 C1 control characters works okay.");
+    else
+      writeln(" *** Inserting and fetching char(1) fields with LATIN-1 C1 control characters does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("char1Latin1Test", "char1Latin1Field", FALSE);
@@ -3615,38 +3750,6 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(testDb, state, "'a'",     expect &:= "a");
       insert(testDb, state, "'~'",     expect &:= "~");
       insert(testDb, state, "'\127;'", expect &:= "\127;");
-      insert(testDb, state, "'\128;'", expect &:= "\128;");
-      insert(testDb, state, "'\129;'", expect &:= "\129;");
-      insert(testDb, state, "'\130;'", expect &:= "\130;");
-      insert(testDb, state, "'\131;'", expect &:= "\131;");
-      insert(testDb, state, "'\132;'", expect &:= "\132;");
-      insert(testDb, state, "'\133;'", expect &:= "\133;");
-      insert(testDb, state, "'\134;'", expect &:= "\134;");
-      insert(testDb, state, "'\135;'", expect &:= "\135;");
-      insert(testDb, state, "'\136;'", expect &:= "\136;");
-      insert(testDb, state, "'\137;'", expect &:= "\137;");
-      insert(testDb, state, "'\138;'", expect &:= "\138;");
-      insert(testDb, state, "'\139;'", expect &:= "\139;");
-      insert(testDb, state, "'\140;'", expect &:= "\140;");
-      insert(testDb, state, "'\141;'", expect &:= "\141;");
-      insert(testDb, state, "'\142;'", expect &:= "\142;");
-      insert(testDb, state, "'\143;'", expect &:= "\143;");
-      insert(testDb, state, "'\144;'", expect &:= "\144;");
-      insert(testDb, state, "'\145;'", expect &:= "\145;");
-      insert(testDb, state, "'\146;'", expect &:= "\146;");
-      insert(testDb, state, "'\147;'", expect &:= "\147;");
-      insert(testDb, state, "'\148;'", expect &:= "\148;");
-      insert(testDb, state, "'\149;'", expect &:= "\149;");
-      insert(testDb, state, "'\150;'", expect &:= "\150;");
-      insert(testDb, state, "'\151;'", expect &:= "\151;");
-      insert(testDb, state, "'\152;'", expect &:= "\152;");
-      insert(testDb, state, "'\153;'", expect &:= "\153;");
-      insert(testDb, state, "'\154;'", expect &:= "\154;");
-      insert(testDb, state, "'\155;'", expect &:= "\155;");
-      insert(testDb, state, "'\156;'", expect &:= "\156;");
-      insert(testDb, state, "'\157;'", expect &:= "\157;");
-      insert(testDb, state, "'\158;'", expect &:= "\158;");
-      insert(testDb, state, "'\159;'", expect &:= "\159;");
       insert(testDb, state, "'\160;'", expect &:= "\160;");
       insert(testDb, state, "'¡'",     expect &:= "¡");
       insert(testDb, state, "'¤'",     expect &:= "¤");
@@ -3698,38 +3801,6 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(state, "a",     expect &:= "a");
       insert(state, "~",     expect &:= "~");
       insert(state, "\127;", expect &:= "\127;");
-      insert(state, "\128;", expect &:= "\128;");
-      insert(state, "\129;", expect &:= "\129;");
-      insert(state, "\130;", expect &:= "\130;");
-      insert(state, "\131;", expect &:= "\131;");
-      insert(state, "\132;", expect &:= "\132;");
-      insert(state, "\133;", expect &:= "\133;");
-      insert(state, "\134;", expect &:= "\134;");
-      insert(state, "\135;", expect &:= "\135;");
-      insert(state, "\136;", expect &:= "\136;");
-      insert(state, "\137;", expect &:= "\137;");
-      insert(state, "\138;", expect &:= "\138;");
-      insert(state, "\139;", expect &:= "\139;");
-      insert(state, "\140;", expect &:= "\140;");
-      insert(state, "\141;", expect &:= "\141;");
-      insert(state, "\142;", expect &:= "\142;");
-      insert(state, "\143;", expect &:= "\143;");
-      insert(state, "\144;", expect &:= "\144;");
-      insert(state, "\145;", expect &:= "\145;");
-      insert(state, "\146;", expect &:= "\146;");
-      insert(state, "\147;", expect &:= "\147;");
-      insert(state, "\148;", expect &:= "\148;");
-      insert(state, "\149;", expect &:= "\149;");
-      insert(state, "\150;", expect &:= "\150;");
-      insert(state, "\151;", expect &:= "\151;");
-      insert(state, "\152;", expect &:= "\152;");
-      insert(state, "\153;", expect &:= "\153;");
-      insert(state, "\154;", expect &:= "\154;");
-      insert(state, "\155;", expect &:= "\155;");
-      insert(state, "\156;", expect &:= "\156;");
-      insert(state, "\157;", expect &:= "\157;");
-      insert(state, "\158;", expect &:= "\158;");
-      insert(state, "\159;", expect &:= "\159;");
       insert(state, "\160;", expect &:= "\160;");
       insert(state, "¡",     expect &:= "¡");
       insert(state, "¤",     expect &:= "¤");
@@ -6991,6 +7062,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testDecimalField(testDb, databaseKind);
     testNumericField(testDb, databaseKind);
     testChar1AsciiField(testDb, databaseKind);
+    testChar1Latin1C1ControlField(testDb, databaseKind);
     testChar1Latin1Field(testDb, databaseKind);
     testCodePageField(testDb, 1250, databaseKind);
     testCodePageField(testDb, 1252, databaseKind);
