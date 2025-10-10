@@ -153,7 +153,7 @@ static SQLRETURN my_SQLBrowseConnectW (SQLHDBC connectionHandle,
                       sqlwstriAsUnquotedCStri(inConnectionString),
                       stringLength1);
                 printf(", \"%s\", " FMT_D16 ", "
-                      FMT_D16 ")\n",
+                      FMT_D16 ") --> " FMT_D16 "\n",
                       sqlwstriAsUnquotedCStri(outConnectionString),
                       bufferLength, *stringLength2Ptr, funcResult););
     return funcResult;
@@ -262,8 +262,8 @@ static SQLRETURN my_SQLDataSources (SQLHENV environmentHandle,
                       (memSizeType) environmentHandle,
                       direction, sqlwstriAsUnquotedCStri(serverName),
                       bufferLength1, *nameLength1);
-                printf(", \"%s\", " FMT_D16 ", " FMT_D16
-                      ") --> " FMT_D16 "\n"
+               printf(", \"%s\", " FMT_D16 ", " FMT_D16
+                      ") --> " FMT_D16 "\n",
                       sqlwstriAsUnquotedCStri(description),
                       bufferLength2, *nameLength2, funcResult););
     return funcResult;
@@ -428,8 +428,8 @@ static SQLRETURN my_SQLDriversW (SQLHENV environmentHandle,
                       (memSizeType) environmentHandle, direction,
                       sqlwstriAsUnquotedCStri(driverDescription),
                       bufferLength1, *descriptionLengthPtr);
-                printf(", " FMT_U_MEM ", " FMT_D16 ", " FMT_D16
-                      ") --> " FMT_D16 "\n"
+               printf(", \"%s\", " FMT_D16 ", " FMT_D16
+                      ") --> " FMT_D16 "\n",
                       sqlwstriAsUnquotedCStri(driverAttributes),
                       bufferLength2, *attributesLengthPtr,
                       funcResult););
