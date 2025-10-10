@@ -133,15 +133,15 @@ OBJCOPY_PARAMS = \
        -L SQLGetStmtAttrW -L SQLGetTypeInfoW -L SQLNumParams -L SQLNumResultCols -L SQLPrepareW \
        -L SQLSetConnectAttrW -L SQLSetDescFieldW -L SQLSetEnvAttr
 
-sql_db2.o: sql_db2.c
+sql_db2.o: sql_db2.c sql_cli.c sql_log.c
 	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_db2.c $(DB2_LIBS) $(DB2_CC_OPTION) -o sql_db2.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_db2.o
 
-sql_ifx.o: sql_ifx.c
+sql_ifx.o: sql_ifx.c sql_cli.c sql_log.c
 	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_ifx.c $(INFORMIX_LIBS) $(INFORMIX_CC_OPTION) -o sql_ifx.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_ifx.o
 
-sql_srv.o: sql_srv.c
+sql_srv.o: sql_srv.c sql_cli.c sql_log.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) sql_srv.c $(SQL_SERVER_LIBS) $(SQL_SERVER_CC_OPTION) -o sql_srv.o
 	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_srv.o
 
