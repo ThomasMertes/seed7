@@ -39,6 +39,7 @@ typedef struct {
     boolType     wideCharsSupported;
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
+    boolType     backslashEscapes;
   } dbRecordCli, *dbType;
 
 typedef struct {
@@ -853,36 +854,56 @@ static const char *nameOfCType (int c_type)
  *  inside a literal is removed.
  */
 static striType processStatementStri (const const_striType sqlStatementStri,
-    errInfoType *err_info)
+    boolType backslashEscapes)
 
   {
     memSizeType pos = 0;
     strElemType ch;
-    strElemType delimiter;
     memSizeType destPos = 0;
     striType processed;
 
   /* processStatementStri */
-    logFunction(printf("processStatementStri(\"%s\")\n",
-                       striAsUnquotedCStri(sqlStatementStri)););
-    if (unlikely(sqlStatementStri->size > MAX_STRI_LEN ||
-                 !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size))) {
-      *err_info = MEMORY_ERROR;
+    logFunction(printf("processStatementStri(\"%s\", %d)\n",
+                       striAsUnquotedCStri(sqlStatementStri),
+                       backslashEscapes););
+    if (unlikely(sqlStatementStri->size > MAX_STRI_LEN / 2 ||
+                 !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size * 2))) {
       processed = NULL;
     } else {
-      while (pos < sqlStatementStri->size && *err_info == OKAY_NO_ERROR) {
+      while (pos < sqlStatementStri->size) {
         ch = sqlStatementStri->mem[pos];
-        if (ch == '\'' || ch == '"') {
-          delimiter = ch;
-          processed->mem[destPos++] = delimiter;
+        if (ch == '\'') {
+          processed->mem[destPos++] = '\'';
           pos++;
           while (pos < sqlStatementStri->size &&
-              (ch = sqlStatementStri->mem[pos]) != delimiter) {
+              (ch = sqlStatementStri->mem[pos]) != '\'') {
+            if (ch == '\0' && backslashEscapes) {
+              /* Assume that numeric escape sequences */
+              /* with 3 octal digits are not used.    */
+              processed->mem[destPos++] = '\\';
+              processed->mem[destPos++] = '0';
+            } else {
+              if (ch == '\\' && backslashEscapes) {
+                processed->mem[destPos++] = ch;
+              } /* if */
+              processed->mem[destPos++] = ch;
+            } /* if */
+            pos++;
+          } /* while */
+          if (pos < sqlStatementStri->size) {
+            processed->mem[destPos++] = '\'';
+            pos++;
+          } /* if */
+         } else if (ch == '"') {
+          processed->mem[destPos++] = '"';
+          pos++;
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != '"') {
             processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = delimiter;
+            processed->mem[destPos++] = '"';
             pos++;
           } /* if */
         } else if (ch == '/') {
@@ -5686,8 +5707,9 @@ static sqlStmtType sqlPrepare (databaseType database,
       err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
-      statementStri = processStatementStri(sqlStatementStri, &err_info);
+      statementStri = processStatementStri(sqlStatementStri, db->backslashEscapes);
       if (statementStri == NULL) {
+        err_info = MEMORY_ERROR;
         preparedStmt = NULL;
       } else {
         query = stri_to_sqlwstri(statementStri, &queryLength, &err_info);
@@ -6131,6 +6153,40 @@ static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
 
 
 
+static boolType determineIfBackslashEscapes (dbType database)
+
+  {
+    striType statementStri;
+    sqlStmtType preparedStmt;
+    striType data;
+    boolType backslashEscapes = FALSE;
+
+  /* determineIfBackslashEscapes */
+    statementStri = cstri_to_stri("SELECT '\\\\'");
+    if (likely(statementStri != NULL)) {
+      preparedStmt = sqlPrepare((databaseType) database, statementStri);
+      if (likely(preparedStmt != NULL)) {
+        sqlExecute(preparedStmt);
+        if (likely(sqlFetch(preparedStmt))) {
+          data = sqlColumnStri(preparedStmt, 1);
+          if (data->size == 1 && data->mem[0] == '\\') {
+            /* A select for two backslashes returns just one backslash. */
+            /* This happens if the database uses backslash as escape char. */
+            backslashEscapes = TRUE;
+          } /* if */
+          FREE_STRI(data);
+        } /* if */
+        freePreparedStmt(preparedStmt);
+      } /* if */
+      FREE_STRI(statementStri);
+    } /* if */
+    logFunction(printf("determineIfBackslashEscapes --> %d\n",
+                       backslashEscapes););
+    return backslashEscapes;
+  } /* determineIfBackslashEscapes */
+
+
+
 static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
     intType driver, errInfoType *err_info)
 
@@ -6193,6 +6249,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       database->wideCharsSupported = wideCharsSupported;
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;
+      database->backslashEscapes = determineIfBackslashEscapes(database);
     } /* if */
     logFunction(printf("createDbRecord --> " FMT_U_MEM " (err_info=%d)\n",
                        (memSizeType) database, *err_info););
