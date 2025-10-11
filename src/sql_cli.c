@@ -3903,19 +3903,38 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
             break;
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
-            c_type = SQL_C_DOUBLE;
-            if (param->buffer_capacity < sizeof(double)) {
-              free(param->buffer);
-              if (unlikely((param->buffer = malloc(sizeof(double))) == NULL)) {
-                param->buffer_capacity = 0;
-                err_info = MEMORY_ERROR;
-              } else {
-                param->buffer_capacity = sizeof(double);
+            if ((double) value == (double)((float) value)) {
+              logMessage(printf("SQL_C_FLOAT " FMT_E "\n", value););
+              c_type = SQL_C_FLOAT;
+              if (param->buffer_capacity < sizeof(float)) {
+                free(param->buffer);
+                if (unlikely((param->buffer = malloc(sizeof(float))) == NULL)) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = sizeof(float);
+                } /* if */
               } /* if */
-            } /* if */
-            if (likely(err_info == OKAY_NO_ERROR)) {
-              param->buffer_length = sizeof(double);
-              *(double *) param->buffer = (double) value;
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                param->buffer_length = sizeof(float);
+                *(float *) param->buffer = (float) value;
+              } /* if */
+            } else {
+              logMessage(printf("SQL_C_DOUBLE " FMT_E "\n", value););
+              c_type = SQL_C_DOUBLE;
+              if (param->buffer_capacity < sizeof(double)) {
+                free(param->buffer);
+                if (unlikely((param->buffer = malloc(sizeof(double))) == NULL)) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = sizeof(double);
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                param->buffer_length = sizeof(double);
+                *(double *) param->buffer = (double) value;
+              } /* if */
             } /* if */
             break;
           default:
