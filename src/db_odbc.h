@@ -262,6 +262,7 @@ typedef SQLHANDLE SQLHWND;
 
 /* Used by SQLGetInfoW() */
 #define SQL_MAX_CONCURRENT_ACTIVITIES   1
+#define SQL_DBMS_NAME                  17
 
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL

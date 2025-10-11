@@ -40,6 +40,7 @@ typedef struct {
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
     boolType     backslashEscapes;
+    char         identifierQuotationChar;
   } dbRecordCli, *dbType;
 
 typedef struct {
@@ -966,7 +967,7 @@ static const char *nameOfCType (int c_type)
  *  inside a literal is removed.
  */
 static striType processStatementStri (const const_striType sqlStatementStri,
-    boolType backslashEscapes)
+    boolType backslashEscapes, char identifierQuotationChar)
 
   {
     memSizeType pos = 0;
@@ -975,9 +976,9 @@ static striType processStatementStri (const const_striType sqlStatementStri,
     striType processed;
 
   /* processStatementStri */
-    logFunction(printf("processStatementStri(\"%s\", %d)\n",
+    logFunction(printf("processStatementStri(\"%s\", %d, '%c')\n",
                        striAsUnquotedCStri(sqlStatementStri),
-                       backslashEscapes););
+                       backslashEscapes, identifierQuotationChar););
     if (unlikely(sqlStatementStri->size > MAX_STRI_LEN / 2 ||
                  !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size * 2))) {
       processed = NULL;
@@ -1006,17 +1007,35 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             processed->mem[destPos++] = '\'';
             pos++;
           } /* if */
-         } else if (ch == '"') {
-          processed->mem[destPos++] = '"';
+        } else if (ch == '"') {
+          processed->mem[destPos++] = identifierQuotationChar;
           pos++;
-          while (pos < sqlStatementStri->size &&
-              (ch = sqlStatementStri->mem[pos]) != '"') {
-            processed->mem[destPos++] = ch;
-            pos++;
-          } /* while */
+          do {
+            while (pos < sqlStatementStri->size &&
+                (ch = sqlStatementStri->mem[pos]) != '"') {
+              if (ch == identifierQuotationChar) {
+                processed->mem[destPos++] = ch;
+              } /* if */
+              processed->mem[destPos++] = ch;
+              pos++;
+            } /* while */
+            if (pos < sqlStatementStri->size) {
+              pos++;
+              if (pos < sqlStatementStri->size) {
+                if ((ch = sqlStatementStri->mem[pos]) == '"') {
+                  if (identifierQuotationChar == '"') {
+                    processed->mem[destPos++] = ch;
+                  } /* if */
+                  processed->mem[destPos++] = ch;
+                  pos++;
+                } /* if */
+              } else {
+                processed->mem[destPos++] = identifierQuotationChar;
+              } /* if */
+            } /* if */
+          } while (pos < sqlStatementStri->size && ch == '"');
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = '"';
-            pos++;
+            processed->mem[destPos++] = identifierQuotationChar;
           } /* if */
         } else if (ch == '/') {
           pos++;
@@ -5838,7 +5857,9 @@ static sqlStmtType sqlPrepare (databaseType database,
       err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
-      statementStri = processStatementStri(sqlStatementStri, db->backslashEscapes);
+      statementStri = processStatementStri(sqlStatementStri,
+                                           db->backslashEscapes,
+                                           db->identifierQuotationChar);
       if (statementStri == NULL) {
         err_info = MEMORY_ERROR;
         preparedStmt = NULL;
@@ -6212,6 +6233,36 @@ static boolType determineIfBackslashEscapes (dbType database)
 
 
 
+static char determineIdentifierQuotationChar (SQLHDBC connection)
+
+  {
+    const SQLWCHAR mySQL[] = {'M', 'y', 'S', 'Q', 'L'};
+    SQLWCHAR dbmsName[1024];
+    SQLSMALLINT dbmsNameLength;
+    char identifierQuotationChar = '"';
+
+  /* determineIdentifierQuotationChar */
+    if (SQLGetInfoW(connection,
+                    SQL_DBMS_NAME,
+                    (SQLPOINTER) dbmsName,
+                    sizeof(dbmsName),
+                    &dbmsNameLength) == SQL_SUCCESS) {
+      logMessage(printf("sqlOpenOdbc: dbmsName=\"%s\"\n",
+			sqlwstriAsUnquotedCStri(dbmsName)););
+      logMessage(printf("sqlOpenOdbc: dbmsNameLength=" FMT_D16 "\n",
+			dbmsNameLength););
+      if (dbmsNameLength == 5 * sizeof(SQLWCHAR) &&
+          memcmp(dbmsName, mySQL, 5 * sizeof(SQLWCHAR)) == 0) {
+        identifierQuotationChar = '`';
+      } /* if */
+    } /* if */
+    logFunction(printf("determineIdentifierQuotationChar --> '%c'\n",
+                       identifierQuotationChar););
+    return identifierQuotationChar;
+  } /* determineIdentifierQuotationChar */
+
+
+
 static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
     intType driver, errInfoType *err_info)
 
@@ -6275,6 +6326,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;
       database->backslashEscapes = determineIfBackslashEscapes(database);
+      database->identifierQuotationChar = determineIdentifierQuotationChar(connection);
     } /* if */
     logFunction(printf("createDbRecord --> " FMT_U_MEM " (err_info=%d)\n",
                        (memSizeType) database, *err_info););
