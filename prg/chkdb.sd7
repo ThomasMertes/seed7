@@ -2197,12 +2197,22 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
 
       insert(state, 1,                          expect &:=                    1.0);
       insert(state, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
+      insert(state, -922337286148849664,        expect &:=  -922337286148849664.0);
+      insert(state, -922337217429372928,        expect &:=  -922337217429372928.0);
+      insert(state,  922337217429372928,        expect &:=   922337217429372928.0);
+      insert(state,  922337286148849664,        expect &:=   922337286148849664.0);
       insert(state, 9223372036854775807,        expect &:=  9223372036854775807.0);
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state,                    2_,      expect &:=                    2.0);
       insert(state, -9223372036854775809_,      expect &:= -9223372036854775809.0);
+      insert(state, -9223372036854775808_,      expect &:= -9223372036854775808.0);
+      insert(state,  -922337286148849664_,      expect &:=  -922337286148849664.0);
+      insert(state,  -922337217429372928_,      expect &:=  -922337217429372928.0);
+      insert(state,   922337217429372928_,      expect &:=   922337217429372928.0);
+      insert(state,   922337286148849664_,      expect &:=   922337286148849664.0);
+      insert(state,  9223372036854775807_,      expect &:=  9223372036854775807.0);
       insert(state,  9223372036854775808_,      expect &:=  9223372036854775808.0);
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
@@ -2219,6 +2229,8 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, -9223372036854775809.0,     expect &:= -9223372036854775809.0);
       insert(state, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(state,  -922337286148849664.0,     expect &:=  -922337286148849664.0);
+      insert(state,  -922337217429372928.0,     expect &:=  -922337217429372928.0);
       insert(state,    0.0,                     expect &:=    0.0);
       insert(state,    5.9604644775390625e-8,   expect &:=    5.9604644775390625e-8);
       insert(state,    2.384185791015625e-7,    expect &:=    2.384185791015625e-7);
@@ -2229,6 +2241,8 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
       insert(state,    3.5,                     expect &:=    3.5);
       insert(state,    4.125,                   expect &:=    4.125);
       insert(state, 4882.8125,                  expect &:= 4882.8125);
+      insert(state,   922337217429372928.0,     expect &:=   922337217429372928.0);
+      insert(state,   922337286148849664.0,     expect &:=   922337286148849664.0);
       insert(state,  9223372036854775807.0,     expect &:=  9223372036854775807.0);
       insert(state,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
       insInf(state, -Infinity,                  expect &:= -Infinity);
@@ -2337,13 +2351,23 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
 
       insert(state, 1,                          expect &:=                    1.0);
       insert(state, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
+      insert(state, -922337203685477581,        expect &:=  -922337203685477581.0);
+      insert(state, -922337203685477580,        expect &:=  -922337203685477580.0);
+      insert(state,  922337203685477580,        expect &:=   922337203685477580.0);
+      insert(state,  922337203685477581,        expect &:=   922337203685477581.0);
       insert(state, 9223372036854775807,        expect &:=  9223372036854775807.0);
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, 2_,                         expect &:=                    2.0);
       insert(state, -9223372036854775809_,      expect &:= -9223372036854775809.0);
-      insert(state, 9223372036854775808_,       expect &:=  9223372036854775808.0);
+      insert(state, -9223372036854775808_,      expect &:= -9223372036854775808.0);
+      insert(state,  -922337203685477581_,      expect &:=  -922337203685477581.0);
+      insert(state,  -922337203685477580_,      expect &:=  -922337203685477580.0);
+      insert(state,   922337203685477580_,      expect &:=   922337203685477580.0);
+      insert(state,   922337203685477581_,      expect &:=   922337203685477581.0);
+      insert(state,  9223372036854775807_,      expect &:=  9223372036854775807.0);
+      insert(state,  9223372036854775808_,      expect &:=  9223372036854775808.0);
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
@@ -2359,6 +2383,8 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, -9223372036854775809.0,     expect &:= -9223372036854775809.0);
       insert(state, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(state,  -922337203685477581.0,     expect &:=  -922337203685477581.0);
+      insert(state,  -922337203685477580.0,     expect &:=  -922337203685477580.0);
       insert(state,    0.0,                     expect &:=    0.0);
       insert(state,    5.9604644775390625e-8,   expect &:=    5.9604644775390625e-8);
       insert(state,    2.384185791015625e-7,    expect &:=    2.384185791015625e-7);
@@ -2369,6 +2395,8 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
       insert(state,    3.5,                     expect &:=    3.5);
       insert(state,    4.125,                   expect &:=    4.125);
       insert(state, 4882.8125,                  expect &:= 4882.8125);
+      insert(state,   922337203685477580.0,     expect &:=   922337203685477580.0);
+      insert(state,   922337203685477581.0,     expect &:=   922337203685477581.0);
       insert(state,  9223372036854775807.0,     expect &:=  9223372036854775807.0);
       insert(state,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
       insInf(state, -Infinity,                  expect &:= -Infinity);
