@@ -492,10 +492,13 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             } /* while */
             if (pos < sqlStatementStri->size) {
               pos++;
-              if (pos < sqlStatementStri->size &&
-                  (ch = sqlStatementStri->mem[pos]) == '"') {
-                processed->mem[destPos++] = '"';
-                pos++;
+              if (pos < sqlStatementStri->size) {
+                if ((ch = sqlStatementStri->mem[pos]) == '"') {
+                  processed->mem[destPos++] = ch;
+                  pos++;
+                } /* if */
+              } else {
+                processed->mem[destPos++] = '`';
               } /* if */
             } /* if */
           } while (pos < sqlStatementStri->size && ch == '"');
