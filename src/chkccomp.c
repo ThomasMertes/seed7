@@ -8957,6 +8957,11 @@ static void determineMySqlDefines (FILE *versionFile,
                         dllDirList, sizeof(dllDirList) / sizeof(char *),
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
       } /* if */
+      if (s7LibDir[0] != '\0') {
+        listDynamicLibsInBaseDir("MySql/MariaDb", s7LibDir,
+                                 dllNameList, sizeof(dllNameList) / sizeof(char *),
+                                 versionFile);
+      } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rMySql/MariaDb: DLL / Shared library: %s (%s)\n",
                 dllNameList[nameIndex],
