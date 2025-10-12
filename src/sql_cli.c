@@ -725,8 +725,11 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
                returnCode != SQL_SUCCESS_WITH_INFO) {
       dbError.errorCode = 0;
       snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
-               " *** SQLGetDiagRecW returned: %d\n", returnCode);
+               " *** SQLGetDiagRecW returned: " FMT_D16 "\n",
+               returnCode);
     } else {
+      logMessage(printf("messageText=\"%s\"\n",
+                        sqlwstriAsUnquotedCStri(messageText)););
       dbError.errorCode = (intType) nativeError;
       wstri_to_cstri8(sqlState8, sqlState);
       wstri_to_cstri8(messageText8, messageText);
@@ -1697,8 +1700,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       } /* switch */
       if (err_info == OKAY_NO_ERROR) {
         logMessage(printf("c_type: %s\n", nameOfCType(c_type)););
-        /* printf("buffer_length[%d]: " FMT_U_MEM " %d\n",
-               column_num, buffer_length, columnDescr->sql_data_at_exec); */
+        logMessage(printf("buffer_length[%d]: " FMT_U_MEM " %d\n",
+               column_num, buffer_length, columnDescr->sql_data_at_exec););
         columnDescr->c_type = c_type;
         columnDescr->buffer_length = buffer_length;
       } /* if */

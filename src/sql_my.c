@@ -604,8 +604,9 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
   /* setupResultColumn */
     logFunction(printf("setupResultColumn: column_num=%d\n", column_num););
     column = mysql_fetch_field_direct(result_metadata, column_num - 1);
-    /* printf("column[%u]->type: %s\n", column_num, nameOfBufferType(column->type)); */
-    /* printf("charsetnr: %u\n", column->charsetnr); */
+    logMessage(printf("column[%u]->type: %s\n", column_num,
+                      nameOfBufferType(column->type)););
+    logMessage(printf("charsetnr: %u\n", column->charsetnr););
     switch (column->type) {
       case MYSQL_TYPE_TINY:
         buffer_length = 1;
@@ -675,7 +676,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         err_info = RANGE_ERROR;
         break;
     } /* switch */
-    /* printf("buffer_length: " FMT_U_MEM "\n", buffer_length); */
+    logMessage(printf("buffer_length: " FMT_U_MEM "\n", buffer_length););
     if (err_info == OKAY_NO_ERROR) {
       if (buffer_length != 0) {
         resultData->buffer = malloc(buffer_length);
