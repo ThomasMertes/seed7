@@ -3313,6 +3313,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
     bindDataType param;
     int16Type value16;
+    int32Type value32;
+    int64Type value64;
     SQLSMALLINT c_type;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -3407,14 +3409,53 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            value32 = bigToInt32(value, &err_info);
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              c_type = SQL_C_SLONG;
+              if (param->buffer_capacity < sizeof(int32Type)) {
+                free(param->buffer);
+                if (unlikely((param->buffer = malloc(sizeof(int32Type))) == NULL)) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = sizeof(int32Type);
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                param->buffer_length = sizeof(int32Type);
+                *(int32Type *) param->buffer = value32;
+              } /* if */
+            } else {
+              value64 = bigToInt64(value, &err_info);
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                c_type = SQL_C_SBIGINT;
+                if (param->buffer_capacity < sizeof(int64Type)) {
+                  free(param->buffer);
+                  if (unlikely((param->buffer = malloc(sizeof(int64Type))) == NULL)) {
+                    param->buffer_capacity = 0;
+                    err_info = MEMORY_ERROR;
+                  } else {
+                    param->buffer_capacity = sizeof(int64Type);
+                  } /* if */
+                } /* if */
+                if (likely(err_info == OKAY_NO_ERROR)) {
+                  param->buffer_length = sizeof(int64Type);
+                  *(int64Type *) param->buffer = value64;
+                } /* if */
+              } else {
 #if ENCODE_NUMERIC_STRUCT
-            c_type = SQL_C_NUMERIC,
+                c_type = SQL_C_NUMERIC,
 #else
-            c_type = SQL_C_CHAR,
+                c_type = SQL_C_CHAR,
 #endif
-            param->buffer_length = setBigInt(&param->buffer,
-                                             &param->buffer_capacity,
-                                             value, &err_info);
+                param->buffer_length = setBigInt(&param->buffer,
+                                                 &param->buffer_capacity,
+                                                 value, &err_info);
+              } /* if */
+            } /* if */
             break;
           default:
             logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
@@ -3616,6 +3657,9 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
             c_type = SQL_C_SLONG;
             if (param->buffer_capacity < sizeof(int32Type)) {
               free(param->buffer);
@@ -3926,8 +3970,12 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
             c_type = SQL_C_DOUBLE;
             *(double *) param->buffer = (double) value;
             break;
+          case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
             if ((double) value == (double)((float) value)) {
               logMessage(printf("SQL_C_FLOAT " FMT_E "\n", value););
               c_type = SQL_C_FLOAT;
@@ -4105,19 +4153,39 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
-            c_type = SQL_C_SBIGINT;
-            if (param->buffer_capacity < sizeof(int64Type)) {
-              free(param->buffer);
-              if (unlikely((param->buffer = malloc(sizeof(int64Type))) == NULL)) {
-                param->buffer_capacity = 0;
-                err_info = MEMORY_ERROR;
-              } else {
-                param->buffer_capacity = sizeof(int64Type);
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            if (value >= INT32TYPE_MIN && value <= INT32TYPE_MAX) {
+              c_type = SQL_C_SLONG;
+              if (param->buffer_capacity < sizeof(int32Type)) {
+                free(param->buffer);
+                if (unlikely((param->buffer = malloc(sizeof(int32Type))) == NULL)) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = sizeof(int32Type);
+                } /* if */
               } /* if */
-            } /* if */
-            if (likely(err_info == OKAY_NO_ERROR)) {
-              param->buffer_length = sizeof(int64Type);
-              *(int64Type *) param->buffer = value;
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                param->buffer_length = sizeof(int32Type);
+                *(int32Type *) param->buffer = value;
+              } /* if */
+            } else {
+              c_type = SQL_C_SBIGINT;
+              if (param->buffer_capacity < sizeof(int64Type)) {
+                free(param->buffer);
+                if (unlikely((param->buffer = malloc(sizeof(int64Type))) == NULL)) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = sizeof(int64Type);
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                param->buffer_length = sizeof(int64Type);
+                *(int64Type *) param->buffer = value;
+              } /* if */
             } /* if */
             break;
           default:
