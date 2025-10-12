@@ -1019,7 +1019,6 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
       if (likely(env_value != NULL)) {
         setenv_result = os_setenv(env_name, env_value, 1);
         saved_errno = errno;
-        os_stri_free(env_value);
         if (unlikely(setenv_result != 0)) {
           logError(printf("setEnvironmentVariable: "
                           "os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
@@ -1031,6 +1030,7 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
             *err_info = RANGE_ERROR;
           } /* if */
         } /* if */
+        os_stri_free(env_value);
       } /* if */
       os_stri_free(env_name);
     } /* if */
