@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+#define ALLOW_LOG_MESSAGE 0
+
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
@@ -496,7 +498,7 @@ static void sqlClose (databaseType database);
 
 
 
-#if ANY_LOG_ACTIVE || LOG_CLI_FUNCTIONS
+#if ANY_LOG_ACTIVE || ALLOW_LOG_MESSAGE || LOG_CLI_FUNCTIONS
 static const char null_string_marker[] = "\\ *NULL_STRING* ";
 
 
@@ -853,7 +855,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
-#if ANY_LOG_ACTIVE
+#if ANY_LOG_ACTIVE || ALLOW_LOG_MESSAGE
 static const char *nameOfSqlType (SQLSMALLINT sql_type)
 
   {
