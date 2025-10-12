@@ -39,6 +39,7 @@ typedef struct {
     boolType     wideCharsSupported;
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
+    intType      dbCategory;
     boolType     backslashEscapes;
     char         identifierQuotationChar;
   } dbRecordCli, *dbType;
@@ -6236,33 +6237,46 @@ static boolType determineIfBackslashEscapes (dbType database)
 
 
 
-static char determineIdentifierQuotationChar (SQLHDBC connection)
+static intType determineDbCategory (SQLHDBC connection)
 
   {
-    const SQLWCHAR mySQL[] = {'M', 'y', 'S', 'Q', 'L'};
+    const SQLWCHAR mySQL[] = {'M', 'y', 'S', 'Q', 'L', '\0'};
+    const SQLWCHAR sqlite[] = {'S', 'Q', 'L', 'i', 't', 'e', '\0'};
+    const SQLWCHAR postgreSQL[] = {'P', 'o', 's', 't', 'g', 'r', 'e', 'S', 'Q', 'L', '\0'};
+    const SQLWCHAR sqlServer[] = {'M', 'i', 'c', 'r', 'o', 's', 'o', 'f', 't', ' ',
+                                  'S', 'Q', 'L', ' ', 'S', 'e', 'r', 'v', 'e', 'r', '\0'};
     SQLWCHAR dbmsName[1024];
     SQLSMALLINT dbmsNameLength;
-    char identifierQuotationChar = '"';
+    intType dbCategory = DB_CATEGORY_NO_DB;
 
-  /* determineIdentifierQuotationChar */
+  /* determineDbCategory */
     if (SQLGetInfoW(connection,
                     SQL_DBMS_NAME,
                     (SQLPOINTER) dbmsName,
                     sizeof(dbmsName),
                     &dbmsNameLength) == SQL_SUCCESS) {
       logMessage(printf("sqlOpenOdbc: dbmsName=\"%s\"\n",
-			sqlwstriAsUnquotedCStri(dbmsName)););
+                        sqlwstriAsUnquotedCStri(dbmsName)););
       logMessage(printf("sqlOpenOdbc: dbmsNameLength=" FMT_D16 "\n",
-			dbmsNameLength););
-      if (dbmsNameLength == 5 * sizeof(SQLWCHAR) &&
-          memcmp(dbmsName, mySQL, 5 * sizeof(SQLWCHAR)) == 0) {
-        identifierQuotationChar = '`';
+                        dbmsNameLength););
+      if (dbmsNameLength == STRLEN(mySQL) * sizeof(SQLWCHAR) &&
+          memcmp(dbmsName, mySQL, STRLEN(mySQL) * sizeof(SQLWCHAR)) == 0) {
+        dbCategory = DB_CATEGORY_MYSQL;
+      } else if (dbmsNameLength == STRLEN(sqlite) * sizeof(SQLWCHAR) &&
+          memcmp(dbmsName, sqlite, STRLEN(sqlite) * sizeof(SQLWCHAR)) == 0) {
+        dbCategory = DB_CATEGORY_SQLITE;
+      } else if (dbmsNameLength == STRLEN(postgreSQL) * sizeof(SQLWCHAR) &&
+          memcmp(dbmsName, postgreSQL, STRLEN(postgreSQL) * sizeof(SQLWCHAR)) == 0) {
+        dbCategory = DB_CATEGORY_POSTGRESQL;
+      } else if (dbmsNameLength == STRLEN(sqlServer) * sizeof(SQLWCHAR) &&
+          memcmp(dbmsName, sqlServer, STRLEN(sqlServer) * sizeof(SQLWCHAR)) == 0) {
+        dbCategory = DB_CATEGORY_SQL_SERVER;
       } /* if */
     } /* if */
-    logFunction(printf("determineIdentifierQuotationChar --> '%c'\n",
-                       identifierQuotationChar););
-    return identifierQuotationChar;
-  } /* determineIdentifierQuotationChar */
+    logFunction(printf("determineDbCategory --> " FMT_D "\n",
+                       dbCategory););
+    return dbCategory;
+  } /* determineDbCategory */
 
 
 
@@ -6328,8 +6342,13 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       database->wideCharsSupported = wideCharsSupported;
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;
+      database->dbCategory = determineDbCategory(connection);
+      if (database->dbCategory == DB_CATEGORY_MYSQL) {
+        database->identifierQuotationChar = '`';
+      } else {
+        database->identifierQuotationChar = '"';
+      } /* if */
       database->backslashEscapes = determineIfBackslashEscapes(database);
-      database->identifierQuotationChar = determineIdentifierQuotationChar(connection);
     } /* if */
     logFunction(printf("createDbRecord --> " FMT_U_MEM " (err_info=%d)\n",
                        (memSizeType) database, *err_info););
