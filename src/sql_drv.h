@@ -81,6 +81,7 @@ typedef struct {
     striType (*sqlStmtColumnName) (sqlStmtType sqlStatement, intType column);
   } sqlFuncRecord, *sqlFuncType;
 
+#define DB_CATEGORY_NO_DB      0
 #define DB_CATEGORY_MYSQL      1
 #define DB_CATEGORY_SQLITE     2
 #define DB_CATEGORY_POSTGRESQL 3
