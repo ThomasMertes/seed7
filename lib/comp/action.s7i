@@ -1803,6 +1803,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"SQL_CPY_STMT"}:
         programUses.databaseLibrary := TRUE;
         process(SQL_CPY_STMT, function, params, c_expr);
+      when {"SQL_DB_CATEGORY"}:
+        programUses.databaseLibrary := TRUE;
+        process(SQL_DB_CATEGORY, function, params, c_expr);
       when {"SQL_DRIVER"}:
         programUses.databaseLibrary := TRUE;
         process(SQL_DRIVER, function, params, c_expr);

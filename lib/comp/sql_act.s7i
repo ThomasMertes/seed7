@@ -51,6 +51,7 @@ const ACTION: SQL_CPY_DB             is action "SQL_CPY_DB";
 const ACTION: SQL_CPY_STMT           is action "SQL_CPY_STMT";
 const ACTION: SQL_CREATE_DB          is action "SQL_CREATE_DB";
 const ACTION: SQL_CREATE_STMT        is action "SQL_CREATE_STMT";
+const ACTION: SQL_DB_CATEGORY        is action "SQL_DB_CATEGORY";
 const ACTION: SQL_DESTR_DB           is action "SQL_DESTR_DB";
 const ACTION: SQL_DESTR_STMT         is action "SQL_DESTR_STMT";
 const ACTION: SQL_DRIVER             is action "SQL_DRIVER";
@@ -117,6 +118,7 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "genericType sqlCreateDbGeneric (const genericType);");
     declareExtern(c_prog, "sqlStmtType sqlCreateStmt (const sqlStmtType);");
     declareExtern(c_prog, "genericType sqlCreateStmtGeneric (const genericType);");
+    declareExtern(c_prog, "intType     sqlDbCategory (databaseType);");
     declareExtern(c_prog, "void        sqlDestrDb (const databaseType);");
     declareExtern(c_prog, "void        sqlDestrDbGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlDestrStmt (const sqlStmtType);");
@@ -607,6 +609,16 @@ const proc: process (SQL_CPY_STMT, in reference: function,
       statement.expr &:= ");\n";
     end if;
     doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (SQL_DB_CATEGORY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "sqlDbCategory(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
