@@ -144,6 +144,9 @@ const func boolean: (in database: db1) <> (in database: db2)   is action "SQL_NE
 const func integer: DRIVER_NUM (in database: db)               is action "SQL_DRIVER";
 
 
+const func integer: DB_CATEGORY_NUM (in database: db)          is action "SQL_DRIVER";
+
+
 (**
  *  Abstract data type to store a prepared sql statement.
  *)
@@ -932,6 +935,10 @@ const func string: errMessage (DATABASE_ERROR)                                  
 
 const func dbCategory: driver (in database: db) is
   return dbCategory conv DRIVER_NUM(db);
+
+
+const func dbCategory: dbCategory (in database: db) is
+  return dbCategory conv DB_CATEGORY_NUM(db);
 
 
 const func boolean: quoteTableNames (in dbCategory: databaseKind) is func
