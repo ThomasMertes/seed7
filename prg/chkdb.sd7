@@ -5377,6 +5377,7 @@ const proc: testDateField (in database: testDb, in dbCategory: databaseKind) is 
       insert(testDb, state, toDate(databaseKind, "1752-12-31"),  expect &:= time("1752-12-31"));
       insert(testDb, state, toDate(databaseKind, "1753-1-1"),    expect &:= time("1753-1-1"));
       insert(testDb, state, toDate(databaseKind, "1800-1-1"),    expect &:= time("1800-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1858-11-17"),  expect &:= time("1858-11-17"));
       insert(testDb, state, toDate(databaseKind, "1899-12-31"),  expect &:= time("1899-12-31"));
       insert(testDb, state, toDate(databaseKind, "1900-1-1"),    expect &:= time("1900-1-1"));
       insert(testDb, state, toDate(databaseKind, "1961-1-9"),    expect &:= time("1961-1-9"));
@@ -5410,6 +5411,7 @@ const proc: testDateField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, time("1752-12-31"),  expect &:= time("1752-12-31"));
       insert(state, time("1753-1-1"),    expect &:= time("1753-1-1"));
       insert(state, time("1800-1-1"),    expect &:= time("1800-1-1"));
+      insert(state, time("1858-11-17"),  expect &:= time("1858-11-17"));
       insert(state, time("1899-12-31"),  expect &:= time("1899-12-31"));
       insert(state, time("1900-1-1"),    expect &:= time("1900-1-1"));
       insert(state, time("1961-1-9"),    expect &:= time("1961-1-9"));
@@ -5442,6 +5444,7 @@ const proc: testDateField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, setLocalTZ(time("1752-12-31")),  expect &:= setLocalTZ(time("1752-12-31")));
       insert(state, setLocalTZ(time("1753-1-1")),    expect &:= setLocalTZ(time("1753-1-1")));
       insert(state, setLocalTZ(time("1800-1-1")),    expect &:= setLocalTZ(time("1800-1-1")));
+      insert(state, setLocalTZ(time("1858-11-17")),  expect &:= setLocalTZ(time("1858-11-17")));
       insert(state, setLocalTZ(time("1899-12-31")),  expect &:= setLocalTZ(time("1899-12-31")));
       insert(state, setLocalTZ(time("1900-1-1")),    expect &:= setLocalTZ(time("1900-1-1")));
       insert(state, setLocalTZ(time("1961-1-9")),    expect &:= setLocalTZ(time("1961-1-9")));
@@ -5637,6 +5640,7 @@ const proc: testDateTimeField (in database: testDb, in dbCategory: databaseKind)
       insert(testDb, state, toDateTime(databaseKind, "1752-12-31 23:59:59"),  expect &:= time("1752-12-31 23:59:59"));
       insert(testDb, state, toDateTime(databaseKind, "1753-1-1 0:0:0"),       expect &:= time("1753-1-1 0:0:0"));
       insert(testDb, state, toDateTime(databaseKind, "1800-1-1 0:0:0"),       expect &:= time("1800-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1858-11-17 0:0:0"),     expect &:= time("1858-11-17 0:0:0"));
       insert(testDb, state, toDateTime(databaseKind, "1899-12-31 23:59:59"),  expect &:= time("1899-12-31 23:59:59"));
       insert(testDb, state, toDateTime(databaseKind, "1900-1-1 0:0:0"),       expect &:= time("1900-1-1 0:0:0"));
       insert(testDb, state, toDateTime(databaseKind, "1961-1-9 6:1:0"),       expect &:= time("1961-1-9 6:1:0"));
@@ -5670,6 +5674,7 @@ const proc: testDateTimeField (in database: testDb, in dbCategory: databaseKind)
       insert(state, time("1752-12-31 23:59:59"),  expect &:= time("1752-12-31 23:59:59"));
       insert(state, time("1753-1-1 0:0:0"),       expect &:= time("1753-1-1 0:0:0"));
       insert(state, time("1800-1-1 0:0:0"),       expect &:= time("1800-1-1 0:0:0"));
+      insert(state, time("1858-11-17 0:0:0"),     expect &:= time("1858-11-17 0:0:0"));
       insert(state, time("1899-12-31 23:59:59"),  expect &:= time("1899-12-31 23:59:59"));
       insert(state, time("1900-1-1 0:0:0"),       expect &:= time("1900-1-1 0:0:0"));
       insert(state, time("1961-1-9 6:1:0"),       expect &:= time("1961-1-9 6:1:0"));
@@ -5702,6 +5707,7 @@ const proc: testDateTimeField (in database: testDb, in dbCategory: databaseKind)
       insert(state, setLocalTZ(time("1752-12-31 23:59:59")),  expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
       insert(state, setLocalTZ(time("1753-1-1 0:0:0")),       expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
       insert(state, setLocalTZ(time("1800-1-1 0:0:0")),       expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1858-11-17 0:0:0")),     expect &:= setLocalTZ(time("1858-11-17 0:0:0")));
       insert(state, setLocalTZ(time("1899-12-31 23:59:59")),  expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
       insert(state, setLocalTZ(time("1900-1-1 0:0:0")),       expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
       insert(state, setLocalTZ(time("1961-1-9 6:1:0")),       expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
@@ -5817,6 +5823,7 @@ const proc: testTimeStampField (in database: testDb, in dbCategory: databaseKind
         insert(testDb, state, toTimeStamp(databaseKind, "1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
         insert(testDb, state, toTimeStamp(databaseKind, "1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
         insert(testDb, state, toTimeStamp(databaseKind, "1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1858-11-17 0:0:0"),       expect &:= time("1858-11-17 0:0:0"));
         insert(testDb, state, toTimeStamp(databaseKind, "1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
         insert(testDb, state, toTimeStamp(databaseKind, "1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
         insert(testDb, state, toTimeStamp(databaseKind, "1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
@@ -5867,6 +5874,7 @@ const proc: testTimeStampField (in database: testDb, in dbCategory: databaseKind
         insert(state, time("1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
         insert(state, time("1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
         insert(state, time("1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(state, time("1858-11-17 0:0:0"),       expect &:= time("1858-11-17 0:0:0"));
         insert(state, time("1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
         insert(state, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
         insert(state, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
@@ -5915,6 +5923,7 @@ const proc: testTimeStampField (in database: testDb, in dbCategory: databaseKind
         insert(state, setLocalTZ(time("1752-12-31 23:59:59")),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
         insert(state, setLocalTZ(time("1753-1-1 0:0:0")),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
         insert(state, setLocalTZ(time("1800-1-1 0:0:0")),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1858-11-17 0:0:0")),       expect &:= setLocalTZ(time("1858-11-17 0:0:0")));
         insert(state, setLocalTZ(time("1899-12-31 23:59:59")),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
         insert(state, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
         insert(state, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
@@ -6034,6 +6043,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
         insert(testDb, state, toTimeStamp(databaseKind, "1752-12-31 23:59:59"),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
         insert(testDb, state, toTimeStamp(databaseKind, "1753-1-1 0:0:0"),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
         insert(testDb, state, toTimeStamp(databaseKind, "1800-1-1 0:0:0"),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1858-11-17 0:0:0"),       expect &:= setLocalTZ(time("1858-11-17 0:0:0")));
         insert(testDb, state, toTimeStamp(databaseKind, "1899-12-31 23:59:59"),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
         insert(testDb, state, toTimeStamp(databaseKind, "1900-1-1 0:0:0"),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
         insert(testDb, state, toTimeStamp(databaseKind, "1961-1-9 6:1:0"),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
@@ -6084,6 +6094,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
         insert(state, time("1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
         insert(state, time("1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
         insert(state, time("1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(state, time("1858-11-17 0:0:0"),       expect &:= time("1858-11-17 0:0:0"));
         insert(state, time("1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
         insert(state, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
         insert(state, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
@@ -6134,6 +6145,7 @@ const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKi
         insert(state, setLocalTZ(time("1752-12-31 23:59:59")),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
         insert(state, setLocalTZ(time("1753-1-1 0:0:0")),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
         insert(state, setLocalTZ(time("1800-1-1 0:0:0")),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1858-11-17 0:0:0")),       expect &:= setLocalTZ(time("1858-11-17 0:0:0")));
         insert(state, setLocalTZ(time("1899-12-31 23:59:59")),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
         insert(state, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
         insert(state, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
