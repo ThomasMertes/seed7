@@ -7569,7 +7569,10 @@ int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
     int32Type result;
 
   /* bigToInt32 */
-    logFunction(printf("bigToInt32(%s)\n", bigHexCStri(big1)););
+    logFunction(printf("bigToInt32(%s, %s%d)\n",
+                       bigHexCStri(big1),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info););
     /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int32Type) / (BIGDIGIT_SIZE >> 3))) {
       logError(printf("bigToInt32(%s): Number too big or too small.\n",
@@ -7591,7 +7594,11 @@ int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
       } /* while */
 #endif
     } /* if */
-    logFunction(printf("bigToInt32 --> " FMT_D32 "\n", result););
+    logFunction(printf("bigToInt32(%s, %s%d) --> " FMT_D32 "\n",
+                       bigHexCStri(big1),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info,
+                       result););
     return result;
   } /* bigToInt32 */
 
@@ -7616,7 +7623,10 @@ int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info)
     int64Type result;
 
   /* bigToInt64 */
-    logFunction(printf("bigToInt64(%s)\n", bigHexCStri(big1)););
+    logFunction(printf("bigToInt64(%s, %s%d)\n",
+                       bigHexCStri(big1),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info););
     /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
       logError(printf("bigToInt64(%s): Number too big or too small.\n",
@@ -7638,7 +7648,11 @@ int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info)
       } /* while */
 #endif
     } /* if */
-    logFunction(printf("bigToInt64 --> " FMT_D64 "\n", result););
+    logFunction(printf("bigToInt64(%s, %s%d) --> " FMT_D64 "\n",
+                       bigHexCStri(big1),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info,
+                       result););
     return result;
   } /* bigToInt64 */
 
