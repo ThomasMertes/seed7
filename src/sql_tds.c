@@ -68,7 +68,8 @@ typedef struct {
     uintType     usage_count;
     boolType     isOpen;
     sqlFuncType  sqlFunc;
-    intType      driver;
+    int          driver;
+    int          dbCategory;
     DBPROCESS   *dbproc;
     boolType     autoCommit;
   } dbRecordTds, *dbType;
@@ -2872,8 +2873,9 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                       database->usage_count = 1;
                       database->isOpen = TRUE;
                       database->sqlFunc = sqlFunc;
-                      database->driver = DB_CATEGORY_TDS;
-                      database->dbproc = dbproc;
+                      database->driver     = DB_CATEGORY_TDS;
+                      database->dbCategory = DB_CATEGORY_TDS;
+                      database->dbproc     = dbproc;
                       database->autoCommit = TRUE;
                     } /* if */
                   } /* if */

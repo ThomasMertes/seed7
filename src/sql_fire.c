@@ -65,7 +65,8 @@ typedef struct {
     uintType      usage_count;
     boolType      isOpen;
     sqlFuncType   sqlFunc;
-    intType       driver;
+    int           driver;
+    int           dbCategory;
     isc_db_handle connection;
     isc_tr_handle trans_handle;
     boolType      autoCommit;
@@ -3751,10 +3752,11 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     database->usage_count = 1;
                     database->isOpen = TRUE;
                     database->sqlFunc = sqlFunc;
-                    database->driver = DB_CATEGORY_FIREBIRD;
-                    database->connection = db_handle;
+                    database->driver       = DB_CATEGORY_FIREBIRD;
+                    database->dbCategory   = DB_CATEGORY_FIREBIRD;
+                    database->connection   = db_handle;
                     database->trans_handle = trans_handle;
-                    database->autoCommit = TRUE;
+                    database->autoCommit   = TRUE;
                   } /* if */
                 } /* if */
               } /* if */

@@ -65,7 +65,8 @@ typedef struct {
     uintType     usage_count;
     boolType     isOpen;
     sqlFuncType  sqlFunc;
-    intType      driver;
+    int          driver;
+    int          dbCategory;
     MYSQL       *connection;
     boolType     autoCommit;
     boolType     backslashEscapes;
@@ -3020,7 +3021,8 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   database->usage_count = 1;
                   database->isOpen = TRUE;
                   database->sqlFunc = sqlFunc;
-                  database->driver = DB_CATEGORY_MYSQL;
+                  database->driver     = DB_CATEGORY_MYSQL;
+                  database->dbCategory = DB_CATEGORY_MYSQL;
                   database->connection = connection;
                   database->autoCommit = TRUE;
                   database->backslashEscapes = determineIfBackslashEscapes(database);

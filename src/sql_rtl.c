@@ -63,7 +63,8 @@ typedef struct dbStruct {
     uintType     usage_count;
     boolType     isOpen;
     sqlFuncType  sqlFunc;
-    intType      driver;
+    int          driver;
+    int          dbCategory;
   } dbRecord, *dbType;
 
 typedef struct preparedStmtStruct {
@@ -1474,7 +1475,7 @@ intType sqlDriver (databaseType database)
       raise_error(RANGE_ERROR);
       driver = 0;
     } else {
-      driver = ((dbType) database)->driver;
+      driver = (intType) ((dbType) database)->driver;
     } /* if */
     logFunction(printf("sqlDriver --> " FMT_D "\n", driver););
     return driver;

@@ -83,7 +83,8 @@ typedef struct {
     uintType     usage_count;
     boolType     isOpen;
     sqlFuncType  sqlFunc;
-    intType      driver;
+    int          driver;
+    int          dbCategory;
     PGconn      *connection;
     boolType     integerDatetimes;
     uintType     nextStmtNum;
@@ -3760,7 +3761,8 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               database->usage_count = 1;
               database->isOpen = TRUE;
               database->sqlFunc = sqlFunc;
-              database->driver = DB_CATEGORY_POSTGRESQL;
+              database->driver     = DB_CATEGORY_POSTGRESQL;
+              database->dbCategory = DB_CATEGORY_POSTGRESQL;
               database->connection = db.connection;
               setting = PQparameterStatus(db.connection, "integer_datetimes");
               database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;

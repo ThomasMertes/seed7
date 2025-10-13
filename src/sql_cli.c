@@ -35,13 +35,13 @@ typedef struct {
     uintType     usage_count;
     boolType     isOpen;
     sqlFuncType  sqlFunc;
-    intType      driver;
+    int          driver;
+    int          dbCategory;
     SQLHENV      sql_environment;
     SQLHDBC      connection;
     boolType     wideCharsSupported;
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
-    intType      dbCategory;
     boolType     backslashEscapes;
     char         identifierQuotationChar;
   } dbRecordCli, *dbType;
@@ -6324,7 +6324,7 @@ static boolType determineIfBackslashEscapes (dbType database)
 
 
 
-static intType determineDbCategory (SQLHDBC connection)
+static int determineDbCategory (SQLHDBC connection)
 
   {
     const SQLWCHAR mySQL[] = {'M', 'y', 'S', 'Q', 'L', '\0'};
@@ -6334,7 +6334,7 @@ static intType determineDbCategory (SQLHDBC connection)
                                   'S', 'Q', 'L', ' ', 'S', 'e', 'r', 'v', 'e', 'r', '\0'};
     SQLWCHAR dbmsName[1024];
     SQLSMALLINT dbmsNameLength;
-    intType dbCategory = DB_CATEGORY_NO_DB;
+    int dbCategory = DB_CATEGORY_NO_DB;
 
   /* determineDbCategory */
     if (SQLGetInfoW(connection,
@@ -6360,7 +6360,7 @@ static intType determineDbCategory (SQLHDBC connection)
         dbCategory = DB_CATEGORY_SQL_SERVER;
       } /* if */
     } /* if */
-    logFunction(printf("determineDbCategory --> " FMT_D "\n",
+    logFunction(printf("determineDbCategory --> %d\n",
                        dbCategory););
     return dbCategory;
   } /* determineDbCategory */
@@ -6424,12 +6424,12 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       database->isOpen = TRUE;
       database->sqlFunc = sqlFunc;
       database->driver = driver;
+      database->dbCategory = determineDbCategory(connection);
       database->sql_environment = sql_environment;
       database->connection = connection;
       database->wideCharsSupported = wideCharsSupported;
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;
-      database->dbCategory = determineDbCategory(connection);
       if (database->dbCategory == DB_CATEGORY_MYSQL) {
         database->identifierQuotationChar = '`';
       } else {
