@@ -3531,8 +3531,12 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
         switch (param->dataType) {
           case SQL_DECIMAL:
           case SQL_NUMERIC:
+          case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
 #if ENCODE_NUMERIC_STRUCT
             c_type = SQL_C_NUMERIC,
 #else
@@ -3749,8 +3753,12 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
           case SQL_BINARY:
           case SQL_VARBINARY:
           case SQL_LONGVARBINARY:
+          case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
           case SQL_BLOB:
           case SQL_CLOB:
             c_type = SQL_C_BINARY;
@@ -3862,8 +3870,12 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         param = &preparedStmt->param_array[pos - 1];
         logMessage(printf("dataType: %s\n", nameOfSqlType(param->dataType)););
         switch (param->dataType) {
+          case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
             if (param->buffer_capacity < sizeof(SQL_INTERVAL_STRUCT)) {
               free(param->buffer);
               if (unlikely((param->buffer = malloc(
@@ -4486,9 +4498,12 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
             timestampValue->fraction = (SQLUINTEGER)  fraction;
             /* printf("fraction: %lu\n", (unsigned long) timestampValue->fraction); */
             break;
-          case SQL_WVARCHAR:
+          case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
             c_type = SQL_C_CHAR;
             if (param->buffer_capacity < SIZ_CSTRI(MAX_DATETIME2_LENGTH)) {
               free(param->buffer);
