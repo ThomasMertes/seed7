@@ -3341,7 +3341,7 @@ const proc: testNumericField (in database: testDb, in dbCategory: databaseKind) 
   end func;
 
 
-const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testChar1AsciiControlField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("char1AsciiTest", "char1AsciiField", FALSE);
     var array string: expect is 0 times "";
@@ -3349,7 +3349,7 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
     var integer: row is 1;
   begin
     if state.details then
-      writeln("testChar1AsciiField: " <& databaseKind);
+      writeln("testChar1AsciiControlField: " <& databaseKind);
     end if;
     block
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
@@ -3360,7 +3360,6 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, NULL,  expect &:= "");
 
-      insert(testDb, state, "''",      expect &:= "");
       if nullAllowedInStringLiteral(databaseKind) then
         insert(testDb, state, "'\0;'", expect &:= "\0;");
       end if;
@@ -3395,6 +3394,134 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       insert(testDb, state, "'\29;'",  expect &:= "\29;");
       insert(testDb, state, "'\30;'",  expect &:= "\30;");
       insert(testDb, state, "'\31;'",  expect &:= "\31;");
+      insert(testDb, state, "'\127;'", expect &:= "\127;");
+
+      insert(testDb, state, "'\a'",    expect &:= "\a");
+      insert(testDb, state, "'\b'",    expect &:= "\b");
+      insert(testDb, state, "'\t'",    expect &:= "\t");
+      insert(testDb, state, "'\n'",    expect &:= "\n");
+      insert(testDb, state, "'\v'",    expect &:= "\v");
+      insert(testDb, state, "'\f'",    expect &:= "\f");
+      insert(testDb, state, "'\r'",    expect &:= "\r");
+      insert(testDb, state, "'\e'",    expect &:= "\e");
+
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      if nullAllowedInString(databaseKind) then
+        insert(state, "\0;", expect &:= "\0;");
+      end if;
+      insert(state, "\1;",   expect &:= "\1;");
+      insert(state, "\2;",   expect &:= "\2;");
+      insert(state, "\3;",   expect &:= "\3;");
+      insert(state, "\4;",   expect &:= "\4;");
+      insert(state, "\5;",   expect &:= "\5;");
+      insert(state, "\6;",   expect &:= "\6;");
+      insert(state, "\7;",   expect &:= "\7;");
+      insert(state, "\8;",   expect &:= "\8;");
+      insert(state, "\9;",   expect &:= "\9;");
+      insert(state, "\10;",  expect &:= "\10;");
+      insert(state, "\11;",  expect &:= "\11;");
+      insert(state, "\12;",  expect &:= "\12;");
+      insert(state, "\13;",  expect &:= "\13;");
+      insert(state, "\14;",  expect &:= "\14;");
+      insert(state, "\15;",  expect &:= "\15;");
+      insert(state, "\16;",  expect &:= "\16;");
+      insert(state, "\17;",  expect &:= "\17;");
+      insert(state, "\18;",  expect &:= "\18;");
+      insert(state, "\19;",  expect &:= "\19;");
+      insert(state, "\20;",  expect &:= "\20;");
+      insert(state, "\21;",  expect &:= "\21;");
+      insert(state, "\22;",  expect &:= "\22;");
+      insert(state, "\23;",  expect &:= "\23;");
+      insert(state, "\24;",  expect &:= "\24;");
+      insert(state, "\25;",  expect &:= "\25;");
+      insert(state, "\26;",  expect &:= "\26;");
+      insert(state, "\27;",  expect &:= "\27;");
+      insert(state, "\28;",  expect &:= "\28;");
+      insert(state, "\29;",  expect &:= "\29;");
+      insert(state, "\30;",  expect &:= "\30;");
+      insert(state, "\31;",  expect &:= "\31;");
+      insert(state, "\127;", expect &:= "\127;");
+
+      insert(state, "\a",    expect &:= "\a");
+      insert(state, "\b",    expect &:= "\b");
+      insert(state, "\t",    expect &:= "\t");
+      insert(state, "\n",    expect &:= "\n");
+      insert(state, "\v",    expect &:= "\v");
+      insert(state, "\f",    expect &:= "\f");
+      insert(state, "\r",    expect &:= "\r");
+      insert(state, "\e",    expect &:= "\e");
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        stringColumn := column(state.statement, 1, string);
+        if stringColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1AsciiControlField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <&
+                    " found " <& literal(stringColumn));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1AsciiControlField: Row: " <& row <&
+                    " Expected NULL found " <& stringColumn);
+          end if;
+        end if;
+        if expect[row] <> "" and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testChar1AsciiControlField: Row: " <& row <&
+                    " Expected " <& expect[row] <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised: " <& errMessage(DATABASE_ERROR));
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching char(1) fields with ASCII control characters works okay.");
+    else
+      writeln(" *** Inserting and fetching char(1) fields with ASCII control characters does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("char1AsciiTest", "char1AsciiField", FALSE);
+    var array string: expect is 0 times "";
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testChar1AsciiField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " CHAR)");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= "");
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,  expect &:= "");
+
+      insert(testDb, state, "''",      expect &:= "");
       if charFieldPreservesTrailingSpaces(databaseKind) then
         # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
@@ -3441,7 +3568,6 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       insert(testDb, state, "'|'",     expect &:= "|");
       insert(testDb, state, "'}'",     expect &:= "}");
       insert(testDb, state, "'~'",     expect &:= "~");
-      insert(testDb, state, "'\127;'", expect &:= "\127;");
 
       insert(testDb, state, "0",     expect &:= "0");
       insert(testDb, state, "1",     expect &:= "1");
@@ -3450,40 +3576,6 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, "",    expect &:= "");
-      if nullAllowedInString(databaseKind) then
-        insert(state, "\0;", expect &:= "\0;");
-      end if;
-      insert(state, "\1;",   expect &:= "\1;");
-      insert(state, "\2;",   expect &:= "\2;");
-      insert(state, "\3;",   expect &:= "\3;");
-      insert(state, "\4;",   expect &:= "\4;");
-      insert(state, "\5;",   expect &:= "\5;");
-      insert(state, "\6;",   expect &:= "\6;");
-      insert(state, "\7;",   expect &:= "\7;");
-      insert(state, "\8;",   expect &:= "\8;");
-      insert(state, "\9;",   expect &:= "\9;");
-      insert(state, "\10;",  expect &:= "\10;");
-      insert(state, "\11;",  expect &:= "\11;");
-      insert(state, "\12;",  expect &:= "\12;");
-      insert(state, "\13;",  expect &:= "\13;");
-      insert(state, "\14;",  expect &:= "\14;");
-      insert(state, "\15;",  expect &:= "\15;");
-      insert(state, "\16;",  expect &:= "\16;");
-      insert(state, "\17;",  expect &:= "\17;");
-      insert(state, "\18;",  expect &:= "\18;");
-      insert(state, "\19;",  expect &:= "\19;");
-      insert(state, "\20;",  expect &:= "\20;");
-      insert(state, "\21;",  expect &:= "\21;");
-      insert(state, "\22;",  expect &:= "\22;");
-      insert(state, "\23;",  expect &:= "\23;");
-      insert(state, "\24;",  expect &:= "\24;");
-      insert(state, "\25;",  expect &:= "\25;");
-      insert(state, "\26;",  expect &:= "\26;");
-      insert(state, "\27;",  expect &:= "\27;");
-      insert(state, "\28;",  expect &:= "\28;");
-      insert(state, "\29;",  expect &:= "\29;");
-      insert(state, "\30;",  expect &:= "\30;");
-      insert(state, "\31;",  expect &:= "\31;");
       if charFieldPreservesTrailingSpaces(databaseKind) then
         # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
@@ -3530,7 +3622,6 @@ const proc: testChar1AsciiField (in database: testDb, in dbCategory: databaseKin
       insert(state, "|",     expect &:= "|");
       insert(state, "}",     expect &:= "}");
       insert(state, "~",     expect &:= "~");
-      insert(state, "\127;", expect &:= "\127;");
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
@@ -7089,6 +7180,7 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testNumericIntField(testDb, databaseKind);
     testDecimalField(testDb, databaseKind);
     testNumericField(testDb, databaseKind);
+    testChar1AsciiControlField(testDb, databaseKind);
     testChar1AsciiField(testDb, databaseKind);
     testChar1Latin1C1ControlField(testDb, databaseKind);
     testChar1Latin1Field(testDb, databaseKind);
