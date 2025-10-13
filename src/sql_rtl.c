@@ -1366,6 +1366,29 @@ genericType sqlCreateStmtGeneric (const genericType from_value)
 
 
 
+intType sqlDbCategory (databaseType database)
+
+  {
+    intType dbCategory;
+
+  /* sqlDbCategory */
+    logFunction(printf("sqlDbCategory(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL)) {
+      logError(printf("sqlDbCategory(" FMT_U_MEM "): "
+                      "Database is empty.\n",
+                      (memSizeType) database););
+      raise_error(RANGE_ERROR);
+      dbCategory = 0;
+    } else {
+      dbCategory = (intType) ((dbType) database)->dbCategory;
+    } /* if */
+    logFunction(printf("sqlDbCategory --> " FMT_D "\n", dbCategory););
+    return dbCategory;
+  } /* sqlDbCategory */
+
+
+
 /**
  *  Maintain a usage count and free an unused database 'old_db'.
  *  After a database is freed 'old_db' refers to not existing memory.

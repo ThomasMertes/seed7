@@ -52,6 +52,7 @@ objectType sql_cpy_db            (listType arguments);
 objectType sql_cpy_stmt          (listType arguments);
 objectType sql_create_db         (listType arguments);
 objectType sql_create_stmt       (listType arguments);
+objectType sql_db_category       (listType arguments);
 objectType sql_destr_db          (listType arguments);
 objectType sql_destr_stmt        (listType arguments);
 objectType sql_driver            (listType arguments);

@@ -988,6 +988,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SQL_CPY_STMT",                 sql_cpy_stmt,                 },
     { "SQL_CREATE_DB",                sql_create_db,                },
     { "SQL_CREATE_STMT",              sql_create_stmt,              },
+    { "SQL_DB_CATEGORY",              sql_db_category,              },
     { "SQL_DESTR_DB",                 sql_destr_db,                 },
     { "SQL_DESTR_STMT",               sql_destr_stmt,               },
     { "SQL_DRIVER",                   sql_driver,                   },

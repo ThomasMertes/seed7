@@ -521,6 +521,15 @@ objectType sql_create_stmt (listType arguments)
 
 
 
+objectType sql_db_category (listType arguments)
+
+  { /* sql_db_category */
+    isit_database(arg_1(arguments));
+    return bld_int_temp(sqlDbCategory(take_database(arg_1(arguments))));
+  } /* sql_db_category */
+
+
+
 objectType sql_destr_db (listType arguments)
 
   { /* sql_destr_db */
