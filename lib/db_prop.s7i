@@ -846,7 +846,7 @@ const func time: minTimeStamp (in dbCategory: databaseKind) is func
       when {DB_SQLITE}:     minTimeStamp := time("0-1-1 0:0:0");
       when {DB_POSTGRESQL}: minTimeStamp := time("-4712-1-1 0:0:0");
       when {DB_OCI}:        minTimeStamp := time("0-1-1 0:0:0");
-      when {DB_FIRE}:       minTimeStamp := time("0-1-1 0:0:0");
+      when {DB_FIRE}:       minTimeStamp := time("1-1-1 0:0:0");
       when {DB_SQL_SERVER}: minTimeStamp := time("1-1-1 0:0:0");
       when {DB_DB2}:        minTimeStamp := time("1-1-1 0:0:0");
     end case;
@@ -887,7 +887,19 @@ const func string: toTimeStamp (in dbCategory: databaseKind, in string: timeStam
           else
             toTimeStamp := "to_timestamp('" <& timeStamp <& "', 'YYYY-MM-DD HH24:MI:SS.FF')";
           end if;
-      when {DB_FIRE}:       toTimeStamp := "'" & timeStamp & "'";
+      when {DB_FIRE}:
+          aTime := time(timeStamp);
+          if aTime.micro_second = 0 then
+            toTimeStamp := "'" <& aTime.year lpad0 4 <& "-" <&
+                aTime.month <& "-" <& aTime.day <& " " <&
+                aTime.hour <& ":" <& aTime.minute <& ":" <& aTime.second <& "'";
+          else
+            toTimeStamp := "'" <& aTime.year lpad0 4 <& "-" <&
+                aTime.month <& "-" <& aTime.day <& " " <&
+                aTime.hour <& ":" <& aTime.minute <& ":" <& aTime.second <&
+                "." <& aTime.micro_second lpad0 6 <& "'";
+            toTimeStamp := replaceN(toTimeStamp, "0'", "'");
+          end if;
       when {DB_SQL_SERVER}:
           aTime := time(timeStamp);
           toTimeStamp := "'" <& aTime.year lpad0 4 <& "-" <&
