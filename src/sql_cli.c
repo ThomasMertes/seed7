@@ -3429,6 +3429,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                 *(int32Type *) param->buffer = value32;
               } /* if */
             } else {
+              err_info = OKAY_NO_ERROR;
               value64 = bigToInt64(value, &err_info);
               if (likely(err_info == OKAY_NO_ERROR)) {
                 c_type = SQL_C_SBIGINT;
@@ -3456,6 +3457,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                                                  value, &err_info);
               } /* if */
             } /* if */
+            logMessage(printf("c_type: %s\n", nameOfCType(c_type)););
             break;
           default:
             logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
