@@ -797,7 +797,11 @@ const func string: toDateTime (in dbCategory: databaseKind, in string: dateTime)
           else
             toDateTime := "to_date('" <& dateTime <& "', 'YYYY-MM-DD HH24:MI:SS')";
           end if;
-      when {DB_FIRE}:       toDateTime := "'" & dateTime & "'";
+      when {DB_FIRE}:
+          aTime := time(dateTime);
+          toDateTime := "'" <& aTime.year lpad0 4 <& "-" <&
+              aTime.month <& "-" <& aTime.day <& " " <&
+              aTime.hour <& ":" <& aTime.minute <& ":" <& aTime.second <& "'";
       when {DB_SQL_SERVER}:
           aTime := time(dateTime);
           toDateTime := "'" <& aTime.year lpad0 4 <& "-" <&
