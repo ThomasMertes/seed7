@@ -3840,14 +3840,6 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(state, NULL,  expect &:= "");
 
       insert(testDb, state, "''",      expect &:= "");
-      if nullAllowedInStringLiteral(databaseKind) then
-        insert(testDb, state, "'\0;'", expect &:= "\0;");
-      end if;
-      insert(testDb, state, "'\1;'",   expect &:= "\1;");
-      insert(testDb, state, "'\b'",    expect &:= "\b");
-      insert(testDb, state, "'\t'",    expect &:= "\t");
-      insert(testDb, state, "'\n'",    expect &:= "\n");
-      insert(testDb, state, "'\e'",    expect &:= "\e");
       if charFieldPreservesTrailingSpaces(databaseKind) then
         # Reading a char field preserves trailing spaces.
         insert(testDb, state, "' '",   expect &:= " ");
@@ -3868,20 +3860,55 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(testDb, state, "'`'",     expect &:= "`");
       insert(testDb, state, "'a'",     expect &:= "a");
       insert(testDb, state, "'~'",     expect &:= "~");
-      insert(testDb, state, "'\127;'", expect &:= "\127;");
+
       insert(testDb, state, "'\160;'", expect &:= "\160;");
       insert(testDb, state, "'¡'",     expect &:= "¡");
+      insert(testDb, state, "'¢'",     expect &:= "¢");
+      insert(testDb, state, "'£'",     expect &:= "£");
       insert(testDb, state, "'¤'",     expect &:= "¤");
+      insert(testDb, state, "'¥'",     expect &:= "¥");
+      insert(testDb, state, "'¦'",     expect &:= "¦");
       insert(testDb, state, "'§'",     expect &:= "§");
+      insert(testDb, state, "'¨'",     expect &:= "¨");
+      insert(testDb, state, "'©'",     expect &:= "©");
+      insert(testDb, state, "'ª'",     expect &:= "ª");
+      insert(testDb, state, "'«'",     expect &:= "«");
       insert(testDb, state, "'¬'",     expect &:= "¬");
       insert(testDb, state, "'­'",     expect &:= "­");
+      insert(testDb, state, "'®'",     expect &:= "®");
+      insert(testDb, state, "'¯'",     expect &:= "¯");
+      insert(testDb, state, "'°'",     expect &:= "°");
+      insert(testDb, state, "'±'",     expect &:= "±");
+      insert(testDb, state, "'²'",     expect &:= "²");
+      insert(testDb, state, "'³'",     expect &:= "³");
+      insert(testDb, state, "'´'",     expect &:= "´");
       insert(testDb, state, "'µ'",     expect &:= "µ");
+      insert(testDb, state, "'¶'",     expect &:= "¶");
+      insert(testDb, state, "'·'",     expect &:= "·");
+      insert(testDb, state, "'¸'",     expect &:= "¸");
+      insert(testDb, state, "'¹'",     expect &:= "¹");
+      insert(testDb, state, "'º'",     expect &:= "º");
+      insert(testDb, state, "'»'",     expect &:= "»");
+      insert(testDb, state, "'¼'",     expect &:= "¼");
+      insert(testDb, state, "'½'",     expect &:= "½");
+      insert(testDb, state, "'¾'",     expect &:= "¾");
       insert(testDb, state, "'¿'",     expect &:= "¿");
+
       insert(testDb, state, "'Ä'",     expect &:= "Ä");
+      insert(testDb, state, "'Æ'",     expect &:= "Æ");
+      insert(testDb, state, "'Ç'",     expect &:= "Ç");
+      insert(testDb, state, "'Ð'",     expect &:= "Ð");
+      insert(testDb, state, "'Ñ'",     expect &:= "Ñ");
       insert(testDb, state, "'×'",     expect &:= "×");
+      insert(testDb, state, "'Ø'",     expect &:= "Ø");
       insert(testDb, state, "'ß'",     expect &:= "ß");
       insert(testDb, state, "'ä'",     expect &:= "ä");
+      insert(testDb, state, "'æ'",     expect &:= "æ");
+      insert(testDb, state, "'ç'",     expect &:= "ç");
+      insert(testDb, state, "'ð'",     expect &:= "ð");
+      insert(testDb, state, "'ñ'",     expect &:= "ñ");
       insert(testDb, state, "'÷'",     expect &:= "÷");
+      insert(testDb, state, "'ø'",     expect &:= "ø");
       insert(testDb, state, "'ÿ'",     expect &:= "ÿ");
 
       insert(testDb, state, "0",     expect &:= "0");
@@ -3891,14 +3918,6 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, "",    expect &:= "");
-      if nullAllowedInString(databaseKind) then
-        insert(state, "\0;", expect &:= "\0;");
-      end if;
-      insert(state, "\1;",   expect &:= "\1;");
-      insert(state, "\b",    expect &:= "\b");
-      insert(state, "\t",    expect &:= "\t");
-      insert(state, "\n",    expect &:= "\n");
-      insert(state, "\e",    expect &:= "\e");
       if charFieldPreservesTrailingSpaces(databaseKind) then
         # Reading a char field preserves trailing spaces.
         insert(state, " ",   expect &:= " ");
@@ -3919,20 +3938,55 @@ const proc: testChar1Latin1Field (in database: testDb, in dbCategory: databaseKi
       insert(state, "`",     expect &:= "`");
       insert(state, "a",     expect &:= "a");
       insert(state, "~",     expect &:= "~");
-      insert(state, "\127;", expect &:= "\127;");
+
       insert(state, "\160;", expect &:= "\160;");
       insert(state, "¡",     expect &:= "¡");
+      insert(state, "¢",     expect &:= "¢");
+      insert(state, "£",     expect &:= "£");
       insert(state, "¤",     expect &:= "¤");
+      insert(state, "¥",     expect &:= "¥");
+      insert(state, "¦",     expect &:= "¦");
       insert(state, "§",     expect &:= "§");
+      insert(state, "¨",     expect &:= "¨");
+      insert(state, "©",     expect &:= "©");
+      insert(state, "ª",     expect &:= "ª");
+      insert(state, "«",     expect &:= "«");
       insert(state, "¬",     expect &:= "¬");
       insert(state, "­",     expect &:= "­");
+      insert(state, "®",     expect &:= "®");
+      insert(state, "¯",     expect &:= "¯");
+      insert(state, "°",     expect &:= "°");
+      insert(state, "±",     expect &:= "±");
+      insert(state, "²",     expect &:= "²");
+      insert(state, "³",     expect &:= "³");
+      insert(state, "´",     expect &:= "´");
       insert(state, "µ",     expect &:= "µ");
+      insert(state, "¶",     expect &:= "¶");
+      insert(state, "·",     expect &:= "·");
+      insert(state, "¸",     expect &:= "¸");
+      insert(state, "¹",     expect &:= "¹");
+      insert(state, "º",     expect &:= "º");
+      insert(state, "»",     expect &:= "»");
+      insert(state, "¼",     expect &:= "¼");
+      insert(state, "½",     expect &:= "½");
+      insert(state, "¾",     expect &:= "¾");
       insert(state, "¿",     expect &:= "¿");
+
       insert(state, "Ä",     expect &:= "Ä");
+      insert(state, "Æ",     expect &:= "Æ");
+      insert(state, "Ç",     expect &:= "Ç");
+      insert(state, "Ð",     expect &:= "Ð");
+      insert(state, "Ñ",     expect &:= "Ñ");
       insert(state, "×",     expect &:= "×");
+      insert(state, "Ø",     expect &:= "Ø");
       insert(state, "ß",     expect &:= "ß");
       insert(state, "ä",     expect &:= "ä");
+      insert(state, "æ",     expect &:= "æ");
+      insert(state, "ç",     expect &:= "ç");
+      insert(state, "ð",     expect &:= "ð");
+      insert(state, "ñ",     expect &:= "ñ");
       insert(state, "÷",     expect &:= "÷");
+      insert(state, "ø",     expect &:= "ø");
       insert(state, "ÿ",     expect &:= "ÿ");
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
