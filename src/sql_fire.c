@@ -2977,15 +2977,16 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_TYPE_TIME:
             isc_decode_sql_time((ISC_TIME *) sqlvar->sqldata, &tm_time);
-            *year   = tm_time.tm_year + 1900;
-            *month  = tm_time.tm_mon + 1;
-            *day    = tm_time.tm_mday;
+            *year   = 2000;
+            *month  = 1;
+            *day    = 1;
             *hour   = tm_time.tm_hour;
             *minute = tm_time.tm_min;
             *second = tm_time.tm_sec;
             *micro_second = (intType) (*(ISC_TIME *) sqlvar->sqldata % 10000) * 100;
             timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                           time_zone, is_dst);
+            *year = 0;
             break;
           case SQL_TYPE_DATE:
             isc_decode_sql_date((ISC_DATE *) sqlvar->sqldata, &tm_time);
