@@ -2457,8 +2457,8 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
     memSizeType destIndex = 0;
 
   /* setDecimalBigInt */
-    logFunction(printf("setDecimalBigInt(*, *, %s, *)\n",
-                       bigHexCStri(bigIntValue)););
+    logFunction(printf("setDecimalBigInt(*, *, %s, %d)\n",
+                       bigHexCStri(bigIntValue), *err_info););
     stri = bigStrDecimal(bigIntValue);
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
@@ -2485,6 +2485,10 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
       } /* if */
       FREE_STRI(stri);
     } /* if */
+    logFunction(printf("setDecimalBigInt(*, *, %s, %d) --> "
+                       FMT_U_MEM "\n",
+                       bigHexCStri(bigIntValue),
+                       *err_info, destIndex););
     return destIndex;
   } /* setDecimalBigInt */
 
@@ -3447,6 +3451,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                   *(int64Type *) param->buffer = value64;
                 } /* if */
               } else {
+                err_info = OKAY_NO_ERROR;
 #if ENCODE_NUMERIC_STRUCT
                 c_type = SQL_C_NUMERIC,
 #else
