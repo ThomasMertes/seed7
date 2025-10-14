@@ -1701,27 +1701,32 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
       switch (sqlvar->sqltype & ~1) {
           case SQL_TIMESTAMP:
-            tm_time.tm_year = (int) year;
+            memset(&tm_time, 0, sizeof(struct tm));
+            tm_time.tm_year = (int) year + 100;
             tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
+            tm_time.tm_mday = (int) day + 1;
             tm_time.tm_hour = (int) hour;
             tm_time.tm_min  = (int) minute;
             tm_time.tm_sec  = (int) second;
             isc_encode_timestamp(&tm_time, (ISC_TIMESTAMP *) sqlvar->sqldata);
+            ((ISC_TIMESTAMP *) sqlvar->sqldata)->timestamp_time += (ISC_TIME) micro_second / 100;
             break;
           case SQL_TYPE_TIME:
-            tm_time.tm_year = (int) year;
+            memset(&tm_time, 0, sizeof(struct tm));
+            tm_time.tm_year = (int) year + 100;
             tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
+            tm_time.tm_mday = (int) day + 1;
             tm_time.tm_hour = (int) hour;
             tm_time.tm_min  = (int) minute;
             tm_time.tm_sec  = (int) second;
             isc_encode_sql_time(&tm_time, (ISC_TIME *) sqlvar->sqldata);
+            *(ISC_TIME *) sqlvar->sqldata += (ISC_TIME) micro_second / 100;
             break;
           case SQL_TYPE_DATE:
-            tm_time.tm_year = (int) year;
+            memset(&tm_time, 0, sizeof(struct tm));
+            tm_time.tm_year = (int) year + 100;
             tm_time.tm_mon  = (int) month;
-            tm_time.tm_mday = (int) day;
+            tm_time.tm_mday = (int) day + 1;
             tm_time.tm_hour = (int) hour;
             tm_time.tm_min  = (int) minute;
             tm_time.tm_sec  = (int) second;
@@ -2067,6 +2072,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
       switch (sqlvar->sqltype & ~1) {
           case SQL_TIMESTAMP:
+            memset(&tm_time, 0, sizeof(struct tm));
             tm_time.tm_year = (int) year - 1900;
             tm_time.tm_mon  = (int) month - 1;
             tm_time.tm_mday = (int) day;
@@ -2077,6 +2083,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
             ((ISC_TIMESTAMP *) sqlvar->sqldata)->timestamp_time += (ISC_TIME) micro_second / 100;
             break;
           case SQL_TYPE_TIME:
+            memset(&tm_time, 0, sizeof(struct tm));
             tm_time.tm_year = (int) year - 1900;
             tm_time.tm_mon  = (int) month - 1;
             tm_time.tm_mday = (int) day;
@@ -2087,6 +2094,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
             *(ISC_TIME *) sqlvar->sqldata += (ISC_TIME) micro_second / 100;
             break;
           case SQL_TYPE_DATE:
+            memset(&tm_time, 0, sizeof(struct tm));
             tm_time.tm_year = (int) year - 1900;
             tm_time.tm_mon  = (int) month - 1;
             tm_time.tm_mday = (int) day;
@@ -2584,9 +2592,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         switch (sqlvar->sqltype & ~1) {
           case SQL_TIMESTAMP:
             isc_decode_timestamp((ISC_TIMESTAMP *) sqlvar->sqldata, &tm_time);
-            *year   = tm_time.tm_year;
-            *month  = tm_time.tm_mon - 13;
-            *day    = tm_time.tm_mday;
+            *year   = tm_time.tm_year - 100;
+            *month  = tm_time.tm_mon;
+            *day    = tm_time.tm_mday - 1;
             *hour   = tm_time.tm_hour;
             *minute = tm_time.tm_min;
             *second = tm_time.tm_sec;
@@ -2594,9 +2602,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_TYPE_TIME:
             isc_decode_sql_time((ISC_TIME *) sqlvar->sqldata, &tm_time);
-            *year   = tm_time.tm_year;
+            *year   = tm_time.tm_year - 100;
             *month  = tm_time.tm_mon;
-            *day    = tm_time.tm_mday;
+            *day    = tm_time.tm_mday - 1;
             *hour   = tm_time.tm_hour;
             *minute = tm_time.tm_min;
             *second = tm_time.tm_sec;
@@ -2604,9 +2612,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_TYPE_DATE:
             isc_decode_sql_date((ISC_DATE *) sqlvar->sqldata, &tm_time);
-            *year   = tm_time.tm_year;
+            *year   = tm_time.tm_year - 100;
             *month  = tm_time.tm_mon;
-            *day    = tm_time.tm_mday;
+            *day    = tm_time.tm_mday - 1;
             *hour   = tm_time.tm_hour;
             *minute = tm_time.tm_min;
             *second = tm_time.tm_sec;
