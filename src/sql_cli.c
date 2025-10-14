@@ -4625,6 +4625,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     preparedStmtType preparedStmt;
     resultDescrType columnDescr;
     resultDataType columnData;
+    striType decimal;
+    errInfoType err_info = OKAY_NO_ERROR;
     bigIntType columnValue;
 
   /* sqlColumnBigInt */
@@ -4685,6 +4687,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                 *(int64Type *) columnData->buffer);
             break;
           case SQL_DECIMAL:
+          case SQL_CHAR:
+          case SQL_VARCHAR:
+          case SQL_LONGVARCHAR:
             columnValue = getDecimalBigInt(
                 (const_ustriType) columnData->buffer,
                 (memSizeType) columnData->length);
@@ -4692,6 +4697,21 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           case SQL_NUMERIC:
             columnValue = getBigInt(columnData->buffer,
                 (memSizeType) columnData->length);
+            break;
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            decimal = sqlwstri_to_stri(
+                (SQLWCHAR *) columnData->buffer,
+                (memSizeType) columnData->length / sizeof(SQLWCHAR),
+                &err_info);
+            if (unlikely(decimal == NULL)) {
+              raise_error(err_info);
+              columnValue = NULL;
+            } else {
+              columnValue = bigParse(decimal);
+              strDestr(decimal);
+            } /* if */
             break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
