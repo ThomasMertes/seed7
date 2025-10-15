@@ -471,6 +471,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
         numerator = bigFromDecimalBuffer(bstri->size, bstri->mem, &err_info);
         FREE_BSTRI(bstri, length);
         if (unlikely(numerator == NULL)) {
+          *denominator = NULL;
           raise_error(err_info);
         } else {
           if (unlikely(scale > INTTYPE_MAX)) {
