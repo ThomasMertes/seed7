@@ -56,11 +56,6 @@
 
 #define MAX_DECIMAL_BUFFER_LENGTH 128
 
-/* DECIMAL_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
-#define DECIMAL_WITH_LIMIT(decimal, length) \
-    (int) ((length) <= AND_SO_ON_LIMIT ? (length) : AND_SO_ON_LIMIT), \
-    decimal, (length) > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
-
 
 
 /**
@@ -343,7 +338,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
 
   /* getDecimalInt */
     logFunction(printf("getDecimalInt(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, length), length););
+                       CSTRI_WITH_LIMIT(decimal, length), length););
     if (likely(length != 0)) {
       if (decimal[0] == '-') {
         negative = TRUE;
@@ -501,7 +496,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
 
   /* getDecimalFloat */
     logFunction(printf("getDecimalFloat(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, length), length););
+                       CSTRI_WITH_LIMIT(decimal, length), length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
       charBuffer = (char *) malloc(length + NULL_TERMINATION_LEN);
     } else {
