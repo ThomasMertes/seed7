@@ -7456,7 +7456,7 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= str(number);
       c_expr.expr &:= "] */ static struct identStruct id_";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "={";
+      c_expr.expr &:= "={(ustriType)";
       c_expr.expr &:= c_literal(str(aType));
       c_expr.expr &:= ",0,NULL,NULL,NULL,NULL,NULL,0,0,0};\n";
       c_expr.expr &:= "/* typ[";
