@@ -4721,8 +4721,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                 raise_error(err_info);
                 columnValue = NULL;
               } else {
-                columnValue = bigFromDecimalBuffer(length, decimal,
-                                                   &err_info);
+                columnValue = bigFromDecimalBuffer(length,
+                    (const const_ustriType) decimal, &err_info);
                 UNALLOC_CSTRI(decimal, length);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -4855,9 +4855,9 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                 UNALLOC_CSTRI(decimal, length);
                 raise_error(err_info);
               } else {
-                err_info = getDecimalBigRational(decimal, length,
-                                                 numerator,
-                                                 denominator);
+                err_info = getDecimalBigRational(
+                    (const const_ustriType) decimal, length,
+                    numerator, denominator);
                 UNALLOC_CSTRI(decimal, length);
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   raise_error(err_info);
