@@ -868,8 +868,6 @@ bigIntType bigFromDecimalBuffer (const memSizeType size,
           mpz_result = mpz_init_set_str(result, cstri, 10);
         } /* if */
         if (unlikely(mpz_result != 0)) {
-          mpz_clear(result);
-          FREE_BIG(result);
           logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
                           ", \"%.*s%s\"): "
                           "mpz_init_set_str(*, \"%s\", 10) failed.\n",
@@ -877,6 +875,8 @@ bigIntType bigFromDecimalBuffer (const memSizeType size,
                           cstri[0] == '+' && cstri[1] != '-' ?
                               &cstri[1] : cstri););
           UNALLOC_CSTRI(cstri, size);
+          mpz_clear(result);
+          FREE_BIG(result);
           raise_error(RANGE_ERROR);
           result = NULL;
         } else {
@@ -1643,14 +1643,14 @@ bigIntType bigParse (const const_striType stri)
         mpz_result = mpz_init_set_str(result, cstri, 10);
       } /* if */
       if (unlikely(mpz_result != 0)) {
-        mpz_clear(result);
-        FREE_BIG(result);
         logError(printf("bigParse(\"%s\"): "
                         "mpz_init_set_str(*, \"%s\", 10) failed.\n",
                         striAsUnquotedCStri(stri),
                         cstri[0] == '+' && cstri[1] != '-' ?
                             &cstri[1] : cstri););
         free_cstri(cstri, stri);
+        mpz_clear(result);
+        FREE_BIG(result);
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
