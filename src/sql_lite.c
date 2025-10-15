@@ -1264,9 +1264,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             raise_error(DATABASE_ERROR);
             columnValue = NULL;
           } else if (length >= 2 && memcmp(&((const_ustriType) blob)[length - 2], ".0", 2) == 0) {
-            columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length - 2);
+            columnValue = bigFromDecimalBuffer((memSizeType) length - 2, (const_ustriType) blob);
           } else {
-            columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length);
+            columnValue = bigFromDecimalBuffer((memSizeType) length, (const_ustriType) blob);
           } /* if */
           break;
         default:

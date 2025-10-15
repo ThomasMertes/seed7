@@ -1570,9 +1570,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            columnValue = getDecimalBigInt(
-                (const_ustriType) columnData->buffer,
-                columnData->length_value);
+            columnValue = bigFromDecimalBuffer(
+                columnData->length_value,
+                (const_ustriType) columnData->buffer);
             break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",

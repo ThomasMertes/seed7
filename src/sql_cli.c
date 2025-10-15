@@ -2258,7 +2258,7 @@ static bigIntType getBigInt (const void *buffer, memSizeType length)
 #if DECODE_NUMERIC_STRUCT
     return getNumericBigInt(buffer);
 #else
-    return getDecimalBigInt((const_ustriType) buffer, length);
+    return bigFromDecimalBuffer(length, (const_ustriType) buffer);
 #endif
   } /* getBigInt */
 
@@ -4690,9 +4690,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
-            columnValue = getDecimalBigInt(
-                (const_ustriType) columnData->buffer,
-                (memSizeType) columnData->length);
+            columnValue = bigFromDecimalBuffer(
+                (memSizeType) columnData->length,
+                (const_ustriType) columnData->buffer);
             break;
           case SQL_NUMERIC:
             columnValue = getBigInt(columnData->buffer,
