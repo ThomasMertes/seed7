@@ -37,8 +37,10 @@ striType doubleToStri (const double doubleValue, boolType roundDouble);
 bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
                                 bigIntType *denominator);
 intType getDecimalInt (const const_ustriType decimal, memSizeType length);
-bigIntType getDecimalBigRational (const const_ustriType decimal,
-                                  memSizeType length, bigIntType *denominator);
+errInfoType getDecimalBigRational (const const_ustriType decimal,
+                                   memSizeType length,
+                                   bigIntType *numerator,
+                                   bigIntType *denominator);
 floatType getDecimalFloat (const const_ustriType decimal, memSizeType length);
 ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
                            memSizeType *length, errInfoType *err_info);

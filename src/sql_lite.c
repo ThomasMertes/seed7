@@ -1294,6 +1294,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     int64Type columnValue64;
     const void *blob;
     int length;
+    errInfoType err_info;
 
   /* sqlColumnBigRat */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
@@ -1335,8 +1336,11 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                             column, (memSizeType) blob, length););
             raise_error(DATABASE_ERROR);
           } else {
-            *numerator = getDecimalBigRational(
-                (const_ustriType) blob, (memSizeType) length, denominator);
+            err_info = getDecimalBigRational((const_ustriType) blob,
+                (memSizeType) length, numerator, denominator);
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              raise_error(err_info);
+            } /* if */
           } /* if */
           break;
         default:

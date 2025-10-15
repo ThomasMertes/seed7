@@ -1598,6 +1598,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     MYSQL_BIND *columnData;
     float floatValue;
     double doubleValue;
+    errInfoType err_info;
 
   /* sqlColumnBigRat */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
@@ -1667,9 +1668,13 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            *numerator = getDecimalBigRational(
+            err_info = getDecimalBigRational(
                 (const_ustriType) columnData->buffer,
-                columnData->length_value, denominator);
+                columnData->length_value,
+                numerator, denominator);
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              raise_error(err_info);
+            } /* if */
             break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",

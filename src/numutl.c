@@ -413,8 +413,8 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
 
 
 
-bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType length,
-    bigIntType *denominator)
+errInfoType getDecimalBigRational (const const_ustriType decimal,
+    memSizeType length, bigIntType *numerator, bigIntType *denominator)
 
   {
     bstriType bstri;
@@ -424,16 +424,14 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
     memSizeType srcIndex;
     memSizeType destIndex = 0;
     memSizeType scale;
+    bigIntType number;
     errInfoType err_info = OKAY_NO_ERROR;
-    bigIntType numerator;
 
   /* getDecimalBigRational */
     logFunction(printf("getDecimalBigRational(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, length), length););
+                       CSTRI_WITH_LIMIT(decimal, length), length););
     if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(bstri, length))) {
-      *denominator = NULL;
-      raise_error(MEMORY_ERROR);
-      numerator = NULL;
+      err_info = MEMORY_ERROR;
     } else {
       for (srcIndex = 0; srcIndex < length && okay; srcIndex++) {
         if ((decimal[srcIndex] >= '0' && decimal[srcIndex] <= '9') ||
@@ -457,9 +455,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
       if (unlikely(!okay)) {
         logError(printf("getDecimalBigRational: Decimal literal illegal.\n"););
         FREE_BSTRI(bstri, length);
-        *denominator = NULL;
-        raise_error(RANGE_ERROR);
-        numerator = NULL;
+        err_info = RANGE_ERROR;
       } else {
         logMessage(printf("decimalPointPos: " FMT_U_MEM "\n", decimalPointPos););
         if (hasDecimalPoint) {
@@ -468,31 +464,29 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
           scale = 0;
         } /* if */
         logMessage(printf("scale: " FMT_U_MEM "\n", scale););
-        numerator = bigFromDecimalBuffer(bstri->size, bstri->mem, &err_info);
+        number = bigFromDecimalBuffer(bstri->size, bstri->mem, &err_info);
         FREE_BSTRI(bstri, length);
-        if (unlikely(numerator == NULL)) {
-          *denominator = NULL;
-          raise_error(err_info);
-        } else {
+        if (likely(number != NULL)) {
           if (unlikely(scale > INTTYPE_MAX)) {
-            *denominator = NULL;
-            bigDestr(numerator);
+            bigDestr(number);
             logError(printf("getDecimalBigRational: scale > INTTYPE_MAX\n"
                             "scale = " FMT_U_MEM ", INTTYPE_MAX = " FMT_D "\n",
                             scale, INTTYPE_MAX););
-            raise_error(RANGE_ERROR);
-            numerator = NULL;
+            err_info = RANGE_ERROR;
           } else {
+            *numerator = number;
             *denominator = bigIPowSignedDigit(10, (intType) scale);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("getDecimalBigRational --> %s",
-                       striAsUnquotedCStri(bigStr(numerator)));
-                printf(" (denominator = %s)\n",
-                       striAsUnquotedCStri(bigStr(*denominator))););
-    return numerator;
+    logFunction(printf("getDecimalBigRational(\"%.*s%s\", " FMT_U_MEM ", %s",
+                       CSTRI_WITH_LIMIT(decimal, length), length,
+                       bigHexCStri(*numerator));
+                printf(", %s) --> %d\n",
+                       bigHexCStri(*denominator),
+                       err_info););
+    return err_info;
   } /* getDecimalBigRational */
 
 

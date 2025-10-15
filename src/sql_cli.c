@@ -2264,14 +2264,21 @@ static bigIntType getBigInt (const void *buffer, memSizeType length)
 
 
 
-static bigIntType getBigRational (const void *buffer, memSizeType length,
-    bigIntType *denominator)
+static void getBigRational (const void *buffer, memSizeType length,
+    bigIntType *numerator, bigIntType *denominator)
 
-  { /* getBigRational */
+  {
+    errInfoType err_info;
+
+  /* getBigRational */
 #if DECODE_NUMERIC_STRUCT
-    return getNumericBigRational(buffer, denominator);
+    *numerator = getNumericBigRational(buffer, denominator);
 #else
-    return getDecimalBigRational((const_ustriType) buffer, length, denominator);
+    err_info = getDecimalBigRational((const_ustriType) buffer, length,
+                                     numerator, denominator);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
 #endif
   } /* getBigRational */
 
@@ -4627,7 +4634,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     resultDataType columnData;
     memSizeType length;
     cstriType decimal;
-    errInfoType err_info = OKAY_NO_ERROR;
+    errInfoType err_info;
     bigIntType columnValue;
 
   /* sqlColumnBigInt */
@@ -4746,7 +4753,10 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     resultDescrType columnDescr;
     resultDataType columnData;
     float floatValue;
+    memSizeType length;
+    cstriType decimal;
     double doubleValue;
+    errInfoType err_info;
 
   /* sqlColumnBigRat */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
@@ -4819,12 +4829,41 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             *numerator = roundDoubleToBigRat(doubleValue, TRUE, denominator);
             break;
           case SQL_DECIMAL:
-            *numerator = getDecimalBigRational((const_ustriType) columnData->buffer,
-                (memSizeType) columnData->length, denominator);
+            err_info = getDecimalBigRational(
+                (const_ustriType) columnData->buffer,
+                (memSizeType) columnData->length,
+                numerator, denominator);
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              raise_error(err_info);
+            } /* if */
             break;
           case SQL_NUMERIC:
-            *numerator = getBigRational(columnData->buffer,
-                (memSizeType) columnData->length, denominator);
+            getBigRational(columnData->buffer,
+                           (memSizeType) columnData->length,
+                           numerator, denominator);
+            break;
+          case SQL_WCHAR:
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            length = (memSizeType) columnData->length / sizeof(SQLWCHAR);
+            if (unlikely(!ALLOC_CSTRI(decimal, length))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              err_info = conv_sqlwstri_to_cstri(decimal,
+                  (SQLWCHAR *) columnData->buffer, length);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                UNALLOC_CSTRI(decimal, length);
+                raise_error(err_info);
+              } else {
+                err_info = getDecimalBigRational(decimal, length,
+                                                 numerator,
+                                                 denominator);
+                UNALLOC_CSTRI(decimal, length);
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  raise_error(err_info);
+                } /* if */
+              } /* if */
+            } /* if */
             break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
