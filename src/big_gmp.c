@@ -834,8 +834,28 @@ bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 
 
 
+/**
+ *  Convert a decimal byte string to a 'bigInteger' number.
+ *  The string must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace characters are
+ *  not allowed. The sequence of digits is taken to be decimal.
+ *  @param size Size of the 'decimal' buffer.
+ *  @param decimal Byte string with a decimal integer literal.
+ *  @param err_info Only used if err_info is not NULL.
+ *                  Unchanged if the function succeeds or
+ *                  RANGE_ERROR if the string does not contain an
+ *                  integer literal or
+ *                  MEMORY_ERROR if there is not enough memory to
+ *                  represent the result.
+ *  @return the 'bigInteger' result of the conversion.
+ *  @exception RANGE_ERROR If err_info is NULL and the string does
+ *             not contain an integer literal.
+ *  @exception MEMORY_ERROR If err_info is NULL and there is
+ *             not enough memory to represent the result.
+ */
 bigIntType bigFromDecimalBuffer (const memSizeType size,
-    const const_ustriType decimal)
+    const const_ustriType decimal, errInfoType *err_info)
 
   {
     cstriType cstri;
@@ -844,21 +864,33 @@ bigIntType bigFromDecimalBuffer (const memSizeType size,
 
   /* bigFromDecimalBuffer */
     logFunction(printf("bigFromDecimalBuffer(" FMT_U_MEM
-                       ", \"%.*s%s\")\n",
-                       size, CSTRI_WITH_LIMIT(decimal, size)););
+                       ", \"%.*s%s\", %s%d)\n",
+                       size, CSTRI_WITH_LIMIT(decimal, size),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info););
     if (unlikely(!ALLOC_CSTRI(cstri, size))) {
-      raise_error(MEMORY_ERROR);
+      if (err_info == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        *err_info = MEMORY_ERROR;
+      } /* if */
       return NULL;
     } else {
       memcpy(cstri, decimal, size);
       cstri[size] = '\0';
       if (strpbrk(cstri, " \f\n\r\t\v") != NULL) {
         logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
-                        ", \"%.*s%s\"): "
+                        ", \"%.*s%s\", %s%d): "
                         "String contains whitespace characters.\n",
-                        size, CSTRI_WITH_LIMIT(decimal, size)););
+                        size, CSTRI_WITH_LIMIT(decimal, size),
+                        err_info == NULL ? "NULL " : "",
+                        err_info == NULL ? 0 : *err_info););
         UNALLOC_CSTRI(cstri, size);
-        raise_error(RANGE_ERROR);
+        if (err_info == NULL) {
+          raise_error(RANGE_ERROR);
+        } else {
+          *err_info = RANGE_ERROR;
+        } /* if */
         result = NULL;
       } else {
         ALLOC_BIG(result);
@@ -869,22 +901,32 @@ bigIntType bigFromDecimalBuffer (const memSizeType size,
         } /* if */
         if (unlikely(mpz_result != 0)) {
           logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
-                          ", \"%.*s%s\"): "
+                          ", \"%.*s%s\", %s%d): "
                           "mpz_init_set_str(*, \"%s\", 10) failed.\n",
                           size, CSTRI_WITH_LIMIT(decimal, size),
+                          err_info == NULL ? "NULL " : "",
+                          err_info == NULL ? 0 : *err_info,
                           cstri[0] == '+' && cstri[1] != '-' ?
                               &cstri[1] : cstri););
           UNALLOC_CSTRI(cstri, size);
           mpz_clear(result);
           FREE_BIG(result);
-          raise_error(RANGE_ERROR);
+          if (err_info == NULL) {
+            raise_error(RANGE_ERROR);
+          } else {
+            *err_info = RANGE_ERROR;
+          } /* if */
           result = NULL;
         } else {
           UNALLOC_CSTRI(cstri, size);
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("bigFromDecimalBuffer --> %s\n",
+    logFunction(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                       ", \"%.*s%s\", %s%d) --> %s\n",
+                       size, CSTRI_WITH_LIMIT(decimal, size),
+                       err_info == NULL ? "NULL " : "",
+                       err_info == NULL ? 0 : *err_info,
                        bigHexCStri(result)););
     return result;
   } /* bigFromDecimalBuffer */

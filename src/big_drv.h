@@ -77,7 +77,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned);
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned);
 bigIntType bigFromDecimalBuffer (const memSizeType size,
-    const const_ustriType decimal);
+    const const_ustriType decimal, errInfoType *err_info);
 bigIntType bigFromInt32 (int32Type number);
 #ifdef INT64TYPE
   bigIntType bigFromInt64 (int64Type number);
