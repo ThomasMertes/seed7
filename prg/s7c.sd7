@@ -4303,7 +4303,7 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "  name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ".value.ustriValue=\"\";\n";
+    c_switch.expr &:= ".value.ustriValue=(ustriType)\"\";\n";
     c_switch.expr &:= diagnosticLine(current_object);
     c_switch.expr &:= "}\n";
     c_switch.expr &:= diagnosticLine(current_object);
@@ -7516,7 +7516,7 @@ const proc: init_ref_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= str(number);
       c_expr.expr &:= "] */ static struct identStruct ident_";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "={";
+      c_expr.expr &:= "={(ustriType)";
       c_expr.expr &:= c_literal(str(ref1));
       c_expr.expr &:= ",0,NULL,NULL,NULL,NULL,NULL,0,0,0};\n";
       c_expr.expr &:= "/* ref[";
@@ -7881,7 +7881,7 @@ const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
     c_expr.expr &:= str(numOfElementNameTable);
     c_expr.expr &:= "]=hshEmpty();\n";
     for labelNumber key name range nameToLabelNumber do
-      c_expr.expr &:= "hash_key.value.ustriValue=";
+      c_expr.expr &:= "hash_key.value.ustriValue=(ustriType)";
       c_expr.expr &:= c_literal(name);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "hshIncl(elementNameLabels[";
