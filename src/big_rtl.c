@@ -4312,6 +4312,88 @@ bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 
 
 
+bigIntType bigFromDecimalBuffer (const memSizeType size,
+    const const_ustriType decimal)
+
+  {
+    memSizeType result_size;
+    boolType okay;
+    boolType negative;
+    memSizeType position = 0;
+    memSizeType limit;
+    bigDigitType bigDigit;
+    bigIntType result;
+
+  /* bigFromDecimalBuffer */
+    logFunction(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                       ", \"%.*s%s\")\n",
+                       size, CSTRI_WITH_LIMIT(decimal, size)););
+    if (likely(size != 0)) {
+      if (decimal[0] == ((strElemType) '-')) {
+        negative = TRUE;
+        position++;
+      } else {
+        if (decimal[0] == ((strElemType) '+')) {
+          position++;
+        } /* if */
+        negative = FALSE;
+      } /* if */
+    } /* if */
+    if (unlikely(position >= size)) {
+      logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                      ", \"%.*s%s\"): Digit missing.\n",
+                      size, CSTRI_WITH_LIMIT(decimal, size)););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result_size = (size - 1) / DECIMAL_DIGITS_IN_BIGDIGIT + 1;
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+        okay = TRUE;
+        limit = (size - position - 1) % DECIMAL_DIGITS_IN_BIGDIGIT + position + 1;
+        do {
+          bigDigit = 0;
+          while (position < limit && okay) {
+            if (likely(decimal[position] >= ((strElemType) '0') &&
+                       decimal[position] <= ((strElemType) '9'))) {
+              bigDigit = (bigDigitType) 10 * bigDigit +
+                  (bigDigitType) decimal[position] - (bigDigitType) '0';
+            } else {
+              okay = FALSE;
+            } /* if */
+            position++;
+          } /* while */
+          uBigMultByPowerOf10AndAdd(result, (doubleBigDigitType) bigDigit);
+          limit += DECIMAL_DIGITS_IN_BIGDIGIT;
+        } while (position < size && okay);
+        if (likely(okay)) {
+          memset(&result->bigdigits[result->size], 0,
+                 (size_t) (result_size - result->size) * sizeof(bigDigitType));
+          result->size = result_size;
+          if (negative) {
+            negate_positive_big(result);
+          } /* if */
+          result = normalize(result);
+        } else {
+          FREE_BIG2(result, result_size);
+          logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                          ", \"%.*s%s\"): Illegal digit.\n",
+                          size, CSTRI_WITH_LIMIT(decimal, size)););
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("bigFromDecimalBuffer --> %s\n",
+                       bigHexCStri(result)););
+    return result;
+  } /* bigFromDecimalBuffer */
+
+
+
 /**
  *  Convert an int32Type number to 'bigInteger'.
  *  @return the bigInteger result of the conversion.

@@ -834,6 +834,63 @@ bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 
 
 
+bigIntType bigFromDecimalBuffer (const memSizeType size,
+    const const_ustriType decimal)
+
+  {
+    cstriType cstri;
+    int mpz_result;
+    bigIntType result;
+
+  /* bigFromDecimalBuffer */
+    logFunction(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                       ", \"%.*s%s\")\n",
+                       size, CSTRI_WITH_LIMIT(decimal, size)););
+    if (unlikely(!ALLOC_CSTRI(cstri, size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      memcpy(cstri, decimal, size);
+      cstri[size] = '\0';
+      if (strpbrk(cstri, " \f\n\r\t\v") != NULL) {
+        logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                        ", \"%.*s%s\"): "
+                        "String contains whitespace characters.\n",
+                        size, CSTRI_WITH_LIMIT(decimal, size)););
+        UNALLOC_CSTRI(cstri, size);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        ALLOC_BIG(result);
+        if (cstri[0] == '+' && cstri[1] != '-') {
+          mpz_result = mpz_init_set_str(result, &cstri[1], 10);
+        } else {
+          mpz_result = mpz_init_set_str(result, cstri, 10);
+        } /* if */
+        if (unlikely(mpz_result != 0)) {
+          mpz_clear(result);
+          FREE_BIG(result);
+          logError(printf("bigFromDecimalBuffer(" FMT_U_MEM
+                          ", \"%.*s%s\"): "
+                          "mpz_init_set_str(*, \"%s\", 10) failed.\n",
+                          size, CSTRI_WITH_LIMIT(decimal, size),
+                          cstri[0] == '+' && cstri[1] != '-' ?
+                              &cstri[1] : cstri););
+          UNALLOC_CSTRI(cstri, size);
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } else {
+          UNALLOC_CSTRI(cstri, size);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("bigFromDecimalBuffer --> %s\n",
+                       bigHexCStri(result)););
+    return result;
+  } /* bigFromDecimalBuffer */
+
+
+
 /**
  *  Convert an int32Type number to 'bigInteger'.
  *  @return the bigInteger result of the conversion.
