@@ -7681,7 +7681,7 @@ int16Type bigToInt16 (const const_bigIntType big1, errInfoType *err_info)
  *  @param big1 BigInteger to be converted.
  *  @param err_info Only used if err_info is not NULL.
  *                  Unchanged if the function succeeds or
- *                  RANGE_ERROR The number is too small or too big
+ *                  RANGE_ERROR if the number is too small or too big
  *                  to fit into a int32Type value.
  *  @exception RANGE_ERROR If err_info is NULL and the number is
  *             too small or too big to fit into a int32Type value.
@@ -7735,7 +7735,7 @@ int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
  *  @param big1 BigInteger to be converted.
  *  @param err_info Only used if err_info is not NULL.
  *                  Unchanged if the function succeeds or
- *                  RANGE_ERROR The number is too small or too big
+ *                  RANGE_ERROR if the number is too small or too big
  *                  to fit into a int64Type value.
  *  @exception RANGE_ERROR If err_info is NULL and the number is
  *             too small or too big to fit into a int64Type value.
