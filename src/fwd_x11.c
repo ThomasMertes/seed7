@@ -1127,7 +1127,7 @@ Status XGetWindowAttributes (Display *display, Window window,
 
 
 int XGetWindowProperty (Display  *display, Window window, Atom property,
-                        long long_offset, long long_length, Bool delete,
+                        long long_offset, long long_length, Bool do_delete,
                         Atom req_type, Atom *actual_type_return,
                         int *actual_format_return,
                         unsigned long *nitems_return,
@@ -1143,14 +1143,14 @@ int XGetWindowProperty (Display  *display, Window window, Atom property,
                        ", " FMT_U_MEM ", " FMT_U_MEM ", " FMT_U_MEM
                        ", " FMT_U_MEM ", " FMT_U_MEM ")\n",
                        (memSizeType) display, window, property,
-                       long_offset, long_length, (int) delete,
+                       long_offset, long_length, (int) do_delete,
                        req_type, (memSizeType) actual_type_return,
                        (memSizeType) actual_format_return,
                        (memSizeType) nitems_return,
                        (memSizeType) bytes_after_return,
                        (memSizeType) prop_return););
     funcResult = ptr_XGetWindowProperty(display, window, property,
-                                        long_offset, long_length, delete,
+                                        long_offset, long_length, do_delete,
                                         req_type, actual_type_return,
                                         actual_format_return,nitems_return,
                                         bytes_after_return, prop_return);

@@ -127,7 +127,7 @@ typedef unsigned long (*tp_XGetPixel) (XImage *ximage, int x, int y);
 typedef Status (*tp_XGetWindowAttributes) (Display *display, Window window,
                                            XWindowAttributes *window_attributes_return);
 typedef int (*tp_XGetWindowProperty) (Display  *display, Window window, Atom property,
-                                      long long_offset, long long_length, Bool delete,
+                                      long long_offset, long long_length, Bool do_delete,
                                       Atom req_type, Atom *actual_type_return,
                                       int *actual_format_return,
                                       unsigned long *nitems_return,
