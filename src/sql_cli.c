@@ -4625,7 +4625,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     preparedStmtType preparedStmt;
     resultDescrType columnDescr;
     resultDataType columnData;
-    striType decimal;
+    memSizeType length;
+    cstriType decimal;
     errInfoType err_info = OKAY_NO_ERROR;
     bigIntType columnValue;
 
@@ -4701,16 +4702,25 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           case SQL_WCHAR:
           case SQL_WVARCHAR:
           case SQL_WLONGVARCHAR:
-            decimal = sqlwstri_to_stri(
-                (SQLWCHAR *) columnData->buffer,
-                (memSizeType) columnData->length / sizeof(SQLWCHAR),
-                &err_info);
-            if (unlikely(decimal == NULL)) {
-              raise_error(err_info);
+            length = (memSizeType) columnData->length / sizeof(SQLWCHAR);
+            if (unlikely(!ALLOC_CSTRI(decimal, length))) {
+              raise_error(MEMORY_ERROR);
               columnValue = NULL;
             } else {
-              columnValue = bigParse(decimal);
-              strDestr(decimal);
+              err_info = conv_sqlwstri_to_cstri(decimal,
+                  (SQLWCHAR *) columnData->buffer, length);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                UNALLOC_CSTRI(decimal, length);
+                raise_error(err_info);
+                columnValue = NULL;
+              } else {
+                columnValue = bigFromDecimalBuffer(length, decimal,
+                                                   &err_info);
+                UNALLOC_CSTRI(decimal, length);
+                if (unlikely(columnValue == NULL)) {
+                  raise_error(err_info);
+                } /* if */
+              } /* if */
             } /* if */
             break;
           default:
