@@ -413,34 +413,6 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
 
 
 
-bigIntType getDecimalBigInt (const const_ustriType decimal, memSizeType length)
-
-  {
-    striType stri;
-    bigIntType bigIntValue;
-
-  /* getDecimalBigInt */
-    logFunction(printf("getDecimalBigInt(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, length), length););
-    stri = cstri_buf_to_stri((const_cstriType) decimal, length);
-    /* printf("getDecimalBigInt: stri: ");
-       prot_stri(stri);
-       printf("\n"); */
-    if (unlikely(stri == NULL)) {
-      raise_error(MEMORY_ERROR);
-      bigIntValue = NULL;
-    } else {
-      bigIntValue = bigParse(stri);
-      strDestr(stri);
-    } /* if */
-    logFunction(printf("getDecimalBigInt --> %s\n",
-                       bigIntValue == NULL ? "NULL" :
-                       striAsUnquotedCStri(bigStr(bigIntValue))););
-    return bigIntValue;
-  } /* getDecimalBigInt */
-
-
-
 bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType length,
     bigIntType *denominator)
 
