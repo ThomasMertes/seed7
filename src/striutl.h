@@ -57,6 +57,11 @@
 /** The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
 #define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
 
+/* CSTRI_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
+#define CSTRI_WITH_LIMIT(cstri, length) \
+    (int) ((length) <= AND_SO_ON_LIMIT ? (length) : AND_SO_ON_LIMIT), \
+    cstri, (length) > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
+
 /**
  *  The maximum width when an UTF-32 character is displayed
  *  in a literal is 12 characters (e.g.: \4294967295; ).
