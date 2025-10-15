@@ -1216,10 +1216,10 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
 
   { /* bigLowerBitsTemp */
     if (unlikely(bits < 0)) {
-      FREE_BIG(big1);
       logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
                       "Number of bits is negative.\n",
                       bigHexCStri(big1), bits););
+      FREE_BIG(big1);
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1715,17 +1715,19 @@ bigIntType bigParseBased (const const_striType stri, intType base)
         } else {
           mpz_result = mpz_init_set_str(result, cstri, (int) base);
         } /* if */
-        free_cstri(cstri, stri);
         if (unlikely(mpz_result != 0)) {
-          mpz_clear(result);
-          FREE_BIG(result);
           logError(printf("bigParseBased(\"%s\", " FMT_D "): "
                           "mpz_init_set_str(*, \"%s\", " FMT_D ") failed.\n",
                           striAsUnquotedCStri(stri), base,
                           cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri,
                           base););
+          free_cstri(cstri, stri);
+          mpz_clear(result);
+          FREE_BIG(result);
           raise_error(RANGE_ERROR);
           result = NULL;
+        } else {
+          free_cstri(cstri, stri);
         } /* if */
       } /* if */
     } /* if */
