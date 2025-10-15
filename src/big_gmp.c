@@ -1619,7 +1619,8 @@ bigIntType bigParse (const const_striType stri)
     bigIntType result;
 
   /* bigParse */
-    logFunction(printf("bigParse(\"%s\")\n", striAsUnquotedCStri(stri)););
+    logFunction(printf("bigParse(\"%s\")\n",
+                       striAsUnquotedCStri(stri)););
     cstri = stri_to_cstri(stri, &err_info);
     if (unlikely(cstri == NULL)) {
       logError(printf("bigParse: stri_to_cstri(\"%s\", *) failed:\n"
@@ -1628,8 +1629,10 @@ bigIntType bigParse (const const_striType stri)
       raise_error(err_info);
       result = NULL;
     } else if (strpbrk(cstri, " \f\n\r\t\v") != NULL) {
-      logError(printf("bigParse(\"%s\"): String contains whitespace characters.\n",
+      logError(printf("bigParse(\"%s\"): "
+                      "String contains whitespace characters.\n",
                       striAsUnquotedCStri(stri)););
+      free_cstri(cstri, stri);
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1639,16 +1642,19 @@ bigIntType bigParse (const const_striType stri)
       } else {
         mpz_result = mpz_init_set_str(result, cstri, 10);
       } /* if */
-      free_cstri(cstri, stri);
       if (unlikely(mpz_result != 0)) {
         mpz_clear(result);
         FREE_BIG(result);
         logError(printf("bigParse(\"%s\"): "
                         "mpz_init_set_str(*, \"%s\", 10) failed.\n",
                         striAsUnquotedCStri(stri),
-                        cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri););
+                        cstri[0] == '+' && cstri[1] != '-' ?
+                            &cstri[1] : cstri););
+        free_cstri(cstri, stri);
         raise_error(RANGE_ERROR);
         result = NULL;
+      } else {
+        free_cstri(cstri, stri);
       } /* if */
     } /* if */
     logFunction(printf("bigParse --> %s\n", bigHexCStri(result)););
