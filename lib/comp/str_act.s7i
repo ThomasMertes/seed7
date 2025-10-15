@@ -795,7 +795,7 @@ const proc: process_const_str_chpos (in string: mainStri, in reference: searched
       c_expr.expr &:= searchedName;
       c_expr.expr &:= ">255?0:(";
       c_expr.expr &:= memchrResultName;
-      c_expr.expr &:= "=memchr(";
+      c_expr.expr &:= "=(unsigned char *)memchr(";
       c_expr.expr &:= bstriLiteral(bstring(mainStri));
       c_expr.expr &:= ".mem[0],(unsigned char)";
       c_expr.expr &:= searchedName;
