@@ -7454,11 +7454,11 @@ static void determinePartialLinking (FILE *versionFile)
 
 
 
-static char *getConstructorAttribute (void)
+static const char *getConstructorAttribute (void)
 
   {
     char fileName[NAME_SIZE];
-    char *constructor_attribute = NULL;
+    const char *constructor_attribute = NULL;
 
   /* getConstructorAttribute */
     if (compileWithOptionsOk("int num=1;\n"
@@ -7491,10 +7491,10 @@ static char *getConstructorAttribute (void)
 
 
 
-static char *getInitializerMacro64 (void)
+static const char *getInitializerMacro64 (void)
   {
     char fileName[NAME_SIZE];
-    char *initializer_macro64 = NULL;
+    const char *initializer_macro64 = NULL;
 
   /* getInitializerMacro64 */
     if (compileWithOptionsOk("int num=1;\n"
@@ -7539,10 +7539,10 @@ static char *getInitializerMacro64 (void)
 
 
 
-static char *getInitializerMacro32 (void)
+static const char *getInitializerMacro32 (void)
   {
     char fileName[NAME_SIZE];
-    char *initializer_macro32 = NULL;
+    const char *initializer_macro32 = NULL;
 
   /* getInitializerMacro32 */
     if (compileWithOptionsOk("int num=1;\n"
@@ -7590,10 +7590,10 @@ static char *getInitializerMacro32 (void)
 static void determineLibraryProperties(FILE *versionFile)
 
   {
-    char *cc_opt_position_independent_code = NULL;
-    char *constructor_attribute;
-    char *initializer_macro64;
-    char *initializer_macro32;
+    const char *cc_opt_position_independent_code = NULL;
+    const char *constructor_attribute;
+    const char *initializer_macro64;
+    const char *initializer_macro32;
 
   /* determineLibraryProperties */
     fprintf(logFile, "Library options and initialization: ");
