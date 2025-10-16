@@ -8803,10 +8803,13 @@ static void determineMySqlDefines (FILE *versionFile,
                                "MariaDB/MariaDB C Client Library 64-bit",
                                "MariaDB 10.3",
                                "MySQL/MySQL Connector C 6.1"};
+    const char *dbHomeDirs[] = {"/usr/local/var/mysql",
+                                "/opt/homebrew/var/mysql",
+                                "/opt/homebrew/opt/mariadb"};
 #ifdef MYSQL_LIBS
     const char *libNameList[] = { MYSQL_LIBS };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
-    const char *libNameList[] = {"-lmysqlclient"};
+    const char *libNameList[] = {"-lmariadb", "-lmysqlclient"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *libNameList[] = {"mariadbclient.lib", "vs11/mysqlclient.lib"};
 #endif
@@ -8815,11 +8818,11 @@ static void determineMySqlDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
     const char *dllNameList[] = {"libmariadb.so", "libmariadb.so.3", "libmysqlclient.so"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
-    const char *dllNameList[] = {"libmysqlclient.dylib"};
+    const char *dllNameList[] = {"libmariadb.dylib", "libmysqlclient.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"libmariadb.dll", "libmysql.dll"};
 #endif
-    const char *inclDirList[] = {"/include"};
+    const char *inclDirList[] = {"/include", "/include/mysql"};
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib"};
     unsigned int dirIndex;
@@ -8850,6 +8853,14 @@ static void determineMySqlDefines (FILE *versionFile,
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
         sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
         /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
+        if (fileIsDir(dbHome)) {
+          dbHomeExists = 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (!dbHomeExists) {
+      for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeDirs) / sizeof(char *); dirIndex++) {
+        strcpy(dbHome, dbHomeDirs[dirIndex]);
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
         } /* if */
