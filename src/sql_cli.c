@@ -1568,7 +1568,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
             buffer_length = ((memSizeType) columnDescr->columnSize + 4);
           } /* if */
           logMessage(printf("SQL_DECIMAL:\n");
-                     printf("columnSize: "FMT_U_MEM "\n",
+                     printf("columnSize: " FMT_U_MEM "\n",
                             columnDescr->columnSize);
                      printf("buffer_length: " FMT_U_MEM "\n",
                             buffer_length);
@@ -2464,13 +2464,15 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
     memSizeType destIndex = 0;
 
   /* setDecimalBigInt */
-    logFunction(printf("setDecimalBigInt(*, *, %s, %d)\n",
-                       bigHexCStri(bigIntValue), *err_info););
+    logFunction(printf("setDecimalBigInt(*, " FMT_U_MEM ", %s, %d)\n",
+                       *buffer_capacity, bigHexCStri(bigIntValue),
+                       *err_info););
     stri = bigStrDecimal(bigIntValue);
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
-      /* printf("%s\n", striAsUnquotedCStri(stri)); */
+      logMessage(printf("stri: \"%s\"\n",
+                        striAsUnquotedCStri(stri)););
       if (*buffer_capacity < stri->size + NULL_TERMINATION_LEN) {
         free(*buffer);
         *buffer = malloc(stri->size + NULL_TERMINATION_LEN);
@@ -2488,13 +2490,15 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
           destIndex++;
         } /* for */
         decimal[destIndex] = '\0';
-        /* printf("%s\n", decimal); */
+        logMessage(printf("decimal: \"%s\"\n", decimal););
       } /* if */
       FREE_STRI(stri);
     } /* if */
-    logFunction(printf("setDecimalBigInt(*, *, %s, %d) --> "
-                       FMT_U_MEM "\n",
-                       bigHexCStri(bigIntValue),
+    logFunction(printf("setDecimalBigInt(\"%s\", " FMT_U_MEM
+                       ", %s, %d) --> " FMT_U_MEM "\n",
+                       *err_info == OKAY_NO_ERROR ?
+                           (const char *) *buffer : "",
+                       *buffer_capacity, bigHexCStri(bigIntValue),
                        *err_info, destIndex););
     return destIndex;
   } /* setDecimalBigInt */
