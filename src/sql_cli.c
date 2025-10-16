@@ -1105,7 +1105,7 @@ static boolType hasDataType (SQLHDBC connection, SQLSMALLINT requestedDataType,
       *err_info = DATABASE_ERROR;
     } else {
       returnCode = SQLGetTypeInfoW(ppStmt, requestedDataType);
-      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
       if (returnCode == SQL_SUCCESS) {
         if (SQLFetch(ppStmt) == SQL_SUCCESS) {
           hasType = TRUE;
@@ -1144,7 +1144,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC connection, SQLSMALLINT requestedDat
       *err_info = DATABASE_ERROR;
     } else {
       returnCode = SQLGetTypeInfoW(ppStmt, requestedDataType);
-      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
       if (returnCode != SQL_SUCCESS) {
         setDbErrorMsg("dataTypeIsUnsigned", "SQLGetTypeInfoW",
                       SQL_HANDLE_DBC, connection);
@@ -1727,7 +1727,7 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
   /* setupResult */
     logFunction(printf("setupResult\n"););
     returnCode = SQLNumResultCols(preparedStmt->ppStmt, &num_columns);
-    /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+    logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
     if (unlikely(returnCode != SQL_SUCCESS)) {
       setDbErrorMsg("setupResult", "SQLNumResultCols",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
@@ -3000,7 +3000,7 @@ static errInfoType getBlob (preparedStmtType preparedStmt, memSizeType column,
         } /* if */
       } /* if */
     } else {
-      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
       setDbErrorMsg("getBlob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getBlob: SQLGetData:\n%s\n",
@@ -3079,7 +3079,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
         } /* if */
       } /* if */
     } else {
-      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
       setDbErrorMsg("getWClob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getWClob: SQLGetData:\n%s\n",
@@ -3124,7 +3124,7 @@ static errInfoType getData (preparedStmtType preparedStmt, memSizeType column,
                            (SQLLEN) columnDescr->buffer_length,
                            &columnData->length);
     if (returnCode != SQL_SUCCESS) {
-      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      logMessage(printf("returnCode: " FMT_D16 "\n", returnCode););
       setDbErrorMsg("getData", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getData: SQLGetData:\n%s\n",
@@ -6230,6 +6230,7 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
                                     (SQLSMALLINT) SIZ_SQLWSTRI(CHARS_IN_NAME_BUFFER),
                                     &stringLength,
                                     NULL);
+      logFunction(printf("returnCode: %d\n", returnCode););
       if (returnCode != SQL_SUCCESS &&
           returnCode != SQL_SUCCESS_WITH_INFO) {
         setDbErrorMsg("sqlStmtColumnName", "SQLColAttributeW",
@@ -6249,6 +6250,7 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
         err_info = DATABASE_ERROR;
         name = NULL;
       } else {
+        logFunction(printf("stringLength: %hd\n", stringLength););
         wideNameLength = (memSizeType) stringLength / sizeof(SQLWCHAR);
         if (returnCode == SQL_SUCCESS) {
           name = sqlwstri_to_stri(wideNameBuffer, wideNameLength, &err_info);
@@ -6449,6 +6451,7 @@ static int determineDbCategory (SQLHDBC connection)
                        dbCategory););
     return dbCategory;
   } /* determineDbCategory */
+
 
 
 
