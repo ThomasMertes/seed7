@@ -8831,6 +8831,7 @@ static void determineMySqlDefines (FILE *versionFile,
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     char dbHome[PATH_SIZE];
+    char aPath[PATH_SIZE];
     char includeOption[PATH_SIZE];
     const char *mySqlInclude = NULL;
     char testProgram[BUFFER_SIZE];
@@ -8861,8 +8862,15 @@ static void determineMySqlDefines (FILE *versionFile,
     if (!dbHomeExists) {
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeDirs) / sizeof(char *); dirIndex++) {
         strcpy(dbHome, dbHomeDirs[dirIndex]);
+        /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
         if (fileIsDir(dbHome)) {
-          dbHomeExists = 1;
+          sprintf(aPath, "%s/include", dbHome);
+          if (fileIsDir(aPath)) {
+            sprintf(aPath, "%s/lib", dbHome);
+            if (fileIsDir(aPath)) {
+              dbHomeExists = 1;
+            } /* if */
+          } /* if */
         } /* if */
       } /* for */
     } /* if */
