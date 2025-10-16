@@ -802,6 +802,8 @@ const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is
     else
       create(testDb, state, "\"!#$%&'()*+,-./\"",      "!#$%&'()*+,-./");
     end if;
+    create(testDb, state, "\".\"",                   ".");
+    create(testDb, state, "\"/\"",                   "/");
     create(testDb, state, "\"0123456789\"",          "0123456789");
     create(testDb, state, "\":;<=>?@\"",             ":;<=>?@");
     create(testDb, state, "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"",
