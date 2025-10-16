@@ -2335,6 +2335,8 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
       if (bstri == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
+        logMessage(printf("bstri: \"%s\"\n",
+                          bstriAsUnquotedCStri(bstri)););
         if (bstri->size > SQL_MAX_NUMERIC_LEN) {
           logError(printf("setNumericBigInt: Data with length " FMT_U_MEM
                           " does not fit into a numeric.\n", bstri->size););
@@ -2350,7 +2352,7 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
         FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */
-    logFunction(printf("setDecimalBigInt(*, " FMT_U_MEM
+    logFunction(printf("setNumericBigInt(*, " FMT_U_MEM
                        ", %s, %d) --> " FMT_U_MEM "\n",
                        *buffer_capacity, bigHexCStri(bigIntValue),
                        *err_info, sizeof(SQL_NUMERIC_STRUCT)););
