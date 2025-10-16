@@ -2307,8 +2307,9 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
     SQL_NUMERIC_STRUCT *numStruct;
 
   /* setNumericBigInt */
-    logFunction(printf("setNumericBigInt(*, *, %s, *)\n",
-                       bigHexCStri(bigIntValue)););
+    logFunction(printf("setNumericBigInt(*, " FMT_U_MEM ", %s, %d)\n",
+                       *buffer_capacity, bigHexCStri(bigIntValue),
+                       *err_info););
     if (*buffer_capacity < sizeof(SQL_NUMERIC_STRUCT)) {
       free(*buffer);
       if (unlikely((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) == NULL)) {
@@ -2346,9 +2347,13 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
           memcpy(numStruct->val, bstri->mem, bstri->size);
           memset(&numStruct->val[bstri->size], 0, SQL_MAX_NUMERIC_LEN - bstri->size);
         } /* if */
-        bstDestr(bstri);
+        FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */
+    logFunction(printf("setDecimalBigInt(*, " FMT_U_MEM
+                       ", %s, %d) --> " FMT_U_MEM "\n",
+                       *buffer_capacity, bigHexCStri(bigIntValue),
+                       *err_info, sizeof(SQL_NUMERIC_STRUCT)););
     return sizeof(SQL_NUMERIC_STRUCT);
   } /* setNumericBigInt */
 
@@ -2442,7 +2447,7 @@ static memSizeType setNumericBigRat (void **buffer,
                 printf("\n");
               } */
             } /* if */
-            bstDestr(bstri);
+            FREE_BSTRI(bstri, bstri->size);
           } /* if */
           bigDestr(mantissaValue);
         } /* if */
@@ -4199,7 +4204,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
               } /* if */
               if (likely(err_info == OKAY_NO_ERROR)) {
                 param->buffer_length = sizeof(int32Type);
-                *(int32Type *) param->buffer = value;
+                *(int32Type *) param->buffer = (int32Type) value;
               } /* if */
             } else {
               c_type = SQL_C_SBIGINT;
@@ -6446,7 +6451,7 @@ static int determineDbCategory (SQLHDBC connection)
 
 
 static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
-    intType driver, errInfoType *err_info)
+    int driver, errInfoType *err_info)
 
   {
     SQLUSMALLINT maxConcurrentActivities;
@@ -6455,8 +6460,8 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
     dbType database;
 
   /* createDbRecord */
-    logFunction(printf("createDbRecord(" FMT_D ", " FMT_D ", "
-                       FMT_D ", %d)\n",
+    logFunction(printf("createDbRecord(" FMT_D ", " FMT_D
+                       ", %d, %d)\n",
                        (memSizeType) sql_environment,
                        (memSizeType) connection,
                        driver, *err_info););
