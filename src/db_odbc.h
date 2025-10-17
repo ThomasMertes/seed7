@@ -35,7 +35,19 @@ extern "C" {
 
 typedef unsigned char SQLCHAR;
 typedef signed char   SQLSCHAR;
+
+#ifdef SIZEOF_SQLWCHAR
+#if SIZEOF_SQLWCHAR == 2
 typedef UINT16TYPE    SQLWCHAR;
+#elif SIZEOF_SQLWCHAR == 4
+typedef UINT32TYPE    SQLWCHAR;
+#else
+#error "SIZEOF_SQLWCHAR is neither 2 nor 4."
+#endif
+#else
+/* This should only happen for test programs of chkccomp.c. */
+typedef UINT16TYPE    SQLWCHAR;
+#endif
 
 typedef INT16TYPE  SQLSMALLINT;
 typedef UINT16TYPE SQLUSMALLINT;
