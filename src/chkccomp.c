@@ -9848,6 +9848,10 @@ static void determineOdbcDefines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
+      fprintf(logFile, "\rOdbc: sizeof(SQLWCHAR) from %s: %d\n",
+              odbcInclude, headerSizeofSQLWCHAR);
+      fprintf(versionFile, "#define ODBC_SIZEOF_SQLWCHAR %d\n",
+              headerSizeofSQLWCHAR);
     } else {
       determineSizeofSQLWCHAR(versionFile, "Odbc", "ODBC", headerSizeofSQLWCHAR,
                               odbcInclude, includeWindows, includeSqlext,
