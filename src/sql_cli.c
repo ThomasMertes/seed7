@@ -43,7 +43,7 @@ typedef struct {
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
     boolType     backslashEscapes;
-    char         identifierQuotationChar;
+    ucharType    identifierQuotationChar;
   } dbRecordCli, *dbType;
 
 typedef struct {
@@ -973,7 +973,7 @@ static const char *nameOfCType (int c_type)
  *  inside a literal is removed.
  */
 static striType processStatementStri (const const_striType sqlStatementStri,
-    boolType backslashEscapes, char identifierQuotationChar)
+    boolType backslashEscapes, ucharType identifierQuotationChar)
 
   {
     memSizeType pos = 0;
