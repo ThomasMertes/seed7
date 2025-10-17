@@ -174,7 +174,7 @@ static rtlHashType new_hash (unsigned int bits)
       hash->size = 0;
       memset(hash->table, 0, hash->table_size * sizeof(rtlHashElemType));
     } /* if */
-    logFunction(printf("new_hash(%u) --> "FMT_X_MEM "\n",
+    logFunction(printf("new_hash(%u) --> " FMT_X_MEM "\n",
                        bits, (memSizeType) hash););
     return hash;
   } /* new_hash */
@@ -685,7 +685,7 @@ rtlHashType hshEmpty (void)
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    logFunction(printf("hshEmpty --> "FMT_X_MEM "\n",
+    logFunction(printf("hshEmpty --> " FMT_X_MEM "\n",
                        (memSizeType) result););
     return result;
   } /* hshEmpty */
