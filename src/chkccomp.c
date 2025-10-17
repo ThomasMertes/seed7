@@ -9605,6 +9605,114 @@ static void determinePostgresDefines (FILE *versionFile,
 
 
 
+ static void determineSizeofSQLWCHAR (FILE *versionFile,
+    const char *scopeName, const char *prefix, int headerSizeofSQLWCHAR,
+    const char *odbcInclude, int includeWindows, int includeSqlext,
+    const char *includeOption, const char *linkerOptions)
+
+  {
+    char testProgram[BUFFER_SIZE];
+    int sizeofSQLWCHAR = 0;
+
+  /* determineSizeofSQLWCHAR */
+    sprintf(testProgram, "#include \"tst_vers.h\"\n"
+                         "#include<stdio.h>\n#include<string.h>\n"
+                         "%s#include \"%s\"\n%s"
+                         "char *crypt(const char *phrase, const char *setting) {\n"
+                         "  return NULL;\n"
+                         "}\n"
+                         "int main(int argc,char *argv[]) {\n"
+                         "  SQLHENV sql_environment = NULL;\n"
+                         "  SQLHDBC sql_connection = NULL;\n"
+                         "  char database[] = {0, 0, 0, 0};\n"
+                         "  char uid[] = {0, 0, 0, 0};\n"
+                         "  char pwd[] = {0, 0, 0, 0};\n"
+                         "  SQLRETURN returnCode;\n"
+                         "  char sqlState[24];\n"
+                         "  char messageText[4096];\n"
+                         "  SQLINTEGER nativeError = 0;\n"
+                         "  SQLSMALLINT bufferLength;\n"
+                         "  int size = 0;\n"
+                         "  memset(sqlState, 0, sizeof(sqlState));\n"
+                         "  memset(messageText, 0, sizeof(messageText));\n"
+                         "  if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,\n"
+                         "                     &sql_environment) == SQL_SUCCESS) {\n"
+                         "    if (SQLSetEnvAttr(sql_environment,\n"
+                         "                      SQL_ATTR_ODBC_VERSION,\n"
+                         "                      (SQLPOINTER) SQL_OV_ODBC3,\n"
+                         "                      SQL_IS_INTEGER) == SQL_SUCCESS) {\n"
+                         "      if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment,\n"
+                         "                         &sql_connection) == SQL_SUCCESS) {\n"
+                         "        returnCode = SQLConnectW(sql_connection,\n"
+                         "            (SQLWCHAR *) database, (SQLSMALLINT) 0,\n"
+                         "            (SQLWCHAR *) uid, (SQLSMALLINT) 0,\n"
+                         "            (SQLWCHAR *) pwd, (SQLSMALLINT) 0);\n"
+                         "        if ((returnCode != SQL_SUCCESS &&\n"
+                         "             returnCode != SQL_SUCCESS_WITH_INFO)) {\n"
+                         "          returnCode = SQLGetDiagRecW(SQL_HANDLE_DBC,\n"
+                         "              sql_connection, 1, (SQLWCHAR *) sqlState,\n"
+                         "              &nativeError, (SQLWCHAR *) messageText,\n"
+                         "              (SQLSMALLINT) 1024, &bufferLength);\n"
+                         "          if (returnCode == SQL_SUCCESS ||\n"
+                         "              returnCode == SQL_SUCCESS_WITH_INFO) {\n"
+                         "            if ((messageText[0] != 0 &&\n"
+                         "                 messageText[1] == 0 &&\n"
+                         "                 messageText[2] != 0 &&\n"
+                         "                 messageText[3] == 0) ||\n"
+                         "                (messageText[0] == 0 &&\n"
+                         "                 messageText[1] != 0 &&\n"
+                         "                 messageText[2] == 0 &&\n"
+                         "                 messageText[3] != 0)) {\n"
+                         "              size = 2;\n"
+                         "            } else if ((messageText[0] != 0 &&\n"
+                         "                        messageText[1] == 0 &&\n"
+                         "                        messageText[2] == 0 &&\n"
+                         "                        messageText[3] == 0) ||\n"
+                         "                       (messageText[0] == 0 &&\n"
+                         "                        messageText[1] == 0 &&\n"
+                         "                        messageText[2] == 0 &&\n"
+                         "                        messageText[3] != 0)) {\n"
+                         "              size = 4;\n"
+                         "            }\n"
+                         "          }\n"
+                         "        } else {\n"
+                         "          SQLDisconnect(sql_connection);\n"
+                         "        }\n"
+                         "        SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);\n"
+                         "      }\n"
+                         "    }\n"
+                         "    SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);\n"
+                         "  }\n"
+                         "  printf(\"%%d\\n\", size);\n"
+                         "  return 0;\n"
+                         "}\n",
+                         includeWindows ? "#include \"windows.h\"\n" : "",
+                         odbcInclude,
+                         includeSqlext ? "#include \"sqlext.h\"\n" : "");
+    if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkerOptions)) {
+      sizeofSQLWCHAR = doTest();
+    } /* if */
+    if (headerSizeofSQLWCHAR != sizeofSQLWCHAR) {
+      fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from %s: %d\n",
+              scopeName, odbcInclude, headerSizeofSQLWCHAR);
+      fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from library: %d\n",
+              scopeName, sizeofSQLWCHAR);
+    } /* if */
+    if (sizeofSQLWCHAR != 0) {
+      fprintf(logFile, "\r%s: sizeof(SQLWCHAR): %d\n",
+              scopeName, sizeofSQLWCHAR);
+      fprintf(versionFile, "#define %s_SIZEOF_SQLWCHAR %d\n",
+              prefix, sizeofSQLWCHAR);
+    } else {
+      fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from %s: %d\n",
+              scopeName, odbcInclude, headerSizeofSQLWCHAR);
+      fprintf(versionFile, "#define %s_SIZEOF_SQLWCHAR %d\n",
+              prefix, headerSizeofSQLWCHAR);
+    } /* if */
+  } /* determineSizeofSQLWCHAR */
+
+
+
 static void determineOdbcDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
@@ -9632,6 +9740,7 @@ static void determineOdbcDefines (FILE *versionFile,
     char includeOption[PATH_SIZE];
     int includeWindows = 0;
     int includeSqlext = 0;
+    int headerSizeofSQLWCHAR = 0;
     const char *odbcInclude = NULL;
     char testProgram[BUFFER_SIZE];
 
@@ -9698,7 +9807,7 @@ static void determineOdbcDefines (FILE *versionFile,
                            includeWindows ? "#include \"windows.h\"\n" : "", odbcInclude,
                            includeSqlext ? "#include \"sqlext.h\"\n" : "");
       if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
-        fprintf(versionFile, "#define ODBC_SIZEOF_SQLWCHAR %d\n", doTest());
+        headerSizeofSQLWCHAR = doTest();
       } /* if */
     } /* if */
 #ifndef ODBC_USE_DLL
@@ -9739,6 +9848,10 @@ static void determineOdbcDefines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
+    } else {
+      determineSizeofSQLWCHAR(versionFile, "Odbc", "ODBC", headerSizeofSQLWCHAR,
+                              odbcInclude, includeWindows, includeSqlext,
+			      includeOption, system_database_libs);
     } /* if */
   } /* determineOdbcDefines */
 
