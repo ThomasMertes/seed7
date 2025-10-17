@@ -32,6 +32,10 @@
 #ifndef X11_REND_H
 #define X11_REND_H
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 #define PictOpOver  3
 
 #define CPSubwindowMode    (1 << 8)
@@ -90,6 +94,10 @@ extern void XRenderSetPictureTransform (Display *display,
                                         Picture picture,
                                         XTransform *transform);
 
+#endif
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
 #endif
 
 #endif

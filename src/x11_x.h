@@ -32,6 +32,10 @@
 #ifndef X11_X_H
 #define X11_X_H
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 #define Bool int
 #define True   1
 #define False  0
@@ -983,6 +987,10 @@ extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
 extern unsigned long XWhitePixel (Display *display,
                                   int screen_number);
 
+#endif
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
 #endif
 
 #endif
