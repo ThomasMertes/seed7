@@ -10356,7 +10356,7 @@ static void determineInformixDefines (FILE *versionFile,
 #ifdef INFORMIX_LIBS
     const char *libNameList[] = { INFORMIX_LIBS };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
-    const char *libNameList[] = {"iclit09b.a"};
+    const char *libNameList[] = {"libcli.a", "iclit09b.a"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *libNameList[] = {"iclit09b.lib"};
 #endif
@@ -10385,6 +10385,7 @@ static void determineInformixDefines (FILE *versionFile,
     char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
     int includeWindows = 0;
     int includeSqlext = 0;
+    int headerSizeofSQLWCHAR = 0;
     const char *informixInclude = NULL;
     char testProgram[BUFFER_SIZE];
     char informix_libs[BUFFER_SIZE];
@@ -10506,7 +10507,7 @@ static void determineInformixDefines (FILE *versionFile,
                            informixInclude,
                            includeSqlext ? "#include \"sqlext.h\"\n" : "");
       if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
-        fprintf(versionFile, "#define INFORMIX_SIZEOF_SQLWCHAR %d\n", doTest());
+        headerSizeofSQLWCHAR = doTest();
       } /* if */
     } /* if */
 #ifndef INFORMIX_USE_DLL
@@ -10531,8 +10532,8 @@ static void determineInformixDefines (FILE *versionFile,
                           libDirList, sizeof(libDirList) / sizeof(char *),
                           libNameList, sizeof(libNameList) / sizeof(char *),
                           informix_libs)) {
-          /* appendOption(informix_libs, "-lcrypt");
-             appendOption(informix_libs, "-lm"); */
+          appendOption(system_database_libs, "-lcrypt");
+          appendOption(system_database_libs, "-lm");
           appendToMakeMacros("INFORMIX_LIBS", informix_libs);
           searchForLib = 0;
         } /* if */
@@ -10564,6 +10565,11 @@ static void determineInformixDefines (FILE *versionFile,
                               dllDirList, sizeof(dllDirList) / sizeof(char *),
                               dllNameList, sizeof(dllNameList) / sizeof(char *),
                               rpath, versionFile);
+      if (s7LibDir[0] != '\0') {
+        listDynamicLibsInBaseDir("Informix", s7LibDir,
+                                 dllNameList, sizeof(dllNameList) / sizeof(char *),
+                                 versionFile);
+      } /* if */
       fprintf(versionFile, "\n");
       if (sizeof(libIfglsDllList) / sizeof(char *) > 1 ||
           (sizeof(libIfglsDllList) / sizeof(char *) == 1 &&
@@ -10575,7 +10581,14 @@ static void determineInformixDefines (FILE *versionFile,
                                 rpath, versionFile);
         fprintf(versionFile, "\n");
       } /* if */
+      fprintf(logFile, "\rInformix: sizeof(SQLWCHAR) from %s: %d\n",
+              informixInclude, headerSizeofSQLWCHAR);
+      fprintf(versionFile, "#define INFORMIX_SIZEOF_SQLWCHAR %d\n",
+              headerSizeofSQLWCHAR);
     } else {
+      determineSizeofSQLWCHAR(versionFile, "Informix", "INFORMIX", headerSizeofSQLWCHAR,
+                              informixInclude, includeWindows, includeSqlext,
+			      includeOption, informix_libs, "-lm");
       appendToMakeMacros("INFORMIX_CC_OPTION", linkerOptPartialLinking);
     } /* if */
   } /* determineInformixDefines */
