@@ -9607,11 +9607,13 @@ static void determinePostgresDefines (FILE *versionFile,
 
  static void determineSizeofSQLWCHAR (FILE *versionFile,
     const char *scopeName, const char *prefix, int headerSizeofSQLWCHAR,
-    const char *odbcInclude, int includeWindows, int includeSqlext,
-    const char *includeOption, const char *linkerOptions)
+    const char *databaseInclude, int includeWindows, int includeSqlext,
+    const char *includeOption, const char *databaseLinkerOptions,
+    const char *additionalLinkerOption)
 
   {
     char testProgram[BUFFER_SIZE];
+    char linkerOptions[COMMAND_SIZE];
     int sizeofSQLWCHAR = 0;
 
   /* determineSizeofSQLWCHAR */
@@ -9687,14 +9689,16 @@ static void determinePostgresDefines (FILE *versionFile,
                          "  return 0;\n"
                          "}\n",
                          includeWindows ? "#include \"windows.h\"\n" : "",
-                         odbcInclude,
+                         databaseInclude,
                          includeSqlext ? "#include \"sqlext.h\"\n" : "");
+    strcpy(linkerOptions, databaseLinkerOptions);
+    appendOption(linkerOptions, additionalLinkerOption);
     if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkerOptions)) {
       sizeofSQLWCHAR = doTest();
     } /* if */
     if (headerSizeofSQLWCHAR != sizeofSQLWCHAR) {
       fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from %s: %d\n",
-              scopeName, odbcInclude, headerSizeofSQLWCHAR);
+              scopeName, databaseInclude, headerSizeofSQLWCHAR);
       fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from library: %d\n",
               scopeName, sizeofSQLWCHAR);
     } /* if */
@@ -9705,7 +9709,7 @@ static void determinePostgresDefines (FILE *versionFile,
               prefix, sizeofSQLWCHAR);
     } else {
       fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from %s: %d\n",
-              scopeName, odbcInclude, headerSizeofSQLWCHAR);
+              scopeName, databaseInclude, headerSizeofSQLWCHAR);
       fprintf(versionFile, "#define %s_SIZEOF_SQLWCHAR %d\n",
               prefix, headerSizeofSQLWCHAR);
     } /* if */
@@ -9855,7 +9859,7 @@ static void determineOdbcDefines (FILE *versionFile,
     } else {
       determineSizeofSQLWCHAR(versionFile, "Odbc", "ODBC", headerSizeofSQLWCHAR,
                               odbcInclude, includeWindows, includeSqlext,
-			      includeOption, system_database_libs);
+			      includeOption, system_database_libs, "");
     } /* if */
   } /* determineOdbcDefines */
 
@@ -10852,7 +10856,7 @@ static void determineBigIntDefines (FILE *versionFile,
 
   {
     const char *gmpLinkerOption;
-    char linkerOptions[BUFFER_SIZE];
+    char linkerOptions[COMMAND_SIZE];
 
   /* determineBigIntDefines */
 #if defined USE_GMP && USE_GMP == 1
