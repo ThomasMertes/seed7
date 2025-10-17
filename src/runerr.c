@@ -67,7 +67,7 @@ static void continue_question (objectType *exception)
 
   {
     int ch;
-    int position;
+    unsigned int position;
     char buffer[ULONG_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     long unsigned int exceptionNum;
 

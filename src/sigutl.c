@@ -156,7 +156,7 @@ static boolType signalDecision (int signalNum, boolType inHandler)
   {
     int ch;
     boolType sigintReceived;
-    int position;
+    unsigned int position;
     char buffer[ULONG_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     long unsigned int exceptionNum;
     boolType resume = FALSE;
