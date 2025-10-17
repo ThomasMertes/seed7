@@ -700,9 +700,14 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
 
   {
     SQLRETURN returnCode;
-    SQLWCHAR sqlState[5 + NULL_TERMINATION_LEN];
+    /* The type SQLWCHAR is specified in a header file. A SQLWCHAR */
+    /* might be 2 or 4 bytes wide. In the worst case the header    */
+    /* specifies SQLWCHAR as 2 bytes wide and the actual library   */
+    /* uses a 4 byte SQLWCHAR. To avoid a buffer overflow sqlState */
+    /* and messageText are oversized by a factor of 2.             */
+    SQLWCHAR sqlState[2 * (5 + NULL_TERMINATION_LEN)];
     ucharType sqlState8[5 * MAX_WSTRI_TO_UTF8_EXPANSION_FACTOR + NULL_TERMINATION_LEN];
-    SQLWCHAR messageText[ERROR_MESSAGE_BUFFER_SIZE];
+    SQLWCHAR messageText[2 * ERROR_MESSAGE_BUFFER_SIZE];
     ucharType messageText8[ERROR_MESSAGE_BUFFER_SIZE * MAX_WSTRI_TO_UTF8_EXPANSION_FACTOR];
     SQLINTEGER nativeError = 0;
     SQLSMALLINT bufferLength;
