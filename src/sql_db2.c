@@ -36,6 +36,8 @@
 
 #include "version.h"
 
+#define SIZEOF_SQLWCHAR DB2_SIZEOF_SQLWCHAR
+
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -66,7 +68,6 @@
 #define loadBaseDlls()
 #define ALLOW_EXECUTE_SUCCESS_WITH_INFO
 #define ALLOW_FETCH_SUCCESS_WITH_INFO
-#define SIZEOF_SQLWCHAR DB2_SIZEOF_SQLWCHAR
 #define INTERVAL_FRACTION_PRECISION 6
 
 #include "sql_cli.c"
