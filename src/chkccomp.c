@@ -7365,14 +7365,26 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     int partialLinkingOkay = 0;
 
   /* checkPartialLinking */
-    okay = compileWithOptionsOk("int f_1(void) { return 1; }\n", "");
+    okay = compileWithOptionsOk("#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                "extern \"C\"\n"
+                                "#endif\n"
+                                "int f_1(void) { return 1; }\n", "");
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     okay = okay && rename(fileName, "ctest_f1" OBJECT_FILE_EXTENSION) == 0;
-    okay = okay && compileWithOptionsOk("int f_1(void) { return 2; }\n", "");
+    okay = okay && compileWithOptionsOk("#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "extern \"C\"\n"
+                                        "#endif\n"
+                                        "int f_1(void) { return 2; }\n", "");
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     okay = okay && rename(fileName, "ctest_f2" OBJECT_FILE_EXTENSION) == 0;
-    okay = okay && compileWithOptionsOk("int f_1(void);\n"
-                                        "int f_3(void) { return f_1(); }\n", "");
+    okay = okay && compileWithOptionsOk("#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "extern \"C\" {\n"
+                                        "#endif\n"
+                                        "int f_1(void);\n"
+                                        "int f_3(void) { return f_1(); }\n"
+                                        "#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "}\n"
+                                        "#endif\n", "");
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     okay = okay && rename(fileName, "ctest_f3" OBJECT_FILE_EXTENSION) == 0;
     sprintf(linkOptions, "%s ctest_f1" OBJECT_FILE_EXTENSION, ccOptPartialLinking);
@@ -7380,8 +7392,14 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
     okay = okay && rename(fileName, "ctest_f5" OBJECT_FILE_EXTENSION) == 0;
     okay = okay && system("objcopy -L f_1 ctest_f5" OBJECT_FILE_EXTENSION) != -1;
-    okay = okay && compileWithOptionsOk("int f_1(void);\n"
-                                        "int f_4(void) { return f_1(); }\n", "");
+    okay = okay && compileWithOptionsOk("#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "extern \"C\" {\n"
+                                        "#endif\n"
+                                        "int f_1(void);\n"
+                                        "int f_4(void) { return f_1(); }\n"
+                                        "#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "}\n"
+                                        "#endif\n", "");
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     okay = okay && rename(fileName, "ctest_f4" OBJECT_FILE_EXTENSION) == 0;
     sprintf(linkOptions, "%s ctest_f2" OBJECT_FILE_EXTENSION, ccOptPartialLinking);
@@ -7390,8 +7408,14 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     okay = okay && rename(fileName, "ctest_f6" OBJECT_FILE_EXTENSION) == 0;
     okay = okay && system("objcopy -L f_1 ctest_f6" OBJECT_FILE_EXTENSION) != -1;
     okay = okay && compileWithOptionsOk("#include \"stdio.h\"\n"
+                                        "#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "extern \"C\" {\n"
+                                        "#endif\n"
                                         "int f_3(void);\n"
                                         "int f_4(void);\n"
+                                        "#if defined(__cplusplus) || defined(c_plusplus)\n"
+                                        "}\n"
+                                        "#endif\n"
                                         "int main(void) {\n"
                                         "printf(\"%d\\n\", f_3() == 1 && f_4() == 2);\n"
                                         "return 0; }\n", "");
@@ -9620,6 +9644,9 @@ static void determinePostgresDefines (FILE *versionFile,
     sprintf(testProgram, "#include \"tst_vers.h\"\n"
                          "#include<stdio.h>\n#include<string.h>\n"
                          "%s#include \"%s\"\n%s"
+                         "#if defined(__cplusplus) || defined(c_plusplus)\n"
+                         "extern \"C\"\n"
+                         "#endif\n"
                          "char *crypt(const char *phrase, const char *setting) {\n"
                          "  return NULL;\n"
                          "}\n"
