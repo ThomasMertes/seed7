@@ -9729,7 +9729,7 @@ static void determinePostgresDefines (FILE *versionFile,
       fprintf(logFile, "\r%s: sizeof(SQLWCHAR) from library: %d\n",
               scopeName, sizeofSQLWCHAR);
     } /* if */
-    if (sizeofSQLWCHAR != 0) {
+    if (sizeofSQLWCHAR > 0) {
       fprintf(logFile, "\r%s: sizeof(SQLWCHAR): %d\n",
               scopeName, sizeofSQLWCHAR);
       fprintf(versionFile, "#define %s_SIZEOF_SQLWCHAR %d\n",

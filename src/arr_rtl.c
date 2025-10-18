@@ -81,7 +81,7 @@ static void printArgv (const int argc, const cstriType *const argv)
       printf("NULL");
     } else {
       printf("{");
-      for (pos = 0; pos <= argc; pos++) {
+      for (pos = 0; pos <= argc && argv[pos] != NULL; pos++) {
         if (pos != 0) {
           printf(", ");
         } /* if */
