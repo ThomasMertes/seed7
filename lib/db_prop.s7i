@@ -289,7 +289,7 @@ const func string: decimalIntType (in dbCategory: databaseKind) is func
   begin
     case databaseKind of
       when {DB_MYSQL}:      decimalType := "DECIMAL(65)";   # DECIMAL(p), 1 <= p <= 65
-      when {DB_SQLITE}:     decimalType := "NUMBER";
+      when {DB_SQLITE}:     decimalType := "DECIMAL";
       when {DB_POSTGRESQL}: decimalType := "DECIMAL(100)";  # DECIMAL(p), 1 <= p <= 1000
       when {DB_OCI}:        decimalType := "NUMBER(38)";    # NUMBER(p),  1 <= p <= 38
       when {DB_FIRE}:       decimalType := "DECIMAL(18)";   # DECIMAL(p), 1 <= p <= 18
