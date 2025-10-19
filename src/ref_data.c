@@ -751,7 +751,7 @@ intType refNum (const const_objectType aReference)
       objectNumber = 0;
     } else {
       objectNumber = (intType) hshIdxEnterDefault(
-          aReference->type_of->owningProg->objectNumberMap,
+          (const rtlHashType) aReference->type_of->owningProg->objectNumberMap,
           (genericType) (memSizeType) aReference,
           (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,
           (intType) (((memSizeType) aReference) >> 6));
