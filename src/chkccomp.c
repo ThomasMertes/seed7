@@ -8827,9 +8827,21 @@ static void determineMySqlDefines (FILE *versionFile,
                                "MariaDB/MariaDB C Client Library 64-bit",
                                "MariaDB 10.3",
                                "MySQL/MySQL Connector C 6.1"};
-    const char *dbHomeDirs[] = {"/usr/local/var/mysql",
+    const char *dbHomeDirs[] = {"/usr/local/mysql",
+                                "/usr/local/var/mysql",
                                 "/opt/homebrew/var/mysql",
+                                "/opt/homebrew/opt/mysql",
                                 "/opt/homebrew/opt/mariadb"};
+    const char *mariaDbHomeDirs[] = {"/opt/local/lib/mariadb-"};
+    const char *mariaDbVersion[] = {"12.1", "12.0",
+                                    "11.8", "11.4", "11.2", "11.1", "11.0",
+                                    "10.11", "10.10", "10.9", "10.8", "10.7", "10.6",
+                                    "10.5", "10.4", "10.3", "10.2", "10.1", "10.0",
+                                    "5.5", "5.3", "5.2", "5.1"};
+    const char *mysqlHomeDirs[] = {"/opt/local/lib/mmysql-"};
+    const char *mysqlVersion[] = {"9.4", "9.3", "9.2", "9.1", "9.0",
+                                  "8.4", "8.3", "8.2", "8.1", "8.0",
+                                  "5.7", "5.6", "5.5", "5.1"};
 #ifdef MYSQL_LIBS
     const char *libNameList[] = { MYSQL_LIBS };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
@@ -8850,6 +8862,7 @@ static void determineMySqlDefines (FILE *versionFile,
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib"};
     unsigned int dirIndex;
+    unsigned int versionIndex;
     unsigned int nameIndex;
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
@@ -8896,6 +8909,26 @@ static void determineMySqlDefines (FILE *versionFile,
             } /* if */
           } /* if */
         } /* if */
+      } /* for */
+    } /* if */
+    if (!dbHomeExists) {
+      for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(mariaDbHomeDirs) / sizeof(char *); dirIndex++) {
+        for (versionIndex = 0; !dbHomeExists && versionIndex < sizeof(mariaDbVersion) / sizeof(char *); versionIndex++) {
+          sprintf(dbHome, "%s%s/mysql", mariaDbHomeDirs[dirIndex], mariaDbVersion[versionIndex]);
+          if (fileIsDir(dbHome)) {
+            dbHomeExists = 1;
+          } /* if */
+        } /* for */
+      } /* for */
+    } /* if */
+    if (!dbHomeExists) {
+      for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(mysqlHomeDirs) / sizeof(char *); dirIndex++) {
+        for (versionIndex = 0; !dbHomeExists && versionIndex < sizeof(mysqlVersion) / sizeof(char *); versionIndex++) {
+          sprintf(dbHome, "%s%s/mysql", mysqlHomeDirs[dirIndex], mysqlVersion[versionIndex]);
+          if (fileIsDir(dbHome)) {
+            dbHomeExists = 1;
+          } /* if */
+        } /* for */
       } /* for */
     } /* if */
     if (dbHomeExists) {
@@ -9421,7 +9454,7 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
   {
-    const char *dbVersion[] = {"15", "14", "13", "12", "11", "10",
+    const char *dbVersion[] = {"18", "17", "16", "15", "14", "13", "12", "11", "10",
                                "9.6", "9.5", "9.4", "9.3",
                                "9.2", "9.1", "9.0", "8.4", "8.3"};
 #ifdef POSTGRESQL_LIBS
@@ -9886,7 +9919,7 @@ static void determineOdbcDefines (FILE *versionFile,
     } else {
       determineSizeofSQLWCHAR(versionFile, "Odbc", "ODBC", headerSizeofSQLWCHAR,
                               odbcInclude, includeWindows, includeSqlext,
-			      includeOption, system_database_libs, "");
+                              includeOption, system_database_libs, "");
     } /* if */
   } /* determineOdbcDefines */
 
@@ -10615,7 +10648,7 @@ static void determineInformixDefines (FILE *versionFile,
     } else {
       determineSizeofSQLWCHAR(versionFile, "Informix", "INFORMIX", headerSizeofSQLWCHAR,
                               informixInclude, includeWindows, includeSqlext,
-			      includeOption, informix_libs, "-lm");
+                              includeOption, informix_libs, "-lm");
       appendToMakeMacros("INFORMIX_CC_OPTION", linkerOptPartialLinking);
     } /* if */
   } /* determineInformixDefines */
