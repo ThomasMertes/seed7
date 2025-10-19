@@ -204,7 +204,7 @@ intType typNum (typeType actual_type)
       typeNumber = 0;
     } else {
       typeNumber = (intType) hshIdxEnterDefault(
-          actual_type->owningProg->typeNumberMap,
+          (const rtlHashType) actual_type->owningProg->typeNumberMap,
           (genericType) (memSizeType) actual_type,
           (genericType) actual_type->owningProg->nextFreeTypeNumber,
           (intType) (((memSizeType) actual_type) >> 6));
