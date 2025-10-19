@@ -113,28 +113,32 @@ const type: sectionData is new struct
 
 const proc: displayImage (in PRIMITIVE_WINDOW: pixmap, inout sectionData: section) is func
   local
+    var integer: windowWidth is 0;
+    var integer: windowHeight is 0;
     var integer: width is 0;
     var integer: height is 0;
     var integer: border is 0;
   begin
-    if width(curr_win) * height(pixmap) >= width(pixmap) * height(curr_win) then
-      width := width(pixmap) * height(curr_win) mdiv height(pixmap);
-      border := (width(curr_win) - width) mdiv 2;
-      put(curr_win, border, 0, width, height(curr_win), pixmap);
-      rect(curr_win, 0, 0, border, height(curr_win), black);
-      rect(curr_win, border + width, 0, width(curr_win) - border - width, height(curr_win), black);
-      section.width := float(height(pixmap) * width(curr_win)) / float(height(curr_win));
+    windowWidth := width(curr_win);
+    windowHeight := height(curr_win);
+    if windowWidth * height(pixmap) >= width(pixmap) * windowHeight then
+      width := width(pixmap) * windowHeight mdiv height(pixmap);
+      border := (windowWidth - width) mdiv 2;
+      put(curr_win, border, 0, width, windowHeight, pixmap);
+      rect(curr_win, 0, 0, border, windowHeight, black);
+      rect(curr_win, border + width, 0, windowWidth - border - width, windowHeight, black);
+      section.width := float(height(pixmap) * windowWidth) / float(windowHeight);
       section.height := float(height(pixmap));
       section.left := (float(width(pixmap)) - section.width) / 2.0;
       section.upper := 0.0;
     else
-      height := height(pixmap) * width(curr_win) mdiv width(pixmap);
-      border := (height(curr_win) - height) mdiv 2;
-      put(curr_win, 0, border, width(curr_win), height, pixmap);
-      rect(curr_win, 0, 0, width(curr_win), border, black);
-      rect(curr_win, 0, border + height, width(curr_win), height(curr_win) - border - height, black);
+      height := height(pixmap) * windowWidth mdiv width(pixmap);
+      border := (windowHeight - height) mdiv 2;
+      put(curr_win, 0, border, windowWidth, height, pixmap);
+      rect(curr_win, 0, 0, windowWidth, border, black);
+      rect(curr_win, 0, border + height, windowWidth, windowHeight - border - height, black);
       section.width := float(width(pixmap));
-      section.height := float(width(pixmap) * height(curr_win)) / float(width(curr_win));
+      section.height := float(width(pixmap) * windowHeight) / float(windowWidth);
       section.left := 0.0;
       section.upper := (float(height(pixmap)) - section.height) / 2.0;
     end if;
