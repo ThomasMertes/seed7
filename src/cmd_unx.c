@@ -183,15 +183,18 @@ char *getenv7 (const char *name)
 
   {
     size_t nameLen;
-    char **p, *c;
+    char **p;
+    char *c;
 
   /* getenv7 */
     logFunction(printf("getenv7(\"%s\")\n", name););
     if (name != NULL && environ7 != NULL && strchr(name, '=') == NULL) {
       nameLen = strlen(name);
       for (p = environ7; (c = *p) != NULL; ++p) {
-        if (environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
-          logFunction(printf("getenv7(\"%s\") --> \"%s\"\n", name, &c[nameLen + 1]));
+        if (environmentStrncmp(c, name, nameLen) == 0 &&
+            c[nameLen] == '=') {
+          logFunction(printf("getenv7(\"%s\") --> \"%s\"\n",
+                             name, &c[nameLen + 1]));
           return &c[nameLen + 1];
         } /* if */
       } /* for */
@@ -206,12 +209,14 @@ int setenv7 (const char *name, const char *value, int overwrite)
 
   {
     size_t nameLen;
-    char **p, *c;
+    char **p;
+    char *c;
     size_t nameCount = 0;
     char **resizedEnviron7;
 
   /* setenv7 */
-    logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n", name, value, overwrite););
+    logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n",
+                       name, value, overwrite););
     if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
       errno = EINVAL;
       return -1;
@@ -220,7 +225,8 @@ int setenv7 (const char *name, const char *value, int overwrite)
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+          if (environmentStrncmp(c, name, nameLen) == 0 &&
+              c[nameLen] == '=') {
             if (overwrite) {
               if ((c = realloc(*p, nameLen + strlen(value) + 2)) == NULL) {
                 errno = ENOMEM;
@@ -261,7 +267,8 @@ int unsetenv7 (const char *name)
 
   {
     size_t nameLen;
-    char **p, *c;
+    char **p;
+    char *c;
     char **found = NULL;
     size_t nameCount = 0;
     char **resizedEnviron7;
@@ -275,7 +282,8 @@ int unsetenv7 (const char *name)
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (found == NULL && environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+          if (found == NULL && environmentStrncmp(c, name, nameLen) == 0 &&
+              c[nameLen] == '=') {
             found = p;
           } /* if */
         } /* for */
