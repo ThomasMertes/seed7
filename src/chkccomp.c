@@ -8859,8 +8859,8 @@ static void determineMySqlDefines (FILE *versionFile,
     const char *dllNameList[] = {"libmariadb.dll", "libmysql.dll"};
 #endif
     const char *inclDirList[] = {"/include", "/include/mysql"};
-    const char *libDirList[] = {"/lib"};
-    const char *dllDirList[] = {"/lib"};
+    const char *libDirList[] = {"", "/lib"};
+    const char *dllDirList[] = {"", "/lib"};
     unsigned int dirIndex;
     unsigned int versionIndex;
     unsigned int nameIndex;
