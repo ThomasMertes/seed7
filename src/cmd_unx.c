@@ -217,7 +217,8 @@ int setenv7 (const char *name, const char *value, int overwrite)
   /* setenv7 */
     logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n",
                        name, value, overwrite););
-    if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
+    if (name == NULL || name[0] == '\0' ||
+        strchr(name, '=') != NULL || value == NULL) {
       errno = EINVAL;
       return -1;
     } else {
