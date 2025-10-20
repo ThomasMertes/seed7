@@ -428,11 +428,11 @@ objectType sct_destr (listType arguments)
 objectType sct_empty (listType arguments)
 
   {
-    structType result;
+    emptyStructType result;
 
   /* sct_empty */
-    if (unlikely(!ALLOC_STRUCT(result, 0))) {
-      logError(printf("sct_empty: ALLOC_STRUCT() failed.\n"););
+    if (unlikely(!ALLOC_EMPTY_STRUCT(result))) {
+      logError(printf("sct_empty: ALLOC_EMPTY_STRUCT() failed.\n"););
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       /* Note that the size of the allocated memory is smaller than */
@@ -441,7 +441,7 @@ objectType sct_empty (listType arguments)
       result->usage_count = 1;
       result->size = 0;
     } /* if */
-    return bld_struct_temp(result);
+    return bld_struct_temp((structType) result);
   } /* sct_empty */
 
 

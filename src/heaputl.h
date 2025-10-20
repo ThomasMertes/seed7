@@ -264,6 +264,8 @@ EXTERN memSizeType hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayRecord) - sizeof(rtlObjectType))   + (len) * sizeof(rtlObjectType))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
+#define SIZ_SCT_0        (sizeof(emptyStructRecord))
+
 #define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
 #define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
 #define MAX_UTF16_LEN   (MAX_MEMSIZETYPE / sizeof(utf16charType) - NULL_TERMINATION_LEN)
@@ -568,6 +570,7 @@ EXTERN unsigned int sflist_allowed;
 #define FREE_STRUCT(var,len)        (CNT(CNT2_SCT(len, SIZ_SCT(len))) FREE_HEAP(var, SIZ_SCT(len)))
 #define REALLOC_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structType, SIZ_SCT(ln2))
 #define COUNT3_STRUCT(len1,len2)    CNT3(CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
+#define ALLOC_EMPTY_STRUCT(var)     (ALLOC_HEAP(var, emptyStructType, SIZ_SCT_0)?CNT(CNT1_SCT(0, SIZ_SCT_0)) TRUE:FALSE)
 
 
 #define ALLOC_RTL_STRUCT(var,len)       (ALLOC_HEAP(var, rtlStructType, SIZ_SCT(len))?CNT(CNT1_SCT(len, SIZ_SCT(len))) TRUE:FALSE)

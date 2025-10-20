@@ -345,6 +345,13 @@ typedef struct structStruct {
     objectRecord stru[1];
   } structRecord;
 
+typedef struct emptyStructStruct *emptyStructType;
+
+typedef struct emptyStructStruct {
+    memSizeType usage_count;
+    memSizeType size;
+  } emptyStructRecord;
+
 #define NUMBER_OF_SYSVARS 32
 
 typedef objectType sysType[NUMBER_OF_SYSVARS];
