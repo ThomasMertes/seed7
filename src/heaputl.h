@@ -264,6 +264,7 @@ EXTERN memSizeType hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayRecord) - sizeof(rtlObjectType))   + (len) * sizeof(rtlObjectType))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
+#define SIZ_ARR_0        (sizeof(emptyArrayRecord))
 #define SIZ_SCT_0        (sizeof(emptyStructRecord))
 
 #define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
@@ -523,9 +524,11 @@ EXTERN unsigned int sflist_allowed;
 #if WITH_ARRAY_CAPACITY
 #define HEAP_ALLOC_ARRAY(var,cap)       (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?((var)->capacity=(cap),CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE):FALSE)
 #define HEAP_REALLOC_ARRAY(var,old,cap) (((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)?((var)->capacity=(cap), TRUE):FALSE)
+#define ALLOC_EMPTY_ARRAY(var)          (ALLOC_HEAP(var,emptyArrayType,SIZ_ARR_0)?((var)->capacity=0,CNT(CNT1_ARR(0,SIZ_ARR_0)) TRUE):FALSE)
 #else
 #define HEAP_ALLOC_ARRAY(var,cap)       (ALLOC_HEAP(var,arrayType,SIZ_ARR(cap))?CNT(CNT1_ARR(cap,SIZ_ARR(cap))) TRUE:FALSE)
 #define HEAP_REALLOC_ARRAY(var,old,cap) ((var=REALLOC_HEAP(old,arrayType,SIZ_ARR(cap)))!=NULL)
+#define ALLOC_EMPTY_ARRAY(var)          (ALLOC_HEAP(var,emptyArrayType,SIZ_ARR_0)?CNT(CNT1_ARR(0,SIZ_ARR_0)) TRUE:FALSE)
 #endif
 
 #define ALLOC_ARRAY(var,cap)       HEAP_ALLOC_ARRAY(var, cap)

@@ -324,6 +324,16 @@ typedef struct arrayStruct {
     objectRecord arr[1];
   } arrayRecord;
 
+typedef struct emptyArrayStruct *emptyArrayType;
+
+typedef struct emptyArrayStruct {
+    intType min_position;
+    intType max_position;
+#if WITH_ARRAY_CAPACITY
+    memSizeType capacity;
+#endif
+  } emptyArrayRecord;
+
 typedef struct hashElemStruct {
     hashElemType next_less;
     hashElemType next_greater;

@@ -756,20 +756,20 @@ objectType arr_destr (listType arguments)
 objectType arr_empty (listType arguments)
 
   {
-    arrayType result;
+    emptyArrayType result;
 
   /* arr_empty */
-    if (unlikely(!ALLOC_ARRAY(result, 0))) {
-      logError(printf("arr_empty: ALLOC_ARRAY() failed.\n"););
+    if (unlikely(!ALLOC_EMPTY_ARRAY(result))) {
+      logError(printf("arr_empty: ALLOC_EMPTY_ARRAY() failed.\n"););
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
-      /* element 'arr' is not used. */
+      /* the size of the struct arrayStruct. But this is okay, */
+      /* because the element 'arr' is not used. */
       result->min_position = 1;
       result->max_position = 0;
     } /* if */
-    return bld_array_temp(result);
+    return bld_array_temp((arrayType) result);
   } /* arr_empty */
 
 
