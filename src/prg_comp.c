@@ -255,6 +255,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
       set_fail_flag(FALSE);
       fail_value = NULL;
       fail_expression = NULL;
+      fail_expr_stri = NULL;
       fail_stack = NULL;
       if (currentProg->main_object != NULL) {
         progBackup = prog;
@@ -665,6 +666,7 @@ void prgExec (const const_progType aProgram, const const_rtlArrayType parameters
     set_fail_flag(FALSE);
     fail_value = NULL;
     fail_expression = NULL;
+    fail_expr_stri = NULL;
     logFunction(printf("prgExec(\"%s\") -->\n",
                        striAsUnquotedCStri(aProgram->program_path)););
   } /* prgExec */

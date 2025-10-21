@@ -49,6 +49,10 @@
 #include "sigutl.h"
 #include "actutl.h"
 #include "traceutl.h"
+#include "symbol.h"
+#include "msg_stri.h"
+#include "striutl.h"
+#include "str_rtl.h"
 #include "infile.h"
 #include "exec.h"
 #include "rtl_err.h"
@@ -242,41 +246,6 @@ static void sigsegv_handler (int sig)
 
 
 
-void write_fail_expression (listType failExpression)
-
-  {
-#if HAS_SIGACTION
-    struct sigaction sigAct;
-    struct sigaction oldSigAct;
-#elif HAS_SIGNAL
-    void (*oldSigHandler) (int sig);
-#endif
-
-  /* write_fail_expression */
-#if HAS_SIGACTION
-    sigAct.sa_sigaction = sigsegv_handler;
-    sigemptyset(&sigAct.sa_mask);
-    sigAct.sa_flags = SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigAct, &oldSigAct) == 0) {
-#elif HAS_SIGNAL
-    if ((oldSigHandler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
-#endif
-      if (do_setjmp(sigsegvOccurred) == 0) {
-        prot_list(failExpression);
-      } else {
-        prot_cstri("unaccessable expression");
-      } /* if */
-#if HAS_SIGACTION
-      sigaction(SIGSEGV, &oldSigAct, NULL);
-    } /* if */
-#elif HAS_SIGNAL
-      signal(SIGSEGV, oldSigHandler);
-    } /* if */
-#endif
-  } /* write_fail_expression */
-
-
-
 void write_call_stack (const_listType stack_elem)
 
   {
@@ -337,7 +306,7 @@ void uncaught_exception (progType aProg)
       printobject(fail_value);
       prot_cstri(" raised with");
       prot_nl();
-      write_fail_expression(fail_expression);
+      prot_string(fail_expr_stri);
       prot_nl();
     } else {
       printf("\n*** Program terminated after signal %s\n",
@@ -440,6 +409,11 @@ objectType raise_with_obj_and_args (objectType exception,
         free_list(fail_expression);
       } /* if */
       fail_expression = copy_list(list, &err_info);
+      if (fail_expr_stri != NULL) {
+        strDestr(fail_expr_stri);
+      } /* if */
+      copyCStri(&fail_expr_stri, "");
+      appendListLimited(&fail_expr_stri, list, 3);
       if (object != NULL && HAS_POSINFO(object)){
         fail_file_number = POSINFO_FILE_NUM(object);
         fail_line_number = POSINFO_LINE_NUM(object);
@@ -497,6 +471,8 @@ void leaveExceptionHandling (void)
     fail_value = NULL;
     free_list(fail_expression);
     fail_expression = NULL;
+    strDestr(fail_expr_stri);
+    fail_expr_stri = NULL;
     free_list(fail_stack);
     fail_stack = NULL;
   } /* leaveExceptionHandling */
@@ -510,12 +486,14 @@ void saveFailState (failStateStruct *failState)
     failState->fail_flag = fail_flag;
     failState->fail_value = fail_value;
     failState->fail_expression = fail_expression;
+    failState->fail_expr_stri = fail_expr_stri;
     failState->fail_stack = fail_stack;
     failState->fail_file_number = fail_file_number;
     failState->fail_line_number = fail_line_number;
     set_fail_flag(FALSE);
     fail_value = NULL;
     fail_expression = NULL;
+    fail_expr_stri = NULL;
     fail_stack = NULL;
   } /* saveFailState */
 
@@ -526,11 +504,13 @@ void restoreFailState (failStateStruct *failState)
   { /* restoreFailState */
     logFunction(printf("restoreFailState\n"););
     free_list(fail_expression);
+    strDestr(fail_expr_stri);
     free_list(fail_stack);
     interrupt_flag = TRUE;
     fail_flag = failState->fail_flag;
     fail_value = failState->fail_value;
     fail_expression = failState->fail_expression;
+    fail_expr_stri = failState->fail_expr_stri;
     fail_stack = failState->fail_stack;
     fail_file_number = failState->fail_file_number;
     fail_line_number = failState->fail_line_number;

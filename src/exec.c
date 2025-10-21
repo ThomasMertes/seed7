@@ -1147,6 +1147,7 @@ objectType exec_expr (const progType currentProg, objectType object,
       set_fail_flag(FALSE);
       fail_value = NULL;
       fail_expression = NULL;
+      fail_expr_stri = NULL;
       progBackup = prog;
       prog = currentProg;
       set_protfile_name(NULL);
