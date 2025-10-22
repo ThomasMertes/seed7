@@ -2446,6 +2446,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
       logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
                       "Window is pixmap\n",
                       (memSizeType) actual_window, xPos, yPos););
+      raise_error(RANGE_ERROR);
     } else {
       SetWindowPos(to_hwnd(actual_window), 0, (int) (xPos), (int) (yPos), 0, 0,
           /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
