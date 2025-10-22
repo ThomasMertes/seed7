@@ -3731,43 +3731,68 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                               dbName8, user8););
               err_info = MEMORY_ERROR;
               database = NULL;
-            } else if (PQstatus(db.connection) != CONNECTION_OK) {
-              setDbErrorMsg("sqlOpenPost", "PQsetdbLogin", db.connection);
-              logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
-                              "\"%s\", \"%s\", *) error:\n"
-                              "status=%d\nerror: %s\n",
-                              host8[0] == '\0' ? "NULL" : host8,
-                              dbName8, user8,
-                              PQstatus(db.connection),
-                              dbError.message););
-              err_info = DATABASE_ERROR;
+            } else if (PQstatus(db.connection) != CONNECTION_OK &&
+                       host8[0] == '\0') {
+              /* The attemt to connect with host set to NULL failed. */
+              /* If PQsetdbLogin() is called with the host set to    */
+              /* NULL the connection uses Unix domain sockets. Now   */
+              /* try internet sockets with "localhost" as host. This */
+              /* might succeed if PostgreSQL is installed in a local */
+              /* container and the port has been made accessible.    */
               PQfinish(db.connection);
-              database = NULL;
-            } else if (PQsetClientEncoding(db.connection, "UNICODE") != 0) {
-              setDbErrorMsg("sqlOpenPost", "PQsetClientEncoding", db.connection);
-              logError(printf("sqlOpenPost: PQsetClientEncoding does not return 0:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              PQfinish(db.connection);
-              database = NULL;
-            } else if (unlikely(!setupFuncTable() ||
-                                !ALLOC_RECORD2(database, dbRecordPost,
-                                               count.database, count.database_bytes))) {
-              err_info = MEMORY_ERROR;
-              PQfinish(db.connection);
-              database = NULL;
-            } else {
-              memset(database, 0, sizeof(dbRecordPost));
-              database->usage_count = 1;
-              database->isOpen = TRUE;
-              database->sqlFunc = sqlFunc;
-              database->driver     = DB_CATEGORY_POSTGRESQL;
-              database->dbCategory = DB_CATEGORY_POSTGRESQL;
-              database->connection = db.connection;
-              setting = PQparameterStatus(db.connection, "integer_datetimes");
-              database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
-              database->nextStmtNum = 1;
-              database->autoCommit = TRUE;
+              db.connection = PQsetdbLogin("localhost",
+                                           pgport, NULL /* pgoptions */,
+                                           NULL /* pgtty */,
+                                           dbName8, user8, password8);
+              logMessage(printf("sqlOpenPost: db.connection: " FMT_U_MEM "\n",
+                                (memSizeType) db.connection););
+              if (unlikely(db.connection == NULL)) {
+                logError(printf("sqlOpenPost: PQsetdbLogin(\"localhost\","
+                                " ... \"%s\", \"%s\", *) returns NULL\n",
+                                dbName8, user8););
+                err_info = MEMORY_ERROR;
+                database = NULL;
+              } /* if */
+            } /* if */
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              if (PQstatus(db.connection) != CONNECTION_OK) {
+                setDbErrorMsg("sqlOpenPost", "PQsetdbLogin", db.connection);
+                logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
+                                "\"%s\", \"%s\", *) error:\n"
+                                "status=%d\nerror: %s\n",
+                                host8[0] == '\0' ? "localhost" : host8,
+                                dbName8, user8,
+                                PQstatus(db.connection),
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                PQfinish(db.connection);
+                database = NULL;
+              } else if (PQsetClientEncoding(db.connection, "UNICODE") != 0) {
+                setDbErrorMsg("sqlOpenPost", "PQsetClientEncoding", db.connection);
+                logError(printf("sqlOpenPost: PQsetClientEncoding does not return 0:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                PQfinish(db.connection);
+                database = NULL;
+              } else if (unlikely(!setupFuncTable() ||
+                                  !ALLOC_RECORD2(database, dbRecordPost,
+                                                 count.database, count.database_bytes))) {
+                err_info = MEMORY_ERROR;
+                PQfinish(db.connection);
+                database = NULL;
+              } else {
+                memset(database, 0, sizeof(dbRecordPost));
+                database->usage_count = 1;
+                database->isOpen = TRUE;
+                database->sqlFunc = sqlFunc;
+                database->driver     = DB_CATEGORY_POSTGRESQL;
+                database->dbCategory = DB_CATEGORY_POSTGRESQL;
+                database->connection = db.connection;
+                setting = PQparameterStatus(db.connection, "integer_datetimes");
+                database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
+                database->nextStmtNum = 1;
+                database->autoCommit = TRUE;
+              } /* if */
             } /* if */
             free_cstri8(password8, password);
           } /* if */
