@@ -322,12 +322,17 @@ void uncaught_exception (progType aProg)
 
 static void write_curr_position (listType list)
 
-  { /* write_curr_position */
+  {
+    striType expr_stri;
+
+  /* write_curr_position */
+    copyCStri(&expr_stri, "");
+    appendListLimited(&expr_stri, list, 3);
     if (list == curr_argument_list) {
       prot_cstri(" ");
       write_position_info(curr_action_object, FALSE);
       prot_nl();
-      prot_list(list);
+      prot_string(expr_stri);
       prot_cstri(" ");
       write_position_info(curr_exec_object, FALSE);
       prot_nl();
@@ -341,8 +346,9 @@ static void write_curr_position (listType list)
     } else {
       prot_cstri(" with");
       prot_nl();
-      prot_list(list);
+      prot_string(expr_stri);
     } /* if */
+    strDestr(expr_stri);
   } /* write_curr_position */
 
 
