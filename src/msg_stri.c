@@ -779,116 +779,163 @@ void appendFormalParam (striType *const msg, const const_objectType formalParam)
 
 
 
+static void appendListElement (striType *const msg, const const_objectType anyobject,
+    int depthLimit)
+
+  { /* appendListElement */
+    if (anyobject == NULL) {
+      appendCStri(msg, "*NULL_OBJECT*");
+    } else if (!LEGAL_CATEGORY_FIELD(anyobject)) {
+      appendCStri(msg, "*CORRUPT_CATEGORY_FIELD*");
+    } else {
+      switch (CATEGORY_OF_OBJ(anyobject)) {
+        case LISTOBJECT:
+        case EXPROBJECT:
+          if (depthLimit != 0) {
+            appendListLimited(msg, anyobject->value.listValue, depthLimit - 1);
+          } else {
+            appendCStri(msg, " *** details suppressed *** ");
+          } /* if */
+          break;
+        case CALLOBJECT:
+        case MATCHOBJECT:
+          if (CATEGORY_OF_OBJ(anyobject->value.listValue->obj) == ACTOBJECT) {
+            appendCStri(msg, getActEntry(anyobject->value.listValue->obj->value.actValue)->name);
+          } else if (HAS_ENTITY(anyobject->value.listValue->obj) &&
+              GET_ENTITY(anyobject->value.listValue->obj)->ident != NULL) {
+            appendCStri8(msg, id_string(GET_ENTITY(anyobject->value.listValue->obj)->ident));
+          } else {
+            appendType(msg, anyobject->value.listValue->obj->type_of);
+            appendCStri(msg, ": <");
+            appendCategory(msg, CATEGORY_OF_OBJ(anyobject->value.listValue->obj));
+            appendCStri(msg, "> ");
+          } /* if */
+          appendChar(msg, '(');
+          if (depthLimit != 0) {
+            appendListLimited(msg, anyobject->value.listValue->next, depthLimit - 1);
+          } else {
+            appendCStri(msg, " *** details suppressed *** ");
+          } /* if */
+          appendChar(msg, ')');
+          break;
+        case FORMPARAMOBJECT:
+          appendChar(msg, '(');
+          appendFormalParam(msg, anyobject->value.objValue);
+          appendChar(msg, ')');
+          break;
+        case INTOBJECT:
+        case BIGINTOBJECT:
+        case CHAROBJECT:
+        case STRIOBJECT:
+        case BSTRIOBJECT:
+        case FILEOBJECT:
+        case SOCKETOBJECT:
+        case FLOATOBJECT:
+        case ARRAYOBJECT:
+        case HASHOBJECT:
+        case STRUCTOBJECT:
+        case INTERFACEOBJECT:
+        case SETOBJECT:
+        case ACTOBJECT:
+        case BLOCKOBJECT:
+        case WINOBJECT:
+        case POINTLISTOBJECT:
+        case PROCESSOBJECT:
+          appendValue(msg, anyobject);
+          break;
+        case VARENUMOBJECT:
+          if (anyobject->value.objValue != NULL) {
+            if (HAS_ENTITY(anyobject->value.objValue) &&
+                IS_NORMAL_IDENT(GET_ENTITY(anyobject->value.objValue)->ident)) {
+              appendCStri8(msg, id_string(GET_ENTITY(anyobject->value.objValue)->ident));
+            } else {
+              appendChar(msg, '<');
+              appendCategory(msg, CATEGORY_OF_OBJ(anyobject->value.objValue));
+              appendChar(msg, '>');
+            } /* if */
+          } else {
+            appendCStri(msg, " *NULL_REF* ");
+          } /* if */
+          break;
+        case TYPEOBJECT:
+          appendType(msg, anyobject->value.typeValue);
+          break;
+        default:
+          if (HAS_ENTITY(anyobject) &&
+              GET_ENTITY(anyobject)->ident != NULL) {
+            appendCStri8(msg, id_string(GET_ENTITY(anyobject)->ident));
+          } else {
+            appendType(msg, anyobject->type_of);
+            appendCStri(msg, ": <");
+            appendCategory(msg, CATEGORY_OF_OBJ(anyobject));
+            appendChar(msg, '>');
+          } /* if */
+          break;
+      } /* switch */
+    } /* if */
+  } /* appendListElement */
+
+
+
 void appendListLimited (striType *const msg, const_listType list,
     int depthLimit)
 
   {
-    int number;
+    const_listType list_end;
+    int number = 0;
 
   /* appendListLimited */
     logFunction(printf("appendListLimited(\"%s\", *, %d)\n",
                        striAsUnquotedCStri(*msg), depthLimit););
-    appendChar(msg, '{');
-    number = 0;
-    while (list != NULL && number <= 50) {
-      if (list->obj == NULL) {
-        appendCStri(msg, "*NULL_OBJECT*");
-      } else if (!LEGAL_CATEGORY_FIELD(list->obj)) {
-        appendCStri(msg, "*CORRUPT_CATEGORY_FIELD*");
-      } else {
-        switch (CATEGORY_OF_OBJ(list->obj)) {
-          case LISTOBJECT:
-          case EXPROBJECT:
-            if (depthLimit != 0) {
-              appendListLimited(msg, list->obj->value.listValue, depthLimit - 1);
-            } else {
-              appendCStri(msg, " *** details suppressed *** ");
-            } /* if */
-            break;
-          case CALLOBJECT:
-          case MATCHOBJECT:
-            if (CATEGORY_OF_OBJ(list->obj->value.listValue->obj) == ACTOBJECT) {
-              appendCStri(msg, getActEntry(list->obj->value.listValue->obj->value.actValue)->name);
-            } else if (HAS_ENTITY(list->obj->value.listValue->obj) &&
-                GET_ENTITY(list->obj->value.listValue->obj)->ident != NULL) {
-              appendCStri8(msg, id_string(GET_ENTITY(list->obj->value.listValue->obj)->ident));
-            } else {
-              appendType(msg, list->obj->value.listValue->obj->type_of);
-              appendCStri(msg, ": <");
-              appendCategory(msg, CATEGORY_OF_OBJ(list->obj->value.listValue->obj));
-              appendCStri(msg, "> ");
-            } /* if */
-            appendChar(msg, '(');
-            if (depthLimit != 0) {
-              appendListLimited(msg, list->obj->value.listValue->next, depthLimit - 1);
-            } else {
-              appendCStri(msg, " *** details suppressed *** ");
-            } /* if */
-            appendChar(msg, ')');
-            break;
-          case FORMPARAMOBJECT:
-            appendChar(msg, '(');
-            appendFormalParam(msg, list->obj->value.objValue);
-            appendChar(msg, ')');
-            break;
-          case INTOBJECT:
-          case BIGINTOBJECT:
-          case CHAROBJECT:
-          case STRIOBJECT:
-          case BSTRIOBJECT:
-          case FILEOBJECT:
-          case SOCKETOBJECT:
-          case FLOATOBJECT:
-          case ARRAYOBJECT:
-          case HASHOBJECT:
-          case STRUCTOBJECT:
-          case INTERFACEOBJECT:
-          case SETOBJECT:
-          case ACTOBJECT:
-          case BLOCKOBJECT:
-          case WINOBJECT:
-          case POINTLISTOBJECT:
-          case PROCESSOBJECT:
-            appendValue(msg, list->obj);
-            break;
-          case VARENUMOBJECT:
-            if (list->obj->value.objValue != NULL) {
-              if (HAS_ENTITY(list->obj->value.objValue) &&
-                  IS_NORMAL_IDENT(GET_ENTITY(list->obj->value.objValue)->ident)) {
-                appendCStri8(msg, id_string(GET_ENTITY(list->obj->value.objValue)->ident));
-              } else {
-                appendChar(msg, '<');
-                appendCategory(msg, CATEGORY_OF_OBJ(list->obj->value.objValue));
-                appendChar(msg, '>');
-              } /* if */
-            } else {
-              appendCStri(msg, " *NULL_REF* ");
-            } /* if */
-            break;
-          case TYPEOBJECT:
-            appendType(msg, list->obj->value.typeValue);
-            break;
-          default:
-            if (HAS_ENTITY(list->obj) &&
-                GET_ENTITY(list->obj)->ident != NULL) {
-              appendCStri8(msg, id_string(GET_ENTITY(list->obj)->ident));
-            } else {
-              appendType(msg, list->obj->type_of);
-              appendCStri(msg, ": <");
-              appendCategory(msg, CATEGORY_OF_OBJ(list->obj));
-              appendChar(msg, '>');
-            } /* if */
-            break;
-        } /* switch */
-      } /* if */
-      appendChar(msg, ' ');
-      list = list->next;
-      number++;
-    } /* while */
-    if (list != NULL) {
-      appendCStri(msg, "*AND_SO_ON*");
+    list_end = list;
+    if (list_end != NULL) {
+      while (list_end->next != NULL) {
+        list_end = list_end->next;
+      } /* while */
     } /* if */
-    appendChar(msg, '}');
+    if (list != NULL &&
+        list->obj != NULL &&
+        LEGAL_CATEGORY_FIELD(list->obj) &&
+	(CATEGORY_OF_OBJ(list->obj) != SYMBOLOBJECT ||
+	 (HAS_ENTITY(list->obj) &&
+          GET_ENTITY(list->obj)->ident != NULL &&
+          GET_ENTITY(list->obj)->ident->prefix_priority == 0)) &&
+        list_end != NULL &&
+        list_end->obj != NULL &&
+        LEGAL_CATEGORY_FIELD(list_end->obj) &&
+	CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+        HAS_ENTITY(list_end->obj) &&
+        GET_ENTITY(list_end->obj)->ident != NULL &&
+        GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
+      appendCStri8(msg, id_string(GET_ENTITY(list_end->obj)->ident));
+      if (list != list_end) {
+        appendChar(msg, '(');
+        while (list != list_end && number <= 50) {
+          appendListElement(msg, list->obj, depthLimit);
+          list = list->next;
+          if (list != list_end) {
+            appendCStri(msg, ", ");
+          } /* if */
+          number++;
+        } /* while */
+        if (list != list_end) {
+          appendCStri(msg, "*AND_SO_ON*");
+        } /* if */
+        appendChar(msg, ')');
+      } /* if */
+    } else {
+      appendChar(msg, '{');
+      while (list != NULL && number <= 50) {
+        appendListElement(msg, list->obj, depthLimit);
+        appendChar(msg, ' ');
+        list = list->next;
+        number++;
+      } /* while */
+      if (list != NULL) {
+        appendCStri(msg, "*AND_SO_ON*");
+      } /* if */
+      appendChar(msg, '}');
+    } /* if */
     logFunction(printf("appendListLimited(\"%s\", *, %d) -->\n",
                        striAsUnquotedCStri(*msg), depthLimit););
   } /* appendListLimited */

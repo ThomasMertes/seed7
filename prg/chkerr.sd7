@@ -2886,7 +2886,7 @@ const func boolean: checkParamDeclFailed is func
                     \    writeln(\"okay\");\n\
                     \  end func;",
                     PARAM_DECL_FAILED, 8, 0,
-                    "Declaration of parameter {in raiseException({}) : {aParam } } failed",
+                    "Declaration of parameter {in raiseException({}) : aParam } failed",
                     "const proc: test (in raiseException: aParam) is func") then
       okay := TRUE;
     else
@@ -3426,7 +3426,7 @@ const func boolean: checkNoMatch is func
         checkError1("$ include \"syntax.s7i\";\n\
                     \$ const type: jkl is $ subtype writeln(asdf);",
                     NO_MATCH, 2, 0,
-                    "Match for {asdf writeln } failed",
+                    "Match for writeln(asdf) failed",
                     "$ const type: jkl is $ subtype writeln(asdf);") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \$ const type: jkl is $ subtype 123 div \"12\";",
@@ -3454,7 +3454,7 @@ const func boolean: checkNoMatch is func
                     \    incr(\"asdf\");\n\
                     \  end func;",
                     NO_MATCH, 6, 0,
-                    "Match for {\"asdf\" incr } failed",
+                    "Match for incr(\"asdf\") failed",
                     "    incr(\"asdf\");") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: main is func\n\
@@ -3486,7 +3486,7 @@ const func boolean: checkNoMatch is func
                     \    incr(\"asdf\");\n\
                     \  end func;",
                     NO_MATCH, 8, 0,
-                    "Match for {\"asdf\" incr } failed",
+                    "Match for incr(\"asdf\") failed",
                     "    incr(\"asdf\");") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const func boolean: isOkay is func\n\
@@ -3508,7 +3508,7 @@ const func boolean: checkNoMatch is func
                     \    noop;\n\
                     \  end func;",
                     NO_MATCH, 4, 0,
-                    "Match for {number } failed",
+                    "Match for number failed",
                     "    var integer: number is \"asdf\";") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const proc: test (in var integer: number) is func\n\
@@ -3570,7 +3570,7 @@ const func boolean: checkNoMatch is func
                     \    writeln(number);\n\
                     \  end func;\n",
                     NO_MATCH, 6, 0,
-                    "Match for {GEN_DESTR({number destroy }) ; {number writeln } } failed",
+                    "Match for {GEN_DESTR(destroy(number)) ; {number writeln } } failed",
                     "    destroy(number);") then
       okay := TRUE;
     else
@@ -3587,13 +3587,13 @@ const func boolean: checkWrongAccessRight is func
                     \const integer: one is 1;\n\
                     \incr(one);",
                     WRONGACCESSRIGHT, 3, 0,
-                    "Variable expected in {one incr } found constant integer: one",
+                    "Variable expected in incr(one) found constant integer: one",
                     "incr(one);") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const char: space is ' ';\n\
                     \incr(space);",
                     WRONGACCESSRIGHT, 3, 0,
-                    "Variable expected in {space incr } found constant char: space",
+                    "Variable expected in incr(space) found constant char: space",
                     "incr(space);") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const string: stri is \"x\";\n\
@@ -3605,13 +3605,13 @@ const func boolean: checkWrongAccessRight is func
                     \const array integer: one is [] (1);\n\
                     \incr(one[1]);",
                     WRONGACCESSRIGHT, 3, 0,
-                    "Variable expected in {ARR_IDX({one [ 1 ] }) incr } found expression ({one [ 1 ] }) of type func integer",
+                    "Variable expected in incr(ARR_IDX({one [ 1 ] })) found expression ({one [ 1 ] }) of type func integer",
                     "incr(one[1]);") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const array char: space is [] (' ');\n\
                     \incr(space[1]);",
                     WRONGACCESSRIGHT, 3, 0,
-                    "Variable expected in {ARR_IDX({space [ 1 ] }) incr } found expression ({space [ 1 ] }) of type func char",
+                    "Variable expected in incr(ARR_IDX({space [ 1 ] })) found expression ({space [ 1 ] }) of type func char",
                     "incr(space[1]);") and
         checkError1("$ include \"seed7_05.s7i\";\n\
                     \const array string: arr is [] (\"x\");\n\
