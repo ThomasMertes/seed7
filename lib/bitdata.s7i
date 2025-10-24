@@ -905,7 +905,7 @@ const proc: putBit (inout lsbOutBitStream: outBitStream, in integer: bit) is fun
  *  Append ''bitWidth'' bits in LSB-First order to ''outBitStream''.
  *  The append direction is from LSB (least significant bit) to
  *  MSB (most significant bit). If necessary additional bytes are
- *  added to ''stristri''.
+ *  added to ''outBitStream''.
  *   # Stream data:     "\2#01011;"  and  bitPos = 5
  *   #                     ^
  *   #                  current
