@@ -238,29 +238,46 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
        XSync(mydisplay, 0);
        getchar(); */
     if (x11Window != NULL) {
+      if (xPos < 0) {
+        if (width > -(unsigned int) xPos) {
+          width += xPos;
+        } else {
+          width = 0;
+        } /* if */
+        xPos = 0;
+      } /* if */
+      if (yPos < 0) {
+        if (height > -(unsigned int) yPos) {
+          height += yPos;
+        } else {
+          height = 0;
+        } /* if */
+        yPos = 0;
+      } /* if */
       if (x11Window->backup != 0 &&
-          xPos < (int) x11Window->width && yPos < (int) x11Window->height) {
+          (unsigned int) xPos < x11Window->width &&
+          (unsigned int) yPos < x11Window->height) {
         /* printf("XCopyArea: xPos=%d, yPos=%d, width=%u, height=%u\n",
             xPos, yPos, width, height); */
         XCopyArea(mydisplay, x11Window->backup,
             x11Window->window, mygc, xPos, yPos,
             width, height, xPos, yPos);
       } /* if */
-      if (xPos + (int) width > (int) x11Window->width) {
+      if ((unsigned int) xPos + width > x11Window->width) {
         XSetForeground(mydisplay, mygc, (unsigned long) x11Window->clear_col);
-        if (xPos >= (int) x11Window->width) {
+        if ((unsigned int) xPos >= x11Window->width) {
           xClear = xPos;
           clearWidth = width;
         } else {
-          xClear = (int) x11Window-> width;
-          clearWidth = (unsigned int) (xPos + (int) width - (int) x11Window->width);
-          if (yPos + (int) height > (int) x11Window->height) {
-            if (yPos >= (int) x11Window->height) {
+          xClear = (int) x11Window->width;
+          clearWidth = (unsigned int) xPos + width - x11Window->width;
+          if ((unsigned int) yPos + height > x11Window->height) {
+            if ((unsigned int) yPos >= x11Window->height) {
               yClear = yPos;
               clearHeight = height;
             } else {
               yClear = (int) x11Window->height;
-              clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
+              clearHeight = (unsigned int) yPos + height - x11Window->height;
             } /* if */
             /* printf("clear x=%d, y=%d, width=%u, height=%u\n",
                 xPos, yClear, x11Window->width - xPos, clearHeight); */
@@ -272,14 +289,14 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
             xClear, yPos, clearWidth, height); */
         XFillRectangle(mydisplay, x11Window->window, mygc,
             xClear, yPos, clearWidth, height);
-      } else if (yPos + (int) height > (int) x11Window->height) {
+      } else if ((unsigned int) yPos + height > x11Window->height) {
         XSetForeground(mydisplay, mygc, (unsigned long) x11Window->clear_col);
-        if (yPos >= (int) x11Window->height) {
+        if ((unsigned int) yPos >= x11Window->height) {
           yClear = yPos;
           clearHeight = height;
         } else {
           yClear = (int) x11Window->height;
-          clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
+          clearHeight = (unsigned int) yPos + height - x11Window->height;
         } /* if */
         /* printf("clear x=%d, y=%d, width=%u, height=%u\n",
             xPos, yClear, width, clearHeight); */
