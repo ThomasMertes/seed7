@@ -231,7 +231,7 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
     unsigned int clearWidth, clearHeight;
 
   /* redraw */
-    logFunction(printf("redraw(" FMT_U_MEM ", %d, %d, %d, %d)\n",
+    logFunction(printf("redraw(" FMT_U_MEM ", %d, %d, %u, %u)\n",
                        (memSizeType) redrawWindow, xPos, yPos, width, height););
     x11Window = (x11_winType) redrawWindow;
     /* XFlush(mydisplay);
@@ -240,7 +240,7 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
     if (x11Window != NULL) {
       if (x11Window->backup != 0 &&
           xPos < (int) x11Window->width && yPos < (int) x11Window->height) {
-        /* printf("XCopyArea: xPos=%d, yPos=%d, width=%d, height=%d\n",
+        /* printf("XCopyArea: xPos=%d, yPos=%d, width=%u, height=%u\n",
             xPos, yPos, width, height); */
         XCopyArea(mydisplay, x11Window->backup,
             x11Window->window, mygc, xPos, yPos,
@@ -262,13 +262,13 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
               yClear = (int) x11Window->height;
               clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
             } /* if */
-            /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+            /* printf("clear x=%d, y=%d, width=%u, height=%u\n",
                 xPos, yClear, x11Window->width - xPos, clearHeight); */
             XFillRectangle(mydisplay, x11Window->window, mygc,
                            xPos, yClear, x11Window->width - (unsigned int) xPos, clearHeight);
           } /* if */
         } /* if */
-        /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+        /* printf("clear x=%d, y=%d, width=%u, height=%u\n",
             xClear, yPos, clearWidth, height); */
         XFillRectangle(mydisplay, x11Window->window, mygc,
             xClear, yPos, clearWidth, height);
@@ -281,7 +281,7 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
           yClear = (int) x11Window->height;
           clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
         } /* if */
-        /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+        /* printf("clear x=%d, y=%d, width=%u, height=%u\n",
             xPos, yClear, width, clearHeight); */
         XFillRectangle(mydisplay, x11Window->window, mygc,
             xPos, yClear, width, clearHeight);
@@ -302,7 +302,7 @@ boolType resize (winType resizeWindow, unsigned int width, unsigned int height)
     boolType sendResizeNotification = FALSE;
 
   /* resize */
-    logFunction(printf("resize(" FMT_U_MEM ", %d, %d)\n",
+    logFunction(printf("resize(" FMT_U_MEM ", %u, %u)\n",
                        (memSizeType) resizeWindow, width, height););
     x11Window = (x11_winType) resizeWindow;
     if (x11Window != NULL && x11Window->backup != 0) {
@@ -339,7 +339,7 @@ boolType isResize (winType resizeWindow, unsigned int width, unsigned int height
     boolType sendResizeNotification = FALSE;
 
   /* isResize */
-    logFunction(printf("isResize(" FMT_U_MEM ", %d, %d)\n",
+    logFunction(printf("isResize(" FMT_U_MEM ", %u, %u)\n",
                        (memSizeType) resizeWindow, width, height););
     x11Window = (x11_winType) resizeWindow;
     if (x11Window != NULL && x11Window->backup != 0 && x11Window->resizeReturnsKey) {
