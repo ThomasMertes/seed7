@@ -933,6 +933,20 @@ const proc: putBits (inout lsbOutBitStream: outBitStream, in integer: bits,
 
 
 (**
+ *  Append the LSB bit stream ''extension'' to ''outBitStream''.
+ *)
+const proc: (inout lsbOutBitStream: outBitStream) &:= (in lsbOutBitStream: extension) is func
+  local
+    var char: ch is ' ';
+  begin
+    for ch range extension.byteString do
+      putBits(outBitStream, ord(ch), 8);
+    end for;
+    putBits(outBitStream, extension.buffer, extension.bitPos);
+  end func;
+
+
+(**
  *  Obtain the length of the given ''outBitStream''.
  *  The bit stream length is measured in bits.
  *  @param outBitStream Bit stream from which the length is obtained.
@@ -1113,6 +1127,20 @@ const proc: putBits (inout msbOutBitStream: outBitStream, in integer: bits,
       outBitStream.bitSize := bitShift;
       outBitStream.buffer := outBitStream.buffer mod 2 ** bitShift;
     end if;
+  end func;
+
+
+(**
+ *  Append the MSB bit stream ''extension'' to ''outBitStream''.
+ *)
+const proc: (inout msbOutBitStream: outBitStream) &:= (in msbOutBitStream: extension) is func
+  local
+    var char: ch is ' ';
+  begin
+    for ch range extension.byteString do
+      putBits(outBitStream, ord(ch), 8);
+    end for;
+    putBits(outBitStream, extension.buffer, extension.bitSize);
   end func;
 
 
