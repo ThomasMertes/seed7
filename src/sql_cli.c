@@ -5828,28 +5828,28 @@ static void sqlCommit (databaseType database)
 
 
 
-static void sqlExecute (sqlStmtType sqlStatement)
+static errInfoType doExecute (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
     SQLRETURN execute_result;
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* sqlExecute */
-    logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
+  /* doExecute */
+    logFunction(printf("doExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("doExecute", "SQLExecute",
                  "Unbound statement parameter(s).\n");
-      raise_error(DATABASE_ERROR);
+      err_info = DATABASE_ERROR;
     } else {
       if (preparedStmt->executeSuccessful) {
         if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
-          setDbErrorMsg("sqlExecute", "SQLFreeStmt",
+          setDbErrorMsg("doExecute", "SQLFreeStmt",
                         SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("sqlExecute: SQLFreeStmt SQL_CLOSE:\n%s\n",
+          logError(printf("doExecute: SQLFreeStmt SQL_CLOSE:\n%s\n",
                           dbError.message););
           err_info = DATABASE_ERROR;
         } else {
@@ -5857,15 +5857,13 @@ static void sqlExecute (sqlStmtType sqlStatement)
           freePrefetched(preparedStmt);
         } /* if */
       } /* if */
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-      } else {
+      if (likely(err_info == OKAY_NO_ERROR)) {
         preparedStmt->fetchOkay = FALSE;
         execute_result = SQLExecute(preparedStmt->ppStmt);
 #ifdef ALLOW_EXECUTE_SUCCESS_WITH_INFO
-      if (execute_result == SQL_SUCCESS_WITH_INFO) {
-        execute_result = SQL_SUCCESS;
-      } /*if */
+        if (execute_result == SQL_SUCCESS_WITH_INFO) {
+          execute_result = SQL_SUCCESS;
+        } /*if */
 #endif
         if (execute_result == SQL_NO_DATA || execute_result == SQL_SUCCESS) {
           if (preparedStmt->db->maxConcurrentActivities != 0) {
@@ -5881,7 +5879,6 @@ static void sqlExecute (sqlStmtType sqlStatement)
             } /* if */
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               preparedStmt->executeSuccessful = FALSE;
-              raise_error(err_info);
             } else {
               preparedStmt->executeSuccessful = TRUE;
               preparedStmt->fetchFinished = FALSE;
@@ -5891,14 +5888,32 @@ static void sqlExecute (sqlStmtType sqlStatement)
             preparedStmt->fetchFinished = FALSE;
           } /* if */
         } else {
-          setDbErrorMsg("sqlExecute", "SQLExecute",
+          setDbErrorMsg("doExecute", "SQLExecute",
                         SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("sqlExecute: SQLExecute execute_result: %d:\n%s\n",
+          logError(printf("doExecute: SQLExecute execute_result: %d:\n%s\n",
                           execute_result, dbError.message););
           preparedStmt->executeSuccessful = FALSE;
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } /* if */
       } /* if */
+    } /* if */
+    logFunction(printf("doExecute --> %d\n", err_info););
+    return err_info;
+  } /* doExecute */
+
+
+
+static void sqlExecute (sqlStmtType sqlStatement)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* sqlExecute */
+    logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    err_info = doExecute(sqlStatement);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
   } /* sqlExecute */
@@ -6016,71 +6031,70 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
 
 
-static sqlStmtType sqlPrepare (databaseType database,
-    const const_striType sqlStatementStri)
+static sqlStmtType doPrepare (databaseType database,
+    const const_striType sqlStatementStri, errInfoType *err_info)
 
   {
     dbType db;
     striType statementStri;
     SQLWCHAR *query;
     memSizeType queryLength;
-    errInfoType err_info = OKAY_NO_ERROR;
     preparedStmtType preparedStmt;
 
-  /* sqlPrepare */
-    logFunction(printf("sqlPrepare(" FMT_U_MEM ", \"%s\")\n",
+  /* doPrepare */
+    logFunction(printf("doPrepare(" FMT_U_MEM ", \"%s\")\n",
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
     if (unlikely(db->connection == SQL_NULL_HANDLE)) {
-      dbNotOpen("sqlPrepare");
-      logError(printf("sqlPrepare: Database is not open.\n"););
-      err_info = DATABASE_ERROR;
+      dbNotOpen("doPrepare");
+      logError(printf("doPrepare: Database is not open.\n"););
+      *err_info = DATABASE_ERROR;
       preparedStmt = NULL;
     } else {
       statementStri = processStatementStri(sqlStatementStri,
                                            db->backslashEscapes,
                                            db->identifierQuotationChar);
       if (statementStri == NULL) {
-        err_info = MEMORY_ERROR;
+        *err_info = MEMORY_ERROR;
         preparedStmt = NULL;
       } else {
-        query = stri_to_sqlwstri(statementStri, &queryLength, &err_info);
+        query = stri_to_sqlwstri(statementStri, &queryLength, err_info);
         if (unlikely(query == NULL)) {
           preparedStmt = NULL;
         } else {
           if (queryLength > SQLINTEGER_MAX) {
             /* It is not possible to cast queryLength to SQLINTEGER. */
-            logError(printf("sqlPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
+            logError(printf("doPrepare: Statement string too long (length = " FMT_U_MEM ")\n",
                             queryLength););
-            err_info = RANGE_ERROR;
+            *err_info = RANGE_ERROR;
             preparedStmt = NULL;
           } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordCli,
                                              count.prepared_stmt, count.prepared_stmt_bytes))) {
-            err_info = MEMORY_ERROR;
+            *err_info = MEMORY_ERROR;
           } else {
             memset(preparedStmt, 0, sizeof(preparedStmtRecordCli));
             if (SQLAllocHandle(SQL_HANDLE_STMT,
                                db->connection,
                                &preparedStmt->ppStmt) != SQL_SUCCESS) {
-              setDbErrorMsg("sqlPrepare", "SQLAllocHandle",
+              setDbErrorMsg("doPrepare", "SQLAllocHandle",
                             SQL_HANDLE_DBC, db->connection);
-              logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
+              logError(printf("doPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
                               dbError.message););
               FREE_RECORD2(preparedStmt, preparedStmtRecordCli,
                            count.prepared_stmt, count.prepared_stmt_bytes);
-              err_info = DATABASE_ERROR;
+              *err_info = DATABASE_ERROR;
               preparedStmt = NULL;
             } else if (SQLPrepareW(preparedStmt->ppStmt,
                                    (SQLWCHAR *) query,
                                    (SQLINTEGER) queryLength) != SQL_SUCCESS) {
-              setDbErrorMsg("sqlPrepare", "SQLPrepare",
+              setDbErrorMsg("doPrepare", "SQLPrepare",
                             SQL_HANDLE_STMT, preparedStmt->ppStmt);
-              logError(printf("sqlPrepare: SQLPrepare:\n%s\n",
+              logError(printf("doPrepare: SQLPrepare:\n%s\n",
                               dbError.message););
               FREE_RECORD2(preparedStmt, preparedStmtRecordCli,
                           count.prepared_stmt, count.prepared_stmt_bytes);
-              err_info = DATABASE_ERROR;
+              *err_info = DATABASE_ERROR;
               preparedStmt = NULL;
             } else {
               preparedStmt->usage_count = 1;
@@ -6092,16 +6106,16 @@ static sqlStmtType sqlPrepare (databaseType database,
               if (db->usage_count != 0) {
                 db->usage_count++;
               } /* if */
-              if (likely(err_info == OKAY_NO_ERROR)) {
-                err_info = setupParameters(preparedStmt);
-                if (likely(err_info == OKAY_NO_ERROR)) {
-                  err_info = setupResult(preparedStmt);
-                  if (likely(err_info == OKAY_NO_ERROR)) {
-                    err_info = bindResult(preparedStmt, &preparedStmt->fetchRecord);
+              if (likely(*err_info == OKAY_NO_ERROR)) {
+                *err_info = setupParameters(preparedStmt);
+                if (likely(*err_info == OKAY_NO_ERROR)) {
+                  *err_info = setupResult(preparedStmt);
+                  if (likely(*err_info == OKAY_NO_ERROR)) {
+                    *err_info = bindResult(preparedStmt, &preparedStmt->fetchRecord);
                   } /* if */
                 } /* if */
               } /* if */
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
+              if (unlikely(*err_info != OKAY_NO_ERROR)) {
                 freePreparedStmt((sqlStmtType) preparedStmt);
                 preparedStmt = NULL;
               } /* if */
@@ -6112,12 +6126,31 @@ static sqlStmtType sqlPrepare (databaseType database,
         FREE_STRI(statementStri);
       } /* if */
     } /* if */
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    logFunction(printf("doPrepare --> " FMT_U_MEM "\n",
+                       (memSizeType) preparedStmt););
+    return (sqlStmtType) preparedStmt;
+  } /* doPrepare */
+
+
+
+static sqlStmtType sqlPrepare (databaseType database,
+    const const_striType sqlStatementStri)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    sqlStmtType preparedStmt;
+
+  /* sqlPrepare */
+    logFunction(printf("sqlPrepare(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) database,
+                       striAsUnquotedCStri(sqlStatementStri)););
+    preparedStmt = doPrepare(database, sqlStatementStri, &err_info);
+    if (unlikely(preparedStmt == NULL)) {
       raise_error(err_info);
     } /* if */
     logFunction(printf("sqlPrepare --> " FMT_U_MEM "\n",
                        (memSizeType) preparedStmt););
-    return (sqlStmtType) preparedStmt;
+    return preparedStmt;
   } /* sqlPrepare */
 
 
@@ -6388,22 +6421,26 @@ static boolType determineIfBackslashEscapes (dbType database)
     striType statementStri;
     sqlStmtType preparedStmt;
     striType data;
+    errInfoType err_info = OKAY_NO_ERROR;
     boolType backslashEscapes = FALSE;
 
   /* determineIfBackslashEscapes */
     statementStri = cstri_to_stri("SELECT '\\\\'");
     if (likely(statementStri != NULL)) {
-      preparedStmt = sqlPrepare((databaseType) database, statementStri);
+      preparedStmt = doPrepare((databaseType) database, statementStri,
+                               &err_info);
       if (likely(preparedStmt != NULL)) {
-        sqlExecute(preparedStmt);
-        if (likely(sqlFetch(preparedStmt))) {
-          data = sqlColumnStri(preparedStmt, 1);
-          if (data->size == 1 && data->mem[0] == '\\') {
-            /* A select for two backslashes returns just one backslash. */
-            /* This happens if the database uses backslash as escape char. */
-            backslashEscapes = TRUE;
+        err_info = doExecute(preparedStmt);
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (likely(sqlFetch(preparedStmt))) {
+            data = sqlColumnStri(preparedStmt, 1);
+            if (data->size == 1 && data->mem[0] == '\\') {
+              /* A select for two backslashes returns just one backslash. */
+              /* This happens if the database uses backslash as escape char. */
+              backslashEscapes = TRUE;
+            } /* if */
+            FREE_STRI(data);
           } /* if */
-          FREE_STRI(data);
         } /* if */
         freePreparedStmt(preparedStmt);
       } /* if */
