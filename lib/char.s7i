@@ -344,6 +344,9 @@ const func string: trimValue (attr char, in string: stri) is forward;
 
 (**
  *  Conversion to a ''char'' literal.
+ *   literal('A')    returns "'A'"
+ *   literal('\n')   returns "'\\n'"
+ *   literal('\0;')  returns "'\\0;'"
  *  @return the character literal of ''ch''.
  *)
 const func string: literal (in char: ch) is forward;
