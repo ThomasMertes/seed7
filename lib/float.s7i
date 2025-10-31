@@ -393,6 +393,33 @@ const func string: str (in float: number, SCIENTIFIC)          is action "FLT_ST
 
 
 (**
+ *  Convert a float number to a [[string]].
+ *  The number is converted to a string with decimal or scientific
+ *  representation. The scientific representation is used if it is shorter.
+ *   literal(12345.0)   returns "12345.0"
+ *   literal(12000.0)   returns "1.2e+4"
+ *   literal(-0.0)      returns "0.0"
+ *   literal(Infinity)  returns "Infinity"
+ *   literal(-Infinity) returns "-Infinity"
+ *   literal(NaN)       returns "NaN"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: literal (in float: number) is func
+  result
+    var string: literal is "";
+  local
+    var string: scientificFloat is "";
+  begin
+    literal := str(number);
+    scientificFloat := str(number, SCIENTIFIC);
+    if length(scientificFloat) < length(literal) then
+      literal := scientificFloat;
+    end if;
+  end func;
+
+
+(**
  *  Convert a [[string]] to a float number.
  *   float("1.2345")     returns  1.2345
  *   float("1.2345e6")   returns  1234500.0
@@ -681,15 +708,6 @@ const func boolean: isNegativeZero (in float: number)          is action "FLT_IS
  *)
 const func boolean: isPositiveZero (in float: number) is
   return number = 0.0 and not isNegativeZero(number);
-
-
-(**
- *  Convert a float number to a [[string]].
- *  The number is converted to a string with decimal representation.
- *  @return the string result of the conversion.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- *)
-const func string: literal (in float: number)                  is action "FLT_STR";
 
 
 (**
