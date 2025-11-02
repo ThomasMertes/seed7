@@ -255,18 +255,17 @@ struct wdirent *wreaddir (WDIR *directory)
     logFunction(printf("wreaddir(" FMT_X_MEM ")\n",
                        (memSizeType) directory););
     if (directory->firstElement) {
-      /* printf("first\n"); */
       directory->firstElement = 0;
       directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
-      /* printf(">%ls<\n", dirEntry->d_name); */
+      logMessage(printf("first: \"%ls\"\n", dirEntry->d_name););
     } else if (directory->dirHandle != INVALID_HANDLE_VALUE &&
         FindNextFileW(directory->dirHandle, &directory->findData) != 0) {
       directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
-      /* printf(">%ls<\n", dirEntry->d_name); */
+      logMessage(printf("next: \"%ls\"\n", dirEntry->d_name););
     } else {
-      /* printf("end\n"); */
+      logMessage(printf("end\n"););
       dirEntry = NULL;
     } /* if */
     logFunction(printf("wreaddir --> %ls\n",
@@ -443,14 +442,14 @@ struct dirent *readdir (DIR *directory)
       directory->firstElement = 0;
       directory->dirEntry.d_name = (char *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
-      /* printf(">%s<\n", dirEntry->d_name); */
+      logMessage(printf("first: \"%s\"\n", dirEntry->d_name););
     } else if (directory->dirHandle != INVALID_HANDLE_VALUE &&
         FindNextFileA(directory->dirHandle, &directory->findData) != 0) {
       directory->dirEntry.d_name = (char *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
-      /* printf(">%s<\n", dirEntry->d_name); */
+      logMessage(printf("next: \"%s\"\n", dirEntry->d_name););
     } else {
-      /* printf("end\n"); */
+      logMessage(printf("end\n"););
       dirEntry = NULL;
     } /* if */
     logFunction(printf("readdir --> %s\n",

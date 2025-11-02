@@ -111,7 +111,6 @@ int findSysvar (const_striType stri)
             strcmp(sysvar_name, sys_name[result]) != 0) {
           result--;
         } /* while */
-        /* printf("findSysvar: %s -> %d\n", sysvar_name, result); */
       } /* if */
     } /* if */
     logFunction(printf("findSysvar --> %d\n", result););
