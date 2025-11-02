@@ -30,44 +30,46 @@
 
 #define EMPTY_OBJECT(prog)          (prog)->sys_var[ 0]
 #define MEM_EXCEPTION(prog)         (prog)->sys_var[ 1]
-#define NUM_EXCEPTION(prog)         (prog)->sys_var[ 2]
-#define OVF_EXCEPTION(prog)         (prog)->sys_var[ 3]
-#define RNG_EXCEPTION(prog)         (prog)->sys_var[ 4]
-#define IDX_EXCEPTION(prog)         (prog)->sys_var[ 5]
-#define FIL_EXCEPTION(prog)         (prog)->sys_var[ 6]
-#define DB_EXCEPTION(prog)          (prog)->sys_var[ 7]
-#define GRAPHIC_EXCEPTION(prog)     (prog)->sys_var[ 8]
-#define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[ 9]
-#define FALSE_OBJECT(prog)          (prog)->sys_var[10]
-#define TRUE_OBJECT(prog)           (prog)->sys_var[11]
-#define EXPR_TYPE(prog)             (prog)->sys_var[12]
-#define F_PARAM_TYPE(prog)          (prog)->sys_var[13]
-#define INT_TYPE(prog)              (prog)->sys_var[14]
-#define BIGINT_TYPE(prog)           (prog)->sys_var[15]
-#define CHAR_TYPE(prog)             (prog)->sys_var[16]
-#define STRI_TYPE(prog)             (prog)->sys_var[17]
-#define PROC_TYPE(prog)             (prog)->sys_var[18]
-#define FLT_TYPE(prog)              (prog)->sys_var[19]
-#define ASSIGN_OBJECT(prog)         (prog)->sys_var[20]
-#define CREA_OBJECT(prog)           (prog)->sys_var[21]
-#define DESTR_OBJECT(prog)          (prog)->sys_var[22]
-#define ORD_OBJECT(prog)            (prog)->sys_var[23]
-#define IN_OBJECT(prog)             (prog)->sys_var[24]
-#define DOT_OBJECT(prog)            (prog)->sys_var[25]
-#define VALUE_OBJECT(prog)          (prog)->sys_var[26]
-#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[27]
-#define FLUSH_OBJECT(prog)          (prog)->sys_var[28]
-#define WRITE_OBJECT(prog)          (prog)->sys_var[29]
-#define WRLN_OBJECT(prog)           (prog)->sys_var[30]
-#define MAIN_OBJECT(prog)           (prog)->sys_var[31]
+#define ASSERTION_EXCEPTION(prog)   (prog)->sys_var[ 2]
+#define NUM_EXCEPTION(prog)         (prog)->sys_var[ 3]
+#define OVF_EXCEPTION(prog)         (prog)->sys_var[ 4]
+#define RNG_EXCEPTION(prog)         (prog)->sys_var[ 5]
+#define IDX_EXCEPTION(prog)         (prog)->sys_var[ 6]
+#define FIL_EXCEPTION(prog)         (prog)->sys_var[ 7]
+#define DB_EXCEPTION(prog)          (prog)->sys_var[ 8]
+#define GRAPHIC_EXCEPTION(prog)     (prog)->sys_var[ 9]
+#define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[10]
+#define FALSE_OBJECT(prog)          (prog)->sys_var[11]
+#define TRUE_OBJECT(prog)           (prog)->sys_var[12]
+#define EXPR_TYPE(prog)             (prog)->sys_var[13]
+#define F_PARAM_TYPE(prog)          (prog)->sys_var[14]
+#define INT_TYPE(prog)              (prog)->sys_var[15]
+#define BIGINT_TYPE(prog)           (prog)->sys_var[16]
+#define CHAR_TYPE(prog)             (prog)->sys_var[17]
+#define STRI_TYPE(prog)             (prog)->sys_var[18]
+#define PROC_TYPE(prog)             (prog)->sys_var[19]
+#define FLT_TYPE(prog)              (prog)->sys_var[20]
+#define ASSIGN_OBJECT(prog)         (prog)->sys_var[21]
+#define CREA_OBJECT(prog)           (prog)->sys_var[22]
+#define DESTR_OBJECT(prog)          (prog)->sys_var[23]
+#define ORD_OBJECT(prog)            (prog)->sys_var[24]
+#define IN_OBJECT(prog)             (prog)->sys_var[25]
+#define DOT_OBJECT(prog)            (prog)->sys_var[26]
+#define VALUE_OBJECT(prog)          (prog)->sys_var[27]
+#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[28]
+#define FLUSH_OBJECT(prog)          (prog)->sys_var[29]
+#define WRITE_OBJECT(prog)          (prog)->sys_var[30]
+#define WRLN_OBJECT(prog)           (prog)->sys_var[31]
+#define MAIN_OBJECT(prog)           (prog)->sys_var[32]
 
 #define FIRST_EXCEPTION_SYS_VAR  1
-#define LAST_EXCEPTION_SYS_VAR   9
-#define FIRST_TYPE_SYS_VAR      12
-#define LAST_TYPE_SYS_VAR       19
+#define LAST_EXCEPTION_SYS_VAR  10
+#define FIRST_TYPE_SYS_VAR      13
+#define LAST_TYPE_SYS_VAR       20
 
 #define SYS_EMPTY_OBJECT          EMPTY_OBJECT(prog)
 #define SYS_MEM_EXCEPTION         MEM_EXCEPTION(prog)
+#define SYS_ASSERTION_EXCEPTION   ASSERTION_EXCEPTION(prog)
 #define SYS_NUM_EXCEPTION         NUM_EXCEPTION(prog)
 #define SYS_OVF_EXCEPTION         OVF_EXCEPTION(prog)
 #define SYS_RNG_EXCEPTION         RNG_EXCEPTION(prog)

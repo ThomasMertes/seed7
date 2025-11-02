@@ -49,6 +49,7 @@
 static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
     "memory_error",
+    "assertion_error",
     "numeric_error",
     "overflow_error",
     "range_error",

@@ -90,15 +90,16 @@ const proc: main is func
           \    block\n\
           \      writeln(" & command & ");\n\
           \    exception\n\
-          \      catch MEMORY_ERROR:   writeln(\"MEMORY_ERROR\");\n\
-          \      catch NUMERIC_ERROR:  writeln(\"NUMERIC_ERROR\");\n\
-          \      catch OVERFLOW_ERROR: writeln(\"OVERFLOW_ERROR\");\n\
-          \      catch RANGE_ERROR:    writeln(\"RANGE_ERROR\");\n\
-          \      catch INDEX_ERROR:    writeln(\"INDEX_ERROR\");\n\
-          \      catch FILE_ERROR:     writeln(\"FILE_ERROR\");\n\
-          \      catch DATABASE_ERROR: writeln(\"DATABASE_ERROR\");\n\
-          \      catch GRAPHIC_ERROR:  writeln(\"GRAPHIC_ERROR\");\n\
-          \      catch ILLEGAL_ACTION: writeln(\"ILLEGAL_ACTION\");\n\
+          \      catch MEMORY_ERROR:    writeln(\"MEMORY_ERROR\");\n\
+          \      catch ASSERTION_ERROR: writeln(\"ASSERTION_ERROR\");\n\
+          \      catch NUMERIC_ERROR:   writeln(\"NUMERIC_ERROR\");\n\
+          \      catch OVERFLOW_ERROR:  writeln(\"OVERFLOW_ERROR\");\n\
+          \      catch RANGE_ERROR:     writeln(\"RANGE_ERROR\");\n\
+          \      catch INDEX_ERROR:     writeln(\"INDEX_ERROR\");\n\
+          \      catch FILE_ERROR:      writeln(\"FILE_ERROR\");\n\
+          \      catch DATABASE_ERROR:  writeln(\"DATABASE_ERROR\");\n\
+          \      catch GRAPHIC_ERROR:   writeln(\"GRAPHIC_ERROR\");\n\
+          \      catch ILLEGAL_ACTION:  writeln(\"ILLEGAL_ACTION\");\n\
           \    end block;\n\
           \  end func;\n");
         if aProgram <> program.EMPTY then

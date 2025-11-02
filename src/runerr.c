@@ -532,6 +532,8 @@ errInfoType getErrInfoFromFailValue (objectType failValue)
   /* getErrInfoFromFailValue */
     if (failValue == SYS_MEM_EXCEPTION) {
       err_info = MEMORY_ERROR;
+    } else if (failValue == SYS_ASSERTION_EXCEPTION) {
+      err_info = ASSERTION_ERROR;
     } else if (failValue == SYS_NUM_EXCEPTION) {
       err_info = NUMERIC_ERROR;
     } else if (failValue == SYS_OVF_EXCEPTION) {

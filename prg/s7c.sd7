@@ -1775,13 +1775,14 @@ const proc: optimize_constant_expressions (inout reference: current_expression,
           end if;
         end if;
       exception
-        catch NUMERIC_ERROR:  noop;
-        catch OVERFLOW_ERROR: noop;
-        catch RANGE_ERROR:    noop;
-        catch INDEX_ERROR:    noop;
-        catch FILE_ERROR:     noop;
-        catch DATABASE_ERROR: noop;
-        catch GRAPHIC_ERROR:  noop;
+        catch ASSERTION_ERROR: noop;
+        catch NUMERIC_ERROR:   noop;
+        catch OVERFLOW_ERROR:  noop;
+        catch RANGE_ERROR:     noop;
+        catch INDEX_ERROR:     noop;
+        catch FILE_ERROR:      noop;
+        catch DATABASE_ERROR:  noop;
+        catch GRAPHIC_ERROR:   noop;
       end block;
     end if;
   end func;
@@ -2256,12 +2257,13 @@ const proc: process_result_declaration (in reference: result_object,
             result_init := evaluatedExpr;
           end if;
         exception
-          catch NUMERIC_ERROR:  noop;
-          catch OVERFLOW_ERROR: noop;
-          catch RANGE_ERROR:    noop;
-          catch INDEX_ERROR:    noop;
-          catch FILE_ERROR:     noop;
-          catch DATABASE_ERROR: noop;
+          catch ASSERTION_ERROR: noop;
+          catch NUMERIC_ERROR:   noop;
+          catch OVERFLOW_ERROR:  noop;
+          catch RANGE_ERROR:     noop;
+          catch INDEX_ERROR:     noop;
+          catch FILE_ERROR:      noop;
+          catch DATABASE_ERROR:  noop;
         end block;
       end if;
       process_local_declaration(result_object, result_init, c_expr);
@@ -5955,18 +5957,19 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef int errInfoType;");
     writeln(c_prog, "#define OKAY_NO_ERROR   0\n\
                     \#define MEMORY_ERROR    1\n\
-                    \#define NUMERIC_ERROR   2\n\
-                    \#define OVERFLOW_ERROR  3\n\
-                    \#define RANGE_ERROR     4\n\
-                    \#define INDEX_ERROR     5\n\
-                    \#define FILE_ERROR      6\n\
-                    \#define DATABSE_ERROR   7\n\
-                    \#define GRAPHIC_ERROR   8\n\
-                    \#define ACTION_ERROR    9\n\
-                    \#define CREATE_ERROR   10\n\
-                    \#define DESTROY_ERROR  11\n\
-                    \#define COPY_ERROR     12\n\
-                    \#define IN_ERROR       13");
+                    \#define ASSERTION_ERROR 2\n\
+                    \#define NUMERIC_ERROR   3\n\
+                    \#define OVERFLOW_ERROR  4\n\
+                    \#define RANGE_ERROR     5\n\
+                    \#define INDEX_ERROR     6\n\
+                    \#define FILE_ERROR      7\n\
+                    \#define DATABSE_ERROR   8\n\
+                    \#define GRAPHIC_ERROR   9\n\
+                    \#define ACTION_ERROR   10\n\
+                    \#define CREATE_ERROR   11\n\
+                    \#define DESTROY_ERROR  12\n\
+                    \#define COPY_ERROR     13\n\
+                    \#define IN_ERROR       14");
     writeln(c_prog, ccConf.MACRO_DEFS);
     writeln(c_prog, "#define ovfChk(x) unlikely(x)");
     writeln(c_prog, "#define divChk(x) unlikely(x)");

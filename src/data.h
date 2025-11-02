@@ -362,7 +362,7 @@ typedef struct emptyStructStruct {
     memSizeType size;
   } emptyStructRecord;
 
-#define NUMBER_OF_SYSVARS 32
+#define NUMBER_OF_SYSVARS 33
 
 typedef objectType sysType[NUMBER_OF_SYSVARS];
 

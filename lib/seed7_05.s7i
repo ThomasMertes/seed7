@@ -312,29 +312,31 @@ const creator: (ref EXCEPTION: dest) ::= (ref EXCEPTION: source)     is action "
 const creator: (ref EXCEPTION: dest) ::= enumlit                     is action "ENU_GENLIT";
 const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)       is action "ENU_CPY";
 
-const EXCEPTION: MEMORY_ERROR   is enumlit;
-const EXCEPTION: NUMERIC_ERROR  is enumlit;
-const EXCEPTION: OVERFLOW_ERROR is enumlit;
-const EXCEPTION: RANGE_ERROR    is enumlit;
-const EXCEPTION: INDEX_ERROR    is enumlit;
-const EXCEPTION: FILE_ERROR     is enumlit;
-const EXCEPTION: DATABASE_ERROR is enumlit;
-const EXCEPTION: GRAPHIC_ERROR  is enumlit;
-const EXCEPTION: ILLEGAL_ACTION is enumlit;
-const EXCEPTION: CREATE_ERROR   is enumlit;
-const EXCEPTION: DESTROY_ERROR  is enumlit;
-const EXCEPTION: COPY_ERROR     is enumlit;
-const EXCEPTION: IN_ERROR       is enumlit;
+const EXCEPTION: MEMORY_ERROR    is enumlit;
+const EXCEPTION: ASSERTION_ERROR is enumlit;
+const EXCEPTION: NUMERIC_ERROR   is enumlit;
+const EXCEPTION: OVERFLOW_ERROR  is enumlit;
+const EXCEPTION: RANGE_ERROR     is enumlit;
+const EXCEPTION: INDEX_ERROR     is enumlit;
+const EXCEPTION: FILE_ERROR      is enumlit;
+const EXCEPTION: DATABASE_ERROR  is enumlit;
+const EXCEPTION: GRAPHIC_ERROR   is enumlit;
+const EXCEPTION: ILLEGAL_ACTION  is enumlit;
+const EXCEPTION: CREATE_ERROR    is enumlit;
+const EXCEPTION: DESTROY_ERROR   is enumlit;
+const EXCEPTION: COPY_ERROR      is enumlit;
+const EXCEPTION: IN_ERROR        is enumlit;
 
-$ system "memory_error"   is MEMORY_ERROR;
-$ system "numeric_error"  is NUMERIC_ERROR;
-$ system "overflow_error" is OVERFLOW_ERROR;
-$ system "range_error"    is RANGE_ERROR;
-$ system "index_error"    is INDEX_ERROR;
-$ system "file_error"     is FILE_ERROR;
-$ system "database_error" is DATABASE_ERROR;
-$ system "graphic_error"  is GRAPHIC_ERROR;
-$ system "illegal_action" is ILLEGAL_ACTION;
+$ system "memory_error"    is MEMORY_ERROR;
+$ system "assertion_error" is ASSERTION_ERROR;
+$ system "numeric_error"   is NUMERIC_ERROR;
+$ system "overflow_error"  is OVERFLOW_ERROR;
+$ system "range_error"     is RANGE_ERROR;
+$ system "index_error"     is INDEX_ERROR;
+$ system "file_error"      is FILE_ERROR;
+$ system "database_error"  is DATABASE_ERROR;
+$ system "graphic_error"   is GRAPHIC_ERROR;
+$ system "illegal_action"  is ILLEGAL_ACTION;
 
 const proc: raise (ref EXCEPTION: anException)     is action "PRC_RAISE";
 

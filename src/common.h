@@ -594,20 +594,21 @@ typedef const unsigned char   *const_ustriType;
 typedef int errInfoType;
 
 /* errinfo values: */
-#define OKAY_NO_ERROR   0
-#define MEMORY_ERROR    1
-#define NUMERIC_ERROR   2
-#define OVERFLOW_ERROR  3
-#define RANGE_ERROR     4
-#define INDEX_ERROR     5
-#define FILE_ERROR      6
-#define DATABASE_ERROR  7
-#define GRAPHIC_ERROR   8
-#define ACTION_ERROR    9
-#define CREATE_ERROR    9
-#define DESTROY_ERROR   9
-#define COPY_ERROR      9
-#define IN_ERROR        9
+#define OKAY_NO_ERROR    0
+#define MEMORY_ERROR     1
+#define ASSERTION_ERROR  2
+#define NUMERIC_ERROR    3
+#define OVERFLOW_ERROR   4
+#define RANGE_ERROR      5
+#define INDEX_ERROR      6
+#define FILE_ERROR       7
+#define DATABASE_ERROR   8
+#define GRAPHIC_ERROR    9
+#define ACTION_ERROR    10
+#define CREATE_ERROR    10
+#define DESTROY_ERROR   10
+#define COPY_ERROR      10
+#define IN_ERROR        10
 
 
 #if HAS_SIGSETJMP
