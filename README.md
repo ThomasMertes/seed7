@@ -1,26 +1,35 @@
 ## Welcome to the world of Seed7
 
-Seed7 is a general purpose programming language described at the [Seed7 Homepage](http://seed7.sourceforge.net/index.htm).
+The [Seed7 Homepage](https://seed7.net/index.htm) is at [https://seed7.net/index.htm](https://seed7.net/index.htm)
 
-Seed7 is a higher level language compared to Ada, C++ and Java. The Seed7 [interpreter](http://seed7.sourceforge.net/faq.htm#interpreter) and the [example programs](http://seed7.sourceforge.net/scrshots/index.htm) are open-source software. There is also an open-source Seed7 [compiler](http://seed7.sourceforge.net/scrshots/s7c.htm). The compiler translates Seed7 programs to C programs which are subsequently compiled to machine code.
+Seed7 is a high level general purpose programming language. The Seed7 project is open-source. There is an [interpreter](https://seed7.net/faq.htm#interpreter) and a [compiler](https://seed7.net/scrshots/s7c.htm). The compiler translates Seed7 programs to C programs which are subsequently compiled to machine code.
 
 ## Features of Seed7
 
-* As an [extensible programming language](http://seed7.sourceforge.net/faq.htm#extensible_programming) it supports user defined [statements](http://seed7.sourceforge.net/examples/declstat.htm) and [operators](http://seed7.sourceforge.net/examples/operator.htm).
-* Types are first class objects ([Templates and generics](http://seed7.sourceforge.net/examples/for_decl.htm) can be defined easily without special syntax).
-* Predefined constructs like arrays or [for-loops](http://seed7.sourceforge.net/examples/declstat.htm) are defined in libraries.
-* [Object orientation](http://seed7.sourceforge.net/manual/objects.htm) supports interfaces and [multiple dispatch](http://seed7.sourceforge.net/faq.htm#multiple_dispatch).
-* [Static type checking](http://seed7.sourceforge.net/faq.htm#static_type_checking) and the absence of [automatic casts](http://seed7.sourceforge.net/faq.htm#automatic_casts) help to find errors at compile-time.
-* There is an [automatic memory management](http://seed7.sourceforge.net/faq.htm#garbage_collection) that works without a garbage collection process.
-* [Exception handling](http://seed7.sourceforge.net/manual/errors.htm#Exceptions) and [source code debugging](http://seed7.sourceforge.net/manual/errors.htm#Stack_trace) are supported.
-* If an integer computation [overflows](http://seed7.sourceforge.net/faq.htm#integer_overflow) the exception [OVERFLOW\_ERROR](http://seed7.sourceforge.net/manual/errors.htm#OVERFLOW_ERROR) is raised.
-* Numbers which have unlimited size are provided with the types [bigInteger](http://seed7.sourceforge.net/manual/types.htm#bigInteger) and [bigRational](http://seed7.sourceforge.net/manual/types.htm#bigRational).
-* Functions, operators and statements can be [overloaded](http://seed7.sourceforge.net/faq.htm#overloading).
-* There are various [predefined types](http://seed7.sourceforge.net/manual/types.htm) like [array](http://seed7.sourceforge.net/manual/types.htm#array), [hash](http://seed7.sourceforge.net/manual/types.htm#hash), [set](http://seed7.sourceforge.net/manual/types.htm#set), [struct](http://seed7.sourceforge.net/manual/types.htm#struct), [color](http://seed7.sourceforge.net/manual/types.htm#color), [time](http://seed7.sourceforge.net/manual/types.htm#time), [duration](http://seed7.sourceforge.net/manual/types.htm#duration), etc.
-* Seed7 programs are [source code portable](http://seed7.sourceforge.net/faq.htm#portable) without any need to change the code.
-* Seed7 provides a [database independent API](http://seed7.sourceforge.net/faq.htm#database_access), which can connect to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird, Interbase, Db2 and SQL Server databases databases.
-* Seed7 runs under Linux, various Unix versions and Windows.
-* The interpreter and the example programs use the GPL license, while the runtime library uses the LGPL license.
+* As an [extensible programming language](https://seed7.net/faq.htm#extensible_programming) it supports user defined [statements](https://seed7.net/examples/declstat.htm) and [operators](https://seed7.net/examples/operator.htm).
+* The whole language is not hard-coded in the compiler but defined via include-libraries ([syntactically](https://seed7.net/manual/syntax.htm) and [semantically](https://seed7.net/examples/declstat.htm)).
+* Types are first class objects ([Templates and generics](https://seed7.net/examples/for_decl.htm) can be defined easily without special syntax).
+* All Seed7 functions can be executed at compile-time or at run-time.
+* [Object orientation](https://seed7.net/manual/objects.htm) supports interfaces and [multiple dispatch](https://seed7.net/faq.htm#multiple_dispatch).
+* [Static type checking](https://seed7.net/faq.htm#static_type_checking) and the absence of [automatic casts](https://seed7.net/faq.htm#automatic_casts) help to find errors at compile-time.
+* There is an [automatic memory management](https://seed7.net/faq.htm#garbage_collection) that works without a garbage collection process.
+* Seed7 is operating system and architecture independent.
+* Seed7 programs are [source code portable](https://seed7.net/faq.htm#portable) without any need to change the code.
+* [Exception handling](https://seed7.net/manual/errors.htm#Exceptions) is supported (e.g. an integer [overflow](https://seed7.net/faq.htm#integer_overflow) raises [OVERFLOW_ERROR](https://seed7.net/manual/errors.htm#OVERFLOW_ERROR)).
+* [Source code debugging](https://seed7.net/manual/errors.htm#Stack_trace) is supported.
+* The types [bigInteger](https://seed7.net/manual/types.htm#bigInteger) and [bigRational](https://seed7.net/manual/types.htm#bigRational) support numbers of unlimited size.
+* Functions, operators and statements can be [overloaded](https://seed7.net/faq.htm#overloading).
+* There are various [predefined types](https://seed7.net/manual/types.htm) like [array](https://seed7.net/manual/types.htm#array), [hash](https://seed7.net/manual/types.htm#hash), [set](https://seed7.net/manual/types.htm#set), [struct](https://seed7.net/manual/types.htm#struct), [color](https://seed7.net/manual/types.htm#color), [time](https://seed7.net/manual/types.htm#time), [duration](https://seed7.net/manual/types.htm#duration), etc.
+* Seed7 runs under Linux, MacOS, various Unix versions and Windows.
+* Interpreter, compiler and the example programs use the GPL license, while the runtime library uses the LGPL license.
+
+## Standard libraries of Seed7
+
+* The libraries provide the same functionality under all supported operating systems.
+* Numerous [standard libraries](https://seed7.net/libraries) allow writing programs without calling functions from third party libraries.
+* There is a [database independent API](https://seed7.net/faq.htm#database_access), which can connect to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird, Interbase, Db2, Informix and SQL Server databases.
+* There is a 2-D [graphic library](https://seed7.net/manual/graphic.htm) which uses X11 under Linux, GDI under Windows and JavaScript in the Browser.
+* Parser and interpreter are part of the run-time library.
 
 ## What is contained in this package
 
