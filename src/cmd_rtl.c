@@ -398,7 +398,7 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
       } /* if */
       os_closedir(directory);
       if (*err_info == OKAY_NO_ERROR) {
-        /* printf("before remove directory <" FMT_S_OS ">\n", dir_name); */
+        logMessage(printf("os_rmdir(\"" FMT_S_OS "\")\n", dir_name););
         if (os_rmdir(dir_name) != 0) {
           logError(printf("remove_dir: os_rmdir(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
@@ -820,7 +820,7 @@ static boolType devices_differ (const const_os_striType from_name,
         if (likely(os_stri_alloc(dir_name, dir_name_length))) {
           memcpy(dir_name, to_name, dir_name_length * sizeof(os_charType));
           dir_name[dir_name_length] = '\0';
-          /* printf("dir_name: " FMT_S_OS "\n", dir_name); */
+          logMessage(printf("os_stat(\"" FMT_S_OS "\", *)\n", dir_name););
           if (os_stat(dir_name, &dir_stat) == 0) {
             /* printf("from device: %ld, to device: %ld\n",
                from_stat.st_dev, dir_stat.st_dev); */
@@ -3602,7 +3602,7 @@ void cmdMakeDir (const const_striType dirPath)
                       striAsUnquotedCStri(dirPath), path_info, err_info););
       raise_error(err_info);
     } else {
-      /* printf("mkdir(\"" FMT_S_OS "\")\n", os_path); */
+      logMessage(printf("os_mkdir(\"" FMT_S_OS "\", 0777)\n", os_path););
       mkdir_result = os_mkdir(os_path, 0777);
       if (unlikely(mkdir_result != 0)) {
         logError(printf("cmdMakeDir: os_mkdir(\"" FMT_S_OS "\", 0777) failed:\n"
@@ -4843,7 +4843,7 @@ void cmdUnsetenv (const const_striType name)
         env_stri = stri_to_os_stri(stri, &err_info);
         FREE_STRI(stri);
         if (likely(env_stri != NULL)) {
-          /* printf("os_putenv(\"" FMT_S_OS "\")\n", env_stri); */
+          logMessage(printf("os_putenv(\"" FMT_S_OS "\")\n", env_stri););
           putenv_result = os_putenv(env_stri);
           if (unlikely(putenv_result != 0)) {
             logError(printf("cmdUnsetenv: os_putenv(\"" FMT_S_OS "\") failed:\n"
