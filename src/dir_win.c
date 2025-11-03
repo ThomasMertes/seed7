@@ -111,8 +111,8 @@ static WDIR *wOpenDir (const wchar_t *dirName)
           directory->dirHandle = FindFirstFileW(fileNamePattern,
                                                 &directory->findData);
           if (directory->dirHandle != INVALID_HANDLE_VALUE) {
-            /* printf("--> OK\n");
-            printf(">%ls<\n", directory->findData.cFileName); */
+            logMessage(printf("FindFirstFileW --> \"%ls\"\n",
+                              directory->findData.cFileName););
             directory->firstElement = 1;
           } else {
             logMessage(printf("wOpenDir(\"%ls\"): "
@@ -346,8 +346,8 @@ DIR *opendir (const char *dirName)
                             fileNamePattern););
           directory->dirHandle = FindFirstFileA(fileNamePattern, &directory->findData);
           if (directory->dirHandle != INVALID_HANDLE_VALUE) {
-            /* printf("--> OK\n");
-            printf(">%s<\n", directory->findData.cFileName); */
+            logMessage(printf("FindFirstFileA --> \"%s\"\n",
+                              directory->findData.cFileName););
             directory->firstElement = 1;
           } else {
             /* The file referred by dirName does not exist, or */
@@ -438,7 +438,6 @@ struct dirent *readdir (DIR *directory)
     logFunction(printf("readdir(" FMT_X_MEM ")\n",
                        (memSizeType) directory););
     if (directory->firstElement) {
-      /* printf("first\n"); */
       directory->firstElement = 0;
       directory->dirEntry.d_name = (char *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;

@@ -1388,7 +1388,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           *(int32Type *) sqlvar->sqldata = bigToInt32(value, &err_info);
           break;
         case SQL_INT64:
-          /* printf("sqlBindBigInt: scale: %hd\n", sqlvar->sqlscale); */
+          logMessage(printf("sqlBindBigInt: scale: %hd\n", sqlvar->sqlscale););
           if (sqlvar->sqlscale == 0) {
             *(int64Type *) sqlvar->sqldata = bigToInt64(value, &err_info);
           } else {
@@ -1491,7 +1491,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       logMessage(printf("sqltype: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)););
       switch (sqlvar->sqltype & ~1) {
         case SQL_INT64:
-          /* printf("sqlBindBigRat: scale: %hd\n", sqlvar->sqlscale); */
+          logMessage(printf("sqlBindBigRat: scale: %hd\n", sqlvar->sqlscale););
           *(int64Type *) sqlvar->sqldata = bigRatToScaledInt64(numerator, denominator,
               -sqlvar->sqlscale, &err_info);
           break;
@@ -1551,7 +1551,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           *(int32Type *) sqlvar->sqldata = (int32Type) value;
           break;
         case SQL_INT64:
-          /* printf("sqlBindBool: scale: %hd\n", sqlvar->sqlscale); */
+          logMessage(printf("sqlBindBool: scale: %hd\n", sqlvar->sqlscale););
           if (unlikely(sqlvar->sqlscale != 0)) {
             logError(printf("sqlBindBool: Parameter " FMT_D ": "
                             "The scale of a boolean field must be 0.\n", pos););
@@ -1841,7 +1841,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           } /* if */
           break;
         case SQL_INT64:
-          /* printf("sqlBindInt: scale: %hd\n", sqlvar->sqlscale); */
+          logMessage(printf("sqlBindInt: scale: %hd\n", sqlvar->sqlscale););
           if (sqlvar->sqlscale == 0) {
             *(int64Type *) sqlvar->sqldata = value;
           } else {
@@ -2317,12 +2317,12 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_FLOAT:
             floatValue = *(float *) sqlvar->sqldata;
-            /* printf("sqlColumnBigRat: float: %f\n", floatValue); */
+            logMessage(printf("sqlColumnBigRat: float: %f\n", floatValue););
             *numerator = roundDoubleToBigRat(floatValue, FALSE, denominator);
             break;
           case SQL_DOUBLE:
             doubleValue = *(double *) sqlvar->sqldata;
-            /* printf("sqlColumnBigRat: double: %f\n", doubleValue); */
+            logMessage(printf("sqlColumnBigRat: double: %f\n", doubleValue););
             *numerator = roundDoubleToBigRat(doubleValue, TRUE, denominator);
             break;
           default:

@@ -85,8 +85,8 @@ DIR *opendir (char *dirName)
       if ( _dos_findfirst(fileNamePattern, _A_ARCH | _A_SUBDIR,
           &directory->findData) == 0) {
 #endif
-        /* printf("--> OK\n");
-        printf(">%s<\n", directory->findData.name); */
+        logMessage(printf("_findfirst --> \"%s\"\n",
+                          directory->findData.name););
         directory->firstElement = 1;
       } else {
         logError(printf("opendir(\"%s\"): findfirst() failed.\n",
@@ -121,7 +121,6 @@ struct dirent *readdir (DIR *directory)
     logFunction(printf("readdir\n"););
     dirEntry = &directory->dirEntry;
     if (directory->firstElement) {
-      /* printf("first\n"); */
       directory->firstElement = 0;
       nameLen = strlen(directory->findData.name);
       if (nameLen >= sizeof(dirEntry->d_name)) {
@@ -129,7 +128,7 @@ struct dirent *readdir (DIR *directory)
       } /* if */
       memcpy(dirEntry->d_name, directory->findData.name, nameLen);
       dirEntry->d_name[nameLen] = '\0';
-      /* printf(">%s<\n", dirEntry->d_name); */
+      logMessage(printf("first: \"%s\"\n", dirEntry->d_name););
     } else {
 #ifdef DIR_WIN_DOS
       if (_findnext(directory->dirHandle, &directory->findData) == 0) {
@@ -142,9 +141,9 @@ struct dirent *readdir (DIR *directory)
         } /* if */
         memcpy(dirEntry->d_name, directory->findData.name, nameLen);
         dirEntry->d_name[nameLen] = '\0';
-        /* printf(">%s<\n", dirEntry->d_name); */
+        logMessage(printf("next: \"%s\"\n", dirEntry->d_name););
       } else {
-        /* printf("end\n"); */
+        logMessage(printf("end\n"););
         dirEntry = NULL;
       } /* if */
     } /* if */
