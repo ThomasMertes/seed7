@@ -97,6 +97,7 @@ boolType strLt (const const_striType stri1, const const_striType stri2);
 striType strLtrim (const const_striType stri);
 striType strMult (const const_striType stri, const intType factor);
 intType strPos (const const_striType mainStri, const const_striType searched);
+void strPrependChar (striType *const destination, const charType aChar);
 void strPush (striType *const destination, const charType extension);
 #if ALLOW_STRITYPE_SLICES
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice);

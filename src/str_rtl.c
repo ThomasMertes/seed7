@@ -3726,6 +3726,72 @@ intType strPos (const const_striType mainStri, const const_striType searched)
 
 
 /**
+ *  Prepend the char 'aChar' to 'destination'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
+void strPrependChar (striType *const destination, const charType aChar)
+
+  {
+    memSizeType new_size;
+    striType stri_dest;
+#if WITH_STRI_CAPACITY
+    memSizeType newCapacity;
+#endif
+    striType stri_new;
+
+  /* strPrependChar */
+    logFunction(printf("strPrependChar(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(*destination), aChar);
+                fflush(stdout););
+    stri_dest = *destination;
+    new_size = stri_dest->size + 1;
+#if WITH_STRI_CAPACITY
+    if (new_size > stri_dest->capacity) {
+      if (2 * stri_dest->capacity >= new_size) {
+        newCapacity = 2 * stri_dest->capacity;
+      } else {
+        newCapacity = 2 * new_size;
+      } /* if */
+      if (newCapacity < MIN_GROW_SHRINK_CAPACITY) {
+        newCapacity = MIN_GROW_SHRINK_CAPACITY;
+      } else if (unlikely(newCapacity > MAX_STRI_LEN)) {
+        newCapacity = MAX_STRI_LEN;
+      } /* if */
+      if (unlikely(!ALLOC_STRI_SIZE_OK(stri_new, newCapacity))) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        memcpy(&stri_new->mem[1], stri_dest->mem,
+               stri_dest->size * sizeof(strElemType));
+        FREE_STRI(stri_dest);
+        stri_dest = stri_new;
+        *destination = stri_new;
+      } /* if */
+    } else {
+      memmove(&stri_dest->mem[1], stri_dest->mem,
+              stri_dest->size * sizeof(strElemType));
+    } /* if */
+    stri_dest->mem[0] = aChar;
+    stri_dest->size = new_size;
+#else
+    if (unlikely(!ALLOC_STRI_SIZE_OK(stri_new, new_size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memcpy(&stri_new->mem[1], stri_dest->mem,
+             stri_dest->size * sizeof(strElemType));
+      FREE_STRI(stri_dest);
+      stri_new->mem[0] = aChar;
+      stri_new->size = new_size;
+      *destination = stri_new;
+    } /* if */
+#endif
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strPrependChar */
+
+
+
+/**
  *  Append the char 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
