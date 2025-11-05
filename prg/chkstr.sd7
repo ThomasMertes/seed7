@@ -24610,6 +24610,11 @@ const proc: check_string_assign is func
     stri := str(charExpr('U')) & stri; ok := ok and stri = "UsVWXYZsdfghjkSDFGHIjK";
     stri2 := stri[23 ..];         ok := ok and stri2 = "";
     stri := stri[23 ..];          ok := ok and stri = "";
+    stri := "A" & stri;           ok := ok and stri = "A";
+    stri := "";
+    stri := str('B') & stri;      ok := ok and stri = "B";
+    stri := "";
+    stri := str(charExpr('C')) & stri; ok := ok and stri = "C";
     stri := "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     stri := lower(stri);          ok := ok and stri = "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz";
     stri := "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
