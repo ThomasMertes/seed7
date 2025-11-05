@@ -128,6 +128,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    strLtrim (const const_striType);");
     declareExtern(c_prog, "striType    strMult (const const_striType, const intType);");
     declareExtern(c_prog, "intType     strPos (const const_striType, const const_striType);");
+    declareExtern(c_prog, "void        strPrependChar (striType *const, const charType);");
     declareExtern(c_prog, "void        strPush (striType *const, const charType);");
     declareExtern(c_prog, "striType    strRange (const_striType, intType, intType);");
     declareExtern(c_prog, "void        strRangeSlice (const const_striType, intType, intType, striType);");
@@ -874,6 +875,24 @@ const proc: process (STR_CMP, in reference: function,
   end func;
 
 
+const proc: process_str_prepend_char (in reference: param1,
+    in reference: aChar, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(param1, c_param1, statement);
+    statement.expr &:= "strPrependChar(&(";
+    statement.expr &:= c_param1.expr;
+    statement.expr &:= "), ";
+    process_expr(aChar, statement);
+    statement.expr &:= ");\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (STR_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -888,6 +907,13 @@ const proc: process (STR_CPY, in reference: function,
         getActionParameter(params[3], 1) = params[1] then
       incr(count.optimizations);
       process_str_append(params[1], getActionParameter(params[3], 3), c_expr);
+    elsif config.useSpecialCaseFunctions and
+        isActionExpression(params[3], "STR_CAT") and
+        getActionParameter(params[3], 3) = params[1] and
+        isActionExpression(getActionParameter(params[3], 1), "CHR_STR") then
+      incr(count.optimizations);
+      process_str_prepend_char(params[1],
+          getActionParameter(getActionParameter(params[3], 1), 1), c_expr);
     else
       statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
