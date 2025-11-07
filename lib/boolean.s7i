@@ -110,6 +110,29 @@ const func boolean: (in boolean: boolValue1) or (in boolean: boolValue2)        
 
 
 (**
+ *  Assign the result of ''dest and source'' to dest.
+ *  This corresponds to ''dest := dest and source;''
+ *  The ''and'' operation used here always evaluates the right argument.
+ *)
+const proc: (inout boolean: dest) &:= (in boolean: source)               is action "BLN_AND_ASSIGN";
+
+
+(**
+ *  Assign the result of ''dest or source'' to dest.
+ *  This corresponds ''to dest := dest or source;''
+ *  The ''or'' operation used here always evaluates the right argument.
+ *)
+const proc: (inout boolean: dest) |:= (in boolean: source)               is action "BLN_OR_ASSIGN";
+
+
+(**
+ *  Assign the result of ''dest <> source'' (exclusive or) to dest.
+ *  This corresponds ''to dest := dest <> source;''
+ *)
+const proc: (inout boolean: dest) ><:= (in boolean: source)              is action "BLN_XOR_ASSIGN";
+
+
+(**
  *  Check if two boolean values are equal.
  *  @return TRUE if the two boolean values are equal,
  *          FALSE otherwise.
@@ -118,7 +141,7 @@ const func boolean: (in boolean: boolValue1) = (in boolean: boolValue2)  is acti
 
 
 (**
- *  Check if two boolean values are not equal.
+ *  Check if two boolean values are not equal (= exclusive or).
  *  @return FALSE if the two boolean values are equal,
  *          TRUE otherwise.
  *)
