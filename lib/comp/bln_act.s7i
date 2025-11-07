@@ -24,23 +24,26 @@
 (********************************************************************)
 
 
-const ACTION: BLN_AND     is action "BLN_AND";
-const ACTION: BLN_CPY     is action "BLN_CPY";
-const ACTION: BLN_EQ      is action "BLN_EQ";
-const ACTION: BLN_GE      is action "BLN_GE";
-const ACTION: BLN_GT      is action "BLN_GT";
-const ACTION: BLN_ICONV1  is action "BLN_ICONV1";
-const ACTION: BLN_ICONV3  is action "BLN_ICONV3";
-const ACTION: BLN_LE      is action "BLN_LE";
-const ACTION: BLN_LT      is action "BLN_LT";
-const ACTION: BLN_NE      is action "BLN_NE";
-const ACTION: BLN_NOT     is action "BLN_NOT";
-const ACTION: BLN_OR      is action "BLN_OR";
-const ACTION: BLN_ORD     is action "BLN_ORD";
-const ACTION: BLN_PRED    is action "BLN_PRED";
-const ACTION: BLN_SUCC    is action "BLN_SUCC";
-const ACTION: BLN_TERNARY is action "BLN_TERNARY";
-const ACTION: BLN_VALUE   is action "BLN_VALUE";
+const ACTION: BLN_AND        is action "BLN_AND";
+const ACTION: BLN_AND_ASSIGN is action "BLN_AND_ASSIGN";
+const ACTION: BLN_CPY        is action "BLN_CPY";
+const ACTION: BLN_EQ         is action "BLN_EQ";
+const ACTION: BLN_GE         is action "BLN_GE";
+const ACTION: BLN_GT         is action "BLN_GT";
+const ACTION: BLN_ICONV1     is action "BLN_ICONV1";
+const ACTION: BLN_ICONV3     is action "BLN_ICONV3";
+const ACTION: BLN_LE         is action "BLN_LE";
+const ACTION: BLN_LT         is action "BLN_LT";
+const ACTION: BLN_NE         is action "BLN_NE";
+const ACTION: BLN_NOT        is action "BLN_NOT";
+const ACTION: BLN_OR         is action "BLN_OR";
+const ACTION: BLN_OR_ASSIGN  is action "BLN_OR_ASSIGN";
+const ACTION: BLN_ORD        is action "BLN_ORD";
+const ACTION: BLN_PRED       is action "BLN_PRED";
+const ACTION: BLN_SUCC       is action "BLN_SUCC";
+const ACTION: BLN_TERNARY    is action "BLN_TERNARY";
+const ACTION: BLN_VALUE      is action "BLN_VALUE";
+const ACTION: BLN_XOR_ASSIGN is action "BLN_XOR_ASSIGN";
 
 
 const proc: bln_prototypes (inout file: c_prog) is func
@@ -74,6 +77,22 @@ const proc: process (BLN_AND, in reference: function,
       setDiagnosticLine(c_expr);
     end if;
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_AND_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    process_expr(params[1], statement);
+    statement.expr &:= "&=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
   end func;
 
 
@@ -272,6 +291,22 @@ const proc: process (BLN_OR, in reference: function,
   end func;
 
 
+const proc: process (BLN_OR_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    process_expr(params[1], statement);
+    statement.expr &:= "|=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
+  end func;
+
+
 const proc: process (BLN_ORD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -429,4 +464,20 @@ const proc: process (BLN_VALUE, in reference: function,
     c_expr.expr &:= "blnValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_XOR_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    process_expr(params[1], statement);
+    statement.expr &:= "^=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
   end func;

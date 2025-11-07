@@ -381,6 +381,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_XOR_ASSIGN, function, params, c_expr);
       when {"BLN_AND"}:
         process(BLN_AND, function, params, c_expr);
+      when {"BLN_AND_ASSIGN"}:
+        process(BLN_AND_ASSIGN, function, params, c_expr);
       when {"BLN_CPY"}:
         process(BLN_CPY, function, params, c_expr);
       when {"BLN_EQ"}:
@@ -405,6 +407,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BLN_OR, function, params, c_expr);
       when {"BLN_ORD"}:
         process(BLN_ORD, function, params, c_expr);
+      when {"BLN_OR_ASSIGN"}:
+        process(BLN_OR_ASSIGN, function, params, c_expr);
       when {"BLN_PRED"}:
         process(BLN_PRED, function, params, c_expr);
       when {"BLN_SUCC"}:
@@ -413,6 +417,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BLN_TERNARY, function, params, c_expr);
       when {"BLN_VALUE"}:
         process(BLN_VALUE, function, params, c_expr);
+      when {"BLN_XOR_ASSIGN"}:
+        process(BLN_XOR_ASSIGN, function, params, c_expr);
       when {"BST_APPEND"}:
         process(BST_APPEND, function, params, c_expr);
       when {"BST_CMP"}:
