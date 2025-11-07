@@ -91,7 +91,7 @@ objectType bln_and (listType arguments)
 /**
  *  Assign dest/arg_1 and source/arg_3 to dest/arg_1.
  *  This corresponds to dest := dest and source;
- *  The 'and' operation used here evaluates the right argument always.
+ *  The 'and' operation used here always evaluates the right argument.
  */
 objectType bln_and_assign (listType arguments)
 
@@ -389,7 +389,7 @@ objectType bln_or (listType arguments)
 /**
  *  Assign dest/arg_1 or source/arg_3 to dest/arg_1.
  *  This corresponds to dest := dest or source;
- *  The 'or' operation used here evaluates the right argument always.
+ *  The 'or' operation used here always evaluates the right argument.
  */
 objectType bln_or_assign (listType arguments)
 
