@@ -243,6 +243,28 @@ const proc: check_and is func
   end func;
 
 
+const proc: check_and_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: aBoolean is FALSE
+  begin
+    aBoolean := FALSE; aBoolean &:=          FALSE;  okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean &:=          TRUE;   okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:=          FALSE;  okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:=          TRUE;   okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean &:= boolExpr(FALSE); okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean &:= boolExpr(TRUE);  okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:= boolExpr(FALSE); okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:= boolExpr(TRUE);  okay := okay and     aBoolean;
+
+    if okay then
+      writeln("Boolean and assignment works correctly.");
+    else
+      writeln(" ***** Boolean and assignment does not work correctly.");
+    end if;
+  end func;
+
+
 const proc: check_or is func
   local
     var boolean: okay is TRUE;
@@ -358,6 +380,50 @@ const proc: check_or is func
 
     if okay and count = 6 then
       writeln("Boolean or works correctly.");
+    end if;
+  end func;
+
+
+const proc: check_or_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: aBoolean is FALSE
+  begin
+    aBoolean := FALSE; aBoolean |:=          FALSE;  okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:=          TRUE;   okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=          FALSE;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=          TRUE;   okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:= boolExpr(FALSE); okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:= boolExpr(TRUE);  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= boolExpr(FALSE); okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= boolExpr(TRUE);  okay := okay and     aBoolean;
+
+    if okay then
+      writeln("Boolean or assignment works correctly.");
+    else
+      writeln(" ***** Boolean or assignment does not work correctly.");
+    end if;
+  end func;
+
+
+const proc: check_xor_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: aBoolean is FALSE
+  begin
+    aBoolean := FALSE; aBoolean ><:=          FALSE;  okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean ><:=          TRUE;   okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean ><:=          FALSE;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean ><:=          TRUE;   okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean ><:= boolExpr(FALSE); okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean ><:= boolExpr(TRUE);  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean ><:= boolExpr(FALSE); okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean ><:= boolExpr(TRUE);  okay := okay and not aBoolean;
+
+    if okay then
+      writeln("Boolean exclusive or assignment works correctly.");
+    else
+      writeln(" ***** Boolean exclusive or assignment does not work correctly.");
     end if;
   end func;
 
@@ -3028,7 +3094,10 @@ const proc: main is func
     writeln;
     check_not();
     check_and();
+    check_and_assign();
     check_or();
+    check_or_assign();
+    check_xor_assign();
     check_relations;
     check_compare;
     check_ord();

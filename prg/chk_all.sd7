@@ -312,7 +312,10 @@ const string: chkbig_output is "\n\
 const string: chkbool_output is "\n\
   \Boolean not works correctly.\n\
   \Boolean and works correctly.\n\
+  \Boolean and assignment works correctly.\n\
   \Boolean or works correctly.\n\
+  \Boolean or assignment works correctly.\n\
+  \Boolean exclusive or assignment works correctly.\n\
   \Boolean = works correctly.\n\
   \Boolean <> works correctly.\n\
   \Boolean > works correctly.\n\
