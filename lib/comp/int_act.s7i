@@ -4572,15 +4572,18 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
         c_expr.expr &:= "%";
         c_expr.expr &:= integerLiteral(divisor);
         c_expr.expr &:= ",";
-        c_expr.expr &:= dividend_name;
-        if divisor > 0 then
-          # Formula used: c=a%b,a<0&&c!=0?c+b:c
-          c_expr.expr &:= "<0";
-        else # divisor < 0
-          # Formula used: c=a%b,a>0&&c!=0?c+b:c
-          c_expr.expr &:= ">0";
+        if (divisor < 0 or dividend_range.maxValue >= 0) and
+            (divisor > 0 or dividend_range.minValue <= 0) then
+          c_expr.expr &:= dividend_name;
+          if divisor > 0 then
+            # Formula used: c=a%b,a<0&&c!=0?c+b:c
+            c_expr.expr &:= "<0";
+          else # divisor < 0
+            # Formula used: c=a%b,a>0&&c!=0?c+b:c
+            c_expr.expr &:= ">0";
+          end if;
+          c_expr.expr &:= "&&";
         end if;
-        c_expr.expr &:= "&&";
         c_expr.expr &:= remainder_name;
         c_expr.expr &:= "!=0?";
         c_expr.expr &:= remainder_name;
