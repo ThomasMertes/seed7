@@ -4835,13 +4835,13 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_REAL:
             floatValue = *(float *) columnData->buffer;
-            /* printf("sqlColumnBigRat: float: %f\n", floatValue); */
+            logMessage(printf("sqlColumnBigRat: float: %f\n", floatValue););
             *numerator = roundDoubleToBigRat(floatValue, FALSE, denominator);
             break;
           case SQL_FLOAT:
           case SQL_DOUBLE:
             doubleValue = *(double *) columnData->buffer;
-            /* printf("sqlColumnBigRat: double: %f\n", doubleValue); */
+            logMessage(printf("sqlColumnBigRat: double: %f\n", doubleValue););
             *numerator = roundDoubleToBigRat(doubleValue, TRUE, denominator);
             break;
           case SQL_DECIMAL:
@@ -5394,12 +5394,12 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             break;
           case SQL_REAL:
             columnValue = *(float *) columnData->buffer;
-            /* printf("sqlColumnFloat: float: %f\n", columnValue); */
+            logMessage(printf("sqlColumnFloat: float: %f\n", columnValue););
             break;
           case SQL_FLOAT:
           case SQL_DOUBLE:
             columnValue = *(double *) columnData->buffer;
-            /* printf("sqlColumnFloat: double: %f\n", columnValue); */
+            logMessage(printf("sqlColumnFloat: double: %f\n", columnValue););
             break;
           case SQL_DECIMAL:
             columnValue = getDecimalFloat(
