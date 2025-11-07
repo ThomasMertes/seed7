@@ -4476,6 +4476,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     var reference: evaluatedLshift is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
+    var intRange: dividend_range is intRange.value;
     var string: remainder_name is "";
   begin
     incr(count.optimizations);
@@ -4536,8 +4537,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       else
         c_expr.expr &:= "(";
         process_expr(dividend, c_expr);
-        c_expr.expr &:= ")";
-        c_expr.expr &:= "&";
+        c_expr.expr &:= ")&";
         c_expr.expr &:= integerLiteral(pred(divisor));
       end if;
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
@@ -4554,33 +4554,42 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       c_expr.expr &:= integerLiteral(-succ(divisor));
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "(";
-      dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-      remainder_name := defineTempVariable("intType", "remainder_", c_expr);
-      # Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c
-      c_expr.expr &:= remainder_name;
-      c_expr.expr &:= "=";
-      c_expr.expr &:= dividend_name;
-      c_expr.expr &:= "%";
-      c_expr.expr &:= integerLiteral(divisor);
-      c_expr.expr &:= ",";
-      c_expr.expr &:= dividend_name;
-      if divisor > 0 then
-        # Formula used: c=a%b,a<0&&c!=0?c+b:c
-        c_expr.expr &:= "<0";
-      else # divisor < 0
-        # Formula used: c=a%b,a>0&&c!=0?c+b:c
-        c_expr.expr &:= ">0";
+      dividend_range := getIntRange(dividend);
+      if divisor > 0 and dividend_range.minValue >= 0 or
+          divisor < 0 and dividend_range.maxValue <= 0 then
+        c_expr.expr &:= "(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ")%";
+        c_expr.expr &:= integerLiteral(divisor);
+      else
+        c_expr.expr &:= "(";
+        dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
+        remainder_name := defineTempVariable("intType", "remainder_", c_expr);
+        # Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c
+        c_expr.expr &:= remainder_name;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= "%";
+        c_expr.expr &:= integerLiteral(divisor);
+        c_expr.expr &:= ",";
+        c_expr.expr &:= dividend_name;
+        if divisor > 0 then
+          # Formula used: c=a%b,a<0&&c!=0?c+b:c
+          c_expr.expr &:= "<0";
+        else # divisor < 0
+          # Formula used: c=a%b,a>0&&c!=0?c+b:c
+          c_expr.expr &:= ">0";
+        end if;
+        c_expr.expr &:= "&&";
+        c_expr.expr &:= remainder_name;
+        c_expr.expr &:= "!=0?";
+        c_expr.expr &:= remainder_name;
+        c_expr.expr &:= "+";
+        c_expr.expr &:= integerLiteral(divisor);
+        c_expr.expr &:= ":";
+        c_expr.expr &:= remainder_name;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= "&&";
-      c_expr.expr &:= remainder_name;
-      c_expr.expr &:= "!=0?";
-      c_expr.expr &:= remainder_name;
-      c_expr.expr &:= "+";
-      c_expr.expr &:= integerLiteral(divisor);
-      c_expr.expr &:= ":";
-      c_expr.expr &:= remainder_name;
-      c_expr.expr &:= ")";
     end if;
   end func;
 
