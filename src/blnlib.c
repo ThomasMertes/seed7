@@ -89,6 +89,29 @@ objectType bln_and (listType arguments)
 
 
 /**
+ *  Assign dest/arg_1 and source/arg_3 to dest/arg_1.
+ *  This corresponds to dest := dest and source;
+ *  The 'and' operation used here evaluates the right argument always.
+ */
+objectType bln_and_assign (listType arguments)
+
+  {
+    objectType dest;
+
+  /* bln_and_assign */
+    dest = arg_1(arguments);
+    isit_bool(dest);
+    is_variable(dest);
+    isit_bool(arg_3(arguments));
+    if (take_bool(arg_3(arguments)) == SYS_FALSE_OBJECT) {
+      dest->value.objValue = SYS_FALSE_OBJECT;
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* bln_and_assign */
+
+
+
+/**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.
  */
@@ -364,6 +387,29 @@ objectType bln_or (listType arguments)
 
 
 /**
+ *  Assign dest/arg_1 or source/arg_3 to dest/arg_1.
+ *  This corresponds to dest := dest or source;
+ *  The 'or' operation used here evaluates the right argument always.
+ */
+objectType bln_or_assign (listType arguments)
+
+  {
+    objectType dest;
+
+  /* bln_or_assign */
+    dest = arg_1(arguments);
+    isit_bool(dest);
+    is_variable(dest);
+    isit_bool(arg_3(arguments));
+    if (take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT) {
+      dest->value.objValue = SYS_TRUE_OBJECT;
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* bln_or_assign */
+
+
+
+/**
  *  Convert to integer.
  *  @return 0 if boolValue is FALSE, and
  *          1 if boolValue is TRUE.
@@ -482,3 +528,27 @@ objectType bln_value (listType arguments)
              printf("): Value not TRUE_OBJECT or FALSE_OBJECT.\n"););
     return raise_exception(SYS_RNG_EXCEPTION);
   } /* bln_value */
+
+
+
+/**
+ *  Assign dest/arg_1 xor source/arg_3 to dest/arg_1.
+ *  This corresponds to dest := dest <> source;
+ */
+objectType bln_xor_assign (listType arguments)
+
+  {
+    objectType dest;
+
+  /* bln_xor_assign */
+    dest = arg_1(arguments);
+    isit_bool(dest);
+    is_variable(dest);
+    isit_bool(arg_3(arguments));
+    if (take_bool(arg_1(arguments)) != take_bool(arg_3(arguments))) {
+      dest->value.objValue = SYS_TRUE_OBJECT;
+    } else {
+      dest->value.objValue = SYS_FALSE_OBJECT;
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* bln_xor_assign */

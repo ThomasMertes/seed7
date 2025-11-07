@@ -198,6 +198,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BIN_radix",                    bin_radix,                    },
 
     { "BLN_AND",                      bln_and,                      },
+    { "BLN_AND_ASSIGN",               bln_and_assign,               },
     { "BLN_CPY",                      bln_cpy,                      },
     { "BLN_CREATE",                   bln_create,                   },
     { "BLN_EQ",                       bln_eq,                       },
@@ -211,10 +212,12 @@ static const actEntryRecord actEntryTable[] = {
     { "BLN_NOT",                      bln_not,                      },
     { "BLN_OR",                       bln_or,                       },
     { "BLN_ORD",                      bln_ord,                      },
+    { "BLN_OR_ASSIGN",                bln_or_assign,                },
     { "BLN_PRED",                     bln_pred,                     },
     { "BLN_SUCC",                     bln_succ,                     },
     { "BLN_TERNARY",                  bln_ternary,                  },
     { "BLN_VALUE",                    bln_value,                    },
+    { "BLN_XOR_ASSIGN",               bln_xor_assign,               },
 
     { "BST_APPEND",                   bst_append,                   },
     { "BST_CAT",                      bst_cat,                      },
