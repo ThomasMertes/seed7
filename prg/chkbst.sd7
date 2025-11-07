@@ -208,12 +208,12 @@ const proc: check_bstring_assign is func
     var bstring: bstri is bstring.value;
     var array bstring: bstriArr is 1 times bstring.value;
   begin
-    bstri := bstring parse "asdf";             ok := ok and bstri = bstring("asdf");
-    bstri := bstri;                            ok := ok and bstri = bstring("asdf");
-    do_assign(bstri, bstri);                   ok := ok and bstri = bstring("asdf");
-    bstri := peelFirstChar(bstri);             ok := ok and bstri = bstring("a");
-    bstriArr[1] := bstring parse "asdf";       ok := ok and bstriArr[1] = bstring("asdf");
-    bstriArr[1] := peelFirstChar(bstriArr[1]); ok := ok and bstriArr[1] = bstring("a");
+    bstri := bstring parse "asdf";             ok &:= bstri = bstring("asdf");
+    bstri := bstri;                            ok &:= bstri = bstring("asdf");
+    do_assign(bstri, bstri);                   ok &:= bstri = bstring("asdf");
+    bstri := peelFirstChar(bstri);             ok &:= bstri = bstring("a");
+    bstriArr[1] := bstring parse "asdf";       ok &:= bstriArr[1] = bstring("asdf");
+    bstriArr[1] := peelFirstChar(bstriArr[1]); ok &:= bstriArr[1] = bstring("a");
     if not ok then
       writeln(" ***** BString assignment does not work correctly.");
       okay := FALSE;
@@ -613,22 +613,22 @@ const proc: check_bstring_ternary is func
       okay := FALSE;
     end if;
 
-    bstri :=  TRUE ?  thenValue : elseValue; ok := ok and bstri = thenValue;
-    bstri := FALSE ?  thenValue : elseValue; ok := ok and bstri = elseValue;
-    bstri :=  TRUE ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = thenValue;
-    bstri := FALSE ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = elseValue;
-    bstri :=  TRUE ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = thenValue;
-    bstri := FALSE ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = elseValue;
-    bstri :=  TRUE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = thenValue;
-    bstri := FALSE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = elseValue;
-    bstri := boolExpr( TRUE) ?  thenValue : elseValue; ok := ok and bstri = thenValue;
-    bstri := boolExpr(FALSE) ?  thenValue : elseValue; ok := ok and bstri = elseValue;
-    bstri := boolExpr( TRUE) ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = thenValue;
-    bstri := boolExpr(FALSE) ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = elseValue;
-    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = thenValue;
-    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = elseValue;
-    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = thenValue;
-    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = elseValue;
+    bstri :=  TRUE ?  thenValue : elseValue; ok &:= bstri = thenValue;
+    bstri := FALSE ?  thenValue : elseValue; ok &:= bstri = elseValue;
+    bstri :=  TRUE ?  thenValue : bstriExpr(elseValue); ok &:= bstri = thenValue;
+    bstri := FALSE ?  thenValue : bstriExpr(elseValue); ok &:= bstri = elseValue;
+    bstri :=  TRUE ?  bstriExpr(thenValue) : elseValue; ok &:= bstri = thenValue;
+    bstri := FALSE ?  bstriExpr(thenValue) : elseValue; ok &:= bstri = elseValue;
+    bstri :=  TRUE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok &:= bstri = thenValue;
+    bstri := FALSE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok &:= bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  thenValue : elseValue; ok &:= bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  thenValue : elseValue; ok &:= bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  thenValue : bstriExpr(elseValue); ok &:= bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  thenValue : bstriExpr(elseValue); ok &:= bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : elseValue; ok &:= bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : elseValue; ok &:= bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok &:= bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok &:= bstri = elseValue;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;

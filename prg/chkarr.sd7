@@ -7271,11 +7271,11 @@ const proc: testArraySort is func
       okay := FALSE;
     end if;
 
-    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr); ok := ok and intArr = [] (1, 2, 3, 4, 5, 6);
-    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr); ok := ok and bigArr = [] (pred(2_**89), pred(2_**107));
-    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr); ok := ok and fltArr = [] (1.0, sqrt(2.0), E, PI);
-    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr); ok := ok and chrArr = [] ('g', 'l', 'o', 'r', 'y');
-    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr); ok := ok and strArr = [] ("alpha", "bravo", "charlie");
+    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr); ok &:= intArr = [] (1, 2, 3, 4, 5, 6);
+    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr); ok &:= bigArr = [] (pred(2_**89), pred(2_**107));
+    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr); ok &:= fltArr = [] (1.0, sqrt(2.0), E, PI);
+    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr); ok &:= chrArr = [] ('g', 'l', 'o', 'r', 'y');
+    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr); ok &:= strArr = [] ("alpha", "bravo", "charlie");
     if not ok then
       writeln(" ***** Assignment of sorted small arrays does not work correctly.");
       okay := FALSE;
@@ -7335,11 +7335,11 @@ const proc: testArraySort is func
     end if;
 
     ok := TRUE;
-    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr, REVERSE); ok := ok and intArr = [] (6, 5, 4, 3, 2, 1);
-    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr, REVERSE); ok := ok and bigArr = [] (pred(2_**107), pred(2_**89));
-    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr, REVERSE); ok := ok and fltArr = [] (PI, E, sqrt(2.0), 1.0);
-    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr, REVERSE); ok := ok and chrArr = [] ('y', 'r', 'o', 'l', 'g');
-    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr, REVERSE); ok := ok and strArr = [] ("charlie", "bravo", "alpha");
+    intArr := [] (2, 4, 6, 5, 3, 1);            intArr := sort(intArr, REVERSE); ok &:= intArr = [] (6, 5, 4, 3, 2, 1);
+    bigArr := [] (pred(2_**107), pred(2_**89)); bigArr := sort(bigArr, REVERSE); ok &:= bigArr = [] (pred(2_**107), pred(2_**89));
+    fltArr := [] (E, sqrt(2.0), PI, 1.0);       fltArr := sort(fltArr, REVERSE); ok &:= fltArr = [] (PI, E, sqrt(2.0), 1.0);
+    chrArr := [] ('o', 'r', 'g', 'y', 'l');     chrArr := sort(chrArr, REVERSE); ok &:= chrArr = [] ('y', 'r', 'o', 'l', 'g');
+    strArr := [] ("bravo", "charlie", "alpha"); strArr := sort(strArr, REVERSE); ok &:= strArr = [] ("charlie", "bravo", "alpha");
     if not ok then
       writeln(" ***** Assignment of reverse sorted small arrays does not work correctly.");
       okay := FALSE;

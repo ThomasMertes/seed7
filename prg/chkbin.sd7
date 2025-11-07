@@ -179,25 +179,25 @@ const proc: checkShift is func
       okay := FALSE;
     end if;
 
-    aBin64 := bin64(1);  aBin64 <<:= 61;  ok := ok and aBin64 = bin64(2305843009213693952 );
-    aBin64 := bin64(1);  aBin64 <<:= 62;  ok := ok and aBin64 = bin64(4611686018427387904 );
-    aBin64 := bin64(1);  aBin64 <<:= 63;  ok := ok and aBin64 = bin64(9223372036854775808_);
+    aBin64 := bin64(1);  aBin64 <<:= 61;  ok &:= aBin64 = bin64(2305843009213693952 );
+    aBin64 := bin64(1);  aBin64 <<:= 62;  ok &:= aBin64 = bin64(4611686018427387904 );
+    aBin64 := bin64(1);  aBin64 <<:= 63;  ok &:= aBin64 = bin64(9223372036854775808_);
     if not ok then
       writeln(" ***** Bin64 left shift assignment does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 60;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(0);
-    aBin64 := bin64( 2305843009213693952 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 61;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(0);
-    aBin64 := bin64( 4611686018427387904 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 62;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(0);
-    aBin64 := bin64( 9223372036854775808_);  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(1);
-    aBin64 := bin64(18446744073709551615_);  aBin64 >>:= 63;  ok := ok and aBin64 = bin64(1);
+    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 60;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64( 2305843009213693951 );  aBin64 >>:= 61;  ok &:= aBin64 = bin64(0);
+    aBin64 := bin64( 2305843009213693952 );  aBin64 >>:= 61;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 61;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64( 4611686018427387903 );  aBin64 >>:= 62;  ok &:= aBin64 = bin64(0);
+    aBin64 := bin64( 4611686018427387904 );  aBin64 >>:= 62;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 62;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64( 9223372036854775807 );  aBin64 >>:= 63;  ok &:= aBin64 = bin64(0);
+    aBin64 := bin64( 9223372036854775808_);  aBin64 >>:= 63;  ok &:= aBin64 = bin64(1);
+    aBin64 := bin64(18446744073709551615_);  aBin64 >>:= 63;  ok &:= aBin64 = bin64(1);
     if not ok then
       writeln(" ***** Bin64 right shift assignment does not work correctly.");
       okay := FALSE;
@@ -367,8 +367,8 @@ const proc: checkAnd is func
       okay := FALSE;
     end if;
 
-    aBin64 := bin64( 3689348814741910323 ); aBin64 &:= bin64( 3074457345618258602 ); ok := ok and aBin64 = bin64(2459565876494606882 );
-    aBin64 := bin64(14757395258967641292_); aBin64 &:= bin64(12297829382473034410_); ok := ok and aBin64 = bin64(9838263505978427528_);
+    aBin64 := bin64( 3689348814741910323 ); aBin64 &:= bin64( 3074457345618258602 ); ok &:= aBin64 = bin64(2459565876494606882 );
+    aBin64 := bin64(14757395258967641292_); aBin64 &:= bin64(12297829382473034410_); ok &:= aBin64 = bin64(9838263505978427528_);
     if not ok then
       writeln(" ***** Bin64 &:= statement does not work correctly.");
       okay := FALSE;
@@ -410,8 +410,8 @@ const proc: checkOr is func
       okay := FALSE;
     end if;
 
-    aBin64 := bin64( 3689348814741910323 ); aBin64 |:= bin64( 3074457345618258602 ); ok := ok and aBin64 = bin64( 4304240283865562043 );
-    aBin64 := bin64(14757395258967641292_); aBin64 |:= bin64(12297829382473034410_); ok := ok and aBin64 = bin64(17216961135462248174_);
+    aBin64 := bin64( 3689348814741910323 ); aBin64 |:= bin64( 3074457345618258602 ); ok &:= aBin64 = bin64( 4304240283865562043 );
+    aBin64 := bin64(14757395258967641292_); aBin64 |:= bin64(12297829382473034410_); ok &:= aBin64 = bin64(17216961135462248174_);
     if not ok then
       writeln(" ***** Bin64 |:= statement does not work correctly.");
       okay := FALSE;
@@ -453,8 +453,8 @@ const proc: checkXor is func
       okay := FALSE;
     end if;
 
-    aBin64 := bin64( 3689348814741910323 ); aBin64 ><:= bin64( 3074457345618258602 ); ok := ok and aBin64 = bin64(1844674407370955161);
-    aBin64 := bin64(14757395258967641292_); aBin64 ><:= bin64(12297829382473034410_); ok := ok and aBin64 = bin64(7378697629483820646);
+    aBin64 := bin64( 3689348814741910323 ); aBin64 ><:= bin64( 3074457345618258602 ); ok &:= aBin64 = bin64(1844674407370955161);
+    aBin64 := bin64(14757395258967641292_); aBin64 ><:= bin64(12297829382473034410_); ok &:= aBin64 = bin64(7378697629483820646);
     if not ok then
       writeln(" ***** Bin64 ><:= statement does not work correctly.");
       okay := FALSE;
@@ -5550,22 +5550,22 @@ const proc: checkTernary is func
       okay := FALSE;
     end if;
 
-    aBin32 :=  TRUE ?  thenValue32 : elseValue32; ok := ok and aBin32 = thenValue32;
-    aBin32 := FALSE ?  thenValue32 : elseValue32; ok := ok and aBin32 = elseValue32;
-    aBin32 :=  TRUE ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
-    aBin32 := FALSE ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
-    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = thenValue32;
-    aBin32 := FALSE ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = elseValue32;
-    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
-    aBin32 := FALSE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
-    aBin32 := boolExpr( TRUE) ?  thenValue32 : elseValue32; ok := ok and aBin32 = thenValue32;
-    aBin32 := boolExpr(FALSE) ?  thenValue32 : elseValue32; ok := ok and aBin32 = elseValue32;
-    aBin32 := boolExpr( TRUE) ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
-    aBin32 := boolExpr(FALSE) ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
-    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = thenValue32;
-    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = elseValue32;
-    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
-    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  thenValue32 : elseValue32; ok &:= aBin32 = thenValue32;
+    aBin32 := FALSE ?  thenValue32 : elseValue32; ok &:= aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  thenValue32 : bin32Expr(elseValue32); ok &:= aBin32 = thenValue32;
+    aBin32 := FALSE ?  thenValue32 : bin32Expr(elseValue32); ok &:= aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : elseValue32; ok &:= aBin32 = thenValue32;
+    aBin32 := FALSE ?  bin32Expr(thenValue32) : elseValue32; ok &:= aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok &:= aBin32 = thenValue32;
+    aBin32 := FALSE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok &:= aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  thenValue32 : elseValue32; ok &:= aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  thenValue32 : elseValue32; ok &:= aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  thenValue32 : bin32Expr(elseValue32); ok &:= aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  thenValue32 : bin32Expr(elseValue32); ok &:= aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : elseValue32; ok &:= aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : elseValue32; ok &:= aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok &:= aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok &:= aBin32 = elseValue32;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;
@@ -5591,22 +5591,22 @@ const proc: checkTernary is func
       okay := FALSE;
     end if;
 
-    aBin64 :=  TRUE ?  thenValue64 : elseValue64; ok := ok and aBin64 = thenValue64;
-    aBin64 := FALSE ?  thenValue64 : elseValue64; ok := ok and aBin64 = elseValue64;
-    aBin64 :=  TRUE ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
-    aBin64 := FALSE ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
-    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = thenValue64;
-    aBin64 := FALSE ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = elseValue64;
-    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
-    aBin64 := FALSE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
-    aBin64 := boolExpr( TRUE) ?  thenValue64 : elseValue64; ok := ok and aBin64 = thenValue64;
-    aBin64 := boolExpr(FALSE) ?  thenValue64 : elseValue64; ok := ok and aBin64 = elseValue64;
-    aBin64 := boolExpr( TRUE) ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
-    aBin64 := boolExpr(FALSE) ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
-    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = thenValue64;
-    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = elseValue64;
-    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
-    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  thenValue64 : elseValue64; ok &:= aBin64 = thenValue64;
+    aBin64 := FALSE ?  thenValue64 : elseValue64; ok &:= aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  thenValue64 : bin64Expr(elseValue64); ok &:= aBin64 = thenValue64;
+    aBin64 := FALSE ?  thenValue64 : bin64Expr(elseValue64); ok &:= aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : elseValue64; ok &:= aBin64 = thenValue64;
+    aBin64 := FALSE ?  bin64Expr(thenValue64) : elseValue64; ok &:= aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok &:= aBin64 = thenValue64;
+    aBin64 := FALSE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok &:= aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  thenValue64 : elseValue64; ok &:= aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  thenValue64 : elseValue64; ok &:= aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  thenValue64 : bin64Expr(elseValue64); ok &:= aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  thenValue64 : bin64Expr(elseValue64); ok &:= aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : elseValue64; ok &:= aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : elseValue64; ok &:= aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok &:= aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok &:= aBin64 = elseValue64;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (4)");
       okay := FALSE;

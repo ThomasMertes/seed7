@@ -6223,12 +6223,12 @@ const proc: check_assign is func
     var float: number is 0.0;
     var array float: intArr is [] (0.0);
   begin
-    number := 1.0;                     ok := ok and number = 1.0;
-    number := changeParameter(number); ok := ok and number = 2.0;
-    number := number;                  ok := ok and number = 2.0;
-    intArr[1] := 1.0;                        ok := ok and intArr[1] = 1.0;
-    intArr[1] := changeParameter(intArr[1]); ok := ok and intArr[1] = 2.0;
-    intArr[1] := intArr[1];                  ok := ok and intArr[1] = 2.0;
+    number := 1.0;                     ok &:= number = 1.0;
+    number := changeParameter(number); ok &:= number = 2.0;
+    number := number;                  ok &:= number = 2.0;
+    intArr[1] := 1.0;                        ok &:= intArr[1] = 1.0;
+    intArr[1] := changeParameter(intArr[1]); ok &:= intArr[1] = 2.0;
+    intArr[1] := intArr[1];                  ok &:= intArr[1] = 2.0;
     if not ok then
       writeln(" ***** Float assignment does not work correctly.");
       okay := FALSE;
@@ -6265,22 +6265,22 @@ const proc: check_add is func
       okay := FALSE;
     end if;
 
-    num :=          0.0; num +:=          0.0; ok := ok and num =          0.0;
-    num :=          2.0; num +:=          3.0; ok := ok and num =          5.0;
-    num :=        127.0; num +:=        127.0; ok := ok and num =        254.0;
-    num :=        255.0; num +:=        255.0; ok := ok and num =        510.0;
-    num :=      18341.0; num +:=      26783.0; ok := ok and num =      45124.0;
-    num :=      32767.0; num +:=      32767.0; ok := ok and num =      65534.0;
-    num :=      35759.0; num +:=      58537.0; ok := ok and num =      94296.0;
-    num :=      65535.0; num +:=      65535.0; ok := ok and num =     131070.0;
-    num :=      73819.0; num +:=     124303.0; ok := ok and num =     198122.0;
-    num := 2147483647.0; num +:=          0.0; ok := ok and num = 2147483647.0;
-    num :=          0.0; num +:= 2147483647.0; ok := ok and num = 2147483647.0;
-    num :=          0.1; num +:=          0.0; ok := ok and num =          0.1;
-    num :=          0.0; num +:=          0.1; ok := ok and num =          0.1;
-    num :=          2.3; num +:=          3.2; ok := ok and num =          5.5;
-    num :=      390.625; num +:=     195.3125; ok := ok and num =     585.9375;
-    num :=      0.78125; num +:=      0.15625; ok := ok and num =       0.9375;
+    num :=          0.0; num +:=          0.0; ok &:= num =          0.0;
+    num :=          2.0; num +:=          3.0; ok &:= num =          5.0;
+    num :=        127.0; num +:=        127.0; ok &:= num =        254.0;
+    num :=        255.0; num +:=        255.0; ok &:= num =        510.0;
+    num :=      18341.0; num +:=      26783.0; ok &:= num =      45124.0;
+    num :=      32767.0; num +:=      32767.0; ok &:= num =      65534.0;
+    num :=      35759.0; num +:=      58537.0; ok &:= num =      94296.0;
+    num :=      65535.0; num +:=      65535.0; ok &:= num =     131070.0;
+    num :=      73819.0; num +:=     124303.0; ok &:= num =     198122.0;
+    num := 2147483647.0; num +:=          0.0; ok &:= num = 2147483647.0;
+    num :=          0.0; num +:= 2147483647.0; ok &:= num = 2147483647.0;
+    num :=          0.1; num +:=          0.0; ok &:= num =          0.1;
+    num :=          0.0; num +:=          0.1; ok &:= num =          0.1;
+    num :=          2.3; num +:=          3.2; ok &:= num =          5.5;
+    num :=      390.625; num +:=     195.3125; ok &:= num =     585.9375;
+    num :=      0.78125; num +:=      0.15625; ok &:= num =       0.9375;
     if not ok then
       writeln(" ***** Addition assignment with selected values does not work correctly.");
       okay := FALSE;
@@ -10262,70 +10262,70 @@ const proc: check_mult is func
       okay := FALSE;
     end if;
 
-    num := -Infinity; num *:= -Infinity; ok := ok and num =     Infinity;
-    num := -Infinity; num *:=  -12345.0; ok := ok and num =     Infinity;
-    num := -Infinity; num *:=      -1.0; ok := ok and num =     Infinity;
-    num := -Infinity; num *:=       0.0; ok := ok and isNaN(num);
-    num := -Infinity; num *:=       1.0; ok := ok and num =    -Infinity;
-    num := -Infinity; num *:=   12345.0; ok := ok and num =    -Infinity;
-    num := -Infinity; num *:=  Infinity; ok := ok and num =    -Infinity;
-    num := -Infinity; num *:=       NaN; ok := ok and isNaN(num);
-    num :=  -12345.0; num *:= -Infinity; ok := ok and num =     Infinity;
-    num :=  -12345.0; num *:=  -12345.0; ok := ok and num =  152399025.0;
-    num :=  -12345.0; num *:=      -1.0; ok := ok and num =      12345.0;
-    num :=  -12345.0; num *:=       0.0; ok := ok and num =          0.0;
-    num :=  -12345.0; num *:=       1.0; ok := ok and num =     -12345.0;
-    num :=  -12345.0; num *:=   12345.0; ok := ok and num = -152399025.0;
-    num :=  -12345.0; num *:=  Infinity; ok := ok and num =    -Infinity;
-    num :=  -12345.0; num *:=       NaN; ok := ok and isNaN(num);
-    num :=      -1.0; num *:= -Infinity; ok := ok and num =     Infinity;
-    num :=      -1.0; num *:=  -12345.0; ok := ok and num =      12345.0;
-    num :=      -1.0; num *:=      -1.0; ok := ok and num =          1.0;
-    num :=      -1.0; num *:=       0.0; ok := ok and num =          0.0;
-    num :=      -1.0; num *:=       1.0; ok := ok and num =         -1.0;
-    num :=      -1.0; num *:=   12345.0; ok := ok and num =     -12345.0;
-    num :=      -1.0; num *:=  Infinity; ok := ok and num =    -Infinity;
-    num :=      -1.0; num *:=       NaN; ok := ok and isNaN(num);
-    num :=       0.0; num *:= -Infinity; ok := ok and isNaN(num);
-    num :=       0.0; num *:=  -12345.0; ok := ok and num =          0.0;
-    num :=       0.0; num *:=      -1.0; ok := ok and num =          0.0;
-    num :=       0.0; num *:=       0.0; ok := ok and num =          0.0;
-    num :=       0.0; num *:=       1.0; ok := ok and num =          0.0;
-    num :=       0.0; num *:=   12345.0; ok := ok and num =          0.0;
-    num :=       0.0; num *:=  Infinity; ok := ok and isNaN(num);
-    num :=       0.0; num *:=       NaN; ok := ok and isNaN(num);
-    num :=       1.0; num *:= -Infinity; ok := ok and num =    -Infinity;
-    num :=       1.0; num *:=  -12345.0; ok := ok and num =     -12345.0;
-    num :=       1.0; num *:=      -1.0; ok := ok and num =         -1.0;
-    num :=       1.0; num *:=       0.0; ok := ok and num =          0.0;
-    num :=       1.0; num *:=       1.0; ok := ok and num =          1.0;
-    num :=       1.0; num *:=   12345.0; ok := ok and num =      12345.0;
-    num :=       1.0; num *:=  Infinity; ok := ok and num =     Infinity;
-    num :=       1.0; num *:=       NaN; ok := ok and isNaN(num);
-    num :=   12345.0; num *:= -Infinity; ok := ok and num =    -Infinity;
-    num :=   12345.0; num *:=  -12345.0; ok := ok and num = -152399025.0;
-    num :=   12345.0; num *:=      -1.0; ok := ok and num =     -12345.0;
-    num :=   12345.0; num *:=       0.0; ok := ok and num =          0.0;
-    num :=   12345.0; num *:=       1.0; ok := ok and num =      12345.0;
-    num :=   12345.0; num *:=   12345.0; ok := ok and num =  152399025.0;
-    num :=   12345.0; num *:=  Infinity; ok := ok and num =     Infinity;
-    num :=   12345.0; num *:=       NaN; ok := ok and isNaN(num);
-    num :=  Infinity; num *:= -Infinity; ok := ok and num =    -Infinity;
-    num :=  Infinity; num *:=  -12345.0; ok := ok and num =    -Infinity;
-    num :=  Infinity; num *:=      -1.0; ok := ok and num =    -Infinity;
-    num :=  Infinity; num *:=       0.0; ok := ok and isNaN(num);
-    num :=  Infinity; num *:=       1.0; ok := ok and num =     Infinity;
-    num :=  Infinity; num *:=   12345.0; ok := ok and num =     Infinity;
-    num :=  Infinity; num *:=  Infinity; ok := ok and num =     Infinity;
-    num :=  Infinity; num *:=       NaN; ok := ok and isNaN(num);
-    num :=       NaN; num *:= -Infinity; ok := ok and isNaN(num);
-    num :=       NaN; num *:=  -12345.0; ok := ok and isNaN(num);
-    num :=       NaN; num *:=      -1.0; ok := ok and isNaN(num);
-    num :=       NaN; num *:=       0.0; ok := ok and isNaN(num);
-    num :=       NaN; num *:=       1.0; ok := ok and isNaN(num);
-    num :=       NaN; num *:=   12345.0; ok := ok and isNaN(num);
-    num :=       NaN; num *:=  Infinity; ok := ok and isNaN(num);
-    num :=       NaN; num *:=       NaN; ok := ok and isNaN(num);
+    num := -Infinity; num *:= -Infinity; ok &:= num =     Infinity;
+    num := -Infinity; num *:=  -12345.0; ok &:= num =     Infinity;
+    num := -Infinity; num *:=      -1.0; ok &:= num =     Infinity;
+    num := -Infinity; num *:=       0.0; ok &:= isNaN(num);
+    num := -Infinity; num *:=       1.0; ok &:= num =    -Infinity;
+    num := -Infinity; num *:=   12345.0; ok &:= num =    -Infinity;
+    num := -Infinity; num *:=  Infinity; ok &:= num =    -Infinity;
+    num := -Infinity; num *:=       NaN; ok &:= isNaN(num);
+    num :=  -12345.0; num *:= -Infinity; ok &:= num =     Infinity;
+    num :=  -12345.0; num *:=  -12345.0; ok &:= num =  152399025.0;
+    num :=  -12345.0; num *:=      -1.0; ok &:= num =      12345.0;
+    num :=  -12345.0; num *:=       0.0; ok &:= num =          0.0;
+    num :=  -12345.0; num *:=       1.0; ok &:= num =     -12345.0;
+    num :=  -12345.0; num *:=   12345.0; ok &:= num = -152399025.0;
+    num :=  -12345.0; num *:=  Infinity; ok &:= num =    -Infinity;
+    num :=  -12345.0; num *:=       NaN; ok &:= isNaN(num);
+    num :=      -1.0; num *:= -Infinity; ok &:= num =     Infinity;
+    num :=      -1.0; num *:=  -12345.0; ok &:= num =      12345.0;
+    num :=      -1.0; num *:=      -1.0; ok &:= num =          1.0;
+    num :=      -1.0; num *:=       0.0; ok &:= num =          0.0;
+    num :=      -1.0; num *:=       1.0; ok &:= num =         -1.0;
+    num :=      -1.0; num *:=   12345.0; ok &:= num =     -12345.0;
+    num :=      -1.0; num *:=  Infinity; ok &:= num =    -Infinity;
+    num :=      -1.0; num *:=       NaN; ok &:= isNaN(num);
+    num :=       0.0; num *:= -Infinity; ok &:= isNaN(num);
+    num :=       0.0; num *:=  -12345.0; ok &:= num =          0.0;
+    num :=       0.0; num *:=      -1.0; ok &:= num =          0.0;
+    num :=       0.0; num *:=       0.0; ok &:= num =          0.0;
+    num :=       0.0; num *:=       1.0; ok &:= num =          0.0;
+    num :=       0.0; num *:=   12345.0; ok &:= num =          0.0;
+    num :=       0.0; num *:=  Infinity; ok &:= isNaN(num);
+    num :=       0.0; num *:=       NaN; ok &:= isNaN(num);
+    num :=       1.0; num *:= -Infinity; ok &:= num =    -Infinity;
+    num :=       1.0; num *:=  -12345.0; ok &:= num =     -12345.0;
+    num :=       1.0; num *:=      -1.0; ok &:= num =         -1.0;
+    num :=       1.0; num *:=       0.0; ok &:= num =          0.0;
+    num :=       1.0; num *:=       1.0; ok &:= num =          1.0;
+    num :=       1.0; num *:=   12345.0; ok &:= num =      12345.0;
+    num :=       1.0; num *:=  Infinity; ok &:= num =     Infinity;
+    num :=       1.0; num *:=       NaN; ok &:= isNaN(num);
+    num :=   12345.0; num *:= -Infinity; ok &:= num =    -Infinity;
+    num :=   12345.0; num *:=  -12345.0; ok &:= num = -152399025.0;
+    num :=   12345.0; num *:=      -1.0; ok &:= num =     -12345.0;
+    num :=   12345.0; num *:=       0.0; ok &:= num =          0.0;
+    num :=   12345.0; num *:=       1.0; ok &:= num =      12345.0;
+    num :=   12345.0; num *:=   12345.0; ok &:= num =  152399025.0;
+    num :=   12345.0; num *:=  Infinity; ok &:= num =     Infinity;
+    num :=   12345.0; num *:=       NaN; ok &:= isNaN(num);
+    num :=  Infinity; num *:= -Infinity; ok &:= num =    -Infinity;
+    num :=  Infinity; num *:=  -12345.0; ok &:= num =    -Infinity;
+    num :=  Infinity; num *:=      -1.0; ok &:= num =    -Infinity;
+    num :=  Infinity; num *:=       0.0; ok &:= isNaN(num);
+    num :=  Infinity; num *:=       1.0; ok &:= num =     Infinity;
+    num :=  Infinity; num *:=   12345.0; ok &:= num =     Infinity;
+    num :=  Infinity; num *:=  Infinity; ok &:= num =     Infinity;
+    num :=  Infinity; num *:=       NaN; ok &:= isNaN(num);
+    num :=       NaN; num *:= -Infinity; ok &:= isNaN(num);
+    num :=       NaN; num *:=  -12345.0; ok &:= isNaN(num);
+    num :=       NaN; num *:=      -1.0; ok &:= isNaN(num);
+    num :=       NaN; num *:=       0.0; ok &:= isNaN(num);
+    num :=       NaN; num *:=       1.0; ok &:= isNaN(num);
+    num :=       NaN; num *:=   12345.0; ok &:= isNaN(num);
+    num :=       NaN; num *:=  Infinity; ok &:= isNaN(num);
+    num :=       NaN; num *:=       NaN; ok &:= isNaN(num);
     if not ok then
       writeln(" ***** Multiplication assignment with selected values does not work correctly.");
       okay := FALSE;
@@ -20224,74 +20224,74 @@ const proc: check_rand is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    number := rand(-Infinity,      -2.0); ok := ok and number >= -Infinity and number < -2.0;
-    number := rand(-Infinity,      -1.0); ok := ok and number >= -Infinity and number < -1.0;
-    number := rand(-Infinity,       0.0); ok := ok and number >= -Infinity and number <  0.0;
-    number := rand(-Infinity,       1.0); ok := ok and number >= -Infinity and number <  1.0;
-    number := rand(-Infinity,       2.0); ok := ok and number >= -Infinity and number <  2.0;
-    number := rand(-Infinity,  Infinity); ok := ok and number >= -Infinity and number <= Infinity;
-    number := rand(     -2.0,      -1.0); ok := ok and number >= -2.0 and number < -1.0;
-    number := rand(     -2.0,       0.0); ok := ok and number >= -2.0 and number <  0.0;
-    number := rand(     -2.0,       1.0); ok := ok and number >= -2.0 and number <  1.0;
-    number := rand(     -2.0,       2.0); ok := ok and number >= -2.0 and number <  2.0;
-    number := rand(     -2.0,  Infinity); ok := ok and number >= -2.0 and number <= Infinity;
-    number := rand(     -1.0,       0.0); ok := ok and number >= -1.0 and number < 0.0;
-    number := rand(     -1.0,       1.0); ok := ok and number >= -1.0 and number < 1.0;
-    number := rand(     -1.0,       2.0); ok := ok and number >= -1.0 and number < 2.0;
-    number := rand(     -1.0,  Infinity); ok := ok and number >= -1.0 and number <= Infinity;
-    number := rand(      0.0,       1.0); ok := ok and number >= 0.0 and number < 1.0;
-    number := rand(      0.0,       2.0); ok := ok and number >= 0.0 and number < 2.0;
-    number := rand(      0.0,       3.0); ok := ok and number >= 0.0 and number < 3.0;
-    number := rand(      0.0,  Infinity); ok := ok and number >= 0.0 and number <= Infinity;
-    number := rand(      1.0,       2.0); ok := ok and number >= 1.0 and number < 2.0;
-    number := rand(      1.0,       3.0); ok := ok and number >= 1.0 and number < 3.0;
-    number := rand(      1.0,       4.0); ok := ok and number >= 1.0 and number < 4.0;
-    number := rand(      1.0,       5.0); ok := ok and number >= 1.0 and number < 5.0;
-    number := rand(      1.0,       6.0); ok := ok and number >= 1.0 and number < 6.0;
-    number := rand(      1.0,  Infinity); ok := ok and number >= 1.0 and number <= Infinity;
-    number := rand(      2.0,       3.0); ok := ok and number >= 2.0 and number < 3.0;
-    number := rand(      2.0,       4.0); ok := ok and number >= 2.0 and number < 4.0;
-    number := rand(      2.0,       5.0); ok := ok and number >= 2.0 and number < 5.0;
-    number := rand(      2.0,       6.0); ok := ok and number >= 2.0 and number < 6.0;
-    number := rand(      2.0,       7.0); ok := ok and number >= 2.0 and number < 7.0;
-    number := rand(      2.0,       8.0); ok := ok and number >= 2.0 and number < 8.0;
-    number := rand(      2.0,       9.0); ok := ok and number >= 2.0 and number < 9.0;
-    number := rand(      2.0,  Infinity); ok := ok and number >= 2.0 and number <= Infinity;
+    number := rand(-Infinity,      -2.0); ok &:= number >= -Infinity and number < -2.0;
+    number := rand(-Infinity,      -1.0); ok &:= number >= -Infinity and number < -1.0;
+    number := rand(-Infinity,       0.0); ok &:= number >= -Infinity and number <  0.0;
+    number := rand(-Infinity,       1.0); ok &:= number >= -Infinity and number <  1.0;
+    number := rand(-Infinity,       2.0); ok &:= number >= -Infinity and number <  2.0;
+    number := rand(-Infinity,  Infinity); ok &:= number >= -Infinity and number <= Infinity;
+    number := rand(     -2.0,      -1.0); ok &:= number >= -2.0 and number < -1.0;
+    number := rand(     -2.0,       0.0); ok &:= number >= -2.0 and number <  0.0;
+    number := rand(     -2.0,       1.0); ok &:= number >= -2.0 and number <  1.0;
+    number := rand(     -2.0,       2.0); ok &:= number >= -2.0 and number <  2.0;
+    number := rand(     -2.0,  Infinity); ok &:= number >= -2.0 and number <= Infinity;
+    number := rand(     -1.0,       0.0); ok &:= number >= -1.0 and number < 0.0;
+    number := rand(     -1.0,       1.0); ok &:= number >= -1.0 and number < 1.0;
+    number := rand(     -1.0,       2.0); ok &:= number >= -1.0 and number < 2.0;
+    number := rand(     -1.0,  Infinity); ok &:= number >= -1.0 and number <= Infinity;
+    number := rand(      0.0,       1.0); ok &:= number >= 0.0 and number < 1.0;
+    number := rand(      0.0,       2.0); ok &:= number >= 0.0 and number < 2.0;
+    number := rand(      0.0,       3.0); ok &:= number >= 0.0 and number < 3.0;
+    number := rand(      0.0,  Infinity); ok &:= number >= 0.0 and number <= Infinity;
+    number := rand(      1.0,       2.0); ok &:= number >= 1.0 and number < 2.0;
+    number := rand(      1.0,       3.0); ok &:= number >= 1.0 and number < 3.0;
+    number := rand(      1.0,       4.0); ok &:= number >= 1.0 and number < 4.0;
+    number := rand(      1.0,       5.0); ok &:= number >= 1.0 and number < 5.0;
+    number := rand(      1.0,       6.0); ok &:= number >= 1.0 and number < 6.0;
+    number := rand(      1.0,  Infinity); ok &:= number >= 1.0 and number <= Infinity;
+    number := rand(      2.0,       3.0); ok &:= number >= 2.0 and number < 3.0;
+    number := rand(      2.0,       4.0); ok &:= number >= 2.0 and number < 4.0;
+    number := rand(      2.0,       5.0); ok &:= number >= 2.0 and number < 5.0;
+    number := rand(      2.0,       6.0); ok &:= number >= 2.0 and number < 6.0;
+    number := rand(      2.0,       7.0); ok &:= number >= 2.0 and number < 7.0;
+    number := rand(      2.0,       8.0); ok &:= number >= 2.0 and number < 8.0;
+    number := rand(      2.0,       9.0); ok &:= number >= 2.0 and number < 9.0;
+    number := rand(      2.0,  Infinity); ok &:= number >= 2.0 and number <= Infinity;
     if not ok then
       writeln(" ***** rand(a, b) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    number := rand(0.0, 2.0 ** 1000); ok := ok and number >= 0.0 and number < 2.0 ** 1000;
-    number := rand(0.0, 2.0 **  500); ok := ok and number >= 0.0 and number < 2.0 **  500;
-    number := rand(0.0, 2.0 **  200); ok := ok and number >= 0.0 and number < 2.0 **  200;
-    number := rand(0.0, 1267650600228229401496703205376.0); ok := ok and number >= 0.0 and number < 1267650600228229401496703205376.0;
-    number := rand(0.0,             1152921504606846976.0); ok := ok and number >= 0.0 and number < 1152921504606846976.0;
-    number := rand(0.0,                   1099511627776.0); ok := ok and number >= 0.0 and number < 1099511627776.0;
-    number := rand(0.0,                      1073741824.0); ok := ok and number >= 0.0 and number < 1073741824.0;
-    number := rand(0.0,                         1048576.0); ok := ok and number >= 0.0 and number < 1048576.0;
-    number := rand(0.0,                           65536.0); ok := ok and number >= 0.0 and number < 65536.0;
-    number := rand(0.0,                            1024.0); ok := ok and number >= 0.0 and number < 1024.0;
-    number := rand(0.0,                               4.0); ok := ok and number >= 0.0 and number < 4.0;
-    number := rand(0.0,                               2.0); ok := ok and number >= 0.0 and number < 2.0;
-    number := rand(0.0,                               1.0); ok := ok and number >= 0.0 and number < 1.0;
-    number := rand(0.0, 0.5);                           ok := ok and number >= 0.0 and number < 0.5;
-    number := rand(0.0, 0.25);                          ok := ok and number >= 0.0 and number < 0.25;
-    number := rand(0.0, 0.125);                         ok := ok and number >= 0.0 and number < 0.125;
-    number := rand(0.0, 0.0625);                        ok := ok and number >= 0.0 and number < 0.0625;
-    number := rand(0.0, 0.03125);                       ok := ok and number >= 0.0 and number < 0.03125;
-    number := rand(0.0, 0.015625);                      ok := ok and number >= 0.0 and number < 0.015625;
-    number := rand(0.0, 0.0078125);                     ok := ok and number >= 0.0 and number < 0.0078125;
-    number := rand(0.0, 0.0009765625);                  ok := ok and number >= 0.0 and number < 0.0009765625;
-    number := rand(0.0, 0.000030517578125);             ok := ok and number >= 0.0 and number < 0.000030517578125;
-    number := rand(0.0, 0.00000095367431640625);        ok := ok and number >= 0.0 and number < 0.00000095367431640625;
-    number := rand(0.0, 0.000000000931322574615479);    ok := ok and number >= 0.0 and number < 0.000000000931322574615479;
-    number := rand(0.0, 0.000000000000909494701772928); ok := ok and number >= 0.0 and number < 0.000000000000909494701772928;
-    number := rand(0.0, 2.0 ** ( -100)); ok := ok and number >= 0.0 and number < 2.0 ** ( -100);
-    number := rand(0.0, 2.0 ** ( -200)); ok := ok and number >= 0.0 and number < 2.0 ** ( -200);
-    number := rand(0.0, 2.0 ** ( -500)); ok := ok and number >= 0.0 and number < 2.0 ** ( -500);
-    number := rand(0.0, 2.0 ** (-1000)); ok := ok and number >= 0.0 and number < 2.0 ** (-1000);
+    number := rand(0.0, 2.0 ** 1000); ok &:= number >= 0.0 and number < 2.0 ** 1000;
+    number := rand(0.0, 2.0 **  500); ok &:= number >= 0.0 and number < 2.0 **  500;
+    number := rand(0.0, 2.0 **  200); ok &:= number >= 0.0 and number < 2.0 **  200;
+    number := rand(0.0, 1267650600228229401496703205376.0); ok &:= number >= 0.0 and number < 1267650600228229401496703205376.0;
+    number := rand(0.0,             1152921504606846976.0); ok &:= number >= 0.0 and number < 1152921504606846976.0;
+    number := rand(0.0,                   1099511627776.0); ok &:= number >= 0.0 and number < 1099511627776.0;
+    number := rand(0.0,                      1073741824.0); ok &:= number >= 0.0 and number < 1073741824.0;
+    number := rand(0.0,                         1048576.0); ok &:= number >= 0.0 and number < 1048576.0;
+    number := rand(0.0,                           65536.0); ok &:= number >= 0.0 and number < 65536.0;
+    number := rand(0.0,                            1024.0); ok &:= number >= 0.0 and number < 1024.0;
+    number := rand(0.0,                               4.0); ok &:= number >= 0.0 and number < 4.0;
+    number := rand(0.0,                               2.0); ok &:= number >= 0.0 and number < 2.0;
+    number := rand(0.0,                               1.0); ok &:= number >= 0.0 and number < 1.0;
+    number := rand(0.0, 0.5);                           ok &:= number >= 0.0 and number < 0.5;
+    number := rand(0.0, 0.25);                          ok &:= number >= 0.0 and number < 0.25;
+    number := rand(0.0, 0.125);                         ok &:= number >= 0.0 and number < 0.125;
+    number := rand(0.0, 0.0625);                        ok &:= number >= 0.0 and number < 0.0625;
+    number := rand(0.0, 0.03125);                       ok &:= number >= 0.0 and number < 0.03125;
+    number := rand(0.0, 0.015625);                      ok &:= number >= 0.0 and number < 0.015625;
+    number := rand(0.0, 0.0078125);                     ok &:= number >= 0.0 and number < 0.0078125;
+    number := rand(0.0, 0.0009765625);                  ok &:= number >= 0.0 and number < 0.0009765625;
+    number := rand(0.0, 0.000030517578125);             ok &:= number >= 0.0 and number < 0.000030517578125;
+    number := rand(0.0, 0.00000095367431640625);        ok &:= number >= 0.0 and number < 0.00000095367431640625;
+    number := rand(0.0, 0.000000000931322574615479);    ok &:= number >= 0.0 and number < 0.000000000931322574615479;
+    number := rand(0.0, 0.000000000000909494701772928); ok &:= number >= 0.0 and number < 0.000000000000909494701772928;
+    number := rand(0.0, 2.0 ** ( -100)); ok &:= number >= 0.0 and number < 2.0 ** ( -100);
+    number := rand(0.0, 2.0 ** ( -200)); ok &:= number >= 0.0 and number < 2.0 ** ( -200);
+    number := rand(0.0, 2.0 ** ( -500)); ok &:= number >= 0.0 and number < 2.0 ** ( -500);
+    number := rand(0.0, 2.0 ** (-1000)); ok &:= number >= 0.0 and number < 2.0 ** (-1000);
     if not ok then
       writeln(" ***** rand(0.0, upper) does not work correctly if upper is a power of two.");
       okay := FALSE;
@@ -20391,24 +20391,24 @@ const proc: check_decompose is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    elems := decompose(0.0); ok := ok and elems.fraction = 0.0 and elems.exponent = 0;
-    elems := decompose(0.5); ok := ok and elems.fraction = 0.5 and elems.exponent = 0;
-    elems := decompose(1.0); ok := ok and elems.fraction = 0.5 and elems.exponent = 1;
-    elems := decompose( 5.0e-324);                  ok := ok and elems.fraction = 0.5 and
+    elems := decompose(0.0); ok &:= elems.fraction = 0.0 and elems.exponent = 0;
+    elems := decompose(0.5); ok &:= elems.fraction = 0.5 and elems.exponent = 0;
+    elems := decompose(1.0); ok &:= elems.fraction = 0.5 and elems.exponent = 1;
+    elems := decompose( 5.0e-324);                  ok &:= elems.fraction = 0.5 and
                                                                  elems.exponent = -1073;  # Min subnormal positive double.
-    elems := decompose( 2.225073858507200889e-308); ok := ok and elems.fraction = 0.9999999999999998 and
+    elems := decompose( 2.225073858507200889e-308); ok &:= elems.fraction = 0.9999999999999998 and
                                                                  elems.exponent = -1022;  # Max subnormal positive double
-    elems := decompose( 2.225073858507201383e-308); ok := ok and elems.fraction = 0.5 and
+    elems := decompose( 2.225073858507201383e-308); ok &:= elems.fraction = 0.5 and
                                                                  elems.exponent = -1021;  # Min normalized positive double
-    elems := decompose( 1.797693134862315708e+308); ok := ok and elems.fraction = 0.9999999999999999 and
+    elems := decompose( 1.797693134862315708e+308); ok &:= elems.fraction = 0.9999999999999999 and
                                                                  elems.exponent = 1024;   # Max finite positive double
-    elems := decompose( 1.4012984643248171e-45);  ok := ok and elems.fraction = 0.5 and
+    elems := decompose( 1.4012984643248171e-45);  ok &:= elems.fraction = 0.5 and
                                                                elems.exponent = -148;   # Min subnormal positive single.
-    elems := decompose( 1.1754942106924411e-38);  ok := ok and elems.fraction = 0.9999998807907105 and
+    elems := decompose( 1.1754942106924411e-38);  ok &:= elems.fraction = 0.9999998807907105 and
                                                                elems.exponent = -126;   # Max subnormal positive single
-    elems := decompose( 1.1754943508222875e-38);  ok := ok and elems.fraction = 0.5 and
+    elems := decompose( 1.1754943508222875e-38);  ok &:= elems.fraction = 0.5 and
                                                                elems.exponent = -125;   # Min normalized positive single.
-    elems := decompose( 3.4028234663852886e+38);  ok := ok and elems.fraction = 0.9999999403953552 and
+    elems := decompose( 3.4028234663852886e+38);  ok &:= elems.fraction = 0.9999999403953552 and
                                                                elems.exponent = 128;    # Max finite positive single.
     if not ok then
       writeln(" ***** Decompose for normal values does not work correctly.");
@@ -20416,9 +20416,9 @@ const proc: check_decompose is func
     end if;
 
     ok := TRUE;
-    elems := decompose( Infinity); ok := ok and elems.fraction =  Infinity and elems.exponent = 0;
-    elems := decompose(-Infinity); ok := ok and elems.fraction = -Infinity and elems.exponent = 0;
-    elems := decompose( NaN);      ok := ok and isNaN(elems.fraction)      and elems.exponent = 0;
+    elems := decompose( Infinity); ok &:= elems.fraction =  Infinity and elems.exponent = 0;
+    elems := decompose(-Infinity); ok &:= elems.fraction = -Infinity and elems.exponent = 0;
+    elems := decompose( NaN);      ok &:= isNaN(elems.fraction)      and elems.exponent = 0;
     if not ok then
       writeln(" ***** Decompose for special values does not work correctly.");
       okay := FALSE;
@@ -20456,22 +20456,22 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
-    number :=  TRUE ?  1.0 : 2.0; ok := ok and number = 1.0;
-    number := FALSE ?  1.0 : 2.0; ok := ok and number = 2.0;
-    number :=  TRUE ?  1.0 : floatExpr(2.0); ok := ok and number = 1.0;
-    number := FALSE ?  1.0 : floatExpr(2.0); ok := ok and number = 2.0;
-    number :=  TRUE ?  floatExpr(1.0) : 2.0; ok := ok and number = 1.0;
-    number := FALSE ?  floatExpr(1.0) : 2.0; ok := ok and number = 2.0;
-    number :=  TRUE ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 1.0;
-    number := FALSE ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 2.0;
-    number := boolExpr( TRUE) ?  1.0 : 2.0; ok := ok and number = 1.0;
-    number := boolExpr(FALSE) ?  1.0 : 2.0; ok := ok and number = 2.0;
-    number := boolExpr( TRUE) ?  1.0 : floatExpr(2.0); ok := ok and number = 1.0;
-    number := boolExpr(FALSE) ?  1.0 : floatExpr(2.0); ok := ok and number = 2.0;
-    number := boolExpr( TRUE) ?  floatExpr(1.0) : 2.0; ok := ok and number = 1.0;
-    number := boolExpr(FALSE) ?  floatExpr(1.0) : 2.0; ok := ok and number = 2.0;
-    number := boolExpr( TRUE) ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 1.0;
-    number := boolExpr(FALSE) ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 2.0;
+    number :=  TRUE ?  1.0 : 2.0; ok &:= number = 1.0;
+    number := FALSE ?  1.0 : 2.0; ok &:= number = 2.0;
+    number :=  TRUE ?  1.0 : floatExpr(2.0); ok &:= number = 1.0;
+    number := FALSE ?  1.0 : floatExpr(2.0); ok &:= number = 2.0;
+    number :=  TRUE ?  floatExpr(1.0) : 2.0; ok &:= number = 1.0;
+    number := FALSE ?  floatExpr(1.0) : 2.0; ok &:= number = 2.0;
+    number :=  TRUE ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 1.0;
+    number := FALSE ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 2.0;
+    number := boolExpr( TRUE) ?  1.0 : 2.0; ok &:= number = 1.0;
+    number := boolExpr(FALSE) ?  1.0 : 2.0; ok &:= number = 2.0;
+    number := boolExpr( TRUE) ?  1.0 : floatExpr(2.0); ok &:= number = 1.0;
+    number := boolExpr(FALSE) ?  1.0 : floatExpr(2.0); ok &:= number = 2.0;
+    number := boolExpr( TRUE) ?  floatExpr(1.0) : 2.0; ok &:= number = 1.0;
+    number := boolExpr(FALSE) ?  floatExpr(1.0) : 2.0; ok &:= number = 2.0;
+    number := boolExpr( TRUE) ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 1.0;
+    number := boolExpr(FALSE) ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 2.0;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;

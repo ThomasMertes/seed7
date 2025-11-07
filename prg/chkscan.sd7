@@ -44,20 +44,20 @@ const proc: checkGetDigits is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "12";   ok := ok and getDigits(stri) = "12" and stri = "";
-    stri := "12ab"; ok := ok and getDigits(stri) = "12" and stri = "ab";
-    stri := "ab";   ok := ok and getDigits(stri) = ""   and stri = "ab";
-    stri := " 12";  ok := ok and getDigits(stri) = ""   and stri = " 12";
+    stri := "12";   ok &:= getDigits(stri) = "12" and stri = "";
+    stri := "12ab"; ok &:= getDigits(stri) = "12" and stri = "ab";
+    stri := "ab";   ok &:= getDigits(stri) = ""   and stri = "ab";
+    stri := " 12";  ok &:= getDigits(stri) = ""   and stri = " 12";
     if not ok then
       writeln(" ***** The function getDigits(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("12");   ok := ok and getDigits(aFile) = "12" and aFile.bufferChar = EOF;
-    aFile := initScan("12ab"); ok := ok and getDigits(aFile) = "12" and aFile.bufferChar = 'a';
-    aFile := initScan("ab");   ok := ok and getDigits(aFile) = ""   and aFile.bufferChar = 'a';
-    aFile := initScan(" 12");  ok := ok and getDigits(aFile) = ""   and aFile.bufferChar = ' ';
+    aFile := initScan("12");   ok &:= getDigits(aFile) = "12" and aFile.bufferChar = EOF;
+    aFile := initScan("12ab"); ok &:= getDigits(aFile) = "12" and aFile.bufferChar = 'a';
+    aFile := initScan("ab");   ok &:= getDigits(aFile) = ""   and aFile.bufferChar = 'a';
+    aFile := initScan(" 12");  ok &:= getDigits(aFile) = ""   and aFile.bufferChar = ' ';
     if not ok then
       writeln(" ***** The function getDigits(FILE) does not work correctly.");
       okay := FALSE;
@@ -76,20 +76,20 @@ const proc: checkGetHexDigits is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "1f";  ok := ok and getHexDigits(stri) = "1f" and stri = "";
-    stri := "1ag"; ok := ok and getHexDigits(stri) = "1a" and stri = "g";
-    stri := "gx";  ok := ok and getHexDigits(stri) = ""   and stri = "gx";
-    stri := " 1a"; ok := ok and getHexDigits(stri) = ""   and stri = " 1a";
+    stri := "1f";  ok &:= getHexDigits(stri) = "1f" and stri = "";
+    stri := "1ag"; ok &:= getHexDigits(stri) = "1a" and stri = "g";
+    stri := "gx";  ok &:= getHexDigits(stri) = ""   and stri = "gx";
+    stri := " 1a"; ok &:= getHexDigits(stri) = ""   and stri = " 1a";
     if not ok then
       writeln(" ***** The function getHexDigits(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("1f");  ok := ok and getHexDigits(aFile) = "1f" and aFile.bufferChar = EOF;
-    aFile := initScan("1ag"); ok := ok and getHexDigits(aFile) = "1a" and aFile.bufferChar = 'g';
-    aFile := initScan("gx");  ok := ok and getHexDigits(aFile) = ""   and aFile.bufferChar = 'g';
-    aFile := initScan(" 1a"); ok := ok and getHexDigits(aFile) = ""   and aFile.bufferChar = ' ';
+    aFile := initScan("1f");  ok &:= getHexDigits(aFile) = "1f" and aFile.bufferChar = EOF;
+    aFile := initScan("1ag"); ok &:= getHexDigits(aFile) = "1a" and aFile.bufferChar = 'g';
+    aFile := initScan("gx");  ok &:= getHexDigits(aFile) = ""   and aFile.bufferChar = 'g';
+    aFile := initScan(" 1a"); ok &:= getHexDigits(aFile) = ""   and aFile.bufferChar = ' ';
     if not ok then
       writeln(" ***** The function getHexDigits(FILE) does not work correctly.");
       okay := FALSE;
@@ -108,22 +108,22 @@ const proc: checkGetInteger is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "123*2"; ok := ok and getInteger(stri) = "123" and stri = "*2";
-    stri := "+1-2";  ok := ok and getInteger(stri) = "+1"  and stri = "-2";
-    stri := "-2+3";  ok := ok and getInteger(stri) = "-2"  and stri = "+3";
-    stri := "+-0";   ok := ok and getInteger(stri) = "+"   and stri = "-0";
-    stri := "pi";    ok := ok and getInteger(stri) = ""    and stri = "pi";
+    stri := "123*2"; ok &:= getInteger(stri) = "123" and stri = "*2";
+    stri := "+1-2";  ok &:= getInteger(stri) = "+1"  and stri = "-2";
+    stri := "-2+3";  ok &:= getInteger(stri) = "-2"  and stri = "+3";
+    stri := "+-0";   ok &:= getInteger(stri) = "+"   and stri = "-0";
+    stri := "pi";    ok &:= getInteger(stri) = ""    and stri = "pi";
     if not ok then
       writeln(" ***** The function getInteger(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("123*2"); ok := ok and getInteger(aFile) = "123" and aFile.bufferChar = '*';
-    aFile := initScan("+1-2");  ok := ok and getInteger(aFile) = "+1"  and aFile.bufferChar = '-';
-    aFile := initScan("-2+3");  ok := ok and getInteger(aFile) = "-2"  and aFile.bufferChar = '+';
-    aFile := initScan("+-0");   ok := ok and getInteger(aFile) = "+"   and aFile.bufferChar = '-';
-    aFile := initScan("pi");    ok := ok and getInteger(aFile) = ""    and aFile.bufferChar = 'p';
+    aFile := initScan("123*2"); ok &:= getInteger(aFile) = "123" and aFile.bufferChar = '*';
+    aFile := initScan("+1-2");  ok &:= getInteger(aFile) = "+1"  and aFile.bufferChar = '-';
+    aFile := initScan("-2+3");  ok &:= getInteger(aFile) = "-2"  and aFile.bufferChar = '+';
+    aFile := initScan("+-0");   ok &:= getInteger(aFile) = "+"   and aFile.bufferChar = '-';
+    aFile := initScan("pi");    ok &:= getInteger(aFile) = ""    and aFile.bufferChar = 'p';
     if not ok then
       writeln(" ***** The function getInteger(FILE) does not work correctly.");
       okay := FALSE;
@@ -142,28 +142,28 @@ const proc: checkGetNumber is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "1x";     ok := ok and getNumber(stri) = "1"      and stri = "x";
-    stri := "1.0+";   ok := ok and getNumber(stri) = "1.0"    and stri = "+";
-    stri := "1.0E1-"; ok := ok and getNumber(stri) = "1.0E1"  and stri = "-";
-    stri := "1.0e-1"; ok := ok and getNumber(stri) = "1.0e-1" and stri = "";
-    stri := "2#101*"; ok := ok and getNumber(stri) = "2#101"  and stri = "*";
-    stri := "1e2y";   ok := ok and getNumber(stri) = "1e2"    and stri = "y";
-    stri := "1E+3z";  ok := ok and getNumber(stri) = "1E+3"   and stri = "z";
-    stri := "1234_/"; ok := ok and getNumber(stri) = "1234_"  and stri = "/";
+    stri := "1x";     ok &:= getNumber(stri) = "1"      and stri = "x";
+    stri := "1.0+";   ok &:= getNumber(stri) = "1.0"    and stri = "+";
+    stri := "1.0E1-"; ok &:= getNumber(stri) = "1.0E1"  and stri = "-";
+    stri := "1.0e-1"; ok &:= getNumber(stri) = "1.0e-1" and stri = "";
+    stri := "2#101*"; ok &:= getNumber(stri) = "2#101"  and stri = "*";
+    stri := "1e2y";   ok &:= getNumber(stri) = "1e2"    and stri = "y";
+    stri := "1E+3z";  ok &:= getNumber(stri) = "1E+3"   and stri = "z";
+    stri := "1234_/"; ok &:= getNumber(stri) = "1234_"  and stri = "/";
     if not ok then
       writeln(" ***** The function getNumber(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("1x");     ok := ok and getNumber(aFile) = "1"      and aFile.bufferChar = 'x';
-    aFile := initScan("1.0+");   ok := ok and getNumber(aFile) = "1.0"    and aFile.bufferChar = '+';
-    aFile := initScan("1.0E1-"); ok := ok and getNumber(aFile) = "1.0E1"  and aFile.bufferChar = '-';
-    aFile := initScan("1.0e-1"); ok := ok and getNumber(aFile) = "1.0e-1" and aFile.bufferChar = EOF;
-    aFile := initScan("2#101*"); ok := ok and getNumber(aFile) = "2#101"  and aFile.bufferChar = '*';
-    aFile := initScan("1e2y");   ok := ok and getNumber(aFile) = "1e2"    and aFile.bufferChar = 'y';
-    aFile := initScan("1E+3z");  ok := ok and getNumber(aFile) = "1E+3"   and aFile.bufferChar = 'z';
-    aFile := initScan("1234_/"); ok := ok and getNumber(aFile) = "1234_"  and aFile.bufferChar = '/';
+    aFile := initScan("1x");     ok &:= getNumber(aFile) = "1"      and aFile.bufferChar = 'x';
+    aFile := initScan("1.0+");   ok &:= getNumber(aFile) = "1.0"    and aFile.bufferChar = '+';
+    aFile := initScan("1.0E1-"); ok &:= getNumber(aFile) = "1.0E1"  and aFile.bufferChar = '-';
+    aFile := initScan("1.0e-1"); ok &:= getNumber(aFile) = "1.0e-1" and aFile.bufferChar = EOF;
+    aFile := initScan("2#101*"); ok &:= getNumber(aFile) = "2#101"  and aFile.bufferChar = '*';
+    aFile := initScan("1e2y");   ok &:= getNumber(aFile) = "1e2"    and aFile.bufferChar = 'y';
+    aFile := initScan("1E+3z");  ok &:= getNumber(aFile) = "1E+3"   and aFile.bufferChar = 'z';
+    aFile := initScan("1234_/"); ok &:= getNumber(aFile) = "1234_"  and aFile.bufferChar = '/';
     if not ok then
       writeln(" ***** The function getNumber(FILE) does not work correctly.");
       okay := FALSE;
@@ -182,20 +182,20 @@ const proc: checkGetNonDigits is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "1+2";  ok := ok and getNonDigits(stri) = ""   and stri = "1+2";
-    stri := " 1+2"; ok := ok and getNonDigits(stri) = " "  and stri = "1+2";
-    stri := "-1+2"; ok := ok and getNonDigits(stri) = "-"  and stri = "1+2";
-    stri := "a+2";  ok := ok and getNonDigits(stri) = "a+" and stri = "2";
+    stri := "1+2";  ok &:= getNonDigits(stri) = ""   and stri = "1+2";
+    stri := " 1+2"; ok &:= getNonDigits(stri) = " "  and stri = "1+2";
+    stri := "-1+2"; ok &:= getNonDigits(stri) = "-"  and stri = "1+2";
+    stri := "a+2";  ok &:= getNonDigits(stri) = "a+" and stri = "2";
     if not ok then
       writeln(" ***** The function getNonDigits(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("1+2");  ok := ok and getNonDigits(aFile) = ""   and aFile.bufferChar = '1';
-    aFile := initScan(" 1+2"); ok := ok and getNonDigits(aFile) = " "  and aFile.bufferChar = '1';
-    aFile := initScan("-1+2"); ok := ok and getNonDigits(aFile) = "-"  and aFile.bufferChar = '1';
-    aFile := initScan("a+2");  ok := ok and getNonDigits(aFile) = "a+" and aFile.bufferChar = '2';
+    aFile := initScan("1+2");  ok &:= getNonDigits(aFile) = ""   and aFile.bufferChar = '1';
+    aFile := initScan(" 1+2"); ok &:= getNonDigits(aFile) = " "  and aFile.bufferChar = '1';
+    aFile := initScan("-1+2"); ok &:= getNonDigits(aFile) = "-"  and aFile.bufferChar = '1';
+    aFile := initScan("a+2");  ok &:= getNonDigits(aFile) = "a+" and aFile.bufferChar = '2';
     if not ok then
       writeln(" ***** The function getNonDigits(FILE) does not work correctly.");
       okay := FALSE;
@@ -214,24 +214,24 @@ const proc: checkGetQuotedText is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "'ab'+"; ok := ok and getQuotedText(stri) = "ab"  and stri = "+";
-    stri := "''=a";  ok := ok and getQuotedText(stri) = ""    and stri = "=a";
-    stri := "\"A\""; ok := ok and getQuotedText(stri) = "A"   and stri = "";
-    stri := "\"\"?"; ok := ok and getQuotedText(stri) = ""    and stri = "?";
-    stri := ":ab:5"; ok := ok and getQuotedText(stri) = "ab"  and stri = "5";
-    stri := "+XY";   ok := ok and getQuotedText(stri) = "XY"  and stri = "";
+    stri := "'ab'+"; ok &:= getQuotedText(stri) = "ab"  and stri = "+";
+    stri := "''=a";  ok &:= getQuotedText(stri) = ""    and stri = "=a";
+    stri := "\"A\""; ok &:= getQuotedText(stri) = "A"   and stri = "";
+    stri := "\"\"?"; ok &:= getQuotedText(stri) = ""    and stri = "?";
+    stri := ":ab:5"; ok &:= getQuotedText(stri) = "ab"  and stri = "5";
+    stri := "+XY";   ok &:= getQuotedText(stri) = "XY"  and stri = "";
     if not ok then
       writeln(" ***** The function getQuotedText(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("'ab'+"); ok := ok and getQuotedText(aFile) = "ab" and aFile.bufferChar = '+';
-    aFile := initScan("''=a");  ok := ok and getQuotedText(aFile) = ""   and aFile.bufferChar = '=';
-    aFile := initScan("\"A\""); ok := ok and getQuotedText(aFile) = "A"  and aFile.bufferChar = EOF;
-    aFile := initScan("\"\"?"); ok := ok and getQuotedText(aFile) = ""   and aFile.bufferChar = '?';
-    aFile := initScan(":ab:5"); ok := ok and getQuotedText(aFile) = "ab" and aFile.bufferChar = '5';
-    aFile := initScan("+XY");   ok := ok and getQuotedText(aFile) = "XY" and aFile.bufferChar = EOF;
+    aFile := initScan("'ab'+"); ok &:= getQuotedText(aFile) = "ab" and aFile.bufferChar = '+';
+    aFile := initScan("''=a");  ok &:= getQuotedText(aFile) = ""   and aFile.bufferChar = '=';
+    aFile := initScan("\"A\""); ok &:= getQuotedText(aFile) = "A"  and aFile.bufferChar = EOF;
+    aFile := initScan("\"\"?"); ok &:= getQuotedText(aFile) = ""   and aFile.bufferChar = '?';
+    aFile := initScan(":ab:5"); ok &:= getQuotedText(aFile) = "ab" and aFile.bufferChar = '5';
+    aFile := initScan("+XY");   ok &:= getQuotedText(aFile) = "XY" and aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function getQuotedText(FILE) does not work correctly.");
       okay := FALSE;
@@ -250,21 +250,21 @@ const proc: checkGetCommandLineWord is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "a b c";        ok := ok and getCommandLineWord(stri) = "a"    and stri = "b c";
-    stri := "a\\ b c";      ok := ok and getCommandLineWord(stri) = "a b"  and stri = "c";
-    stri := " a b c";       ok := ok and getCommandLineWord(stri) = "a"    and stri = "b c";
-    stri := "\\ a b c";     ok := ok and getCommandLineWord(stri) = " a"   and stri = "b c";
-    stri := "a\\\"b c";     ok := ok and getCommandLineWord(stri) = "a\"b" and stri = "c";
-    stri := "a\" b\" c";    ok := ok and getCommandLineWord(stri) = "a b"  and stri = "c";
-    stri := "\"a b\" c";    ok := ok and getCommandLineWord(stri) = "a b"  and stri = "c";
-    stri := " \"a\" b c";   ok := ok and getCommandLineWord(stri) = "a"    and stri = "b c";
-    stri := "\" a\" b c";   ok := ok and getCommandLineWord(stri) = " a"   and stri = "b c";
-    stri := " \" a\" b c";  ok := ok and getCommandLineWord(stri) = " a"   and stri = "b c";
-    stri := "\"a\\\"b\" c"; ok := ok and getCommandLineWord(stri) = "a\"b" and stri = "c";
-    stri := "\"a\\\"b\" c"; ok := ok and getCommandLineWord(stri) = "a\"b" and stri = "c";
-    stri := "a\\\\b c";     ok := ok and getCommandLineWord(stri) = "a\\b" and stri = "c";
+    stri := "a b c";        ok &:= getCommandLineWord(stri) = "a"    and stri = "b c";
+    stri := "a\\ b c";      ok &:= getCommandLineWord(stri) = "a b"  and stri = "c";
+    stri := " a b c";       ok &:= getCommandLineWord(stri) = "a"    and stri = "b c";
+    stri := "\\ a b c";     ok &:= getCommandLineWord(stri) = " a"   and stri = "b c";
+    stri := "a\\\"b c";     ok &:= getCommandLineWord(stri) = "a\"b" and stri = "c";
+    stri := "a\" b\" c";    ok &:= getCommandLineWord(stri) = "a b"  and stri = "c";
+    stri := "\"a b\" c";    ok &:= getCommandLineWord(stri) = "a b"  and stri = "c";
+    stri := " \"a\" b c";   ok &:= getCommandLineWord(stri) = "a"    and stri = "b c";
+    stri := "\" a\" b c";   ok &:= getCommandLineWord(stri) = " a"   and stri = "b c";
+    stri := " \" a\" b c";  ok &:= getCommandLineWord(stri) = " a"   and stri = "b c";
+    stri := "\"a\\\"b\" c"; ok &:= getCommandLineWord(stri) = "a\"b" and stri = "c";
+    stri := "\"a\\\"b\" c"; ok &:= getCommandLineWord(stri) = "a\"b" and stri = "c";
+    stri := "a\\\\b c";     ok &:= getCommandLineWord(stri) = "a\\b" and stri = "c";
     stri := "\"a\\\"b c\"d\\ e\\\"f\" g\"";
-    ok := ok and getCommandLineWord(stri) = "a\"b cd e\"f g" and stri = "";
+    ok &:= getCommandLineWord(stri) = "a\"b cd e\"f g" and stri = "";
     if not ok then
       writeln(" ***** The function getCommandLineWord(STRING) does not work correctly.");
       okay := FALSE;
@@ -272,21 +272,21 @@ const proc: checkGetCommandLineWord is func
 
     (*
     ok := TRUE;
-    aFile := initScan("a b c");        ok := ok and getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
-    aFile := initScan("a\\ b c");      ok := ok and getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
-    aFile := initScan(" a b c");       ok := ok and getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
-    aFile := initScan("\\ a b c");     ok := ok and getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
-    aFile := initScan("a\\\"b c");     ok := ok and getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
-    aFile := initScan("a\" b\" c");    ok := ok and getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
-    aFile := initScan("\"a b\" c");    ok := ok and getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
-    aFile := initScan(" \"a\" b c");   ok := ok and getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
-    aFile := initScan("\" a\" b c");   ok := ok and getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
-    aFile := initScan(" \" a\" b c");  ok := ok and getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
-    aFile := initScan("\"a\\\"b\" c"); ok := ok and getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
-    aFile := initScan("\"a\\\"b\" c"); ok := ok and getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
-    aFile := initScan("a\\\\b c");     ok := ok and getCommandLineWord(aFile) = "a\\b" and aFile.bufferChar = 'c';
+    aFile := initScan("a b c");        ok &:= getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
+    aFile := initScan("a\\ b c");      ok &:= getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
+    aFile := initScan(" a b c");       ok &:= getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
+    aFile := initScan("\\ a b c");     ok &:= getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
+    aFile := initScan("a\\\"b c");     ok &:= getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
+    aFile := initScan("a\" b\" c");    ok &:= getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
+    aFile := initScan("\"a b\" c");    ok &:= getCommandLineWord(aFile) = "a b"  and aFile.bufferChar = 'c';
+    aFile := initScan(" \"a\" b c");   ok &:= getCommandLineWord(aFile) = "a"    and aFile.bufferChar = 'b';
+    aFile := initScan("\" a\" b c");   ok &:= getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
+    aFile := initScan(" \" a\" b c");  ok &:= getCommandLineWord(aFile) = " a"   and aFile.bufferChar = 'b';
+    aFile := initScan("\"a\\\"b\" c"); ok &:= getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
+    aFile := initScan("\"a\\\"b\" c"); ok &:= getCommandLineWord(aFile) = "a\"b" and aFile.bufferChar = 'c';
+    aFile := initScan("a\\\\b c");     ok &:= getCommandLineWord(aFile) = "a\\b" and aFile.bufferChar = 'c';
     aFile := initScan("\"a\\\"b c\"d\\ e\\\"f\" g\"");
-    ok := ok and getCommandLineWord(aFile) = "a\"b cd e\"f g" and aFile.bufferChar = EOF;
+    ok &:= getCommandLineWord(aFile) = "a\"b cd e\"f g" and aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function getCommandLineWord(FILE) does not work correctly.");
       okay := FALSE;
@@ -306,34 +306,34 @@ const proc: checkGetSimpleStringLiteral is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "\"\"";        ok := ok and getSimpleStringLiteral(stri) = "\"\""     and stri = "";
-    stri := "\"\"x";       ok := ok and getSimpleStringLiteral(stri) = "\"\""     and stri = "x";
-    stri := "\"\"\"";      ok := ok and getSimpleStringLiteral(stri) = "\"\"\""   and stri = "";
-    stri := "\"\"\"\"";    ok := ok and getSimpleStringLiteral(stri) = "\"\"\""   and stri = "";
-    stri := "\"a\"\"\"";   ok := ok and getSimpleStringLiteral(stri) = "\"a\"\""  and stri = "";
-    stri := "\"\"\"b\"";   ok := ok and getSimpleStringLiteral(stri) = "\"\"b\""  and stri = "";
-    stri := "\"a\"\"b\"";  ok := ok and getSimpleStringLiteral(stri) = "\"a\"b\"" and stri = "";
-    stri := "\"\"\"\"x";   ok := ok and getSimpleStringLiteral(stri) = "\"\"\""   and stri = "x";
-    stri := "\"a\"\"\"x";  ok := ok and getSimpleStringLiteral(stri) = "\"a\"\""  and stri = "x";
-    stri := "\"\"\"b\"x";  ok := ok and getSimpleStringLiteral(stri) = "\"\"b\""  and stri = "x";
-    stri := "\"a\"\"b\"x"; ok := ok and getSimpleStringLiteral(stri) = "\"a\"b\"" and stri = "x";
+    stri := "\"\"";        ok &:= getSimpleStringLiteral(stri) = "\"\""     and stri = "";
+    stri := "\"\"x";       ok &:= getSimpleStringLiteral(stri) = "\"\""     and stri = "x";
+    stri := "\"\"\"";      ok &:= getSimpleStringLiteral(stri) = "\"\"\""   and stri = "";
+    stri := "\"\"\"\"";    ok &:= getSimpleStringLiteral(stri) = "\"\"\""   and stri = "";
+    stri := "\"a\"\"\"";   ok &:= getSimpleStringLiteral(stri) = "\"a\"\""  and stri = "";
+    stri := "\"\"\"b\"";   ok &:= getSimpleStringLiteral(stri) = "\"\"b\""  and stri = "";
+    stri := "\"a\"\"b\"";  ok &:= getSimpleStringLiteral(stri) = "\"a\"b\"" and stri = "";
+    stri := "\"\"\"\"x";   ok &:= getSimpleStringLiteral(stri) = "\"\"\""   and stri = "x";
+    stri := "\"a\"\"\"x";  ok &:= getSimpleStringLiteral(stri) = "\"a\"\""  and stri = "x";
+    stri := "\"\"\"b\"x";  ok &:= getSimpleStringLiteral(stri) = "\"\"b\""  and stri = "x";
+    stri := "\"a\"\"b\"x"; ok &:= getSimpleStringLiteral(stri) = "\"a\"b\"" and stri = "x";
     if not ok then
       writeln(" ***** The function getSimpleStringLiteral(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("\"\"");        ok := ok and getSimpleStringLiteral(aFile) = "\"\""     and aFile.bufferChar = EOF;
-    aFile := initScan("\"\"x");       ok := ok and getSimpleStringLiteral(aFile) = "\"\""     and aFile.bufferChar = 'x';
-    aFile := initScan("\"\"\"");      ok := ok and getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = EOF;
-    aFile := initScan("\"\"\"\"");    ok := ok and getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = EOF;
-    aFile := initScan("\"a\"\"\"");   ok := ok and getSimpleStringLiteral(aFile) = "\"a\"\""  and aFile.bufferChar = EOF;
-    aFile := initScan("\"\"\"b\"");   ok := ok and getSimpleStringLiteral(aFile) = "\"\"b\""  and aFile.bufferChar = EOF;
-    aFile := initScan("\"a\"\"b\"");  ok := ok and getSimpleStringLiteral(aFile) = "\"a\"b\"" and aFile.bufferChar = EOF;
-    aFile := initScan("\"\"\"\"x");   ok := ok and getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = 'x';
-    aFile := initScan("\"a\"\"\"x");  ok := ok and getSimpleStringLiteral(aFile) = "\"a\"\""  and aFile.bufferChar = 'x';
-    aFile := initScan("\"\"\"b\"x");  ok := ok and getSimpleStringLiteral(aFile) = "\"\"b\""  and aFile.bufferChar = 'x';
-    aFile := initScan("\"a\"\"b\"x"); ok := ok and getSimpleStringLiteral(aFile) = "\"a\"b\"" and aFile.bufferChar = 'x';
+    aFile := initScan("\"\"");        ok &:= getSimpleStringLiteral(aFile) = "\"\""     and aFile.bufferChar = EOF;
+    aFile := initScan("\"\"x");       ok &:= getSimpleStringLiteral(aFile) = "\"\""     and aFile.bufferChar = 'x';
+    aFile := initScan("\"\"\"");      ok &:= getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = EOF;
+    aFile := initScan("\"\"\"\"");    ok &:= getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = EOF;
+    aFile := initScan("\"a\"\"\"");   ok &:= getSimpleStringLiteral(aFile) = "\"a\"\""  and aFile.bufferChar = EOF;
+    aFile := initScan("\"\"\"b\"");   ok &:= getSimpleStringLiteral(aFile) = "\"\"b\""  and aFile.bufferChar = EOF;
+    aFile := initScan("\"a\"\"b\"");  ok &:= getSimpleStringLiteral(aFile) = "\"a\"b\"" and aFile.bufferChar = EOF;
+    aFile := initScan("\"\"\"\"x");   ok &:= getSimpleStringLiteral(aFile) = "\"\"\""   and aFile.bufferChar = 'x';
+    aFile := initScan("\"a\"\"\"x");  ok &:= getSimpleStringLiteral(aFile) = "\"a\"\""  and aFile.bufferChar = 'x';
+    aFile := initScan("\"\"\"b\"x");  ok &:= getSimpleStringLiteral(aFile) = "\"\"b\""  and aFile.bufferChar = 'x';
+    aFile := initScan("\"a\"\"b\"x"); ok &:= getSimpleStringLiteral(aFile) = "\"a\"b\"" and aFile.bufferChar = 'x';
     if not ok then
       writeln(" ***** The function getSimpleStringLiteral(FILE) does not work correctly.");
       okay := FALSE;
@@ -352,20 +352,20 @@ const proc: checkGetLetters is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "test";   ok := ok and getLetters(stri) = "test" and stri = "";
-    stri := "test1";  ok := ok and getLetters(stri) = "test" and stri = "1";
-    stri := "test+1"; ok := ok and getLetters(stri) = "test" and stri = "+1";
-    stri := "+1";     ok := ok and getLetters(stri) = ""     and stri = "+1";
+    stri := "test";   ok &:= getLetters(stri) = "test" and stri = "";
+    stri := "test1";  ok &:= getLetters(stri) = "test" and stri = "1";
+    stri := "test+1"; ok &:= getLetters(stri) = "test" and stri = "+1";
+    stri := "+1";     ok &:= getLetters(stri) = ""     and stri = "+1";
     if not ok then
       writeln(" ***** The function getLetters(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("test");   ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = EOF;
-    aFile := initScan("test1");  ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = '1';
-    aFile := initScan("test+1"); ok := ok and getLetters(aFile) = "test" and aFile.bufferChar = '+';
-    aFile := initScan("+1");     ok := ok and getLetters(aFile) = ""     and aFile.bufferChar = '+';
+    aFile := initScan("test");   ok &:= getLetters(aFile) = "test" and aFile.bufferChar = EOF;
+    aFile := initScan("test1");  ok &:= getLetters(aFile) = "test" and aFile.bufferChar = '1';
+    aFile := initScan("test+1"); ok &:= getLetters(aFile) = "test" and aFile.bufferChar = '+';
+    aFile := initScan("+1");     ok &:= getLetters(aFile) = ""     and aFile.bufferChar = '+';
     if not ok then
       writeln(" ***** The function getLetters(FILE) does not work correctly.");
       okay := FALSE;
@@ -384,20 +384,20 @@ const proc: checkGetName is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "test";   ok := ok and getName(stri) = "test"  and stri = "";
-    stri := "test1";  ok := ok and getName(stri) = "test1" and stri = "";
-    stri := "test+1"; ok := ok and getName(stri) = "test"  and stri = "+1";
-    stri := "+1";     ok := ok and getName(stri) = ""      and stri = "+1";
+    stri := "test";   ok &:= getName(stri) = "test"  and stri = "";
+    stri := "test1";  ok &:= getName(stri) = "test1" and stri = "";
+    stri := "test+1"; ok &:= getName(stri) = "test"  and stri = "+1";
+    stri := "+1";     ok &:= getName(stri) = ""      and stri = "+1";
     if not ok then
       writeln(" ***** The function getName(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("test");   ok := ok and getName(aFile) = "test"  and aFile.bufferChar = EOF;
-    aFile := initScan("test1");  ok := ok and getName(aFile) = "test1" and aFile.bufferChar = EOF;
-    aFile := initScan("test+1"); ok := ok and getName(aFile) = "test"  and aFile.bufferChar = '+';
-    aFile := initScan("+1");     ok := ok and getName(aFile) = ""      and aFile.bufferChar = '+';
+    aFile := initScan("test");   ok &:= getName(aFile) = "test"  and aFile.bufferChar = EOF;
+    aFile := initScan("test1");  ok &:= getName(aFile) = "test1" and aFile.bufferChar = EOF;
+    aFile := initScan("test+1"); ok &:= getName(aFile) = "test"  and aFile.bufferChar = '+';
+    aFile := initScan("+1");     ok &:= getName(aFile) = ""      and aFile.bufferChar = '+';
     if not ok then
       writeln(" ***** The function getName(FILE) does not work correctly.");
       okay := FALSE;
@@ -416,18 +416,18 @@ const proc: checkSkipSpace is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "  ok"; skipSpace(stri); ok := ok and stri = "ok";
-    stri := "   ";  skipSpace(stri); ok := ok and stri = "";
-    stri := "ok ";  skipSpace(stri); ok := ok and stri = "ok ";
+    stri := "  ok"; skipSpace(stri); ok &:= stri = "ok";
+    stri := "   ";  skipSpace(stri); ok &:= stri = "";
+    stri := "ok ";  skipSpace(stri); ok &:= stri = "ok ";
     if not ok then
       writeln(" ***** The function skipSpace(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("  ok"); skipSpace(aFile); ok := ok and aFile.bufferChar = 'o';
-    aFile := initScan("   ");  skipSpace(aFile); ok := ok and aFile.bufferChar = EOF;
-    aFile := initScan("ok ");  skipSpace(aFile); ok := ok and aFile.bufferChar = 'o';
+    aFile := initScan("  ok"); skipSpace(aFile); ok &:= aFile.bufferChar = 'o';
+    aFile := initScan("   ");  skipSpace(aFile); ok &:= aFile.bufferChar = EOF;
+    aFile := initScan("ok ");  skipSpace(aFile); ok &:= aFile.bufferChar = 'o';
     if not ok then
       writeln(" ***** The function skipSpace(FILE) does not work correctly.");
       okay := FALSE;
@@ -446,18 +446,18 @@ const proc: checkSkipSpaceOrTab is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "\t x"; skipSpaceOrTab(stri); ok := ok and stri = "x";
-    stri := "\t ";  skipSpaceOrTab(stri); ok := ok and stri = "";
-    stri := "abc "; skipSpaceOrTab(stri); ok := ok and stri = "abc ";
+    stri := "\t x"; skipSpaceOrTab(stri); ok &:= stri = "x";
+    stri := "\t ";  skipSpaceOrTab(stri); ok &:= stri = "";
+    stri := "abc "; skipSpaceOrTab(stri); ok &:= stri = "abc ";
     if not ok then
       writeln(" ***** The function skipSpaceOrTab(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("\t x"); skipSpaceOrTab(aFile); ok := ok and aFile.bufferChar = 'x';
-    aFile := initScan("\t  "); skipSpaceOrTab(aFile); ok := ok and aFile.bufferChar = EOF;
-    aFile := initScan("abc "); skipSpaceOrTab(aFile); ok := ok and aFile.bufferChar = 'a';
+    aFile := initScan("\t x"); skipSpaceOrTab(aFile); ok &:= aFile.bufferChar = 'x';
+    aFile := initScan("\t  "); skipSpaceOrTab(aFile); ok &:= aFile.bufferChar = EOF;
+    aFile := initScan("abc "); skipSpaceOrTab(aFile); ok &:= aFile.bufferChar = 'a';
     if not ok then
       writeln(" ***** The function skipSpaceOrTab(FILE) does not work correctly.");
       okay := FALSE;
@@ -476,18 +476,18 @@ const proc: checkSkipWhiteSpace is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "\t\n\r X"; skipWhiteSpace(stri); ok := ok and stri = "X";
-    stri := "\t\n\r ";  skipWhiteSpace(stri); ok := ok and stri = "";
-    stri := "X ";       skipWhiteSpace(stri); ok := ok and stri = "X ";
+    stri := "\t\n\r X"; skipWhiteSpace(stri); ok &:= stri = "X";
+    stri := "\t\n\r ";  skipWhiteSpace(stri); ok &:= stri = "";
+    stri := "X ";       skipWhiteSpace(stri); ok &:= stri = "X ";
     if not ok then
       writeln(" ***** The function skipWhiteSpace(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("\t\n\r X"); skipWhiteSpace(aFile); ok := ok and aFile.bufferChar = 'X';
-    aFile := initScan("\t\n\r ");  skipWhiteSpace(aFile); ok := ok and aFile.bufferChar = EOF;
-    aFile := initScan("X ");       skipWhiteSpace(aFile); ok := ok and aFile.bufferChar = 'X';
+    aFile := initScan("\t\n\r X"); skipWhiteSpace(aFile); ok &:= aFile.bufferChar = 'X';
+    aFile := initScan("\t\n\r ");  skipWhiteSpace(aFile); ok &:= aFile.bufferChar = EOF;
+    aFile := initScan("X ");       skipWhiteSpace(aFile); ok &:= aFile.bufferChar = 'X';
     if not ok then
       writeln(" ***** The function skipWhiteSpace(FILE) does not work correctly.");
       okay := FALSE;
@@ -506,18 +506,18 @@ const proc: checkGetWhiteSpace is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "\t X"; ok := ok and getWhiteSpace(stri) = "\t "  and stri = "X";
-    stri := "\r\n"; ok := ok and getWhiteSpace(stri) = "\r\n" and stri = "";
-    stri := "X ";   ok := ok and getWhiteSpace(stri) = ""     and stri = "X ";
+    stri := "\t X"; ok &:= getWhiteSpace(stri) = "\t "  and stri = "X";
+    stri := "\r\n"; ok &:= getWhiteSpace(stri) = "\r\n" and stri = "";
+    stri := "X ";   ok &:= getWhiteSpace(stri) = ""     and stri = "X ";
     if not ok then
       writeln(" ***** The function getWhiteSpace(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("\t X"); ok := ok and getWhiteSpace(aFile) = "\t "  and aFile.bufferChar = 'X';
-    aFile := initScan("\r\n"); ok := ok and getWhiteSpace(aFile) = "\r\n" and aFile.bufferChar = EOF;
-    aFile := initScan("X ");   ok := ok and getWhiteSpace(aFile) = ""     and aFile.bufferChar = 'X';
+    aFile := initScan("\t X"); ok &:= getWhiteSpace(aFile) = "\t "  and aFile.bufferChar = 'X';
+    aFile := initScan("\r\n"); ok &:= getWhiteSpace(aFile) = "\r\n" and aFile.bufferChar = EOF;
+    aFile := initScan("X ");   ok &:= getWhiteSpace(aFile) = ""     and aFile.bufferChar = 'X';
     if not ok then
       writeln(" ***** The function getWhiteSpace(FILE) does not work correctly.");
       okay := FALSE;
@@ -536,40 +536,40 @@ const proc: checkGetWord is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := " abc";  ok := ok and getWord(stri) = "abc" and stri = "";
-    stri := " abc "; ok := ok and getWord(stri) = "abc" and stri = " ";
-    stri := "abc\t"; ok := ok and getWord(stri) = "abc" and stri = "\t";
+    stri := " abc";  ok &:= getWord(stri) = "abc" and stri = "";
+    stri := " abc "; ok &:= getWord(stri) = "abc" and stri = " ";
+    stri := "abc\t"; ok &:= getWord(stri) = "abc" and stri = "\t";
     if not ok then
       writeln(" ***** The function getWord(STRING) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan(" ab");  ok := ok and getWord(aFile) = "ab" and aFile.bufferChar=EOF;
-    aFile := initScan(" ab "); ok := ok and getWord(aFile) = "ab" and aFile.bufferChar=' ';
-    aFile := initScan("ab\t"); ok := ok and getWord(aFile) = "ab" and aFile.bufferChar='\t';
+    aFile := initScan(" ab");  ok &:= getWord(aFile) = "ab" and aFile.bufferChar=EOF;
+    aFile := initScan(" ab "); ok &:= getWord(aFile) = "ab" and aFile.bufferChar=' ';
+    aFile := initScan("ab\t"); ok &:= getWord(aFile) = "ab" and aFile.bufferChar='\t';
     if not ok then
       writeln(" ***** The function getWord(FILE) does not work correctly. (1)");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    stri := " a1";  ok := ok and getWord(stri, alphanum_char) = "a1" and stri = "";
-    stri := "-a2."; ok := ok and getWord(stri, alphanum_char) = "a2" and stri = ".";
-    stri := "=a3,"; ok := ok and getWord(stri, alphanum_char) = "a3" and stri = ",";
-    stri := "a4\t"; ok := ok and getWord(stri, alphanum_char) = "a4" and stri = "\t";
-    stri := ", a5"; ok := ok and getWord(stri, alphanum_char) = "a5" and stri = "";
+    stri := " a1";  ok &:= getWord(stri, alphanum_char) = "a1" and stri = "";
+    stri := "-a2."; ok &:= getWord(stri, alphanum_char) = "a2" and stri = ".";
+    stri := "=a3,"; ok &:= getWord(stri, alphanum_char) = "a3" and stri = ",";
+    stri := "a4\t"; ok &:= getWord(stri, alphanum_char) = "a4" and stri = "\t";
+    stri := ", a5"; ok &:= getWord(stri, alphanum_char) = "a5" and stri = "";
     if not ok then
       writeln(" ***** The function getWord(STRING) does not work correctly. (2)");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan(" a1");  ok := ok and getWord(aFile, alphanum_char) = "a1" and aFile.bufferChar = EOF;
-    aFile := initScan("-a2."); ok := ok and getWord(aFile, alphanum_char) = "a2" and aFile.bufferChar = '.';
-    aFile := initScan("=a3,"); ok := ok and getWord(aFile, alphanum_char) = "a3" and aFile.bufferChar = ',';
-    aFile := initScan("a4\t"); ok := ok and getWord(aFile, alphanum_char) = "a4" and aFile.bufferChar = '\t';
-    aFile := initScan(", a5"); ok := ok and getWord(aFile, alphanum_char) = "a5" and aFile.bufferChar = EOF;
+    aFile := initScan(" a1");  ok &:= getWord(aFile, alphanum_char) = "a1" and aFile.bufferChar = EOF;
+    aFile := initScan("-a2."); ok &:= getWord(aFile, alphanum_char) = "a2" and aFile.bufferChar = '.';
+    aFile := initScan("=a3,"); ok &:= getWord(aFile, alphanum_char) = "a3" and aFile.bufferChar = ',';
+    aFile := initScan("a4\t"); ok &:= getWord(aFile, alphanum_char) = "a4" and aFile.bufferChar = '\t';
+    aFile := initScan(", a5"); ok &:= getWord(aFile, alphanum_char) = "a5" and aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function getWord(FILE) does not work correctly. (2)");
       okay := FALSE;
@@ -588,16 +588,16 @@ const proc: checkSkipLine is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "ab\nc"; skipLine(stri); ok := ok and stri = "\nc";
-    stri := "abc";   skipLine(stri); ok := ok and stri = "";
+    stri := "ab\nc"; skipLine(stri); ok &:= stri = "\nc";
+    stri := "abc";   skipLine(stri); ok &:= stri = "";
     if not ok then
       writeln(" ***** The function skipLine(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("ab\nc"); skipLine(aFile); ok := ok and aFile.bufferChar = '\n';
-    aFile := initScan("abc");   skipLine(aFile); ok := ok and aFile.bufferChar = EOF;
+    aFile := initScan("ab\nc"); skipLine(aFile); ok &:= aFile.bufferChar = '\n';
+    aFile := initScan("abc");   skipLine(aFile); ok &:= aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function skipLine(FILE) does not work correctly.");
       okay := FALSE;
@@ -616,16 +616,16 @@ const proc: checkGetLine is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := "ab\nc"; ok := ok and getLine(stri) = "ab"  and stri = "\nc";
-    stri := "abc";   ok := ok and getLine(stri) = "abc" and stri = "";
+    stri := "ab\nc"; ok &:= getLine(stri) = "ab"  and stri = "\nc";
+    stri := "abc";   ok &:= getLine(stri) = "abc" and stri = "";
     if not ok then
       writeln(" ***** The function getLine(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan("ab\nc"); ok := ok and getLine(aFile) = "ab"  and aFile.bufferChar = '\n';
-    aFile := initScan("abc");   ok := ok and getLine(aFile) = "abc" and aFile.bufferChar = EOF;
+    aFile := initScan("ab\nc"); ok &:= getLine(aFile) = "ab"  and aFile.bufferChar = '\n';
+    aFile := initScan("abc");   ok &:= getLine(aFile) = "abc" and aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function getLine(FILE) does not work correctly.");
       okay := FALSE;
@@ -645,39 +645,39 @@ const proc: checkGetXmlTagHeadOrContent is func
     var boolean: ok is TRUE;
   begin
     stri := "";
-    ok := ok and getXmlTagHeadOrContent(stri) = ""          and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = ""          and stri = "";
     stri := "<!-- test -->";
-    ok := ok and getXmlTagHeadOrContent(stri) = ""          and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = ""          and stri = "";
     stri := "<!-- test -->x";
-    ok := ok and getXmlTagHeadOrContent(stri) = "x"         and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "x"         and stri = "";
     stri := "<!-- test -->x<";
-    ok := ok and getXmlTagHeadOrContent(stri) = "x"         and stri = "<";
+    ok &:= getXmlTagHeadOrContent(stri) = "x"         and stri = "<";
     stri := "<![CDATA[]]>";
-    ok := ok and getXmlTagHeadOrContent(stri) = ""          and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = ""          and stri = "";
     stri := "<![CDATA[x]]>";
-    ok := ok and getXmlTagHeadOrContent(stri) = "x"         and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "x"         and stri = "";
     stri := "<![CDATA[]x]]y]]>";
-    ok := ok and getXmlTagHeadOrContent(stri) = "]x]]y"     and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "]x]]y"     and stri = "";
     stri := "<![CDATA[]]]]>";
-    ok := ok and getXmlTagHeadOrContent(stri) = "]]"        and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "]]"        and stri = "";
     stri := "<![CDATA[]]>z";
-    ok := ok and getXmlTagHeadOrContent(stri) = "z"         and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "z"         and stri = "";
     stri := "<![CDATA[x]]>z";
-    ok := ok and getXmlTagHeadOrContent(stri) = "x"         and stri = "z";
+    ok &:= getXmlTagHeadOrContent(stri) = "x"         and stri = "z";
     stri := "<![CDATA[]x]]y]]>z";
-    ok := ok and getXmlTagHeadOrContent(stri) = "]x]]y"     and stri = "z";
+    ok &:= getXmlTagHeadOrContent(stri) = "]x]]y"     and stri = "z";
     stri := "<![CDATA[]]]]>z";
-    ok := ok and getXmlTagHeadOrContent(stri) = "]]"        and stri = "z";
+    ok &:= getXmlTagHeadOrContent(stri) = "]]"        and stri = "z";
     stri := "<";
-    ok := ok and getXmlTagHeadOrContent(stri) = "&lt;"      and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "&lt;"      and stri = "";
     stri := "<=";
-    ok := ok and getXmlTagHeadOrContent(stri) = "&lt;="     and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "&lt;="     and stri = "";
     stri := "<=>";
-    ok := ok and getXmlTagHeadOrContent(stri) = "&lt;=>"    and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "&lt;=>"    and stri = "";
     stri := "<&";
-    ok := ok and getXmlTagHeadOrContent(stri) = "&lt;&"     and stri = "";
+    ok &:= getXmlTagHeadOrContent(stri) = "&lt;&"     and stri = "";
     stri := "<<";
-    ok := ok and getXmlTagHeadOrContent(stri) = "&lt;"      and stri = "<";
+    ok &:= getXmlTagHeadOrContent(stri) = "&lt;"      and stri = "<";
     if not ok then
       writeln(" ***** The function getXmlTagHeadOrContent(STRING) does not work correctly.");
       okay := FALSE;

@@ -1102,19 +1102,19 @@ const proc: checkIncrAndDecr is func
     var boolean: ok is TRUE;
     var directionType: direction is STAY;
   begin
-    direction := STAY; incr(direction); ok := ok and direction = UP;
-    direction := UP;   incr(direction); ok := ok and direction = DOWN;
-    direction := DOWN; incr(direction); ok := ok and direction = LEFT;
-    direction := LEFT; incr(direction); ok := ok and direction = RIGHT;
+    direction := STAY; incr(direction); ok &:= direction = UP;
+    direction := UP;   incr(direction); ok &:= direction = DOWN;
+    direction := DOWN; incr(direction); ok &:= direction = LEFT;
+    direction := LEFT; incr(direction); ok &:= direction = RIGHT;
     if not ok then
       writeln(" ***** Enumeration incr does not work correctly.");
       okay := FALSE;
     end if;
 
-    direction := UP;    decr(direction); ok := ok and direction = STAY;
-    direction := DOWN;  decr(direction); ok := ok and direction = UP;
-    direction := LEFT;  decr(direction); ok := ok and direction = DOWN;
-    direction := RIGHT; decr(direction); ok := ok and direction = LEFT;
+    direction := UP;    decr(direction); ok &:= direction = STAY;
+    direction := DOWN;  decr(direction); ok &:= direction = UP;
+    direction := LEFT;  decr(direction); ok &:= direction = DOWN;
+    direction := RIGHT; decr(direction); ok &:= direction = LEFT;
     if not ok then
       writeln(" ***** Enumeration decr does not work correctly.");
       okay := FALSE;
@@ -1192,22 +1192,22 @@ const proc: checkTernary is func
       okay := FALSE;
     end if;
 
-    direction :=  TRUE ?  UP : DOWN; ok := ok and direction = UP;
-    direction := FALSE ?  UP : DOWN; ok := ok and direction = DOWN;
-    direction :=  TRUE ?  UP : enumExpr(DOWN); ok := ok and direction = UP;
-    direction := FALSE ?  UP : enumExpr(DOWN); ok := ok and direction = DOWN;
-    direction :=  TRUE ?  enumExpr(UP) : DOWN; ok := ok and direction = UP;
-    direction := FALSE ?  enumExpr(UP) : DOWN; ok := ok and direction = DOWN;
-    direction :=  TRUE ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = UP;
-    direction := FALSE ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = DOWN;
-    direction := boolExpr( TRUE) ?  UP : DOWN; ok := ok and direction = UP;
-    direction := boolExpr(FALSE) ?  UP : DOWN; ok := ok and direction = DOWN;
-    direction := boolExpr( TRUE) ?  UP : enumExpr(DOWN); ok := ok and direction = UP;
-    direction := boolExpr(FALSE) ?  UP : enumExpr(DOWN); ok := ok and direction = DOWN;
-    direction := boolExpr( TRUE) ?  enumExpr(UP) : DOWN; ok := ok and direction = UP;
-    direction := boolExpr(FALSE) ?  enumExpr(UP) : DOWN; ok := ok and direction = DOWN;
-    direction := boolExpr( TRUE) ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = UP;
-    direction := boolExpr(FALSE) ?  enumExpr(UP) : enumExpr(DOWN); ok := ok and direction = DOWN;
+    direction :=  TRUE ?  UP : DOWN; ok &:= direction = UP;
+    direction := FALSE ?  UP : DOWN; ok &:= direction = DOWN;
+    direction :=  TRUE ?  UP : enumExpr(DOWN); ok &:= direction = UP;
+    direction := FALSE ?  UP : enumExpr(DOWN); ok &:= direction = DOWN;
+    direction :=  TRUE ?  enumExpr(UP) : DOWN; ok &:= direction = UP;
+    direction := FALSE ?  enumExpr(UP) : DOWN; ok &:= direction = DOWN;
+    direction :=  TRUE ?  enumExpr(UP) : enumExpr(DOWN); ok &:= direction = UP;
+    direction := FALSE ?  enumExpr(UP) : enumExpr(DOWN); ok &:= direction = DOWN;
+    direction := boolExpr( TRUE) ?  UP : DOWN; ok &:= direction = UP;
+    direction := boolExpr(FALSE) ?  UP : DOWN; ok &:= direction = DOWN;
+    direction := boolExpr( TRUE) ?  UP : enumExpr(DOWN); ok &:= direction = UP;
+    direction := boolExpr(FALSE) ?  UP : enumExpr(DOWN); ok &:= direction = DOWN;
+    direction := boolExpr( TRUE) ?  enumExpr(UP) : DOWN; ok &:= direction = UP;
+    direction := boolExpr(FALSE) ?  enumExpr(UP) : DOWN; ok &:= direction = DOWN;
+    direction := boolExpr( TRUE) ?  enumExpr(UP) : enumExpr(DOWN); ok &:= direction = UP;
+    direction := boolExpr(FALSE) ?  enumExpr(UP) : enumExpr(DOWN); ok &:= direction = DOWN;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correctly. (2)");
       okay := FALSE;

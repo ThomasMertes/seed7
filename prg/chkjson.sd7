@@ -878,30 +878,30 @@ const proc: checkGetJsonSymbol is func
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
   begin
-    stri := " null "; ok := ok and getJsonSymbol(stri) = "null"  and stri = " ";
-    stri := "\ntrue"; ok := ok and getJsonSymbol(stri) = "true"  and stri = "";
-    stri := ",-9";    ok := ok and getJsonSymbol(stri) = ","     and stri = "-9";
-    stri := ":true";  ok := ok and getJsonSymbol(stri) = ":"     and stri = "true";
-    stri := "\r{ } "; ok := ok and getJsonSymbol(stri) = "{"     and stri = " } ";
-    stri := " [123]"; ok := ok and getJsonSymbol(stri) = "["     and stri = "123]";
-    stri := "\t987 "; ok := ok and getJsonSymbol(stri) = "987"   and stri = " ";
-    stri := " -123,"; ok := ok and getJsonSymbol(stri) = "-123"  and stri = ",";
-    stri := " \"x\""; ok := ok and getJsonSymbol(stri) = "\"x\"" and stri = "";
+    stri := " null "; ok &:= getJsonSymbol(stri) = "null"  and stri = " ";
+    stri := "\ntrue"; ok &:= getJsonSymbol(stri) = "true"  and stri = "";
+    stri := ",-9";    ok &:= getJsonSymbol(stri) = ","     and stri = "-9";
+    stri := ":true";  ok &:= getJsonSymbol(stri) = ":"     and stri = "true";
+    stri := "\r{ } "; ok &:= getJsonSymbol(stri) = "{"     and stri = " } ";
+    stri := " [123]"; ok &:= getJsonSymbol(stri) = "["     and stri = "123]";
+    stri := "\t987 "; ok &:= getJsonSymbol(stri) = "987"   and stri = " ";
+    stri := " -123,"; ok &:= getJsonSymbol(stri) = "-123"  and stri = ",";
+    stri := " \"x\""; ok &:= getJsonSymbol(stri) = "\"x\"" and stri = "";
     if not ok then
       writeln(" ***** The function getJsonSymbol(STRING) does not work correctly.");
       okay := FALSE;
     end if;
 
     ok := TRUE;
-    aFile := initScan(" null "); ok := ok and getJsonSymbol(aFile) = "null"  and aFile.bufferChar = ' ';
-    aFile := initScan("\ntrue"); ok := ok and getJsonSymbol(aFile) = "true"  and aFile.bufferChar = EOF;
-    aFile := initScan(",-9");    ok := ok and getJsonSymbol(aFile) = ","     and aFile.bufferChar = '-';
-    aFile := initScan(":true");  ok := ok and getJsonSymbol(aFile) = ":"     and aFile.bufferChar = 't';
-    aFile := initScan("\r{ } "); ok := ok and getJsonSymbol(aFile) = "{"     and aFile.bufferChar = ' ';
-    aFile := initScan(" [123]"); ok := ok and getJsonSymbol(aFile) = "["     and aFile.bufferChar = '1';
-    aFile := initScan("\t987 "); ok := ok and getJsonSymbol(aFile) = "987"   and aFile.bufferChar = ' ';
-    aFile := initScan(" -123,"); ok := ok and getJsonSymbol(aFile) = "-123"  and aFile.bufferChar = ',';
-    aFile := initScan(" \"x\""); ok := ok and getJsonSymbol(aFile) = "\"x\"" and aFile.bufferChar = EOF;
+    aFile := initScan(" null "); ok &:= getJsonSymbol(aFile) = "null"  and aFile.bufferChar = ' ';
+    aFile := initScan("\ntrue"); ok &:= getJsonSymbol(aFile) = "true"  and aFile.bufferChar = EOF;
+    aFile := initScan(",-9");    ok &:= getJsonSymbol(aFile) = ","     and aFile.bufferChar = '-';
+    aFile := initScan(":true");  ok &:= getJsonSymbol(aFile) = ":"     and aFile.bufferChar = 't';
+    aFile := initScan("\r{ } "); ok &:= getJsonSymbol(aFile) = "{"     and aFile.bufferChar = ' ';
+    aFile := initScan(" [123]"); ok &:= getJsonSymbol(aFile) = "["     and aFile.bufferChar = '1';
+    aFile := initScan("\t987 "); ok &:= getJsonSymbol(aFile) = "987"   and aFile.bufferChar = ' ';
+    aFile := initScan(" -123,"); ok &:= getJsonSymbol(aFile) = "-123"  and aFile.bufferChar = ',';
+    aFile := initScan(" \"x\""); ok &:= getJsonSymbol(aFile) = "\"x\"" and aFile.bufferChar = EOF;
     if not ok then
       writeln(" ***** The function getJsonSymbol(FILE) does not work correctly.");
       okay := FALSE;
