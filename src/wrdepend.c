@@ -179,42 +179,44 @@ int main (int argc, char **argv)
     char command[COMMAND_SIZE];
 
   /* main */
-    prepareCompileCommand();
-    sprintf(command, "%s", c_compiler);
-    checkForLevelH();
-    curr_arg = argv[idx];
-    if (memcmp(curr_arg, "OPTION=", 7 * sizeof(char)) == 0 &&
-        (curr_arg)[7] != '\0') {
-      /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
-      include_option = &(curr_arg)[7];
-      if (strcmp(include_option, "DB2_INCLUDE_OPTION") == 0 &&
-          DB2_INCLUDE_OPTION[0] != '\0') {
-        writeOptionList(DB2_INCLUDE_OPTION, command);
-      } else if (strcmp(include_option, "INFORMIX_INCLUDE_OPTION") == 0 &&
-          INFORMIX_INCLUDE_OPTION[0] != '\0') {
-        writeOptionList(INFORMIX_INCLUDE_OPTION, command);
-      } else if (strcmp(include_option, "SQL_SERVER_INCLUDE_OPTION") == 0 &&
-          SQL_SERVER_INCLUDE_OPTION[0] != '\0') {
-        writeOptionList(SQL_SERVER_INCLUDE_OPTION, command);
-      } else if (strcmp(include_option, "INCLUDE_OPTIONS") == 0 &&
-          INCLUDE_OPTIONS[0] != '\0') {
-        writeOptionList(INCLUDE_OPTIONS, command);
-      } /* if */
-      idx++;
-    } /* if */
-    for (; idx < argc; idx++) {
+    if (argc >= 2) {
+      prepareCompileCommand();
+      sprintf(command, "%s", c_compiler);
+      checkForLevelH();
       curr_arg = argv[idx];
-      strcat(command, " ");
-      if (strchr(curr_arg, ' ') != NULL && curr_arg[0] != '>') {
-        strcat(command, "\"");
-        strcat(command, curr_arg);
-        strcat(command, "\"");
-      } else {
-        strcat(command, curr_arg);
+      if (memcmp(curr_arg, "OPTION=", 7 * sizeof(char)) == 0 &&
+          (curr_arg)[7] != '\0') {
+        /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
+        include_option = &(curr_arg)[7];
+        if (strcmp(include_option, "DB2_INCLUDE_OPTION") == 0 &&
+            DB2_INCLUDE_OPTION[0] != '\0') {
+          writeOptionList(DB2_INCLUDE_OPTION, command);
+        } else if (strcmp(include_option, "INFORMIX_INCLUDE_OPTION") == 0 &&
+            INFORMIX_INCLUDE_OPTION[0] != '\0') {
+          writeOptionList(INFORMIX_INCLUDE_OPTION, command);
+        } else if (strcmp(include_option, "SQL_SERVER_INCLUDE_OPTION") == 0 &&
+            SQL_SERVER_INCLUDE_OPTION[0] != '\0') {
+          writeOptionList(SQL_SERVER_INCLUDE_OPTION, command);
+        } else if (strcmp(include_option, "INCLUDE_OPTIONS") == 0 &&
+            INCLUDE_OPTIONS[0] != '\0') {
+          writeOptionList(INCLUDE_OPTIONS, command);
+        } /* if */
+        idx++;
       } /* if */
-      /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
-    } /* for */
-    /* fprintf(stderr, "command: %s\n", command); */
-    system(command);
+      for (; idx < argc; idx++) {
+        curr_arg = argv[idx];
+        strcat(command, " ");
+        if (strchr(curr_arg, ' ') != NULL && curr_arg[0] != '>') {
+          strcat(command, "\"");
+          strcat(command, curr_arg);
+          strcat(command, "\"");
+        } else {
+          strcat(command, curr_arg);
+        } /* if */
+        /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
+      } /* for */
+      /* fprintf(stderr, "command: %s\n", command); */
+      system(command);
+    } /* if */
     return 0;
   } /* main */
