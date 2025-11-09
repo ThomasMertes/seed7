@@ -383,6 +383,8 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
   {
     ISC_STATUS *pvector;
     char messageText[512];
+    memSizeType messageTextLen;
+    memSizeType messageLen;
 
   /* setDbErrorMsg */
     dbError.funcName = funcName;
@@ -390,12 +392,18 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
     dbError.errorCode = 0;
     pvector = status_vector;
     isc_interprete(messageText, &pvector);
-    strcpy(dbError.message, messageText);
+    messageLen = strlen(messageText);
+    memcpy(dbError.message, messageText, messageLen);
     messageText[0] = '\n';
     messageText[1] = '-';
     while (isc_interprete(&messageText[2], &pvector) != 0) {
-      strcat(dbError.message, messageText);
+      messageTextLen = strlen(messageText);
+      if (messageLen + messageTextLen < sizeof(dbError.message)) {
+        memcpy(&dbError.message[messageLen], messageText, messageTextLen);
+        messageLen += messageTextLen;
+      } /* if */
     } /* while */
+    dbError.message[messageLen] = '\0';
   } /* setDbErrorMsg */
 
 
