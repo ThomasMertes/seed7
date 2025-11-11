@@ -303,9 +303,13 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType oldProcess)
 
   { /* pcsFree */
-    logFunction(printf("pcsFree(" FMT_U_MEM " (usage=" FMT_U "))\n",
-                       oldProcess != NULL ? (memSizeType) to_pid(oldProcess) : (memSizeType) 0,
-                       oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
+    logFunction(printf("pcsFree(" FMT_U_MEM
+                       " (pid=" FMT_U_MEM ", usage=" FMT_U "))\n",
+                       (memSizeType) oldProcess,
+                       oldProcess != NULL ? (memSizeType) to_pid(oldProcess)
+                                          : (memSizeType) 0,
+                       oldProcess != NULL ? oldProcess->usage_count
+                                          : (uintType) 0););
     if (oldProcess->stdIn != NULL) {
       filClose(oldProcess->stdIn);
       filDestr(oldProcess->stdIn);
@@ -356,8 +360,11 @@ boolType pcsIsAlive (const processType process)
     boolType isAlive;
 
   /* pcsIsAlive */
-    logFunction(printf("pcsIsAlive(" FMT_U_MEM ")\n",
-                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
+    logFunction(printf("pcsIsAlive(" FMT_U_MEM
+                       " (pid=" FMT_U_MEM "))\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) to_pid(process)
+                                       : (memSizeType) 0););
     if (process == NULL || to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
@@ -402,7 +409,8 @@ boolType pcsIsAlive (const processType process)
 void pcsKill (const processType process)
 
   { /* pcsKill */
-    logFunction(printf("pcsKill(" FMT_U_MEM ")\n",
+    logFunction(printf("pcsKill(" FMT_U_MEM " (pid=" FMT_U_MEM "))\n",
+                       (memSizeType) process,
                        process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsKill: process == NULL\n"););
@@ -758,9 +766,13 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStart --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       process != NULL ? (memSizeType) process->pid : (memSizeType) 0,
-                       process != NULL ? process->usage_count : (uintType) 0););
+    logFunction(printf("pcsStart --> " FMT_U_MEM
+                       " (pid=" FMT_U_MEM ", usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) process->pid
+                                       : (memSizeType) 0,
+                       process != NULL ? process->usage_count
+                                       : (uintType) 0););
     return (processType) process;
   } /* pcsStart */
 
@@ -905,9 +917,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->stdErr = childStderrFile;
       } /* if */
     } /* if */
-    logFunction(printf("pcsStartPipe --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       process != NULL ? (memSizeType) process->pid : (memSizeType) 0,
-                       process != NULL ? process->usage_count : (uintType) 0););
+    logFunction(printf("pcsStartPipe --> " FMT_U_MEM
+                       " (pid=" FMT_U_MEM ", usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) process->pid
+                                       : (memSizeType) 0,
+                       process != NULL ? process->usage_count
+                                       : (uintType) 0););
     return (processType) process;
   } /* pcsStartPipe */
 
@@ -950,9 +966,13 @@ void pcsWaitFor (const processType process)
     int status;
 
   /* pcsWaitFor */
-    logFunction(printf("pcsWaitFor(" FMT_U_MEM " (usage=" FMT_U "))\n",
-                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0,
-                       process != NULL ? process->usage_count : (uintType) 0););
+    logFunction(printf("pcsWaitFor(" FMT_U_MEM
+                       " (pid=" FMT_U_MEM ", usage=" FMT_U "))\n",
+                       (memSizeType) process,
+                       process != NULL ? (memSizeType) to_pid(process)
+                                       : (memSizeType) 0,
+                       process != NULL ? process->usage_count
+                                       : (uintType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsWaitFor: process == NULL\n"););
       raise_error(FILE_ERROR);
