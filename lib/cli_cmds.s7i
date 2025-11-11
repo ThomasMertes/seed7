@@ -1024,7 +1024,8 @@ const func boolean: doOneCommand (inout string: command,
       elsif commandName = "pwd" then
         commandOutput := doPwd(command);
       elsif commandName = "echo" or commandName = "echo." or
-            commandName = "echo:" then
+            commandName = "echo:" or commandName = "echo/" or
+            commandName = "echo\\" then
         commandOutput := doEcho(command);
       elsif commandName = "cd" then
         doCd(command);
