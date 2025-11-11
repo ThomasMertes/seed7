@@ -226,6 +226,9 @@ int wstatChangeTime (const wchar_t *path, os_stat_struct *statBuf);
 int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
 #endif
 #ifdef DEFINE_FSTATI64_EXT
+#ifndef os_fstat_struct
+#define os_fstat_struct os_stat_struct
+#endif
 int fstati64Ext (int fd, os_fstat_struct *statBuf);
 #endif
 #ifdef DEFINE_WCHMOD_EXT
