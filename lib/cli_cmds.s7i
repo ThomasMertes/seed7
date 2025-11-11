@@ -986,62 +986,71 @@ const func boolean: doOneCommand (inout string: command,
   result
     var boolean: done is TRUE;
   local
+    var string: commandWord is "";
     var string: commandName is "";
   begin
     if command <> "" and command[1] = '#' then
       command := "";
       commandOutput := "";
     else
-      commandName := lower(getWord(command));
+      commandWord := getWord(command);
+      commandName := lower(commandWord);
       # writeln("doOneCommand: " <& commandName);
-      if commandName = "rm" then
-        doRm(command);
-        commandOutput := "";
-      elsif commandName = "del" or commandName = "erase" then
-        doDel(command);
-        commandOutput := "";
-      elsif commandName = "cp" then
-        doCp(command);
-        commandOutput := "";
-      elsif commandName = "copy" then
-        doCopy(command);
-        commandOutput := "";
-      elsif commandName = "xcopy" then
-        doXCopy(command);
-        commandOutput := "";
-      elsif commandName = "mv" then
-        doMv(command);
-        commandOutput := "";
-      elsif commandName = "move" then
-        doMove(command);
-        commandOutput := "";
-      elsif commandName = "mkdir" then
-        doMkdir(command);
-        commandOutput := "";
-      elsif commandName = "md" then
-        doMd(command);
-        commandOutput := "";
-      elsif commandName = "pwd" then
-        commandOutput := doPwd(command);
-      elsif commandName = "echo" or commandName = "echo." or
-            commandName = "echo:" or commandName = "echo/" or
-            commandName = "echo\\" then
-        commandOutput := doEcho(command);
-      elsif commandName = "cd" then
-        doCd(command);
-        commandOutput := "";
-      elsif commandName = "make" or commandName = "make7" then
-        doMake(command);
-        commandOutput := "";
-      elsif commandName = "rem" then
-        command := "";
-        commandOutput := "";
-      elsif commandName = "(" then
-        done := doOneCommand(command, commandOutput);
-      else
-        done := FALSE;
-        commandOutput := "";
-      end if;
+      case commandName of
+        when {"rm"}:
+          doRm(command);
+          commandOutput := "";
+        when {"del", "erase"}:
+          doDel(command);
+          commandOutput := "";
+        when {"cp"}:
+          doCp(command);
+          commandOutput := "";
+        when {"copy"}:
+          doCopy(command);
+          commandOutput := "";
+        when {"xcopy"}:
+          doXCopy(command);
+          commandOutput := "";
+        when {"mv"}:
+          doMv(command);
+          commandOutput := "";
+        when {"move"}:
+          doMove(command);
+          commandOutput := "";
+        when {"mkdir"}:
+          doMkdir(command);
+          commandOutput := "";
+        when {"md"}:
+          doMd(command);
+          commandOutput := "";
+        when {"pwd"}:
+          commandOutput := doPwd(command);
+        when {"echo"}:
+          commandOutput := doEcho(command);
+        when {"cd"}:
+          doCd(command);
+          commandOutput := "";
+        when {"make", "make7"}:
+          doMake(command);
+          commandOutput := "";
+        when {"rem"}:
+          command := "";
+          commandOutput := "";
+        when {"("}:
+          done := doOneCommand(command, commandOutput);
+        otherwise:
+          if  startsWith(commandName, "echo.") or
+              startsWith(commandName, "echo:") or
+              startsWith(commandName, "echo/") or
+              startsWith(commandName, "echo\\") then
+            command := commandWord[6 ..] & command;
+            commandOutput := doEcho(command);
+          else
+            done := FALSE;
+            commandOutput := "";
+          end if;
+      end case;
     end if;
   end func;
 
