@@ -41,6 +41,7 @@ const string: TAR_MAGIC is "ustar";
 const string: TAR_NOMAGIC is "";
 
 const integer: TAR_BLOCK_SIZE is 512;
+const integer: TAR_MAX_OCTAL_FILE_SIZE is pred(8 ** 11);
 const string: END_OF_FILE_MARKER is "\0;" mult TAR_BLOCK_SIZE;
 
 const char: REGTYPE         is '0';   # Regular file (preferred code)
@@ -270,6 +271,8 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
     var string: linkPath8 is "";
+    var string: paxSize is "";
+    var integer: size is 0;
     var string: extendedHeaderData is "";
     var integer: pos is 1;
     var string: metaData is "";
@@ -294,6 +297,8 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
             filePath8 := metaData[6 ..];
           elsif startsWith(metaData, "linkpath=") then
             linkPath8 := metaData[10 ..];
+          elsif startsWith(metaData, "size=") then
+            paxSize := metaData[6 ..];
           end if;
         end while;
       else # header.typeflag = GLOBAL_HEADER
@@ -334,6 +339,16 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       if endsWith(header.linkPath, "/") then
         header.linkPath := header.linkPath[.. pred(length(header.linkPath))];
       end if;
+      if paxSize <> "" then
+        size := integer(paxSize);
+        if size <= TAR_MAX_OCTAL_FILE_SIZE then
+          if size <> header.fileSize then
+            raise RANGE_ERROR;
+          end if;
+        else
+          header.fileSize := size;
+        end if;
+      end if;
       header.dataStartPos := tell(inFile);
     end if;
   end func;
@@ -366,6 +381,8 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
 const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
+    var string: paxSize is "";
+    var integer: size is 0;
     var string: extendedHeaderData is "";
     var integer: pos is 1;
     var string: metaData is "";
@@ -387,6 +404,8 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
           # writeln("metaData: " <& metaData);
           if startsWith(metaData, "path=") then
             filePath8 := metaData[6 ..];
+          elsif startsWith(metaData, "size=") then
+            paxSize := metaData[6 ..];
           end if;
         end while;
         seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
@@ -413,6 +432,16 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
     end block;
     if endsWith(header.filePath, "/") and header.filePath <> "/" then
       header.filePath := header.filePath[.. pred(length(header.filePath))];
+    end if;
+    if paxSize <> "" then
+      size := integer(paxSize);
+      if size <= TAR_MAX_OCTAL_FILE_SIZE then
+        if size <> header.fileSize then
+          raise RANGE_ERROR;
+        end if;
+      else
+        header.fileSize := size;
+      end if;
     end if;
   end func;
 
