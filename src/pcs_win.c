@@ -520,6 +520,8 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     HANDLE childInputWrite = INVALID_HANDLE_VALUE;
     HANDLE childOutputRead = INVALID_HANDLE_VALUE;
     HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
+    int stdinFileno;
+    int stdoutFileno;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -582,17 +584,29 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                                &processInformation) != 0) {
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
+              stdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stdinFileno=%d\n", stdinFileno););
+              stdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stdoutFileno=%d\n", stdoutFileno););
               initFileType(childStdinFile, FALSE, TRUE);
-              childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
-              if (childStdinFile->cFile == NULL) {
+              childStdinFile->cFile = os_fdopen(stdinFileno, "w");
+              if (unlikely(childStdinFile->cFile == NULL)) {
+                logError(printf("pcsPipe2: stdin "
+                                "os_fdopen(%d, \"w\") returned NULL\n"
+                                "errno=%d\nerror: %s\n",
+                                stdinFileno, errno, strerror(errno)););
                 FREE_RECORD(childStdinFile, fileRecord, count.files);
               } else {
                 filDestr(*childStdin);
                 *childStdin = childStdinFile;
               } /* if */
               initFileType(childStdoutFile, TRUE, FALSE);
-              childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
-              if (childStdoutFile->cFile == NULL) {
+              childStdoutFile->cFile = os_fdopen(stdoutFileno, "r");
+              if (unlikely(childStdoutFile->cFile == NULL)) {
+                logError(printf("pcsPipe2: stdout "
+                                "os_fdopen(%d, \"r\") returned NULL\n"
+                                "errno=%d\nerror: %s\n",
+                                stdoutFileno, errno, strerror(errno)););
                 FREE_RECORD(childStdoutFile, fileRecord, count.files);
               } else {
                 filDestr(*childStdout);
@@ -819,6 +833,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
     HANDLE childErrorRead = INVALID_HANDLE_VALUE;
     HANDLE childErrorWrite = INVALID_HANDLE_VALUE;
+    int stdinFileno;
+    int stdoutFileno;
+    int stderrFileno;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -885,6 +902,12 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
               CloseHandle(childErrorWrite);
+              stdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stdinFileno=%d\n", stdinFileno););
+              stdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stdoutFileno=%d\n", stdoutFileno););
+              stderrFileno = _open_osfhandle((intPtrType) (childErrorRead), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stderrFileno=%d\n", stderrFileno););
               memset(process, 0, sizeof(win_processRecord));
               process->usage_count = 1;
               process->hProcess = processInformation.hProcess;
@@ -892,14 +915,56 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               process->pid      = processInformation.dwProcessId;
               process->isTerminated = FALSE;
               initFileType(childStdinFile, FALSE, TRUE);
-              childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
-              process->stdIn = childStdinFile;
+              childStdinFile->cFile = os_fdopen(stdinFileno, "w");
+              if (unlikely(childStdinFile->cFile == NULL)) {
+                logError(printf("pcsStartPipe: stdin "
+                                "os_fdopen(%d, \"w\") returned NULL\n"
+                                "errno=%d\nerror: %s\n",
+                                stdinFileno, errno, strerror(errno)););
+                FREE_RECORD(childStdinFile, fileRecord, count.files);
+                process->stdIn = NULL;
+              } else {
+                logMessage(printf("pcsStartPipe: childStdinFile=%s%d\n",
+                                  childStdinFile->cFile == NULL ?
+                                      "NULL " : "",
+                                  childStdinFile->cFile != NULL ?
+                                      safe_fileno(childStdinFile->cFile) : 0););
+                process->stdIn = childStdinFile;
+              } /* if */
               initFileType(childStdoutFile, TRUE, FALSE);
-              childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
-              process->stdOut = childStdoutFile;
+              childStdoutFile->cFile = os_fdopen(stdoutFileno, "r");
+              if (unlikely(childStdoutFile->cFile == NULL)) {
+                logError(printf("pcsStartPipe: stdout "
+                                "os_fdopen(%d, \"r\") returned NULL\n"
+                                "errno=%d\nerror: %s\n",
+                                stdoutFileno, errno, strerror(errno)););
+                FREE_RECORD(childStdoutFile, fileRecord, count.files);
+                process->stdOut = NULL;
+              } else {
+                logMessage(printf("pcsStartPipe: childStdoutFile=%s%d\n",
+                                  childStdoutFile->cFile == NULL ?
+                                      "NULL " : "",
+                                  childStdoutFile->cFile != NULL ?
+                                      safe_fileno(childStdoutFile->cFile) : 0););
+                process->stdOut = childStdoutFile;
+              } /* if */
               initFileType(childStderrFile, TRUE, FALSE);
-              childStderrFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childErrorRead), _O_TEXT), "r");
-              process->stdErr = childStderrFile;
+              childStderrFile->cFile = os_fdopen(stderrFileno, "r");
+              if (unlikely(childStderrFile->cFile == NULL)) {
+                logError(printf("pcsStartPipe: stderr "
+                                "os_fdopen(%d, \"r\") returned NULL\n"
+                                "errno=%d\nerror: %s\n",
+                                stderrFileno, errno, strerror(errno)););
+                FREE_RECORD(childStderrFile, fileRecord, count.files);
+                process->stdErr = NULL;
+              } else {
+                logMessage(printf("pcsStartPipe: childStderrFile=%s%d\n",
+                                  childStderrFile->cFile == NULL ?
+                                      "NULL " : "",
+                                  childStderrFile->cFile != NULL ?
+                                      safe_fileno(childStderrFile->cFile) : 0););
+                process->stdErr = childStderrFile;
+              } /* if */
             } else {
               logError(printf("pcsStartPipe: CreateProcessW(\"" FMT_S_OS "\", \"" FMT_S_OS "\", ...) failed.\n"
                               "GetLastError=" FMT_U32 "\n",
