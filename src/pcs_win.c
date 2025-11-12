@@ -585,9 +585,9 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
               stdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
-              logMessage(printf("pcsStartPipe: stdinFileno=%d\n", stdinFileno););
+              logMessage(printf("pcsPipe2: stdinFileno=%d\n", stdinFileno););
               stdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
-              logMessage(printf("pcsStartPipe: stdoutFileno=%d\n", stdoutFileno););
+              logMessage(printf("pcsPipe2: stdoutFileno=%d\n", stdoutFileno););
               initFileType(childStdinFile, FALSE, TRUE);
               childStdinFile->cFile = os_fdopen(stdinFileno, "w");
               if (unlikely(childStdinFile->cFile == NULL)) {
