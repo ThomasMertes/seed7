@@ -585,9 +585,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
               stdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
-              logMessage(printf("pcsPipe2: stdinFileno=%d\n", stdinFileno););
               stdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
+              logMessage(printf("pcsPipe2: stdinFileno=%d\n", stdinFileno););
               logMessage(printf("pcsPipe2: stdoutFileno=%d\n", stdoutFileno););
+              os_setmode(stdinFileno, _O_BINARY);
+              os_setmode(stdoutFileno, _O_BINARY);
               initFileType(childStdinFile, FALSE, TRUE);
               childStdinFile->cFile = os_fdopen(stdinFileno, "w");
               if (unlikely(childStdinFile->cFile == NULL)) {
@@ -903,11 +905,14 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               CloseHandle(childOutputWrite);
               CloseHandle(childErrorWrite);
               stdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
-              logMessage(printf("pcsStartPipe: stdinFileno=%d\n", stdinFileno););
               stdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
-              logMessage(printf("pcsStartPipe: stdoutFileno=%d\n", stdoutFileno););
               stderrFileno = _open_osfhandle((intPtrType) (childErrorRead), _O_TEXT);
+              logMessage(printf("pcsStartPipe: stdinFileno=%d\n", stdinFileno););
+              logMessage(printf("pcsStartPipe: stdoutFileno=%d\n", stdoutFileno););
               logMessage(printf("pcsStartPipe: stderrFileno=%d\n", stderrFileno););
+              os_setmode(stdinFileno, _O_BINARY);
+              os_setmode(stdoutFileno, _O_BINARY);
+              os_setmode(stderrFileno, _O_BINARY);
               memset(process, 0, sizeof(win_processRecord));
               process->usage_count = 1;
               process->hProcess = processInformation.hProcess;
