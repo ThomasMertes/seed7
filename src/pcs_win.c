@@ -932,7 +932,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                 "errno=%d\nerror: %s\n",
                                 childStdinFileno, errno, strerror(errno)););
                 FREE_RECORD(childStdinFile, fileRecord, count.files);
-                process->stdIn = &nullFileRecord;
+                process->stdIn = NULL;
               } else {
                 logMessage(printf("pcsStartPipe: childStdinFile=%s%d\n",
                                   childStdinFile->cFile == NULL ?
@@ -949,7 +949,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                 "errno=%d\nerror: %s\n",
                                 childStdoutFileno, errno, strerror(errno)););
                 FREE_RECORD(childStdoutFile, fileRecord, count.files);
-                process->stdOut = &nullFileRecord;
+                process->stdOut = NULL;
               } else {
                 logMessage(printf("pcsStartPipe: childStdoutFile=%s%d\n",
                                   childStdoutFile->cFile == NULL ?
@@ -966,7 +966,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                 "errno=%d\nerror: %s\n",
                                 childStderrFileno, errno, strerror(errno)););
                 FREE_RECORD(childStderrFile, fileRecord, count.files);
-                process->stdErr = &nullFileRecord;
+                process->stdErr = NULL;
               } else {
                 logMessage(printf("pcsStartPipe: childStderrFile=%s%d\n",
                                   childStderrFile->cFile == NULL ?
