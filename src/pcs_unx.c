@@ -661,8 +661,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
                               masterfd, errno, strerror(errno)););
               FREE_RECORD(childStdoutFile, fileRecord, count.files);
             } else {
-              *childStdout = childStdoutFile;
               filDestr(*childStdout);
+              *childStdout = childStdoutFile;
             } /* if */
             freeArgVector(argv);
           } /* if */
