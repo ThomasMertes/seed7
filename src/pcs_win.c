@@ -655,9 +655,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     } /* if */
     logFunction(printf("pcsPipe2(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(", %s%d, %s%d) -->\n",
+                printf(", " FMT_U_MEM " %s%d, " FMT_U_MEM " %s%d) -->\n",
+                       (memSizeType) *childStdin,
                        *childStdin == NULL ? "NULL " : "",
                        *childStdin != NULL ? safe_fileno((*childStdin)->cFile) : 0,
+                       (memSizeType) *childStdout,
                        *childStdout == NULL ? "NULL " : "",
                        *childStdout != NULL ? safe_fileno((*childStdout)->cFile) : 0););
   } /* pcsPipe2 */
