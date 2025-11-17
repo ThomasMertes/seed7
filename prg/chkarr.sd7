@@ -2170,8 +2170,12 @@ const func boolean: testFixArrayIndex is func
         anArray2[ 5] <>  5 or
         anArray2[15] <> 15 or
         anArray3[-2147483647] <> -2147483647 or
-        anArray3[-2147483646] <> -2147483646 or
-        anArray[intExpr( 1)] <>  1 or
+        anArray3[-2147483646] <> -2147483646 then
+      writeln(" ***** Indexing into a fixed size array failed. (1)");
+      okay := FALSE;
+    end if;
+
+    if  anArray[intExpr( 1)] <>  1 or
         anArray[intExpr(12)] <> 12 or
         anArray[intExpr(64)] <> 64 or
         anArray2[intExpr( 0)] <>  0 or
@@ -2186,8 +2190,12 @@ const func boolean: testFixArrayIndex is func
         anArray2[intExpr( 5) mod 16] <>  5 or
         anArray2[intExpr(15) mod 16] <> 15 or
         anArray3[intExpr(0) mod 8 - 2147483647] <> -2147483647 or
-        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 or
-        anArray[ abs(intExpr( 0)) +  1] <>  1 or
+        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 then
+      writeln(" ***** Indexing into a fixed size array failed. (2)");
+      okay := FALSE;
+    end if;
+
+    if  anArray[ abs(intExpr( 0)) +  1] <>  1 or
         anArray[ abs(intExpr(11)) +  1] <> 12 or
         anArray[ abs(intExpr(63)) +  1] <> 64 or
         anArray[-abs(intExpr(63)) + 64] <>  1 or
@@ -2203,7 +2211,7 @@ const func boolean: testFixArrayIndex is func
         anArray3[ abs(intExpr(1)) - 2147483647] <> -2147483646 or
         anArray3[-abs(intExpr(1)) - 2147483646] <> -2147483647 or
         anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 then
-      writeln(" ***** Indexing into a fixed size array failed.");
+      writeln(" ***** Indexing into a fixed size array failed. (3)");
       okay := FALSE;
     end if;
 
