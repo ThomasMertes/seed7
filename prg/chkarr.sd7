@@ -2257,6 +2257,9 @@ const func boolean: testBaseArrayIndex is func
     var baseArrayType: anArray is baseArrayType [.. 12] times 0;
     var baseArrayType2: anArray2 is baseArrayType2 [.. 5] times 0;
     var baseArrayType3: anArray3 is baseArrayType3 [.. -2147483646] times 0;
+    var baseArrayType: anArrayEmpty is baseArrayType.value;
+    var baseArrayType2: anArray2Empty is baseArrayType2.value;
+    var baseArrayType3: anArray3Empty is baseArrayType3.value;
   begin
     anArray[1]  :=  1;
     anArray[12] := 12;
@@ -2322,7 +2325,69 @@ const func boolean: testBaseArrayIndex is func
         not raisesIndexError(anArray2[-abs(intExpr(6)) + 5]) or
         not raisesIndexError(anArray3[ abs(intExpr(2)) - 2147483647]) or
         not raisesIndexError(anArray3[-abs(intExpr(2)) - 2147483646]) then
-      writeln(" ***** Indexing into a fixed fixed minimum index array does not raise INDEX_ERROR.");
+      writeln(" ***** Indexing into a fixed fixed minimum index array does not raise INDEX_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(anArrayEmpty[integer.first]) or
+        not raisesIndexError(anArrayEmpty[-2147483648]) or
+        not raisesIndexError(anArrayEmpty[-2147483647]) or
+        not raisesIndexError(anArrayEmpty[-1]) or
+        not raisesIndexError(anArrayEmpty[0]) or
+        not raisesIndexError(anArrayEmpty[1]) or
+        not raisesIndexError(anArrayEmpty[2147483646]) or
+        not raisesIndexError(anArrayEmpty[2147483647]) or
+        not raisesIndexError(anArrayEmpty[integer.last]) or
+        not raisesIndexError(anArray2Empty[integer.first]) or
+        not raisesIndexError(anArray2Empty[-2147483648]) or
+        not raisesIndexError(anArray2Empty[-2147483647]) or
+        not raisesIndexError(anArray2Empty[-1]) or
+        not raisesIndexError(anArray2Empty[0]) or
+        not raisesIndexError(anArray2Empty[1]) or
+        not raisesIndexError(anArray2Empty[2147483646]) or
+        not raisesIndexError(anArray2Empty[2147483647]) or
+        not raisesIndexError(anArray2Empty[integer.last]) or
+        not raisesIndexError(anArray3Empty[integer.first]) or
+        not raisesIndexError(anArray3Empty[-2147483648]) or
+        not raisesIndexError(anArray3Empty[-2147483647]) or
+        not raisesIndexError(anArray3Empty[-1]) or
+        not raisesIndexError(anArray3Empty[0]) or
+        not raisesIndexError(anArray3Empty[1]) or
+        not raisesIndexError(anArray3Empty[2147483646]) or
+        not raisesIndexError(anArray3Empty[2147483647]) or
+        not raisesIndexError(anArray3Empty[integer.last]) then
+      writeln(" ***** Indexing into a fixed fixed minimum index array does not raise INDEX_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(anArrayEmpty[intExpr(integer.first)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(-2147483648)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(-2147483647)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(-1)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(0)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(1)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(2147483646)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(2147483647)]) or
+        not raisesIndexError(anArrayEmpty[intExpr(integer.last)]) or
+        not raisesIndexError(anArray2Empty[intExpr(integer.first)]) or
+        not raisesIndexError(anArray2Empty[intExpr(-2147483648)]) or
+        not raisesIndexError(anArray2Empty[intExpr(-2147483647)]) or
+        not raisesIndexError(anArray2Empty[intExpr(-1)]) or
+        not raisesIndexError(anArray2Empty[intExpr(0)]) or
+        not raisesIndexError(anArray2Empty[intExpr(1)]) or
+        not raisesIndexError(anArray2Empty[intExpr(2147483646)]) or
+        not raisesIndexError(anArray2Empty[intExpr(2147483647)]) or
+        not raisesIndexError(anArray2Empty[intExpr(integer.last)]) or
+        not raisesIndexError(anArray3Empty[intExpr(integer.first)]) or
+        not raisesIndexError(anArray3Empty[intExpr(-2147483648)]) or
+        not raisesIndexError(anArray3Empty[intExpr(-2147483647)]) or
+        not raisesIndexError(anArray3Empty[intExpr(-1)]) or
+        not raisesIndexError(anArray3Empty[intExpr(0)]) or
+        not raisesIndexError(anArray3Empty[intExpr(1)]) or
+        not raisesIndexError(anArray3Empty[intExpr(2147483646)]) or
+        not raisesIndexError(anArray3Empty[intExpr(2147483647)]) or
+        not raisesIndexError(anArray3Empty[intExpr(integer.last)]) then
+      writeln(" ***** Indexing into a fixed fixed minimum index array does not raise INDEX_ERROR. (3)");
       okay := FALSE;
     end if;
   end func;
