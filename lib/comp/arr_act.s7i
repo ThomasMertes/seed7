@@ -1063,9 +1063,9 @@ const proc: process_base_array_index (in string: array_name,
           minIndex = 0 then
         c_expr.expr &:= "(uintType)";
         c_expr.expr &:= index_name;
-        c_expr.expr &:= " > (uintType)(";
+        c_expr.expr &:= " >= (uintType)(";
         c_expr.expr &:= array_name;
-        c_expr.expr &:= "->max_position)";
+        c_expr.expr &:= "->max_position) + 1";
       else
         if indexRange.minValue < minIndex then
           c_expr.expr &:= index_name;
