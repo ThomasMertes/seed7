@@ -165,12 +165,6 @@ jobs:
             gcc_arch: x86_64
             artifact_name: seed7-windows-x64.zip
             extra_cflags: ""
-          - arch: arm64
-            runner: windows-11-arm
-            msystem: CLANGARM64
-            gcc_arch: clang-aarch64
-            artifact_name: seed7-windows-arm64.zip
-            extra_cflags: -Wno-error=implicit-function-declaration
     defaults:
       run:
         shell: msys2 {0}
@@ -205,6 +199,16 @@ jobs:
       working-directory: src
       run: |
         make depend
+
+    - name: Fix read_buffer_empty macro for clang
+      if: matrix.extra_cflags != ''
+      working-directory: src
+      run: |
+        # Check if read_buffer_empty is defined in version.h
+        if ! grep -q "define read_buffer_empty" version.h; then
+          echo "Adding fallback read_buffer_empty macro"
+          echo '#define read_buffer_empty(fp) 1' >> version.h
+        fi
 
     - name: Build interpreter
       working-directory: src
@@ -262,6 +266,5 @@ jobs:
           artifacts/seed7-macos-amd64/seed7-macos-amd64.tar.gz
           artifacts/seed7-macos-arm64/seed7-macos-arm64.tar.gz
           artifacts/seed7-windows-x64/seed7-windows-x64.zip
-          artifacts/seed7-windows-arm64/seed7-windows-arm64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

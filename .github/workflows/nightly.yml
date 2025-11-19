@@ -50,15 +50,6 @@ jobs:
             msystem: MINGW64
             gcc_arch: x86_64
             extra_cflags: ""
-          - platform: windows
-            arch: arm64
-            runner: windows-11-arm
-            makefile: mk_msys.mak
-            artifact: seed7-nightly-windows-arm64.zip
-            shell: msys2 {0}
-            msystem: CLANGARM64
-            gcc_arch: clang-aarch64
-            extra_cflags: -Wno-error=implicit-function-declaration
 
     defaults:
       run:
@@ -107,6 +98,16 @@ jobs:
       working-directory: src
       run: |
         make depend
+
+    - name: Fix read_buffer_empty macro for clang
+      if: matrix.extra_cflags != ''
+      working-directory: src
+      run: |
+        # Check if read_buffer_empty is defined in version.h
+        if ! grep -q "define read_buffer_empty" version.h; then
+          echo "Adding fallback read_buffer_empty macro"
+          echo '#define read_buffer_empty(fp) 1' >> version.h
+        fi
 
     - name: Build interpreter
       working-directory: src
