@@ -175,6 +175,9 @@ test:
 test-fast:
 	../bin/s7.exe -l ../lib ../prg/chk_fast build
 
+test-ultrafast:
+	../bin/s7.exe -l ../lib ../prg/chk_ultrafast build
+
 test-list:
 	@echo "Test programs: chkint chkovf chkflt chkbin chkchr chkstr chkidx chkbst"
 	@echo "               chkarr chkprc chkbig chkbool chkenum chktime chkscan"

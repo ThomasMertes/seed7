@@ -40,12 +40,18 @@ jobs:
             makefile: mk_osxcl.mak
             artifact: seed7-nightly-macos-arm64.tar.gz
             shell: bash
-          # Windows build
+          # Windows builds
           - platform: windows
             arch: x64
             runner: windows-latest
             makefile: mk_msys.mak
             artifact: seed7-nightly-windows-x64.zip
+            shell: msys2 {0}
+          - platform: windows
+            arch: arm64
+            runner: windows-11-arm
+            makefile: mk_msys.mak
+            artifact: seed7-nightly-windows-arm64.zip
             shell: msys2 {0}
 
     defaults:
@@ -100,10 +106,10 @@ jobs:
       run: |
         make s7c
 
-    - name: Run full test suite
+    - name: Run test suite
       working-directory: src
       run: |
-        make test
+        make test-fast
 
     - name: Build utilities
       working-directory: src

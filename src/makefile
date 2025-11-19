@@ -1,7 +1,7 @@
 # Makefile for linux/bsd/unix and gcc. Commands executed by: bash
 # To compile use a command shell and call:
-#   make depend
-#   make
+#   make -f mk_linux.mak depend
+#   make -f mk_linux.mak
 # If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
 # CFLAGS =
@@ -151,8 +151,8 @@ sql_srv.o: sql_srv.c sql_cli.c sql_log.c
 	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
 all: depend
-	$(MAKE) s7
-	$(MAKE) s7c
+	$(MAKE) -f mk_linux.mak s7
+	$(MAKE) -f mk_linux.mak s7c
 
 .PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
@@ -178,6 +178,9 @@ test:
 
 test-fast:
 	../bin/s7 -l ../lib ../prg/chk_fast build
+
+test-ultrafast:
+	../bin/s7 -l ../lib ../prg/chk_ultrafast build
 
 test-list:
 	@echo "Test programs: chkint chkovf chkflt chkbin chkchr chkstr chkidx chkbst"
@@ -265,7 +268,7 @@ base.h:
 
 settings.h:
 	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
-	echo "#define MAKEFILE_NAME \"makefile\"" >> settings.h
+	echo "#define MAKEFILE_NAME \"mk_linux.mak\"" >> settings.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> settings.h
 	echo "#define AWAIT_WITH_SELECT" >> settings.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> settings.h

@@ -167,8 +167,22 @@ jobs:
         retention-days: 30
 
   build-utils-windows:
-    name: Build Utilities on Windows
-    runs-on: windows-latest
+    name: Build Utilities on Windows ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-latest
+            msystem: MINGW64
+            gcc_arch: x86_64
+            artifact_name: seed7-utils-windows-x64.zip
+          - arch: arm64
+            runner: windows-11-arm
+            msystem: CLANGARM64
+            gcc_arch: clang-aarch64
+            artifact_name: seed7-utils-windows-arm64.zip
     defaults:
       run:
         shell: msys2 {0}
@@ -180,12 +194,12 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: ${{ matrix.msystem }}
         update: true
         install: >-
           base-devel
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-make
+          mingw-w64-${{ matrix.gcc_arch }}-gcc
+          mingw-w64-${{ matrix.gcc_arch }}-make
           make
 
     - name: Setup build environment
@@ -217,28 +231,28 @@ jobs:
     - name: Package utilities
       shell: bash
       run: |
-        mkdir -p artifacts/utils-windows
+        mkdir -p artifacts/utils-windows-${{ matrix.arch }}
         # Copy utilities (some may not exist, which is ok)
-        cp bin/bas7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/calc7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/db7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/diff7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/find7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/ftp7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/ide7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/make7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/sql7.exe artifacts/utils-windows/ 2>/dev/null || true
-        cp bin/tar7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/bas7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/calc7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/db7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/diff7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/find7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ftp7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ide7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/make7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/sql7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/tar7.exe artifacts/utils-windows-${{ matrix.arch }}/ 2>/dev/null || true
         # Ensure at least some files were copied
-        if [ -z "$(ls -A artifacts/utils-windows)" ]; then
+        if [ -z "$(ls -A artifacts/utils-windows-${{ matrix.arch }})" ]; then
           echo "Error: No utilities were built"
           exit 1
         fi
-        7z a seed7-utils-windows-x64.zip ./artifacts/utils-windows/*
+        7z a ${{ matrix.artifact_name }} ./artifacts/utils-windows-${{ matrix.arch }}/*
 
     - name: Upload utilities
       uses: actions/upload-artifact@v4
       with:
-        name: seed7-utils-windows-x64
-        path: seed7-utils-windows-x64.zip
+        name: seed7-utils-windows-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
         retention-days: 30

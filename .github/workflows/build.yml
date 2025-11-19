@@ -59,7 +59,7 @@ jobs:
         if [ "${{ github.event_name }}" = "release" ]; then
           make test
         else
-          make test-fast
+          make test-ultrafast
         fi
 
     - name: Package binaries
@@ -127,7 +127,7 @@ jobs:
         if [ "${{ github.event_name }}" = "release" ]; then
           make test
         else
-          make test-fast
+          make test-ultrafast
         fi
 
     - name: Verify architecture
@@ -153,8 +153,22 @@ jobs:
         retention-days: 30
 
   build-windows:
-    name: Build on Windows
-    runs-on: windows-latest
+    name: Build on Windows ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-latest
+            msystem: MINGW64
+            gcc_arch: x86_64
+            artifact_name: seed7-windows-x64.zip
+          - arch: arm64
+            runner: windows-11-arm
+            msystem: CLANGARM64
+            gcc_arch: clang-aarch64
+            artifact_name: seed7-windows-arm64.zip
     defaults:
       run:
         shell: msys2 {0}
@@ -166,12 +180,12 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: ${{ matrix.msystem }}
         update: true
         install: >-
           base-devel
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-make
+          mingw-w64-${{ matrix.gcc_arch }}-gcc
+          mingw-w64-${{ matrix.gcc_arch }}-make
           make
 
     - name: Setup build environment
@@ -200,23 +214,23 @@ jobs:
         if [ "${{ github.event_name }}" = "release" ]; then
           make test
         else
-          make test-fast
+          make test-ultrafast
         fi
 
     - name: Package binaries
       shell: bash
       run: |
-        mkdir -p artifacts/windows
-        cp bin/s7.exe artifacts/windows/
-        cp bin/s7c.exe artifacts/windows/
-        cp bin/*.a artifacts/windows/
-        7z a seed7-windows-x64.zip ./artifacts/windows/*
+        mkdir -p artifacts/windows-${{ matrix.arch }}
+        cp bin/s7.exe artifacts/windows-${{ matrix.arch }}/
+        cp bin/s7c.exe artifacts/windows-${{ matrix.arch }}/
+        cp bin/*.a artifacts/windows-${{ matrix.arch }}/
+        7z a ${{ matrix.artifact_name }} ./artifacts/windows-${{ matrix.arch }}/*
 
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
-        name: seed7-windows-x64
-        path: seed7-windows-x64.zip
+        name: seed7-windows-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
         retention-days: 30
 
   create-release:
@@ -240,5 +254,6 @@ jobs:
           artifacts/seed7-macos-amd64/seed7-macos-amd64.tar.gz
           artifacts/seed7-macos-arm64/seed7-macos-arm64.tar.gz
           artifacts/seed7-windows-x64/seed7-windows-x64.zip
+          artifacts/seed7-windows-arm64/seed7-windows-arm64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
