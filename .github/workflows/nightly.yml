@@ -104,7 +104,6 @@ jobs:
       working-directory: src
       run: |
         make test
-      continue-on-error: true
 
     - name: Build utilities
       working-directory: src

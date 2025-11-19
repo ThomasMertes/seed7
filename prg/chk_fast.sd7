@@ -1,0 +1,785 @@
+
+(********************************************************************)
+(*  chk_fast.sd7  Fast test runner - fewer optimization levels      *)
+(********************************************************************)
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
+  include "process.s7i";
+  include "scanstri.s7i";
+  include "cc_conf.s7i";
+
+var string: interpretProgram  is "./s7 -q ";
+var string: interpretCompiler is "./s7 s7c -g ";
+var string: executeCompiler   is "./s7c -g ";
+var string: s7interpreter     is "./s7" & ccConf.EXECUTABLE_FILE_EXTENSION;
+var string: s7compiler        is "./s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
+var boolean: checkAllFailed is FALSE;
+
+const string: chkint_output is "\n\
+  \Integer literals with exponent work correctly.\n\
+  \Based integer literals work correctly.\n\
+  \The integer compare works correctly.\n\
+  \Conversion of integer to big endian byte string works correctly.\n\
+  \Conversion of integer to little endian byte string works correctly.\n\
+  \Conversion of integer to big endian byte string with length works correctly.\n\
+  \Conversion of integer to little endian byte string with length works correctly.\n\
+  \Conversion of big endian byte string to integer works correctly.\n\
+  \Conversion of little endian byte string to integer works correctly.\n\
+  \Conversion to and from LEB128 encoding works correctly.\n\
+  \Integer assignment works correctly.\n\
+  \-i is correctly computed in the range -10 to 10.\n\
+  \Addition works correctly for selected values.\n\
+  \Addition assignment works correctly for selected values.\n\
+  \Subtraction works correctly for selected values.\n\
+  \Subtraction assignment works correctly for selected values.\n\
+  \Succ works correctly for selected values.\n\
+  \Pred works correctly for selected values.\n\
+  \Incr works correctly for selected values.\n\
+  \Decr works correctly for selected values.\n\
+  \Multiplication works correctly for selected values.\n\
+  \Multiplication assignment works correctly for selected values.\n\
+  \a div b is integer division and a rem b is integer remainder:\n\
+  \for positive and negative a and b\n\
+  \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
+  \Div and rem work correctly for selected values.\n\
+  \Mdiv and mod work correctly for selected values.\n\
+  \Div works correctly for selected values.\n\
+  \Rem works correctly for selected values.\n\
+  \Mdiv works correctly for selected values.\n\
+  \Mod works correctly for selected values.\n\
+  \odd(i) works correctly in the range -20 to 20.\n\
+  \!i works correctly for i in the range 0 to 12.\n\
+  \The binomial coefficient (n ! k) works correctly for selected values.\n\
+  \Power works correctly for selected values.\n\
+  \The integer abs function works correctly.\n\
+  \Integer rand is correct for selected values.\n\
+  \The integer square root works correctly.\n\
+  \The integer log2 function works correctly.\n\
+  \The integer log10 function works correctly.\n\
+  \The integer << and <<:= works correctly.\n\
+  \The integer >> and >>:= works correctly.\n\
+  \Integer str does work correctly.\n\
+  \Integer sci operator does work correctly.\n\
+  \Integer parse does work correctly.\n\
+  \Integer lpad0 does work correctly.\n\
+  \Integer bitLength does work correctly.\n\
+  \Integer lowestSetBit does work correctly.\n\
+  \The ternary operator ? : works correctly for integer.\n";
+
+const string: chkovf_output is "\n\
+  \Overflow checking of negation works correctly.\n\
+  \Overflow checking of addition works correctly.\n\
+  \Overflow checking of addition assignment works correctly.\n\
+  \Overflow checking of subtraction works correctly.\n\
+  \Overflow checking of subtraction assignment works correctly.\n\
+  \Overflow checking of succ works correctly.\n\
+  \Overflow checking of pred works correctly.\n\
+  \Overflow checking of incr works correctly.\n\
+  \Overflow checking of decr works correctly.\n\
+  \Overflow checking of multiplication works correctly.\n\
+  \Overflow checking of multiplication assignment works correctly.\n\
+  \Overflow checking of div operator works correctly.\n\
+  \Overflow checking of rem operator works correctly.\n\
+  \Overflow checking of mdiv operator works correctly.\n\
+  \Overflow checking of mod operator works correctly.\n\
+  \Overflow checking of left shift works correctly.\n\
+  \Overflow checking of left shift assignment works correctly.\n\
+  \Overflow checking of right shift works correctly.\n\
+  \Overflow checking of right shift assignment works correctly.\n\
+  \Overflow checking of unsigned left shift works correctly.\n\
+  \Overflow checking of unsigned left shift assignment works correctly.\n\
+  \Overflow checking of unsigned right shift works correctly.\n\
+  \Overflow checking of unsigned right shift assignment works correctly.\n\
+  \Overflow checking of power works correctly.\n\
+  \Overflow checking of binomial coefficient works correctly.\n\
+  \Overflow checking of abs works correctly.\n";
+
+const string: chkflt_output is "\n\
+  \Float literals work correctly.\n\
+  \Comparison of float values works correctly.\n\
+  \Compare of float values works correctly.\n\
+  \Parsing of strings with float literals works correctly.\n\
+  \Decimal conversion of float works correctly.\n\
+  \Conversion from integer to float works correctly.\n\
+  \Truncation of float works correctly.\n\
+  \Rounding of float works correctly.\n\
+  \Float assignment works correctly.\n\
+  \Addition works correctly for selected values.\n\
+  \Multiplication works correctly for selected values.\n\
+  \Division works correctly for selected values.\n\
+  \Remainder works correctly for selected values.\n\
+  \Modulo works correctly for selected values.\n\
+  \A ** B works correctly for selected values.\n\
+  \A ** B with integer B works correctly for selected values.\n\
+  \Shift left of float values works correctly for selected values.\n\
+  \Shift right of float values works correctly for selected values.\n\
+  \Negative zero does work correctly.\n\
+  \Infinity works correctly for selected values.\n\
+  \NaN works correctly for selected values.\n\
+  \Rand works correctly for selected values.\n\
+  \Decompose works correctly for selected values.\n\
+  \The ternary operator ? : works correctly for float.\n";
+
+const string: chkbin_output is "\n\
+  \Bin64 shift works correctly.\n\
+  \Bin64 and operator works correctly.\n\
+  \Bin64 or operator works correctly.\n\
+  \Bin64 xor operator works correctly.\n\
+  \Conversion of bin64 to big endian byte string with length works correctly.\n\
+  \Conversion of bin64 to little endian byte string with length works correctly.\n\
+  \Conversion of big endian byte string to bin64 works correctly.\n\
+  \Conversion of little endian byte string to bin64 works correctly.\n\
+  \Converting float to bin32 and bin64 values works correctly.\n\
+  \Converting bin32 and bin64 values to float works correctly.\n\
+  \float2MbfBits works correctly for bin32 and bin64 values.\n\
+  \mbfBits2Float works correctly for bin32 and bin64 values.\n\
+  \bin64(aBigInteger mod 2_**y) works correctly.\n\
+  \Bin32 and bin64 str works correctly.\n\
+  \Bin32 and bin64 radix does work correctly.\n\
+  \Bin64 bitLength works correctly.\n\
+  \Bin64 lowestSetBit works correctly.\n\
+  \The ternary operator ? : works correctly for bin32 and bin64.\n";
+
+const string: chkchr_output is "\n\
+  \Char literals work correctly.\n\
+  \Char conversions work correctly.\n\
+  \The char functions succ, pred, lower and upper work correctly.\n\
+  \isLetter function works correctly.\n\
+  \width function works correctly.\n\
+  \Char literal functions work correctly.\n\
+  \The ternary operator ? : works correctly for char.\n";
+
+const string: chkstr_output is "\n\
+  \String literals work correctly.\n\
+  \String comparisons work correctly.\n\
+  \String length works correctly.\n\
+  \String indices work correctly.\n\
+  \String head works correctly.\n\
+  \String tail works correctly.\n\
+  \String range works correctly.\n\
+  \String substr works correctly.\n\
+  \String substr with fixed length works correctly.\n\
+  \String concatenation works correctly.\n\
+  \String multiplication works correctly.\n\
+  \String operations work correctly.\n\
+  \pos(string) works correctly.\n\
+  \pos(string, char) works correctly.\n\
+  \pos(string) with start index works correctly.\n\
+  \rpos(string) works correctly.\n\
+  \rpos(string, char) works correctly.\n\
+  \rpos(string) with start index works correctly.\n\
+  \replace(string, searched, replacement) works correctly.\n\
+  \Unicode conversons work correctly.\n\
+  \lower(string) and upper(string) work correctly.\n\
+  \String functions work correctly.\n\
+  \split(string) works correctly.\n\
+  \join(string) works correctly.\n\
+  \String assignment works correctly.\n\
+  \String append works correctly.\n\
+  \@:= for strings works correctly.\n\
+  \String for loops work correctly.\n\
+  \The ternary operator ? : works correctly for string.\n";
+
+const string: chkidx_output is "\n\
+  \Index checking for string indexing works correctly.\n\
+  \Index checking for string head works correctly.\n\
+  \Index checking for string tail works correctly.\n\
+  \Index checking for string range works correctly.\n\
+  \Index checking for string substr works correctly.\n\
+  \Index checking for string substr with fixed length works correctly.\n\
+  \Index checking for string @:= works correctly.\n";
+
+const string: chkbst_output is "\n\
+  \Bstring parse works correctly.\n\
+  \Bstring length works correctly.\n\
+  \Bstring assignment works correctly.\n\
+  \Bstring append works correctly.\n\
+  \Bstring comparisons work correctly.\n\
+  \String indices work correctly.\n\
+  \The ternary operator ? : works correctly for bstring.\n";
+
+const string: chkarr_output is "\n\
+  \Array initialization works correctly.\n\
+  \Array comparison works correctly.\n\
+  \Array assignment works correctly.\n\
+  \Array append ( &:= ) works correctly.\n\
+  \Array push ( &:= ) works correctly.\n\
+  \Index access of array element works correctly.\n\
+  \The array times operator works correctly.\n\
+  \Array head and tail operations work correctly.\n\
+  \Head of array works correctly.\n\
+  \Tail of array works correctly.\n\
+  \Range of array works correctly.\n\
+  \Sub array of array works correctly.\n\
+  \Insert element into array works correctly.\n\
+  \Insert array into array works correctly.\n\
+  \Remove element from array works correctly.\n\
+  \Remove array from array works correctly.\n\
+  \Sorting arrays works correctly.\n";
+
+const string: chkprc_output is "\n\
+  \If statements work correctly.\n\
+  \While statements work correctly.\n\
+  \Repeat statements work correctly.\n\
+  \For to statements work correctly.\n\
+  \For downto statements work correctly.\n\
+  \For to until statements work correctly.\n\
+  \For downto until statements work correctly.\n\
+  \For char to statements work correctly.\n\
+  \For char downto statements work correctly.\n\
+  \For char to until statements work correctly.\n\
+  \For char downto until statements work correctly.\n\
+  \For boolean to statements work correctly.\n\
+  \For boolean downto statements work correctly.\n\
+  \For bigInteger statements work correctly.\n\
+  \Case integer statements work correctly.\n\
+  \Case char statements work correctly.\n\
+  \Case string statements work correctly.\n\
+  \Case bigInteger statements work correctly.\n\
+  \Case float statements work correctly.\n";
+
+const string: chkbig_output is "\n\
+  \Based bigInteger literals work correctly.\n\
+  \BigInteger comparisons work correctly.\n\
+  \String conversion of bigInteger works correctly.\n\
+  \The radix operator for bigInteger works correctly.\n\
+  \Conversion of bigInteger to integer works correctly.\n\
+  \ord(aBigInteger mod 2_**y) works correctly.\n\
+  \Conversion of integer to bigInteger works correctly.\n\
+  \Conversion of bigInteger to big endian byte string works correctly.\n\
+  \Conversion of bigInteger to little endian byte string works correctly.\n\
+  \Conversion of big endian byte string to bigInteger works correctly.\n\
+  \Conversion of little endian byte string to bigInteger works correctly.\n\
+  \The bigInteger negation works correctly.\n\
+  \The plus sign for bigInteger works correctly.\n\
+  \Successor of bigInteger works correctly.\n\
+  \Predecessor of bigInteger works correctly.\n\
+  \Increment of bigInteger works correctly.\n\
+  \Decrement of bigInteger works correctly.\n\
+  \Addition of bigInteger works correctly.\n\
+  \Addition assignment of bigInteger works correctly.\n\
+  \Subtraction of bigInteger works correctly.\n\
+  \Subtraction assignment of bigInteger works correctly.\n\
+  \Multiplication of bigInteger works correctly.\n\
+  \Multiplication assignment of bigInteger works correctly.\n\
+  \Division of bigInteger works correctly.\n\
+  \Remainder of bigInteger division works correctly.\n\
+  \Division of bigInteger with divRem works correctly.\n\
+  \Modulo division of bigInteger works correctly.\n\
+  \Modulo of bigInteger division works correctly.\n\
+  \Power of bigInteger works correctly.\n\
+  \Factorial of bigInteger works correctly.\n\
+  \Binomial coefficient of bigInteger works correctly.\n\
+  \The bigInteger compare works correctly.\n\
+  \The bigInteger abs function works correctly.\n\
+  \The bigInteger odd function works correctly.\n\
+  \The bigInteger rand function works correctly.\n\
+  \The bigInteger gcd function works correctly.\n\
+  \The bigInteger log2 function works correctly.\n\
+  \The bigInteger log10 function works correctly.\n\
+  \The bigInteger bitLength function works correctly.\n\
+  \The bigInteger lowestSetBit function works correctly.\n\
+  \The bigInteger << and <<:= works correctly.\n\
+  \The bigInteger >> and >>:= works correctly.\n\
+  \The bigInteger square root works correctly.\n\
+  \The bigInteger sci operator does work correctly.\n\
+  \The bigInteger constants work correctly.\n\
+  \BigInteger assignment works correctly.\n\
+  \The ternary operator ? : works correctly for bigInteger.\n";
+
+const string: chkbool_output is "\n\
+  \Boolean not works correctly.\n\
+  \Boolean and works correctly.\n\
+  \Boolean and assignment works correctly.\n\
+  \Boolean or works correctly.\n\
+  \Boolean or assignment works correctly.\n\
+  \Boolean exclusive or assignment works correctly.\n\
+  \Boolean = works correctly.\n\
+  \Boolean <> works correctly.\n\
+  \Boolean > works correctly.\n\
+  \Boolean >= works correctly.\n\
+  \Boolean < works correctly.\n\
+  \Boolean <= works correctly.\n\
+  \Boolean compare works correctly.\n\
+  \Boolean ord() works correctly.\n\
+  \Boolean conv works correctly.\n\
+  \Boolean str() works correctly.\n\
+  \Boolean succ() works correctly.\n\
+  \Boolean pred() works correctly.\n\
+  \The ternary operator ? : works correctly for boolean.\n";
+
+const string: chkenum_output is "\n\
+  \Enumeration comparisons work correctly.\n\
+  \Enumeration compare function works correctly.\n\
+  \Enumeration ord function works correctly.\n\
+  \Enumeration conv operator works correctly.\n\
+  \Enumeration succ and pred functions work correctly.\n\
+  \Enumeration incr and decr work correctly.\n\
+  \Enumeration literal function works correctly.\n\
+  \The ternary operator ? : works correctly for enumerations.\n";
+
+const string: chktime_output is "\n\
+  \The conversion of a string in ISO 8601 date format works correctly.\n\
+  \The conversion of a time to a string works correctly.\n\
+  \Leap year functions work correctly.\n\
+  \timestamp1970() and timestamp1970ToTime() work correctly.\n\
+  \timestamp1601() and timestamp1601ToTime() work correctly.\n\
+  \julianDayNumber() and julianDayNumToTime() work correctly.\n\
+  \Time truncation works correctly.\n\
+  \Week date functions work correctly.\n\
+  \await accepts only legal time values.\n\
+  \setLocalTZ accepts only legal time values.\n";
+
+const string: chkscan_output is "\n\
+  \The function getDigits works correctly.\n\
+  \The function getHexDigits works correctly.\n\
+  \The function getInteger works correctly.\n\
+  \The function getNumber works correctly.\n\
+  \The function getNonDigits works correctly.\n\
+  \The function getQuotedText works correctly.\n\
+  \The function getCommandLineWord works correctly.\n\
+  \The function getSimpleStringLiteral works correctly.\n\
+  \The function getLetters works correctly.\n\
+  \The function getName works correctly.\n\
+  \The function skipSpace works correctly.\n\
+  \The function skipSpaceOrTab works correctly.\n\
+  \The function skipWhiteSpace works correctly.\n\
+  \The function getWhiteSpace works correctly.\n\
+  \The function getWord works correctly.\n\
+  \The function skipLine works correctly.\n\
+  \The function getLine works correctly.\n\
+  \The function getXmlTagHeadOrContent works correctly.\n";
+
+const string: chkjson_output is "\n\
+  \The function getJsonString works correctly.\n\
+  \The function getJsonNumber works correctly.\n\
+  \The function getJsonSymbol works correctly.\n\
+  \JSON DOM functions work correctly.\n\
+  \The struct element functions work correctly.\n\
+  \The function parseJson works correctly.\n\
+  \The function fromJson works correctly.\n\
+  \The function toJson works correctly.\n";
+
+const string: chktoml_output is "\n\
+  \The function getTomlSymbol works correctly with strings.\n\
+  \The function getTomlSymbol works correctly with integers.\n\
+  \The function getTomlSymbol works correctly with floats.\n\
+  \The function getTomlSymbol works correctly with dates.\n\
+  \The function getTomlSymbol works correctly.\n\
+  \The function getTomlKey works correctly.\n";
+
+const string:chkbitdata_output is "\n\
+  \getBit(lsbInBitStream) works correctly.\n\
+  \getBits(lsbInBitStream) works correctly.\n\
+  \peekBits(lsbInBitStream) works correctly.\n\
+  \eof(lsbInBitStream) works correctly.\n\
+  \gets(lsbInBitStream) works correctly.\n\
+  \close(lsbInBitStream) works correctly.\n\
+  \getBit(msbInBitStream) works correctly.\n\
+  \getBits(msbInBitStream) works correctly.\n\
+  \peekBits(msbInBitStream) works correctly.\n\
+  \eof(msbInBitStream) works correctly.\n\
+  \gets(msbInBitStream) works correctly.\n\
+  \close(msbInBitStream) works correctly.\n\
+  \putBit(lsbOutBitStream) works correctly.\n\
+  \putBits(lsbOutBitStream) works correctly.\n\
+  \length(lsbOutBitStream) and truncate(lsbOutBitStream) work correctly.\n\
+  \putBit(msbOutBitStream) works correctly.\n\
+  \putBits(msbOutBitStream) works correctly.\n\
+  \length(msbOutBitStream) and truncate(msbOutBitStream) work correctly.\n";
+
+const string: chkset_output is "\n\
+  \Bitset literals work correctly.\n\
+  \Conversion of sets works correctly.\n\
+  \card(set) works correctly.\n\
+  \rand(set) works correctly.\n\
+  \incl(bitset, integer) works correctly.\n\
+  \excl(bitset, integer) works correctly.\n\
+  \set compare works correctly.\n\
+  \set relations work correctly.\n\
+  \set union works correctly.\n\
+  \set union assignment works correctly.\n\
+  \set symdiff works correctly.\n\
+  \set intersection works correctly.\n\
+  \set intersection assignment works correctly.\n\
+  \set difference test works correctly.\n\
+  \set difference assignment works correctly.\n\
+  \set membership test works correctly.\n\
+  \set membership test for char works correctly.\n\
+  \set membership test for string works correctly.\n\
+  \min(bitset) works correctly.\n\
+  \max(bitset) works correctly.\n\
+  \next(bitset) works correctly.\n\
+  \str(bitset) works correctly.\n\
+  \set assignment works correctly.\n\
+  \character sets work correctly.\n";
+
+const string: chkhsh_output is "\n\
+  \Hash tables with boolean keys work correctly.\n\
+  \Hash tables with integer keys work correctly.\n\
+  \Hash tables with bigInteger keys work correctly.\n\
+  \Hash tables with rational keys work correctly.\n\
+  \Hash tables with bigRational keys work correctly.\n\
+  \Hash tables with float keys work correctly.\n\
+  \Hash tables with complex keys work correctly.\n\
+  \Hash tables with char keys work correctly.\n\
+  \Hash tables with string keys work correctly.\n\
+  \Hash tables with bstring keys work correctly.\n\
+  \Hash tables with bitset keys work correctly.\n\
+  \Hash tables with time keys work correctly.\n\
+  \Hash tables with enumeration type keys work correctly.\n\
+  \The keys function for hash tables works correctly.\n\
+  \The values function for hash tables works correctly.\n\
+  \The for loop for hash tables works correctly.\n\
+  \The assignment of a hash variable to itself works correctly.\n\
+  \Hash literals work correctly.\n";
+
+const string: chkfil_output is "\n\
+  \Open a file does work correctly.\n\
+  \File I/O does work correctly.\n\
+  \File seek does work correctly.\n\
+  \Automatic closing of files works.\n\
+  \File operations with a closed file fail as they should.\n\
+  \Open an UTF-8 file does work correctly.\n\
+  \Utf-8 file I/O does work correctly.\n\
+  \Utf-8 file seek does work correctly.\n\
+  \Automatic closing of UTF-8 files works.\n\
+  \File operations with a closed UTF-8 file fail as they should.\n\
+  \STD_NULL does work correctly.\n";
+
+const string: chkerr_output is "\n\
+  \Scanner errors are reported correctly.\n\
+  \Include and pragma errors are reported correctly.\n\
+  \Basic declaration errors are reported correctly.\n\
+  \Numeric literal errors are reported correctly.\n\
+  \String and char literal errors are reported correctly.\n\
+  \Errors where something was expected are reported correctly.\n\
+  \Declaration errors are reported correctly.\n\
+  \Syntax declaration errors are reported correctly.\n\
+  \Semantic errors are reported correctly.\n\
+  \Unicode errors are reported correctly.\n\
+  \All errors are reported correctly.\n";
+
+const string: chkexc_output is "\n\
+  \Integer exceptions work correctly.\n\
+  \BigInteger exceptions work correctly.\n\
+  \Floating point exceptions work correctly.\n\
+  \String exceptions work correctly.\n\
+  \Array exceptions work correctly.\n\
+  \File exceptions work correctly.\n\
+  \seek(STD_IN, 0) raises RANGE_ERROR\n\
+  \gets(STD_IN, -1) raises RANGE_ERROR\n\
+  \test_func(1 div 0) raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 and TRUE raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 and FALSE raises NUMERIC_ERROR\n\
+  \TRUE and 1 div 0 = 0 raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 or TRUE raises NUMERIC_ERROR\n\
+  \1 div 0 = 0 or FALSE raises NUMERIC_ERROR\n\
+  \FALSE or 1 div 0 = 0 raises NUMERIC_ERROR\n\
+  \if 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in if then raises NUMERIC_ERROR\n\
+  \1 div 0 in if else raises NUMERIC_ERROR\n\
+  \while 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in while raises NUMERIC_ERROR\n\
+  \repeat until 1 div 0 raises NUMERIC_ERROR\n\
+  \1 div 0 in repeat raises NUMERIC_ERROR\n";
+
+
+const proc: ignoreFileError (in proc: statement) is func
+  begin
+    block
+      statement;
+    exception
+      catch FILE_ERROR: noop;
+    end block;
+  end func;
+
+
+const func boolean: equalFiles (in string: file1Name, in string: file2Name) is func
+  result
+    var boolean: equal is FALSE;
+  local
+    var file: file1 is STD_NULL;
+    var file: file2 is STD_NULL;
+    var string: stri1 is "";
+    var string: stri2 is "";
+  begin
+    file1 := open(file1Name, "r");
+    if file1 <> STD_NULL then
+      file2 := open (file2Name, "r");
+      if file2 <> STD_NULL then
+        equal := TRUE;
+        while equal and not (eof(file1) or eof(file2)) do
+          stri1 := gets(file1, 1048576);
+          stri2 := gets(file2, 1048576);
+          if stri1 <> stri2 then
+            equal := FALSE;
+          end if;
+        end while;
+        if not (eof(file1) and eof(file2)) then
+          equal := FALSE;
+        end if;
+        close(file2);
+      end if;
+      close(file1);
+    end if;
+  end func;
+
+
+const func string: cmdOutput (in var string: cmdAndParams) is func
+  result
+    var string: output is "";
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+    var process: aProcess is process.value;
+    var file: childStdout is STD_NULL;
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    if succeeds(aProcess := startPipe(commandPath(command), parameters)) then
+      childStdout := childStdOut(aProcess);
+      output := gets(childStdout, 999999999);
+      waitFor(aProcess);
+    else
+      writeln;
+      writeln(" *** Unable to execute " <& command);
+      writeln("     Maybe antivirus software removed the executable.");
+    end if;
+  end func;
+
+
+const func boolean: checkInterpreter (in string: progName, in string: referenceOutput) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: interpretedOutput is "";
+  begin
+    interpretedOutput := cmdOutput(interpretProgram & progName);
+    if interpretedOutput <> referenceOutput then
+      writeln;
+      writeln(" *** The interpreted " <& progName <& " does not work okay:");
+      writeln(interpretedOutput);
+      okay := FALSE;
+    else
+      write(".");
+      flush(OUT);
+    end if;
+    if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+      ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+    end if;
+  end func;
+
+
+const func boolean: checkCompiler (in string: progName, in string: option,
+    in string: referenceOutput) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: compilerOutput is "";
+    var string: compiledOutput is "";
+  begin
+    compilerOutput := cmdOutput(interpretCompiler & option & progName);
+    if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      compiledOutput := cmdOutput("./" & progName);
+      if compiledOutput <> referenceOutput then
+        writeln;
+        writeln(" *** The compiled " <& progName <& " does not work okay:");
+        writeln(compiledOutput);
+        okay := FALSE;
+      else
+        write(".");
+        flush(OUT);
+      end if;
+    else
+      writeln;
+      writeln(" *** The interpreted compiler was not able to compile " <& progName);
+      if fileType("tmp_" & progName & ".cerrs") = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".c");
+        end if;
+        moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
+        if fileType("tmp1_" & progName & ".cerrs") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".cerrs");
+        end if;
+        moveFile("tmp_" & progName & ".cerrs", "tmp1_" & progName & ".cerrs");
+        writeln(" *** Errors in " <& literal("tmp1_" & progName & ".c") <&
+                " - see " <& literal("tmp1_" & progName & ".cerrs"));
+      elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
+        end if;
+        if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          moveFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION,
+                   "tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
+        end if;
+        if fileType("tmp1_" & progName & ".lerrs") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".lerrs");
+        end if;
+        moveFile("tmp_" & progName & ".lerrs", "tmp1_" & progName & ".lerrs");
+        writeln(" *** Linker errors with " <&
+                literal("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
+                " - see " <& literal("tmp1_" & progName & ".lerrs"));
+      else
+        writeln(" *** Compiler output:");
+        writeln(compilerOutput);
+      end if;
+      okay := FALSE;
+    end if;
+    if fileType(s7compiler) = FILE_REGULAR then
+      if fileType("tmp_" & progName & ".c") = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".c");
+        end if;
+        moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
+      end if;
+      if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+        ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+      end if;
+      compilerOutput := cmdOutput(executeCompiler & option & progName);
+      if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
+            compiledOutput := cmdOutput("./" & progName);
+            if compiledOutput <> referenceOutput then
+              writeln;
+              writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output.");
+              writeln(" *** The program " <& progName <&
+                      " does not work okay, when it is compiled with the compiled compiler.");
+              writeln(compiledOutput);
+              okay := FALSE;
+            else
+              write(".");
+              flush(OUT);
+            end if;
+          else
+            removeFile("tmp_" & progName & ".c");
+            removeFile("tmp1_" & progName & ".c");
+            if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <> FILE_ABSENT then
+              ignoreFileError(removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION));
+            end if;
+            if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+              ignoreFileError(removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION));
+            end if;
+            write(".");
+            flush(OUT);
+          end if;
+        end if;
+      else
+        writeln;
+        writeln(" *** The compiled compiler was not able to compile " <& progName);
+        if fileType("tmp_" & progName & ".cerrs") = FILE_REGULAR then
+          writeln(" *** Errors in " <& literal("tmp_" & progName & ".c") <&
+              " - see " <& literal("tmp_" & progName & ".cerrs"));
+        elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
+          writeln(" *** Linker errors with " <&
+              literal("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
+              " - see " <& literal("tmp_" & progName & ".lerrs"));
+        else
+          writeln(" *** Compiler output:");
+          writeln(compilerOutput);
+        end if;
+        okay := FALSE;
+      end if;
+    end if;
+  end func;
+
+
+const proc: check (in string: progName, in string: referenceOutput) is func
+  local
+    const array string: options is [] ("", "-oc0 ", "-oc1 ", "-oc2 ", "-oc3 ");
+    var string: option is "";
+    var boolean: okay is TRUE;
+  begin
+    write(progName <& " ");
+    flush(OUT);
+    okay := checkInterpreter(progName, referenceOutput);
+    for option range options do
+      if not checkCompiler(progName, option, referenceOutput) then
+        writeln("The error happened with the option " <& option);
+        okay := FALSE;
+      end if;
+    end for;
+    if okay then
+      write(" okay");
+    else
+      checkAllFailed := TRUE;
+    end if;
+    writeln;
+  end func;
+
+const proc: checkFast (in string: progName, in string: referenceOutput) is func
+  local
+    const array string: options is [] ("", "-oc3 ");
+    var string: option is "";
+    var boolean: okay is TRUE;
+  begin
+    write(progName <& " ");
+    flush(OUT);
+    okay := checkInterpreter(progName, referenceOutput);
+    for option range options do
+      if not checkCompiler(progName, option, referenceOutput) then
+        writeln("The error happened with the option " <& option);
+        okay := FALSE;
+      end if;
+    end for;
+    if okay then
+      write(" okay");
+    else
+      checkAllFailed := TRUE;
+    end if;
+    writeln;
+  end func;
+
+const proc: main is func
+  begin
+    chdir(dir(PROGRAM));
+    if length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "build" then
+      interpretProgram  := "../bin/s7 -l ../lib -q ";
+      interpretCompiler := "../bin/s7 -l ../lib s7c -l ../lib -b ../bin -g ";
+      executeCompiler   := "../bin/s7c -l ../lib -b ../bin -g ";
+      s7compiler        := "../bin/s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
+      write("checking for presence of " <& s7compiler);
+      if not fileType(s7compiler) = FILE_REGULAR then
+        writeln;
+        writeln(" *** No Seed7 compiler executable found");
+        checkAllFailed := TRUE;
+      else
+        writeln(" - okay");
+      end if;
+    end if;
+    writeln("Running FAST test suite (interpreter + 2 optimization levels)");
+    checkFast("chkint",  chkint_output);
+    checkFast("chkovf",  chkovf_output);
+    checkFast("chkflt",  chkflt_output);
+    checkFast("chkbin",  chkbin_output);
+    checkFast("chkchr",  chkchr_output);
+    checkFast("chkstr",  chkstr_output);
+    checkFast("chkidx",  chkidx_output);
+    checkFast("chkbst",  chkbst_output);
+    checkFast("chkarr",  chkarr_output);
+    checkFast("chkprc",  chkprc_output);
+    checkFast("chkbig",  chkbig_output);
+    checkFast("chkbool", chkbool_output);
+    checkFast("chkenum", chkenum_output);
+    checkFast("chktime", chktime_output);
+    checkFast("chkscan", chkscan_output);
+    checkFast("chkjson", chkjson_output);
+    checkFast("chktoml", chktoml_output);
+    checkFast("chkbitdata", chkbitdata_output);
+    checkFast("chkset",  chkset_output);
+    checkFast("chkhsh",  chkhsh_output);
+    checkFast("chkfil",  chkfil_output);
+    checkFast("chkerr",  chkerr_output);
+    checkFast("chkexc",  chkexc_output);
+    if checkAllFailed then
+      exit(1);
+    end if;
+  end func;

@@ -172,6 +172,14 @@ test:
 	@echo "  and use 'make install' (with your make command) to install Seed7."
 	@echo
 
+test-fast:
+	../bin/s7.exe -l ../lib ../prg/chk_fast build
+
+test-list:
+	@echo "Test programs: chkint chkovf chkflt chkbin chkchr chkstr chkidx chkbst"
+	@echo "               chkarr chkprc chkbig chkbool chkenum chktime chkscan"
+	@echo "               chkjson chktoml chkbitdata chkset chkhsh chkfil chkerr chkexc"
+
 check: test
 
 install: setwpath.exe

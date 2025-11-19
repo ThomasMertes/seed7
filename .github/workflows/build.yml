@@ -56,8 +56,11 @@ jobs:
     - name: Run tests
       working-directory: src
       run: |
-        make test
-      continue-on-error: true
+        if [ "${{ github.event_name }}" = "release" ]; then
+          make test
+        else
+          make test-fast
+        fi
 
     - name: Package binaries
       run: |
@@ -121,8 +124,11 @@ jobs:
     - name: Run tests
       working-directory: src
       run: |
-        make test
-      continue-on-error: true
+        if [ "${{ github.event_name }}" = "release" ]; then
+          make test
+        else
+          make test-fast
+        fi
 
     - name: Verify architecture
       run: |
@@ -191,8 +197,11 @@ jobs:
     - name: Run tests
       working-directory: src
       run: |
-        make test
-      continue-on-error: true
+        if [ "${{ github.event_name }}" = "release" ]; then
+          make test
+        else
+          make test-fast
+        fi
 
     - name: Package binaries
       shell: bash
