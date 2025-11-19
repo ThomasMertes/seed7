@@ -1,0 +1,244 @@
+name: Build Seed7 Utilities
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'prg/**'
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'prg/**'
+  workflow_dispatch:
+
+jobs:
+  build-utils-linux:
+    name: Build Utilities on Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+            artifact_name: seed7-utils-linux-amd64.tar.gz
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            artifact_name: seed7-utils-linux-arm64.tar.gz
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make libx11-dev libncurses5-dev
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_linux.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Build utilities
+      working-directory: src
+      run: |
+        make utils
+      continue-on-error: true
+
+    - name: Package utilities
+      run: |
+        mkdir -p artifacts/utils-linux-${{ matrix.arch }}
+        # Copy utilities (some may not exist, which is ok)
+        cp bin/bas7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/calc7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/db7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/diff7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/find7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ftp7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ide7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/make7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/sql7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/tar7 artifacts/utils-linux-${{ matrix.arch }}/ 2>/dev/null || true
+        # Ensure at least some files were copied
+        if [ -z "$(ls -A artifacts/utils-linux-${{ matrix.arch }})" ]; then
+          echo "Error: No utilities were built"
+          exit 1
+        fi
+        tar -czf ${{ matrix.artifact_name }} -C artifacts/utils-linux-${{ matrix.arch }} .
+
+    - name: Upload utilities
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-utils-linux-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
+        retention-days: 30
+
+  build-utils-macos:
+    name: Build Utilities on macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: macos-15-intel
+            artifact_name: seed7-utils-macos-amd64.tar.gz
+          - arch: arm64
+            runner: macos-latest
+            artifact_name: seed7-utils-macos-arm64.tar.gz
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install gcc make ncurses
+        brew install --cask xquartz || true
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_osxcl.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Build utilities
+      working-directory: src
+      run: |
+        make utils
+      continue-on-error: true
+
+    - name: Package utilities
+      run: |
+        mkdir -p artifacts/utils-macos-${{ matrix.arch }}
+        # Copy utilities (some may not exist, which is ok)
+        cp bin/bas7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/calc7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/db7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/diff7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/find7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ftp7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/ide7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/make7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/sql7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        cp bin/tar7 artifacts/utils-macos-${{ matrix.arch }}/ 2>/dev/null || true
+        # Ensure at least some files were copied
+        if [ -z "$(ls -A artifacts/utils-macos-${{ matrix.arch }})" ]; then
+          echo "Error: No utilities were built"
+          exit 1
+        fi
+        tar -czf ${{ matrix.artifact_name }} -C artifacts/utils-macos-${{ matrix.arch }} .
+
+    - name: Upload utilities
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-utils-macos-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
+        retention-days: 30
+
+  build-utils-windows:
+    name: Build Utilities on Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          make
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_msys.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Build utilities
+      working-directory: src
+      run: |
+        make utils
+      continue-on-error: true
+
+    - name: Package utilities
+      shell: bash
+      run: |
+        mkdir -p artifacts/utils-windows
+        # Copy utilities (some may not exist, which is ok)
+        cp bin/bas7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/calc7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/db7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/diff7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/find7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/ftp7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/ide7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/make7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/sql7.exe artifacts/utils-windows/ 2>/dev/null || true
+        cp bin/tar7.exe artifacts/utils-windows/ 2>/dev/null || true
+        # Ensure at least some files were copied
+        if [ -z "$(ls -A artifacts/utils-windows)" ]; then
+          echo "Error: No utilities were built"
+          exit 1
+        fi
+        7z a seed7-utils-windows-x64.zip ./artifacts/utils-windows/*
+
+    - name: Upload utilities
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-utils-windows-x64
+        path: seed7-utils-windows-x64.zip
+        retention-days: 30

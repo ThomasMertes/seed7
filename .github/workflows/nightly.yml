@@ -1,0 +1,187 @@
+name: Nightly Builds
+
+on:
+  schedule:
+    # Run every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly-build:
+    name: Nightly ${{ matrix.platform }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux builds
+          - platform: linux
+            arch: amd64
+            runner: ubuntu-latest
+            makefile: mk_linux.mak
+            artifact: seed7-nightly-linux-amd64.tar.gz
+            shell: bash
+          - platform: linux
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            makefile: mk_linux.mak
+            artifact: seed7-nightly-linux-arm64.tar.gz
+            shell: bash
+          # macOS builds
+          - platform: macos
+            arch: amd64
+            runner: macos-15-intel
+            makefile: mk_osxcl.mak
+            artifact: seed7-nightly-macos-amd64.tar.gz
+            shell: bash
+          - platform: macos
+            arch: arm64
+            runner: macos-latest
+            makefile: mk_osxcl.mak
+            artifact: seed7-nightly-macos-arm64.tar.gz
+            shell: bash
+          # Windows build
+          - platform: windows
+            arch: x64
+            runner: windows-latest
+            makefile: mk_msys.mak
+            artifact: seed7-nightly-windows-x64.zip
+            shell: msys2 {0}
+
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2 (Windows only)
+      if: matrix.platform == 'windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          make
+
+    - name: Install dependencies (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make libx11-dev libncurses5-dev
+
+    - name: Install dependencies (macOS)
+      if: matrix.platform == 'macos'
+      run: |
+        brew install gcc make ncurses
+        brew install --cask xquartz || true
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp ${{ matrix.makefile }} makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Run full test suite
+      working-directory: src
+      run: |
+        make test
+      continue-on-error: true
+
+    - name: Build utilities
+      working-directory: src
+      run: |
+        make utils
+      continue-on-error: true
+
+    - name: Verify architecture (macOS)
+      if: matrix.platform == 'macos'
+      run: |
+        file bin/s7 || true
+        file bin/s7c || true
+        lipo -info bin/s7 || true
+        lipo -info bin/s7c || true
+
+    - name: Package binaries (Linux/macOS)
+      if: matrix.platform != 'windows'
+      run: |
+        mkdir -p artifacts/${{ matrix.platform }}-${{ matrix.arch }}
+        cp -r bin/* artifacts/${{ matrix.platform }}-${{ matrix.arch }}/
+        tar -czf ${{ matrix.artifact }} -C artifacts/${{ matrix.platform }}-${{ matrix.arch }} .
+
+    - name: Package binaries (Windows)
+      if: matrix.platform == 'windows'
+      shell: bash
+      run: |
+        mkdir -p artifacts/${{ matrix.platform }}-${{ matrix.arch }}
+        cp -r bin/* artifacts/${{ matrix.platform }}-${{ matrix.arch }}/
+        7z a ${{ matrix.artifact }} ./artifacts/${{ matrix.platform }}-${{ matrix.arch }}/*
+
+    - name: Upload nightly build
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-nightly-${{ matrix.platform }}-${{ matrix.arch }}
+        path: ${{ matrix.artifact }}
+        retention-days: 7
+
+    - name: Generate build report
+      if: always()
+      run: |
+        echo "# Nightly Build Report" > build-report.md
+        echo "" >> build-report.md
+        echo "**Date:** $(date)" >> build-report.md
+        echo "**Platform:** ${{ matrix.platform }}" >> build-report.md
+        echo "**Architecture:** ${{ matrix.arch }}" >> build-report.md
+        echo "**Runner:** ${{ matrix.runner }}" >> build-report.md
+        echo "**Status:** ${{ job.status }}" >> build-report.md
+        echo "" >> build-report.md
+        echo "## Build Details" >> build-report.md
+        if [ -f bin/s7 ] || [ -f bin/s7.exe ]; then
+          echo "- Interpreter: Built ✓" >> build-report.md
+        else
+          echo "- Interpreter: Failed ✗" >> build-report.md
+        fi
+        if [ -f bin/s7c ] || [ -f bin/s7c.exe ]; then
+          echo "- Compiler: Built ✓" >> build-report.md
+        else
+          echo "- Compiler: Failed ✗" >> build-report.md
+        fi
+
+    - name: Upload build report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-report-${{ matrix.platform }}-${{ matrix.arch }}
+        path: build-report.md
+        retention-days: 7
+
+  cleanup-old-artifacts:
+    name: Cleanup Old Nightly Builds
+    needs: nightly-build
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+    - name: Delete old artifacts
+      uses: c-hive/gha-remove-artifacts@v1
+      with:
+        age: '7 days'
+        skip-recent: 3

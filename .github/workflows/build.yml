@@ -1,0 +1,235 @@
+name: Build Seed7 Binaries
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  release:
+    types: [ created ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: Build on Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+            artifact_name: seed7-linux-amd64.tar.gz
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            artifact_name: seed7-linux-arm64.tar.gz
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make libx11-dev libncurses5-dev
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_linux.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Run tests
+      working-directory: src
+      run: |
+        make test
+      continue-on-error: true
+
+    - name: Package binaries
+      run: |
+        mkdir -p artifacts/linux-${{ matrix.arch }}
+        cp bin/s7 artifacts/linux-${{ matrix.arch }}/
+        cp bin/s7c artifacts/linux-${{ matrix.arch }}/
+        cp bin/*.a artifacts/linux-${{ matrix.arch }}/
+        tar -czf ${{ matrix.artifact_name }} -C artifacts/linux-${{ matrix.arch }} .
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-linux-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
+        retention-days: 30
+
+  build-macos:
+    name: Build on macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: macos-15-intel
+            artifact_name: seed7-macos-amd64.tar.gz
+          - arch: arm64
+            runner: macos-latest
+            artifact_name: seed7-macos-arm64.tar.gz
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install gcc make ncurses
+        # XQuartz for X11 support
+        brew install --cask xquartz || true
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_osxcl.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Run tests
+      working-directory: src
+      run: |
+        make test
+      continue-on-error: true
+
+    - name: Verify architecture
+      run: |
+        file bin/s7 || true
+        file bin/s7c || true
+        lipo -info bin/s7 || true
+        lipo -info bin/s7c || true
+
+    - name: Package binaries
+      run: |
+        mkdir -p artifacts/macos-${{ matrix.arch }}
+        cp bin/s7 artifacts/macos-${{ matrix.arch }}/
+        cp bin/s7c artifacts/macos-${{ matrix.arch }}/
+        cp bin/*.a artifacts/macos-${{ matrix.arch }}/
+        tar -czf ${{ matrix.artifact_name }} -C artifacts/macos-${{ matrix.arch }} .
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-macos-${{ matrix.arch }}
+        path: ${{ matrix.artifact_name }}
+        retention-days: 30
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          make
+
+    - name: Setup build environment
+      working-directory: src
+      run: |
+        cp mk_msys.mak makefile
+
+    - name: Build dependencies
+      working-directory: src
+      run: |
+        make depend
+
+    - name: Build interpreter
+      working-directory: src
+      run: |
+        make
+
+    - name: Build compiler
+      working-directory: src
+      run: |
+        make s7c
+
+    - name: Run tests
+      working-directory: src
+      run: |
+        make test
+      continue-on-error: true
+
+    - name: Package binaries
+      shell: bash
+      run: |
+        mkdir -p artifacts/windows
+        cp bin/s7.exe artifacts/windows/
+        cp bin/s7c.exe artifacts/windows/
+        cp bin/*.a artifacts/windows/
+        7z a seed7-windows-x64.zip ./artifacts/windows/*
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: seed7-windows-x64
+        path: seed7-windows-x64.zip
+        retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          artifacts/seed7-linux-amd64/seed7-linux-amd64.tar.gz
+          artifacts/seed7-linux-arm64/seed7-linux-arm64.tar.gz
+          artifacts/seed7-macos-amd64/seed7-macos-amd64.tar.gz
+          artifacts/seed7-macos-arm64/seed7-macos-arm64.tar.gz
+          artifacts/seed7-windows-x64/seed7-windows-x64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
