@@ -11100,6 +11100,15 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "{FILE*fp;fp->_r <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;((struct __sFILE_fake *) fp)->_r <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) (((struct __sFILE_fake *) (fp))->_r <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;((struct __sFILE64 *) fp)->_r <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) (((struct __sFILE64 *) (fp))->_r <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE*fp;((struct __sFILE *) fp)->_r <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) (((struct __sFILE *) (fp))->_r <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                                 "{FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
