@@ -47,12 +47,18 @@ jobs:
             makefile: mk_msys.mak
             artifact: seed7-nightly-windows-x64.zip
             shell: msys2 {0}
+            msystem: MINGW64
+            gcc_arch: x86_64
+            extra_cflags: ""
           - platform: windows
             arch: arm64
             runner: windows-11-arm
             makefile: mk_msys.mak
             artifact: seed7-nightly-windows-arm64.zip
             shell: msys2 {0}
+            msystem: CLANGARM64
+            gcc_arch: clang-aarch64
+            extra_cflags: -Wno-error=implicit-function-declaration
 
     defaults:
       run:
@@ -66,12 +72,12 @@ jobs:
       if: matrix.platform == 'windows'
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: ${{ matrix.msystem }}
         update: true
         install: >-
           base-devel
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-make
+          mingw-w64-${{ matrix.gcc_arch }}-gcc
+          mingw-w64-${{ matrix.gcc_arch }}-make
           make
 
     - name: Install dependencies (Linux)
@@ -90,6 +96,12 @@ jobs:
       working-directory: src
       run: |
         cp ${{ matrix.makefile }} makefile
+
+    - name: Add extra CFLAGS for clang
+      if: matrix.extra_cflags != ''
+      working-directory: src
+      run: |
+        sed -i "s/^CFLAGS = /CFLAGS = ${{ matrix.extra_cflags }} /" makefile
 
     - name: Build dependencies
       working-directory: src
