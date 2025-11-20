@@ -214,8 +214,7 @@ static void print_lib_path (void)
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.striValue;
-      prot_stri(stri);
-      prot_nl();
+      printf("%s\n", striAsUnquotedCStri(stri));
     } /* for */
   } /* print_lib_path */
 #endif
