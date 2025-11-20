@@ -7710,7 +7710,6 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
     var integer: yPos is 0;
     var integer: byteIndex is 0;
     var integer: imageByte is 0;
-    var integer: colorNum is 0;
   begin
     if length(bytes) >= 4 then
       width := bytes2Int(bytes[1 fixLen 2], UNSIGNED, LE);
@@ -7722,7 +7721,6 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
         for yPos range 0 to pred(height) do
           lineStartByte := yPos * bytesPerLine;
           for xPos range 0 to pred(width) do
-            colorNum := 0;
             byteIndex := lineStartByte + xPos mdiv 8;
             imageByte := ord(bytes[5 + byteIndex]);
             if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
@@ -7767,7 +7765,6 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
         for yPos range 0 to pred(height) do
           lineStartByte := yPos * bytesPerLine;
           for xPos range 0 to pred(width) do
-            colorNum := 0;
             byteIndex := lineStartByte + xPos mdiv 4;
             imageByte := ord(bytes[5 + byteIndex]);
             colorNum := (imageByte >> (6 - xPos mod 4 * 2)) mod 4;
