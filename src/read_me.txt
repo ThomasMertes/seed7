@@ -1811,8 +1811,29 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   NORETURN: Macro that expands to __attribute__ ((noreturn)),
             if the C compiler supports this attribute. Without
-            support for this attribute the macro expands to analyze
-            empty expression.
+            support for this attribute the macro expands to an
+            empty expression. This macro can be used in front
+            of functions which do not return.
+
+  CONSTRUCTOR_ATTRIBUTE: Macro that expands to
+                         "__attribute__ ((constructor))", if
+                         the C compiler supports this attribute.
+                         Without support for this attribute the
+                         macro expands to an empty string ("").
+                         This attribute can be used in front of
+                         a declaration like 'void init (void)'.
+                         This causes that init() runs before
+                         main().
+
+  DEFINE_INITIALIZER_MACRO: String with the definition of an
+                            initializer macro. After inserting
+                            the code from this macro an
+                            initialize function can be defined
+                            with:
+                              INITIALIZER(initialize)
+                              static void initialize(void) {...}
+                            An initializer function is invoked
+                            before calling main.
 
   MACRO_DEFS: String with macro definitions for likely, unlikely
               and NORETURN.
@@ -2187,9 +2208,28 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                     returned by malloc(). The memory management
                     in the parser uses this alignment.
 
-  UNALIGNED_MEMORY_ACCESS_OKAY: Defined if integers can be read
+  MALLOC_OF_0_RETURNS_NULL: TRUE if malloc(0) returns NULL, or
+                            FALSE if malloc(0) does not return
+                            NULL.
+
+  UNALIGNED_MEMORY_ACCESS_OKAY: TRUE if integers can be read
                                 from unaligned memory positions.
                                 This macro is currently not used.
+
+  CASTING_GETS_A_UNION_ELEMENT: TRUE if a cast can get a
+                                char, int, long, float, double,
+                                pointer, etc. element from a
+                                union. This is TRUE on little
+                                endian computers.
+
+  UNIONS_CAN_CONVERT_TO_GENERIC: TRUE if a small element
+                                 of a union can be conveted to
+                                 a large (generic) element of
+                                 the union. A memory sanatizer
+                                 might consider this undefined
+                                 behavior, since some part of
+                                 the larger element is undefined.
+                                 In this case the macro is FALSE.
 
   NO_EMPTY_STRUCTS: Defined if the C compiler considers an empty
                     struct as syntax error.
@@ -2199,6 +2239,10 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   MEMCMP_RETURNS_SIGNUM: TRUE if memcmp() returns only the
                          values -1, 0 and 1.
+
+  MEMCMP_WITH_SIZE_0_RETURNS_0: TRUE if memcmp() with a size
+                                of 0 returns 0 even with NULL
+                                parameters.
 
   HAS_WMEMCMP: TRUE if the function wmemcmp() is available.
 
