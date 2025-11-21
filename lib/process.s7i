@@ -112,6 +112,28 @@ const func process: startProcess (in string: command, in array string: parameter
     inout clib_file: stdin, inout clib_file: stdout, inout clib_file: stderr) is action "PCS_START";
 
 
+(**
+ *  Start a new process.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  The parameter ''stdin'' allows redirecting a file to standard input.
+ *  The parameters ''stdout'' and ''stderr'' allow redirecting of the
+ *  normal and error outputs to files.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Array of argument strings passed to the new
+ *         program.
+ *  @param stdin File to be used as standard input of the process.
+ *  @param stdout File to be used as standard output of the process.
+ *  @param stderr File to be used as standard error output of the process.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
 const func process: startProcess (in string: command, in array string: parameters,
     inout file: stdin, inout file: stdout, inout file: stderr) is func
   result
