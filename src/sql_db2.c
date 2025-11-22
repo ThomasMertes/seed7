@@ -209,8 +209,8 @@ static boolType createConnectionString (connectDataType connectData)
 static databaseType doOpenDb2 (connectDataType connectData, errInfoType *err_info)
 
   {
-    SQLHENV sql_environment = NULL;
-    SQLHDBC sql_connection = NULL;
+    SQLHENV sql_environment = (SQLHENV) NULL;
+    SQLHDBC sql_connection = (SQLHDBC) NULL;
     SQLRETURN returnCode;
     SQLSMALLINT outConnectionStringLength;
     databaseType database;
