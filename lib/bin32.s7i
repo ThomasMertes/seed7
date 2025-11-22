@@ -105,6 +105,14 @@ const func integer: integer (in bin32: bits)                   is action "INT_IC
 
 
 (**
+ *  Convert to char.
+ *  @return the unchanged value as char.
+ *)
+const func char: char (in bin32: bits) is
+  return char(integer(bits));
+
+
+(**
  *  Get a float from bits in IEEE 754 single-precision representation.
  *  IEEE 754 is a standard for floating point arithmetic.
  *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
