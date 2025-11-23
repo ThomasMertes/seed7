@@ -36,6 +36,7 @@ var string: executeCompiler   is "./s7c -g ";
 var string: s7interpreter     is "./s7" & ccConf.EXECUTABLE_FILE_EXTENSION;
 var string: s7compiler        is "./s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
 var boolean: checkAllFailed is FALSE;
+var boolean: doMinimalTests is FALSE;
 
 const string: chkint_output is "\n\
   \Integer literals with exponent work correctly.\n\
@@ -714,6 +715,7 @@ const func boolean: checkCompiler (in string: progName, in string: option,
 
 const proc: check (in string: progName, in string: referenceOutput) is func
   local
+    const array string: minimalTestOptions is [] ("-oc3 ");
     const array string: options is [] ("", "-oc0 ", "-oc1 ", "-oc2 ", "-oc3 ");
     var string: option is "";
     var boolean: okay is TRUE;
@@ -721,12 +723,21 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     write(progName <& " ");
     flush(OUT);
     okay := checkInterpreter(progName, referenceOutput);
-    for option range options do
-      if not checkCompiler(progName, option, referenceOutput) then
-        writeln("The error happened with the option " <& option);
-        okay := FALSE;
-      end if;
-    end for;
+    if doMinimalTests then
+      for option range minimalTestOptions do
+        if not checkCompiler(progName, option, referenceOutput) then
+          writeln("The error happened with the option " <& option);
+          okay := FALSE;
+        end if;
+      end for;
+    else
+      for option range options do
+        if not checkCompiler(progName, option, referenceOutput) then
+          writeln("The error happened with the option " <& option);
+          okay := FALSE;
+        end if;
+      end for;
+    end if;
     if okay then
       write(" okay");
     else
@@ -737,9 +748,19 @@ const proc: check (in string: progName, in string: referenceOutput) is func
 
 
 const proc: main is func
+  local
+    var string: currArg is "";
+    var boolean: checkDuringBuild is FALSE;
   begin
     chdir(dir(PROGRAM));
-    if length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "build" then
+    for currArg range argv(PROGRAM) do
+      if currArg = "build" then
+        checkDuringBuild := TRUE;
+      elsif currArg = "minimal_tests" then
+        doMinimalTests := TRUE;
+      end if;
+    end for;
+    if checkDuringBuild then
       interpretProgram  := "../bin/s7 -l ../lib -q ";
       interpretCompiler := "../bin/s7 -l ../lib s7c -l ../lib -b ../bin -g ";
       executeCompiler   := "../bin/s7c -l ../lib -b ../bin -g ";
