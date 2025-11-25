@@ -986,13 +986,16 @@ objectType arr_head (listType arguments)
                       arr1_size, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (unlikely(!ALLOC_ARRAY(result, 0))) {
-        logError(printf("arr_head: ALLOC_ARRAY() failed.\n"););
+      emptyArrayType emptyArray;
+
+      if (unlikely(!ALLOC_EMPTY_ARRAY(emptyArray))) {
+        logError(printf("arr_head: ALLOC_EMPTY_ARRAY() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arr1->min_position - 1;
+        emptyArray->min_position = arr1->min_position;
+        emptyArray->max_position = arr1->min_position - 1;
       } /* if */
+      result = (arrayType) emptyArray;
     } /* if */
     logFunction(printf("arr_head -->\n"););
     return bld_array_temp(result);
@@ -1481,13 +1484,16 @@ objectType arr_range (listType arguments)
                       arr1_size, start, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (unlikely(!ALLOC_ARRAY(result, 0))) {
-        logError(printf("arr_range: ALLOC_ARRAY() failed.\n"););
+      emptyArrayType emptyArray;
+
+      if (unlikely(!ALLOC_EMPTY_ARRAY(emptyArray))) {
+        logError(printf("arr_range: ALLOC_EMPTY_ARRAY() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arr1->min_position - 1;
+        emptyArray->min_position = arr1->min_position;
+        emptyArray->max_position = arr1->min_position - 1;
       } /* if */
+      result = (arrayType) emptyArray;
     } /* if */
     return bld_array_temp(result);
   } /* arr_range */
@@ -1810,13 +1816,16 @@ objectType arr_subarr (listType arguments)
                         arr1_size, start, length););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else {
-        if (unlikely(!ALLOC_ARRAY(result, 0))) {
-          logError(printf("arr_subarr: ALLOC_ARRAY() failed.\n"););
+        emptyArrayType emptyArray;
+
+        if (unlikely(!ALLOC_EMPTY_ARRAY(emptyArray))) {
+          logError(printf("arr_subarr: ALLOC_EMPTY_ARRAY() failed.\n"););
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          result->min_position = arr1->min_position;
-          result->max_position = arr1->min_position - 1;
+          emptyArray->min_position = arr1->min_position;
+          emptyArray->max_position = arr1->min_position - 1;
         } /* if */
+        result = (arrayType) emptyArray;
       } /* if */
     } /* if */
     return bld_array_temp(result);
@@ -1886,13 +1895,16 @@ objectType arr_tail (listType arguments)
                       arr1_size, start););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      if (unlikely(!ALLOC_ARRAY(result, 0))) {
-        logError(printf("arr_tail: ALLOC_ARRAY() failed.\n"););
+      emptyArrayType emptyArray;
+
+      if (unlikely(!ALLOC_EMPTY_ARRAY(emptyArray))) {
+        logError(printf("arr_tail: ALLOC_EMPTY_ARRAY() failed.\n"););
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arr1->min_position - 1;
+        emptyArray->min_position = arr1->min_position;
+        emptyArray->max_position = arr1->min_position - 1;
       } /* if */
+      result = (arrayType) emptyArray;
     } /* if */
     return bld_array_temp(result);
   } /* arr_tail */
