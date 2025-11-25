@@ -855,11 +855,14 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = 0;
+          emptyStri->size = 0;
         } /* if */
+        result = (striType) emptyStri;
       } /* if */
     } else {
       if ((uintType) length > MAX_MEMSIZETYPE) {
@@ -1685,13 +1688,15 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
         bytes_received = 0;
       } /* if */
       if (bytes_received == 0) {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           raise_error(MEMORY_ERROR);
-          result = NULL;
         } else {
-          result->size = 0;
+          emptyStri->size = 0;
           *terminationChar = (charType) EOF;
         } /* if */
+        result = (striType) emptyStri;
       } else {
         nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
         if (nlPos != NULL) {

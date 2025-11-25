@@ -2940,11 +2940,14 @@ striType cmdGetenv (const const_striType name)
       env_value = os_getenv(env_name);
       os_stri_free(env_name);
       if (env_value == NULL) {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(value, 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           err_info = MEMORY_ERROR;
         } else {
-          value->size = 0;
+          emptyStri->size = 0;
         } /* if */
+        value = (striType) emptyStri;
       } else {
         value = os_stri_to_stri(env_value, &err_info);
         os_getenv_string_free(env_value);

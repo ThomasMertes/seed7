@@ -924,13 +924,16 @@ objectType str_head (listType arguments)
     } else if (unlikely(stop < 0)) {
       return raise_exception(SYS_IDX_EXCEPTION);
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      emptyStri->size = 0;
       /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
+      /* the size of striStruct. But this is okay, because the */
       /* elements 'mem' respectively 'mem1' are not used. */
-      result->size = 0;
+      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_head */
@@ -1424,13 +1427,16 @@ objectType str_range (listType arguments)
     } else if (unlikely(stop < start - 1)) {
       return raise_exception(SYS_IDX_EXCEPTION);
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      emptyStri->size = 0;
       /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
+      /* the size of striStruct. But this is okay, because the */
       /* elements 'mem' respectively 'mem1' are not used. */
-      result->size = 0;
+      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_range */
@@ -1706,13 +1712,16 @@ objectType str_substr (listType arguments)
              result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      emptyStri->size = 0;
       /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
+      /* the size of striStruct. But this is okay, because the */
       /* elements 'mem' respectively 'mem1' are not used. */
-     result->size = 0;
+      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_substr */
@@ -1781,13 +1790,16 @@ objectType str_tail (listType arguments)
              result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
+      emptyStri->size = 0;
       /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
+      /* the size of striStruct. But this is okay, because the */
       /* elements 'mem' respectively 'mem1' are not used. */
-      result->size = 0;
+      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_tail */

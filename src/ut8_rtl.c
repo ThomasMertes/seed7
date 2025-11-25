@@ -585,11 +585,14 @@ striType ut8Gets (fileType inFile, intType length)
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = 0;
+          emptyStri->size = 0;
         } /* if */
+        result = (striType) emptyStri;
       } /* if */
 #if FREAD_WRONG_FOR_WRITE_ONLY_FILES
     } else if (unlikely(!inFile->readingAllowed)) {

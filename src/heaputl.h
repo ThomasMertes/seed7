@@ -264,6 +264,7 @@ EXTERN memSizeType hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayRecord) - sizeof(rtlObjectType))   + (len) * sizeof(rtlObjectType))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
+#define SIZ_STRI_0       (sizeof(emptyStriRecord))
 #define SIZ_ARR_0        (sizeof(emptyArrayRecord))
 #define SIZ_SCT_0        (sizeof(emptyStructRecord))
 
@@ -368,6 +369,7 @@ EXTERN memSizeType hs;
 #define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3_STRI((v1)->capacity,cap))(v1)->capacity=(cap);}
 #endif
+#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?((var)->capacity=0,CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
 #define HEAP_FREE_STRI(var, unused)          (CNT(CNT2_STRI((var)->capacity,SIZ_STRI((var)->capacity))) FREE_HEAP(var,SIZ_STRI((var)->capacity)))
 #else
 #if ALLOW_STRITYPE_SLICES
@@ -377,6 +379,7 @@ EXTERN memSizeType hs;
 #define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){COUNT3_STRI(l1,l2);}
 #endif
+#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?(CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
 #define HEAP_FREE_STRI(var, len)             (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
 #endif
 
@@ -413,12 +416,14 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 #define PUSH_STRI_OK(var)   (var)->capacity < STRI_FREELIST_ARRAY_SIZE && sflist_allowed[(var)->capacity] > 0
 
 #define POP_STRI(var,len)   (var = (striType) sflist[len], sflist[len] = sflist[len]->next, sflist_allowed[len]++, TRUE)
+#define POP_EMPTY_STRI(var) (var = (emptyStriType) sflist[0], sflist[0] = sflist[0]->next, sflist_allowed[0]++, TRUE)
 #define PUSH_STRI(var,len)  { ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
 
 #if WITH_ADJUSTED_STRI_FREELIST
 #define ADJUST_ALLOWED_LEN(len)  (sflist_was_full[len] ? (sflist_was_full[len]=0, sflist_allowed[len] < 65536 ? sflist_allowed[len]<<=1 : 0) : 0)
 
 #define ALLOC_SFLIST_STRI(var,len)     (ADJUST_ALLOWED_LEN(len), HEAP_ALLOC_STRI(var, len))
+#define ALLOC_EMPTY_SFLIST_STRI(var)   (ADJUST_ALLOWED_LEN(0), HEAP_ALLOC_EMPTY_STRI(var))
 #define FREE_SFLIST_STRI(var,len)      { sflist_was_full[len]=1; HEAP_FREE_STRI(var, **not-used**); }
 
 #define POP_OR_ALLOC_STRI(var,len)     (sflist[len] != NULL ? POP_STRI(var, len) : ALLOC_SFLIST_STRI(var,len))
@@ -426,12 +431,14 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 
 #define ALLOC_STRI_SIZE_OK(var,len)    ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) ((len) < STRI_FREELIST_ARRAY_SIZE ? POP_OR_ALLOC_STRI(var,len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
+#define ALLOC_EMPTY_STRI(var)          (sflist[0] != NULL ? POP_EMPTY_STRI(var) : ALLOC_EMPTY_SFLIST_STRI(var))
 #define FREE_STRI2(var,unused)  if ((var)->capacity < STRI_FREELIST_ARRAY_SIZE) PUSH_OR_FREE_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, **not-used**);
 
 #else
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var, len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var, len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
+#define ALLOC_EMPTY_STRI(var)          (sflist[0] != NULL ? POP_EMPTY_STRI(var) : HEAP_ALLOC_EMPTY_STRI(var))
 #define FREE_STRI2(var,unused)  if (PUSH_STRI_OK(var)) PUSH_STRI(var, (var)->capacity) else HEAP_FREE_STRI(var, **not-used**);
 #endif
 
@@ -457,6 +464,8 @@ EXTERN unsigned int sflist_allowed;
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
+#define ALLOC_EMPTY_STRI(var)          HEAP_ALLOC_EMPTY_STRI(var)
+
 #define FREE_STRI2(var,len)  if (PUSH_STRI_OK(var)) PUSH_STRI(var) else HEAP_FREE_STRI(var, len);
 #define FREE_STRI(var)       FREE_STRI2(var, (var)->size)
 
@@ -465,6 +474,8 @@ EXTERN unsigned int sflist_allowed;
 
 #define ALLOC_STRI_SIZE_OK(var,len)       HEAP_ALLOC_STRI(var, len)
 #define ALLOC_STRI_CHECK_SIZE(var,len)    ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE))
+#define ALLOC_EMPTY_STRI(var)             HEAP_ALLOC_EMPTY_STRI(var)
+
 #define FREE_STRI2(var,len)               HEAP_FREE_STRI(var, len)
 #define FREE_STRI(var)                    FREE_STRI2(var, (var)->size)
 

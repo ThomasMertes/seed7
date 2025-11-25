@@ -2572,18 +2572,18 @@ void strDestrGeneric (const genericType old_value)
 striType strEmpty (void)
 
   {
-    striType result;
+    emptyStriType result;
 
   /* strEmpty */
     logFunction(printf("strEmpty()");
                 fflush(stdout););
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+    if (unlikely(!ALLOC_EMPTY_STRI(result))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = 0;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
-    return result;
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri((striType) result)););
+    return (striType) result;
   } /* strEmpty */
 
 
@@ -2778,11 +2778,14 @@ striType strHead (const const_striType stri, const intType stop)
       raise_error(INDEX_ERROR);
       head = NULL;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(head, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         raise_error(MEMORY_ERROR);
       } else {
-        head->size = 0;
+        emptyStri->size = 0;
       } /* if */
+      head = (striType) emptyStri;
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
     return head;
@@ -3554,11 +3557,14 @@ striType strMult (const const_striType stri, const intType factor)
     } else {
       len = stri->size;
       if (unlikely(len == 0)) {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = 0;
+          emptyStri->size = 0;
         } /* if */
+        result = (striType) emptyStri;
       } else if (unlikely((uintType) factor > MAX_STRI_LEN / len)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -3925,11 +3931,14 @@ striType strRange (const const_striType stri, intType start, intType stop)
       raise_error(INDEX_ERROR);
       result = NULL;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = 0;
+        emptyStri->size = 0;
       } /* if */
+      result = (striType) emptyStri;
     } /* if */
     return result;
   } /* strRange */
@@ -4672,11 +4681,14 @@ striType strSubstr (const const_striType stri, intType start, intType length)
                result_size * sizeof(strElemType));
         result->size = result_size;
       } else {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+        emptyStriType emptyStri;
+
+        if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = 0;
+          emptyStri->size = 0;
         } /* if */
+        result = (striType) emptyStri;
       } /* if */
     } /* if */
     return result;
@@ -4837,11 +4849,14 @@ striType strTail (const const_striType stri, intType start)
              tailSize * sizeof(strElemType));
       tail->size = tailSize;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(tail, (memSizeType) 0))) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         raise_error(MEMORY_ERROR);
       } else {
-        tail->size = 0;
+        emptyStri->size = 0;
       } /* if */
+      tail = (striType) emptyStri;
     } /* if */
     return tail;
   } /* strTail */

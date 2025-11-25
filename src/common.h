@@ -685,6 +685,15 @@ typedef struct striStruct {
 #endif
   } striRecord;
 
+typedef struct emptyStriStruct *emptyStriType;
+
+typedef struct emptyStriStruct {
+    memSizeType size;
+#if WITH_STRI_CAPACITY
+    memSizeType capacity;
+#endif
+  } emptyStriRecord;
+
 typedef struct bstriStruct {
     memSizeType size;
 #if ALLOW_BSTRITYPE_SLICES
