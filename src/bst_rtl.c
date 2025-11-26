@@ -64,6 +64,9 @@ void bstAppend (bstriType *const destination, const_bstriType extension)
     bstriType new_bstri;
 
   /* bstAppend */
+    logFunction(printf("bstAppend(\"%s\", ", bstriAsUnquotedCStri(*destination));
+                printf("\"%s\")", bstriAsUnquotedCStri(extension));
+                fflush(stdout););
     bstri_dest = *destination;
     if (unlikely(bstri_dest->size > MAX_BSTRI_LEN - extension->size)) {
       /* number of bytes does not fit into memSizeType */
@@ -87,6 +90,7 @@ void bstAppend (bstriType *const destination, const_bstriType extension)
         *destination = new_bstri     ;
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(*destination)););
   } /* bstAppend */
 
 
@@ -104,6 +108,9 @@ bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2)
     bstriType result;
 
   /* bstCat */
+    logFunction(printf("bstCat(\"%s\", ", bstriAsUnquotedCStri(bstri1));
+                printf("\"%s\")", bstriAsUnquotedCStri(bstri2));
+                fflush(stdout););
     if (unlikely(bstri1->size > MAX_BSTRI_LEN - bstri2->size)) {
       /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
@@ -118,6 +125,7 @@ bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2)
         memcpy(&result->mem[bstri1->size], bstri2->mem, bstri2->size);
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(result)););
     return result;
   } /* bstCat */
 
@@ -135,6 +143,8 @@ intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2)
     intType signumValue;
 
   /* bstCmp */
+    logFunction(printf("bstCmp(\"%s\", ", bstriAsUnquotedCStri(bstri1));
+                printf("\"%s\")\n", bstriAsUnquotedCStri(bstri2)););
 #if MEMCMP_RETURNS_SIGNUM
     if (bstri1->size < bstri2->size) {
       signumValue = memcmp(bstri1->mem, bstri2->mem, bstri1->size);
@@ -167,6 +177,7 @@ intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2)
       } /* if */
     } /* if */
 #endif
+    logFunction(printf("bstCmp --> " FMT_D "\n", signumValue););
     return signumValue;
   } /* bstCmp */
 
@@ -202,6 +213,9 @@ void bstCpy (bstriType *const dest, const const_bstriType source)
     bstriType bstri_dest;
 
   /* bstCpy */
+    logFunction(printf("bstCpy(\"%s\", ", bstriAsUnquotedCStri(*dest));
+                printf("\"%s\")", bstriAsUnquotedCStri(source));
+                fflush(stdout););
     bstri_dest = *dest;
     new_size = source->size;
     if (bstri_dest->size != new_size) {
@@ -219,6 +233,7 @@ void bstCpy (bstriType *const dest, const const_bstriType source)
     /* destination areas overlap (or are identical).    */
     /* Therefore memmove() is used instead of memcpy(). */
     memmove(bstri_dest->mem, source->mem, new_size);
+    logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(*dest)););
   } /* bstCpy */
 
 
