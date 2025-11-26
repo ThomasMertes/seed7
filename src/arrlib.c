@@ -1770,6 +1770,8 @@ objectType arr_subarr (listType arguments)
     arr1 = take_array(arg_1(arguments));
     start = take_int(arg_3(arguments));
     length = take_int(arg_5(arguments));
+    logFunction(printf("arr_subarr(arr1, " FMT_D ", " FMT_D ")\n",
+                       start, length););
     if (unlikely(start < arr1->min_position || length < 0)) {
       logError(printf("arr_subarr(arr1, " FMT_D ", " FMT_D "): "
                       "Start index out of range (" FMT_D " .. " FMT_D ").\n",
@@ -1828,6 +1830,7 @@ objectType arr_subarr (listType arguments)
         result = (arrayType) emptyArray;
       } /* if */
     } /* if */
+    logFunction(printf("arr_subarr -->\n"););
     return bld_array_temp(result);
   } /* arr_subarr */
 
@@ -1854,6 +1857,7 @@ objectType arr_tail (listType arguments)
     isit_int(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     start = take_int(arg_3(arguments));
+    logFunction(printf("arr_tail(arr1, " FMT_D ")\n", start););
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
       logError(printf("arr_tail(arr1, " FMT_D "): "
@@ -1906,6 +1910,7 @@ objectType arr_tail (listType arguments)
       } /* if */
       result = (arrayType) emptyArray;
     } /* if */
+    logFunction(printf("arr_tail -->\n"););
     return bld_array_temp(result);
   } /* arr_tail */
 
@@ -1932,6 +1937,7 @@ objectType arr_times (listType arguments)
   /* arr_times */
     isit_int(arg_1(arguments));
     factor = take_int(arg_1(arguments));
+    logFunction(printf("arr_times(" FMT_D ", ...)\n", factor););
     element = arg_3(arguments);
     if (unlikely(factor < 0)) {
       logError(printf("arr_times(" FMT_D ", ...): Factor negative.\n",
@@ -1990,6 +1996,7 @@ objectType arr_times (listType arguments)
             } /* if */
           } /* for */
         } /* if */
+        logFunction(printf("arr_times -->\n"););
         return bld_array_temp(result);
       } /* if */
     } /* if */
