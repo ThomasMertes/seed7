@@ -792,7 +792,11 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
             c_expr.temp_decls &:= ";\n";
             c_expr.expr &:= "(";
             c_expr.expr &:= index_name;
-            c_expr.expr &:= "=(";
+            if ccConf.TWOS_COMPLEMENT_INTTYPE then
+              c_expr.expr &:= "=(uintType)(";
+            else
+              c_expr.expr &:= "=(";
+            end if;
             process_expr(index, c_expr);
             c_expr.expr &:= ")";
             if arrayMinIdx(anArray) <> 0 then
