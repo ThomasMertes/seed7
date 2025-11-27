@@ -37,6 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "locale.h"
 #include "time.h"
 #include "limits.h"
 #include "ctype.h"
@@ -89,6 +90,7 @@ typedef struct {
     boolType     integerDatetimes;
     uintType     nextStmtNum;
     boolType     autoCommit;
+    floatType    moneyDenominator;
   } dbRecordPost, *dbType;
 
 typedef struct {
@@ -1495,6 +1497,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
+        case CASHOID:
           decimalNumber = (cstriType) bigIntToDecimal(value, &length, &err_info);
           if (likely(decimalNumber != NULL)) {
             if (unlikely(length > INT_MAX)) {
@@ -1564,6 +1567,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
               htond(bigRatToDouble(numerator, denominator));
           break;
         case NUMERICOID:
+        case CASHOID:
           decimalNumber = (cstriType) bigRatToDecimal(numerator, denominator,
               DEFAULT_DECIMAL_SCALE, &length, &err_info);
           if (likely(decimalNumber != NULL)) {
@@ -1830,6 +1834,18 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           preparedStmt->paramValues[pos - 1] = param->buffer;
           *(double *) param->buffer = htond(value);
           break;
+        case CASHOID:
+          free(param->buffer);
+          if (unlikely((param->buffer = (cstriType) malloc(
+                            FLOATTYPE_SIZE + NULL_TERMINATION_LEN)) == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            preparedStmt->paramLengths[pos - 1] =
+                (int) sprintf(param->buffer, "%lf", value);
+            preparedStmt->paramFormats[pos - 1] = 0;
+          } /* if */
+          break;
         default:
           logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
@@ -1905,6 +1921,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           preparedStmt->paramValues[pos - 1] = param->buffer;
           *(double *) param->buffer = htond((double) value);
           break;
+        case CASHOID:
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
@@ -2274,6 +2291,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             case INT8OID:
               columnValue = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               break;
+            case CASHOID:
+              columnValue = bigFromInt64(((int64Type) ntohll(*(const uint64Type *) buffer)) / (int32Type) preparedStmt->db->moneyDenominator);
+              break;
             case NUMERICOID:
               columnValue = getNumericAsBigInt((const_ustriType) buffer);
               break;
@@ -2351,6 +2371,10 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             case INT8OID:
               *numerator = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               *denominator = bigFromInt32(1);
+              break;
+            case CASHOID:
+              *numerator = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
+              *denominator = bigFromInt32((int32Type) preparedStmt->db->moneyDenominator);
               break;
             case FLOAT4OID:
               *numerator = roundDoubleToBigRat(ntohf(*(const float *) buffer),
@@ -2797,6 +2821,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             case INT8OID:
               columnValue = (floatType) (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
+            case CASHOID:
+              columnValue = ((floatType) (int64Type) ntohll(*(const uint64Type *) buffer)) / preparedStmt->db->moneyDenominator;
+              break;
             case FLOAT4OID:
               columnValue = ntohf(*(const float *) buffer);
               break;
@@ -2880,6 +2907,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
               break;
             case INT8OID:
               columnValue = (int64Type) ntohll(*(const uint64Type *) buffer);
+              break;
+            case CASHOID:
+              columnValue = ((int64Type) ntohll(*(const uint64Type *) buffer)) / preparedStmt->db->moneyDenominator;
               break;
             case NUMERICOID:
               columnValue = getNumericAsInt((const_ustriType) buffer);
@@ -3658,7 +3688,37 @@ static boolType setupFuncTable (void)
     return sqlFunc != NULL;
   } /* setupFuncTable */
 
+static boolType getLocale(dbType database, errInfoType *err_info)
+{
+  PGresult *execResult;
 
+  // Fetch the locale used for the money type within the current database.
+  execResult = PQexec(database->connection, "SHOW lc_monetary");
+  if (unlikely(execResult == NULL))
+    err_info = MEMORY_ERROR;
+  else
+  { if (PQresultStatus(execResult) != PGRES_TUPLES_OK)
+    { setDbErrorMsg("getLocale", "PQexec", database->connection);
+      logError(printf("doExecSql: PQexec(" FMT_U_MEM ", \"%s\") "
+                      "returns a status of %s:\n%s",
+                      (memSizeType) database->connection, "SHOW lc_monetary",
+                      PQresStatus(PQresultStatus(execResult)),
+                      dbError.message););
+      err_info = DATABASE_ERROR;
+    }
+    else
+    { char *locale = PQgetvalue(execResult, 0, 0);
+      setlocale(LC_ALL, locale);
+      struct lconv* lc = localeconv();
+      database->moneyDenominator = pow(10.0, lc->frac_digits); // This will be 100.0 for dollars/pounds (indicating cents/pence precision).
+      logFunction(printf("Money: precision of %d, resulting in a denominator of %f\n", lc->frac_digits, database->moneyDenominator););
+      setlocale(LC_ALL, ""); // Return to default.
+      return TRUE;
+    }
+    PQclear(execResult);
+  }
+  return FALSE;
+}
 
 databaseType sqlOpenPost (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
@@ -3774,6 +3834,9 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 err_info = DATABASE_ERROR;
                 PQfinish(db.connection);
                 database = NULL;
+              } else if (unlikely(!getLocale(&db, &err_info))) {
+                PQfinish(db.connection);
+                database = NULL;
               } else if (unlikely(!setupFuncTable() ||
                                   !ALLOC_RECORD2(database, dbRecordPost,
                                                  count.database, count.database_bytes))) {
@@ -3792,6 +3855,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
                 database->nextStmtNum = 1;
                 database->autoCommit = TRUE;
+                database->moneyDenominator = db.moneyDenominator;
               } /* if */
             } /* if */
             free_cstri8(password8, password);
