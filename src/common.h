@@ -704,6 +704,12 @@ typedef struct bstriStruct {
 #endif
   } bstriRecord;
 
+typedef struct emptyBStriStruct *emptyBStriType;
+
+typedef struct emptyBStriStruct {
+    memSizeType size;
+  } emptyBStriRecord;
+
 typedef struct fileStruct {
     cFileType cFile;
     uintType usage_count;

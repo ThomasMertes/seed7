@@ -310,17 +310,17 @@ objectType bst_destr (listType arguments)
 objectType bst_empty (listType arguments)
 
   {
-    bstriType result;
+    emptyBStriType result;
 
   /* bst_empty */
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+    if (unlikely(!ALLOC_EMPTY_BSTRI(result))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      /* Note that the size of the allocated memory is smaller than */
-      /* the size of the struct. But this is okay, because the */
-      /* elements 'mem' respectively 'mem1' are not used. */
       result->size = 0;
-      return bld_bstri_temp(result);
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of bstriStruct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
+      return bld_bstri_temp((bstriType) result);
     } /* if */
   } /* bst_empty */
 

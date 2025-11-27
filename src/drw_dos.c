@@ -261,15 +261,15 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
 bstriType drwGetPixelData (const_winType source_window)
 
   {
-    bstriType result;
+    emptyBStriType result;
 
   /* drwGetPixelData */
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+    if (unlikely(!ALLOC_EMPTY_BSTRI(result))) {
       raise_error(RANGE_ERROR);
     } else {
       result->size = 0;
     } /* if */
-    return result;
+    return (bstriType) result;
   } /* drwGetPixelData */
 
 

@@ -5041,12 +5041,15 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       columnDescr = &preparedStmt->result_descr_array[column - 1];
       columnData = &preparedStmt->currentFetch->result_array[column - 1];
       if (columnData->length == SQL_NULL_DATA) {
+        emptyBStriType emptyBStri;
+
         logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+        if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          columnValue->size = 0;
+          emptyBStri->size = 0;
         } /* if */
+        columnValue = (bstriType) emptyBStri;
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnBStri", "SQLBindCol");
         logError(printf("sqlColumnBStri: Column " FMT_D ": "

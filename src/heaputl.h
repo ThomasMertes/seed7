@@ -265,6 +265,7 @@ EXTERN memSizeType hs;
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
 #define SIZ_STRI_0       (sizeof(emptyStriRecord))
+#define SIZ_BSTRI_0      (sizeof(emptyBStriRecord))
 #define SIZ_ARR_0        (sizeof(emptyArrayRecord))
 #define SIZ_SCT_0        (sizeof(emptyStructRecord))
 
@@ -523,6 +524,7 @@ EXTERN unsigned int sflist_allowed;
 #endif
 
 #define ALLOC_BSTRI_CHECK_SIZE(var,len)       ((len) <= MAX_BSTRI_LEN?ALLOC_BSTRI_SIZE_OK(var, len):(var=NULL,FALSE))
+#define ALLOC_EMPTY_BSTRI(var)                (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?(CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
 #define FREE_BSTRI(var,len)                   (CNT(CNT2_BSTRI(len, SIZ_BSTRI(len))) FREE_HEAP(var, SIZ_BSTRI(len)))
 #define REALLOC_BSTRI_CHECK_SIZE(v1,v2,l1,l2) ((l2)  <= MAX_BSTRI_LEN?REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2):(v1=NULL,0))
 #define COUNT3_BSTRI(len1,len2)               CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)), CNT1_BSTRI(len2, SIZ_BSTRI(len2)))

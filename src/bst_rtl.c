@@ -448,11 +448,14 @@ bstriType bstTail (const const_bstriType stri, intType start)
       memcpy(result->mem, &stri->mem[start - 1], result_size);
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, (memSizeType) 0))) {
+      emptyBStriType emptyBStri;
+
+      if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
         raise_error(MEMORY_ERROR);
-        return NULL;
+      } else {
+        emptyBStri->size = 0;
       } /* if */
-      result->size = 0;
+      result = (bstriType) emptyBStri;
     } /* if */
     return result;
   } /* bstTail */
