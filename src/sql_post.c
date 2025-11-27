@@ -2508,12 +2508,15 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                            preparedStmt->fetch_index,
                            (int) column - 1);
       if (isNull == 1) {
+        emptyBStriType emptyBStri;
+
         logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+        if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          columnValue->size = 0;
+          emptyBStri->size = 0;
         } /* if */
+        columnValue = (bstriType) emptyBStri;
       } else if (unlikely(isNull != 0)) {
         dbInconsistent("sqlColumnBStri", "PQgetisnull");
         logError(printf("sqlColumnBStri: Column " FMT_D ": "

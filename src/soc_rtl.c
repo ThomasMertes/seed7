@@ -1196,13 +1196,16 @@ bstriType socInetAddr (const const_striType hostName, intType port)
               || getaddrinfo_result == EAI_NODATA
 #endif
           ) {
+            emptyBStriType emptyBStri;
+
             free_cstri8(os_hostName, hostName);
             /* Return empty address */
-            if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
               raise_error(MEMORY_ERROR);
             } else {
-              result->size = 0;
+              emptyBStri->size = 0;
             } /* if */
+            result = (bstriType) emptyBStri;
           } else {
             logError(printf("socInetAddr(\"%s\", " FMT_D "): "
                             "getaddrinfo(\"%s\", \"%s\", *, *) failed with %d:\n"
@@ -1256,16 +1259,19 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           host_ent = gethostbyname(os_hostName);
         } /* if */
         if (unlikely(host_ent == NULL)) {
+          emptyBStriType emptyBStri;
+
           /* printf("***** gethostbyname(\"%s\"): h_errno=%d\n", os_hostName, h_errno);
              printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
                  HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
           free_cstri8(os_hostName, hostName);
           /* Return empty address */
-          if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+          if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
             raise_error(MEMORY_ERROR);
           } else {
-            result->size = 0;
+            emptyBStri->size = 0;
           } /* if */
+          result = (bstriType) emptyBstri;
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
@@ -1299,15 +1305,18 @@ bstriType socInetAddr (const const_striType hostName, intType port)
               } */
             } /* if */
           } else {
+            emptyBStriType emptyBStri;
+
             /* printf("socInetAddr: addrtype=%d\n", host_ent->h_addrtype); */
             /* raise_error(FILE_ERROR);
                result = NULL; */
             /* Return empty address */
-            if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
               raise_error(MEMORY_ERROR);
             } else {
-              result->size = 0;
+              emptyBStri->size = 0;
             } /* if */
+            result = (bstriType) emptyBStri;
           } /* if */
         } /* if */
 #endif

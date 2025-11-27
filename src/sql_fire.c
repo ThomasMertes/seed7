@@ -2474,12 +2474,15 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       sqlvar = &preparedStmt->out_sqlda->sqlvar[column - 1];
       sqlind = sqlvar->sqlind;
       if (sqlind != NULL && *sqlind == -1) {
+        emptyBStriType emptyBStri;
+
         logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+        if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          columnValue->size = 0;
+          emptyBStri->size = 0;
         } /* if */
+        columnValue = (bstriType) emptyBStri;
       } else if (unlikely(sqlind != NULL && *sqlind != 0)) {
         dbInconsistent("sqlColumnBStri", "sqlind");
         logError(printf("sqlColumnBStri: Column " FMT_D ": "

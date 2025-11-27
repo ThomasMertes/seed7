@@ -1477,11 +1477,14 @@ bstriType drwGetPixelData (const_winType sourceWindow)
   /* drwGetPixelData */
     logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) sourceWindow););
     if (to_window(sourceWindow) == 0) {
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+      emptyBStriType emptyBStri;
+
+      if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = 0;
+        emptyBStri->size = 0;
       } /* if */
+      result = (bstriType) emptyBStri;
     } else {
       width = to_width(sourceWindow);
       height = to_height(sourceWindow);

@@ -1453,21 +1453,29 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                                                              (int) column - 1))););
       switch (sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1)) {
         case SQLITE_NULL:
-          logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
-          if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
-            raise_error(MEMORY_ERROR);
-          } else {
-            columnValue->size = 0;
-          } /* if */
+          {
+            emptyBStriType emptyBStri;
+
+            logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              emptyBStri->size = 0;
+            } /* if */
+            columnValue = (bstriType) emptyBStri;
+          }
           break;
         case SQLITE_BLOB:
           blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           if (blob == NULL) {
-            if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+            emptyBStriType emptyBStri;
+
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
               raise_error(MEMORY_ERROR);
             } else {
-              columnValue->size = 0;
+              emptyBStri->size = 0;
             } /* if */
+            columnValue = (bstriType) emptyBStri;
           } else {
             length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
             if (unlikely(length < 0)) {
@@ -1488,11 +1496,14 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         case SQLITE_TEXT:
           stri8 = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
           if (stri8 == NULL) {
-            if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+            emptyBStriType emptyBStri;
+
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
               raise_error(MEMORY_ERROR);
             } else {
-              columnValue->size = 0;
+              emptyBStri->size = 0;
             } /* if */
+            columnValue = (bstriType) emptyBStri;
           } else {
             length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
             if (unlikely(length < 0)) {

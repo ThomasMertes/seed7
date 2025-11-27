@@ -1790,12 +1790,15 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     } else {
       columnData = &preparedStmt->result_array[column - 1];
       if (columnData->is_null_value != 0) {
+        emptyBStriType emptyBStri;
+
         logMessage(printf("Column is NULL -> Use default value: \"\"\n"););
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+        if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
           raise_error(MEMORY_ERROR);
         } else {
-          columnValue->size = 0;
+          emptyBStri->size = 0;
         } /* if */
+        columnValue = (bstriType) emptyBStri;
       } else {
         logMessage(printf("buffer_type: %s\n",
                           nameOfBufferType(columnData->buffer_type)););
@@ -1845,11 +1848,14 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                   } /* if */
                 } /* if */
               } else {
-                if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+                emptyBStriType emptyBStri;
+
+                if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
                   raise_error(MEMORY_ERROR);
                 } else {
-                  columnValue->size = 0;
+                  emptyBStri->size = 0;
                 } /* if */
+                columnValue = (bstriType) emptyBStri;
               } /* if */
             } /* if */
             break;
