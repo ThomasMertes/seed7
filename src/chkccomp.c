@@ -11602,7 +11602,8 @@ int main (int argc, char **argv)
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[5];\n"
                          "memcpy(buffer, \"abcd\", 5);\n"
-                         "memcpy(&buffer[1], \"xy\", 0);\n"
+                         "memcpy(&buffer[1], \"xy\", argc);\n"
+                         "memcpy(&buffer[5], \"xy\", argc);\n"
                          "printf(\"%d\\n\", memcmp(buffer, \"abcd\", 5) == 0);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define MEMCPY_ZERO_BYTES_DOES_NOTHING %d\n", doTest() == 1);

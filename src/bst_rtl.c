@@ -274,7 +274,8 @@ bstriType bstCreate (const const_bstriType source)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
-      memcpy(result->mem, source->mem, (size_t) new_size);
+      memcpy_size_0_okay(result->mem, source->mem,
+                         (size_t) new_size);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(result)););
     return result;

@@ -53,6 +53,12 @@ typedef BOOLTYPE boolType;
 
 #define EXTERN          extern
 
+#if MEMCPY_ZERO_BYTES_DOES_NOTHING
+#define memcpy_size_0_okay(dest, source, size) memcpy(dest, source, size)
+#else
+#define memcpy_size_0_okay(dest, source, size) if ((size) != 0) {memcpy(dest, source, size);}
+#endif
+
 
 typedef INT8TYPE           int8Type;
 typedef UINT8TYPE          uint8Type;

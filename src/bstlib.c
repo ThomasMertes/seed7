@@ -269,7 +269,8 @@ objectType bst_create (listType arguments)
       } /* if */
       dest->value.bstriValue = new_bstri;
       new_bstri->size = new_size;
-      memcpy(new_bstri->mem, take_bstri(source)->mem, new_size);
+      memcpy_size_0_okay(new_bstri->mem, take_bstri(source)->mem,
+                         (size_t) new_size);
     } /* if */
     logFunctionResult(printf(FMT_X_MEM "\n",
                              (memSizeType) take_bstri(dest)););
@@ -516,7 +517,8 @@ objectType bst_value (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = bstri->size;
-        memcpy(result->mem, bstri->mem, result->size);
+        memcpy_size_0_okay(result->mem, bstri->mem,
+                           (size_t) bstri->size);
         return bld_bstri_temp(result);
       } /* if */
     } /* if */
