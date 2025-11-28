@@ -2797,7 +2797,7 @@ const proc: process_main_declaration (in reference: current_object,
     main_epilog &:= "  }\n";
     main_epilog &:= "  printf(\"\\n\");\n";
     if programUses.databaseLibrary then
-      main_epilog &:= "  if (fail_value == 6 /*DATABASE_ERROR*/) {\n";
+      main_epilog &:= "  if (fail_value == DATABASE_ERROR) {\n";
       main_epilog &:= "    striType message;\n";
       main_epilog &:= "    message = sqlErrMessage();\n";
       main_epilog &:= "    printf(\"\\nMessage from the DATABASE_ERROR exception:\\n\");\n";
@@ -5963,7 +5963,7 @@ const proc: write_file_head is func
                     \#define RANGE_ERROR     5\n\
                     \#define INDEX_ERROR     6\n\
                     \#define FILE_ERROR      7\n\
-                    \#define DATABSE_ERROR   8\n\
+                    \#define DATABASE_ERROR  8\n\
                     \#define GRAPHIC_ERROR   9\n\
                     \#define ACTION_ERROR   10\n\
                     \#define CREATE_ERROR   11\n\
