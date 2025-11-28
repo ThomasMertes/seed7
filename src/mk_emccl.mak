@@ -169,6 +169,9 @@ test:
 	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
 	@echo
 
+minimal_test:
+	$(NODE) ../bin/s7.js -l ../lib ../prg/chk_all build minimal_test
+
 check: test
 
 install:

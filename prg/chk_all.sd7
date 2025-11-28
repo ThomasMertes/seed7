@@ -756,7 +756,7 @@ const proc: main is func
     for currArg range argv(PROGRAM) do
       if currArg = "build" then
         checkDuringBuild := TRUE;
-      elsif currArg = "minimal_tests" then
+      elsif currArg = "minimal_test" then
         doMinimalTests := TRUE;
       end if;
     end for;

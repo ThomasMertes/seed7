@@ -172,6 +172,9 @@ test:
 	@echo "  and use 'make install' (with your make command) to install Seed7."
 	@echo
 
+minimal_test:
+	../bin/s7.exe -l ../lib ../prg/chk_all build minimal_test
+
 check: test
 
 install: setwpath.exe

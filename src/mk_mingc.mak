@@ -182,6 +182,9 @@ distclean: clean clean_utils
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
+minimal_test:
+	..\bin\s7 -l ..\lib ..\prg\chk_all build minimal_test
+
 check: test
 
 install: setwpath.exe sudo.exe
