@@ -1911,6 +1911,10 @@ static void writeMacroDefs (FILE *versionFile)
     } else {
       fputs("#define inline\n", versionFile);
     } /* if */
+    if (!compileAndLinkOk("int main(int argc,char *argv[])\n"
+                          "{register int a; return 0;}\n")) {
+      fputs("#define register\n", versionFile);
+    } /* if */
     if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
                           "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA + *ptrB;}\n"
                           "int main(int argc,char *argv[])\n"
