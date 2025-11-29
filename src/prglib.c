@@ -267,6 +267,10 @@ objectType prg_eval (listType arguments)
   /* prg_eval */
     isit_prog(arg_1(arguments));
     isit_reference(arg_2(arguments));
+    logFunction(printf("prg_eval(%s, ", striAsUnquotedCStri(
+                       take_prog(arg_1(arguments))->program_name));
+                trace1(take_reference(arg_2(arguments)));
+                printf(")\n"););
     result = exec_expr(take_prog(arg_1(arguments)),
                        take_reference(arg_2(arguments)),
                        &err_info);
@@ -274,8 +278,12 @@ objectType prg_eval (listType arguments)
       /* The global variable curr_argument_list does not contain */
       /* the arguments of this function. Therefore the parameter */
       /* arguments is used instead.                              */
+      logError(printf("prg_eval triggered %d\n", err_info););
       return raise_with_arguments(prog->sys_var[err_info], arguments);
     } else {
+      logFunction(printf("prg_eval --> ");
+                  trace1(result);
+                  printf("\n"););
       return bld_reference_temp(result);
     } /* if */
   } /* prg_eval */
