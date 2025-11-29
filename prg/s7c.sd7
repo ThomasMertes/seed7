@@ -7119,30 +7119,31 @@ const proc: init_string_constants_no_slices (in stri_index_hash: stri_index,
   begin
     for number range sort(keys(stri_index)) do
       stri := stri_index[number][1];
-      c_expr.expr &:= "/* str[";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static strElemType stri_";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "[]={";
+      write(c_prog, "/* str[");
+      write(c_prog, str(number));
+      write(c_prog, "] */ static strElemType stri_");
+      write(c_prog, str(number));
+      write(c_prog, "[]={");
       if ccConf.POINTER_SIZE = 32 then
-        c_expr.expr &:= str(length(stri));
-        c_expr.expr &:= ",";
+        write(c_prog, str(length(stri)));
+        write(c_prog, ",");
         if ccConf.WITH_STRI_CAPACITY then
-          c_expr.expr &:= str(length(stri));
-          c_expr.expr &:= ",";
+          write(c_prog, str(length(stri)));
+          write(c_prog, ",");
         end if;
       elsif ccConf.POINTER_SIZE = 64 then
-        c_expr.expr &:= int64AsTwoInt32(bigInteger(length(stri)));
+        write(c_prog, int64AsTwoInt32(bigInteger(length(stri))));
         if ccConf.WITH_STRI_CAPACITY then
-          c_expr.expr &:= int64AsTwoInt32(bigInteger(length(stri)));
+          write(c_prog, int64AsTwoInt32(bigInteger(length(stri))));
         end if;
       end if;
       for ch range stri do
-        c_expr.expr &:= c_literal(ch);
-        c_expr.expr &:= ",";
+        write(c_prog, c_literal(ch));
+        write(c_prog, ",");
       end for;
-      c_expr.expr &:= "};\n";
+      writeln(c_prog, "};");
     end for;
+    writeln(c_prog);
     c_expr.expr &:= "striType str[]={\n";
     if length(constTable.stri_const) > 0 then
       for number range sort(keys(stri_index)) do
