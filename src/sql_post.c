@@ -3700,6 +3700,10 @@ static boolType getLocale (dbType database, errInfoType *err_info)
 
   {
     PGresult *execResult;
+    char *locale;
+    char *savedLocale;
+    char *databaseLocale;
+    struct lconv* lc;
 
   /* getLocale */
     /* Fetch the locale used for the money type within the current database. */
@@ -3716,18 +3720,24 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                         dbError.message););
         *err_info = DATABASE_ERROR;
       } else {
-        char *locale;
-        struct lconv* lc;
-
-        locale = PQgetvalue(execResult, 0, 0);
-        setlocale(LC_ALL, locale);
-        lc = localeconv();
-        database->moneyDenominator = intPow(10, lc->frac_digits);
-        /* This will be 100.0 for dollars/pounds (indicating cents/pence precision). */
-        logMessage(printf("Money: precision of %d, resulting in a denominator of %f\n",
-                          lc->frac_digits, database->moneyDenominator););
-        setlocale(LC_ALL, ""); /* Return to default. */
-        return TRUE;
+        locale = setlocale(LC_ALL, NULL);
+        if (unlikely(locale == NULL ||
+                     !ALLOC_CSTRI(savedLocale, strlen(locale)))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+	  strcpy(savedLocale, locale);
+          databaseLocale = PQgetvalue(execResult, 0, 0);
+          logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
+          setlocale(LC_ALL, databaseLocale);
+          lc = localeconv();
+          database->moneyDenominator = intPow(10, lc->frac_digits);
+          /* This will be 100.0 for dollars/pounds (indicating cents/pence precision). */
+          logMessage(printf("Money: precision of %d, resulting in a denominator of %f\n",
+                            lc->frac_digits, database->moneyDenominator););
+          setlocale(LC_ALL, savedLocale); /* Return to previous value */
+          UNALLOC_CSTRI(savedLocale, strlen(savedLocale));
+          return TRUE;
+        } /* if */
       } /* if */
       PQclear(execResult);
     } /* if */
