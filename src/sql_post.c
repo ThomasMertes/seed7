@@ -38,7 +38,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "locale.h"
-#include "math.h"
 #include "time.h"
 #include "limits.h"
 #include "ctype.h"
@@ -91,7 +90,7 @@ typedef struct {
     boolType     integerDatetimes;
     uintType     nextStmtNum;
     boolType     autoCommit;
-    floatType    moneyDenominator;
+    int64Type    moneyDenominator;
   } dbRecordPost, *dbType;
 
 typedef struct {
@@ -2293,7 +2292,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
               columnValue = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               break;
             case CASHOID:
-              columnValue = bigFromInt64(((int64Type) ntohll(*(const uint64Type *) buffer)) / (int32Type) preparedStmt->db->moneyDenominator);
+              columnValue = bigFromInt64(((int64Type) ntohll(*(const uint64Type *) buffer)) /
+                                         preparedStmt->db->moneyDenominator);
               break;
             case NUMERICOID:
               columnValue = getNumericAsBigInt((const_ustriType) buffer);
@@ -2375,7 +2375,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
               break;
             case CASHOID:
               *numerator = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
-              *denominator = bigFromInt32((int32Type) preparedStmt->db->moneyDenominator);
+              *denominator = bigFromInt64(preparedStmt->db->moneyDenominator);
               break;
             case FLOAT4OID:
               *numerator = roundDoubleToBigRat(ntohf(*(const float *) buffer),
@@ -2826,7 +2826,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
               columnValue = (floatType) (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
             case CASHOID:
-              columnValue = ((floatType) (int64Type) ntohll(*(const uint64Type *) buffer)) / preparedStmt->db->moneyDenominator;
+              columnValue = ((floatType) (int64Type) ntohll(*(const uint64Type *) buffer)) /
+                            (floatType) preparedStmt->db->moneyDenominator;
               break;
             case FLOAT4OID:
               columnValue = ntohf(*(const float *) buffer);
@@ -2913,7 +2914,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
               columnValue = (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
             case CASHOID:
-              columnValue = ((int64Type) ntohll(*(const uint64Type *) buffer)) / preparedStmt->db->moneyDenominator;
+              columnValue = ((int64Type) ntohll(*(const uint64Type *) buffer)) /
+                            preparedStmt->db->moneyDenominator;
               break;
             case NUMERICOID:
               columnValue = getNumericAsInt((const_ustriType) buffer);
@@ -3717,10 +3719,10 @@ static boolType getLocale (dbType database, errInfoType *err_info)
         char *locale;
         struct lconv* lc;
 
-	locale = PQgetvalue(execResult, 0, 0);
+        locale = PQgetvalue(execResult, 0, 0);
         setlocale(LC_ALL, locale);
         lc = localeconv();
-        database->moneyDenominator = pow(10.0, lc->frac_digits);
+        database->moneyDenominator = intPow(10, lc->frac_digits);
         /* This will be 100.0 for dollars/pounds (indicating cents/pence precision). */
         logMessage(printf("Money: precision of %d, resulting in a denominator of %f\n",
                           lc->frac_digits, database->moneyDenominator););
