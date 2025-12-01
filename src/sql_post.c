@@ -3692,37 +3692,47 @@ static boolType setupFuncTable (void)
     return sqlFunc != NULL;
   } /* setupFuncTable */
 
-static boolType getLocale(dbType database, errInfoType *err_info)
-{
-  PGresult *execResult;
 
-  // Fetch the locale used for the money type within the current database.
-  execResult = PQexec(database->connection, "SHOW lc_monetary");
-  if (unlikely(execResult == NULL))
-    *err_info = MEMORY_ERROR;
-  else
-  { if (PQresultStatus(execResult) != PGRES_TUPLES_OK)
-    { setDbErrorMsg("getLocale", "PQexec", database->connection);
-      logError(printf("doExecSql: PQexec(" FMT_U_MEM ", \"%s\") "
-                      "returns a status of %s:\n%s",
-                      (memSizeType) database->connection, "SHOW lc_monetary",
-                      PQresStatus(PQresultStatus(execResult)),
-                      dbError.message););
-      *err_info = DATABASE_ERROR;
-    }
-    else
-    { char *locale = PQgetvalue(execResult, 0, 0);
-      setlocale(LC_ALL, locale);
-      struct lconv* lc = localeconv();
-      database->moneyDenominator = pow(10.0, lc->frac_digits); // This will be 100.0 for dollars/pounds (indicating cents/pence precision).
-      logFunction(printf("Money: precision of %d, resulting in a denominator of %f\n", lc->frac_digits, database->moneyDenominator););
-      setlocale(LC_ALL, ""); // Return to default.
-      return TRUE;
-    }
-    PQclear(execResult);
-  }
-  return FALSE;
-}
+
+static boolType getLocale (dbType database, errInfoType *err_info)
+
+  {
+    PGresult *execResult;
+
+  /* getLocale */
+    /* Fetch the locale used for the money type within the current database. */
+    execResult = PQexec(database->connection, "SHOW lc_monetary");
+    if (unlikely(execResult == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      if (PQresultStatus(execResult) != PGRES_TUPLES_OK) {
+        setDbErrorMsg("getLocale", "PQexec", database->connection);
+        logError(printf("doExecSql: PQexec(" FMT_U_MEM ", \"%s\") "
+                        "returns a status of %s:\n%s",
+                        (memSizeType) database->connection, "SHOW lc_monetary",
+                        PQresStatus(PQresultStatus(execResult)),
+                        dbError.message););
+        *err_info = DATABASE_ERROR;
+      } else {
+        char *locale;
+        struct lconv* lc;
+
+	locale = PQgetvalue(execResult, 0, 0);
+        setlocale(LC_ALL, locale);
+        lc = localeconv();
+        database->moneyDenominator = pow(10.0, lc->frac_digits);
+        /* This will be 100.0 for dollars/pounds (indicating cents/pence precision). */
+        logMessage(printf("Money: precision of %d, resulting in a denominator of %f\n",
+                          lc->frac_digits, database->moneyDenominator););
+        setlocale(LC_ALL, ""); /* Return to default. */
+        return TRUE;
+      } /* if */
+      PQclear(execResult);
+    } /* if */
+    return FALSE;
+  } /* getLocale */
+
+
 
 databaseType sqlOpenPost (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
