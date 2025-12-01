@@ -38,6 +38,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "locale.h"
+#include "math.h"
 #include "time.h"
 #include "limits.h"
 #include "ctype.h"
@@ -3698,7 +3699,7 @@ static boolType getLocale(dbType database, errInfoType *err_info)
   // Fetch the locale used for the money type within the current database.
   execResult = PQexec(database->connection, "SHOW lc_monetary");
   if (unlikely(execResult == NULL))
-    err_info = MEMORY_ERROR;
+    *err_info = MEMORY_ERROR;
   else
   { if (PQresultStatus(execResult) != PGRES_TUPLES_OK)
     { setDbErrorMsg("getLocale", "PQexec", database->connection);
@@ -3707,7 +3708,7 @@ static boolType getLocale(dbType database, errInfoType *err_info)
                       (memSizeType) database->connection, "SHOW lc_monetary",
                       PQresStatus(PQresultStatus(execResult)),
                       dbError.message););
-      err_info = DATABASE_ERROR;
+      *err_info = DATABASE_ERROR;
     }
     else
     { char *locale = PQgetvalue(execResult, 0, 0);
