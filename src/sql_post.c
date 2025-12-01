@@ -1837,12 +1837,12 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
         case CASHOID:
           free(param->buffer);
           if (unlikely((param->buffer = (cstriType) malloc(
-                            FLOATTYPE_SIZE + NULL_TERMINATION_LEN)) == NULL)) {
+                            DOUBLE_TO_CHAR_BUFFER_SIZE)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
             preparedStmt->paramValues[pos - 1] = param->buffer;
             preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "%lf", value);
+                (int) sprintf(param->buffer, "%f", value);
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
           break;
