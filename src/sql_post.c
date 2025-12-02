@@ -3706,6 +3706,8 @@ static boolType getLocale (dbType database, errInfoType *err_info)
     struct lconv* lc;
 
   /* getLocale */
+    logFunction(printf("getLocale(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, *err_info););
     /* Fetch the locale used for the money type within the current database. */
     execResult = PQexec(database->connection, "SHOW lc_monetary");
     if (unlikely(execResult == NULL)) {
@@ -3731,17 +3733,19 @@ static boolType getLocale (dbType database, errInfoType *err_info)
           setlocale(LC_ALL, databaseLocale);
           lc = localeconv();
           database->moneyDenominator = intPow(10, lc->frac_digits);
-          /* This will be 100.0 for dollars/pounds (indicating cents/pence precision). */
-          logMessage(printf("Money: precision of %d, resulting in a denominator of %f\n",
+          /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+          logMessage(printf("Money: precision of %d, "
+                            "resulting in a denominator of " FMT_D64 "\n",
                             lc->frac_digits, database->moneyDenominator););
           setlocale(LC_ALL, savedLocale); /* Return to previous value */
           UNALLOC_CSTRI(savedLocale, strlen(savedLocale));
-          return TRUE;
         } /* if */
       } /* if */
       PQclear(execResult);
     } /* if */
-    return FALSE;
+    logFunction(printf("getLocale --> %d (err_info=%d)\n",
+                       *err_info == OKAY_NO_ERROR, *err_info););
+    return *err_info == OKAY_NO_ERROR;
   } /* getLocale */
 
 
