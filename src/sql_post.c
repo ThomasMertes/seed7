@@ -3743,8 +3743,8 @@ static boolType getLocale (dbType database, errInfoType *err_info)
             logMessage(printf("Money: precision of %d, "
                               "resulting in a denominator of " FMT_D64 "\n",
                               lc->frac_digits, database->moneyDenominator););
-            setlocale(LC_ALL, savedLocale); /* Return to previous value */
           } /* if */
+          setlocale(LC_ALL, savedLocale); /* Return to previous value */
           UNALLOC_CSTRI(savedLocale, strlen(savedLocale));
         } /* if */
       } /* if */
