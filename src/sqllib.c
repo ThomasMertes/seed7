@@ -982,7 +982,7 @@ objectType sql_set_auto_commit (listType arguments)
     isit_database(arg_1(arguments));
     isit_bool(arg_2(arguments));
     sqlSetAutoCommit(take_database(arg_1(arguments)),
-                     take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT);
+                     take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT);
     return SYS_EMPTY_OBJECT;
   } /* sql_set_auto_commit */
 
