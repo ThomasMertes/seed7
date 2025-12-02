@@ -3727,16 +3727,16 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                      !ALLOC_CSTRI(savedLocale, strlen(locale)))) {
           *err_info = MEMORY_ERROR;
         } else {
-	  strcpy(savedLocale, locale);
+          strcpy(savedLocale, locale);
           databaseLocale = PQgetvalue(execResult, 0, 0);
           logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
           setlocale(LC_ALL, databaseLocale);
           lc = localeconv();
-          if (lc->frac_digits < 0 ||
-              lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE) {
-            logError(printf("getLocale: lc->frac_digits %d negative or too big.\n",
-	                    lc->frac_digits););
-	    *err_info = NUMERIC_ERROR;
+          if (unlikely(lc->frac_digits < 0 ||
+                       lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
+            logError(printf("getLocale: frac_digits %d negative or too big.\n",
+                            lc->frac_digits););
+            *err_info = NUMERIC_ERROR;
           } else {
             database->moneyDenominator = intPow(10, lc->frac_digits);
             /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
@@ -3744,7 +3744,7 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                               "resulting in a denominator of " FMT_D64 "\n",
                               lc->frac_digits, database->moneyDenominator););
           } /* if */
-          setlocale(LC_ALL, savedLocale); /* Return to previous value */
+          setlocale(LC_ALL, savedLocale); /* Restore previous locale value */
           UNALLOC_CSTRI(savedLocale, strlen(savedLocale));
         } /* if */
       } /* if */
