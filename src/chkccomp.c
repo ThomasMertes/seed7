@@ -11598,12 +11598,14 @@ int main (int argc, char **argv)
                          "test(aUnion.gen);return 0;}\n")) {
       fprintf(versionFile, "#define UNIONS_CAN_CONVERT_TO_GENERIC %d\n", doTest() == 1);
     } /* if */
-    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
+    if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "#include <string.h>\n"
                          "int main(int argc,char *argv[]){\n"
-                         "char buffer[5];\n"
+                         "char *buffer;\n"
+                         "buffer = (char *) malloc(5);\n"
                          "memcpy(buffer, \"abcd\", 5);\n"
-                         "memcpy(&buffer[1], \"xy\", argc);\n"
-                         "memcpy(&buffer[5], \"xy\", argc);\n"
+                         "memcpy(&buffer[1], \"xy\", argc >> 3);\n"
+                         "memcpy(&buffer[5], \"xy\", argc >> 3);\n"
                          "printf(\"%d\\n\", memcmp(buffer, \"abcd\", 5) == 0);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define MEMCPY_ZERO_BYTES_DOES_NOTHING %d\n", doTest() == 1);
