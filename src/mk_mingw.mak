@@ -93,14 +93,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
-	@echo:
+	@echo.
 	@echo Use 'make s7c' (with your make command) to create the compiler.
-	@echo:
+	@echo.
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
-	@echo:
+	@echo.
 	@echo Use 'make test' (with your make command) to check Seed7.
-	@echo:
+	@echo.
 
 ..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS) -o ..\bin\s7
@@ -167,9 +167,9 @@ clean:
 	del sudo.exe
 	del levelup.exe
 	del next_lvl
-	@echo:
+	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
-	@echo:
+	@echo.
 
 clean_utils:
 	del ..\bin\bas7.exe
@@ -202,11 +202,11 @@ distclean: clean clean_utils
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
-	@echo:
+	@echo.
 	@echo Use 'sudo make install' (with your make command) to install Seed7.
 	@echo Or open a console as administrator, go to the directory seed7/src
 	@echo and use 'make install' (with your make command) to install Seed7.
-	@echo:
+	@echo.
 
 minimal_test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build minimal_test
@@ -301,9 +301,9 @@ depend: version.h setwpath.exe wrdepend.exe sudo.exe
 	.\wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
 	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
 	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
-	@echo:
+	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
-	@echo:
+	@echo.
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	$(AR) r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

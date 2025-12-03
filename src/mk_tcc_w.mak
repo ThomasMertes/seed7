@@ -87,14 +87,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
-	@echo:
+	@echo.
 	@echo Use 'make s7c' (with your make command) to create the compiler.
-	@echo:
+	@echo.
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
-	@echo:
+	@echo.
 	@echo Use 'make test' (with your make command) to check Seed7.
-	@echo:
+	@echo.
 
 ..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS) -o ..\bin\s7.exe
@@ -148,9 +148,9 @@ clean:
 	del setwpath.exe
 	del levelup.exe
 	del next_lvl
-	@echo:
+	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
-	@echo:
+	@echo.
 
 clean_utils:
 	del ..\bin\bas7.exe
@@ -183,10 +183,10 @@ distclean: clean clean_utils
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
-	@echo:
+	@echo.
 	@echo Open a console as administrator, go to the directory seed7/src and
 	@echo use 'make install' (with your make command) to install Seed7.
-	@echo:
+	@echo.
 
 minimal_test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build minimal_test
@@ -258,9 +258,9 @@ setwpath.exe: version.h setwpath.c
 
 depend: version.h setwpath.exe
 	@echo Working without C header dependency checks.
-	@echo:
+	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
-	@echo:
+	@echo.
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	$(AR) ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
