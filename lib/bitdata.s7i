@@ -1044,7 +1044,7 @@ const proc: write (inout lsbOutBitStream: outBitStream, in string: stri) is func
  *  Type to write bitwise data starting with the most significant bit.
  *  In a ''msbOutBitStream'' the write direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
- *  For the bit position in a byte (bitSize) holds: 0 = MSB, 7 = LSB.
+ *  For the bit position in a byte (bitPos) holds: 0 = MSB, 7 = LSB.
  *  The bits are stored in a string of bytes. The byte string can
  *  be obtained with the function getBytes(). The function flush()
  *  can be used to add a partially filled byte to the byte string.
@@ -1053,7 +1053,7 @@ const proc: write (inout lsbOutBitStream: outBitStream, in string: stri) is func
  *)
 const type: msbOutBitStream is new struct
     var integer: buffer is 0;
-    var integer: bitSize is 0;
+    var integer: bitPos is 0;
     var string: byteString is "";
   end struct;
 
@@ -1083,10 +1083,10 @@ const proc: putBit (inout msbOutBitStream: outBitStream, in integer: bit) is fun
   begin
     outBitStream.buffer <<:= 1;
     outBitStream.buffer +:= bit;
-    incr(outBitStream.bitSize);
-    if outBitStream.bitSize = 8 then
+    incr(outBitStream.bitPos);
+    if outBitStream.bitPos = 8 then
       outBitStream.byteString &:= char(outBitStream.buffer);
-      outBitStream.bitSize := 0;
+      outBitStream.bitPos := 0;
       outBitStream.buffer := 0;
     end if;
   end func;
@@ -1117,14 +1117,14 @@ const proc: putBits (inout msbOutBitStream: outBitStream, in integer: bits,
   begin
     outBitStream.buffer <<:= bitWidth;
     outBitStream.buffer +:= bits;
-    outBitStream.bitSize +:= bitWidth;
-    if outBitStream.bitSize >= 8 then
-      bitShift := outBitStream.bitSize;
+    outBitStream.bitPos +:= bitWidth;
+    if outBitStream.bitPos >= 8 then
+      bitShift := outBitStream.bitPos;
       repeat
         bitShift -:= 8;
         outBitStream.byteString &:= char((outBitStream.buffer >> bitShift) mod 256);
       until bitShift < 8;
-      outBitStream.bitSize := bitShift;
+      outBitStream.bitPos := bitShift;
       outBitStream.buffer := outBitStream.buffer mod 2 ** bitShift;
     end if;
   end func;
@@ -1140,7 +1140,7 @@ const proc: (inout msbOutBitStream: outBitStream) &:= (in msbOutBitStream: exten
     for ch range extension.byteString do
       putBits(outBitStream, ord(ch), 8);
     end for;
-    putBits(outBitStream, extension.buffer, extension.bitSize);
+    putBits(outBitStream, extension.buffer, extension.bitPos);
   end func;
 
 
@@ -1151,7 +1151,7 @@ const proc: (inout msbOutBitStream: outBitStream) &:= (in msbOutBitStream: exten
  *  @return the length of the bit stream.
  *)
 const func integer: length (in msbOutBitStream: outBitStream) is
-  return length(outBitStream.byteString) * 8 + outBitStream.bitSize;
+  return length(outBitStream.byteString) * 8 + outBitStream.bitPos;
 
 
 (**
@@ -1166,28 +1166,28 @@ const func integer: length (in msbOutBitStream: outBitStream) is
 const proc: truncate (inout msbOutBitStream: outBitStream, in integer: length) is func
   local
     var integer: bytePos is 0;
-    var integer: bitSize is 0;
+    var integer: bitPos is 0;
   begin
     if length < 0 then
       raise RANGE_ERROR;
     else
       bytePos := length mdiv 8;
-      bitSize := length mod 8;
+      bitPos := length mod 8;
       if bytePos < length(outBitStream.byteString) then
-        outBitStream.buffer := ord(outBitStream.byteString[succ(bytePos)]) >> (8 - bitSize);
+        outBitStream.buffer := ord(outBitStream.byteString[succ(bytePos)]) >> (8 - bitPos);
         outBitStream.byteString := outBitStream.byteString[.. bytePos];
       elsif bytePos = length(outBitStream.byteString) then
-        if bitSize < outBitStream.bitSize then
-          outBitStream.buffer >>:= outBitStream.bitSize - bitSize;
-        elsif bitSize > outBitStream.bitSize then
-          outBitStream.buffer <<:= bitSize - outBitStream.bitSize;
+        if bitPos < outBitStream.bitPos then
+          outBitStream.buffer >>:= outBitStream.bitPos - bitPos;
+        elsif bitPos > outBitStream.bitPos then
+          outBitStream.buffer <<:= bitPos - outBitStream.bitPos;
         end if;
       else
-        outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitSize));
+        outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitPos));
         outBitStream.byteString &:= "\0;" mult bytePos - length(outBitStream.byteString);
         outBitStream.buffer := 0;
       end if;
-      outBitStream.bitSize := bitSize;
+      outBitStream.bitPos := bitPos;
     end if;
   end func;
 
@@ -1201,9 +1201,9 @@ const proc: truncate (inout msbOutBitStream: outBitStream, in integer: length) i
  *)
 const proc: flush (inout msbOutBitStream: outBitStream) is func
   begin
-    if outBitStream.bitSize <> 0 then
-      outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitSize));
-      outBitStream.bitSize := 0;
+    if outBitStream.bitPos <> 0 then
+      outBitStream.byteString &:= char(outBitStream.buffer << (8 - outBitStream.bitPos));
+      outBitStream.bitPos := 0;
     end if;
     outBitStream.buffer := 0;
   end func;
