@@ -5896,8 +5896,8 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBit(aBitStream, bit);
-    if aBitStream.bitSize <> bitPosExpected then
-      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitSize);
+    if aBitStream.bitPos <> bitPosExpected then
+      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitPos);
       okay := FALSE;
     end if;
     flush(aBitStream);
@@ -6010,8 +6010,8 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBits(aBitStream, bits, bitsToWrite);
-    if aBitStream.bitSize <> bitPosExpected then
-      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitSize);
+    if aBitStream.bitPos <> bitPosExpected then
+      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitPos);
       okay := FALSE;
     end if;
     flush(aBitStream);
@@ -6750,8 +6750,8 @@ const func boolean: chkLengthTruncateMsb (in string: stri, in integer: bitPos,
       writeln(" ***** Expected length " <& newLength <& " found " <& length(aBitStream));
       okay := FALSE;
     end if;
-    if aBitStream.bitSize <> bitPosExpected then
-      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitSize);
+    if aBitStream.bitPos <> bitPosExpected then
+      writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& aBitStream.bitPos);
       okay := FALSE;
     end if;
     flush(aBitStream);
