@@ -4841,6 +4841,83 @@ const proc: checkRadix is func
       writeln(" ***** The radix operator for bin32 does not work correctly. (2)");
       okay := FALSE;
     end if;
+    if  (bin32Expr(bin32(1000000)) radix  2) <> "11110100001001000000" or
+        (bin32Expr(bin32(1000000)) radix  3) <> "1212210202001" or
+        (bin32Expr(bin32(1000000)) radix  4) <> "3310021000" or
+        (bin32Expr(bin32(1000000)) radix  5) <> "224000000" or
+        (bin32Expr(bin32(1000000)) radix  6) <> "33233344" or
+        (bin32Expr(bin32(1000000)) radix  7) <> "11333311" or
+        (bin32Expr(bin32(1000000)) radix  8) <> "3641100" or
+        (bin32Expr(bin32(1000000)) radix  9) <> "1783661" or
+        (bin32Expr(bin32(1000000)) radix 10) <> "1000000" or
+        (bin32Expr(bin32(1000000)) radix 11) <> "623351" or
+        (bin32Expr(bin32(1000000)) radix 12) <> "402854" or
+        (bin32Expr(bin32(1000000)) radix 13) <> "290221" or
+        (bin32Expr(bin32(1000000)) radix 14) <> "1c0608" or
+        (bin32Expr(bin32(1000000)) radix 15) <> "14b46a" or
+        (bin32Expr(bin32(1000000)) radix 16) <> "f4240" or
+        (bin32Expr(bin32(1000000)) radix 17) <> "bg939" or
+        (bin32Expr(bin32(1000000)) radix 18) <> "9987a" or
+        (bin32Expr(bin32(1000000)) radix 19) <> "7cf1b" or
+        (bin32Expr(bin32(1000000)) radix 20) <> "65000" or
+        (bin32Expr(bin32(1000000)) radix 21) <> "52kc1" or
+        (bin32Expr(bin32(1000000)) radix 22) <> "45k2c" or
+        (bin32Expr(bin32(1000000)) radix 23) <> "3d486" or
+        (bin32Expr(bin32(1000000)) radix 24) <> "3082g" or
+        (bin32Expr(bin32(1000000)) radix 25) <> "2e000" or
+        (bin32Expr(bin32(1000000)) radix 26) <> "24n7e" or
+        (bin32Expr(bin32(1000000)) radix 27) <> "1nlk1" or
+        (bin32Expr(bin32(1000000)) radix 28) <> "1hfe8" or
+        (bin32Expr(bin32(1000000)) radix 29) <> "1c01m" or
+        (bin32Expr(bin32(1000000)) radix 30) <> "1713a" or
+        (bin32Expr(bin32(1000000)) radix 31) <> "12hi2" or
+        (bin32Expr(bin32(1000000)) radix 32) <> "ugi0" or
+        (bin32Expr(bin32(1000000)) radix 33) <> "rr91" or
+        (bin32Expr(bin32(1000000)) radix 34) <> "pf1q" or
+        (bin32Expr(bin32(1000000)) radix 35) <> "nbbf" or
+        (bin32Expr(bin32(1000000)) radix 36) <> "lfls" then
+      writeln(" ***** The radix operator for bin32 does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  (bin32Expr(bin32(1000000)) radix intExpr( 2)) <> "11110100001001000000" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 3)) <> "1212210202001" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 4)) <> "3310021000" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 5)) <> "224000000" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 6)) <> "33233344" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 7)) <> "11333311" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 8)) <> "3641100" or
+        (bin32Expr(bin32(1000000)) radix intExpr( 9)) <> "1783661" or
+        (bin32Expr(bin32(1000000)) radix intExpr(10)) <> "1000000" or
+        (bin32Expr(bin32(1000000)) radix intExpr(11)) <> "623351" or
+        (bin32Expr(bin32(1000000)) radix intExpr(12)) <> "402854" or
+        (bin32Expr(bin32(1000000)) radix intExpr(13)) <> "290221" or
+        (bin32Expr(bin32(1000000)) radix intExpr(14)) <> "1c0608" or
+        (bin32Expr(bin32(1000000)) radix intExpr(15)) <> "14b46a" or
+        (bin32Expr(bin32(1000000)) radix intExpr(16)) <> "f4240" or
+        (bin32Expr(bin32(1000000)) radix intExpr(17)) <> "bg939" or
+        (bin32Expr(bin32(1000000)) radix intExpr(18)) <> "9987a" or
+        (bin32Expr(bin32(1000000)) radix intExpr(19)) <> "7cf1b" or
+        (bin32Expr(bin32(1000000)) radix intExpr(20)) <> "65000" or
+        (bin32Expr(bin32(1000000)) radix intExpr(21)) <> "52kc1" or
+        (bin32Expr(bin32(1000000)) radix intExpr(22)) <> "45k2c" or
+        (bin32Expr(bin32(1000000)) radix intExpr(23)) <> "3d486" or
+        (bin32Expr(bin32(1000000)) radix intExpr(24)) <> "3082g" or
+        (bin32Expr(bin32(1000000)) radix intExpr(25)) <> "2e000" or
+        (bin32Expr(bin32(1000000)) radix intExpr(26)) <> "24n7e" or
+        (bin32Expr(bin32(1000000)) radix intExpr(27)) <> "1nlk1" or
+        (bin32Expr(bin32(1000000)) radix intExpr(28)) <> "1hfe8" or
+        (bin32Expr(bin32(1000000)) radix intExpr(29)) <> "1c01m" or
+        (bin32Expr(bin32(1000000)) radix intExpr(30)) <> "1713a" or
+        (bin32Expr(bin32(1000000)) radix intExpr(31)) <> "12hi2" or
+        (bin32Expr(bin32(1000000)) radix intExpr(32)) <> "ugi0" or
+        (bin32Expr(bin32(1000000)) radix intExpr(33)) <> "rr91" or
+        (bin32Expr(bin32(1000000)) radix intExpr(34)) <> "pf1q" or
+        (bin32Expr(bin32(1000000)) radix intExpr(35)) <> "nbbf" or
+        (bin32Expr(bin32(1000000)) radix intExpr(36)) <> "lfls" then
+      writeln(" ***** The radix operator for bin32 does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
     if  (bin32(1000000) RADIX  2) <> "11110100001001000000" or
         (bin32(1000000) RADIX  3) <> "1212210202001" or
         (bin32(1000000) RADIX  4) <> "3310021000" or
@@ -4915,6 +4992,82 @@ const proc: checkRadix is func
         (bin32(1000000) RADIX intExpr(35)) <> "NBBF" or
         (bin32(1000000) RADIX intExpr(36)) <> "LFLS" then
       writeln(" ***** The RADIX operator for bin32 does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    if  (bin32Expr(bin32(1000000)) RADIX  2) <> "11110100001001000000" or
+        (bin32Expr(bin32(1000000)) RADIX  3) <> "1212210202001" or
+        (bin32Expr(bin32(1000000)) RADIX  4) <> "3310021000" or
+        (bin32Expr(bin32(1000000)) RADIX  5) <> "224000000" or
+        (bin32Expr(bin32(1000000)) RADIX  6) <> "33233344" or
+        (bin32Expr(bin32(1000000)) RADIX  7) <> "11333311" or
+        (bin32Expr(bin32(1000000)) RADIX  8) <> "3641100" or
+        (bin32Expr(bin32(1000000)) RADIX  9) <> "1783661" or
+        (bin32Expr(bin32(1000000)) RADIX 10) <> "1000000" or
+        (bin32Expr(bin32(1000000)) RADIX 11) <> "623351" or
+        (bin32Expr(bin32(1000000)) RADIX 12) <> "402854" or
+        (bin32Expr(bin32(1000000)) RADIX 13) <> "290221" or
+        (bin32Expr(bin32(1000000)) RADIX 14) <> "1C0608" or
+        (bin32Expr(bin32(1000000)) RADIX 15) <> "14B46A" or
+        (bin32Expr(bin32(1000000)) RADIX 16) <> "F4240" or
+        (bin32Expr(bin32(1000000)) RADIX 17) <> "BG939" or
+        (bin32Expr(bin32(1000000)) RADIX 18) <> "9987A" or
+        (bin32Expr(bin32(1000000)) RADIX 19) <> "7CF1B" or
+        (bin32Expr(bin32(1000000)) RADIX 20) <> "65000" or
+        (bin32Expr(bin32(1000000)) RADIX 21) <> "52KC1" or
+        (bin32Expr(bin32(1000000)) RADIX 22) <> "45K2C" or
+        (bin32Expr(bin32(1000000)) RADIX 23) <> "3D486" or
+        (bin32Expr(bin32(1000000)) RADIX 24) <> "3082G" or
+        (bin32Expr(bin32(1000000)) RADIX 25) <> "2E000" or
+        (bin32Expr(bin32(1000000)) RADIX 26) <> "24N7E" or
+        (bin32Expr(bin32(1000000)) RADIX 27) <> "1NLK1" or
+        (bin32Expr(bin32(1000000)) RADIX 28) <> "1HFE8" or
+        (bin32Expr(bin32(1000000)) RADIX 29) <> "1C01M" or
+        (bin32Expr(bin32(1000000)) RADIX 30) <> "1713A" or
+        (bin32Expr(bin32(1000000)) RADIX 31) <> "12HI2" or
+        (bin32Expr(bin32(1000000)) RADIX 32) <> "UGI0" or
+        (bin32Expr(bin32(1000000)) RADIX 33) <> "RR91" or
+        (bin32Expr(bin32(1000000)) RADIX 34) <> "PF1Q" or
+        (bin32Expr(bin32(1000000)) RADIX 35) <> "NBBF" or
+        (bin32Expr(bin32(1000000)) RADIX 36) <> "LFLS" then
+      writeln(" ***** The RADIX operator for bin32 does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  (bin32Expr(bin32(1000000)) RADIX intExpr( 2)) <> "11110100001001000000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 3)) <> "1212210202001" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 4)) <> "3310021000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 5)) <> "224000000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 6)) <> "33233344" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 7)) <> "11333311" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 8)) <> "3641100" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr( 9)) <> "1783661" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(10)) <> "1000000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(11)) <> "623351" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(12)) <> "402854" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(13)) <> "290221" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(14)) <> "1C0608" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(15)) <> "14B46A" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(16)) <> "F4240" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(17)) <> "BG939" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(18)) <> "9987A" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(19)) <> "7CF1B" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(20)) <> "65000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(21)) <> "52KC1" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(22)) <> "45K2C" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(23)) <> "3D486" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(24)) <> "3082G" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(25)) <> "2E000" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(26)) <> "24N7E" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(27)) <> "1NLK1" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(28)) <> "1HFE8" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(29)) <> "1C01M" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(30)) <> "1713A" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(31)) <> "12HI2" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(32)) <> "UGI0" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(33)) <> "RR91" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(34)) <> "PF1Q" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(35)) <> "NBBF" or
+        (bin32Expr(bin32(1000000)) RADIX intExpr(36)) <> "LFLS" then
+      writeln(" ***** The RADIX operator for bin32 does not work correctly. (4)");
       okay := FALSE;
     end if;
 
@@ -4994,6 +5147,235 @@ const proc: checkRadix is func
       writeln(" ***** The radix operator for bin64 does not work correctly. (2)");
       okay := FALSE;
     end if;
+    if  (bin64Expr(bin64(10000000000)) radix  2) <> "1001010100000010111110010000000000" or
+        (bin64Expr(bin64(10000000000)) radix  3) <> "221210220202122010101" or
+        (bin64Expr(bin64(10000000000)) radix  4) <> "21110002332100000" or
+        (bin64Expr(bin64(10000000000)) radix  5) <> "130440000000000" or
+        (bin64Expr(bin64(10000000000)) radix  6) <> "4332142412144" or
+        (bin64Expr(bin64(10000000000)) radix  7) <> "502544411644" or
+        (bin64Expr(bin64(10000000000)) radix  8) <> "112402762000" or
+        (bin64Expr(bin64(10000000000)) radix  9) <> "27726678111" or
+        (bin64Expr(bin64(10000000000)) radix 10) <> "10000000000" or
+        (bin64Expr(bin64(10000000000)) radix 11) <> "4271815011" or
+        (bin64Expr(bin64(10000000000)) radix 12) <> "1b30b91054" or
+        (bin64Expr(bin64(10000000000)) radix 13) <> "c349ba483" or
+        (bin64Expr(bin64(10000000000)) radix 14) <> "6ac162c24" or
+        (bin64Expr(bin64(10000000000)) radix 15) <> "3d7dace6a" or
+        (bin64Expr(bin64(10000000000)) radix 16) <> "2540be400" or
+        (bin64Expr(bin64(10000000000)) radix 17) <> "1764g6422" or
+        (bin64Expr(bin64(10000000000)) radix 18) <> "g603fb9a" or
+        (bin64Expr(bin64(10000000000)) radix 19) <> "b3abb909" or
+        (bin64Expr(bin64(10000000000)) radix 20) <> "7g500000" or
+        (bin64Expr(bin64(10000000000)) radix 21) <> "5bcaikk4" or
+        (bin64Expr(bin64(10000000000)) radix 22) <> "40487b0c" or
+        (bin64Expr(bin64(10000000000)) radix 23) <> "2lcfd6fg" or
+        (bin64Expr(bin64(10000000000)) radix 24) <> "247kjf2g" or
+        (bin64Expr(bin64(10000000000)) radix 25) <> "1fo00000" or
+        (bin64Expr(bin64(10000000000)) radix 26) <> "169gphag" or
+        (bin64Expr(bin64(10000000000)) radix 27) <> "plokh3a" or
+        (bin64Expr(bin64(10000000000)) radix 28) <> "kl17a14" or
+        (bin64Expr(bin64(10000000000)) radix 29) <> "gnfiqc6" or
+        (bin64Expr(bin64(10000000000)) radix 30) <> "dlfkb3a" or
+        (bin64Expr(bin64(10000000000)) radix 31) <> "b893q85" or
+        (bin64Expr(bin64(10000000000)) radix 32) <> "9a0np00" or
+        (bin64Expr(bin64(10000000000)) radix 33) <> "7oh8of1" or
+        (bin64Expr(bin64(10000000000)) radix 34) <> "6g35112" or
+        (bin64Expr(bin64(10000000000)) radix 35) <> "5fdv5ap" or
+        (bin64Expr(bin64(10000000000)) radix 36) <> "4ldqpds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000)) radix intExpr( 2)) <> "1001010100000010111110010000000000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 3)) <> "221210220202122010101" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 4)) <> "21110002332100000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 5)) <> "130440000000000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 6)) <> "4332142412144" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 7)) <> "502544411644" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 8)) <> "112402762000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr( 9)) <> "27726678111" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(10)) <> "10000000000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(11)) <> "4271815011" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(12)) <> "1b30b91054" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(13)) <> "c349ba483" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(14)) <> "6ac162c24" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(15)) <> "3d7dace6a" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(16)) <> "2540be400" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(17)) <> "1764g6422" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(18)) <> "g603fb9a" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(19)) <> "b3abb909" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(20)) <> "7g500000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(21)) <> "5bcaikk4" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(22)) <> "40487b0c" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(23)) <> "2lcfd6fg" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(24)) <> "247kjf2g" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(25)) <> "1fo00000" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(26)) <> "169gphag" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(27)) <> "plokh3a" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(28)) <> "kl17a14" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(29)) <> "gnfiqc6" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(30)) <> "dlfkb3a" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(31)) <> "b893q85" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(32)) <> "9a0np00" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(33)) <> "7oh8of1" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(34)) <> "6g35112" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(35)) <> "5fdv5ap" or
+        (bin64Expr(bin64(10000000000)) radix intExpr(36)) <> "4ldqpds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+    if  (bin64(10000000000000000000_) radix  2) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64(10000000000000000000_) radix  3) <> "2110121212100122121121010120012121020101" or
+        (bin64(10000000000000000000_) radix  4) <> "20223013020300102021322000000000" or
+        (bin64(10000000000000000000_) radix  5) <> "1132341230000000000000000000" or
+        (bin64(10000000000000000000_) radix  6) <> "2035504000523551113452144" or
+        (bin64(10000000000000000000_) radix  7) <> "23621642325042620603533" or
+        (bin64(10000000000000000000_) radix  8) <> "1053071060221172000000" or
+        (bin64(10000000000000000000_) radix  9) <> "73555318547116177211" or
+        (bin64(10000000000000000000_) radix 10) <> "10000000000000000000" or
+        (bin64(10000000000000000000_) radix 11) <> "1886a141a47a785767a" or
+        (bin64(10000000000000000000_) radix 12) <> "46107a66a817a11054" or
+        (bin64(10000000000000000000_) radix 13) <> "12049ba9395305928a" or
+        (bin64(10000000000000000000_) radix 14) <> "483cdad068310ca1a" or
+        (bin64(10000000000000000000_) radix 15) <> "17c836edb0e05ce6a" or
+        (bin64(10000000000000000000_) radix 16) <> "8ac7230489e80000" or
+        (bin64(10000000000000000000_) radix 17) <> "386ad47g50d7420e" or
+        (bin64(10000000000000000000_) radix 18) <> "18c457g2cea8699a" or
+        (bin64(10000000000000000000_) radix 19) <> "c9f21cc8i8hb2ha" or
+        (bin64(10000000000000000000_) radix 20) <> "62182a000000000" or
+        (bin64(10000000000000000000_) radix 21) <> "31f9gdigd9jd23a" or
+        (bin64(10000000000000000000_) radix 22) <> "1d7jl2d8ejik49a" or
+        (bin64(10000000000000000000_) radix 23) <> "jj76759943d4gl" or
+        (bin64(10000000000000000000_) radix 24) <> "b9jg72907adf2g" or
+        (bin64(10000000000000000000_) radix 25) <> "6hj7f000000000" or
+        (bin64(10000000000000000000_) radix 26) <> "40ke0p73nepdha" or
+        (bin64(10000000000000000000_) radix 27) <> "2cgn9hgg3f5g6a" or
+        (bin64(10000000000000000000_) radix 28) <> "1f1l9f6bbnj2eo" or
+        (bin64(10000000000000000000_) radix 29) <> "s7ied9m544b8l" or
+        (bin64(10000000000000000000_) radix 30) <> "iof2j0oopkb3a" or
+        (bin64(10000000000000000000_) radix 31) <> "clhk74tcnu4ni" or
+        (bin64(10000000000000000000_) radix 32) <> "8lhp30i4ug000" or
+        (bin64(10000000000000000000_) radix 33) <> "5ws6u3chl8e6a" or
+        (bin64(10000000000000000000_) radix 34) <> "46g2ib24mq0he" or
+        (bin64(10000000000000000000_) radix 35) <> "2xk3d1vgt8iya" or
+        (bin64(10000000000000000000_) radix 36) <> "23z405fz79tds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+    if  (bin64(10000000000000000000_) radix intExpr( 2)) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64(10000000000000000000_) radix intExpr( 3)) <> "2110121212100122121121010120012121020101" or
+        (bin64(10000000000000000000_) radix intExpr( 4)) <> "20223013020300102021322000000000" or
+        (bin64(10000000000000000000_) radix intExpr( 5)) <> "1132341230000000000000000000" or
+        (bin64(10000000000000000000_) radix intExpr( 6)) <> "2035504000523551113452144" or
+        (bin64(10000000000000000000_) radix intExpr( 7)) <> "23621642325042620603533" or
+        (bin64(10000000000000000000_) radix intExpr( 8)) <> "1053071060221172000000" or
+        (bin64(10000000000000000000_) radix intExpr( 9)) <> "73555318547116177211" or
+        (bin64(10000000000000000000_) radix intExpr(10)) <> "10000000000000000000" or
+        (bin64(10000000000000000000_) radix intExpr(11)) <> "1886a141a47a785767a" or
+        (bin64(10000000000000000000_) radix intExpr(12)) <> "46107a66a817a11054" or
+        (bin64(10000000000000000000_) radix intExpr(13)) <> "12049ba9395305928a" or
+        (bin64(10000000000000000000_) radix intExpr(14)) <> "483cdad068310ca1a" or
+        (bin64(10000000000000000000_) radix intExpr(15)) <> "17c836edb0e05ce6a" or
+        (bin64(10000000000000000000_) radix intExpr(16)) <> "8ac7230489e80000" or
+        (bin64(10000000000000000000_) radix intExpr(17)) <> "386ad47g50d7420e" or
+        (bin64(10000000000000000000_) radix intExpr(18)) <> "18c457g2cea8699a" or
+        (bin64(10000000000000000000_) radix intExpr(19)) <> "c9f21cc8i8hb2ha" or
+        (bin64(10000000000000000000_) radix intExpr(20)) <> "62182a000000000" or
+        (bin64(10000000000000000000_) radix intExpr(21)) <> "31f9gdigd9jd23a" or
+        (bin64(10000000000000000000_) radix intExpr(22)) <> "1d7jl2d8ejik49a" or
+        (bin64(10000000000000000000_) radix intExpr(23)) <> "jj76759943d4gl" or
+        (bin64(10000000000000000000_) radix intExpr(24)) <> "b9jg72907adf2g" or
+        (bin64(10000000000000000000_) radix intExpr(25)) <> "6hj7f000000000" or
+        (bin64(10000000000000000000_) radix intExpr(26)) <> "40ke0p73nepdha" or
+        (bin64(10000000000000000000_) radix intExpr(27)) <> "2cgn9hgg3f5g6a" or
+        (bin64(10000000000000000000_) radix intExpr(28)) <> "1f1l9f6bbnj2eo" or
+        (bin64(10000000000000000000_) radix intExpr(29)) <> "s7ied9m544b8l" or
+        (bin64(10000000000000000000_) radix intExpr(30)) <> "iof2j0oopkb3a" or
+        (bin64(10000000000000000000_) radix intExpr(31)) <> "clhk74tcnu4ni" or
+        (bin64(10000000000000000000_) radix intExpr(32)) <> "8lhp30i4ug000" or
+        (bin64(10000000000000000000_) radix intExpr(33)) <> "5ws6u3chl8e6a" or
+        (bin64(10000000000000000000_) radix intExpr(34)) <> "46g2ib24mq0he" or
+        (bin64(10000000000000000000_) radix intExpr(35)) <> "2xk3d1vgt8iya" or
+        (bin64(10000000000000000000_) radix intExpr(36)) <> "23z405fz79tds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000000000000_)) radix  2) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  3) <> "2110121212100122121121010120012121020101" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  4) <> "20223013020300102021322000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  5) <> "1132341230000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  6) <> "2035504000523551113452144" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  7) <> "23621642325042620603533" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  8) <> "1053071060221172000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix  9) <> "73555318547116177211" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 10) <> "10000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 11) <> "1886a141a47a785767a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 12) <> "46107a66a817a11054" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 13) <> "12049ba9395305928a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 14) <> "483cdad068310ca1a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 15) <> "17c836edb0e05ce6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 16) <> "8ac7230489e80000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 17) <> "386ad47g50d7420e" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 18) <> "18c457g2cea8699a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 19) <> "c9f21cc8i8hb2ha" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 20) <> "62182a000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 21) <> "31f9gdigd9jd23a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 22) <> "1d7jl2d8ejik49a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 23) <> "jj76759943d4gl" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 24) <> "b9jg72907adf2g" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 25) <> "6hj7f000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 26) <> "40ke0p73nepdha" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 27) <> "2cgn9hgg3f5g6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 28) <> "1f1l9f6bbnj2eo" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 29) <> "s7ied9m544b8l" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 30) <> "iof2j0oopkb3a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 31) <> "clhk74tcnu4ni" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 32) <> "8lhp30i4ug000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 33) <> "5ws6u3chl8e6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 34) <> "46g2ib24mq0he" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 35) <> "2xk3d1vgt8iya" or
+        (bin64Expr(bin64(10000000000000000000_)) radix 36) <> "23z405fz79tds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 2)) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 3)) <> "2110121212100122121121010120012121020101" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 4)) <> "20223013020300102021322000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 5)) <> "1132341230000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 6)) <> "2035504000523551113452144" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 7)) <> "23621642325042620603533" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 8)) <> "1053071060221172000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr( 9)) <> "73555318547116177211" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(10)) <> "10000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(11)) <> "1886a141a47a785767a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(12)) <> "46107a66a817a11054" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(13)) <> "12049ba9395305928a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(14)) <> "483cdad068310ca1a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(15)) <> "17c836edb0e05ce6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(16)) <> "8ac7230489e80000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(17)) <> "386ad47g50d7420e" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(18)) <> "18c457g2cea8699a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(19)) <> "c9f21cc8i8hb2ha" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(20)) <> "62182a000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(21)) <> "31f9gdigd9jd23a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(22)) <> "1d7jl2d8ejik49a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(23)) <> "jj76759943d4gl" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(24)) <> "b9jg72907adf2g" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(25)) <> "6hj7f000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(26)) <> "40ke0p73nepdha" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(27)) <> "2cgn9hgg3f5g6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(28)) <> "1f1l9f6bbnj2eo" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(29)) <> "s7ied9m544b8l" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(30)) <> "iof2j0oopkb3a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(31)) <> "clhk74tcnu4ni" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(32)) <> "8lhp30i4ug000" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(33)) <> "5ws6u3chl8e6a" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(34)) <> "46g2ib24mq0he" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(35)) <> "2xk3d1vgt8iya" or
+        (bin64Expr(bin64(10000000000000000000_)) radix intExpr(36)) <> "23z405fz79tds" then
+      writeln(" ***** The radix operator for bin64 does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
     if  (bin64(10000000000) RADIX  2) <> "1001010100000010111110010000000000" or
         (bin64(10000000000) RADIX  3) <> "221210220202122010101" or
         (bin64(10000000000) RADIX  4) <> "21110002332100000" or
@@ -5068,6 +5450,234 @@ const proc: checkRadix is func
         (bin64(10000000000) RADIX intExpr(35)) <> "5FDV5AP" or
         (bin64(10000000000) RADIX intExpr(36)) <> "4LDQPDS" then
       writeln(" ***** The RADIX operator for bin64 does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000)) RADIX  2) <> "1001010100000010111110010000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX  3) <> "221210220202122010101" or
+        (bin64Expr(bin64(10000000000)) RADIX  4) <> "21110002332100000" or
+        (bin64Expr(bin64(10000000000)) RADIX  5) <> "130440000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX  6) <> "4332142412144" or
+        (bin64Expr(bin64(10000000000)) RADIX  7) <> "502544411644" or
+        (bin64Expr(bin64(10000000000)) RADIX  8) <> "112402762000" or
+        (bin64Expr(bin64(10000000000)) RADIX  9) <> "27726678111" or
+        (bin64Expr(bin64(10000000000)) RADIX 10) <> "10000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX 11) <> "4271815011" or
+        (bin64Expr(bin64(10000000000)) RADIX 12) <> "1B30B91054" or
+        (bin64Expr(bin64(10000000000)) RADIX 13) <> "C349BA483" or
+        (bin64Expr(bin64(10000000000)) RADIX 14) <> "6AC162C24" or
+        (bin64Expr(bin64(10000000000)) RADIX 15) <> "3D7DACE6A" or
+        (bin64Expr(bin64(10000000000)) RADIX 16) <> "2540BE400" or
+        (bin64Expr(bin64(10000000000)) RADIX 17) <> "1764G6422" or
+        (bin64Expr(bin64(10000000000)) RADIX 18) <> "G603FB9A" or
+        (bin64Expr(bin64(10000000000)) RADIX 19) <> "B3ABB909" or
+        (bin64Expr(bin64(10000000000)) RADIX 20) <> "7G500000" or
+        (bin64Expr(bin64(10000000000)) RADIX 21) <> "5BCAIKK4" or
+        (bin64Expr(bin64(10000000000)) RADIX 22) <> "40487B0C" or
+        (bin64Expr(bin64(10000000000)) RADIX 23) <> "2LCFD6FG" or
+        (bin64Expr(bin64(10000000000)) RADIX 24) <> "247KJF2G" or
+        (bin64Expr(bin64(10000000000)) RADIX 25) <> "1FO00000" or
+        (bin64Expr(bin64(10000000000)) RADIX 26) <> "169GPHAG" or
+        (bin64Expr(bin64(10000000000)) RADIX 27) <> "PLOKH3A" or
+        (bin64Expr(bin64(10000000000)) RADIX 28) <> "KL17A14" or
+        (bin64Expr(bin64(10000000000)) RADIX 29) <> "GNFIQC6" or
+        (bin64Expr(bin64(10000000000)) RADIX 30) <> "DLFKB3A" or
+        (bin64Expr(bin64(10000000000)) RADIX 31) <> "B893Q85" or
+        (bin64Expr(bin64(10000000000)) RADIX 32) <> "9A0NP00" or
+        (bin64Expr(bin64(10000000000)) RADIX 33) <> "7OH8OF1" or
+        (bin64Expr(bin64(10000000000)) RADIX 34) <> "6G35112" or
+        (bin64Expr(bin64(10000000000)) RADIX 35) <> "5FDV5AP" or
+        (bin64Expr(bin64(10000000000)) RADIX 36) <> "4LDQPDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000)) RADIX intExpr( 2)) <> "1001010100000010111110010000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 3)) <> "221210220202122010101" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 4)) <> "21110002332100000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 5)) <> "130440000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 6)) <> "4332142412144" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 7)) <> "502544411644" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 8)) <> "112402762000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr( 9)) <> "27726678111" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(10)) <> "10000000000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(11)) <> "4271815011" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(12)) <> "1B30B91054" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(13)) <> "C349BA483" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(14)) <> "6AC162C24" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(15)) <> "3D7DACE6A" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(16)) <> "2540BE400" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(17)) <> "1764G6422" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(18)) <> "G603FB9A" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(19)) <> "B3ABB909" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(20)) <> "7G500000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(21)) <> "5BCAIKK4" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(22)) <> "40487B0C" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(23)) <> "2LCFD6FG" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(24)) <> "247KJF2G" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(25)) <> "1FO00000" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(26)) <> "169GPHAG" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(27)) <> "PLOKH3A" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(28)) <> "KL17A14" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(29)) <> "GNFIQC6" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(30)) <> "DLFKB3A" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(31)) <> "B893Q85" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(32)) <> "9A0NP00" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(33)) <> "7OH8OF1" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(34)) <> "6G35112" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(35)) <> "5FDV5AP" or
+        (bin64Expr(bin64(10000000000)) RADIX intExpr(36)) <> "4LDQPDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+    if  (bin64(10000000000000000000_) RADIX  2) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64(10000000000000000000_) RADIX  3) <> "2110121212100122121121010120012121020101" or
+        (bin64(10000000000000000000_) RADIX  4) <> "20223013020300102021322000000000" or
+        (bin64(10000000000000000000_) RADIX  5) <> "1132341230000000000000000000" or
+        (bin64(10000000000000000000_) RADIX  6) <> "2035504000523551113452144" or
+        (bin64(10000000000000000000_) RADIX  7) <> "23621642325042620603533" or
+        (bin64(10000000000000000000_) RADIX  8) <> "1053071060221172000000" or
+        (bin64(10000000000000000000_) RADIX  9) <> "73555318547116177211" or
+        (bin64(10000000000000000000_) RADIX 10) <> "10000000000000000000" or
+        (bin64(10000000000000000000_) RADIX 11) <> "1886A141A47A785767A" or
+        (bin64(10000000000000000000_) RADIX 12) <> "46107A66A817A11054" or
+        (bin64(10000000000000000000_) RADIX 13) <> "12049BA9395305928A" or
+        (bin64(10000000000000000000_) RADIX 14) <> "483CDAD068310CA1A" or
+        (bin64(10000000000000000000_) RADIX 15) <> "17C836EDB0E05CE6A" or
+        (bin64(10000000000000000000_) RADIX 16) <> "8AC7230489E80000" or
+        (bin64(10000000000000000000_) RADIX 17) <> "386AD47G50D7420E" or
+        (bin64(10000000000000000000_) RADIX 18) <> "18C457G2CEA8699A" or
+        (bin64(10000000000000000000_) RADIX 19) <> "C9F21CC8I8HB2HA" or
+        (bin64(10000000000000000000_) RADIX 20) <> "62182A000000000" or
+        (bin64(10000000000000000000_) RADIX 21) <> "31F9GDIGD9JD23A" or
+        (bin64(10000000000000000000_) RADIX 22) <> "1D7JL2D8EJIK49A" or
+        (bin64(10000000000000000000_) RADIX 23) <> "JJ76759943D4GL" or
+        (bin64(10000000000000000000_) RADIX 24) <> "B9JG72907ADF2G" or
+        (bin64(10000000000000000000_) RADIX 25) <> "6HJ7F000000000" or
+        (bin64(10000000000000000000_) RADIX 26) <> "40KE0P73NEPDHA" or
+        (bin64(10000000000000000000_) RADIX 27) <> "2CGN9HGG3F5G6A" or
+        (bin64(10000000000000000000_) RADIX 28) <> "1F1L9F6BBNJ2EO" or
+        (bin64(10000000000000000000_) RADIX 29) <> "S7IED9M544B8L" or
+        (bin64(10000000000000000000_) RADIX 30) <> "IOF2J0OOPKB3A" or
+        (bin64(10000000000000000000_) RADIX 31) <> "CLHK74TCNU4NI" or
+        (bin64(10000000000000000000_) RADIX 32) <> "8LHP30I4UG000" or
+        (bin64(10000000000000000000_) RADIX 33) <> "5WS6U3CHL8E6A" or
+        (bin64(10000000000000000000_) RADIX 34) <> "46G2IB24MQ0HE" or
+        (bin64(10000000000000000000_) RADIX 35) <> "2XK3D1VGT8IYA" or
+        (bin64(10000000000000000000_) RADIX 36) <> "23Z405FZ79TDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+    if  (bin64(10000000000000000000_) RADIX intExpr( 2)) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr( 3)) <> "2110121212100122121121010120012121020101" or
+        (bin64(10000000000000000000_) RADIX intExpr( 4)) <> "20223013020300102021322000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr( 5)) <> "1132341230000000000000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr( 6)) <> "2035504000523551113452144" or
+        (bin64(10000000000000000000_) RADIX intExpr( 7)) <> "23621642325042620603533" or
+        (bin64(10000000000000000000_) RADIX intExpr( 8)) <> "1053071060221172000000" or
+        (bin64(10000000000000000000_) RADIX intExpr( 9)) <> "73555318547116177211" or
+        (bin64(10000000000000000000_) RADIX intExpr(10)) <> "10000000000000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr(11)) <> "1886A141A47A785767A" or
+        (bin64(10000000000000000000_) RADIX intExpr(12)) <> "46107A66A817A11054" or
+        (bin64(10000000000000000000_) RADIX intExpr(13)) <> "12049BA9395305928A" or
+        (bin64(10000000000000000000_) RADIX intExpr(14)) <> "483CDAD068310CA1A" or
+        (bin64(10000000000000000000_) RADIX intExpr(15)) <> "17C836EDB0E05CE6A" or
+        (bin64(10000000000000000000_) RADIX intExpr(16)) <> "8AC7230489E80000" or
+        (bin64(10000000000000000000_) RADIX intExpr(17)) <> "386AD47G50D7420E" or
+        (bin64(10000000000000000000_) RADIX intExpr(18)) <> "18C457G2CEA8699A" or
+        (bin64(10000000000000000000_) RADIX intExpr(19)) <> "C9F21CC8I8HB2HA" or
+        (bin64(10000000000000000000_) RADIX intExpr(20)) <> "62182A000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr(21)) <> "31F9GDIGD9JD23A" or
+        (bin64(10000000000000000000_) RADIX intExpr(22)) <> "1D7JL2D8EJIK49A" or
+        (bin64(10000000000000000000_) RADIX intExpr(23)) <> "JJ76759943D4GL" or
+        (bin64(10000000000000000000_) RADIX intExpr(24)) <> "B9JG72907ADF2G" or
+        (bin64(10000000000000000000_) RADIX intExpr(25)) <> "6HJ7F000000000" or
+        (bin64(10000000000000000000_) RADIX intExpr(26)) <> "40KE0P73NEPDHA" or
+        (bin64(10000000000000000000_) RADIX intExpr(27)) <> "2CGN9HGG3F5G6A" or
+        (bin64(10000000000000000000_) RADIX intExpr(28)) <> "1F1L9F6BBNJ2EO" or
+        (bin64(10000000000000000000_) RADIX intExpr(29)) <> "S7IED9M544B8L" or
+        (bin64(10000000000000000000_) RADIX intExpr(30)) <> "IOF2J0OOPKB3A" or
+        (bin64(10000000000000000000_) RADIX intExpr(31)) <> "CLHK74TCNU4NI" or
+        (bin64(10000000000000000000_) RADIX intExpr(32)) <> "8LHP30I4UG000" or
+        (bin64(10000000000000000000_) RADIX intExpr(33)) <> "5WS6U3CHL8E6A" or
+        (bin64(10000000000000000000_) RADIX intExpr(34)) <> "46G2IB24MQ0HE" or
+        (bin64(10000000000000000000_) RADIX intExpr(35)) <> "2XK3D1VGT8IYA" or
+        (bin64(10000000000000000000_) RADIX intExpr(36)) <> "23Z405FZ79TDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000000000000_)) RADIX  2) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  3) <> "2110121212100122121121010120012121020101" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  4) <> "20223013020300102021322000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  5) <> "1132341230000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  6) <> "2035504000523551113452144" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  7) <> "23621642325042620603533" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  8) <> "1053071060221172000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX  9) <> "73555318547116177211" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 10) <> "10000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 11) <> "1886A141A47A785767A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 12) <> "46107A66A817A11054" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 13) <> "12049BA9395305928A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 14) <> "483CDAD068310CA1A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 15) <> "17C836EDB0E05CE6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 16) <> "8AC7230489E80000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 17) <> "386AD47G50D7420E" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 18) <> "18C457G2CEA8699A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 19) <> "C9F21CC8I8HB2HA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 20) <> "62182A000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 21) <> "31F9GDIGD9JD23A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 22) <> "1D7JL2D8EJIK49A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 23) <> "JJ76759943D4GL" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 24) <> "B9JG72907ADF2G" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 25) <> "6HJ7F000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 26) <> "40KE0P73NEPDHA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 27) <> "2CGN9HGG3F5G6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 28) <> "1F1L9F6BBNJ2EO" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 29) <> "S7IED9M544B8L" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 30) <> "IOF2J0OOPKB3A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 31) <> "CLHK74TCNU4NI" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 32) <> "8LHP30I4UG000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 33) <> "5WS6U3CHL8E6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 34) <> "46G2IB24MQ0HE" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 35) <> "2XK3D1VGT8IYA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX 36) <> "23Z405FZ79TDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+    if  (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 2)) <> "1000101011000111001000110000010010001001111010000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 3)) <> "2110121212100122121121010120012121020101" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 4)) <> "20223013020300102021322000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 5)) <> "1132341230000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 6)) <> "2035504000523551113452144" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 7)) <> "23621642325042620603533" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 8)) <> "1053071060221172000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr( 9)) <> "73555318547116177211" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(10)) <> "10000000000000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(11)) <> "1886A141A47A785767A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(12)) <> "46107A66A817A11054" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(13)) <> "12049BA9395305928A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(14)) <> "483CDAD068310CA1A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(15)) <> "17C836EDB0E05CE6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(16)) <> "8AC7230489E80000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(17)) <> "386AD47G50D7420E" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(18)) <> "18C457G2CEA8699A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(19)) <> "C9F21CC8I8HB2HA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(20)) <> "62182A000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(21)) <> "31F9GDIGD9JD23A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(22)) <> "1D7JL2D8EJIK49A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(23)) <> "JJ76759943D4GL" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(24)) <> "B9JG72907ADF2G" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(25)) <> "6HJ7F000000000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(26)) <> "40KE0P73NEPDHA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(27)) <> "2CGN9HGG3F5G6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(28)) <> "1F1L9F6BBNJ2EO" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(29)) <> "S7IED9M544B8L" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(30)) <> "IOF2J0OOPKB3A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(31)) <> "CLHK74TCNU4NI" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(32)) <> "8LHP30I4UG000" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(33)) <> "5WS6U3CHL8E6A" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(34)) <> "46G2IB24MQ0HE" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(35)) <> "2XK3D1VGT8IYA" or
+        (bin64Expr(bin64(10000000000000000000_)) RADIX intExpr(36)) <> "23Z405FZ79TDS" then
+      writeln(" ***** The RADIX operator for bin64 does not work correctly. (8)");
       okay := FALSE;
     end if;
 
