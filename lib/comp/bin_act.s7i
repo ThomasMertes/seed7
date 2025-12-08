@@ -154,9 +154,9 @@ const proc: process (BIN_BIG, in reference: function,
 
   begin
     prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigFromUInt64(";
+    c_expr.result_expr := "bigFromUInt64((uint64Type)(";
     getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
+    c_expr.result_expr &:= "))";
   end func;
 
 
@@ -205,9 +205,9 @@ const proc: process (BIN_BIT_LENGTH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(intType) uint64MostSignificantBit(";
+    c_expr.expr &:= "(intType) uint64MostSignificantBit((uintType)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ") + 1";
+    c_expr.expr &:= ")) + 1";
   end func;
 
 
@@ -710,9 +710,9 @@ const proc: process (BIN_LOWEST_SET_BIT, in reference: function,
     c_expr.expr &:= "(intType)(";
     numberName := getParameterAsVariable("uintType", "num1_", params[1], c_expr);
     c_expr.expr &:= numberName;
-    c_expr.expr &:= " == 0 ? -1 : uint64LeastSignificantBit(";
+    c_expr.expr &:= " == 0 ? -1 : uint64LeastSignificantBit((uintType)(";
     c_expr.expr &:= numberName;
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")))";
   end func;
 
 
@@ -932,9 +932,9 @@ const proc: process_const_bin_n_bytes_be (in reference: number,
       c_expr.expr &:= ")";
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintNBytesBe(";
+      c_expr.result_expr := "uintNBytesBe((uintType)(";
       getStdParamToResultExpr(number, c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       c_expr.result_expr &:= integerLiteral(length);
       c_expr.result_expr &:= ")";
     end if;
@@ -953,9 +953,9 @@ const proc: process (BIN_N_BYTES_BE, in reference: function,
           getValue(evaluatedLength, integer), c_expr);
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintNBytesBe(";
+      c_expr.result_expr := "uintNBytesBe((uintType)(";
       getStdParamToResultExpr(params[1], c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
     end if;
@@ -1048,9 +1048,9 @@ const proc: process_const_bin_n_bytes_le (in reference: number,
       c_expr.expr &:= ")";
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintNBytesLe(";
+      c_expr.result_expr := "uintNBytesLe((uintType)(";
       getStdParamToResultExpr(number, c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       c_expr.result_expr &:= integerLiteral(length);
       c_expr.result_expr &:= ")";
     end if;
@@ -1069,9 +1069,9 @@ const proc: process (BIN_N_BYTES_LE, in reference: function,
           getValue(evaluatedLength, integer), c_expr);
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintNBytesLe(";
+      c_expr.result_expr := "uintNBytesLe((uintType)(";
       getStdParamToResultExpr(params[1], c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
     end if;
@@ -1108,9 +1108,9 @@ const proc: process_bin_str (in reference: param1, inout expr_type: c_expr) is f
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr := "uintStr(";
+    c_expr.result_expr := "uintStr((uintType)(";
     getStdParamToResultExpr(param1, c_expr);
-    c_expr.result_expr &:= ")";
+    c_expr.result_expr &:= "))";
   end func;
 
 
@@ -1128,9 +1128,9 @@ const proc: process_const_bin_radix (in reference: param1, in integer: base,
     elsif 2 ** log2(base) = base then
       incr(count.optimizations);
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintRadixPow2(";
+      c_expr.result_expr := "uintRadixPow2((uintType)(";
       getStdParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= "),";
       c_expr.result_expr &:= integerLiteral(log2(base));
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= integerLiteral(pred(base));
@@ -1139,9 +1139,9 @@ const proc: process_const_bin_radix (in reference: param1, in integer: base,
       c_expr.result_expr &:= ")";
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintRadix(";
+      c_expr.result_expr := "uintRadix((uintType)(";
       getStdParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       c_expr.result_expr &:= integerLiteral(base);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= str(ord(upperCase));
@@ -1161,9 +1161,9 @@ const proc: process_bin_radix (in ref_list: params, in boolean: upperCase,
           upperCase, c_expr);
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "uintRadix(";
+      c_expr.result_expr := "uintRadix((uintType)(";
       getStdParamToResultExpr(params[1], c_expr);
-      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= str(ord(upperCase));
