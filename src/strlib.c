@@ -541,9 +541,9 @@ objectType str_cpy (listType arguments)
           FREE_STRI(take_stri(dest));
           dest->value.striValue = stri_dest;
           stri_dest->size = new_size;
+          memcpy(stri_dest->mem, take_stri(source)->mem,
+                 new_size * sizeof(strElemType));
         } /* if */
-        memcpy(stri_dest->mem, take_stri(source)->mem,
-               new_size * sizeof(strElemType));
       } /* if */
     } /* if */
     logFunctionResult(printf(FMT_X_MEM "\n",
@@ -583,11 +583,12 @@ objectType str_create (listType arguments)
       if (unlikely(!ALLOC_STRI_SIZE_OK(new_str, new_size))) {
         dest->value.striValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        dest->value.striValue = new_str;
+        new_str->size = new_size;
+        memcpy(new_str->mem, take_stri(source)->mem,
+               new_size * sizeof(strElemType));
       } /* if */
-      dest->value.striValue = new_str;
-      new_str->size = new_size;
-      memcpy(new_str->mem, take_stri(source)->mem,
-             new_size * sizeof(strElemType));
     } /* if */
     logFunctionResult(printf(FMT_X_MEM "\n",
                              (memSizeType) take_stri(dest)););
@@ -910,16 +911,18 @@ objectType str_head (listType arguments)
         SHRINK_STRI(result, stri, result_size);
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->size = result_size;
+          arg_1(arguments)->value.striValue = NULL;
         } /* if */
-        result->size = result_size;
-        arg_1(arguments)->value.striValue = NULL;
       } else {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->size = result_size;
+          memcpy(result->mem, stri->mem,
+                 result_size * sizeof(strElemType));
         } /* if */
-        result->size = result_size;
-        memcpy(result->mem, stri->mem,
-               result_size * sizeof(strElemType));
       } /* if */
     } else if (unlikely(stop < 0)) {
       return raise_exception(SYS_IDX_EXCEPTION);
@@ -928,12 +931,13 @@ objectType str_head (listType arguments)
 
       if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        emptyStri->size = 0;
+        /* Note that the size of the allocated memory is smaller than */
+        /* the size of striStruct. But this is okay, because the */
+        /* elements 'mem' respectively 'mem1' are not used. */
+        result = (striType) emptyStri;
       } /* if */
-      emptyStri->size = 0;
-      /* Note that the size of the allocated memory is smaller than */
-      /* the size of striStruct. But this is okay, because the */
-      /* elements 'mem' respectively 'mem1' are not used. */
-      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_head */
@@ -1122,10 +1126,11 @@ objectType str_lpad (listType arguments)
       } else {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
           return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->size = striSize;
+          memcpy(result->mem, stri->mem,
+                 striSize * sizeof(strElemType));
         } /* if */
-        result->size = striSize;
-        memcpy(result->mem, stri->mem,
-               striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1414,16 +1419,17 @@ objectType str_range (listType arguments)
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        /* Reversing the order of the following two statements    */
+        /* causes an "Internal Compiler Error" with MSC 6.0       */
+        /* if using the -Ozacegilt optimisation option in the     */
+        /* large memory model (-AL). Note that the order of the   */
+        /* two statements make no difference to the logic of the  */
+        /* program.                                               */
+        memcpy(result->mem, &stri->mem[start - 1],
+               result_size * sizeof(strElemType));
+        result->size = result_size;
       } /* if */
-      /* Reversing the order of the following two statements    */
-      /* causes an "Internal Compiler Error" with MSC 6.0       */
-      /* if using the -Ozacegilt optimisation option in the     */
-      /* large memory model (-AL). Note that the order of the   */
-      /* two statements make no difference to the logic of the  */
-      /* program.                                               */
-      memcpy(result->mem, &stri->mem[start - 1],
-             result_size * sizeof(strElemType));
-      result->size = result_size;
     } else if (unlikely(stop < start - 1)) {
       return raise_exception(SYS_IDX_EXCEPTION);
     } else {
@@ -1431,12 +1437,13 @@ objectType str_range (listType arguments)
 
       if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        emptyStri->size = 0;
+        /* Note that the size of the allocated memory is smaller than */
+        /* the size of striStruct. But this is okay, because the */
+        /* elements 'mem' respectively 'mem1' are not used. */
+        result = (striType) emptyStri;
       } /* if */
-      emptyStri->size = 0;
-      /* Note that the size of the allocated memory is smaller than */
-      /* the size of striStruct. But this is okay, because the */
-      /* elements 'mem' respectively 'mem1' are not used. */
-      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_range */
@@ -1560,10 +1567,11 @@ objectType str_rpad (listType arguments)
       } else {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
           return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->size = striSize;
+          memcpy(result->mem, stri->mem,
+                 striSize * sizeof(strElemType));
         } /* if */
-        result->size = striSize;
-        memcpy(result->mem, stri->mem,
-               striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1612,16 +1620,18 @@ objectType str_rtrim (listType arguments)
       SHRINK_STRI(result, stri, result_size);
       if (unlikely(result == NULL)) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->size = result_size;
+        arg_1(arguments)->value.striValue = NULL;
       } /* if */
-      result->size = result_size;
-      arg_1(arguments)->value.striValue = NULL;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, stri->mem,
+               result_size * sizeof(strElemType));
       } /* if */
-      result->size = result_size;
-      memcpy(result->mem, stri->mem,
-             result_size * sizeof(strElemType));
     } /* if */
     return bld_stri_temp(result);
   } /* str_rtrim */
@@ -1707,21 +1717,23 @@ objectType str_substr (listType arguments)
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
-      } /* if */
-      memcpy(result->mem, &stri->mem[start - 1],
-             result_size * sizeof(strElemType));
-      result->size = result_size;
+      } else {
+        memcpy(result->mem, &stri->mem[start - 1],
+               result_size * sizeof(strElemType));
+        result->size = result_size;
+      } /* if*/
     } else {
       emptyStriType emptyStri;
 
       if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        emptyStri->size = 0;
+        /* Note that the size of the allocated memory is smaller than */
+        /* the size of striStruct. But this is okay, because the */
+        /* elements 'mem' respectively 'mem1' are not used. */
+        result = (striType) emptyStri;
       } /* if */
-      emptyStri->size = 0;
-      /* Note that the size of the allocated memory is smaller than */
-      /* the size of striStruct. But this is okay, because the */
-      /* elements 'mem' respectively 'mem1' are not used. */
-      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_substr */
@@ -1779,27 +1791,29 @@ objectType str_tail (listType arguments)
       result_size = striSize - (memSizeType) start + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        /* Reversing the order of the following two statements    */
+        /* causes an "Internal Compiler Error" with MSC 6.0       */
+        /* if using the -Ozacegilt optimisation option in the     */
+        /* large memory model (-AL). Note that the order of the   */
+        /* two statements make no difference to the logic of the  */
+        /* program.                                               */
+        memcpy(result->mem, &stri->mem[start - 1],
+               result_size * sizeof(strElemType));
+        result->size = result_size;
       } /* if */
-      /* Reversing the order of the following two statements    */
-      /* causes an "Internal Compiler Error" with MSC 6.0       */
-      /* if using the -Ozacegilt optimisation option in the     */
-      /* large memory model (-AL). Note that the order of the   */
-      /* two statements make no difference to the logic of the  */
-      /* program.                                               */
-      memcpy(result->mem, &stri->mem[start - 1],
-             result_size * sizeof(strElemType));
-      result->size = result_size;
     } else {
       emptyStriType emptyStri;
 
       if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
         return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        emptyStri->size = 0;
+        /* Note that the size of the allocated memory is smaller than */
+        /* the size of striStruct. But this is okay, because the */
+        /* elements 'mem' respectively 'mem1' are not used. */
+        result = (striType) emptyStri;
       } /* if */
-      emptyStri->size = 0;
-      /* Note that the size of the allocated memory is smaller than */
-      /* the size of striStruct. But this is okay, because the */
-      /* elements 'mem' respectively 'mem1' are not used. */
-      result = (striType) emptyStri;
     } /* if */
     return bld_stri_temp(result);
   } /* str_tail */
