@@ -2291,10 +2291,6 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             case INT8OID:
               columnValue = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               break;
-            case CASHOID:
-              columnValue = bigFromInt64(((int64Type) ntohll(*(const uint64Type *) buffer)) /
-                                         preparedStmt->db->moneyDenominator);
-              break;
             case NUMERICOID:
               columnValue = getNumericAsBigInt((const_ustriType) buffer);
               break;
@@ -2912,10 +2908,6 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
               break;
             case INT8OID:
               columnValue = (int64Type) ntohll(*(const uint64Type *) buffer);
-              break;
-            case CASHOID:
-              columnValue = ((int64Type) ntohll(*(const uint64Type *) buffer)) /
-                            preparedStmt->db->moneyDenominator;
               break;
             case NUMERICOID:
               columnValue = getNumericAsInt((const_ustriType) buffer);
