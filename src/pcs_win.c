@@ -682,13 +682,13 @@ static HANDLE getHandleFromFile (cFileType aFile, errInfoType *err_info)
     HANDLE fileHandle;
 
   /* getHandleFromFile */
+    logFunction(printf("getHandleFromFile(%s%d, %d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       safe_fileno(aFile), *err_info););
     if (aFile == NULL) {
-      fileHandle = CreateFile(NULL_DEVICE, GENERIC_READ | GENERIC_WRITE,
-                              FILE_SHARE_READ | FILE_SHARE_WRITE,
-                              NULL, OPEN_EXISTING, 0, NULL);
-      if (unlikely(fileHandle == INVALID_HANDLE_VALUE)) {
-        logError(printf("CreateFile(\"nul:\", ...) failed.\n"););
-      } /* if */
+      logError(printf("getHandleFromFile: NULL specified as file.\n"););
+      *err_info = FILE_ERROR;
+      fileHandle = INVALID_HANDLE_VALUE;
     } else {
       file_no = os_fileno(aFile);
       if (unlikely(file_no == -1)) {
@@ -709,6 +709,8 @@ static HANDLE getHandleFromFile (cFileType aFile, errInfoType *err_info)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("getHandleFromFile --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) fileHandle, *err_info););
     return fileHandle;
   } /* getHandleFromFile */
 
@@ -745,8 +747,17 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     childStdin = redirectStdin->cFile;
     childStdout = redirectStdout->cFile;
     childStderr = redirectStderr->cFile;
+    if (childStdin == NULL) {
+      childStdin = fopen(NULL_DEVICE, "r");
+    } /* if */
     stdinFileHandle = getHandleFromFile(childStdin, &err_info);
+    if (childStdout == NULL) {
+      childStdout = fopen(NULL_DEVICE, "r");
+    } /* if */
     stdoutFileHandle = getHandleFromFile(childStdout, &err_info);
+    if (childStderr == NULL) {
+      childStderr = fopen(NULL_DEVICE, "r");
+    } /* if */
     stderrFileHandle = getHandleFromFile(childStderr, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       os_command_stri = cp_to_os_path(command, &path_info, &err_info);
@@ -801,14 +812,14 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         os_stri_free(os_command_stri);
       } /* if */
     } /* if */
-    if (childStdin == NULL && stdinFileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(stdinFileHandle);
+    if (redirectStdin->cFile == NULL && childStdin != NULL) {
+      fclose(childStdin);
     } /* if */
-    if (childStdout == NULL && stdoutFileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(stdoutFileHandle);
+    if (redirectStdout->cFile == NULL && childStdout != NULL) {
+      fclose(childStdout);
     } /* if */
-    if (childStderr == NULL && stderrFileHandle != INVALID_HANDLE_VALUE) {
-      CloseHandle(stderrFileHandle);
+    if (redirectStderr->cFile == NULL && childStderr != NULL) {
+      fclose(childStderr);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
