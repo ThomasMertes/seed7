@@ -752,11 +752,11 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     } /* if */
     stdinFileHandle = getHandleFromFile(childStdin, &err_info);
     if (childStdout == NULL) {
-      childStdout = fopen(NULL_DEVICE, "r");
+      childStdout = fopen(NULL_DEVICE, "w");
     } /* if */
     stdoutFileHandle = getHandleFromFile(childStdout, &err_info);
     if (childStderr == NULL) {
-      childStderr = fopen(NULL_DEVICE, "r");
+      childStderr = fopen(NULL_DEVICE, "w");
     } /* if */
     stderrFileHandle = getHandleFromFile(childStderr, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
