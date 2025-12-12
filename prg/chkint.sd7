@@ -33291,13 +33291,12 @@ const proc: chkLShift (in integer: lshift, inout boolean: okay) is func
   end func;
 
 
-const func boolean: check_lShift_assign is func
+const func boolean: check_lShift_assign_1 is func
   result
     var boolean: okay is TRUE;
   local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
     num := -9223372036854775807; num <<:=  0; ok &:= num = -9223372036854775807;
     num := -4611686018427387903; num <<:=  1; ok &:= num = -9223372036854775806;
@@ -33338,6 +33337,12 @@ const func boolean: check_lShift_assign is func
     num :=  2305843009213693951; num <<:=  2; ok &:= num =  9223372036854775804;
     num :=  4611686018427387903; num <<:=  1; ok &:= num =  9223372036854775806;
     num :=  9223372036854775807; num <<:=  0; ok &:= num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Left shift assignment where bitLength(result) is 63 does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+	ok := TRUE;
     num := -9223372036854775807; num <<:= intExpr( 0); ok &:= num = -9223372036854775807;
     num := -4611686018427387903; num <<:= intExpr( 1); ok &:= num = -9223372036854775806;
     num := -2305843009213693951; num <<:= intExpr( 2); ok &:= num = -9223372036854775804;
@@ -33377,6 +33382,20 @@ const func boolean: check_lShift_assign is func
     num :=  2305843009213693951; num <<:= intExpr( 2); ok &:= num =  9223372036854775804;
     num :=  4611686018427387903; num <<:= intExpr( 1); ok &:= num =  9223372036854775806;
     num :=  9223372036854775807; num <<:= intExpr( 0); ok &:= num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Left shift assignment where bitLength(result) is 63 does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lShift_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] := -9223372036854775807; arr[1] <<:=  0; ok &:= arr[1] = -9223372036854775807;
     arr[1] := -4611686018427387903; arr[1] <<:=  1; ok &:= arr[1] = -9223372036854775806;
     arr[1] := -2305843009213693951; arr[1] <<:=  2; ok &:= arr[1] = -9223372036854775804;
@@ -33416,6 +33435,20 @@ const func boolean: check_lShift_assign is func
     arr[1] :=  2305843009213693951; arr[1] <<:=  2; ok &:= arr[1] =  9223372036854775804;
     arr[1] :=  4611686018427387903; arr[1] <<:=  1; ok &:= arr[1] =  9223372036854775806;
     arr[1] :=  9223372036854775807; arr[1] <<:=  0; ok &:= arr[1] =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Left shift assignment where bitLength(result) is 63 does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lShift_assign_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] := -9223372036854775807; arr[1] <<:= intExpr( 0); ok &:= arr[1] = -9223372036854775807;
     arr[1] := -4611686018427387903; arr[1] <<:= intExpr( 1); ok &:= arr[1] = -9223372036854775806;
     arr[1] := -2305843009213693951; arr[1] <<:= intExpr( 2); ok &:= arr[1] = -9223372036854775804;
@@ -33456,11 +33489,19 @@ const func boolean: check_lShift_assign is func
     arr[1] :=  4611686018427387903; arr[1] <<:= intExpr( 1); ok &:= arr[1] =  9223372036854775806;
     arr[1] :=  9223372036854775807; arr[1] <<:= intExpr( 0); ok &:= arr[1] =  9223372036854775807;
     if not ok then
-      writeln(" ***** Left shift assignment where bitLength(result) is 63 does not work correctly.");
+      writeln(" ***** Left shift assignment where bitLength(result) is 63 does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_lShift_assign_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+  begin
     num :=            INT64_MIN; num <<:=  0; ok &:= num =            INT64_MIN;
     num := -4611686018427387904; num <<:=  1; ok &:= num =            INT64_MIN;
     num := -2305843009213693952; num <<:=  2; ok &:= num =            INT64_MIN;
@@ -33501,6 +33542,12 @@ const func boolean: check_lShift_assign is func
     num :=  1152921504606846976; num <<:=  2; ok &:= num =  4611686018427387904;
     num :=  2305843009213693952; num <<:=  1; ok &:= num =  4611686018427387904;
     num :=  4611686018427387904; num <<:=  0; ok &:= num =  4611686018427387904;
+    if not ok then
+      writeln(" ***** Left shift assignment with result of the biggest power of two does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+	ok := TRUE;
     num :=            INT64_MIN; num <<:= intExpr( 0); ok &:= num =            INT64_MIN;
     num := -4611686018427387904; num <<:= intExpr( 1); ok &:= num =            INT64_MIN;
     num := -2305843009213693952; num <<:= intExpr( 2); ok &:= num =            INT64_MIN;
@@ -33541,6 +33588,20 @@ const func boolean: check_lShift_assign is func
     num :=  1152921504606846976; num <<:= intExpr( 2); ok &:= num =  4611686018427387904;
     num :=  2305843009213693952; num <<:= intExpr( 1); ok &:= num =  4611686018427387904;
     num :=  4611686018427387904; num <<:= intExpr( 0); ok &:= num =  4611686018427387904;
+    if not ok then
+      writeln(" ***** Left shift assignment with result of the biggest power of two does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lShift_assign_5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] :=            INT64_MIN; arr[1] <<:=  0; ok &:= arr[1] =            INT64_MIN;
     arr[1] := -4611686018427387904; arr[1] <<:=  1; ok &:= arr[1] =            INT64_MIN;
     arr[1] := -2305843009213693952; arr[1] <<:=  2; ok &:= arr[1] =            INT64_MIN;
@@ -33581,6 +33642,20 @@ const func boolean: check_lShift_assign is func
     arr[1] :=  1152921504606846976; arr[1] <<:=  2; ok &:= arr[1] =  4611686018427387904;
     arr[1] :=  2305843009213693952; arr[1] <<:=  1; ok &:= arr[1] =  4611686018427387904;
     arr[1] :=  4611686018427387904; arr[1] <<:=  0; ok &:= arr[1] =  4611686018427387904;
+    if not ok then
+      writeln(" ***** Left shift assignment with result of the biggest power of two does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lShift_assign_6 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] :=            INT64_MIN; arr[1] <<:= intExpr( 0); ok &:= arr[1] =            INT64_MIN;
     arr[1] := -4611686018427387904; arr[1] <<:= intExpr( 1); ok &:= arr[1] =            INT64_MIN;
     arr[1] := -2305843009213693952; arr[1] <<:= intExpr( 2); ok &:= arr[1] =            INT64_MIN;
@@ -33622,7 +33697,7 @@ const func boolean: check_lShift_assign is func
     arr[1] :=  2305843009213693952; arr[1] <<:= intExpr( 1); ok &:= arr[1] =  4611686018427387904;
     arr[1] :=  4611686018427387904; arr[1] <<:= intExpr( 0); ok &:= arr[1] =  4611686018427387904;
     if not ok then
-      writeln(" ***** Left shift assignment with result of the biggest power of two does not work correctly.");
+      writeln(" ***** Left shift assignment with result of the biggest power of two does not work correctly. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -33989,7 +34064,27 @@ const proc: check_lShift is func
       okay := FALSE;
     end if;
 
-    if not check_lShift_assign then
+    if not check_lShift_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_5 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_6 then
       okay := FALSE;
     end if;
 
