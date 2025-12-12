@@ -34179,18 +34179,13 @@ const proc: chkRShift (in integer: rshift, inout boolean: okay) is func
   end func;
 
 
-const proc: check_rShift is func
-  local
+const func boolean: check_rShift_assign_1 is func
+  result
     var boolean: okay is TRUE;
-    var integer: rshift is 0;
+  local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
-    for rshift range 0 to 31 do
-      chkRShift(rshift, okay);
-    end for;
-
     num :=        integer.first; num >>:=  0; ok &:= num =        integer.first;
     num := -9223372036854775807; num >>:=  0; ok &:= num = -9223372036854775807;
     num := -4611686018427387905; num >>:=  0; ok &:= num = -4611686018427387905;
@@ -34239,6 +34234,20 @@ const proc: check_rShift is func
     num :=  4611686018427387903; num >>:= 63; ok &:= num =                    0;
     num :=  4611686018427387904; num >>:= 63; ok &:= num =                    0;
     num :=         integer.last; num >>:= 63; ok &:= num =                    0;
+    if not ok then
+      writeln(" ***** Right shift assignment does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_rShift_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] :=        integer.first; arr[1] >>:=  0; ok &:= arr[1] =        integer.first;
     arr[1] := -9223372036854775807; arr[1] >>:=  0; ok &:= arr[1] = -9223372036854775807;
     arr[1] := -4611686018427387905; arr[1] >>:=  0; ok &:= arr[1] = -4611686018427387905;
@@ -34288,7 +34297,28 @@ const proc: check_rShift is func
     arr[1] :=  4611686018427387904; arr[1] >>:= 63; ok &:= arr[1] =                    0;
     arr[1] :=         integer.last; arr[1] >>:= 63; ok &:= arr[1] =                    0;
     if not ok then
-      writeln(" ***** Right shift assignment does not work correctly.");
+      writeln(" ***** Right shift assignment does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_rShift is func
+  local
+    var boolean: okay is TRUE;
+    var integer: rshift is 0;
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+  begin
+    for rshift range 0 to 31 do
+      chkRShift(rshift, okay);
+    end for;
+
+    if not check_rShift_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_rShift_assign_2 then
       okay := FALSE;
     end if;
 
