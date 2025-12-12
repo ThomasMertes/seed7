@@ -1271,7 +1271,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           } else {
             emptyBStri->size = 0;
           } /* if */
-          result = (bstriType) emptyBstri;
+          result = (bstriType) emptyBStri;
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
