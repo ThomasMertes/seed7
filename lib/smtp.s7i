@@ -146,7 +146,9 @@ const func smtpConnection: openSmtp (in string: hostName,
         smtpCommand(smtp, "EHLO " & getHostname);
         smtpResponse(smtp);
         if startsWith(smtp.response, "250") then
-          if startsWith(smtp.response, "250 STARTTLS") then
+          if startsWith(smtp.response, "250 STARTTLS") or
+              startsWith(smtp.responseContent, "250-STARTTLS") or
+              pos(smtp.responseContent, "\n250-STARTTLS") <> 0 then
             smtpCommand(smtp, "STARTTLS");
             smtpResponse(smtp);
             if startsWith(smtp.response, "220") then
