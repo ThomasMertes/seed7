@@ -33,7 +33,6 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
@@ -66,33 +65,6 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
       end for;
       writeln("\": getBit(lsbInBitStream)");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated getBitLsb(file):
-    testFile := openStriFile(stri);
-    ignore(gets(testFile, pred(bytePos)));
-    if bitPos = 0 then
-      bitPosVar := 8;
-    else
-      bitPosVar := bitPos;
-      testFile.bufferChar := getc(testFile);
-    end if;
-    bits := getBitLsb(testFile, bitPosVar);
-    if bits <> bitsExpected or (bitPosExpected = 0 and bitPosVar <> 8) or
-        (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-      okay := FALSE;
-      write("\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\": getBitLsb(testFile, " <& bitPos <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if (bitPosExpected = 0 and bitPosVar <> 8) or
-          (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
     end if;
   end func;
 
@@ -159,7 +131,6 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
@@ -192,33 +163,6 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
       end for;
       writeln("\": getBits(lsbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated getBitsLsb(file):
-    testFile := openStriFile(stri);
-    ignore(gets(testFile, pred(bytePos)));
-    if bitPos = 0 then
-      bitPosVar := 8;
-    else
-      bitPosVar := bitPos;
-      testFile.bufferChar := getc(testFile);
-    end if;
-    bits := getBitsLsb(testFile, bitPosVar, bitsNeeded);
-    if bits <> bitsExpected or (bitPosExpected = 0 and bitPosVar <> 8) or
-        (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-      okay := FALSE;
-      write("\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\": getBitsLsb(testFile, " <& bitPos <& ", " <& bitsNeeded <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if (bitPosExpected = 0 and bitPosVar <> 8) or
-          (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
     end if;
   end func;
 
@@ -2430,7 +2374,6 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
@@ -2463,33 +2406,6 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
       end for;
       writeln("\": getBit(msbInBitStream)");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated getBitMsb(file):
-    testFile := openStriFile(stri);
-    ignore(gets(testFile, pred(bytePos)));
-    if bitPos = 0 then
-      bitPosVar := 8;
-    else
-      bitPosVar := bitPos;
-      testFile.bufferChar := getc(testFile);
-    end if;
-    bits := getBitMsb(testFile, bitPosVar);
-    if bits <> bitsExpected or (bitPosExpected = 0 and bitPosVar <> 8) or
-        (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-      okay := FALSE;
-      write("\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\": getBitMsb(testFile, " <& bitPos <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if (bitPosExpected = 0 and bitPosVar <> 8) or
-          (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
     end if;
   end func;
 
@@ -2538,7 +2454,6 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
   result
     var boolean: okay is TRUE;
   local
-    var integer: bitPosVar is 0;
     var integer: bits is 0;
     var char: ch is ' ';
     var file: testFile is STD_NULL;
@@ -2571,33 +2486,6 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
       end for;
       writeln("\": getBits(msbInBitStream, " <& bitsNeeded <& ")");
       writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-    end if;
-
-    # Test deprecated getBitsMsb(file):
-    testFile := openStriFile(stri);
-    ignore(gets(testFile, pred(bytePos)));
-    if bitPos = 0 then
-      bitPosVar := 8;
-    else
-      bitPosVar := bitPos;
-      testFile.bufferChar := getc(testFile);
-    end if;
-    bits := getBitsMsb(testFile, bitPosVar, bitsNeeded);
-    if bits <> bitsExpected or (bitPosExpected = 0 and bitPosVar <> 8) or
-        (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-      okay := FALSE;
-      write("\"");
-      for ch range stri do
-        write("\\2#" <& ord(ch) radix 2 <& ";");
-      end for;
-      writeln("\": getBitsMsb(testFile, " <& bitPos <& ", " <& bitsNeeded <& ")");
-      if bits <> bitsExpected then
-        writeln(" ***** Expected " <& bitsExpected <& " found " <& bits);
-      end if;
-      if (bitPosExpected = 0 and bitPosVar <> 8) or
-          (bitPosExpected <> 0 and bitPosVar <> bitPosExpected) then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
     end if;
   end func;
 
@@ -4838,9 +4726,6 @@ const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
   local
     var lsbOutBitStream: aBitStream is lsbOutBitStream.value;
     var string: bytes is "";
-    var string: striVar is "";
-    var integer: bitPosVar is 0;
-    var file: testFile is STD_NULL;
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBit(aBitStream, bit);
@@ -4853,56 +4738,6 @@ const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
     if bytes <> striExpected then
       writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(bytes));
       okay := FALSE;
-    end if;
-
-    striVar := stri;
-    bitPosVar := bitPos;
-    putBitLsb(striVar, bitPosVar, bit);
-    if striVar <> striExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("putBitLsb(\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\", " <& bitPos <& ", " <& bit radix 2 <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    if bitPos = 0 then
-      testFile := openStriFile(stri);
-      testFile.bufferChar := '\0;';
-    else
-      testFile := openStriFile(stri[.. pred(length(stri))]);
-      testFile.bufferChar := stri[length(stri)];
-    end if;
-    bitPosVar := bitPos;
-    putBitLsb(testFile, bitPosVar, bit);
-    seek(testFile, 1);
-    striVar := gets(testFile, length(testFile));
-    if bitPosVar <> 0 then
-      striVar &:= testFile.bufferChar;
-    end if;
-    if striVar <> striExpected or bitPosVar <> bitPosExpected or (bitPosVar = 0 and testFile.bufferChar <> '\0;') then
-      okay := FALSE;
-      write("\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\": putBitLsb(testFile, " <& bitPos <& ", " <& bit radix 2 <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-      if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
-      end if;
     end if;
   end func;
 
@@ -4952,9 +4787,6 @@ const func boolean: chkPutBitsLsb (in string: stri, in integer: bitPos,
   local
     var lsbOutBitStream: aBitStream is lsbOutBitStream.value;
     var string: bytes is "";
-    var string: striVar is "";
-    var integer: bitPosVar is 0;
-    var file: testFile is STD_NULL;
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBits(aBitStream, bits, bitsToWrite);
@@ -4967,56 +4799,6 @@ const func boolean: chkPutBitsLsb (in string: stri, in integer: bitPos,
     if bytes <> striExpected then
       writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(bytes));
       okay := FALSE;
-    end if;
-
-    striVar := stri;
-    bitPosVar := bitPos;
-    putBitsLsb(striVar, bitPosVar, bits, bitsToWrite);
-    if striVar <> striExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("putBitsLsb(\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\", " <& bitPos <& ", " <& bits radix 2 <& ", " <& bitsToWrite <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    if bitPos = 0 then
-      testFile := openStriFile(stri);
-      testFile.bufferChar := '\0;';
-    else
-      testFile := openStriFile(stri[.. pred(length(stri))]);
-      testFile.bufferChar := stri[length(stri)];
-    end if;
-    bitPosVar := bitPos;
-    putBitsLsb(testFile, bitPosVar, bits, bitsToWrite);
-    seek(testFile, 1);
-    striVar := gets(testFile, length(testFile));
-    if bitPosVar <> 0 then
-      striVar &:= testFile.bufferChar;
-    end if;
-    if striVar <> striExpected or bitPosVar <> bitPosExpected or (bitPosVar = 0 and testFile.bufferChar <> '\0;') then
-      okay := FALSE;
-      write("\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\": putBitsLsb(testFile, " <& bitPos <& ", " <& bits radix 2 <& ", " <& bitsToWrite <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-      if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
-      end if;
     end if;
   end func;
 
@@ -5890,9 +5672,6 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
   local
     var msbOutBitStream: aBitStream is msbOutBitStream.value;
     var string: bytes is "";
-    var string: striVar is "";
-    var integer: bitPosVar is 0;
-    var file: testFile is STD_NULL;
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBit(aBitStream, bit);
@@ -5905,56 +5684,6 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
     if bytes <> striExpected then
       writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(bytes));
       okay := FALSE;
-    end if;
-
-    striVar := stri;
-    bitPosVar := bitPos;
-    putBitMsb(striVar, bitPosVar, bit);
-    if striVar <> striExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("putBitMsb(\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\", " <& bitPos <& ", " <& bit radix 2 <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    if bitPos = 0 then
-      testFile := openStriFile(stri);
-      testFile.bufferChar := '\0;';
-    else
-      testFile := openStriFile(stri[.. pred(length(stri))]);
-      testFile.bufferChar := stri[length(stri)];
-    end if;
-    bitPosVar := bitPos;
-    putBitMsb(testFile, bitPosVar, bit);
-    seek(testFile, 1);
-    striVar := gets(testFile, length(testFile));
-    if bitPosVar <> 0 then
-      striVar &:= testFile.bufferChar;
-    end if;
-    if striVar <> striExpected or bitPosVar <> bitPosExpected or (bitPosVar = 0 and testFile.bufferChar <> '\0;') then
-      okay := FALSE;
-      write("\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\": putBitMsb(testFile, " <& bitPos <& ", " <& bit radix 2 <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-      if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
-      end if;
     end if;
   end func;
 
@@ -6004,9 +5733,6 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
   local
     var msbOutBitStream: aBitStream is msbOutBitStream.value;
     var string: bytes is "";
-    var string: striVar is "";
-    var integer: bitPosVar is 0;
-    var file: testFile is STD_NULL;
   begin
     initBitStream(aBitStream, stri, bitPos);
     putBits(aBitStream, bits, bitsToWrite);
@@ -6019,56 +5745,6 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
     if bytes <> striExpected then
       writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(bytes));
       okay := FALSE;
-    end if;
-
-    striVar := stri;
-    bitPosVar := bitPos;
-    putBitsMsb(striVar, bitPosVar, bits, bitsToWrite);
-    if striVar <> striExpected or bitPosVar <> bitPosExpected then
-      okay := FALSE;
-      write("putBitsMsb(\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\", " <& bitPos <& ", " <& bits radix 2 <& ", " <& bitsToWrite <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-    end if;
-
-    if bitPos = 0 then
-      testFile := openStriFile(stri);
-      testFile.bufferChar := '\0;';
-    else
-      testFile := openStriFile(stri[.. pred(length(stri))]);
-      testFile.bufferChar := stri[length(stri)];
-    end if;
-    bitPosVar := bitPos;
-    putBitsMsb(testFile, bitPosVar, bits, bitsToWrite);
-    seek(testFile, 1);
-    striVar := gets(testFile, length(testFile));
-    if bitPosVar <> 0 then
-      striVar &:= testFile.bufferChar;
-    end if;
-    if striVar <> striExpected or bitPosVar <> bitPosExpected or (bitPosVar = 0 and testFile.bufferChar <> '\0;') then
-      okay := FALSE;
-      write("\"");
-      if length(stri) >= 1 then
-        write("\\2#" <& ord(stri[length(stri)]) radix 2 <& ";");
-      end if;
-      writeln("\": putBitsMsb(testFile, " <& bitPos <& ", " <& bits radix 2 <& ", " <& bitsToWrite <& ")");
-      if striVar <> striExpected  then
-        writeln(" ***** Expected " <& literal(striExpected) <& " found " <& literal(striVar));
-      end if;
-      if bitPosVar <> bitPosExpected then
-        writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
-      end if;
-      if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
-      end if;
     end if;
   end func;
 
