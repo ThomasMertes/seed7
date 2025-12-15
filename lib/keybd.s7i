@@ -41,10 +41,6 @@ const type: keyboard_file is subtype file;
 (* Procedures granted for every keyboard_file *)
 
 
-# The function keypressed() is deprecated. Use inputReady() instead.
-const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
-
-
 (**
  *  Determine if a given ''button'' is currently pressed.
  *  This function can determine if the last key read by ''getc''
@@ -142,10 +138,6 @@ const func string: word_read (in console_keybd_file: keybd,
  *          FALSE otherwise.
  *)
 const func boolean: inputReady (in console_keybd_file: keybd)                  is action "KBD_INPUT_READY";
-
-
-# The function keypressed() is deprecated. Use inputReady() instead.
-const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_INPUT_READY";
 
 
 (**
@@ -303,10 +295,6 @@ const func string: word_read (in graph_keybd_file: keybd,
  *          FALSE otherwise.
  *)
 const func boolean: inputReady (in graph_keybd_file: keybd)                    is action "GKB_INPUT_READY";
-
-
-# The function keypressed() is deprecated. Use inputReady() instead.
-const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_INPUT_READY";
 
 
 (**
@@ -648,8 +636,3 @@ const char: KEY_NONE           is char(KEYCODE_BASE + 399);
  *)
 const func char: getc (inout file: inFile, NO_WAIT) is
   return inputReady(inFile) ? getc(inFile) : KEY_NONE;
-
-
-# The function busy_getc(aFile) is deprecated. Use getc(aFile, NO_WAIT) instead.
-const func char: busy_getc (inout keyboard_file: keybd) is
-  return inputReady(keybd) ? getc(keybd) : KEY_NONE;
