@@ -206,11 +206,6 @@ const func lsbInBitStream: openLsbInBitStream (inout file: inFile) is func
   end func;
 
 
-# The function openLsbBitStream(file) is deprecated. Use openLsbInBitStream(file) instead.
-const func lsbInBitStream: openLsbBitStream (inout file: inFile) is
-  return openLsbInBitStream(inFile);
-
-
 (**
  *  Open an LSB bit stream from the string ''stri'' for reading.
  *  In a ''lsbInBitStream'' the read direction is from
@@ -232,11 +227,6 @@ const func lsbInBitStream: openLsbInBitStream (in string: stri) is func
     fillBuffer(inBitStream);
     # show(inBitStream);
   end func;
-
-
-# The function openLsbBitStream(string) is deprecated. Use openLsbInBitStream(string) instead.
-const func lsbInBitStream: openLsbBitStream (in string: stri) is
-  return openLsbInBitStream(stri);
 
 
 (**
@@ -574,11 +564,6 @@ const func msbInBitStream: openMsbInBitStream (inout file: inFile) is func
   end func;
 
 
-# The function openMsbBitStream(file) is deprecated. Use openMsbInBitStream(file) instead.
-const func msbInBitStream: openMsbBitStream (inout file: inFile) is
-  return openMsbInBitStream(inFile);
-
-
 (**
  *  Open an MSB bit stream from the string ''stri'' for reading.
  *  In a ''msbInBitStream'' the read direction is from
@@ -600,11 +585,6 @@ const func msbInBitStream: openMsbInBitStream (in string: stri) is func
     fillBuffer(inBitStream);
     # show(inBitStream);
   end func;
-
-
-# The function openMsbBitStream(string) is deprecated. Use openMsbInBitStream(string) instead.
-const func msbInBitStream: openMsbBitStream (in string: stri) is
-  return openMsbInBitStream(stri);
 
 
 (**
