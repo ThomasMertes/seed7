@@ -144,10 +144,6 @@ const type: lsbInBitStream is new struct
   end struct;
 
 
-# The type lsbBitStream is deprecated. Use lsbInBitStream instead.
-const type: lsbBitStream is lsbInBitStream;
-
-
 const proc: show (in lsbInBitStream: inBitStream) is func
   begin
     writeln("buffer: " <& inBitStream.buffer radix 2);
@@ -500,10 +496,6 @@ const type: msbInBitStream is new struct
     var integer: limit is 0;
     var file: inFile is STD_NULL;
   end struct;
-
-
-# The type msbBitStream is deprecated. Use msbInBitStream instead.
-const type: msbBitStream is msbInBitStream;
 
 
 const proc: show (in msbInBitStream: inBitStream) is func
