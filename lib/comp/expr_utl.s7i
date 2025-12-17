@@ -762,21 +762,46 @@ const func string: defineTempVariable (in string: typeName, in string: namePrefi
 
 
 const func string: defineTempVariable (in string: typeName, in string: namePrefix,
+    in reference: param1, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  begin
+    variableName := defineTempVariable(typeName, namePrefix, c_expr);
+    c_expr.expr &:= variableName;
+    c_expr.expr &:= "=";
+    getAnyParamToExpr(param1, c_expr);
+    c_expr.expr &:= ";\n";
+  end func;
+
+
+const func string: getTempVariable (in string: typeName, in string: namePrefix,
+    in reference: param1, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  begin
+    variableName := defineTempVariable(typeName, namePrefix, c_expr);
+    c_expr.expr &:= variableName;
+    c_expr.expr &:= "=";
+    getAnyParamToExpr(param1, c_expr);
+    c_expr.expr &:= ",";
+  end func;
+
+
+const func string: getTempVariable (in string: typeName, in string: namePrefix,
     in string: initValue, inout expr_type: c_expr) is func
 
   result
     var string: variableName is "";
   begin
-    incr(c_expr.temp_num);
-    variableName := namePrefix & str(c_expr.temp_num);
-    c_expr.temp_decls &:= typeName;
-    c_expr.temp_decls &:= " ";
-    c_expr.temp_decls &:= variableName;
-    c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= variableName;
-    c_expr.expr &:= "=";
-    c_expr.expr &:= initValue;
-    c_expr.expr &:= ",";
+    variableName := defineTempVariable(typeName, namePrefix, c_expr);
+    if initValue <> "" then
+      c_expr.expr &:= variableName;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= initValue;
+      c_expr.expr &:= ",";
+    end if;
   end func;
 
 
@@ -803,7 +828,7 @@ const func string: defineTempVariable (in string: typeName, in string: namePrefi
     if isNormalVariable then
       variableName := initExpr.expr;
     else
-      variableName := defineTempVariable(typeName, namePrefix, initExpr.expr,  c_expr);
+      variableName := getTempVariable(typeName, namePrefix, initExpr.expr,  c_expr);
     end if;
   end func;
 
@@ -830,43 +855,17 @@ const func string: normalVariable (in reference: aParam, inout expr_type: c_expr
   end func;
 
 
-const func string: getTempVariable (in string: typeName, in string: namePrefix,
-    in string: initValue, inout expr_type: c_expr) is func
-
-  result
-    var string: variableName is "";
-  begin
-    incr(c_expr.temp_num);
-    variableName := namePrefix & str(c_expr.temp_num);
-    c_expr.temp_decls &:= typeName;
-    c_expr.temp_decls &:= " ";
-    c_expr.temp_decls &:= variableName;
-    c_expr.temp_decls &:= ";\n";
-    if initValue <> "" then
-      c_expr.expr &:= variableName;
-      c_expr.expr &:= "=";
-      c_expr.expr &:= initValue;
-      c_expr.expr &:= ",";
-    end if;
-  end func;
-
-
-const func string: getTempVariable (in string: typeName, in string: namePrefix,
+const func string: defineParameterAsVariable (in string: typeName, in string: namePrefix,
     in reference: param1, inout expr_type: c_expr) is func
 
   result
     var string: variableName is "";
   begin
-    incr(c_expr.temp_num);
-    variableName := namePrefix & str(c_expr.temp_num);
-    c_expr.temp_decls &:= typeName;
-    c_expr.temp_decls &:= " ";
-    c_expr.temp_decls &:= variableName;
-    c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= variableName;
-    c_expr.expr &:= "=";
-    getAnyParamToExpr(param1, c_expr);
-    c_expr.expr &:= ",";
+    if isNormalVariable(param1) then
+      variableName := normalVariable(param1, c_expr);
+    else
+      variableName := defineTempVariable(typeName, namePrefix, param1, c_expr);
+    end if;
   end func;
 
 
