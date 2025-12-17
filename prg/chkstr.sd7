@@ -26185,6 +26185,350 @@ const func boolean: check_string_assign_at_with_string_4 is func
   end func;
 
 
+const func boolean: check_string_assign_at_with_string_mult_1 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := "";     stri @:= [1] "X" mult 0; ok &:= stri = "";
+    stri := "a";    stri @:= [1] "X" mult 0; ok &:= stri = "a";
+    stri := "a";    stri @:= [1] "X" mult 1; ok &:= stri = "X";
+    stri := "a";    stri @:= [2] "X" mult 0; ok &:= stri = "a";
+    stri := "ab";   stri @:= [1] "X" mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [1] "X" mult 1; ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [1] "X" mult 2; ok &:= stri = "XX";
+    stri := "ab";   stri @:= [2] "X" mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [2] "X" mult 1; ok &:= stri = "aX";
+    stri := "ab";   stri @:= [3] "X" mult 0; ok &:= stri = "ab";
+    stri := "abc";  stri @:= [1] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [1] "X" mult 1; ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [1] "X" mult 2; ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [1] "X" mult 3; ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [2] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [2] "X" mult 1; ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [2] "X" mult 2; ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [3] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [3] "X" mult 1; ok &:= stri = "abX";
+    stri := "abc";  stri @:= [4] "X" mult 0; ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [1] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [1] "X" mult 1; ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [1] "X" mult 2; ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [1] "X" mult 3; ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [1] "X" mult 4; ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [2] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [2] "X" mult 1; ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [2] "X" mult 2; ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [2] "X" mult 3; ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [3] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [3] "X" mult 1; ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [3] "X" mult 2; ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [4] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [4] "X" mult 1; ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [5] "X" mult 0; ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [1] "X" mult intExpr(0); ok &:= stri = "";
+    stri := "a";    stri @:= [1] "X" mult intExpr(0); ok &:= stri = "a";
+    stri := "a";    stri @:= [1] "X" mult intExpr(1); ok &:= stri = "X";
+    stri := "a";    stri @:= [2] "X" mult intExpr(0); ok &:= stri = "a";
+    stri := "ab";   stri @:= [1] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [1] "X" mult intExpr(1); ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [1] "X" mult intExpr(2); ok &:= stri = "XX";
+    stri := "ab";   stri @:= [2] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [2] "X" mult intExpr(1); ok &:= stri = "aX";
+    stri := "ab";   stri @:= [3] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "abc";  stri @:= [1] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [1] "X" mult intExpr(1); ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [1] "X" mult intExpr(2); ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [1] "X" mult intExpr(3); ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [2] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [2] "X" mult intExpr(1); ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [2] "X" mult intExpr(2); ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [3] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [3] "X" mult intExpr(1); ok &:= stri = "abX";
+    stri := "abc";  stri @:= [4] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [1] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [1] "X" mult intExpr(1); ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [1] "X" mult intExpr(2); ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [1] "X" mult intExpr(3); ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [1] "X" mult intExpr(4); ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [2] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [2] "X" mult intExpr(1); ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [2] "X" mult intExpr(2); ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [2] "X" mult intExpr(3); ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [3] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [3] "X" mult intExpr(1); ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [3] "X" mult intExpr(2); ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [4] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [4] "X" mult intExpr(1); ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [5] "X" mult intExpr(0); ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [intExpr(1)] "X" mult 0; ok &:= stri = "";
+    stri := "a";    stri @:= [intExpr(1)] "X" mult 0; ok &:= stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] "X" mult 1; ok &:= stri = "X";
+    stri := "a";    stri @:= [intExpr(2)] "X" mult 0; ok &:= stri = "a";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult 1; ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult 2; ok &:= stri = "XX";
+    stri := "ab";   stri @:= [intExpr(2)] "X" mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] "X" mult 1; ok &:= stri = "aX";
+    stri := "ab";   stri @:= [intExpr(3)] "X" mult 0; ok &:= stri = "ab";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult 1; ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult 2; ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult 3; ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult 1; ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult 2; ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [intExpr(3)] "X" mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] "X" mult 1; ok &:= stri = "abX";
+    stri := "abc";  stri @:= [intExpr(4)] "X" mult 0; ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult 1; ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult 2; ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult 3; ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult 4; ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult 1; ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult 2; ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult 3; ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult 1; ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult 2; ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [intExpr(4)] "X" mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] "X" mult 1; ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(5)] "X" mult 0; ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [intExpr(1)] "X" mult intExpr(0); ok &:= stri = "";
+    stri := "a";    stri @:= [intExpr(1)] "X" mult intExpr(0); ok &:= stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] "X" mult intExpr(1); ok &:= stri = "X";
+    stri := "a";    stri @:= [intExpr(2)] "X" mult intExpr(0); ok &:= stri = "a";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult intExpr(1); ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(1)] "X" mult intExpr(2); ok &:= stri = "XX";
+    stri := "ab";   stri @:= [intExpr(2)] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] "X" mult intExpr(1); ok &:= stri = "aX";
+    stri := "ab";   stri @:= [intExpr(3)] "X" mult intExpr(0); ok &:= stri = "ab";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult intExpr(1); ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult intExpr(2); ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [intExpr(1)] "X" mult intExpr(3); ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult intExpr(1); ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(2)] "X" mult intExpr(2); ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [intExpr(3)] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] "X" mult intExpr(1); ok &:= stri = "abX";
+    stri := "abc";  stri @:= [intExpr(4)] "X" mult intExpr(0); ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult intExpr(1); ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult intExpr(2); ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult intExpr(3); ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X" mult intExpr(4); ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult intExpr(1); ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult intExpr(2); ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X" mult intExpr(3); ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult intExpr(1); ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(3)] "X" mult intExpr(2); ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [intExpr(4)] "X" mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] "X" mult intExpr(1); ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(5)] "X" mult intExpr(0); ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_assign_at_with_string_mult_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := "";     stri @:= [1] str(charExpr('X')) mult 0; ok &:= stri = "";
+    stri := "a";    stri @:= [1] str(charExpr('X')) mult 0; ok &:= stri = "a";
+    stri := "a";    stri @:= [1] str(charExpr('X')) mult 1; ok &:= stri = "X";
+    stri := "a";    stri @:= [2] str(charExpr('X')) mult 0; ok &:= stri = "a";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult 1; ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult 2; ok &:= stri = "XX";
+    stri := "ab";   stri @:= [2] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [2] str(charExpr('X')) mult 1; ok &:= stri = "aX";
+    stri := "ab";   stri @:= [3] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult 1; ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult 2; ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult 3; ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult 1; ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult 2; ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [3] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [3] str(charExpr('X')) mult 1; ok &:= stri = "abX";
+    stri := "abc";  stri @:= [4] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult 1; ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult 2; ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult 3; ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult 4; ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult 1; ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult 2; ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult 3; ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult 1; ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult 2; ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [4] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [4] str(charExpr('X')) mult 1; ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [5] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [1] str(charExpr('X')) mult intExpr(0); ok &:= stri = "";
+    stri := "a";    stri @:= [1] str(charExpr('X')) mult intExpr(0); ok &:= stri = "a";
+    stri := "a";    stri @:= [1] str(charExpr('X')) mult intExpr(1); ok &:= stri = "X";
+    stri := "a";    stri @:= [2] str(charExpr('X')) mult intExpr(0); ok &:= stri = "a";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [1] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XX";
+    stri := "ab";   stri @:= [2] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [2] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aX";
+    stri := "ab";   stri @:= [3] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [1] str(charExpr('X')) mult intExpr(3); ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [2] str(charExpr('X')) mult intExpr(2); ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [3] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [3] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abX";
+    stri := "abc";  stri @:= [4] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult intExpr(3); ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [1] str(charExpr('X')) mult intExpr(4); ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult intExpr(2); ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [2] str(charExpr('X')) mult intExpr(3); ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [3] str(charExpr('X')) mult intExpr(2); ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [4] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [4] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [5] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [intExpr(1)] str(charExpr('X')) mult 0; ok &:= stri = "";
+    stri := "a";    stri @:= [intExpr(1)] str(charExpr('X')) mult 0; ok &:= stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] str(charExpr('X')) mult 1; ok &:= stri = "X";
+    stri := "a";    stri @:= [intExpr(2)] str(charExpr('X')) mult 0; ok &:= stri = "a";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult 1; ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult 2; ok &:= stri = "XX";
+    stri := "ab";   stri @:= [intExpr(2)] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] str(charExpr('X')) mult 1; ok &:= stri = "aX";
+    stri := "ab";   stri @:= [intExpr(3)] str(charExpr('X')) mult 0; ok &:= stri = "ab";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult 1; ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult 2; ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult 3; ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult 1; ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult 2; ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [intExpr(3)] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] str(charExpr('X')) mult 1; ok &:= stri = "abX";
+    stri := "abc";  stri @:= [intExpr(4)] str(charExpr('X')) mult 0; ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult 1; ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult 2; ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult 3; ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult 4; ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult 1; ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult 2; ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult 3; ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult 1; ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult 2; ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [intExpr(4)] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] str(charExpr('X')) mult 1; ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(5)] str(charExpr('X')) mult 0; ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (7)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "";     stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "";
+    stri := "a";    stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "X";
+    stri := "a";    stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "a";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XX";
+    stri := "ab";   stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aX";
+    stri := "ab";   stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "ab";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XXc";
+    stri := "abc";  stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(3); ok &:= stri = "XXX";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "aXX";
+    stri := "abc";  stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abX";
+    stri := "abc";  stri @:= [intExpr(4)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abc";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "XXcd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(3); ok &:= stri = "XXXd";
+    stri := "abcd"; stri @:= [intExpr(1)] str(charExpr('X')) mult intExpr(4); ok &:= stri = "XXXX";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "aXXd";
+    stri := "abcd"; stri @:= [intExpr(2)] str(charExpr('X')) mult intExpr(3); ok &:= stri = "aXXX";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(3)] str(charExpr('X')) mult intExpr(2); ok &:= stri = "abXX";
+    stri := "abcd"; stri @:= [intExpr(4)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] str(charExpr('X')) mult intExpr(1); ok &:= stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(5)] str(charExpr('X')) mult intExpr(0); ok &:= stri = "abcd";
+    if not ok then
+      writeln(" ***** stri @:= [n] aString mult i; does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_string_assign_at is func
   local
     var boolean: okay is TRUE;
@@ -26206,6 +26550,14 @@ const proc: check_string_assign_at is func
     end if;
 
     if not check_string_assign_at_with_string_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_mult_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_mult_2 then
       okay := FALSE;
     end if;
 
