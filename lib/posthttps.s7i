@@ -1,0 +1,92 @@
+include "posthttp.s7i";
+include "tls.s7i";
+
+const func file: openHttpsPost (in httpLocation: locationData, in httpBody: body) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    if locationData.httpsProtocol then
+      sock := openTlsSocket(locationData.serverName, locationData.portNumber);
+    else
+      sock := openInetSocket(locationData.serverName, locationData.portNumber);
+    end if;
+    if sock <> STD_NULL then
+      sendPost(sock, locationData, body);
+    end if;
+  end func;
+
+const func string: postHttps (in string: location, in httpBody: body) is func
+  result
+    var string: data is "";
+  local
+    var httpLocation: locationData is httpLocation.value;
+    var file: sock is STD_NULL;
+    var string: statusCode is "";
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
+  begin
+    locationData := getHttpLocation(location, httpsDefaultPort);
+    locationData.httpsProtocol := TRUE;
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
+    repeat
+      okay := TRUE;
+      sock := openHttpsPost(locationData, body);
+      if sock <> STD_NULL then
+        statusCode := getHttpStatusCode(sock);
+        if statusCode = "301" or statusCode = "302" or
+            statusCode = "303" or statusCode = "307" then
+          locationData := getHttpLocation(locationData, sock);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        end if;
+      end if;
+    until okay or repeatCount > 5;
+    if sock <> STD_NULL then
+      data := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
+
+const func string: postHttps (in string: location, in string: plain) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.content := plain;
+    data := postHttps(location, body);
+  end func;
+
+const func string: postHttps (in string: location, in jsonValue: json) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.contentType := "application/json";
+    body.content := string(json);
+    data := postHttps(location, body);
+  end func;
+
+const func string: postHttps (in string: location, in hash [string] string: fields) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+    var string: name is "";
+    var string: value is "";
+  begin
+    body.contentType := "application/x-www-form-urlencoded";
+    for value key name range fields do
+      body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+    end for;
+    if endsWith(body.content, "&") then
+      body.content := body.content[.. length(body.content)-1];
+    end if;
+    data := postHttps(location, body);
+  end func;

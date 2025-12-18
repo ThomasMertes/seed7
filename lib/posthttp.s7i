@@ -1,0 +1,122 @@
+include "gethttp.s7i";
+
+const type: httpBody is new struct
+    var string: contentType is "text/plain";
+    var string: content is "";
+  end struct;
+
+const proc: sendPost (inout file: sock, in httpLocation: location, in httpBody: body) is func
+  local
+    var string: address is "";
+    var string: request is "";
+    var integer: index is 0;
+  begin
+    address := "/" & location.path;
+    if location.params <> "" then
+      address &:= "?" & location.params;
+    end if;
+    request &:= "POST " <& address <& " HTTP/1.1\r\n";
+    request &:= "Host: " <& location.hostName <& "\r\n";
+    request &:= "User-Agent: BlackHole" <& "\r\n";
+    if length(location.cookies) <> 0 then
+      request &:= "Cookie: ";
+      for key index range location.cookies do
+        request &:= location.cookies[index];
+        if index < length(location.cookies) then
+          request &:= "; ";
+        end if;
+      end for;
+      request &:= "\r\n";
+    end if;
+    request &:= "Content-Type: " & body.contentType & "\r\n";
+    request &:= "Content-Length: " <& length(body.content) <& "\r\n";
+    request &:= "\r\n" & body.content;
+    write(sock, request);
+  end func;
+
+const func file: openHttpPost (in httpLocation: locationData, in httpBody: body) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    if not locationData.httpsProtocol then
+      sock := openInetSocket(locationData.serverName, locationData.portNumber);
+    end if;
+    if sock <> STD_NULL then
+      sendPost(sock, locationData, body);
+    end if;
+  end func;
+
+const func string: postHttp (in string: location, in httpBody: body) is func
+  result
+    var string: data is "";
+  local
+    var httpLocation: locationData is httpLocation.value;
+    var file: sock is STD_NULL;
+    var string: statusCode is "";
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
+  begin
+    locationData := getHttpLocation(location, httpDefaultPort);
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
+    repeat
+      okay := TRUE;
+      sock := openHttpPost(locationData, body);
+      if sock <> STD_NULL then
+        statusCode := getHttpStatusCode(sock);
+        if statusCode = "301" or statusCode = "302" or
+            statusCode = "303" or statusCode = "307" then
+          locationData := getHttpLocation(locationData, sock);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        end if;
+      end if;
+    until okay or repeatCount > 5;
+    if sock <> STD_NULL then
+      data := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
+
+const func string: postHttp (in string: location, in string: plain) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.content := plain;
+    data := postHttp(location, body);
+  end func;
+
+const func string: postHttp (in string: location, in jsonValue: json) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.contentType := "application/json";
+    body.content := string(json);
+    data := postHttp(location, body);
+  end func;
+
+const func string: postHttp (in string: location, in hash [string] string: fields) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+    var string: name is "";
+    var string: value is "";
+  begin
+    body.contentType := "application/x-www-form-urlencoded";
+    for value key name range fields do
+      body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+    end for;
+    if endsWith(body.content, "&") then
+      body.content := body.content[.. length(body.content)-1];
+    end if;
+    data := postHttp(location, body);
+  end func;
