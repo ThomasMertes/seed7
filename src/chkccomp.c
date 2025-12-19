@@ -1899,6 +1899,7 @@ static void writeMacroDefs (FILE *versionFile)
     char macroDefs[BUFFER_SIZE];
 
   /* writeMacroDefs */
+    macroDefs[0] = '\0';
     if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
                          "int main(int argc,char *argv[]){return test(argc);}\n")) {
       /* The C compiler accepts the definition of inline functions. */
@@ -1914,6 +1915,7 @@ static void writeMacroDefs (FILE *versionFile)
     if (!compileAndLinkOk("int main(int argc,char *argv[])\n"
                           "{register int a; return 0;}\n")) {
       fputs("#define register\n", versionFile);
+      strcat(macroDefs, "#define register\\n");
     } /* if */
     if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
                           "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA + *ptrB;}\n"
@@ -1921,7 +1923,6 @@ static void writeMacroDefs (FILE *versionFile)
                           "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
       fputs("#define restrict\n", versionFile);
     } /* if */
-    macroDefs[0] = '\0';
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                          "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");\n"
                          "return 0;}\n") && doTest() == 1) {
