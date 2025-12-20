@@ -416,7 +416,7 @@ const func integer: getSymbol (inout msbInBitStream: entropyCodedStream,
     var integer: symbol is 0;
   begin
     symbol := getBits(entropyCodedStream, bitWidth);
-    if symbol < 1 << pred(bitWidth) then
+    if symbol >> pred(bitWidth) = 0 then
       # Negative value
       symbol -:= pred(1 << bitWidth);
     end if;
