@@ -1354,9 +1354,9 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
  *  Self signed X509 certificate.
  *)
 const certAndKey: stdCertificate is selfSignedX509Cert(
-    stdRsaKeyPair, 6_, "localhost",
+    stdRsaKeyPair, 7_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
-    x509Validity(date(2022, 1, 1), date(2026, 1, 1)));
+    x509Validity(date(2025, 1, 1), date(2030, 1, 1)));
 
 
 (**
