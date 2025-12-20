@@ -51,6 +51,11 @@ const string: MAGIC_MACH_O_64_BIT_LE is "\16#fe;\16#ed;\16#fa;\16#cf;";
 const string: MAGIC_MACH_O_32_BIT_BE is "\16#ce;\16#fa;\16#ed;\16#fe;";
 const string: MAGIC_MACH_O_64_BIT_BE is "\16#cf;\16#fa;\16#ed;\16#fe;";
 const string: MAGIC_MZ               is "MZ";
+const string: MAGIC_PCX_2_5          is "\n\0;\1;";
+const string: MAGIC_PCX_2_8_PALETTE  is "\n\2;\1;";
+const string: MAGIC_PCX_2_8          is "\n\3;\1;";
+const string: MAGIC_PCX_WINDOWS      is "\n\4;\1;";
+const string: MAGIC_PCX_3_0          is "\n\5;\1;";
 const string: MAGIC_PDF              is "%PDF-";
 const string: MAGIC_PE               is "PE\0;\0;";
 const string: MAGIC_PNG              is "\137;PNG\r\n\26;\n";
@@ -122,9 +127,14 @@ const func string: getMagic (in string: data) is func
         end if;
       elsif length(data) >= 3 then
         magicBytes := data[.. 3];
-        if  magicBytes = MAGIC_BZIP2 or
-            magicBytes = MAGIC_JPEG  or
-            magicBytes = MAGIC_UTF8  then
+        if  magicBytes = MAGIC_BZIP2           or
+            magicBytes = MAGIC_JPEG            or
+            magicBytes = MAGIC_PCX_2_5         or
+            magicBytes = MAGIC_PCX_2_8_PALETTE or
+            magicBytes = MAGIC_PCX_2_8         or
+            magicBytes = MAGIC_PCX_WINDOWS     or
+            magicBytes = MAGIC_PCX_3_0         or
+            magicBytes = MAGIC_UTF8            then
           magic := magicBytes;
         elsif length(data) >= 4 then
           magicBytes := data[.. 4];
@@ -237,9 +247,14 @@ const func string: getMagic (inout file: inFile) is func
       else
         magicBytes &:= gets(inFile, 1);
         if length(magicBytes) = 3 then
-          if  magicBytes = MAGIC_BZIP2 or
-              magicBytes = MAGIC_JPEG  or
-              magicBytes = MAGIC_UTF8  then
+          if  magicBytes = MAGIC_BZIP2           or
+              magicBytes = MAGIC_JPEG            or
+              magicBytes = MAGIC_PCX_2_5         or
+              magicBytes = MAGIC_PCX_2_8_PALETTE or
+              magicBytes = MAGIC_PCX_2_8         or
+              magicBytes = MAGIC_PCX_WINDOWS     or
+              magicBytes = MAGIC_PCX_3_0         or
+              magicBytes = MAGIC_UTF8            then
             magic := magicBytes;
           else
             magicBytes &:= gets(inFile, 1);
@@ -354,6 +369,11 @@ const func string: magicDescription (in string: magic) is func
       when {MAGIC_PDF}:              description := "PDF document";
       when {MAGIC_PE}:               description := "PE executable";
       when {MAGIC_PNG}:              description := "PNG image data";
+      when {MAGIC_PCX_2_5}:          description := "PCX ver. 2.5 image data";
+      when {MAGIC_PCX_2_8_PALETTE}:  description := "PCX ver. 2.8 image data, with palette";
+      when {MAGIC_PCX_2_8}:          description := "PCX ver. 2.8 image data, without palette";
+      when {MAGIC_PCX_WINDOWS}:      description := "PCX for Windows image data";
+      when {MAGIC_PCX_3_0}:          description := "PCX ver. 3.0 image data";
       when {MAGIC_PBM_ASCII}:        description := "Netpbm ASCII bitmap image data";
       when {MAGIC_PGM_ASCII}:        description := "Netpbm ASCII graymap image data";
       when {MAGIC_PPM_ASCII}:        description := "Netpbm ASCII pixmap image data";
