@@ -89,7 +89,9 @@ const func boolean: isGraphicFile (in string: filePath) is func
   local
     const set of string: imageMagic is {
         BMP_MAGIC, GIF_MAGIC_87, GIF_MAGIC_89, ICO_MAGIC,
-        JPEG_MAGIC, PBM_ASCII_MAGIC, PBM_BINARY_MAGIC, PGM_ASCII_MAGIC,
+        JPEG_MAGIC, MAGIC_PCX_2_5, MAGIC_PCX_2_8_PALETTE,
+        MAGIC_PCX_2_8, MAGIC_PCX_WINDOWS, MAGIC_PCX_3_0,
+        PBM_ASCII_MAGIC, PBM_BINARY_MAGIC, PGM_ASCII_MAGIC,
         PGM_BINARY_MAGIC, PNG_MAGIC, PPM_ASCII_MAGIC, PPM_BINARY_MAGIC,
         TIFF_MAGIC_LE, TIFF_MAGIC_BE};
     var file: aFile is STD_NULL;
