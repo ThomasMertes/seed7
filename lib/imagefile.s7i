@@ -34,14 +34,15 @@
   include "pbm.s7i";
   include "pgm.s7i";
   include "ppm.s7i";
-  include "tga.s7i";
   include "tiff.s7i";
+  include "tga.s7i";
+  include "pcx.s7i";
 
 
 (**
  *  Determine if ''fileName'' uses an image extension.
  *  Image extensions are .png, .gif, .jpeg, .jpg, .pbm, .pgm, .ppm,
- *  .bpm, .ico .tga .tiff and .tif .
+ *  .bpm, .ico .tiff .tif .tga and .pcx .
  *  @param imageFileName Name of the image file.
  *  @return TRUE if ''fileName'' ends with an image extension,
  *          FALSE otherwise.
@@ -55,22 +56,23 @@ const func boolean: hasImageExtension (in var string: fileName) is func
                          endsWith(fileName, ".gif") or
                          endsWith(fileName, ".jpeg") or
                          endsWith(fileName, ".jpg") or
+                         endsWith(fileName, ".bmp") or
+                         endsWith(fileName, ".ico") or
                          endsWith(fileName, ".pbm") or
                          endsWith(fileName, ".pgm") or
                          endsWith(fileName, ".ppm") or
-                         endsWith(fileName, ".bmp") or
-                         endsWith(fileName, ".ico") or
-                         endsWith(fileName, ".tga") or
                          endsWith(fileName, ".tiff") or
-                         endsWith(fileName, ".tif");
+                         endsWith(fileName, ".tif") or
+                         endsWith(fileName, ".tga") or
+                         endsWith(fileName, ".pcx");
   end func;
 
 
 (**
  *  Reads an image file into a pixmap.
- *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]], [[png|PNG]],
- *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tga|TGA]] and
- *  [[tiff|TIFF]] images are supported.
+ *  [[png|PNG]], [[gif|GIF]], [[jpeg|JPEG]], [[bmp|BMP]], [[ico|ICO]],
+ *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tiff|TIFF]], [[tga|TGA]] and
+ *  [[pcx|PCX]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image.
  *  @param imageFile File that contains an image.
@@ -103,6 +105,9 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
         if magic = JPEG_MAGIC then
           seek(imageFile, 1);
           pixmap := readJpeg(imageFile);
+        elsif isPcxMagic(magic) then
+          seek(imageFile, 1);
+          pixmap := readPcx(imageFile);
         else
           magic &:= gets(imageFile, length(ICO_MAGIC) - length(JPEG_MAGIC));
           if magic = ICO_MAGIC then
@@ -140,9 +145,9 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
 
 (**
  *  Reads an image file with the given ''imageFileName'' into a pixmap.
- *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]], [[png|PNG]],
- *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tga|TGA]] and
- *  [[tiff|TIFF]] images are supported.
+ *  [[png|PNG]], [[gif|GIF]], [[jpeg|JPEG]], [[bmp|BMP]], [[ico|ICO]],
+ *  [[pbm|PBM]], [[pgm|PGM]], [[ppm|PPM]], [[tiff|TIFF]], [[tga|TGA]] and
+ *  [[pcx|PCX]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image. The file extension of
  *  ''imageFileName'' is not used to decide about the image file type.
