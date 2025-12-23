@@ -299,42 +299,50 @@ const proc: readPalette (inout file: bmpFile, inout bmpHeader: header) is func
   end func;
 
 
-const proc: readBmpImage1Bit (inout file: bmpFile, inout bmpHeader: header,
-    inout pixelImage: image) is func
+const proc: readBmpImageLine1Bit (inout pixelArray: imageLine,
+    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
-    var integer: padding is 0;
-    var integer: line is 0;
-    var integer: column is 0;
     var integer: byteIndex is 0;
+    var integer: column is 0;
     var integer: currentByte is 0;
     var integer: rshift is 0;
   begin
+    stri := gets(bmpFile, succ(pred(header.width) mdiv 8) + padding);
+    byteIndex := 1;
+    for column range 1 to (header.width - 7) step 8 do
+      currentByte := ord(stri[byteIndex]);
+      imageLine[column]       := header.palette[ currentByte >> 7];
+      imageLine[succ(column)] := header.palette[(currentByte >> 6) mod 2];
+      imageLine[column + 2]   := header.palette[(currentByte >> 5) mod 2];
+      imageLine[column + 3]   := header.palette[(currentByte >> 4) mod 2];
+      imageLine[column + 4]   := header.palette[(currentByte >> 3) mod 2];
+      imageLine[column + 5]   := header.palette[(currentByte >> 2) mod 2];
+      imageLine[column + 6]   := header.palette[(currentByte >> 1) mod 2];
+      imageLine[column + 7]   := header.palette[ currentByte       mod 2];
+      incr(byteIndex);
+    end for;
+    if header.width mod 8 <> 0 then
+      currentByte := ord(stri[byteIndex]);
+      rshift := 7;
+      for column range succ(header.width - header.width mod 8) to header.width do
+        imageLine[column] := header.palette[(currentByte >> rshift) mod 2];
+        decr(rshift);
+      end for;
+      incr(byteIndex);
+    end if;
+  end func;
+
+
+const proc: readBmpImage1Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout pixelImage: image) is func
+  local
+    var integer: padding is 0;
+    var integer: line is 0;
+  begin
     padding := -succ(pred(header.width) mdiv 8) mod 4;
     for line range header.height downto 1 do
-      stri := gets(bmpFile, succ(pred(header.width) mdiv 8) + padding);
-      byteIndex := 1;
-      for column range 1 to (header.width - 7) step 8 do
-        currentByte := ord(stri[byteIndex]);
-        image[line][column]       := header.palette[ currentByte >> 7];
-        image[line][succ(column)] := header.palette[(currentByte >> 6) mod 2];
-        image[line][column + 2]   := header.palette[(currentByte >> 5) mod 2];
-        image[line][column + 3]   := header.palette[(currentByte >> 4) mod 2];
-        image[line][column + 4]   := header.palette[(currentByte >> 3) mod 2];
-        image[line][column + 5]   := header.palette[(currentByte >> 2) mod 2];
-        image[line][column + 6]   := header.palette[(currentByte >> 1) mod 2];
-        image[line][column + 7]   := header.palette[ currentByte       mod 2];
-        incr(byteIndex);
-      end for;
-      if header.width mod 8 <> 0 then
-        currentByte := ord(stri[byteIndex]);
-        rshift := 7;
-        for column range succ(header.width - header.width mod 8) to header.width do
-          image[line][column] := header.palette[(currentByte >> rshift) mod 2];
-          decr(rshift);
-        end for;
-        incr(byteIndex);
-      end if;
+      readBmpImageLine1Bit(image[line], bmpFile, header, padding);
     end for;
   end func;
 
