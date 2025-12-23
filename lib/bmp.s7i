@@ -303,13 +303,12 @@ const proc: readBmpImageLine1Bit (inout pixelArray: imageLine,
     inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
-    var integer: byteIndex is 0;
+    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: currentByte is 0;
     var integer: rshift is 0;
   begin
     stri := gets(bmpFile, succ(pred(header.width) mdiv 8) + padding);
-    byteIndex := 1;
     for column range 1 to (header.width - 7) step 8 do
       currentByte := ord(stri[byteIndex]);
       imageLine[column]       := header.palette[ currentByte >> 7];
@@ -351,13 +350,12 @@ const proc: readBmpImageLine2Bit (inout pixelArray: imageLine,
     inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
+    var integer: byteIndex is 1;
     var integer: column is 0;
-    var integer: byteIndex is 0;
     var integer: currentByte is 0;
     var integer: rshift is 0;
   begin
     stri := gets(bmpFile, succ(pred(header.width) mdiv 4) + padding);
-    byteIndex := 1;
     for column range 1 to (header.width - 3) step 4 do
       currentByte := ord(stri[byteIndex]);
       imageLine[column]       := header.palette[ currentByte >> 6];
