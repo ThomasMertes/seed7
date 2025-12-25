@@ -31,6 +31,7 @@ include "draw.s7i";
 include "bin64.s7i";
 include "jpeg.s7i";
 include "png.s7i";
+include "ccittfax.s7i";
 include "pixelimage.s7i";
 
 
@@ -542,6 +543,23 @@ const proc: readBmpImage32Bit (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
+const proc: processHuffman1d (inout file: bmpFile,
+    in pixel: whitePixel, in pixel: blackPixel,
+    in integer: height, in integer: width, inout pixelImage: image) is func
+  local
+    var msbInBitStream: faxDataStream is msbInBitStream.value;
+    var integer: line is 0;
+  begin
+    faxDataStream := openMsbInBitStream(bmpFile);
+    for line range height downto 1 do
+      skipEol(faxDataStream, 2#000000000001);
+      processCcittFaxRow(faxDataStream, whiteMsbHuffmanDecoder,
+                         blackMsbHuffmanDecoder, whitePixel, blackPixel,
+                         width, image[line]);
+    end for;
+  end func;
+
+
 const proc: readBmpImageRle4 (inout file: bmpFile, inout bmpHeader: header,
     inout pixelImage: image) is func
   local
@@ -681,7 +699,12 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile, inout bmpHeader: head
                pixelArray[.. header.width] times pixel.value;
       case header.bitsPerPixel of
         when {1}:
-          readBmpImage1Bit(bmpFile, header, image);
+          if header.compressionMethod = BMP_BI_BITFIELDS then
+            processHuffman1d(bmpFile, header.palette[0], header.palette[1],
+                             header.height, header.width, image);
+          else
+            readBmpImage1Bit(bmpFile, header, image);
+          end if;
         when {2}:
           readBmpImage2Bit(bmpFile, header, image);
         when {4}:
