@@ -425,25 +425,32 @@ const proc: readBmpImage4Bit (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
+const proc: readBmpImageLine8Bit (inout pixelArray: imageLine,
+    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
+  local
+    var string: stri is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: pixelColor is 0;
+  begin
+    stri := gets(bmpFile, header.width + padding);
+    for column range 1 to header.width do
+      pixelColor := ord(stri[byteIndex]);
+      imageLine[column] := header.palette[pixelColor];
+      incr(byteIndex);
+    end for;
+  end func;
+
+
 const proc: readBmpImage8Bit (inout file: bmpFile, inout bmpHeader: header,
     inout pixelImage: image) is func
   local
-    var string: stri is "";
     var integer: padding is 0;
     var integer: line is 0;
-    var integer: column is 0;
-    var integer: byteIndex is 0;
-    var integer: pixelColor is 0;
   begin
     padding := -header.width mod 4;
     for line range header.height downto 1 do
-      stri := gets(bmpFile, header.width + padding);
-      byteIndex := 1;
-      for column range 1 to header.width do
-        pixelColor := ord(stri[byteIndex]);
-        image[line][column] := header.palette[pixelColor];
-        incr(byteIndex);
-      end for;
+      readBmpImageLine8Bit(image[line], bmpFile, header, padding);
     end for;
   end func;
 
