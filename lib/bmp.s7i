@@ -462,6 +462,44 @@ const proc: readBmpImage8Bit (inout file: bmpFile, in bmpHeader: header,
   end func;
 
 
+const proc: readBmpBitfieldImageLine16Bit (inout pixelArray: imageLine,
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
+  local
+    var string: stri is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: pixelColor is 0;
+  begin
+    stri := gets(bmpFile, 2 * header.width + padding);
+    for column range 1 to header.width do
+      pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
+      imageLine[column] := rgbPixel(toColor(header.redBitfield, pixelColor),
+                                    toColor(header.greenBitfield, pixelColor),
+                                    toColor(header.blueBitfield, pixelColor));
+      byteIndex +:= 2;
+    end for;
+  end func;
+
+
+const proc: readBmpNoBitfieldImageLine16Bit (inout pixelArray: imageLine,
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
+  local
+    var string: stri is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+    var integer: pixelColor is 0;
+  begin
+    stri := gets(bmpFile, 2 * header.width + padding);
+    for column range 1 to header.width do
+      pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
+      imageLine[column] := rgbPixel(((pixelColor >> 10) mod 32) * 2114,
+                                    ((pixelColor >>  5) mod 32) * 2114,
+                                    ( pixelColor        mod 32) * 2114);
+      byteIndex +:= 2;
+    end for;
+  end func;
+
+
 const proc: readBmpImage16Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
@@ -477,27 +515,11 @@ const proc: readBmpImage16Bit (inout file: bmpFile, in bmpHeader: header,
         header.greenBitfield.mask <> 0 or
         header.blueBitfield.mask <> 0 then
       for line range header.height downto 1 do
-        stri := gets(bmpFile, 2 * header.width + padding);
-        byteIndex := 1;
-        for column range 1 to header.width do
-          pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
-          image[line][column] := rgbPixel(toColor(header.redBitfield, pixelColor),
-                                          toColor(header.greenBitfield, pixelColor),
-                                          toColor(header.blueBitfield, pixelColor));
-          byteIndex +:= 2;
-        end for;
+        readBmpBitfieldImageLine16Bit(image[line], bmpFile, header, padding);
       end for;
     else
       for line range header.height downto 1 do
-        stri := gets(bmpFile, 2 * header.width + padding);
-        byteIndex := 1;
-        for column range 1 to header.width do
-          pixelColor := bytes2Int(stri[byteIndex fixLen 2], UNSIGNED, LE);
-          image[line][column] := rgbPixel(((pixelColor >> 10) mod 32) * 2114,
-                                          ((pixelColor >>  5) mod 32) * 2114,
-                                          ( pixelColor        mod 32) * 2114);
-          byteIndex +:= 2;
-        end for;
+        readBmpNoBitfieldImageLine16Bit(image[line], bmpFile, header, padding);
       end for;
     end if;
   end func;
