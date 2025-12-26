@@ -301,7 +301,7 @@ const proc: readPalette (inout file: bmpFile, inout bmpHeader: header) is func
 
 
 const proc: readBmpImageLine1Bit (inout pixelArray: imageLine,
-    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
     var integer: byteIndex is 1;
@@ -334,7 +334,7 @@ const proc: readBmpImageLine1Bit (inout pixelArray: imageLine,
   end func;
 
 
-const proc: readBmpImage1Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage1Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var integer: padding is 0;
@@ -348,7 +348,7 @@ const proc: readBmpImage1Bit (inout file: bmpFile, inout bmpHeader: header,
 
 
 const proc: readBmpImageLine2Bit (inout pixelArray: imageLine,
-    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
     var integer: byteIndex is 1;
@@ -377,7 +377,7 @@ const proc: readBmpImageLine2Bit (inout pixelArray: imageLine,
   end func;
 
 
-const proc: readBmpImage2Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage2Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var integer: padding is 0;
@@ -391,7 +391,7 @@ const proc: readBmpImage2Bit (inout file: bmpFile, inout bmpHeader: header,
 
 
 const proc: readBmpImageLine4Bit (inout pixelArray: imageLine,
-    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
     var integer: byteIndex is 1;
@@ -412,7 +412,7 @@ const proc: readBmpImageLine4Bit (inout pixelArray: imageLine,
   end func;
 
 
-const proc: readBmpImage4Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage4Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var integer: padding is 0;
@@ -426,7 +426,7 @@ const proc: readBmpImage4Bit (inout file: bmpFile, inout bmpHeader: header,
 
 
 const proc: readBmpImageLine8Bit (inout pixelArray: imageLine,
-    inout file: bmpFile, inout bmpHeader: header, in integer: padding) is func
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
   local
     var string: stri is "";
     var integer: byteIndex is 1;
@@ -442,7 +442,7 @@ const proc: readBmpImageLine8Bit (inout pixelArray: imageLine,
   end func;
 
 
-const proc: readBmpImage8Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage8Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var integer: padding is 0;
@@ -455,7 +455,7 @@ const proc: readBmpImage8Bit (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
-const proc: readBmpImage16Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage16Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var string: stri is "";
@@ -496,7 +496,7 @@ const proc: readBmpImage16Bit (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
-const proc: readBmpImage24Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage24Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var string: stri is "";
@@ -519,7 +519,7 @@ const proc: readBmpImage24Bit (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
-const proc: readBmpImage32Bit (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImage32Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var string: stri is "";
@@ -576,7 +576,7 @@ const proc: processHuffman1d (inout file: bmpFile,
   end func;
 
 
-const proc: readBmpImageRle4 (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImageRle4 (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var char: aByte is ' ';
@@ -636,7 +636,7 @@ const proc: readBmpImageRle4 (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
-const proc: readBmpImageRle8 (inout file: bmpFile, inout bmpHeader: header,
+const proc: readBmpImageRle8 (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
     var char: aByte is ' ';
