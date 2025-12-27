@@ -521,25 +521,32 @@ const proc: readBmpImage16Bit (inout file: bmpFile, in bmpHeader: header,
   end func;
 
 
+const proc: readBmpImageLine24Bit (inout pixelArray: imageLine,
+    inout file: bmpFile, in bmpHeader: header, in integer: padding) is func
+  local
+    var string: stri is "";
+    var integer: byteIndex is 1;
+    var integer: column is 0;
+  begin
+    stri := gets(bmpFile, 3 * header.width + padding);
+    for column range 1 to header.width do
+      imageLine[column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
+                                    ord(stri[byteIndex + 1]) * 256,
+                                    ord(stri[byteIndex]) * 256);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
 const proc: readBmpImage24Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
-    var string: stri is "";
     var integer: padding is 0;
     var integer: line is 0;
-    var integer: column is 0;
-    var integer: byteIndex is 0;
   begin
     padding := -(3 * header.width) mod 4;
     for line range header.height downto 1 do
-      stri := gets(bmpFile, 3 * header.width + padding);
-      byteIndex := 1;
-      for column range 1 to header.width do
-        image[line][column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
-                                        ord(stri[byteIndex + 1]) * 256,
-                                        ord(stri[byteIndex]) * 256);
-        byteIndex +:= 3;
-      end for;
+      readBmpImageLine24Bit(image[line], bmpFile, header, padding);
     end for;
   end func;
 
