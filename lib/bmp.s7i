@@ -503,12 +503,8 @@ const proc: readBmpNoBitfieldImageLine16Bit (inout pixelArray: imageLine,
 const proc: readBmpImage16Bit (inout file: bmpFile, in bmpHeader: header,
     inout pixelImage: image) is func
   local
-    var string: stri is "";
     var integer: padding is 0;
     var integer: line is 0;
-    var integer: column is 0;
-    var integer: byteIndex is 0;
-    var integer: pixelColor is 0;
   begin
     padding := -(2 * header.width) mod 4;
     if  header.redBitfield.mask <> 0 or
