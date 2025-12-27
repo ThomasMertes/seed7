@@ -91,6 +91,7 @@ const type: bmpHeader is new struct
     var integer: redGamma is 0;
     var integer: greenGamma is 0;
     var integer: blueGamma is 0;
+    var boolean: topDown is FALSE;
     var colorLookupTable: palette is colorLookupTable.value;
   end struct;
 
@@ -183,12 +184,12 @@ const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
         header.bitsPerPixel := bytes2Int(stri[7 fixLen 2], UNSIGNED, LE);
       elsif header.dibHeaderSize = BMP_INFOHEADER_OS22X_SHORT then
         header.width        := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
-        header.height       := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+        header.height       := bytes2Int(stri[ 5 fixLen 4],   SIGNED, LE);
         header.planes       := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
         header.bitsPerPixel := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
       else  # header.dibHeaderSize >= BMP_INFOHEADER
         header.width                := bytes2Int(stri[ 1 fixLen 4], UNSIGNED, LE);
-        header.height               := bytes2Int(stri[ 5 fixLen 4], UNSIGNED, LE);
+        header.height               := bytes2Int(stri[ 5 fixLen 4],   SIGNED, LE);
         header.planes               := bytes2Int(stri[ 9 fixLen 2], UNSIGNED, LE);
         header.bitsPerPixel         := bytes2Int(stri[11 fixLen 2], UNSIGNED, LE);
         header.compressionMethod    := bytes2Int(stri[13 fixLen 4], UNSIGNED, LE);
@@ -221,6 +222,10 @@ const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
             header.blueGamma  := bytes2Int(stri[101 fixLen 4], UNSIGNED, LE);
           end if;
         end if;
+      end if;
+      if header.height < 0 then
+        header.height := -header.height;
+        header.topDown := TRUE;
       end if;
     else
       raise RANGE_ERROR;
@@ -462,9 +467,15 @@ const proc: readBmpImage8Bit (inout file: bmpFile, in bmpHeader: header,
     var integer: line is 0;
   begin
     padding := -header.width mod 4;
-    for line range header.height downto 1 do
-      readBmpImageLine8Bit(image[line], bmpFile, header, padding);
-    end for;
+    if header.topDown then
+      for line range 1 to header.height do
+        readBmpImageLine8Bit(image[line], bmpFile, header, padding);
+      end for;
+    else
+      for line range header.height downto 1 do
+        readBmpImageLine8Bit(image[line], bmpFile, header, padding);
+      end for;
+    end if;
   end func;
 
 
