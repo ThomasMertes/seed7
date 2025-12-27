@@ -224,12 +224,10 @@ const proc: readPcxVgaPalette (in string: rgbData,
 
 const proc: readPcxImageLineVga (inout pixelArray: imageLine,
     in integer: width, in colorLookupTable: palette,
-    in string: pixelData, in integer: byteIndexStart) is func
+    in string: pixelData, in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := palette[ord(pixelData[byteIndex])];
       incr(byteIndex);
@@ -253,13 +251,11 @@ const proc: readPcxImageVga (inout pixelImage: image,
 
 const proc: readPcxGrayscaleImageLineVga (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: luminance is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       luminance := ord(pixelData[byteIndex]) << 8;
       imageLine[column] := rgbPixel(luminance, luminance, luminance);
@@ -282,13 +278,11 @@ const proc: readPcxGrayscaleImageVga (inout pixelImage: image,
 
 
 const proc: readPcxTrueColorImageLine (inout pixelArray: imageLine,
-    in integer: width, in string: pixelData, in integer: byteIndexStart,
+    in integer: width, in string: pixelData, in var integer: byteIndex,
     in integer: deltaG, in integer: deltaB) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := rgbPixel(ord(pixelData[byteIndex])          << 8,
                                     ord(pixelData[byteIndex + deltaG]) << 8,
@@ -315,12 +309,10 @@ const proc: readPcxTrueColorImage (inout pixelImage: image,
 
 const proc: readPcxImageLine16Colors (inout pixelArray: imageLine,
     in integer: width, in colorLookupTable: palette,
-    in string: pixelData, in integer: byteIndexStart) is func
+    in string: pixelData, in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width step 2 do
       imageLine[column]       := palette[ord(pixelData[byteIndex]) >> 4];
       imageLine[succ(column)] := palette[ord(pixelData[byteIndex]) mod 16];
@@ -345,12 +337,10 @@ const proc: readPcxImage16Colors (inout pixelImage: image,
 
 const proc: readPcxImageLineCga4 (inout pixelArray: imageLine,
     in integer: width, in colorLookupTable: palette,
-    in string: pixelData, in integer: byteIndexStart) is func
+    in string: pixelData, in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width step 4 do
       imageLine[column]       := palette[ord(pixelData[byteIndex]) >> 6];
       imageLine[succ(column)] := palette[ord(pixelData[byteIndex]) >> 4 mod 4];
@@ -485,14 +475,12 @@ const proc: readPcxImage3Planes (inout pixelImage: image,
 
 const proc: readPcxImageLineEga (inout pixelArray: imageLine,
     in integer: width, in colorLookupTable: palette,
-    in string: pixelData, in integer: byteIndexStart,
+    in string: pixelData, in var integer: byteIndex,
     in integer: delta1, in integer: delta2, in integer: delta3) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: colorBitNum is 7;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := palette[ord(pixelData[byteIndex]) >> colorBitNum mod 2 +
                                    ord(pixelData[byteIndex + delta1]) >> colorBitNum mod 2 << 1 +
