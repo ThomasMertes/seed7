@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  bmp.s7i       Support for the BMP image file format.            *)
 (*  Copyright (C) 2001, 2005, 2007, 2013  Thomas Mertes             *)
-(*  Copyright (C) 2021 - 2024  Thomas Mertes                        *)
+(*  Copyright (C) 2021 - 2025  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
