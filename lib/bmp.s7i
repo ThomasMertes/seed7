@@ -289,7 +289,13 @@ const proc: readPalette (inout file: bmpFile, inout bmpHeader: header) is func
   local
     var integer: colorEntrySize is 0;
   begin
-    colorEntrySize := header.dibHeaderSize = BMP_COREHEADER ? 3 : 4;
+    if header.dibHeaderSize = BMP_COREHEADER or
+        header.dibHeaderSize = BMP_INFOHEADER_OS22X and
+        header.calculatedOffset + header.paletteColors * 3 = header.offset then
+      colorEntrySize := 3;
+    else
+      colorEntrySize := 4;
+    end if;
     if header.bitsPerPixel <> 0 and header.bitsPerPixel <= 8 and
         header.paletteColors = 0 then
       computeNumberOfPaletteColors(header, colorEntrySize);
