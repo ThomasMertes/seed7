@@ -683,6 +683,9 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
           end if;
           segmentMarker := jpegFile.bufferChar;
           readMarker := FALSE;
+        when {JPEG_COM}:
+          # writeln("COM");
+          readComment(jpegFile);
         otherwise:
           writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
           raise RANGE_ERROR;
