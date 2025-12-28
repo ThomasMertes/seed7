@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tiff.s7i      Support for the TIFF image file format.           *)
-(*  Copyright (C) 2022, 2023  Thomas Mertes                         *)
+(*  Copyright (C) 2022 - 2025  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -58,6 +58,8 @@ const integer: TIFF_TAG_ORIENTATION                is 16#0112;
 const integer: TIFF_TAG_SAMPLES_PER_PIXEL          is 16#0115;
 const integer: TIFF_TAG_ROWS_PER_STRIP             is 16#0116;
 const integer: TIFF_TAG_STRIP_BYTE_COUNTS          is 16#0117;
+const integer: TIFF_TAG_MIN_SAMPLE_VALUE           is 16#0118;
+const integer: TIFF_TAG_MAX_SAMPLE_VALUE           is 16#0119;
 const integer: TIFF_TAG_X_RESOLUTION               is 16#011a;
 const integer: TIFF_TAG_Y_RESOLUTION               is 16#011b;
 const integer: TIFF_TAG_PLANAR_CONFIGURATION       is 16#011c;
@@ -202,6 +204,8 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_SAMPLES_PER_PIXEL}:          stri := "TIFF_TAG_SAMPLES_PER_PIXEL";
       when {TIFF_TAG_ROWS_PER_STRIP}:             stri := "TIFF_TAG_ROWS_PER_STRIP";
       when {TIFF_TAG_STRIP_BYTE_COUNTS}:          stri := "TIFF_TAG_STRIP_BYTE_COUNTS";
+      when {TIFF_TAG_MIN_SAMPLE_VALUE}:           stri := "TIFF_TAG_MIN_SAMPLE_VALUE";
+      when {TIFF_TAG_MAX_SAMPLE_VALUE}:           stri := "TIFF_TAG_MAX_SAMPLE_VALUE";
       when {TIFF_TAG_X_RESOLUTION}:               stri := "TIFF_TAG_X_RESOLUTION";
       when {TIFF_TAG_Y_RESOLUTION}:               stri := "TIFF_TAG_Y_RESOLUTION";
       when {TIFF_TAG_PLANAR_CONFIGURATION}:       stri := "TIFF_TAG_PLANAR_CONFIGURATION";
