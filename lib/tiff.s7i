@@ -690,8 +690,12 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
           writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
           raise RANGE_ERROR;
       end case;
-      if readMarker and getc(jpegFile) <> JPEG_MARKER_START then
-        raise RANGE_ERROR;
+      if readMarker then
+        if eof(jpegFile) then
+          endOfImage := TRUE;
+        elsif getc(jpegFile) <> JPEG_MARKER_START then
+          raise RANGE_ERROR;
+        end if;
       end if;
     until endOfImage;
   end func;
