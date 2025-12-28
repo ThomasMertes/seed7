@@ -832,8 +832,8 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
   end func;
 
 
-const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataStream,
-    in integer: line, inout pixelImage: image) is func
+const proc: processRow (in tiffHeader: header,
+    inout msbInBitStream: stripDataStream, inout pixelArray: imageLine) is func
   local
     var integer: bitsPerSample1 is 0;
     var pixel: whitePixel is pixel.value;
@@ -850,7 +850,7 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
         bitsPerSample1 := header.bitsPerSample[1];
         if length(header.colorMap) <> 0 then
           for column range 1 to header.width do
-            image[line][column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
+            imageLine[column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
           end for;
         elsif bitsPerSample1 = 1 then
           if header.photometricInterpretation =
@@ -863,16 +863,16 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
           end if;
           for column range 1 to header.width do
             if getBit(stripDataStream) = 0 then
-              image[line][column] := whitePixel;
+              imageLine[column] := whitePixel;
             else
-              image[line][column] := blackPixel;
+              imageLine[column] := blackPixel;
             end if;
           end for;
         else
           grayFactor := 65535 div pred(2 ** bitsPerSample1);
           for column range 1 to header.width do
             grayIntensity :=  getBits(stripDataStream, bitsPerSample1) * grayFactor;
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           end for;
         end if;
       when {3}:
@@ -880,9 +880,9 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
         colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
         colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
         for column range 1 to header.width do
-          image[line][column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
-                                          getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
-                                          getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+          imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
+                                        getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
+                                        getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
         end for;
       otherwise:
         raise RANGE_ERROR;
@@ -891,27 +891,27 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
 
 
 const proc: processRowWithColorMap (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
   begin
     case header.bitsPerSample[1] of
       when {8}:
         for column range startColumn to endColumn do
-          image[line][column] := header.colorMap[ord(stripData[currPosition])];
+          imageLine[column] := header.colorMap[ord(stripData[currPosition])];
           incr(currPosition);
         end for;
       when {16}:
         if header.littleEndian then
           for column range startColumn to endColumn do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, LE)];
+            imageLine[column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, LE)];
             currPosition +:= 2;
           end for;
         else
           for column range startColumn to endColumn do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE)];
+            imageLine[column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE)];
             currPosition +:= 2;
           end for;
         end if;
@@ -922,9 +922,9 @@ const proc: processRowWithColorMap (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscale (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -935,7 +935,7 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
       when {8}:
         for column range startColumn to endColumn do
           grayIntensity := ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
@@ -944,13 +944,13 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
         if header.littleEndian then
           for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -961,9 +961,9 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -974,7 +974,7 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
       when {8}:
         for column range startColumn to endColumn do
           grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
@@ -983,13 +983,13 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
         if header.littleEndian then
           for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1000,9 +1000,9 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1013,7 +1013,7 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
       when {8}:
         for column range startColumn to endColumn do
           grayIntensity := ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
@@ -1022,13 +1022,13 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
         if header.littleEndian then
           for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1039,9 +1039,9 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1052,7 +1052,7 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
       when {8}:
         for column range startColumn to endColumn do
           grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
@@ -1061,13 +1061,13 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
         if header.littleEndian then
           for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
           for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1078,9 +1078,9 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
 
 
 const proc: processRowWithRGB (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1091,9 +1091,9 @@ const proc: processRowWithRGB (in tiffHeader: header,
     case header.bitsPerSample[1] of
       when {8}:
         for column range startColumn to endColumn do
-          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                          ord(stripData[succ(currPosition)]) * 256,
-                                          ord(stripData[currPosition + 2]) * 256);
+          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                        ord(stripData[succ(currPosition)]) * 256,
+                                        ord(stripData[currPosition + 2]) * 256);
           currPosition +:= 3;
         end for;
       when {16, 24, 32, 64}:
@@ -1103,18 +1103,18 @@ const proc: processRowWithRGB (in tiffHeader: header,
           deltaGreen := deltaRed + header.bitsPerSample[1] mdiv 8;
           deltaBlue := deltaGreen + header.bitsPerSample[1] mdiv 8;
           for column range startColumn to endColumn do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
             currPosition +:= positionIncrement;
           end for;
         else
           deltaGreen := header.bitsPerSample[1] mdiv 8;
           deltaBlue := 2 * deltaGreen;
           for column range startColumn to endColumn do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1125,33 +1125,33 @@ const proc: processRowWithRGB (in tiffHeader: header,
 
 
 const proc: processRowWithRGBA (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
+    in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
-    inout pixelImage: image) is func
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
   begin
     case header.bitsPerSample[1] of
       when {8}:
         for column range startColumn to endColumn do
-          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                          ord(stripData[succ(currPosition)]) * 256,
-                                          ord(stripData[currPosition + 2]) * 256);
+          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                        ord(stripData[succ(currPosition)]) * 256,
+                                        ord(stripData[currPosition + 2]) * 256);
           currPosition +:= 4;
         end for;
       when {16}:
         if header.littleEndian then
           for column range startColumn to endColumn do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
             currPosition +:= 8;
           end for;
         else
           for column range startColumn to endColumn do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
             currPosition +:= 8;
           end for;
         end if;
@@ -1162,26 +1162,24 @@ const proc: processRowWithRGBA (in tiffHeader: header,
 
 
 const proc: processRow (in tiffHeader: header, in string: stripData,
-    inout integer: currPosition, in integer: line, in integer: startColumn,
-    in integer: endColumn, inout pixelImage: image) is func
+    inout integer: currPosition, in integer: startColumn,
+    in integer: endColumn, inout pixelArray: imageLine) is func
   begin
-    # writeln("line: " <& line);
     case header.samplesPerPixel of
       when {1}:
         if length(header.colorMap) <> 0 then
           processRowWithColorMap(header, stripData, currPosition,
-                                 line, startColumn, endColumn, image);
+                                 startColumn, endColumn, imageLine);
         else
           if header.photometricInterpretation =
               TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
             processRowWithGrayscale(header, stripData, currPosition,
-                                    line, startColumn, endColumn, image);
+                                    startColumn, endColumn, imageLine);
           elsif header.photometricInterpretation =
               TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
             processRowWithGrayscaleReversed(header, stripData,
-                                            currPosition, line,
-                                            startColumn, endColumn,
-                                            image);
+                                            currPosition, startColumn,
+                                            endColumn, imageLine);
           else
             raise RANGE_ERROR;
           end if;
@@ -1189,24 +1187,22 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
       when {2}:
         if header.photometricInterpretation =
             TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-          processRowWithGrayscaleAlpha(header, stripData,
-                                       currPosition, line,
-                                       startColumn, endColumn, image);
+          processRowWithGrayscaleAlpha(header, stripData, currPosition,
+                                       startColumn, endColumn, imageLine);
         elsif header.photometricInterpretation =
             TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
           processRowWithGrayscaleAlphaReversed(header, stripData,
-                                               currPosition, line,
-                                               startColumn, endColumn,
-                                               image);
+                                               currPosition, startColumn,
+                                               endColumn, imageLine);
         else
           raise RANGE_ERROR;
         end if;
       when {3}:
         processRowWithRGB(header, stripData, currPosition,
-                          line, startColumn, endColumn, image);
+                          startColumn, endColumn, imageLine);
       when {4}:
         processRowWithRGBA(header, stripData, currPosition,
-                           line, startColumn, endColumn, image);
+                           startColumn, endColumn, imageLine);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -1434,7 +1430,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
             if header.bitsPerSample[1] mod 8 <> 0 then
               stripDataStream := openMsbInBitStream(stripData);
               for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripDataStream, currentRow, image);
+                processRow(header, stripDataStream, image[currentRow]);
                 ignore(gets(stripDataStream, 0));
                 incr(currentRow);
               end for;
@@ -1443,8 +1439,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
               currPosition := 1;
               tileStartRow := currentRow;
               for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripData, currPosition, tileStartRow,
-                           tileStartColumn, tileEndColumn, image);
+                processRow(header, stripData, currPosition,
+                           tileStartColumn, tileEndColumn, image[tileStartRow]);
                 incr(tileStartRow);
               end for;
               tileStartColumn := succ(tileEndColumn);
@@ -1467,7 +1463,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
               currPosition := 1;
               for rowIndex range 1 to rowsInCurrentStrip do
                 processRow(header, stripData, currPosition,
-                           currentRow, 1, header.width, image);
+                           1, header.width, image[currentRow]);
                 incr(currentRow);
               end for;
             end if;
@@ -1506,8 +1502,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
 
 
 const proc: processRow (in tiffHeader: header, in array string: stripData,
-    in integer: line, inout integer: currPosition,
-    inout pixelImage: image) is func
+    inout integer: currPosition, inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1517,9 +1512,9 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
       case header.bitsPerSample[1] of
         when {8}:
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
-                                            ord(stripData[2][currPosition]) * 256,
-                                            ord(stripData[3][currPosition]) * 256);
+            imageLine[column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
+                                          ord(stripData[2][currPosition]) * 256,
+                                          ord(stripData[3][currPosition]) * 256);
             incr(currPosition);
           end for;
         when {16, 24, 32, 64}:
@@ -1527,16 +1522,16 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
           positionDelta := positionIncrement - 2;
           if header.littleEndian then
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
+              imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
               currPosition +:= positionIncrement;
             end for;
           else
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
+              imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
               currPosition +:= positionIncrement;
             end for;
           end if;
@@ -1593,7 +1588,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
         incr(baseStripIndex);
         currPosition := 1;
       end if;
-      processRow(header, stripData, line, currPosition, image);
+      processRow(header, stripData, currPosition, image[line]);
     end for;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
