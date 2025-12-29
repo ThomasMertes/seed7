@@ -1651,7 +1651,8 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
           seek(tiffFile, succ(header.stripOffsets[stripIndex]));
           stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
           if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
-            decompressStripOrTile(header, stripData[sampleIndex], 0, header.width);
+            decompressStripOrTile(header, stripData[sampleIndex],
+                                  header.rowsPerStrip, header.width);
           else
             raise RANGE_ERROR;
           end if;
