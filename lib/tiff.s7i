@@ -76,6 +76,7 @@ const integer: TIFF_TAG_ARTIST                     is 16#013b;
 const integer: TIFF_TAG_HOST_COMPUTER              is 16#013c;
 const integer: TIFF_TAG_PREDICTOR                  is 16#013d;
 const integer: TIFF_TAG_WHITE_POINT                is 16#013e;
+const integer: TIFF_TAG_PRIMARY_CHROMATICITIES     is 17#013f;
 const integer: TIFF_TAG_COLOR_MAP                  is 16#0140;
 const integer: TIFF_TAG_TILE_WIDTH                 is 16#0142;
 const integer: TIFF_TAG_TILE_LENGTH                is 16#0143;
@@ -84,6 +85,7 @@ const integer: TIFF_TAG_TILE_BYTE_COUNTS           is 16#0145;
 const integer: TIFF_TAG_BAD_FAX_LINES              is 16#0146;
 const integer: TIFF_TAG_CLEAN_FAX_DATA             is 16#0147;
 const integer: TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES  is 16#0148;
+const integer: TIFF_TAG_DOT_RANGE                  is 16#0150;
 const integer: TIFF_TAG_EXTRA_SAMPLES              is 16#0152;
 const integer: TIFF_TAG_SAMPLE_FORMAT              is 16#0153;
 const integer: TIFF_TAG_JPEG_TABLES                is 16#015b;
@@ -98,6 +100,7 @@ const integer: TIFF_TAG_Y_CB_CR_COEFFICIENTS       is 16#0211;
 const integer: TIFF_TAG_Y_CB_CR_SUB_SAMPLING       is 16#0212;
 const integer: TIFF_TAG_Y_CB_CR_POSITIONING        is 16#0213;
 const integer: TIFF_TAG_REFERENCE_BLACK_WHITE      is 16#0214;
+const integer: TIFF_TAG_APPLICATION_NOTES          is 16#02bc;
 
 const integer: TIFF_FIELD_BYTE      is  1;  # 8-bit unsigned integer.
 const integer: TIFF_FIELD_ASCII     is  2;  # 8-bit byte that contains a 7-bit ASCII code; the last byte must be NUL (binary zero).
@@ -233,6 +236,7 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_HOST_COMPUTER}:              stri := "TIFF_TAG_HOST_COMPUTER";
       when {TIFF_TAG_PREDICTOR}:                  stri := "TIFF_TAG_PREDICTOR";
       when {TIFF_TAG_WHITE_POINT}:                stri := "TIFF_TAG_WHITE_POINT";
+      when {TIFF_TAG_PRIMARY_CHROMATICITIES}:     stri := "TIFF_TAG_PRIMARY_CHROMATICITIES";
       when {TIFF_TAG_COLOR_MAP}:                  stri := "TIFF_TAG_COLOR_MAP";
       when {TIFF_TAG_TILE_WIDTH}:                 stri := "TIFF_TAG_TILE_WIDTH";
       when {TIFF_TAG_TILE_LENGTH}:                stri := "TIFF_TAG_TILE_LENGTH";
@@ -241,6 +245,7 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_BAD_FAX_LINES}:              stri := "TIFF_TAG_BAD_FAX_LINES";
       when {TIFF_TAG_CLEAN_FAX_DATA}:             stri := "TIFF_TAG_CLEAN_FAX_DATA";
       when {TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES}:  stri := "TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES";
+      when {TIFF_TAG_DOT_RANGE}:                  stri := "TIFF_TAG_DOT_RANGE";
       when {TIFF_TAG_EXTRA_SAMPLES}:              stri := "TIFF_TAG_EXTRA_SAMPLES";
       when {TIFF_TAG_SAMPLE_FORMAT}:              stri := "TIFF_TAG_SAMPLE_FORMAT";
       when {TIFF_TAG_JPEG_TABLES}:                stri := "TIFF_TAG_JPEG_TABLES";
@@ -255,6 +260,7 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_Y_CB_CR_SUB_SAMPLING}:       stri := "TIFF_TAG_Y_CB_CR_SUB_SAMPLING";
       when {TIFF_TAG_Y_CB_CR_POSITIONING}:        stri := "TIFF_TAG_Y_CB_CR_POSITIONING";
       when {TIFF_TAG_REFERENCE_BLACK_WHITE}:      stri := "TIFF_TAG_REFERENCE_BLACK_WHITE";
+      when {TIFF_TAG_APPLICATION_NOTES}:          stri := "TIFF_TAG_APPLICATION_NOTES";
       otherwise: writeln(" **** Unknown tag: " <& tag radix 16 lpad0 4);
     end case;
   end func;
