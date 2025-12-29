@@ -365,10 +365,10 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
         if length(rationalStri) = 8 then
           if header.littleEndian then
             numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
-            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
+            denominator := bytes2Int(rationalStri[5 fixLen 4], UNSIGNED, LE);
           else
             numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
-            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
+            denominator := bytes2Int(rationalStri[5 fixLen 4], UNSIGNED, BE);
           end if;
           stri := numerator <& "/" <& denominator;
         else
