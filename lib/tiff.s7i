@@ -151,6 +151,8 @@ const type: tiffHeader is new struct
     var integer: rowsPerStrip is pred(2 ** 32);   # Default in the TIFF 6.0 specification
     var array integer: stripOffsets is 0 times 0;
     var array integer: stripByteCounts is 0 times 0;
+    var array integer: tileOffsets is 0 times 0;
+    var array integer: tileByteCounts is 0 times 0;
     var integer: orientation is 0;
     var integer: offsetToFirstIfd is 0;
     var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
@@ -626,10 +628,10 @@ const proc: readColorMap (inout tiffHeader: header) is func
   end func;
 
 
-const proc: predictor (in tiffHeader: header, inout string: stripData) is func
+const proc: predictor (in tiffHeader: header, inout string: stripData,
+    in integer: height, in integer: width) is func
   local
     var integer: delta is 1;
-    var integer: linesInStrip is 0;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -637,10 +639,9 @@ const proc: predictor (in tiffHeader: header, inout string: stripData) is func
     if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
       delta := header.samplesPerPixel;
     end if;
-    linesInStrip := (length(stripData) div header.width) div delta;
-    for line range 1 to linesInStrip do
-      index := pred(line) * delta * header.width + succ(delta);
-      for column range succ(delta) to delta * header.width do
+    for line range 1 to height do
+      index := pred(line) * delta * width + succ(delta);
+      for column range succ(delta) to delta * width do
         stripData @:= [index] char((ord(stripData[index - delta]) +
                                     ord(stripData[index])) mod 256);
         incr(index);
@@ -1244,9 +1245,11 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
   end func;
 
 
-const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
-    in integer: rowsInCurrentStrip) is func
+const proc: decompressStripOrTile (in tiffHeader: header,
+    inout string: stripData, in integer: height, in integer: width) is func
   local
+    var integer: bits is 0;
+    var integer: bitsPerPixel is 0;
     var integer: requestedLength is 0;
   begin
     case header.compression of
@@ -1257,13 +1260,12 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
           # Old style LZW encoded
           stripData := lzwDecompressLsb(stripData, 8);
         else
-          if rowsInCurrentStrip <> 0 then
-            if header.samplesPerPixel = 1 then
-              requestedLength := rowsInCurrentStrip *
-                  succ(pred(header.width * header.bitsPerSample[1]) mdiv 8);
-            else
-              requestedLength := rowsInCurrentStrip * header.width * header.samplesPerPixel;
-            end if;
+          if height <> 0 then
+            for bits range header.bitsPerSample do
+              bitsPerPixel +:= bits;
+            end for;
+            requestedLength := height *
+                               succ(pred(width * bitsPerPixel) mdiv 8);
             stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
           else
             stripData := lzwDecompressMsbEarlyChange(stripData, 8);
@@ -1275,7 +1277,7 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
     end case;
     if TIFF_TAG_PREDICTOR in header.integerTagValues and
         header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
-      predictor(header, stripData);
+      predictor(header, stripData, height, width);
     end if;
   end func;
 
@@ -1412,23 +1414,119 @@ const proc: readThunderScan (in tiffHeader: header, in string: stripData,
   end func;
 
 
+const proc: readTiffStripOrTile (inout file: tiffFile,
+    inout tiffHeader: header, in integer: offset, in integer: byteCount,
+    in integer: numberOfRows, inout integer: currentRow,
+    inout integer: tileStartColumn, inout integer: tileEndColumn,
+    inout pixelImage: image) is func
+  local
+    var string: stripData is "";
+    var integer: currPosition is 1;
+    var integer: rowsInCurrentStrip is 0;
+    var integer: rowIndex is 0;
+    var integer: tileStartRow is 1;
+    var msbInBitStream: stripDataStream is msbInBitStream.value;
+  begin
+    seek(tiffFile, succ(offset));
+    stripData := gets(tiffFile, byteCount);
+    # writeln("length(stripData): " <& length(stripData));
+    if length(stripData) = byteCount then
+      if header.height - currentRow + 1 >= numberOfRows then
+        rowsInCurrentStrip := numberOfRows;
+      else
+        rowsInCurrentStrip := header.height - currentRow + 1;
+      end if;
+      case header.compression of
+        when {TIFF_NO_COMPRESSION,
+              TIFF_COMPRESSION_PACK_BITS,
+              TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
+              TIFF_COMPRESSION_DEFLATE,
+              TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+          decompressStripOrTile(header, stripData, rowsInCurrentStrip,
+                                succ(tileEndColumn - tileStartColumn));
+          if header.bitsPerSample[1] mod 8 <> 0 then
+            stripDataStream := openMsbInBitStream(stripData);
+            for rowIndex range 1 to rowsInCurrentStrip do
+              # writeln("rowIndex: " <& rowIndex);
+              # writeln("currentRow: " <& currentRow);
+              processRow(header, stripDataStream, image[currentRow]);
+              ignore(gets(stripDataStream, 0));
+              incr(currentRow);
+            end for;
+          elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
+                TIFF_TAG_TILE_LENGTH in header.integerTagValues then
+            # writeln("currentRow: " <& currentRow);
+            # writeln("tileStartColumn: " <& tileStartColumn);
+            currPosition := 1;
+            tileStartRow := currentRow;
+            for rowIndex range 1 to rowsInCurrentStrip do
+              # writeln("rowIndex: " <& rowIndex);
+              processRow(header, stripData, currPosition,
+                         tileStartColumn, tileEndColumn, image[tileStartRow]);
+              incr(tileStartRow);
+            end for;
+            tileStartColumn := succ(tileEndColumn);
+            if tileStartColumn <= header.width then
+              if tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1 <= header.width then
+                tileEndColumn := tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1;
+              else
+                tileEndColumn := header.width;
+              end if;
+            else
+              currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
+              tileStartColumn := 1;
+              if header.width >= header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] then
+                tileEndColumn := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+              else
+                tileEndColumn := header.width;
+              end if;
+            end if;
+          else
+            currPosition := 1;
+            for rowIndex range 1 to rowsInCurrentStrip do
+              processRow(header, stripData, currPosition,
+                         1, header.width, image[currentRow]);
+              incr(currentRow);
+            end for;
+          end if;
+        when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
+          processCcittModifiedGroup3Fax(header, stripData, currentRow,
+                                        rowsInCurrentStrip, image);
+          currentRow +:= rowsInCurrentStrip;
+        when {TIFF_COMPRESSION_CCITT_T4}:
+          if TIFF_TAG_CCITT_T4_OPTIONS not in header.integerTagValues or
+              not odd(header.integerTagValues[TIFF_TAG_CCITT_T4_OPTIONS][1]) then
+            processCcittT4Fax1d(header, stripData, currentRow,
+                                rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          else
+            processCcittT4Fax2d(header, stripData, currentRow,
+                                rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          end if;
+        when {TIFF_COMPRESSION_CCITT_T6}:
+          processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
+          currentRow +:= rowsInCurrentStrip;
+        when {TIFF_COMPRESSION_THUNDERSCAN}:
+          readThunderScan(header, stripData, currentRow, image);
+          currentRow +:= rowsInCurrentStrip;
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
 const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     inout tiffHeader: header) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
-    var integer: stripOffset is 0;
-    var integer: stripIndex is 0;
-    var integer: stripByteCount is 0;
-    var string: stripData is "";
-    var integer: rowsInCurrentStrip is 0;
-    var integer: rowIndex is 0;
-    var integer: currPosition is 1;
+    var integer: offset is 0;
+    var integer: index is 0;
     var integer: currentRow is 1;
-    var integer: tileStartRow is 1;
     var integer: tileStartColumn is 1;
     var integer: tileEndColumn is 1;
-    var msbInBitStream: stripDataStream is msbInBitStream.value;
     var pixelImage: image is pixelImage.value;
   begin
     image := pixelImage[.. header.height] times
@@ -1444,90 +1542,27 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
       else
         tileEndColumn := header.width;
       end if;
+    else
+      tileEndColumn := header.width;
     end if;
-    for stripOffset key stripIndex range header.stripOffsets do
-      stripByteCount := header.stripByteCounts[stripIndex];
-      seek(tiffFile, succ(stripOffset));
-      stripData := gets(tiffFile, stripByteCount);
-      if length(stripData) = stripByteCount then
-        if header.height - currentRow + 1 >= header.rowsPerStrip then
-          rowsInCurrentStrip := header.rowsPerStrip;
-        else
-          rowsInCurrentStrip := header.height - currentRow + 1;
-        end if;
-        case header.compression of
-          when {TIFF_NO_COMPRESSION,
-                TIFF_COMPRESSION_PACK_BITS,
-                TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
-                TIFF_COMPRESSION_DEFLATE,
-                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
-            processDataStrip(header, stripData, rowsInCurrentStrip);
-            if header.bitsPerSample[1] mod 8 <> 0 then
-              stripDataStream := openMsbInBitStream(stripData);
-              for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripDataStream, image[currentRow]);
-                ignore(gets(stripDataStream, 0));
-                incr(currentRow);
-              end for;
-            elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
-                  TIFF_TAG_TILE_LENGTH in header.integerTagValues then
-              currPosition := 1;
-              tileStartRow := currentRow;
-              for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripData, currPosition,
-                           tileStartColumn, tileEndColumn, image[tileStartRow]);
-                incr(tileStartRow);
-              end for;
-              tileStartColumn := succ(tileEndColumn);
-              if tileStartColumn <= header.width then
-                if tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1 <= header.width then
-                  tileEndColumn := tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1;
-                else
-                  tileEndColumn := header.width;
-                end if;
-              else
-                currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
-                tileStartColumn := 1;
-                if header.width >= header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] then
-                  tileEndColumn := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
-                else
-                  tileEndColumn := header.width;
-                end if;
-              end if;
-            else
-              currPosition := 1;
-              for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripData, currPosition,
-                           1, header.width, image[currentRow]);
-                incr(currentRow);
-              end for;
-            end if;
-          when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
-            processCcittModifiedGroup3Fax(header, stripData, currentRow,
-                                          rowsInCurrentStrip, image);
-            currentRow +:= rowsInCurrentStrip;
-          when {TIFF_COMPRESSION_CCITT_T4}:
-            if TIFF_TAG_CCITT_T4_OPTIONS not in header.integerTagValues or
-                not odd(header.integerTagValues[TIFF_TAG_CCITT_T4_OPTIONS][1]) then
-              processCcittT4Fax1d(header, stripData, currentRow,
-                                  rowsInCurrentStrip, image);
-              currentRow +:= rowsInCurrentStrip;
-            else
-              processCcittT4Fax2d(header, stripData, currentRow,
-                                  rowsInCurrentStrip, image);
-              currentRow +:= rowsInCurrentStrip;
-            end if;
-          when {TIFF_COMPRESSION_CCITT_T6}:
-            processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
-            currentRow +:= rowsInCurrentStrip;
-          when {TIFF_COMPRESSION_THUNDERSCAN}:
-            readThunderScan(header, stripData, currentRow, image);
-            currentRow +:= rowsInCurrentStrip;
-        end case;
-      else
-        raise RANGE_ERROR;
-      end if;
-    end for;
+    if length(header.stripOffsets) <> 0 then
+      for offset key index range header.stripOffsets do
+        # writeln("index: " <& index);
+        readTiffStripOrTile(tiffFile, header, offset,
+                            header.stripByteCounts[index],
+                            header.rowsPerStrip, currentRow,
+                            tileStartColumn, tileEndColumn, image);
+      end for;
+    else
+      for offset key index range header.tileOffsets do
+        # writeln("index: " <& index);
+        readTiffStripOrTile(tiffFile, header, offset,
+                            header.tileByteCounts[index],
+                            header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                            currentRow, tileStartColumn,
+                            tileEndColumn, image);
+      end for;
+    end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
@@ -1613,7 +1648,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
           seek(tiffFile, succ(header.stripOffsets[stripIndex]));
           stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
           if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
-            processDataStrip(header, stripData[sampleIndex], 0);
+            decompressStripOrTile(header, stripData[sampleIndex], 0, header.width);
           else
             raise RANGE_ERROR;
           end if;
@@ -1687,6 +1722,12 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                                         header.samplesPerPixel *
                                         (header.bitsPerSample[1] mdiv 8));
           # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
+        end if;
+        if TIFF_TAG_TILE_OFFSETS in header.integerTagValues then
+          header.tileOffsets := header.integerTagValues[TIFF_TAG_TILE_OFFSETS];
+        end if;
+        if TIFF_TAG_TILE_BYTE_COUNTS in header.integerTagValues then
+          header.tileByteCounts := header.integerTagValues[TIFF_TAG_TILE_BYTE_COUNTS];
         end if;
         if TIFF_TAG_ORIENTATION in header.integerTagValues then
           header.orientation := header.integerTagValues[TIFF_TAG_ORIENTATION][1];
