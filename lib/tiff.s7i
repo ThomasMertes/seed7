@@ -671,9 +671,6 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
         when {JPEG_DHT}:
           # writeln("DHT");
           readDefineHuffmanTable(jpegFile, header);
-        when {JPEG_DQT}:
-          # writeln("DQT");
-          readDefineQuantizationTable(jpegFile, header);
         when {JPEG_EOI}:
           # writeln("EOI");
           # End Of Image
@@ -690,6 +687,12 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
           end if;
           segmentMarker := jpegFile.bufferChar;
           readMarker := FALSE;
+        when {JPEG_DQT}:
+          # writeln("DQT");
+          readDefineQuantizationTable(jpegFile, header);
+        when {JPEG_DRI}:
+          # writeln("DRI");
+          readDefineRestartInterval(jpegFile, header);
         when {JPEG_APP0 .. JPEG_APP15}:
           # writeln("APP");
           readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0), header);
