@@ -690,6 +690,9 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
           end if;
           segmentMarker := jpegFile.bufferChar;
           readMarker := FALSE;
+        when {JPEG_APP0 .. JPEG_APP15}:
+          # writeln("APP");
+          readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0), header);
         when {JPEG_COM}:
           # writeln("COM");
           readComment(jpegFile);
