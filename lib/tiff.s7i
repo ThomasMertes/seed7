@@ -76,7 +76,7 @@ const integer: TIFF_TAG_ARTIST                     is 16#013b;
 const integer: TIFF_TAG_HOST_COMPUTER              is 16#013c;
 const integer: TIFF_TAG_PREDICTOR                  is 16#013d;
 const integer: TIFF_TAG_WHITE_POINT                is 16#013e;
-const integer: TIFF_TAG_PRIMARY_CHROMATICITIES     is 17#013f;
+const integer: TIFF_TAG_PRIMARY_CHROMATICITIES     is 16#013f;
 const integer: TIFF_TAG_COLOR_MAP                  is 16#0140;
 const integer: TIFF_TAG_TILE_WIDTH                 is 16#0142;
 const integer: TIFF_TAG_TILE_LENGTH                is 16#0143;
