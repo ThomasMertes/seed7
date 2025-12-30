@@ -699,8 +699,17 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
         when {JPEG_COM}:
           # writeln("COM");
           readComment(jpegFile);
+        when {JPEG_FILLER}:
+          # writeln("FILLER");
+          # Fill byte (16#ff), which is ignored.
+          segmentMarker := getc(jpegFile);
+          readMarker := FALSE;
+        when {JPEG_RST0 .. JPEG_RST7}:
+          # writeln("RST");
+          # Ignore superfluous restart marker after the last ECS segment.
+          noop;
         otherwise:
-          writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
+          # writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
           raise RANGE_ERROR;
       end case;
       if readMarker then
