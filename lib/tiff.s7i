@@ -1263,19 +1263,17 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
         if length(header.colorMap) <> 0 then
           processRowWithColorMap(header, stripData, currPosition,
                                  startColumn, endColumn, imageLine);
+        elsif header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+          processRowWithGrayscale(header, stripData, currPosition,
+                                  startColumn, endColumn, imageLine);
+        elsif header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+          processRowWithGrayscaleReversed(header, stripData,
+                                          currPosition, startColumn,
+                                          endColumn, imageLine);
         else
-          if header.photometricInterpretation =
-              TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-            processRowWithGrayscale(header, stripData, currPosition,
-                                    startColumn, endColumn, imageLine);
-          elsif header.photometricInterpretation =
-              TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-            processRowWithGrayscaleReversed(header, stripData,
-                                            currPosition, startColumn,
-                                            endColumn, imageLine);
-          else
-            raise RANGE_ERROR;
-          end if;
+          raise RANGE_ERROR;
         end if;
       when {2}:
         if header.photometricInterpretation =
