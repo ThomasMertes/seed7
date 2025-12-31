@@ -106,7 +106,7 @@ const func huffmanSymbolBits: huffmanSymbolBits (in integer: symbol, in string: 
 
 
 const array huffmanSymbolBits: whiteHuffmanSymbolBits is [] (
-    huffmanSymbolBits(  -1, "000000000001"),
+    huffmanSymbolBits(  -1, "00000000"),
     huffmanSymbolBits(   0, "00110101"),
     huffmanSymbolBits(   1, "000111"),
     huffmanSymbolBits(   2, "0111"),
@@ -214,7 +214,7 @@ const array huffmanSymbolBits: whiteHuffmanSymbolBits is [] (
 
 
 const array huffmanSymbolBits: blackHuffmanSymbolBits is [] (
-    huffmanSymbolBits(  -1, "00000000000"),
+    huffmanSymbolBits(  -1, "00000000"),
     huffmanSymbolBits(   0, "0000110111"),
     huffmanSymbolBits(   1, "010"),
     huffmanSymbolBits(   2, "11"),
@@ -478,19 +478,30 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
       end func;
 
 
-    const proc: skipEol (inout bitStream: inBitStream, in integer: expected) is func
+    const proc: skipToStart (inout bitStream: inBitStream, in integer: expected) is func
       local
         var integer: symbol is 0;
       begin
-        symbol := getBits(inBitStream, 12);
+        symbol := peekBits(inBitStream, 12);
         if symbol = 0 then
           # Fill bits are present.
+          skipBits(inBitStream, 12);
           repeat
             symbol := getBit(inBitStream);
           until symbol = 1;
-        elsif symbol <> expected then
-          raise RANGE_ERROR;
+        elsif symbol = expected then
+          skipBits(inBitStream, 12);
         end if;
+      end func;
+
+
+    const proc: skipFillBits (inout bitStream: inBitStream) is func
+      local
+        var integer: symbol is 0;
+      begin
+        repeat
+          symbol := getBit(inBitStream);
+        until symbol = 1;
       end func;
 
 
@@ -837,11 +848,12 @@ const proc: processCcittT4Fax1dMsb (in string: faxData,
     var integer: line is 0;
   begin
     faxDataStream := openMsbInBitStream(faxData);
+    skipToStart(faxDataStream, 2#000000000001);
     for line range startLine to startLine + height - 1 do
-      skipEol(faxDataStream, 2#000000000001);
       processCcittFaxRow(faxDataStream, whiteMsbHuffmanDecoder,
                          blackMsbHuffmanDecoder, whitePixel, blackPixel,
                          width, image[line]);
+      skipFillBits(faxDataStream);
     end for;
   end func;
 
@@ -869,11 +881,12 @@ const proc: processCcittT4Fax1dLsb (in string: faxData,
     var integer: line is 0;
   begin
     faxDataStream := openLsbInBitStream(faxData);
+    skipToStart(faxDataStream, 2#100000000000);
     for line range startLine to startLine + height - 1 do
-      skipEol(faxDataStream, 2#100000000000);
       processCcittFaxRow(faxDataStream, whiteLsbHuffmanDecoder,
                          blackLsbHuffmanDecoder, whitePixel, blackPixel,
                          width, image[line]);
+      skipFillBits(faxDataStream);
     end for;
   end func;
 
@@ -949,8 +962,8 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
     var integer: line is 0;
   begin
     faxDataStream := openMsbInBitStream(faxData);
+    skipToStart(faxDataStream, 2#000000000001);
     for line range startLine to startLine + height - 1 do
-      skipEol(faxDataStream, 2#000000000001);
       if getBit(faxDataStream) = 1 then
         processCcittT4Fax1dRow(faxDataStream, whiteMsbHuffmanDecoder,
                                blackMsbHuffmanDecoder, blackOrWhite[1], blackOrWhite[0],
@@ -960,6 +973,7 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
                                whiteMsbHuffmanDecoder, blackMsbHuffmanDecoder,
                                blackOrWhite, width, bValues, image[line]);
       end if;
+      skipFillBits(faxDataStream);
     end for;
   end func;
 
@@ -987,8 +1001,8 @@ const proc: processCcittT4Fax2dLsb (in string: faxData,
     var integer: line is 0;
   begin
     faxDataStream := openLsbInBitStream(faxData);
+    skipToStart(faxDataStream, 2#100000000000);
     for line range startLine to startLine + height - 1 do
-      skipEol(faxDataStream, 2#100000000000);
       if getBit(faxDataStream) = 1 then
         processCcittT4Fax1dRow(faxDataStream, whiteLsbHuffmanDecoder,
                                blackLsbHuffmanDecoder, blackOrWhite[1], blackOrWhite[0],
@@ -998,5 +1012,6 @@ const proc: processCcittT4Fax2dLsb (in string: faxData,
                                whiteLsbHuffmanDecoder, blackLsbHuffmanDecoder,
                                blackOrWhite, width, bValues, image[line]);
       end if;
+      skipFillBits(faxDataStream);
     end for;
   end func;

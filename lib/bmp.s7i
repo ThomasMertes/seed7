@@ -633,11 +633,12 @@ const proc: processHuffman1d (inout file: bmpFile,
     var integer: line is 0;
   begin
     faxDataStream := openMsbInBitStream(bmpFile);
+    skipToStart(faxDataStream, 2#000000000001);
     for line range height downto 1 do
-      skipEol(faxDataStream, 2#000000000001);
       processCcittFaxRow(faxDataStream, whiteMsbHuffmanDecoder,
                          blackMsbHuffmanDecoder, whitePixel, blackPixel,
                          width, image[line]);
+      skipFillBits(faxDataStream);
     end for;
   end func;
 
