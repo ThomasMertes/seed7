@@ -1490,6 +1490,7 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
     var string: stripData is "";
     var integer: currPosition is 1;
     var integer: rowsInCurrentStrip is 0;
+    var integer: tileWidth is 0;
     var integer: rowIndex is 0;
     var integer: tileStartRow is 1;
     var msbInBitStream: stripDataStream is msbInBitStream.value;
@@ -1503,6 +1504,11 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
       else
         rowsInCurrentStrip := header.height - currentRow + 1;
       end if;
+      if TIFF_TAG_TILE_WIDTH in header.integerTagValues then
+        tileWidth := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+      else
+        tileWidth := header.width;
+      end if;
       case header.compression of
         when {TIFF_NO_COMPRESSION,
               TIFF_COMPRESSION_PACK_BITS,
@@ -1510,7 +1516,7 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
               TIFF_COMPRESSION_DEFLATE,
               TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
           decompressStripOrTile(header, stripData, rowsInCurrentStrip,
-                                succ(tileEndColumn - tileStartColumn));
+                                tileWidth);
           if header.bitsPerSample[1] mod 8 <> 0 then
             stripDataStream := openMsbInBitStream(stripData);
             for rowIndex range 1 to rowsInCurrentStrip do
@@ -1534,16 +1540,16 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
             end for;
             tileStartColumn := succ(tileEndColumn);
             if tileStartColumn <= header.width then
-              if tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1 <= header.width then
-                tileEndColumn := tileStartColumn + header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] - 1;
+              if tileStartColumn + tileWidth - 1 <= header.width then
+                tileEndColumn := tileStartColumn + tileWidth - 1;
               else
                 tileEndColumn := header.width;
               end if;
             else
               currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
               tileStartColumn := 1;
-              if header.width >= header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] then
-                tileEndColumn := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+              if header.width >= tileWidth then
+                tileEndColumn := tileWidth;
               else
                 tileEndColumn := header.width;
               end if;
