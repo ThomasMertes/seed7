@@ -731,16 +731,21 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
   local
     var jpegHeader: jpegHead is jpegHeader.value;
     var string: jpegTables is "";
-    var integer: stripOffset is 0;
-    var integer: stripIndex is 0;
-    var integer: stripByteCount is 0;
+    var integer: offset is 0;
+    var integer: index is 0;
+    var integer: byteCount is 0;
     var string: stripData is "";
     var integer: insertPos is 1;
     var pixelImage: subImage is pixelImage.value;
     var pixelImage: image is pixelImage.value;
+    var integer: line is 0;
   begin
     jpegHead.width := header.width;
-    jpegHead.height := header.height;
+    if header.rowsPerStrip <> 0 and header.rowsPerStrip < header.height then
+      jpegHead.height := header.rowsPerStrip;
+    else
+      jpegHead.height := header.height;
+    end if;
     if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
       jpegHead.horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
       jpegHead.vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
@@ -757,19 +762,45 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
         processJpegSegments(jpegTables, jpegHead, subImage);
       end if;
     end if;
-    for stripOffset key stripIndex range header.stripOffsets do
-      stripByteCount := header.stripByteCounts[stripIndex];
-      seek(tiffFile, succ(stripOffset));
-      stripData := gets(tiffFile, stripByteCount);
-      if length(stripData) = stripByteCount then
-        # writeln("stripData: " <& hex(stripData));
-        if startsWith(stripData, JPEG_MAGIC) then
-          processJpegSegments(stripData, jpegHead, subImage);
-          insert(image, insertPos, subImage);
-          insertPos +:= length(subImage);
+    if length(header.stripOffsets) <> 0 then
+      for offset key index range header.stripOffsets do
+        byteCount := header.stripByteCounts[index];
+        seek(tiffFile, succ(offset));
+        stripData := gets(tiffFile, byteCount);
+        if length(stripData) = byteCount then
+          # writeln("stripData: " <& hex(stripData));
+          if startsWith(stripData, JPEG_MAGIC) then
+            processJpegSegments(stripData, jpegHead, subImage);
+            insert(image, insertPos, subImage);
+            insertPos +:= length(subImage);
+          end if;
         end if;
-      end if;
-    end for;
+      end for;
+    else
+      for offset key index range header.tileOffsets do
+        byteCount := header.tileByteCounts[index];
+        seek(tiffFile, succ(offset));
+        stripData := gets(tiffFile, byteCount);
+        if length(stripData) = byteCount then
+          # writeln("stripData: " <& hex(stripData));
+          if startsWith(stripData, JPEG_MAGIC) then
+            processJpegSegments(stripData, jpegHead, subImage);
+            if length(image) = 0 or length(image) < insertPos then
+              insert(image, insertPos, subImage);
+            else
+              for key line range subImage do
+                insert(image[pred(insertPos + line)],
+                       succ(length(image[pred(insertPos + line)])),
+                       subImage[line]);
+              end for;
+            end if;
+            if length(image[insertPos]) >= header.width then
+              insertPos +:= length(subImage);
+            end if;
+          end if;
+        end if;
+      end for;
+    end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
