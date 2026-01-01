@@ -967,6 +967,16 @@ const proc: processRow (in tiffHeader: header,
                                         getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
                                         getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
         end for;
+      when {4}:
+        colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
+        colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
+        colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
+        for column range 1 to header.width do
+          imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
+                                        getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
+                                        getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+          ignore(getBits(stripDataStream, header.bitsPerSample[4]));
+        end for;
       otherwise:
         raise RANGE_ERROR;
     end case;
