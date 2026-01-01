@@ -1402,7 +1402,8 @@ const proc: decompressStripOrTile (in tiffHeader: header,
         header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
       predictor(header, stripData, height, tileWidth);
     end if;
-    if usedLength <> length(stripData) and width < tileWidth then
+    if usedLength <> length(stripData) and width < tileWidth and
+        header.bitsPerPixel mdiv 8 <> 0 then
       removeUnusedData(stripData, width * (header.bitsPerPixel mdiv 8),
                        tileWidth * (header.bitsPerPixel mdiv 8));
     end if;
