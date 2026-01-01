@@ -159,6 +159,7 @@ const type: tiffHeader is new struct
     var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
     var tiffStringTagValues: stringTagValues is tiffStringTagValues.value;
     var colorLookupTable: colorMap is colorLookupTable.value;
+    var integer: bitsPerPixel is 0;
   end struct;
 
 
@@ -648,6 +649,27 @@ const proc: predictor (in tiffHeader: header, inout string: stripData,
         incr(index);
       end for;
     end for;
+  end func;
+
+
+const proc: removeUnusedData (inout string: stripData,
+    in integer: width, in integer: tileWidth) is func
+  local
+    var integer: destIndex is 0;
+    var integer: sourceIndex is 0;
+    var integer: maxSourceIndex is 0;
+    var integer: pos1 is 0;
+    var integer: pos2 is 0;
+  begin
+    destIndex := succ(width);
+    sourceIndex := succ(tileWidth);
+    maxSourceIndex := succ(length(stripData) - tileWidth);
+    while sourceIndex <= maxSourceIndex do
+      stripData @:= [destIndex] stripData[sourceIndex len width];
+      destIndex +:= width;
+      sourceIndex +:= tileWidth;
+    end while;
+    stripData := stripData[.. pred(destIndex)];
   end func;
 
 
@@ -1348,12 +1370,14 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
 
 
 const proc: decompressStripOrTile (in tiffHeader: header,
-    inout string: stripData, in integer: height, in integer: width) is func
+    inout string: stripData, in integer: height, in integer: width,
+    in integer: tileWidth) is func
   local
-    var integer: bits is 0;
-    var integer: bitsPerPixel is 0;
+    var integer: usedLength is 0;
     var integer: requestedLength is 0;
   begin
+    usedLength := height *
+                  succ(pred(width * header.bitsPerPixel) mdiv 8);
     case header.compression of
       when {TIFF_NO_COMPRESSION}:
         noop;
@@ -1364,16 +1388,9 @@ const proc: decompressStripOrTile (in tiffHeader: header,
           # Old style LZW encoded
           stripData := lzwDecompressLsb(stripData, 8);
         else
-          if height <> 0 then
-            for bits range header.bitsPerSample do
-              bitsPerPixel +:= bits;
-            end for;
-            requestedLength := height *
-                               succ(pred(width * bitsPerPixel) mdiv 8);
-            stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
-          else
-            stripData := lzwDecompressMsbEarlyChange(stripData, 8);
-          end if;
+          requestedLength := height *
+                             succ(pred(tileWidth * header.bitsPerPixel) mdiv 8);
+          stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
         end if;
       when {TIFF_COMPRESSION_DEFLATE,
             TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
@@ -1383,7 +1400,11 @@ const proc: decompressStripOrTile (in tiffHeader: header,
     end case;
     if TIFF_TAG_PREDICTOR in header.integerTagValues and
         header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
-      predictor(header, stripData, height, width);
+      predictor(header, stripData, height, tileWidth);
+    end if;
+    if usedLength <> length(stripData) and width < tileWidth then
+      removeUnusedData(stripData, width * (header.bitsPerPixel mdiv 8),
+                       tileWidth * (header.bitsPerPixel mdiv 8));
     end if;
   end func;
 
@@ -1555,6 +1576,7 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
               TIFF_COMPRESSION_DEFLATE,
               TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
           decompressStripOrTile(header, stripData, rowsInCurrentStrip,
+                                succ(tileEndColumn - tileStartColumn),
                                 tileWidth);
           if header.bitsPerSample[1] mod 8 <> 0 then
             stripDataStream := openMsbInBitStream(stripData);
@@ -1773,7 +1795,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
           stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
           if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
             decompressStripOrTile(header, stripData[sampleIndex],
-                                  header.rowsPerStrip, header.width);
+                                  header.rowsPerStrip, header.width, header.width);
           else
             raise RANGE_ERROR;
           end if;
@@ -1807,6 +1829,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
   local
     var string: magic is "";
     var tiffHeader: header is tiffHeader.value;
+    var integer: bits is 0;
   begin
     magic := gets(tiffFile, length(TIFF_MAGIC_LE));
     if magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
@@ -1857,6 +1880,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
         if TIFF_TAG_ORIENTATION in header.integerTagValues then
           header.orientation := header.integerTagValues[TIFF_TAG_ORIENTATION][1];
         end if;
+        for bits range header.bitsPerSample do
+          header.bitsPerPixel +:= bits;
+        end for;
         # showHeader(header);
         case header.compression of
           when {TIFF_NO_COMPRESSION,
