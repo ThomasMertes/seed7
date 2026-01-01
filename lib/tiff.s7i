@@ -1689,8 +1689,20 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
     var integer: column is 0;
     var integer: positionIncrement is 0;
     var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
   begin
-    if header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
+    if header.samplesPerPixel = 1 or header.samplesPerPixel = 2 then
+      case header.bitsPerSample[1] of
+        when {8}:
+          for column range 1 to header.width do
+            grayIntensity :=  ord(stripData[1][currPosition]) * 256;
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            incr(currPosition);
+          end for;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    elsif header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
       case header.bitsPerSample[1] of
         when {8}:
           for column range 1 to header.width do
