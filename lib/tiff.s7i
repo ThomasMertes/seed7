@@ -653,7 +653,7 @@ const proc: predictor (in tiffHeader: header, inout string: stripData,
 
 
 const proc: removeUnusedData (inout string: stripData,
-    in integer: width, in integer: tileWidth) is func
+    in integer: bytesPerLine, in integer: bytesPerTileLine) is func
   local
     var integer: destIndex is 0;
     var integer: sourceIndex is 0;
@@ -661,13 +661,13 @@ const proc: removeUnusedData (inout string: stripData,
     var integer: pos1 is 0;
     var integer: pos2 is 0;
   begin
-    destIndex := succ(width);
-    sourceIndex := succ(tileWidth);
-    maxSourceIndex := succ(length(stripData) - tileWidth);
+    destIndex := succ(bytesPerLine);
+    sourceIndex := succ(bytesPerTileLine);
+    maxSourceIndex := succ(length(stripData) - bytesPerTileLine);
     while sourceIndex <= maxSourceIndex do
-      stripData @:= [destIndex] stripData[sourceIndex len width];
-      destIndex +:= width;
-      sourceIndex +:= tileWidth;
+      stripData @:= [destIndex] stripData[sourceIndex len bytesPerLine];
+      destIndex +:= bytesPerLine;
+      sourceIndex +:= bytesPerTileLine;
     end while;
     stripData := stripData[.. pred(destIndex)];
   end func;
@@ -1373,11 +1373,12 @@ const proc: decompressStripOrTile (in tiffHeader: header,
     inout string: stripData, in integer: height, in integer: width,
     in integer: tileWidth) is func
   local
-    var integer: usedLength is 0;
+    var integer: bytesPerLine is 0;
+    var integer: bytesPerTileLine is 0;
     var integer: requestedLength is 0;
   begin
-    usedLength := height *
-                  succ(pred(width * header.bitsPerPixel) mdiv 8);
+    bytesPerLine := succ(pred(width * header.bitsPerPixel) mdiv 8);
+    bytesPerTileLine := succ(pred(tileWidth * header.bitsPerPixel) mdiv 8);
     case header.compression of
       when {TIFF_NO_COMPRESSION}:
         noop;
@@ -1388,8 +1389,7 @@ const proc: decompressStripOrTile (in tiffHeader: header,
           # Old style LZW encoded
           stripData := lzwDecompressLsb(stripData, 8);
         else
-          requestedLength := height *
-                             succ(pred(tileWidth * header.bitsPerPixel) mdiv 8);
+          requestedLength := height * bytesPerTileLine;
           stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
         end if;
       when {TIFF_COMPRESSION_DEFLATE,
@@ -1398,14 +1398,12 @@ const proc: decompressStripOrTile (in tiffHeader: header,
       otherwise:
         raise RANGE_ERROR;
     end case;
+    if bytesPerLine * height <> length(stripData) and width < tileWidth then
+      removeUnusedData(stripData, bytesPerLine, bytesPerTileLine);
+    end if;
     if TIFF_TAG_PREDICTOR in header.integerTagValues and
         header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
-      predictor(header, stripData, height, tileWidth);
-    end if;
-    if usedLength <> length(stripData) and width < tileWidth and
-        header.bitsPerPixel mdiv 8 <> 0 then
-      removeUnusedData(stripData, width * (header.bitsPerPixel mdiv 8),
-                       tileWidth * (header.bitsPerPixel mdiv 8));
+      predictor(header, stripData, height, width);
     end if;
   end func;
 
