@@ -451,7 +451,9 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
           repeat
             additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteDecoder);
             # writeln("W+" <& additionalWhiteBits <& " ");
-            whiteBits +:= additionalWhiteBits;
+            if additionalWhiteBits > 0 then
+              whiteBits +:= additionalWhiteBits;
+            end if;
           until additionalWhiteBits < 64;
         end if;
         # writeln("W=" <& whiteBits <& " ");
@@ -471,7 +473,9 @@ const proc: DECLARE_CcittModifiedGroup3Fax_FUNCTIONS (in type: bitStream,
           repeat
             additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackDecoder);
             # writeln("B+" <& additionalBlackBits <& " ");
-            blackBits +:= additionalBlackBits;
+            if additionalBlackBits > 0 then
+              blackBits +:= additionalBlackBits;
+            end if;
           until additionalBlackBits < 64;
         end if;
         # writeln("B=" <& blackBits <& " ");
