@@ -120,6 +120,7 @@ const integer: TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3 is     2;
 const integer: TIFF_COMPRESSION_CCITT_T4               is     3;
 const integer: TIFF_COMPRESSION_CCITT_T6               is     4;
 const integer: TIFF_COMPRESSION_LEMPEL_ZIV_WELCH       is     5;
+const integer: TIFF_COMPRESSION_OLD_JPEG               is     6;
 const integer: TIFF_COMPRESSION_JPEG                   is     7;
 const integer: TIFF_COMPRESSION_DEFLATE                is     8;
 const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
@@ -132,6 +133,7 @@ const integer: TIFF_PHOTOMETRIC_INTERPRETATION_RGB               is 2;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_PALETTE_COLOR     is 3;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_TRANSPARENCY_MASK is 4;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_CMYK              is 5;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr             is 6;
 
 const integer: TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT is 1;
 const integer: TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT is 2;
@@ -706,6 +708,7 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
             raise RANGE_ERROR;
           else
             setupQuantization(header);
+            # showHeader(header);
             loadImage(jpegFile, header, image);
           end if;
           segmentMarker := jpegFile.bufferChar;
@@ -741,6 +744,8 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
         elsif getc(jpegFile) <> JPEG_MARKER_START then
           raise RANGE_ERROR;
         end if;
+      elsif segmentMarker = EOF then
+        endOfImage := TRUE;
       end if;
     until endOfImage;
   end func;
@@ -823,6 +828,208 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
         end if;
       end for;
     end if;
+    if header.orientation > EXIF_ORIENTATION_NORMAL and
+        header.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.orientation);
+    end if;
+    pixmap := getPixmap(image);
+  end func;
+
+
+const proc: setupJpegHeader (inout jpegHeader: header) is func
+  local
+    const integer: numComponents is 3;
+    var integer: componentId is 0;
+  begin
+    header.precision := 8;
+    header.component := jpegComponentArray[.. numComponents] times jpegComponent.value;
+    for componentId range 1 to numComponents do
+      header.componentType @:= [componentId] componentId;
+      header.component[componentId].quantizationTableIndex := componentId;
+    end for;
+    header.numberOfScans := numComponents;
+    header.scan := jpegScanArray[.. header.numberOfScans] times jpegScan.value;
+    for componentId range 1 to header.numberOfScans do
+      header.scan[componentId].componentId := componentId;
+      header.scan[componentId].dcHuffmanTableIndex := componentId;
+      header.scan[componentId].acHuffmanTableIndex := componentId;
+    end for;
+    header.startOfSpectral := 1;
+    header.endOfSpectral := 64;
+    header.approximationHigh := 0;
+    header.approximationLow := 0;
+    setupQuantization(header);
+    # showHeader(header);
+  end func;
+
+
+const proc: loadJpegSegment (in string: jpegData, inout jpegHeader: header,
+    inout pixelImage: image) is func
+  local
+    var file: jpegFile is STD_NULL;
+  begin
+    jpegFile := openStriFile(jpegData);
+    loadImage(jpegFile, header, image);
+  end func;
+
+
+const proc: assignDecoder (in string: stri, inout file: tiffFile,
+    inout msbHuffmanDecoder: decoder) is func
+  local
+    var integer: pos is 1;
+    var array integer: numberOfCodesWithLength is 16 times 0;
+    var integer: maximumCodeLength is 0;
+    var string: huffmanValues is "";
+    var integer: numberOfCodes is 0;
+    var integer: codeLength is 0;
+  begin
+    for codeLength range 1 to 16 do
+      numberOfCodesWithLength[codeLength] := ord(stri[pos]);
+      incr(pos);
+      if numberOfCodesWithLength[codeLength] <> 0 then
+        maximumCodeLength := codeLength;
+      end if;
+      numberOfCodes +:= numberOfCodesWithLength[codeLength];
+    end for;
+    huffmanValues := gets(tiffFile, numberOfCodes);
+    if length(huffmanValues) = numberOfCodes then
+      decoder := createMsbHuffmanDecoder(maximumCodeLength,
+          numberOfCodesWithLength, huffmanValues);
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readOldJpeg (inout file: tiffFile,
+    in tiffHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var jpegHeader: jpegHead is jpegHeader.value;
+    var integer: offset is 0;
+    var integer: tableNumber is 0;
+    var integer: index is 0;
+    var integer: dataStart is 0;
+    var integer: dataLength is 0;
+    var string: rawData is "";
+    var boolean: stripOverlaps is FALSE;
+    var integer: stripOffset is 0;
+    var integer: stripIndex is 0;
+    var integer: stripByteCount is 0;
+    var string: stripData is "";
+    var integer: insertPos is 1;
+    var pixelImage: subImage is pixelImage.value;
+    var pixelImage: image is pixelImage.value;
+  begin
+    jpegHead.width := header.width;
+    if header.rowsPerStrip <> 0 and header.rowsPerStrip < header.height then
+      jpegHead.height := header.rowsPerStrip;
+    else
+      jpegHead.height := header.height;
+    end if;
+    # writeln("jpegHead.height: " <& jpegHead.height);
+    if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
+      jpegHead.horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
+      jpegHead.vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
+    else
+      jpegHead.horizontal := 1;
+      jpegHead.vertical := 1;
+    end if;
+    jpegHead.numLuma := jpegHead.vertical * jpegHead.horizontal;
+    jpegHead.unitLines := succ(pred(jpegHead.height) mdiv (8 * jpegHead.vertical));
+    jpegHead.unitColumns := succ(pred(jpegHead.width) mdiv (8 * jpegHead.horizontal));
+    if TIFF_TAG_JPEG_Q_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_Q_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, JPEG_BLOCK_SIZE);
+        # writeln("Q table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = JPEG_BLOCK_SIZE then
+          for index range 1 to JPEG_BLOCK_SIZE do
+            jpegHead.quantizationTable[tableNumber][index] := ord(rawData[index]);
+          end for;
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPEG_DC_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_DC_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, 16);
+        # writeln("DC table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = 16 then
+          assignDecoder(rawData, tiffFile, jpegHead.dcDecoder[tableNumber]);
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPEG_AC_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_AC_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, 16);
+        # writeln("AC table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = 16 then
+          assignDecoder(rawData, tiffFile, jpegHead.acDecoder[tableNumber]);
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPG_FROM_RAW_START in header.integerTagValues and
+        TIFF_TAG_JPG_FROM_RAW_LENGTH in header.integerTagValues then
+      dataStart := header.integerTagValues[TIFF_TAG_JPG_FROM_RAW_START][1];
+      dataLength := header.integerTagValues[TIFF_TAG_JPG_FROM_RAW_LENGTH][1];
+      seek(tiffFile, succ(dataStart));
+      rawData := gets(tiffFile, dataLength);
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+        insertPos := succ(length(image));
+      end if;
+      for stripOffset range header.stripOffsets do
+        if stripOffset >= dataStart and stripOffset < dataStart + dataLength then
+          stripOverlaps := TRUE;
+        end if;
+      end for;
+      if not stripOverlaps then
+        jpegHead.height := header.rowsPerStrip;
+        for stripOffset key stripIndex range header.stripOffsets do
+          stripByteCount := header.stripByteCounts[stripIndex];
+          seek(tiffFile, succ(stripOffset));
+          stripData := gets(tiffFile, stripByteCount);
+          if length(stripData) = stripByteCount then
+            if pred(insertPos + header.rowsPerStrip) > header.height then
+              jpegHead.height := succ(header.height - insertPos);
+            end if;
+            if startsWith(stripData, "\16#ff;\16#da;") then
+              processJpegSegments("\16#ff;\16#d8;" & stripData, jpegHead, subImage);
+            else
+              loadJpegSegment(stripData, jpegHead, subImage);
+            end if;
+            insert(image, insertPos, subImage);
+            insertPos +:= length(subImage);
+          end if;
+        end for;
+      end if;
+    elsif length(header.stripOffsets) <> 0 then
+      for stripOffset key stripIndex range header.stripOffsets do
+        stripByteCount := header.stripByteCounts[stripIndex];
+        seek(tiffFile, succ(stripOffset));
+        stripData := gets(tiffFile, stripByteCount);
+        if length(stripData) = stripByteCount then
+          rawData &:= stripData;
+        end if;
+      end for;
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+      end if;
+    elsif length(header.tileOffsets) <> 0 then
+      dataStart := header.tileOffsets[1];
+      dataLength := header.tileByteCounts[1];
+      seek(tiffFile, succ(dataStart));
+      rawData := gets(tiffFile, dataLength);
+      # showHeader(jpegHead);
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+      else
+        setupJpegHeader(jpegHead);
+        loadJpegSegment(rawData, jpegHead, image);
+      end if;
+    end if;
+
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
@@ -1898,6 +2105,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
             else
               pixmap := readTiffPlanarFormat(tiffFile, header);
             end if;
+          when {TIFF_COMPRESSION_OLD_JPEG}:
+            pixmap := readOldJpeg(tiffFile, header);
           when {TIFF_COMPRESSION_JPEG}:
             pixmap := readJpeg(tiffFile, header);
           otherwise:
