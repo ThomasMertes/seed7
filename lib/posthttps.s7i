@@ -15,7 +15,7 @@ const func file: openHttpsPost (in httpLocation: locationData, in httpBody: body
     end if;
   end func;
 
-const func string: postHttps (in string: location, in httpBody: body) is func
+const func string: postHttps (in string: location, in httpBody: body, in var httpCreds: creds) is func
   result
     var string: data is "";
   local
@@ -31,6 +31,10 @@ const func string: postHttps (in string: location, in httpBody: body) is func
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;
     end if;
+    # Bearer tokens can always be sent (whereas basic auth should only be sent when requested).
+    if creds.username = "" then
+      locationData.creds := creds;
+    end if;
     repeat
       okay := TRUE;
       sock := openHttpsPost(locationData, body);
@@ -43,6 +47,12 @@ const func string: postHttps (in string: location, in httpBody: body) is func
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
+        elsif statusCode = "401" and creds.username <> "" then
+          locationData.creds := creds;
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          creds.username := ""; # Only try once.
         end if;
       end if;
     until okay or repeatCount > 5;
@@ -50,6 +60,19 @@ const func string: postHttps (in string: location, in httpBody: body) is func
       data := getHttp(sock);
       close(sock);
     end if;
+  end func;
+
+const func string: postHttps (in string: location, in httpBody: body) is
+  return postHttps(location, body, httpCreds.value);
+
+const func string: postHttps (in string: location, in string: plain, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.content := plain;
+    data := postHttps(location, body, creds);
   end func;
 
 const func string: postHttps (in string: location, in string: plain) is func
@@ -60,6 +83,17 @@ const func string: postHttps (in string: location, in string: plain) is func
   begin
     body.content := plain;
     data := postHttps(location, body);
+  end func;
+
+const func string: postHttps (in string: location, in jsonValue: json, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.contentType := "application/json";
+    body.content := string(json);
+    data := postHttps(location, body, creds);
   end func;
 
 const func string: postHttps (in string: location, in jsonValue: json) is func
@@ -73,7 +107,7 @@ const func string: postHttps (in string: location, in jsonValue: json) is func
     data := postHttps(location, body);
   end func;
 
-const func string: postHttps (in string: location, in hash [string] string: fields) is func
+const func string: postHttps (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var string: data is "";
   local
@@ -88,5 +122,8 @@ const func string: postHttps (in string: location, in hash [string] string: fiel
     if endsWith(body.content, "&") then
       body.content := body.content[.. length(body.content)-1];
     end if;
-    data := postHttps(location, body);
+    data := postHttps(location, body, creds);
   end func;
+
+const func string: postHttps (in string: location, in hash [string] string: fields) is
+  return postHttps(location, fields, httpCreds.value);

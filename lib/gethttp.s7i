@@ -31,12 +31,35 @@ include "scanstri.s7i";
 include "socket.s7i";
 include "gzip.s7i";
 include "charsets.s7i";
+include "encoding.s7i";
 
 
 var string: proxyServer is "";
 var integer: proxyHttpPort is 0;
 const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
+
+
+const type: httpCreds is new struct
+    var string: username is "";
+    var string: password is "";
+  end struct;
+
+
+const func httpCreds: basicAuth (in string: username, in string: password) is func
+  result
+    var httpCreds: creds is httpCreds.value;
+  begin
+    creds.username := username;
+    creds.password := password;
+  end func;
+
+const func httpCreds: bearerAuth (in string: token) is func
+  result
+    var httpCreds: creds is httpCreds.value;
+  begin
+    creds.password := token;
+  end func;
 
 
 const type: httpLocation is new struct
@@ -47,6 +70,7 @@ const type: httpLocation is new struct
     var string: path is "";
     var string: params is "";
     var array string: cookies is 0 times "";
+    var httpCreds: creds is httpCreds.value;
   end struct;
 
 
@@ -167,6 +191,17 @@ const proc: sendGet (inout file: sock, in httpLocation: location) is func
     request &:= "GET " <& address <& " HTTP/1.1\r\n";
     request &:= "Host: " <& location.hostName <& "\r\n";
     request &:= "User-Agent: BlackHole" <& "\r\n";
+    if location.creds.username <> "" then
+      # Basic auth doesn't accept colons in the username.
+      if pos(location.creds.username,':') = 0 then
+        request &:= "Authorization: Basic " & toBase64(location.creds.username & ":" & location.creds.password) & "\r\n";
+      else
+        raise RANGE_ERROR;
+      end if;
+    # Password only? Assume a bearer token.
+    elsif location.creds.password <> "" then
+      request &:= "Authorization: Bearer " & location.creds.password & "\r\n";
+    end if;
     if length(location.cookies) <> 0 then
       request &:= "Cookie: ";
       for key index range location.cookies do
@@ -186,9 +221,9 @@ const func file: openHttp (in httpLocation: locationData) is func
   result
     var file: sock is STD_NULL;
   begin
-    # writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
-    # writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
-    # writeln("params=" <& locationData.params);
+    #writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
+    #writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
+    #writeln("params=" <& locationData.params);
     if not locationData.httpsProtocol then
       sock := openInetSocket(locationData.serverName, locationData.portNumber);
     end if;
@@ -448,13 +483,22 @@ const func string: getHttp (in var httpLocation: locationData) is func
     var string: location is "";
     var boolean: okay is TRUE;
     var integer: repeatCount is 0;
+    var string: username is "";
+    var string: password is "";
   begin
+    # Don't use the basic-auth credentials unless they are needed.
+    if locationData.creds.username <> "" then
+      username := locationData.creds.username;
+      password := locationData.creds.password;
+      locationData.creds.username := "";
+      locationData.creds.password := "";
+    end if;
     repeat
       okay := TRUE;
       sock := openHttp(locationData);
       if sock <> STD_NULL then
         statusCode := getHttpStatusCode(sock);
-        # writeln("statusCode: " <& statusCode);
+        writeln("statusCode: " <& statusCode);
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
           locationData := getHttpLocation(locationData, sock);
@@ -463,6 +507,13 @@ const func string: getHttp (in var httpLocation: locationData) is func
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
+        elsif statusCode = "401" and username <> "" then
+          locationData.creds.username := username;
+          locationData.creds.password := password;
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          username := ""; # Only try once.
         end if;
       end if;
     until okay or repeatCount > 5;
@@ -485,6 +536,19 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
     data := getHttp(locationData);
   end func;
 
+const func string: getHttp (in string: serverName, in integer: portNumber, in string: location, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpLocation: locationData is httpLocation.value;
+  begin
+    locationData := getHttpLocation(location, httpDefaultPort);
+    locationData.serverName := serverName;
+    locationData.portNumber := portNumber;
+    locationData.creds := creds;
+    data := getHttp(locationData);
+  end func;
+
 
 (**
  *  Get data specified by a ''location'' using the HTTP protocol.
@@ -500,6 +564,22 @@ const func string: getHttp (in string: location) is func
     var httpLocation: locationData is httpLocation.value;
   begin
     locationData := getHttpLocation(location, httpDefaultPort);
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
+    data := getHttp(locationData);
+  end func;
+
+
+const func string: getHttp (in string: location, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpLocation: locationData is httpLocation.value;
+  begin
+    locationData := getHttpLocation(location, httpDefaultPort);
+    locationData.creds := creds;
     if proxyServer <> "" then
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;

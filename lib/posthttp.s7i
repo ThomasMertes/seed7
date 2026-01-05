@@ -1,4 +1,5 @@
 include "gethttp.s7i";
+include "json.s7i";
 
 const type: httpBody is new struct
     var string: contentType is "text/plain";
@@ -18,6 +19,17 @@ const proc: sendPost (inout file: sock, in httpLocation: location, in httpBody: 
     request &:= "POST " <& address <& " HTTP/1.1\r\n";
     request &:= "Host: " <& location.hostName <& "\r\n";
     request &:= "User-Agent: BlackHole" <& "\r\n";
+    if location.creds.username <> "" then
+      # Basic auth doesn't accept colons in the username.
+      if pos(location.creds.username,':') = 0 then
+        request &:= "Authorization: Basic " & toBase64(location.creds.username & ":" & location.creds.password) & "\r\n";
+      else
+        raise RANGE_ERROR;
+      end if;
+    # Password only? Assume a bearer token.
+    elsif location.creds.password <> "" then
+      request &:= "Authorization: Bearer " & location.creds.password & "\r\n";
+    end if;
     if length(location.cookies) <> 0 then
       request &:= "Cookie: ";
       for key index range location.cookies do
@@ -46,7 +58,7 @@ const func file: openHttpPost (in httpLocation: locationData, in httpBody: body)
     end if;
   end func;
 
-const func string: postHttp (in string: location, in httpBody: body) is func
+const func string: postHttp (in string: location, in httpBody: body, in var httpCreds: creds) is func
   result
     var string: data is "";
   local
@@ -61,6 +73,10 @@ const func string: postHttp (in string: location, in httpBody: body) is func
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;
     end if;
+    # Bearer tokens can always be sent (whereas basic auth should only be sent when requested).
+    if creds.username = "" then
+      locationData.creds := creds;
+    end if;
     repeat
       okay := TRUE;
       sock := openHttpPost(locationData, body);
@@ -73,6 +89,12 @@ const func string: postHttp (in string: location, in httpBody: body) is func
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
+        elsif statusCode = "401" and creds.username <> "" then
+          locationData.creds := creds;
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          creds.username := ""; # Only try once.
         end if;
       end if;
     until okay or repeatCount > 5;
@@ -82,6 +104,9 @@ const func string: postHttp (in string: location, in httpBody: body) is func
     end if;
   end func;
 
+const func string: postHttp (in string: location, in httpBody: body) is
+  return postHttp(location, body, httpCreds.value);
+
 const func string: postHttp (in string: location, in string: plain) is func
   result
     var string: data is "";
@@ -90,6 +115,16 @@ const func string: postHttp (in string: location, in string: plain) is func
   begin
     body.content := plain;
     data := postHttp(location, body);
+  end func;
+
+const func string: postHttp (in string: location, in string: plain, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.content := plain;
+    data := postHttp(location, body, creds);
   end func;
 
 const func string: postHttp (in string: location, in jsonValue: json) is func
@@ -103,7 +138,18 @@ const func string: postHttp (in string: location, in jsonValue: json) is func
     data := postHttp(location, body);
   end func;
 
-const func string: postHttp (in string: location, in hash [string] string: fields) is func
+const func string: postHttp (in string: location, in jsonValue: json, in httpCreds: creds) is func
+  result
+    var string: data is "";
+  local
+    var httpBody: body is httpBody.value;
+  begin
+    body.contentType := "application/json";
+    body.content := string(json);
+    data := postHttp(location, body, creds);
+  end func;
+
+const func string: postHttp (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var string: data is "";
   local
@@ -118,5 +164,8 @@ const func string: postHttp (in string: location, in hash [string] string: field
     if endsWith(body.content, "&") then
       body.content := body.content[.. length(body.content)-1];
     end if;
-    data := postHttp(location, body);
+    data := postHttp(location, body, creds);
   end func;
+
+const func string: postHttp (in string: location, in hash [string] string: fields) is
+  return postHttp(location, fields, httpCreds.value);
