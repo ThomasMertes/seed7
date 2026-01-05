@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tiff.s7i      Support for the TIFF image file format.           *)
-(*  Copyright (C) 2022, 2023  Thomas Mertes                         *)
+(*  Copyright (C) 2022 - 2025  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -58,6 +58,8 @@ const integer: TIFF_TAG_ORIENTATION                is 16#0112;
 const integer: TIFF_TAG_SAMPLES_PER_PIXEL          is 16#0115;
 const integer: TIFF_TAG_ROWS_PER_STRIP             is 16#0116;
 const integer: TIFF_TAG_STRIP_BYTE_COUNTS          is 16#0117;
+const integer: TIFF_TAG_MIN_SAMPLE_VALUE           is 16#0118;
+const integer: TIFF_TAG_MAX_SAMPLE_VALUE           is 16#0119;
 const integer: TIFF_TAG_X_RESOLUTION               is 16#011a;
 const integer: TIFF_TAG_Y_RESOLUTION               is 16#011b;
 const integer: TIFF_TAG_PLANAR_CONFIGURATION       is 16#011c;
@@ -74,17 +76,31 @@ const integer: TIFF_TAG_ARTIST                     is 16#013b;
 const integer: TIFF_TAG_HOST_COMPUTER              is 16#013c;
 const integer: TIFF_TAG_PREDICTOR                  is 16#013d;
 const integer: TIFF_TAG_WHITE_POINT                is 16#013e;
+const integer: TIFF_TAG_PRIMARY_CHROMATICITIES     is 16#013f;
 const integer: TIFF_TAG_COLOR_MAP                  is 16#0140;
 const integer: TIFF_TAG_TILE_WIDTH                 is 16#0142;
 const integer: TIFF_TAG_TILE_LENGTH                is 16#0143;
 const integer: TIFF_TAG_TILE_OFFSETS               is 16#0144;
 const integer: TIFF_TAG_TILE_BYTE_COUNTS           is 16#0145;
 const integer: TIFF_TAG_BAD_FAX_LINES              is 16#0146;
+const integer: TIFF_TAG_CLEAN_FAX_DATA             is 16#0147;
+const integer: TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES  is 16#0148;
+const integer: TIFF_TAG_DOT_RANGE                  is 16#0150;
 const integer: TIFF_TAG_EXTRA_SAMPLES              is 16#0152;
 const integer: TIFF_TAG_SAMPLE_FORMAT              is 16#0153;
 const integer: TIFF_TAG_JPEG_TABLES                is 16#015b;
+const integer: TIFF_TAG_JPEG_PROC                  is 16#0200;
+const integer: TIFF_TAG_JPG_FROM_RAW_START         is 16#0201;
+const integer: TIFF_TAG_JPG_FROM_RAW_LENGTH        is 16#0202;
+const integer: TIFF_TAG_JPEG_RESTART_INTERVAL      is 16#0203;
+const integer: TIFF_TAG_JPEG_Q_TABLES              is 16#0207;
+const integer: TIFF_TAG_JPEG_DC_TABLES             is 16#0208;
+const integer: TIFF_TAG_JPEG_AC_TABLES             is 16#0209;
+const integer: TIFF_TAG_Y_CB_CR_COEFFICIENTS       is 16#0211;
 const integer: TIFF_TAG_Y_CB_CR_SUB_SAMPLING       is 16#0212;
+const integer: TIFF_TAG_Y_CB_CR_POSITIONING        is 16#0213;
 const integer: TIFF_TAG_REFERENCE_BLACK_WHITE      is 16#0214;
+const integer: TIFF_TAG_APPLICATION_NOTES          is 16#02bc;
 
 const integer: TIFF_FIELD_BYTE      is  1;  # 8-bit unsigned integer.
 const integer: TIFF_FIELD_ASCII     is  2;  # 8-bit byte that contains a 7-bit ASCII code; the last byte must be NUL (binary zero).
@@ -104,6 +120,7 @@ const integer: TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3 is     2;
 const integer: TIFF_COMPRESSION_CCITT_T4               is     3;
 const integer: TIFF_COMPRESSION_CCITT_T6               is     4;
 const integer: TIFF_COMPRESSION_LEMPEL_ZIV_WELCH       is     5;
+const integer: TIFF_COMPRESSION_OLD_JPEG               is     6;
 const integer: TIFF_COMPRESSION_JPEG                   is     7;
 const integer: TIFF_COMPRESSION_DEFLATE                is     8;
 const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
@@ -115,6 +132,8 @@ const integer: TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO     is 1;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_RGB               is 2;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_PALETTE_COLOR     is 3;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_TRANSPARENCY_MASK is 4;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_CMYK              is 5;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr             is 6;
 
 const integer: TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT is 1;
 const integer: TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT is 2;
@@ -135,11 +154,14 @@ const type: tiffHeader is new struct
     var integer: rowsPerStrip is pred(2 ** 32);   # Default in the TIFF 6.0 specification
     var array integer: stripOffsets is 0 times 0;
     var array integer: stripByteCounts is 0 times 0;
+    var array integer: tileOffsets is 0 times 0;
+    var array integer: tileByteCounts is 0 times 0;
     var integer: orientation is 0;
     var integer: offsetToFirstIfd is 0;
     var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
     var tiffStringTagValues: stringTagValues is tiffStringTagValues.value;
     var colorLookupTable: colorMap is colorLookupTable.value;
+    var integer: bitsPerPixel is 0;
   end struct;
 
 
@@ -202,6 +224,8 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_SAMPLES_PER_PIXEL}:          stri := "TIFF_TAG_SAMPLES_PER_PIXEL";
       when {TIFF_TAG_ROWS_PER_STRIP}:             stri := "TIFF_TAG_ROWS_PER_STRIP";
       when {TIFF_TAG_STRIP_BYTE_COUNTS}:          stri := "TIFF_TAG_STRIP_BYTE_COUNTS";
+      when {TIFF_TAG_MIN_SAMPLE_VALUE}:           stri := "TIFF_TAG_MIN_SAMPLE_VALUE";
+      when {TIFF_TAG_MAX_SAMPLE_VALUE}:           stri := "TIFF_TAG_MAX_SAMPLE_VALUE";
       when {TIFF_TAG_X_RESOLUTION}:               stri := "TIFF_TAG_X_RESOLUTION";
       when {TIFF_TAG_Y_RESOLUTION}:               stri := "TIFF_TAG_Y_RESOLUTION";
       when {TIFF_TAG_PLANAR_CONFIGURATION}:       stri := "TIFF_TAG_PLANAR_CONFIGURATION";
@@ -218,17 +242,31 @@ const func string: tagName (in integer: tag) is func
       when {TIFF_TAG_HOST_COMPUTER}:              stri := "TIFF_TAG_HOST_COMPUTER";
       when {TIFF_TAG_PREDICTOR}:                  stri := "TIFF_TAG_PREDICTOR";
       when {TIFF_TAG_WHITE_POINT}:                stri := "TIFF_TAG_WHITE_POINT";
+      when {TIFF_TAG_PRIMARY_CHROMATICITIES}:     stri := "TIFF_TAG_PRIMARY_CHROMATICITIES";
       when {TIFF_TAG_COLOR_MAP}:                  stri := "TIFF_TAG_COLOR_MAP";
       when {TIFF_TAG_TILE_WIDTH}:                 stri := "TIFF_TAG_TILE_WIDTH";
       when {TIFF_TAG_TILE_LENGTH}:                stri := "TIFF_TAG_TILE_LENGTH";
       when {TIFF_TAG_TILE_OFFSETS}:               stri := "TIFF_TAG_TILE_OFFSETS";
       when {TIFF_TAG_TILE_BYTE_COUNTS}:           stri := "TIFF_TAG_TILE_BYTE_COUNTS";
       when {TIFF_TAG_BAD_FAX_LINES}:              stri := "TIFF_TAG_BAD_FAX_LINES";
+      when {TIFF_TAG_CLEAN_FAX_DATA}:             stri := "TIFF_TAG_CLEAN_FAX_DATA";
+      when {TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES}:  stri := "TIFF_TAG_CONSECUTIVE_BAD_FAX_LINES";
+      when {TIFF_TAG_DOT_RANGE}:                  stri := "TIFF_TAG_DOT_RANGE";
       when {TIFF_TAG_EXTRA_SAMPLES}:              stri := "TIFF_TAG_EXTRA_SAMPLES";
       when {TIFF_TAG_SAMPLE_FORMAT}:              stri := "TIFF_TAG_SAMPLE_FORMAT";
       when {TIFF_TAG_JPEG_TABLES}:                stri := "TIFF_TAG_JPEG_TABLES";
+      when {TIFF_TAG_JPEG_PROC}:                  stri := "TIFF_TAG_JPEG_PROC";
+      when {TIFF_TAG_JPG_FROM_RAW_START}:         stri := "TIFF_TAG_JPG_FROM_RAW_START";
+      when {TIFF_TAG_JPG_FROM_RAW_LENGTH}:        stri := "TIFF_TAG_JPG_FROM_RAW_LENGTH";
+      when {TIFF_TAG_JPEG_RESTART_INTERVAL}:      stri := "TIFF_TAG_JPEG_RESTART_INTERVAL";
+      when {TIFF_TAG_JPEG_Q_TABLES}:              stri := "TIFF_TAG_JPEG_Q_TABLES";
+      when {TIFF_TAG_JPEG_DC_TABLES}:             stri := "TIFF_TAG_JPEG_DC_TABLES";
+      when {TIFF_TAG_JPEG_AC_TABLES}:             stri := "TIFF_TAG_JPEG_AC_TABLES";
+      when {TIFF_TAG_Y_CB_CR_COEFFICIENTS}:       stri := "TIFF_TAG_Y_CB_CR_COEFFICIENTS";
       when {TIFF_TAG_Y_CB_CR_SUB_SAMPLING}:       stri := "TIFF_TAG_Y_CB_CR_SUB_SAMPLING";
+      when {TIFF_TAG_Y_CB_CR_POSITIONING}:        stri := "TIFF_TAG_Y_CB_CR_POSITIONING";
       when {TIFF_TAG_REFERENCE_BLACK_WHITE}:      stri := "TIFF_TAG_REFERENCE_BLACK_WHITE";
+      when {TIFF_TAG_APPLICATION_NOTES}:          stri := "TIFF_TAG_APPLICATION_NOTES";
       otherwise: writeln(" **** Unknown tag: " <& tag radix 16 lpad0 4);
     end case;
   end func;
@@ -331,10 +369,10 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
         if length(rationalStri) = 8 then
           if header.littleEndian then
             numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
-            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, LE);
+            denominator := bytes2Int(rationalStri[5 fixLen 4], UNSIGNED, LE);
           else
             numerator   := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
-            denominator := bytes2Int(rationalStri[1 fixLen 4], UNSIGNED, BE);
+            denominator := bytes2Int(rationalStri[5 fixLen 4], UNSIGNED, BE);
           end if;
           stri := numerator <& "/" <& denominator;
         else
@@ -594,10 +632,10 @@ const proc: readColorMap (inout tiffHeader: header) is func
   end func;
 
 
-const proc: predictor (in tiffHeader: header, inout string: stripData) is func
+const proc: predictor (in tiffHeader: header, inout string: stripData,
+    in integer: height, in integer: width) is func
   local
     var integer: delta is 1;
-    var integer: linesInStrip is 0;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -605,15 +643,35 @@ const proc: predictor (in tiffHeader: header, inout string: stripData) is func
     if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
       delta := header.samplesPerPixel;
     end if;
-    linesInStrip := (length(stripData) div header.width) div delta;
-    for line range 1 to linesInStrip do
-      index := pred(line) * delta * header.width + succ(delta);
-      for column range succ(delta) to delta * header.width do
+    for line range 1 to height do
+      index := pred(line) * delta * width + succ(delta);
+      for column range succ(delta) to delta * width do
         stripData @:= [index] char((ord(stripData[index - delta]) +
                                     ord(stripData[index])) mod 256);
         incr(index);
       end for;
     end for;
+  end func;
+
+
+const proc: removeUnusedData (inout string: stripData,
+    in integer: bytesPerLine, in integer: bytesPerTileLine) is func
+  local
+    var integer: destIndex is 0;
+    var integer: sourceIndex is 0;
+    var integer: maxSourceIndex is 0;
+    var integer: pos1 is 0;
+    var integer: pos2 is 0;
+  begin
+    destIndex := succ(bytesPerLine);
+    sourceIndex := succ(bytesPerTileLine);
+    maxSourceIndex := succ(length(stripData) - bytesPerTileLine);
+    while sourceIndex <= maxSourceIndex do
+      stripData @:= [destIndex] stripData[sourceIndex len bytesPerLine];
+      destIndex +:= bytesPerLine;
+      sourceIndex +:= bytesPerTileLine;
+    end while;
+    stripData := stripData[.. pred(destIndex)];
   end func;
 
 
@@ -638,9 +696,6 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
         when {JPEG_DHT}:
           # writeln("DHT");
           readDefineHuffmanTable(jpegFile, header);
-        when {JPEG_DQT}:
-          # writeln("DQT");
-          readDefineQuantizationTable(jpegFile, header);
         when {JPEG_EOI}:
           # writeln("EOI");
           # End Of Image
@@ -653,16 +708,44 @@ const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
             raise RANGE_ERROR;
           else
             setupQuantization(header);
+            # showHeader(header);
             loadImage(jpegFile, header, image);
           end if;
           segmentMarker := jpegFile.bufferChar;
           readMarker := FALSE;
+        when {JPEG_DQT}:
+          # writeln("DQT");
+          readDefineQuantizationTable(jpegFile, header);
+        when {JPEG_DRI}:
+          # writeln("DRI");
+          readDefineRestartInterval(jpegFile, header);
+        when {JPEG_APP0 .. JPEG_APP15}:
+          # writeln("APP");
+          readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0), header);
+        when {JPEG_COM}:
+          # writeln("COM");
+          readComment(jpegFile);
+        when {JPEG_FILLER}:
+          # writeln("FILLER");
+          # Fill byte (16#ff), which is ignored.
+          segmentMarker := getc(jpegFile);
+          readMarker := FALSE;
+        when {JPEG_RST0 .. JPEG_RST7}:
+          # writeln("RST");
+          # Ignore superfluous restart marker after the last ECS segment.
+          noop;
         otherwise:
-          writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
+          # writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
           raise RANGE_ERROR;
       end case;
-      if readMarker and getc(jpegFile) <> JPEG_MARKER_START then
-        raise RANGE_ERROR;
+      if readMarker then
+        if eof(jpegFile) then
+          endOfImage := TRUE;
+        elsif getc(jpegFile) <> JPEG_MARKER_START then
+          raise RANGE_ERROR;
+        end if;
+      elsif segmentMarker = EOF then
+        endOfImage := TRUE;
       end if;
     until endOfImage;
   end func;
@@ -675,16 +758,21 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
   local
     var jpegHeader: jpegHead is jpegHeader.value;
     var string: jpegTables is "";
-    var integer: stripOffset is 0;
-    var integer: stripIndex is 0;
-    var integer: stripByteCount is 0;
+    var integer: offset is 0;
+    var integer: index is 0;
+    var integer: byteCount is 0;
     var string: stripData is "";
     var integer: insertPos is 1;
     var pixelImage: subImage is pixelImage.value;
     var pixelImage: image is pixelImage.value;
+    var integer: line is 0;
   begin
     jpegHead.width := header.width;
-    jpegHead.height := header.height;
+    if header.rowsPerStrip <> 0 and header.rowsPerStrip < header.height then
+      jpegHead.height := header.rowsPerStrip;
+    else
+      jpegHead.height := header.height;
+    end if;
     if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
       jpegHead.horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
       jpegHead.vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
@@ -701,19 +789,247 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
         processJpegSegments(jpegTables, jpegHead, subImage);
       end if;
     end if;
-    for stripOffset key stripIndex range header.stripOffsets do
-      stripByteCount := header.stripByteCounts[stripIndex];
-      seek(tiffFile, succ(stripOffset));
-      stripData := gets(tiffFile, stripByteCount);
-      if length(stripData) = stripByteCount then
-        # writeln("stripData: " <& hex(stripData));
-        if startsWith(stripData, JPEG_MAGIC) then
-          processJpegSegments(stripData, jpegHead, subImage);
-          insert(image, insertPos, subImage);
-          insertPos +:= length(subImage);
+    if length(header.stripOffsets) <> 0 then
+      for offset key index range header.stripOffsets do
+        byteCount := header.stripByteCounts[index];
+        seek(tiffFile, succ(offset));
+        stripData := gets(tiffFile, byteCount);
+        if length(stripData) = byteCount then
+          # writeln("stripData: " <& hex(stripData));
+          if startsWith(stripData, JPEG_MAGIC) then
+            processJpegSegments(stripData, jpegHead, subImage);
+            insert(image, insertPos, subImage);
+            insertPos +:= length(subImage);
+          end if;
         end if;
-      end if;
+      end for;
+    else
+      for offset key index range header.tileOffsets do
+        byteCount := header.tileByteCounts[index];
+        seek(tiffFile, succ(offset));
+        stripData := gets(tiffFile, byteCount);
+        if length(stripData) = byteCount then
+          # writeln("stripData: " <& hex(stripData));
+          if startsWith(stripData, JPEG_MAGIC) then
+            processJpegSegments(stripData, jpegHead, subImage);
+            if length(image) = 0 or length(image) < insertPos then
+              insert(image, insertPos, subImage);
+            else
+              for key line range subImage do
+                insert(image[pred(insertPos + line)],
+                       succ(length(image[pred(insertPos + line)])),
+                       subImage[line]);
+              end for;
+            end if;
+            if length(image[insertPos]) >= header.width then
+              insertPos +:= length(subImage);
+            end if;
+          end if;
+        end if;
+      end for;
+    end if;
+    if header.orientation > EXIF_ORIENTATION_NORMAL and
+        header.orientation < EXIF_ORIENTATION_UNDEFINED then
+      changeOrientation(image, header.orientation);
+    end if;
+    pixmap := getPixmap(image);
+  end func;
+
+
+const proc: setupJpegHeader (inout jpegHeader: header) is func
+  local
+    const integer: numComponents is 3;
+    var integer: componentId is 0;
+  begin
+    header.precision := 8;
+    header.component := jpegComponentArray[.. numComponents] times jpegComponent.value;
+    for componentId range 1 to numComponents do
+      header.componentType @:= [componentId] componentId;
+      header.component[componentId].quantizationTableIndex := componentId;
     end for;
+    header.numberOfScans := numComponents;
+    header.scan := jpegScanArray[.. header.numberOfScans] times jpegScan.value;
+    for componentId range 1 to header.numberOfScans do
+      header.scan[componentId].componentId := componentId;
+      header.scan[componentId].dcHuffmanTableIndex := componentId;
+      header.scan[componentId].acHuffmanTableIndex := componentId;
+    end for;
+    header.startOfSpectral := 1;
+    header.endOfSpectral := 64;
+    header.approximationHigh := 0;
+    header.approximationLow := 0;
+    setupQuantization(header);
+    # showHeader(header);
+  end func;
+
+
+const proc: loadJpegSegment (in string: jpegData, inout jpegHeader: header,
+    inout pixelImage: image) is func
+  local
+    var file: jpegFile is STD_NULL;
+  begin
+    jpegFile := openStriFile(jpegData);
+    loadImage(jpegFile, header, image);
+  end func;
+
+
+const proc: assignDecoder (in string: stri, inout file: tiffFile,
+    inout msbHuffmanDecoder: decoder) is func
+  local
+    var integer: pos is 1;
+    var array integer: numberOfCodesWithLength is 16 times 0;
+    var integer: maximumCodeLength is 0;
+    var string: huffmanValues is "";
+    var integer: numberOfCodes is 0;
+    var integer: codeLength is 0;
+  begin
+    for codeLength range 1 to 16 do
+      numberOfCodesWithLength[codeLength] := ord(stri[pos]);
+      incr(pos);
+      if numberOfCodesWithLength[codeLength] <> 0 then
+        maximumCodeLength := codeLength;
+      end if;
+      numberOfCodes +:= numberOfCodesWithLength[codeLength];
+    end for;
+    huffmanValues := gets(tiffFile, numberOfCodes);
+    if length(huffmanValues) = numberOfCodes then
+      decoder := createMsbHuffmanDecoder(maximumCodeLength,
+          numberOfCodesWithLength, huffmanValues);
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readOldJpeg (inout file: tiffFile,
+    in tiffHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var jpegHeader: jpegHead is jpegHeader.value;
+    var integer: offset is 0;
+    var integer: tableNumber is 0;
+    var integer: index is 0;
+    var integer: dataStart is 0;
+    var integer: dataLength is 0;
+    var string: rawData is "";
+    var boolean: stripOverlaps is FALSE;
+    var integer: stripOffset is 0;
+    var integer: stripIndex is 0;
+    var integer: stripByteCount is 0;
+    var string: stripData is "";
+    var integer: insertPos is 1;
+    var pixelImage: subImage is pixelImage.value;
+    var pixelImage: image is pixelImage.value;
+  begin
+    jpegHead.width := header.width;
+    if header.rowsPerStrip <> 0 and header.rowsPerStrip < header.height then
+      jpegHead.height := header.rowsPerStrip;
+    else
+      jpegHead.height := header.height;
+    end if;
+    # writeln("jpegHead.height: " <& jpegHead.height);
+    if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
+      jpegHead.horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
+      jpegHead.vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
+    else
+      jpegHead.horizontal := 1;
+      jpegHead.vertical := 1;
+    end if;
+    jpegHead.numLuma := jpegHead.vertical * jpegHead.horizontal;
+    jpegHead.unitLines := succ(pred(jpegHead.height) mdiv (8 * jpegHead.vertical));
+    jpegHead.unitColumns := succ(pred(jpegHead.width) mdiv (8 * jpegHead.horizontal));
+    if TIFF_TAG_JPEG_Q_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_Q_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, JPEG_BLOCK_SIZE);
+        # writeln("Q table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = JPEG_BLOCK_SIZE then
+          for index range 1 to JPEG_BLOCK_SIZE do
+            jpegHead.quantizationTable[tableNumber][index] := ord(rawData[index]);
+          end for;
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPEG_DC_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_DC_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, 16);
+        # writeln("DC table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = 16 then
+          assignDecoder(rawData, tiffFile, jpegHead.dcDecoder[tableNumber]);
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPEG_AC_TABLES in header.integerTagValues then
+      for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_AC_TABLES] do
+        seek(tiffFile, succ(offset));
+        rawData := gets(tiffFile, 16);
+        # writeln("AC table " <& tableNumber <&  ": " <& length(rawData) <& " " <& hex(rawData));
+        if length(rawData) = 16 then
+          assignDecoder(rawData, tiffFile, jpegHead.acDecoder[tableNumber]);
+        end if;
+      end for;
+    end if;
+    if TIFF_TAG_JPG_FROM_RAW_START in header.integerTagValues and
+        TIFF_TAG_JPG_FROM_RAW_LENGTH in header.integerTagValues then
+      dataStart := header.integerTagValues[TIFF_TAG_JPG_FROM_RAW_START][1];
+      dataLength := header.integerTagValues[TIFF_TAG_JPG_FROM_RAW_LENGTH][1];
+      seek(tiffFile, succ(dataStart));
+      rawData := gets(tiffFile, dataLength);
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+        insertPos := succ(length(image));
+      end if;
+      for stripOffset range header.stripOffsets do
+        if stripOffset >= dataStart and stripOffset < dataStart + dataLength then
+          stripOverlaps := TRUE;
+        end if;
+      end for;
+      if not stripOverlaps then
+        jpegHead.height := header.rowsPerStrip;
+        for stripOffset key stripIndex range header.stripOffsets do
+          stripByteCount := header.stripByteCounts[stripIndex];
+          seek(tiffFile, succ(stripOffset));
+          stripData := gets(tiffFile, stripByteCount);
+          if length(stripData) = stripByteCount then
+            if pred(insertPos + header.rowsPerStrip) > header.height then
+              jpegHead.height := succ(header.height - insertPos);
+            end if;
+            if startsWith(stripData, "\16#ff;\16#da;") then
+              processJpegSegments("\16#ff;\16#d8;" & stripData, jpegHead, subImage);
+            else
+              loadJpegSegment(stripData, jpegHead, subImage);
+            end if;
+            insert(image, insertPos, subImage);
+            insertPos +:= length(subImage);
+          end if;
+        end for;
+      end if;
+    elsif length(header.stripOffsets) <> 0 then
+      for stripOffset key stripIndex range header.stripOffsets do
+        stripByteCount := header.stripByteCounts[stripIndex];
+        seek(tiffFile, succ(stripOffset));
+        stripData := gets(tiffFile, stripByteCount);
+        if length(stripData) = stripByteCount then
+          rawData &:= stripData;
+        end if;
+      end for;
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+      end if;
+    elsif length(header.tileOffsets) <> 0 then
+      dataStart := header.tileOffsets[1];
+      dataLength := header.tileByteCounts[1];
+      seek(tiffFile, succ(dataStart));
+      rawData := gets(tiffFile, dataLength);
+      # showHeader(jpegHead);
+      if startsWith(rawData, JPEG_MAGIC) then
+        processJpegSegments(rawData, jpegHead, image);
+      else
+        setupJpegHeader(jpegHead);
+        loadJpegSegment(rawData, jpegHead, image);
+      end if;
+    end if;
+
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
@@ -828,8 +1144,8 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
   end func;
 
 
-const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataStream,
-    in integer: line, inout pixelImage: image) is func
+const proc: processRow (in tiffHeader: header,
+    inout msbInBitStream: stripDataStream, inout pixelArray: imageLine) is func
   local
     var integer: bitsPerSample1 is 0;
     var pixel: whitePixel is pixel.value;
@@ -846,7 +1162,7 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
         bitsPerSample1 := header.bitsPerSample[1];
         if length(header.colorMap) <> 0 then
           for column range 1 to header.width do
-            image[line][column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
+            imageLine[column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
           end for;
         elsif bitsPerSample1 = 1 then
           if header.photometricInterpretation =
@@ -859,16 +1175,16 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
           end if;
           for column range 1 to header.width do
             if getBit(stripDataStream) = 0 then
-              image[line][column] := whitePixel;
+              imageLine[column] := whitePixel;
             else
-              image[line][column] := blackPixel;
+              imageLine[column] := blackPixel;
             end if;
           end for;
         else
           grayFactor := 65535 div pred(2 ** bitsPerSample1);
           for column range 1 to header.width do
             grayIntensity :=  getBits(stripDataStream, bitsPerSample1) * grayFactor;
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           end for;
         end if;
       when {3}:
@@ -876,9 +1192,19 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
         colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
         colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
         for column range 1 to header.width do
-          image[line][column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
-                                          getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
-                                          getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+          imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
+                                        getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
+                                        getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+        end for;
+      when {4}:
+        colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
+        colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
+        colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
+        for column range 1 to header.width do
+          imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
+                                        getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
+                                        getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+          ignore(getBits(stripDataStream, header.bitsPerSample[4]));
         end for;
       otherwise:
         raise RANGE_ERROR;
@@ -887,26 +1213,27 @@ const proc: processRow (in tiffHeader: header, inout msbInBitStream: stripDataSt
 
 
 const proc: processRowWithColorMap (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
-          image[line][column] := header.colorMap[ord(stripData[currPosition])];
+        for column range startColumn to endColumn do
+          imageLine[column] := header.colorMap[ord(stripData[currPosition])];
           incr(currPosition);
         end for;
       when {16}:
         if header.littleEndian then
-          for column range 1 to header.width do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, LE)];
+          for column range startColumn to endColumn do
+            imageLine[column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, LE)];
             currPosition +:= 2;
           end for;
         else
-          for column range 1 to header.width do
-            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE)];
+          for column range startColumn to endColumn do
+            imageLine[column] := header.colorMap[bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE)];
             currPosition +:= 2;
           end for;
         end if;
@@ -917,8 +1244,9 @@ const proc: processRowWithColorMap (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscale (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -927,24 +1255,24 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           grayIntensity := ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
         positionIncrement := header.bitsPerSample[1] mdiv 8;
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -955,8 +1283,9 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -965,24 +1294,24 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           incr(currPosition);
         end for;
       when {16, 24, 32, 64}:
         positionIncrement := header.bitsPerSample[1] mdiv 8;
         positionDelta := positionIncrement - 2;
         if header.littleEndian then
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -993,8 +1322,9 @@ const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1003,24 +1333,24 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           grayIntensity := ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
         positionIncrement := header.bitsPerSample[1] mdiv 4;
         positionDelta := header.bitsPerSample[1] mdiv 8 - 2;
         if header.littleEndian then
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1031,8 +1361,9 @@ const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
 
 
 const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1041,24 +1372,24 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
-          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           currPosition +:= 2;
         end for;
       when {16, 24, 32}:
         positionIncrement := header.bitsPerSample[1] mdiv 4;
         positionDelta := header.bitsPerSample[1] mdiv 8 - 2;
         if header.littleEndian then
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         else
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity := 65535 - bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1069,8 +1400,9 @@ const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
 
 
 const proc: processRowWithRGB (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -1080,10 +1412,10 @@ const proc: processRowWithRGB (in tiffHeader: header,
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
-          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                          ord(stripData[succ(currPosition)]) * 256,
-                                          ord(stripData[currPosition + 2]) * 256);
+        for column range startColumn to endColumn do
+          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                        ord(stripData[succ(currPosition)]) * 256,
+                                        ord(stripData[currPosition + 2]) * 256);
           currPosition +:= 3;
         end for;
       when {16, 24, 32, 64}:
@@ -1092,19 +1424,19 @@ const proc: processRowWithRGB (in tiffHeader: header,
           deltaRed := header.bitsPerSample[1] mdiv 8 - 2;
           deltaGreen := deltaRed + header.bitsPerSample[1] mdiv 8;
           deltaBlue := deltaGreen + header.bitsPerSample[1] mdiv 8;
-          for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
+          for column range startColumn to endColumn do
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
             currPosition +:= positionIncrement;
           end for;
         else
           deltaGreen := header.bitsPerSample[1] mdiv 8;
           deltaBlue := 2 * deltaGreen;
-          for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
+          for column range startColumn to endColumn do
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
             currPosition +:= positionIncrement;
           end for;
         end if;
@@ -1115,32 +1447,74 @@ const proc: processRowWithRGB (in tiffHeader: header,
 
 
 const proc: processRowWithRGBA (in tiffHeader: header,
-    in string: stripData, inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
   begin
     case header.bitsPerSample[1] of
       when {8}:
-        for column range 1 to header.width do
-          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                          ord(stripData[succ(currPosition)]) * 256,
-                                          ord(stripData[currPosition + 2]) * 256);
+        for column range startColumn to endColumn do
+          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                        ord(stripData[succ(currPosition)]) * 256,
+                                        ord(stripData[currPosition + 2]) * 256);
           currPosition +:= 4;
         end for;
       when {16}:
         if header.littleEndian then
-          for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
-                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
+          for column range startColumn to endColumn do
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
+                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
             currPosition +:= 8;
           end for;
         else
-          for column range 1 to header.width do
-            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
-                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
+          for column range startColumn to endColumn do
+            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
+                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
+            currPosition +:= 8;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithCMYK (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
+  local
+    var integer: column is 0;
+    var integer: inverseBlack is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range startColumn to endColumn do
+          inverseBlack := 255 - ord(stripData[currPosition + 3]);
+          imageLine[column] := rgbPixel((255 - ord(stripData[currPosition]))       * inverseBlack,
+                                        (255 - ord(stripData[succ(currPosition)])) * inverseBlack,
+                                        (255 - ord(stripData[currPosition + 2]))   * inverseBlack);
+          currPosition +:= 4;
+        end for;
+      when {16}:
+        if header.littleEndian then
+          for column range startColumn to endColumn do
+            inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, LE);
+            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16);
+            currPosition +:= 8;
+          end for;
+        else
+          for column range startColumn to endColumn do
+            inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, BE);
+            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16);
             currPosition +:= 8;
           end for;
         end if;
@@ -1151,58 +1525,70 @@ const proc: processRowWithRGBA (in tiffHeader: header,
 
 
 const proc: processRow (in tiffHeader: header, in string: stripData,
-    inout integer: currPosition, in integer: line,
-    inout pixelImage: image) is func
+    inout integer: currPosition, in integer: startColumn,
+    in integer: endColumn, inout pixelArray: imageLine) is func
   begin
-    # writeln("line: " <& line);
     case header.samplesPerPixel of
       when {1}:
         if length(header.colorMap) <> 0 then
-          processRowWithColorMap(header, stripData,
-                                 currPosition, line, image);
+          processRowWithColorMap(header, stripData, currPosition,
+                                 startColumn, endColumn, imageLine);
+        elsif header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+          processRowWithGrayscale(header, stripData, currPosition,
+                                  startColumn, endColumn, imageLine);
+        elsif header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+          processRowWithGrayscaleReversed(header, stripData,
+                                          currPosition, startColumn,
+                                          endColumn, imageLine);
         else
-          if header.photometricInterpretation =
-              TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-            processRowWithGrayscale(header, stripData,
-                                    currPosition, line, image);
-          elsif header.photometricInterpretation =
-              TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-            processRowWithGrayscaleReversed(header, stripData,
-                                            currPosition, line, image);
-          else
-            raise RANGE_ERROR;
-          end if;
+          raise RANGE_ERROR;
         end if;
       when {2}:
         if header.photometricInterpretation =
             TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-          processRowWithGrayscaleAlpha(header, stripData,
-                                       currPosition, line, image);
+          processRowWithGrayscaleAlpha(header, stripData, currPosition,
+                                       startColumn, endColumn, imageLine);
         elsif header.photometricInterpretation =
             TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
           processRowWithGrayscaleAlphaReversed(header, stripData,
-                                               currPosition, line, image);
+                                               currPosition, startColumn,
+                                               endColumn, imageLine);
         else
           raise RANGE_ERROR;
         end if;
       when {3}:
-        processRowWithRGB(header, stripData,
-                          currPosition, line, image);
+        processRowWithRGB(header, stripData, currPosition,
+                          startColumn, endColumn, imageLine);
       when {4}:
-        processRowWithRGBA(header, stripData,
-                           currPosition, line, image);
+        if header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_CMYK then
+          processRowWithCMYK(header, stripData, currPosition,
+                             startColumn, endColumn, imageLine);
+        else
+          processRowWithRGBA(header, stripData, currPosition,
+                             startColumn, endColumn, imageLine);
+        end if;
       otherwise:
         raise RANGE_ERROR;
     end case;
   end func;
 
 
-const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
-    in integer: rowsInCurrentStrip) is func
+const proc: decompressStripOrTile (in tiffHeader: header,
+    inout string: stripData, in integer: height, in integer: width,
+    in integer: tileWidth) is func
   local
+    var integer: bytesPerLine is 0;
+    var integer: bytesPerTileLine is 0;
     var integer: requestedLength is 0;
   begin
+    bytesPerLine := succ(pred(width * header.bitsPerPixel) mdiv 8);
+    bytesPerTileLine := succ(pred(tileWidth * header.bitsPerPixel) mdiv 8);
     case header.compression of
+      when {TIFF_NO_COMPRESSION}:
+        noop;
       when {TIFF_COMPRESSION_PACK_BITS}:
         stripData := fromPackBits(stripData);
       when {TIFF_COMPRESSION_LEMPEL_ZIV_WELCH}:
@@ -1210,25 +1596,21 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
           # Old style LZW encoded
           stripData := lzwDecompressLsb(stripData, 8);
         else
-          if rowsInCurrentStrip <> 0 then
-            if header.samplesPerPixel = 1 then
-              requestedLength := rowsInCurrentStrip *
-                  succ(pred(header.width * header.bitsPerSample[1]) mdiv 8);
-            else
-              requestedLength := rowsInCurrentStrip * header.width * header.samplesPerPixel;
-            end if;
-            stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
-          else
-            stripData := lzwDecompressMsbEarlyChange(stripData, 8);
-          end if;
+          requestedLength := height * bytesPerTileLine;
+          stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
         end if;
       when {TIFF_COMPRESSION_DEFLATE,
             TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
         stripData := gzuncompress(stripData);
+      otherwise:
+        raise RANGE_ERROR;
     end case;
+    if bytesPerLine * height <> length(stripData) and width < tileWidth then
+      removeUnusedData(stripData, bytesPerLine, bytesPerTileLine);
+    end if;
     if TIFF_TAG_PREDICTOR in header.integerTagValues and
         header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
-      predictor(header, stripData);
+      predictor(header, stripData, height, width);
     end if;
   end func;
 
@@ -1365,88 +1747,162 @@ const proc: readThunderScan (in tiffHeader: header, in string: stripData,
   end func;
 
 
+const proc: readTiffStripOrTile (inout file: tiffFile,
+    inout tiffHeader: header, in integer: offset, in integer: byteCount,
+    in integer: numberOfRows, inout integer: currentRow,
+    inout integer: tileStartColumn, inout integer: tileEndColumn,
+    inout pixelImage: image) is func
+  local
+    var string: stripData is "";
+    var integer: currPosition is 1;
+    var integer: rowsInCurrentStrip is 0;
+    var integer: tileWidth is 0;
+    var integer: rowIndex is 0;
+    var integer: tileStartRow is 1;
+    var msbInBitStream: stripDataStream is msbInBitStream.value;
+  begin
+    seek(tiffFile, succ(offset));
+    stripData := gets(tiffFile, byteCount);
+    # writeln("length(stripData): " <& length(stripData));
+    if length(stripData) = byteCount then
+      if header.height - currentRow + 1 >= numberOfRows then
+        rowsInCurrentStrip := numberOfRows;
+      else
+        rowsInCurrentStrip := header.height - currentRow + 1;
+      end if;
+      if TIFF_TAG_TILE_WIDTH in header.integerTagValues then
+        tileWidth := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+      else
+        tileWidth := header.width;
+      end if;
+      case header.compression of
+        when {TIFF_NO_COMPRESSION,
+              TIFF_COMPRESSION_PACK_BITS,
+              TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
+              TIFF_COMPRESSION_DEFLATE,
+              TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+          decompressStripOrTile(header, stripData, rowsInCurrentStrip,
+                                succ(tileEndColumn - tileStartColumn),
+                                tileWidth);
+          if header.bitsPerSample[1] mod 8 <> 0 then
+            stripDataStream := openMsbInBitStream(stripData);
+            for rowIndex range 1 to rowsInCurrentStrip do
+              # writeln("rowIndex: " <& rowIndex);
+              # writeln("currentRow: " <& currentRow);
+              processRow(header, stripDataStream, image[currentRow]);
+              ignore(gets(stripDataStream, 0));
+              incr(currentRow);
+            end for;
+          elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
+                TIFF_TAG_TILE_LENGTH in header.integerTagValues then
+            # writeln("currentRow: " <& currentRow);
+            # writeln("tileStartColumn: " <& tileStartColumn);
+            currPosition := 1;
+            tileStartRow := currentRow;
+            for rowIndex range 1 to rowsInCurrentStrip do
+              # writeln("rowIndex: " <& rowIndex);
+              processRow(header, stripData, currPosition,
+                         tileStartColumn, tileEndColumn, image[tileStartRow]);
+              incr(tileStartRow);
+            end for;
+            tileStartColumn := succ(tileEndColumn);
+            if tileStartColumn <= header.width then
+              if tileStartColumn + tileWidth - 1 <= header.width then
+                tileEndColumn := tileStartColumn + tileWidth - 1;
+              else
+                tileEndColumn := header.width;
+              end if;
+            else
+              currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
+              tileStartColumn := 1;
+              if header.width >= tileWidth then
+                tileEndColumn := tileWidth;
+              else
+                tileEndColumn := header.width;
+              end if;
+            end if;
+          else
+            currPosition := 1;
+            for rowIndex range 1 to rowsInCurrentStrip do
+              processRow(header, stripData, currPosition,
+                         1, header.width, image[currentRow]);
+              incr(currentRow);
+            end for;
+          end if;
+        when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
+          processCcittModifiedGroup3Fax(header, stripData, currentRow,
+                                        rowsInCurrentStrip, image);
+          currentRow +:= rowsInCurrentStrip;
+        when {TIFF_COMPRESSION_CCITT_T4}:
+          if TIFF_TAG_CCITT_T4_OPTIONS not in header.integerTagValues or
+              not odd(header.integerTagValues[TIFF_TAG_CCITT_T4_OPTIONS][1]) then
+            processCcittT4Fax1d(header, stripData, currentRow,
+                                rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          else
+            processCcittT4Fax2d(header, stripData, currentRow,
+                                rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          end if;
+        when {TIFF_COMPRESSION_CCITT_T6}:
+          processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
+          currentRow +:= rowsInCurrentStrip;
+        when {TIFF_COMPRESSION_THUNDERSCAN}:
+          readThunderScan(header, stripData, currentRow, image);
+          currentRow +:= rowsInCurrentStrip;
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
 const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     inout tiffHeader: header) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
-    var integer: stripOffset is 0;
-    var integer: stripIndex is 0;
-    var integer: lastFullStripIndex is 0;
-    var integer: stripByteCount is 0;
-    var string: stripData is "";
-    var integer: rowsInCurrentStrip is 0;
-    var integer: rowIndex is 0;
-    var integer: currPosition is 1;
+    var integer: offset is 0;
+    var integer: index is 0;
     var integer: currentRow is 1;
-    var msbInBitStream: stripDataStream is msbInBitStream.value;
+    var integer: tileStartColumn is 1;
+    var integer: tileEndColumn is 1;
     var pixelImage: image is pixelImage.value;
   begin
     image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
-    lastFullStripIndex := header.height div header.rowsPerStrip;
     if header.photometricInterpretation =
         TIFF_PHOTOMETRIC_INTERPRETATION_PALETTE_COLOR and
         TIFF_TAG_COLOR_MAP in header.integerTagValues then
       readColorMap(header);
     end if;
-    for stripOffset key stripIndex range header.stripOffsets do
-      stripByteCount := header.stripByteCounts[stripIndex];
-      seek(tiffFile, succ(stripOffset));
-      stripData := gets(tiffFile, stripByteCount);
-      if length(stripData) = stripByteCount then
-        if stripIndex <= lastFullStripIndex then
-          rowsInCurrentStrip := header.rowsPerStrip;
-        else
-          rowsInCurrentStrip := header.height rem header.rowsPerStrip;
-        end if;
-        case header.compression of
-          when {TIFF_NO_COMPRESSION,
-                TIFF_COMPRESSION_PACK_BITS,
-                TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
-                TIFF_COMPRESSION_DEFLATE,
-                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
-            processDataStrip(header, stripData, rowsInCurrentStrip);
-            if header.bitsPerSample[1] mod 8 <> 0 then
-              stripDataStream := openMsbInBitStream(stripData);
-              for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripDataStream, currentRow, image);
-                ignore(gets(stripDataStream, 0));
-                incr(currentRow);
-              end for;
-            else
-              currPosition := 1;
-              for rowIndex range 1 to rowsInCurrentStrip do
-                processRow(header, stripData, currPosition, currentRow, image);
-                incr(currentRow);
-              end for;
-            end if;
-          when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
-            processCcittModifiedGroup3Fax(header, stripData, currentRow,
-                                          rowsInCurrentStrip, image);
-            currentRow +:= rowsInCurrentStrip;
-          when {TIFF_COMPRESSION_CCITT_T4}:
-            if TIFF_TAG_CCITT_T4_OPTIONS not in header.integerTagValues or
-                not odd(header.integerTagValues[TIFF_TAG_CCITT_T4_OPTIONS][1]) then
-              processCcittT4Fax1d(header, stripData, currentRow,
-                                  rowsInCurrentStrip, image);
-              currentRow +:= rowsInCurrentStrip;
-            else
-              processCcittT4Fax2d(header, stripData, currentRow,
-                                  rowsInCurrentStrip, image);
-              currentRow +:= rowsInCurrentStrip;
-            end if;
-          when {TIFF_COMPRESSION_CCITT_T6}:
-            processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
-            currentRow +:= rowsInCurrentStrip;
-          when {TIFF_COMPRESSION_THUNDERSCAN}:
-            readThunderScan(header, stripData, currentRow, image);
-            currentRow +:= rowsInCurrentStrip;
-        end case;
+    if TIFF_TAG_TILE_WIDTH in header.integerTagValues then
+      if header.width >= header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] then
+        tileEndColumn := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
       else
-        raise RANGE_ERROR;
+        tileEndColumn := header.width;
       end if;
-    end for;
+    else
+      tileEndColumn := header.width;
+    end if;
+    if length(header.stripOffsets) <> 0 then
+      for offset key index range header.stripOffsets do
+        # writeln("index: " <& index);
+        readTiffStripOrTile(tiffFile, header, offset,
+                            header.stripByteCounts[index],
+                            header.rowsPerStrip, currentRow,
+                            tileStartColumn, tileEndColumn, image);
+      end for;
+    else
+      for offset key index range header.tileOffsets do
+        # writeln("index: " <& index);
+        readTiffStripOrTile(tiffFile, header, offset,
+                            header.tileByteCounts[index],
+                            header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                            currentRow, tileStartColumn,
+                            tileEndColumn, image);
+      end for;
+    end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
@@ -1456,20 +1912,31 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
 
 
 const proc: processRow (in tiffHeader: header, in array string: stripData,
-    in integer: line, inout integer: currPosition,
-    inout pixelImage: image) is func
+    inout integer: currPosition, inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
     var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
   begin
-    if header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
+    if header.samplesPerPixel = 1 or header.samplesPerPixel = 2 then
       case header.bitsPerSample[1] of
         when {8}:
           for column range 1 to header.width do
-            image[line][column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
-                                            ord(stripData[2][currPosition]) * 256,
-                                            ord(stripData[3][currPosition]) * 256);
+            grayIntensity :=  ord(stripData[1][currPosition]) * 256;
+            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            incr(currPosition);
+          end for;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    elsif header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
+      case header.bitsPerSample[1] of
+        when {8}:
+          for column range 1 to header.width do
+            imageLine[column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
+                                          ord(stripData[2][currPosition]) * 256,
+                                          ord(stripData[3][currPosition]) * 256);
             incr(currPosition);
           end for;
         when {16, 24, 32, 64}:
@@ -1477,16 +1944,16 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
           positionDelta := positionIncrement - 2;
           if header.littleEndian then
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
-                                              bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
+              imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
               currPosition +:= positionIncrement;
             end for;
           else
             for column range 1 to header.width do
-              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
-                                              bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
+              imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
               currPosition +:= positionIncrement;
             end for;
           end if;
@@ -1533,7 +2000,8 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
           seek(tiffFile, succ(header.stripOffsets[stripIndex]));
           stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
           if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
-            processDataStrip(header, stripData[sampleIndex], 0);
+            decompressStripOrTile(header, stripData[sampleIndex],
+                                  header.rowsPerStrip, header.width, header.width);
           else
             raise RANGE_ERROR;
           end if;
@@ -1543,7 +2011,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
         incr(baseStripIndex);
         currPosition := 1;
       end if;
-      processRow(header, stripData, line, currPosition, image);
+      processRow(header, stripData, currPosition, image[line]);
     end for;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
@@ -1567,6 +2035,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
   local
     var string: magic is "";
     var tiffHeader: header is tiffHeader.value;
+    var integer: bits is 0;
   begin
     magic := gets(tiffFile, length(TIFF_MAGIC_LE));
     if magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
@@ -1608,9 +2077,18 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                                         (header.bitsPerSample[1] mdiv 8));
           # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
         end if;
+        if TIFF_TAG_TILE_OFFSETS in header.integerTagValues then
+          header.tileOffsets := header.integerTagValues[TIFF_TAG_TILE_OFFSETS];
+        end if;
+        if TIFF_TAG_TILE_BYTE_COUNTS in header.integerTagValues then
+          header.tileByteCounts := header.integerTagValues[TIFF_TAG_TILE_BYTE_COUNTS];
+        end if;
         if TIFF_TAG_ORIENTATION in header.integerTagValues then
           header.orientation := header.integerTagValues[TIFF_TAG_ORIENTATION][1];
         end if;
+        for bits range header.bitsPerSample do
+          header.bitsPerPixel +:= bits;
+        end for;
         # showHeader(header);
         case header.compression of
           when {TIFF_NO_COMPRESSION,
@@ -1627,6 +2105,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
             else
               pixmap := readTiffPlanarFormat(tiffFile, header);
             end if;
+          when {TIFF_COMPRESSION_OLD_JPEG}:
+            pixmap := readOldJpeg(tiffFile, header);
           when {TIFF_COMPRESSION_JPEG}:
             pixmap := readJpeg(tiffFile, header);
           otherwise:

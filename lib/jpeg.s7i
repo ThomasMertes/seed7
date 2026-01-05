@@ -120,6 +120,46 @@ const integer: CHROMA_BLUE is 1;
 const integer: CHROMA_RED  is 2;
 
 
+const proc: showHeader (in jpegHeader: header) is func
+  local
+    var integer: index is 0;
+    var integer: value is 0;
+  begin
+    writeln("precision: " <& header.precision);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("framebytes: " <& header.framebytes);
+    writeln("length(componentType): " <& length(header.componentType));
+    for value key index range header.componentType do
+      writeln("componentType[" <& index <& "]: " <& value);
+    end for;
+    writeln("length(component): " <& length(header.component));
+    for key index range header.component do
+      writeln("component[" <& index <& "].quantizationTableIndex: " <& header.component[index].quantizationTableIndex);
+    end for;
+    writeln("length(scan): " <& length(header.scan));
+    for key index range header.scan do
+      writeln("scan[" <& index <& "].componentId: " <& header.scan[index].componentId);
+      writeln("scan[" <& index <& "].dcHuffmanTableIndex: " <& header.scan[index].dcHuffmanTableIndex);
+      writeln("scan[" <& index <& "].acHuffmanTableIndex: " <& header.scan[index].acHuffmanTableIndex);
+    end for;
+    writeln("restartInterval: " <& header.restartInterval);
+    writeln("numberOfScans: " <& header.numberOfScans);
+    writeln("startOfSpectral: " <& header.startOfSpectral);
+    writeln("endOfSpectral: " <& header.endOfSpectral);
+    writeln("approximationLow: " <& header.approximationLow);
+    writeln("approximationHigh: " <& header.approximationHigh);
+    writeln("progressive: " <& header.progressive);
+    writeln("vertical: " <& header.vertical);
+    writeln("horizontal: " <& header.horizontal);
+    writeln("numLuma: " <& header.numLuma);
+    writeln("unitLines: " <& header.unitLines);
+    writeln("unitColumns: " <& header.unitColumns);
+    writeln("blockLines: " <& header.blockLines);
+    writeln("blockColumns: " <& header.blockColumns);
+  end func;
+
+
 const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is func
   local
     var string: stri is "";
@@ -416,7 +456,7 @@ const func integer: getSymbol (inout msbInBitStream: entropyCodedStream,
     var integer: symbol is 0;
   begin
     symbol := getBits(entropyCodedStream, bitWidth);
-    if symbol < 1 << pred(bitWidth) then
+    if symbol >> pred(bitWidth) = 0 then
       # Negative value
       symbol -:= pred(1 << bitWidth);
     end if;
@@ -979,10 +1019,10 @@ const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
           header.componentType[header.scan[3].componentId] <> JPEG_COMPTYPE_CHROMA_RED then
         raise RANGE_ERROR;
       end if;
-      dcCbIndex  := header.scan[2].dcHuffmanTableIndex;
-      acCbIndex  := header.scan[2].acHuffmanTableIndex;
-      dcCrIndex  := header.scan[3].dcHuffmanTableIndex;
-      acCrIndex  := header.scan[3].acHuffmanTableIndex;
+      dcCbIndex := header.scan[2].dcHuffmanTableIndex;
+      acCbIndex := header.scan[2].acHuffmanTableIndex;
+      dcCrIndex := header.scan[3].dcHuffmanTableIndex;
+      acCrIndex := header.scan[3].acHuffmanTableIndex;
       loadColorImage(jpegFile, header,
                      header.dcDecoder[dcLumaIndex], header.acDecoder[acLumaIndex],
                      header.dcDecoder[dcCbIndex], header.acDecoder[acCbIndex],
@@ -1656,9 +1696,11 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: jpegFile) is func
           when {JPEG_SOS}:
             readStartOfScan(jpegFile, header);
             if header.progressive then
+              # showHeader(header);
               loadProgressive(jpegFile, header, mcuImage);
             else
               setupQuantization(header);
+              # showHeader(header);
               pixmap := loadSequential(jpegFile, header);
             end if;
             segmentMarker := jpegFile.bufferChar;

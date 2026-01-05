@@ -164,8 +164,9 @@ const func string: hex2Bytes (in string: hex) is func
     if odd(length(hex)) then
       raise RANGE_ERROR;
     else
-      for index range 1 to length(hex) step 2 do
-        stri &:= char(integer(hex[index fixLen 2], 16));
+      stri := "\0;" mult length(hex) div 2;
+      for index range 1 to length(hex) div 2 do
+        stri @:= [index]  char(integer(hex[pred(2 * index) fixLen 2], 16));
       end for;
     end if;
   end func;

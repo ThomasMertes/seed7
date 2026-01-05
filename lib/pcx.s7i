@@ -1,0 +1,637 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pcx.s7i       Support for the PCX image file format.            *)
+(*  Copyright (C) 2025  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "draw.s7i";
+include "bytedata.s7i";
+include "pixelimage.s7i";
+include "color.s7i";
+
+
+const string: PCX_MAGIC_START is "\10;";
+
+const integer: PCX_MAGIC_SIZE is 3;
+
+const integer: PCX_FILE_HEADER_SIZE is 128;
+
+const integer: PCX_2_5_FIXED_EGA_PALETTE      is 0;  # PC Paintbrush version 2.5 using a fixed EGA palette
+const integer: PCX_2_8_MODIFIABLE_EGA_PALETTE is 2;  # PC Paintbrush version 2.8 using a modifiable EGA palette
+const integer: PCX_2_8_NO_PALETTE             is 3;  # PC Paintbrush version 2.8 using no palette
+const integer: PCX_WINDOWS                    is 4;  # PC Paintbrush for Windows
+const integer: PCX_3_0                        is 5;  # PC Paintbrush version 3.0, including 24-bit images
+
+const integer: PCX_NO_ENCODING         is 0;  # No encoding (rarely used)
+const integer: PCX_RUN_LENGTH_ENCODING is 1;  # Run-length encoding (RLE)
+
+const integer: PCX_PALETTE_OLD_METHOD          is  0;
+const integer: PCX_PALETTE_MONOCHROME_OR_COLOR is  1;  # The palette contains monochrome or color information
+const integer: PCX_PALETTE_GRAYSCALE           is  2;  # The palette contains grayscale information
+
+const char: PCX_PALETTE_MARKER is '\12;';
+const integer: PCX_VGA_PALETTE_SIZE is 768;
+
+
+const type: pcxHeader is new struct
+    var string: magic is "";
+    var integer: version is PCX_2_5_FIXED_EGA_PALETTE;
+    var integer: encoding is PCX_NO_ENCODING;
+    var integer: bitsPerPixel is 0;
+    var integer: minX is 0;
+    var integer: minY is 0;
+    var integer: maxX is 0;
+    var integer: maxY is 0;
+    var integer: xResolution is 0;
+    var integer: yResolution is 0;
+    var string: egaPalette is "";
+    var integer: planes is 0;
+    var integer: bytesPerLine is 0;
+    var integer: paletteMode is PCX_PALETTE_MONOCHROME_OR_COLOR;
+    var integer: xScreenRes is 0;
+    var integer: yScreenRes is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var colorLookupTable: palette is colorLookupTable.value;
+  end struct;
+
+
+const proc: showHeader (in pcxHeader: header) is func
+  begin
+    writeln("magic: " <& literal(header.magic));
+    writeln("version: " <& header.version);
+    writeln("encoding: " <& header.encoding);
+    writeln("bitsPerPixel: " <& header.bitsPerPixel);
+    writeln("minX: " <& header.minX);
+    writeln("minY: " <& header.minY);
+    writeln("maxX: " <& header.maxX);
+    writeln("maxY: " <& header.maxY);
+    writeln("xResolution: " <& header.xResolution);
+    writeln("yResolution: " <& header.yResolution);
+    writeln("egaPalette: " <& literal(header.egaPalette));
+    writeln("planes: " <& header.planes);
+    writeln("bytesPerLine: " <& header.bytesPerLine);
+    writeln("paletteMode: " <& header.paletteMode);
+    writeln("xScreenRes: " <& header.xScreenRes);
+    writeln("yScreenRes: " <& header.yScreenRes);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+  end func;
+
+
+const proc: readHeader (inout file: pcxFile, inout pcxHeader: header) is func
+  local
+    var string: stri is "";
+    var integer: imageDescriptor is 0;
+  begin
+    stri := gets(pcxFile, PCX_FILE_HEADER_SIZE);
+    if length(stri) = PCX_FILE_HEADER_SIZE then
+      header.magic        :=            stri[ 1 fixLen  1];
+      header.version      := bytes2Int( stri[ 2 fixLen  1], UNSIGNED, LE);
+      header.encoding     := bytes2Int( stri[ 3 fixLen  1], UNSIGNED, LE);
+      header.bitsPerPixel := bytes2Int( stri[ 4 fixLen  1], UNSIGNED, LE);
+      header.minX         := bytes2Int( stri[ 5 fixLen  2], UNSIGNED, LE);
+      header.minY         := bytes2Int( stri[ 7 fixLen  2], UNSIGNED, LE);
+      header.maxX         := bytes2Int( stri[ 9 fixLen  2], UNSIGNED, LE);
+      header.maxY         := bytes2Int( stri[11 fixLen  2], UNSIGNED, LE);
+      header.xResolution  := bytes2Int( stri[13 fixLen  2], UNSIGNED, LE);
+      header.yResolution  := bytes2Int( stri[15 fixLen  2], UNSIGNED, LE);
+      header.egaPalette   :=            stri[17 fixLen 48];
+      header.planes       := bytes2Int( stri[66 fixLen  1], UNSIGNED, LE);
+      header.bytesPerLine := bytes2Int( stri[67 fixLen  2], UNSIGNED, LE);
+      header.paletteMode  := bytes2Int( stri[69 fixLen  2], UNSIGNED, LE);
+      header.xScreenRes   := bytes2Int( stri[71 fixLen  2], UNSIGNED, LE);
+      header.yScreenRes   := bytes2Int( stri[73 fixLen  2], UNSIGNED, LE);
+      if  header.version in {PCX_2_5_FIXED_EGA_PALETTE,
+                             PCX_2_8_MODIFIABLE_EGA_PALETTE,
+                             PCX_2_8_NO_PALETTE,
+                             PCX_WINDOWS,
+                             PCX_3_0} and
+          header.encoding in {PCX_NO_ENCODING,
+                              PCX_RUN_LENGTH_ENCODING} then
+        header.width  := header.maxX - header.minX + 1;
+        header.height := header.maxY - header.minY + 1;
+      else
+        header.magic := "";
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isPcxMagic (in string: magic) is
+  return length(magic) = 3 and
+         magic[1 fixLen 1] = PCX_MAGIC_START and
+         ord(magic[2]) in {PCX_2_5_FIXED_EGA_PALETTE,
+                           PCX_2_8_MODIFIABLE_EGA_PALETTE,
+                           PCX_2_8_NO_PALETTE,
+                           PCX_WINDOWS,
+                           PCX_3_0} and
+         ord(magic[3]) in  {PCX_NO_ENCODING, PCX_RUN_LENGTH_ENCODING};
+
+
+const func string: fromPcxRunLengthEncoding (in string: rawData,
+    in integer: length, inout integer: posBeyond) is func
+  result
+    var string: pixelData is "";
+  local
+    var integer: pos is 1;
+    var integer: startPos is 0;
+    var integer: count is 0;
+    var integer: index is 1;
+  begin
+    pixelData := "\0;" mult length;
+    while pos <= length(rawData) and index <= length do
+      startPos := pos;
+      while pos <= length(rawData) and rawData[pos] < '\192;' do
+        incr(pos);
+      end while;
+      if pos > startPos then
+        count := min(succ(length - index), pos - startPos);
+        pixelData @:= [index] rawData[startPos fixLen count];
+        index +:= count;
+        pos := startPos + count;
+      end if;
+      if index <= length then
+        if pos < length(rawData) then
+          count := ord(rawData[pos]) - 192;
+          incr(pos);
+          # Make copies of the next byte.
+          pixelData @:= [index] str(rawData[pos]) mult count;
+          index +:= count;
+        end if;
+        incr(pos);
+      end if;
+    end while;
+    posBeyond := pos;
+  end func;
+
+
+const proc: readPcxEgaPalette (in string: rgbData,
+    inout colorLookupTable: colorMap) is func
+  local
+    const integer: maxColorMapIndex is 15;
+    var integer: colorMapIndex is 0;
+    var integer: byteIndex is 1;
+  begin
+    colorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
+    for colorMapIndex range 0 to maxColorMapIndex do
+      colorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
+                                          ord(rgbData[succ(byteIndex)]) * 256,
+                                          ord(rgbData[byteIndex + 2]) * 256);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
+const proc: readPcxVgaPalette (in string: rgbData,
+    inout colorLookupTable: colorMap) is func
+  local
+    const integer: maxColorMapIndex is 255;
+    var integer: colorMapIndex is 0;
+    var integer: byteIndex is 1;
+  begin
+    colorMap := colorLookupTable[.. maxColorMapIndex] times pixel.value;
+    for colorMapIndex range 0 to maxColorMapIndex do
+      colorMap[colorMapIndex] := rgbPixel(ord(rgbData[byteIndex]) * 256,
+                                          ord(rgbData[succ(byteIndex)]) * 256,
+                                          ord(rgbData[byteIndex + 2]) * 256);
+      byteIndex +:= 3;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLineVga (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in var integer: byteIndex) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to width do
+      imageLine[column] := palette[ord(pixelData[byteIndex])];
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPcxImageVga (inout pixelImage: image,
+    inout pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLineVga(image[line], header.width, header.palette,
+                          pixelData, byteIndexStart);
+      byteIndexStart +:= header.bytesPerLine;
+    end for;
+  end func;
+
+
+const proc: readPcxGrayscaleImageLineVga (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData,
+    in var integer: byteIndex) is func
+  local
+    var integer: column is 0;
+    var integer: luminance is 0;
+  begin
+    for column range 1 to width do
+      luminance := ord(pixelData[byteIndex]) << 8;
+      imageLine[column] := rgbPixel(luminance, luminance, luminance);
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPcxGrayscaleImageVga (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxGrayscaleImageLineVga(image[line], header.width, pixelData, byteIndexStart);
+      byteIndexStart +:= header.bytesPerLine;
+    end for;
+  end func;
+
+
+const proc: readPcxTrueColorImageLine (inout pixelArray: imageLine,
+    in integer: width, in string: pixelData, in var integer: byteIndex,
+    in integer: deltaG, in integer: deltaB) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to width do
+      imageLine[column] := rgbPixel(ord(pixelData[byteIndex])          << 8,
+                                    ord(pixelData[byteIndex + deltaG]) << 8,
+                                    ord(pixelData[byteIndex + deltaB]) << 8);
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPcxTrueColorImage (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxTrueColorImageLine(image[line], header.width, pixelData,
+                                byteIndexStart, header.bytesPerLine,
+                                2 * header.bytesPerLine);
+      byteIndexStart +:= header.bytesPerLine * 3;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLine16Colors (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in var integer: byteIndex) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to width step 2 do
+      imageLine[column]       := palette[ord(pixelData[byteIndex]) >> 4];
+      imageLine[succ(column)] := palette[ord(pixelData[byteIndex]) mod 16];
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPcxImage16Colors (inout pixelImage: image,
+    inout pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLine16Colors(image[line], header.width, header.palette,
+                               pixelData, byteIndexStart);
+      byteIndexStart +:= header.bytesPerLine;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLineCga4 (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in var integer: byteIndex) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to width step 4 do
+      imageLine[column]       := palette[ord(pixelData[byteIndex]) >> 6];
+      imageLine[succ(column)] := palette[ord(pixelData[byteIndex]) >> 4 mod 4];
+      imageLine[column + 2]   := palette[ord(pixelData[byteIndex]) >> 2 mod 4];
+      imageLine[column + 3]   := palette[ord(pixelData[byteIndex]) mod 4];
+      incr(byteIndex);
+    end for;
+  end func;
+
+
+const proc: readPcxImageCga4 (inout pixelImage: image,
+    inout pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLineCga4(image[line], header.width, header.palette,
+                           pixelData, byteIndexStart);
+      byteIndexStart +:= header.bytesPerLine;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLineCga2 (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in integer: byteIndexStart,
+    in integer: bytesPerLine) is func
+  local
+    var integer: column is 0;
+    var integer: colorNum is 0;
+    var integer: colorBitNum is 0;
+    var integer: byteIndex is 1;
+    var integer: imageByte is 0;
+  begin
+    for column range 0 to pred(width) do
+      byteIndex := byteIndexStart + column mdiv 8;
+      imageByte := ord(pixelData[byteIndex]);
+      colorNum := (imageByte >> (7 - column mod 8)) mod 2;
+      imageLine[succ(column)] := palette[colorNum];
+    end for;
+  end func;
+
+
+const proc: readPcxImageCga2 (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLineCga2(image[line], header.width, header.palette,
+                           pixelData, byteIndexStart, header.bytesPerLine);
+      byteIndexStart +:= header.bytesPerLine;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLine2Planes (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in integer: byteIndexStart,
+    in integer: bytesPerLine) is func
+  local
+    var integer: column is 0;
+    var integer: colorNum is 0;
+    var integer: colorBitNum is 0;
+    var integer: byteIndex is 1;
+    var integer: imageByte is 0;
+  begin
+    for column range 0 to pred(width) do
+      colorNum := 0;
+      for colorBitNum range 0 to 1 do
+        byteIndex := byteIndexStart + colorBitNum * bytesPerLine + column mdiv 8;
+        imageByte := ord(pixelData[byteIndex]);
+        colorNum +:= ((imageByte >> (7 - column mod 8)) mod 2) << colorBitNum;
+      end for;
+      imageLine[succ(column)] := palette[colorNum];
+    end for;
+  end func;
+
+
+const proc: readPcxImage2Planes (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLine2Planes(image[line], header.width, header.palette,
+                              pixelData, byteIndexStart, header.bytesPerLine);
+      byteIndexStart +:= header.bytesPerLine * 2;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLine3Planes (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in integer: byteIndexStart,
+    in integer: bytesPerLine) is func
+  local
+    var integer: column is 0;
+    var integer: colorNum is 0;
+    var integer: colorBitNum is 0;
+    var integer: byteIndex is 1;
+    var integer: imageByte is 0;
+  begin
+    for column range 0 to pred(width) do
+      colorNum := 0;
+      for colorBitNum range 0 to 2 do
+        byteIndex := byteIndexStart + colorBitNum * bytesPerLine + column mdiv 8;
+        imageByte := ord(pixelData[byteIndex]);
+        colorNum +:= ((imageByte >> (7 - column mod 8)) mod 2) << colorBitNum;
+      end for;
+      imageLine[succ(column)] := palette[colorNum];
+    end for;
+  end func;
+
+
+const proc: readPcxImage3Planes (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLine3Planes(image[line], header.width, header.palette,
+                              pixelData, byteIndexStart, header.bytesPerLine);
+      byteIndexStart +:= header.bytesPerLine * 3;
+    end for;
+  end func;
+
+
+const proc: readPcxImageLineEga (inout pixelArray: imageLine,
+    in integer: width, in colorLookupTable: palette,
+    in string: pixelData, in var integer: byteIndex,
+    in integer: delta1, in integer: delta2, in integer: delta3) is func
+  local
+    var integer: column is 0;
+    var integer: colorBitNum is 7;
+  begin
+    for column range 1 to width do
+      imageLine[column] := palette[ord(pixelData[byteIndex]) >> colorBitNum mod 2 +
+                                   ord(pixelData[byteIndex + delta1]) >> colorBitNum mod 2 << 1 +
+                                   ord(pixelData[byteIndex + delta2]) >> colorBitNum mod 2 << 2 +
+                                   ord(pixelData[byteIndex + delta3]) >> colorBitNum mod 2 << 3];
+      if colorBitNum = 0 then
+        colorBitNum := 8;
+        incr(byteIndex);
+      end if;
+      decr(colorBitNum);
+    end for;
+  end func;
+
+
+const proc: readPcxImageEga (inout pixelImage: image,
+    in pcxHeader: header, in string: pixelData) is func
+  local
+    var integer: line is 0;
+    var integer: byteIndexStart is 1;
+  begin
+    for line range 1 to header.height do
+      readPcxImageLineEga(image[line], header.width, header.palette,
+                          pixelData, byteIndexStart, header.bytesPerLine,
+                          2 * header.bytesPerLine,
+                          3 * header.bytesPerLine);
+      byteIndexStart +:= header.bytesPerLine * 4;
+    end for;
+  end func;
+
+
+(**
+ *  Reads a PCX (PiCture eXchange) file into a pixmap.
+ *  @param pcxFile File that contains a PCX image.
+ *  @return A pixmap with the PCX image, or
+ *          PRIMITIVE_WINDOW.value if the file does
+ *          not contain a PCX magic number.
+ *  @exception RANGE_ERROR The file is not in the PCX file format.
+ *)
+const func PRIMITIVE_WINDOW: readPcx (inout file: pcxFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var pcxHeader: header is pcxHeader.value;
+    var string: rawData is "";
+    var integer: posBeyond is 0;
+    var string: pixelData is "";
+    var pixelImage: image is pixelImage.value;
+  begin
+    readHeader(pcxFile, header);
+    # showHeader(header);
+    if header.magic = PCX_MAGIC_START then
+      image := pixelImage[.. header.height] times
+               pixelArray[.. header.width] times pixel.value;
+      rawData := gets(pcxFile, integer.last);
+      if header.encoding = PCX_RUN_LENGTH_ENCODING then
+        pixelData := fromPcxRunLengthEncoding(rawData,
+            header.height * header.bytesPerLine * header.planes,
+                     posBeyond);
+      else
+        pixelData := rawData;
+      end if;
+      if header.bitsPerPixel = 8 then
+        if header.planes = 1 then
+          if  posBeyond >= 1 and
+              posBeyond <= length(rawData) - PCX_VGA_PALETTE_SIZE and
+              rawData[posBeyond] = PCX_PALETTE_MARKER then
+            readPcxVgaPalette(rawData[succ(posBeyond) ..],
+                              header.palette);
+            readPcxImageVga(image, header, pixelData);
+          elsif length(rawData) > PCX_VGA_PALETTE_SIZE and
+              rawData[length(rawData) - PCX_VGA_PALETTE_SIZE] = PCX_PALETTE_MARKER then
+            readPcxVgaPalette(rawData[length(rawData) - 767 ..],
+                              header.palette);
+            readPcxImageVga(image, header, pixelData);
+          else
+            # Assume grayscale if there is no VGA palette present.
+            readPcxGrayscaleImageVga(image, header, pixelData);
+          end if;
+        elsif header.planes = 3 then
+          readPcxTrueColorImage(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      elsif header.bitsPerPixel = 4 then
+        if header.planes = 1 then
+          readPcxEgaPalette(header.egaPalette, header.palette);
+          readPcxImage16Colors(image, header, pixelData);
+        elsif header.planes = 4 then
+          # Act as if bitsPerPixel is 1 instead of 4.
+          readPcxEgaPalette(header.egaPalette, header.palette);
+          readPcxImageEga(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      elsif header.bitsPerPixel = 2 then
+        readPcxEgaPalette(header.egaPalette, header.palette);
+        readPcxImageCga4(image, header, pixelData);
+      elsif header.bitsPerPixel = 1 then
+        if header.planes = 1 then
+          if header.version = PCX_2_8_NO_PALETTE then
+            header.palette := colorLookupTable[.. 1] times pixel.value;
+            header.palette[0] := colorPixel(black);
+            header.palette[1] := colorPixel(white);
+          else
+            readPcxEgaPalette(header.egaPalette, header.palette);
+            if  abs(pixelToColor(header.palette[1]).redLight -
+                    pixelToColor(header.palette[0]).redLight) <= 1024 and
+                abs(pixelToColor(header.palette[1]).greenLight -
+                    pixelToColor(header.palette[0]).greenLight) <= 1024 and
+                abs(pixelToColor(header.palette[1]).blueLight -
+                    pixelToColor(header.palette[0]).blueLight) <= 1024 then
+              header.palette[0] := colorPixel(black);
+              header.palette[1] := colorPixel(white);
+            end if;
+          end if;
+          readPcxImageCga2(image, header, pixelData);
+        elsif header.planes = 2 then
+          readPcxEgaPalette(header.egaPalette, header.palette);
+          readPcxImage2Planes(image, header, pixelData);
+        elsif header.planes = 3 then
+          readPcxEgaPalette(header.egaPalette, header.palette);
+          readPcxImage3Planes(image, header, pixelData);
+        elsif header.planes = 4 then
+          readPcxEgaPalette(header.egaPalette, header.palette);
+          readPcxImageEga(image, header, pixelData);
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+      pixmap := getPixmap(image);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a PCX file with the given ''pcxFileName'' into a pixmap.
+ *  @param pcxFileName Name of the PCX file.
+ *  @return A pixmap with the PCX image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a PCX magic number.
+ *  @exception RANGE_ERROR The file is not in the PCX file format.
+ *)
+const func PRIMITIVE_WINDOW: readPcx (in string: pcxFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: pcxFile is STD_NULL;
+  begin
+    pcxFile := open(pcxFileName, "r");
+    if pcxFile <> STD_NULL then
+      pixmap := readPcx(pcxFile);
+      close(pcxFile);
+    end if;
+  end func;

@@ -198,12 +198,10 @@ const proc: readHeader (inout file: tgaFile, inout tgaHeader: header) is func
 
 const proc: readTgaColorMappedImageLine8 (inout pixelArray: imageLine,
     in integer: width, in colorLookupTable: palette, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := palette[ord(pixelData[byteIndex])];
       incr(byteIndex);
@@ -254,13 +252,11 @@ const proc: readTgaUncompressedColorMapped (inout file: tgaFile,
 
 const proc: readTgaTrueColorImageLine16 (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: colorBits is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       colorBits := bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, LE);
       imageLine[column] := rgbPixel(colorBits >> 10 mod 32 << 11,
@@ -293,12 +289,10 @@ const proc: readTgaTrueColorImage16 (inout pixelImage: image,
 
 const proc: readTgaTrueColorImageLine24 (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := rgbPixel(ord(pixelData[byteIndex + 2])   << 8,
                                     ord(pixelData[succ(byteIndex)]) << 8,
@@ -330,12 +324,10 @@ const proc: readTgaTrueColorImage24 (inout pixelImage: image,
 
 const proc: readTgaTrueColorImageLine32 (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       imageLine[column] := rgbPixel(ord(pixelData[byteIndex + 2])   << 8,
                                     ord(pixelData[succ(byteIndex)]) << 8,
@@ -404,13 +396,11 @@ const proc: readTgaUncompressedTrueColor (inout file: tgaFile,
 
 const proc: readTgaGrayscaleImageLine8 (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: luminance is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       luminance := ord(pixelData[byteIndex]) << 8;
       imageLine[column] := rgbPixel(luminance, luminance, luminance);
@@ -441,13 +431,11 @@ const proc: readTgaGrayscaleImage8 (inout pixelImage: image,
 
 const proc: readTgaGrayscaleImageLine16 (inout pixelArray: imageLine,
     in integer: width, in string: pixelData,
-    in integer: byteIndexStart) is func
+    in var integer: byteIndex) is func
   local
-    var integer: byteIndex is 1;
     var integer: column is 0;
     var integer: luminance is 0;
   begin
-    byteIndex := byteIndexStart;
     for column range 1 to width do
       luminance := bytes2Int(pixelData[byteIndex fixLen 2], UNSIGNED, LE);
       imageLine[column] := rgbPixel(luminance, luminance, luminance);

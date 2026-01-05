@@ -702,9 +702,6 @@ void dump_temp_value (objectType object)
       prot_nl();
     } /* if */
 #endif
-    save_interrupt_flag = interrupt_flag;
-    save_fail_flag = fail_flag;
-    set_fail_flag(FALSE);
     switch (CATEGORY_OF_OBJ(object)) {
       case INTOBJECT:
       case CHAROBJECT:
@@ -760,8 +757,13 @@ void dump_temp_value (objectType object)
             prot_nl();
           } /* if */
 #endif
+          save_interrupt_flag = interrupt_flag;
+          save_fail_flag = fail_flag;
+          set_fail_flag(FALSE);
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+          interrupt_flag |= save_interrupt_flag;
+          fail_flag |= save_fail_flag;
         } else {
           SET_UNUSED_FLAG(object);
         } /* if */
@@ -775,8 +777,13 @@ void dump_temp_value (objectType object)
             prot_nl();
           } /* if */
 #endif
+          save_interrupt_flag = interrupt_flag;
+          save_fail_flag = fail_flag;
+          set_fail_flag(FALSE);
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+          interrupt_flag |= save_interrupt_flag;
+          fail_flag |= save_fail_flag;
         } else {
           SET_UNUSED_FLAG(object);
         } /* if */
@@ -790,8 +797,13 @@ void dump_temp_value (objectType object)
             prot_nl();
           } /* if */
 #endif
+          save_interrupt_flag = interrupt_flag;
+          save_fail_flag = fail_flag;
+          set_fail_flag(FALSE);
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+          interrupt_flag |= save_interrupt_flag;
+          fail_flag |= save_fail_flag;
         } else {
           SET_UNUSED_FLAG(object);
         } /* if */
@@ -805,8 +817,13 @@ void dump_temp_value (objectType object)
             prot_nl();
           } /* if */
 #endif
+          save_interrupt_flag = interrupt_flag;
+          save_fail_flag = fail_flag;
+          set_fail_flag(FALSE);
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+          interrupt_flag |= save_interrupt_flag;
+          fail_flag |= save_fail_flag;
         } else {
           SET_UNUSED_FLAG(object);
         } /* if */
@@ -816,9 +833,6 @@ void dump_temp_value (objectType object)
         SET_UNUSED_FLAG(object);
         break;
       case REFLISTOBJECT:
-        free_list(object->value.listValue);
-        SET_UNUSED_FLAG(object);
-        break;
       case LISTOBJECT:
         free_list(object->value.listValue);
         SET_UNUSED_FLAG(object);
@@ -865,8 +879,13 @@ void dump_temp_value (objectType object)
             prot_nl();
           } /* if */
 #endif
+          save_interrupt_flag = interrupt_flag;
+          save_fail_flag = fail_flag;
+          set_fail_flag(FALSE);
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+          interrupt_flag |= save_interrupt_flag;
+          fail_flag |= save_fail_flag;
         } /* if */
         break;
 #if WITH_SQL
@@ -901,8 +920,6 @@ void dump_temp_value (objectType object)
         do_destroy(object, &err_info); */
         break;
     } /* switch */
-    interrupt_flag |= save_interrupt_flag;
-    fail_flag |= save_fail_flag;
     /* if (!fail_flag && err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } * if */
