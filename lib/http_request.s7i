@@ -1,0 +1,689 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  http_response.s7i   Support to get and send data with the HTTP  *)
+(*  protocol                                                        *)
+(*  Copyright (C) 2008, 2010, 2011, 2013 - 2015  Thomas Mertes      *)
+(*                2021 - 2023, 2025, 2026  Thomas Mertes            *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanstri.s7i";
+include "socket.s7i";
+include "gzip.s7i";
+include "charsets.s7i";
+include "encoding.s7i";
+
+
+var string: proxyServer is "";
+var integer: proxyHttpPort is 0;
+const integer: httpDefaultPort is 80;
+const integer: httpsDefaultPort is 443;
+
+const type: httpResponse is new struct
+    var string: status is ""; # Should be an integer?
+    # var array string: headers is 0 times "";
+    var string: body is "";
+  end struct;
+
+
+const type: httpCreds is new struct
+    var string: username is "";
+    var string: password is "";
+    var boolean: utilize is TRUE;
+  end struct;
+
+
+const func httpCreds: basicAuth (in string: username, in string: password) is func
+  result
+    var httpCreds: creds is httpCreds.value;
+  begin
+    creds.username := username;
+    creds.password := password;
+    creds.utilize := FALSE; # Default is to only use basic-auth when asked for.
+  end func;
+
+const func httpCreds: bearerAuth (in string: token) is func
+  result
+    var httpCreds: creds is httpCreds.value;
+  begin
+    creds.password := token;
+  end func;
+
+
+const type: httpLocation is new struct
+    var boolean: httpsProtocol is FALSE;
+    var string: serverName is "";
+    var integer: portNumber is 0;
+    var string: hostName is "";
+    var string: path is "";
+    var string: params is "";
+    var array string: cookies is 0 times "";
+  end struct;
+
+const type: httpBody is new struct
+    var string: contentType is "";
+    var string: content is "";
+  end struct;
+
+const type: httpRequest is new struct
+    var string: method is "";
+    var httpLocation: location is httpLocation.value;
+    var httpBody: body is httpBody.value;
+    var httpCreds: creds is httpCreds.value;
+  end struct;
+
+
+const func httpRequest: httpGetRequest (in httpLocation: locationData) is func
+  result
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := locationData;
+  end func;
+
+const proc: show (in httpLocation: location) is func
+  begin
+    writeln("httpsProtocol: " <& location.httpsProtocol);
+    writeln("serverName:    " <& location.serverName);
+    writeln("portNumber:    " <& location.portNumber);
+    writeln("hostName:      " <& location.hostName);
+    writeln("path:          " <& location.path);
+    writeln("params:        " <& location.params);
+  end func;
+
+
+(**
+ *  Set the proxy server to be used for getHttp.
+ *)
+const proc: setProxy (in string: serverName, in integer: portNumber) is func
+  begin
+    proxyServer := serverName;
+    proxyHttpPort := portNumber;
+  end func;
+
+
+const func httpLocation: getHttpLocation (in string: location, in integer: defaultPortNumber) is func
+  result
+    var httpLocation: locationData is httpLocation.value;
+  local
+    var integer: slashPos is 0;
+    var integer: questionMarkPos is 0;
+    var integer: bracketPos is 0;
+    var integer: colonPos is 0;
+  begin
+    # writeln("getHttpLocation: " <& location);
+    slashPos := pos(location, "/");
+    questionMarkPos := pos(location, "?");
+    if slashPos = 0 then
+      if questionMarkPos = 0 then
+        locationData.hostName := location;
+        locationData.path     := "";
+        locationData.params   := "";
+      else
+        locationData.hostName := location[.. pred(questionMarkPos)];
+        locationData.path     := "";
+        locationData.params   := location[succ(questionMarkPos) ..];
+      end if;
+    else
+      if questionMarkPos = 0 then
+        locationData.hostName := location[.. pred(slashPos)];
+        locationData.path     := location[succ(slashPos) ..];
+        locationData.params   := "";
+      elsif slashPos < questionMarkPos then
+        locationData.hostName := location[.. pred(slashPos)];
+        locationData.path     := location[succ(slashPos) .. pred(questionMarkPos)];
+        locationData.params   := location[succ(questionMarkPos) ..];
+      else
+        locationData.hostName := location[.. pred(questionMarkPos)];
+        locationData.path     := "";
+        locationData.params   := location[succ(questionMarkPos) ..];
+      end if;
+    end if;
+    bracketPos := pos(locationData.hostName, "]:");
+    if bracketPos <> 0 and startsWith(locationData.hostName, "[") and
+        isDigitString(locationData.hostName[bracketPos + 2 ..]) then
+      locationData.portNumber := integer(locationData.hostName[bracketPos + 2 ..]);
+      locationData.hostName := locationData.hostName[2 .. pred(bracketPos)];
+    else
+      colonPos := pos(locationData.hostName, ":");
+      if colonPos <> 0 and
+          not isDigitString(locationData.hostName[.. pred(colonPos)]) and
+          isDigitString(locationData.hostName[succ(colonPos) ..]) then
+        locationData.portNumber := integer(locationData.hostName[succ(colonPos) ..]);
+        locationData.hostName := locationData.hostName[.. pred(colonPos)];
+      else
+        locationData.portNumber := defaultPortNumber;
+      end if;
+    end if;
+    locationData.serverName := locationData.hostName;
+  end func;
+
+
+const func string: toHttpAscii (in string: stri) is func
+  result
+    var string: encoded is "";
+  local
+    var string: stri8 is "";
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    stri8 := toUtf8(stri);
+    for ch key pos range stri8 do
+      if ord(ch) >= 127 or ch < ' ' or
+          ch in {'%', '/', '?', '&', '=', '+'} then
+        encoded &:= stri8[start .. pred(pos)];
+        encoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
+        start := succ(pos);
+      elsif ch = ' ' then
+        encoded &:= stri8[start .. pred(pos)];
+        encoded &:= "+";
+        start := succ(pos);
+      end if;
+    end for;
+    encoded &:= stri8[start ..];
+  end func;
+
+
+const proc: sendHttp (inout file: sock, in httpRequest: request) is func
+  local
+    var string: address is "";
+    var string: plain is "";
+    var integer: index is 0;
+  begin
+    address := "/" & request.location.path;
+    if request.location.params <> "" then
+      address &:= "?" & request.location.params;
+    end if;
+    if request.method <> "" then
+      plain &:= request.method <& " " <& address <& " HTTP/1.1\r\n";
+    elsif request.body.content = "" then
+      plain &:= "GET " <& address <& " HTTP/1.1\r\n";
+    else
+      plain &:= "POST " <& address <& " HTTP/1.1\r\n";
+    end if;
+    plain &:= "Host: " <& request.location.hostName <& "\r\n";
+    plain &:= "User-Agent: BlackHole" <& "\r\n";
+    if request.creds.username <> "" then
+      # Basic auth doesn't accept colons in the username.
+      if pos(request.creds.username,':') = 0 then
+        plain &:= "Authorization: Basic " & toBase64(request.creds.username & ":" & request.creds.password) & "\r\n";
+      else
+        raise RANGE_ERROR;
+      end if;
+    # Password only? Assume a bearer token.
+    elsif request.creds.password <> "" then
+      plain &:= "Authorization: Bearer " & request.creds.password & "\r\n";
+    end if;
+    if length(request.location.cookies) <> 0 then
+      plain &:= "Cookie: ";
+      for key index range request.location.cookies do
+        plain &:= request.location.cookies[index];
+        if index < length(request.location.cookies) then
+          plain &:= "; ";
+        end if;
+      end for;
+      plain &:= "\r\n";
+    end if;
+    if request.body.contentType <> "" then
+      plain &:= "Content-Type: " & request.body.contentType & "\r\n";
+      plain &:= "Content-Length: " <& length(request.body.content) <& "\r\n";
+      plain &:= "\r\n" & request.body.content;
+    else
+      plain &:= "\r\n";
+    end if;
+    write(sock, plain);
+  end func;
+
+
+const func file: openHttp (in httpRequest: request) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    #writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
+    #writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
+    #writeln("params=" <& locationData.params);
+    if not request.location.httpsProtocol then
+      sock := openInetSocket(request.location.serverName, request.location.portNumber);
+    end if;
+    if sock <> STD_NULL then
+      sendHttp(sock, request);
+    end if;
+  end func;
+
+const func file: openHttp (in httpLocation: locationData) is
+  return openHttp(httpGetRequest(locationData));
+
+
+const func file: openHttp (in string: serverName, in integer: serverPortNumber,
+    in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var httpLocation: locationData is httpLocation.value;
+  begin
+    locationData := getHttpLocation(location, httpDefaultPort);
+    locationData.serverName := serverName;
+    locationData.portNumber := serverPortNumber;
+    sock := openHttp(locationData);
+  end func;
+
+
+const func file: openHttp (in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var httpLocation: locationData is httpLocation.value;
+  begin
+    locationData := getHttpLocation(location, httpDefaultPort);
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
+    sock := openHttp(locationData);
+  end func;
+
+
+const func string: getHttpStatusCode (inout file: sock) is func
+  result
+    var string: statusCode is "";
+  local
+    var string: line is "";
+    var string: statusInfo is "";
+    var integer: spacePos is 0;
+  begin
+    line := getln(sock);
+    # writeln(line);
+    if startsWith(line, "HTTP") then
+      spacePos := pos(line, " ");
+      if spacePos <> 0 then
+        statusInfo := trim(line[spacePos ..]);
+        spacePos := pos(statusInfo, " ");
+        if spacePos = 0 then
+          statusCode := statusInfo;
+        else
+          statusCode := statusInfo[.. pred(spacePos)];
+        end if;
+      end if;
+    end if;
+    # writeln("getHttpStatusCode --> " <& statusCode);
+  end func;
+
+
+const type: httpHeader is new struct
+    var string: transferEncoding is "";
+    var string: contentType is "";
+    var string: charset is "";
+    var string: contentEncoding is "";
+    var integer: contentLength is 0;
+    var string: location is "";
+    var array string: cookies is 0 times "";
+  end struct;
+
+
+const func httpHeader: getHttpHeader (inout file: sock) is func
+  result
+    var httpHeader: header is httpHeader.value;
+  local
+    var string: line is "";
+    var integer: colonPos is 0;
+    var string: fieldName is "";
+    var string: contentLengthStri is "";
+    var string: cookieName is "";
+    var string: cookieValue is "";
+  begin
+    line := getln(sock);
+    while line <> "" do
+      # writeln(line);
+      colonPos := pos(line, ':');
+      if colonPos <> 0 then
+        fieldName := lower(trim(line[.. pred(colonPos)]));
+        case fieldName of
+          when {"transfer-encoding"}:
+            header.transferEncoding := lower(trim(line[succ(colonPos) ..]));
+          when {"content-type"}:
+            header.contentType := trim(line[succ(colonPos) ..]);
+            header.charset := getValueOfHeaderAttribute(header.contentType, "charset");
+          when {"content-encoding"}:
+            header.contentEncoding := lower(trim(line[succ(colonPos) ..]));
+          when {"content-length"}:
+            contentLengthStri := trim(line[succ(colonPos) ..]);
+            block
+              header.contentLength := integer(contentLengthStri);
+            exception
+              catch RANGE_ERROR:
+                header.contentLength := -1;
+            end block;
+          when {"location"}:
+            header.location := trim(line[succ(colonPos) ..]);
+          when {"set-cookie"}:
+            line := line[succ(colonPos) ..];
+            cookieName := getHttpSymbol(line);
+            if getHttpSymbol(line) = "=" then
+              cookieValue := getHttpSymbol(line);
+            else
+              cookieValue := "";
+            end if;
+            # writeln("##### " <& cookieName <& "=" <& cookieValue);
+            header.cookies &:= cookieName & "=" & cookieValue;
+        end case;
+      end if;
+      line := getln(sock);
+    end while;
+  end func;
+
+
+const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
+  result
+    var string: data is "";
+  local
+    var string: line is "";
+    var integer: chunkSize is 0;
+    var integer: contentLength is 0;
+    var string: buffer is "";
+  begin
+    if header.transferEncoding = "chunked" then
+      if not eof(sock) then
+        line := getln(sock);
+        block
+          chunkSize := integer(line, 16);
+        exception
+          catch RANGE_ERROR:
+            chunkSize := -1;
+        end block;
+        while chunkSize > 0 and not eof(sock) do
+          repeat
+            buffer := gets(sock, chunkSize);
+            chunkSize -:= length(buffer);
+            data &:= buffer;
+          until chunkSize = 0 or eof(sock);
+          if not eof(sock) then
+            ignore(getln(sock));
+            line := getln(sock);
+            block
+              chunkSize := integer(line, 16);
+            exception
+              catch RANGE_ERROR:
+                chunkSize := -1;
+            end block;
+          end if;
+        end while;
+      end if;
+    elsif header.transferEncoding = "identity" or
+          header.transferEncoding = "" then
+      if header.contentLength > 0 then
+        contentLength := header.contentLength;
+        while contentLength <> 0 and not eof(sock) do
+          buffer := gets(sock, contentLength);
+          contentLength -:= length(buffer);
+          data &:= buffer;
+        end while;
+      else
+        buffer := gets(sock, 10000000);
+        while buffer <> "" do
+          data &:= buffer;
+          buffer := gets(sock, 10000000);
+        end while;
+      end if;
+    else
+      writeln("Unknown Transfer-Encoding: " <& literal(header.transferEncoding));
+      buffer := gets(sock, 10000000);
+      while buffer <> "" do
+        data &:= buffer;
+        buffer := gets(sock, 10000000);
+      end while;
+    end if;
+    # writeln(length(data));
+    if header.contentEncoding = "gzip" then
+      data := gunzip(data);
+    end if;
+    block
+      conv2unicodeByName(data, header.charset);
+    exception
+      catch RANGE_ERROR:
+        data := "";
+    end block;
+  end func;
+
+
+const func string: getHttp (inout file: sock) is func
+  result
+    var string: data is "";
+  local
+    var httpHeader: header is httpHeader.value;
+  begin
+    header := getHttpHeader(sock);
+    data := getHttpBody(sock, header);
+  end func;
+
+
+const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
+    inout file: sock) is func
+  result
+    var httpLocation: locationData is httpLocation.value;
+  local
+    var httpHeader: header is httpHeader.value;
+    var string: location is "";
+  begin
+    header := getHttpHeader(sock);
+    if header.location <> "" then
+      location := header.location;
+      if startsWith(location, "http:") then
+        location := trim(location[6 ..]);
+        while startsWith(location, "/") do
+          location := location[2 ..];
+        end while;
+        locationData := getHttpLocation(location, httpDefaultPort);
+      elsif startsWith(location, "https:") then
+        location := trim(location[7 ..]);
+        while startsWith(location, "/") do
+          location := location[2 ..];
+        end while;
+        locationData := getHttpLocation(location, httpsDefaultPort);
+        locationData.httpsProtocol := TRUE;
+      else
+        if not startsWith(location, "/") then
+          location := currentLocationData.path & "/" & location;
+        end if;
+        locationData := getHttpLocation(location, currentLocationData.portNumber);
+        locationData.httpsProtocol := currentLocationData.httpsProtocol;
+        locationData.serverName := currentLocationData.serverName;
+        locationData.hostName := currentLocationData.hostName;
+      end if;
+    end if;
+    locationData.cookies := header.cookies;
+    # writeln(literal(getHttpBody(sock, header)));
+  end func;
+
+
+const func httpResponse: sendHttp (in var httpRequest: request, in boolean: proxy) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var file: sock is STD_NULL;
+    var string: location is "";
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
+  begin
+    if proxy and proxyServer <> "" then
+      request.location.serverName := proxyServer;
+      request.location.portNumber := proxyHttpPort;
+    end if;
+    repeat
+      okay := TRUE;
+      sock := openHttp(request);
+      if sock <> STD_NULL then
+        response.status := getHttpStatusCode(sock);
+        # writeln("statusCode: " <& statusCode);
+        if response.status = "301" or response.status = "302" or
+            response.status = "303" or response.status = "307" then
+          request.location := getHttpLocation(request.location, sock);
+          # show(locationData);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        elsif response.status = "401" and request.creds.username <> "" and not request.creds.utilize then
+          request.creds.utilize := TRUE;
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+        end if;
+      end if;
+    until okay or repeatCount > 5;
+    if sock <> STD_NULL then
+      response.body := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
+
+const func httpResponse: sendHttp (in var httpRequest: request) is
+  return sendHttp(request, FALSE);
+
+
+const func httpResponse: getHttp (in string: serverName, in integer: portNumber, in string: location) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.location.serverName := serverName;
+    request.location.portNumber := portNumber;
+    response := sendHttp(request);
+  end func;
+
+const func httpResponse: getHttp (in string: serverName, in integer: portNumber, in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.location.serverName := serverName;
+    request.location.portNumber := portNumber;
+    request.creds := creds;
+    response := sendHttp(request);
+  end func;
+
+
+(**
+ *  Get data specified by a ''location'' using the HTTP protocol.
+ *   getHttp("example.com")
+ *   getHttp("www.example.com/index.html")
+ *  @param location Url without http:// at the beginning.
+ *  @return the string of data found, or "" if nothing was found.
+ *)
+const func httpResponse: getHttp (in string: location) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpDefaultPort);
+    response := sendHttp(request, TRUE);
+  end func;
+
+
+const func httpResponse: getHttp (in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+const func httpResponse: deleteHttp (in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.method := "DELETE";
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+const func httpResponse: deleteHttp (in string: location) is
+  return deleteHttp(location, httpCreds.value);
+
+const func httpResponse: postHttp (in string: location, in httpBody: body, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.method := "POST";
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.body := body;
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+const func httpResponse: postHttp (in string: location, in httpBody: body) is
+  return postHttp(location, body, httpCreds.value);
+
+const func httpResponse: postHttp (in string: location, in string: body, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.method := "POST";
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.body.content := body;
+    request.body.contentType := "text/plain";
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+const func httpResponse: postHttp (in string: location, in string: body) is
+  return postHttp(location, body, httpCreds.value);
+
+const func httpResponse: postHttp (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+    var string: name is "";
+    var string: value is "";
+  begin
+    request.method := "POST";
+    request.location := getHttpLocation(location, httpDefaultPort);
+    request.body.contentType := "application/x-www-form-urlencoded";
+    for value key name range fields do
+      request.body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+    end for;
+    if endsWith(request.body.content, "&") then
+      request.body.content := request.body.content[.. length(request.body.content)-1];
+    end if;
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+const func httpResponse: postHttp (in string: location, in hash [string] string: fields) is
+  return postHttp(location, fields, httpCreds.value);
