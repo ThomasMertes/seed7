@@ -20456,6 +20456,42 @@ const proc: check_ternary is func
       okay := FALSE;
     end if;
 
+    if  not isNegativeZero( TRUE ? -0.0 :  0.0) or
+            isNegativeZero(FALSE ? -0.0 :  0.0) or
+            isNegativeZero( TRUE ?  0.0 : -0.0) or
+        not isNegativeZero(FALSE ?  0.0 : -0.0) or
+        not isNegativeZero( TRUE ? -0.0 : floatExpr( 0.0)) or
+            isNegativeZero(FALSE ? -0.0 : floatExpr( 0.0)) or
+            isNegativeZero( TRUE ?  0.0 : floatExpr(-0.0)) or
+        not isNegativeZero(FALSE ?  0.0 : floatExpr(-0.0)) or
+        not isNegativeZero( TRUE ? floatExpr(-0.0) :  0.0) or
+            isNegativeZero(FALSE ? floatExpr(-0.0) :  0.0) or
+            isNegativeZero( TRUE ? floatExpr( 0.0) : -0.0) or
+        not isNegativeZero(FALSE ? floatExpr( 0.0) : -0.0) or
+        not isNegativeZero( TRUE ? floatExpr(-0.0) : floatExpr( 0.0)) or
+            isNegativeZero(FALSE ? floatExpr(-0.0) : floatExpr( 0.0)) or
+            isNegativeZero( TRUE ? floatExpr( 0.0) : floatExpr(-0.0)) or
+        not isNegativeZero(FALSE ? floatExpr( 0.0) : floatExpr(-0.0)) or
+        not isNegativeZero(boolExpr( TRUE) ? -0.0 :  0.0) or
+            isNegativeZero(boolExpr(FALSE) ? -0.0 :  0.0) or
+            isNegativeZero(boolExpr( TRUE) ?  0.0 : -0.0) or
+        not isNegativeZero(boolExpr(FALSE) ?  0.0 : -0.0) or
+        not isNegativeZero(boolExpr( TRUE) ? -0.0 : floatExpr( 0.0)) or
+            isNegativeZero(boolExpr(FALSE) ? -0.0 : floatExpr( 0.0)) or
+            isNegativeZero(boolExpr( TRUE) ?  0.0 : floatExpr(-0.0)) or
+        not isNegativeZero(boolExpr(FALSE) ?  0.0 : floatExpr(-0.0)) or
+        not isNegativeZero(boolExpr( TRUE) ? floatExpr(-0.0) :  0.0) or
+            isNegativeZero(boolExpr(FALSE) ? floatExpr(-0.0) :  0.0) or
+            isNegativeZero(boolExpr( TRUE) ? floatExpr( 0.0) : -0.0) or
+        not isNegativeZero(boolExpr(FALSE) ? floatExpr( 0.0) : -0.0) or
+        not isNegativeZero(boolExpr( TRUE) ? floatExpr(-0.0) : floatExpr( 0.0)) or
+            isNegativeZero(boolExpr(FALSE) ? floatExpr(-0.0) : floatExpr( 0.0)) or
+            isNegativeZero(boolExpr( TRUE) ? floatExpr( 0.0) : floatExpr(-0.0)) or
+        not isNegativeZero(boolExpr(FALSE) ? floatExpr( 0.0) : floatExpr(-0.0)) then
+      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
     number :=  TRUE ?  1.0 : 2.0; ok &:= number = 1.0;
     number := FALSE ?  1.0 : 2.0; ok &:= number = 2.0;
     number :=  TRUE ?  1.0 : floatExpr(2.0); ok &:= number = 1.0;
@@ -20473,7 +20509,45 @@ const proc: check_ternary is func
     number := boolExpr( TRUE) ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 1.0;
     number := boolExpr(FALSE) ?  floatExpr(1.0) : floatExpr(2.0); ok &:= number = 2.0;
     if not ok then
-      writeln(" ***** The ternary operator ? : does not work correctly. (2)");
+      writeln(" ***** The ternary operator ? : does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number :=  TRUE ? -0.0 :  0.0; ok &:=     isNegativeZero(number);
+    number := FALSE ? -0.0 :  0.0; ok &:= not isNegativeZero(number);
+    number :=  TRUE ?  0.0 : -0.0; ok &:= not isNegativeZero(number);
+    number := FALSE ?  0.0 : -0.0; ok &:=     isNegativeZero(number);
+    number :=  TRUE ? -0.0 : floatExpr( 0.0); ok &:=     isNegativeZero(number);
+    number := FALSE ? -0.0 : floatExpr( 0.0); ok &:= not isNegativeZero(number);
+    number :=  TRUE ?  0.0 : floatExpr(-0.0); ok &:= not isNegativeZero(number);
+    number := FALSE ?  0.0 : floatExpr(-0.0); ok &:=     isNegativeZero(number);
+    number :=  TRUE ? floatExpr(-0.0) :  0.0; ok &:=     isNegativeZero(number);
+    number := FALSE ? floatExpr(-0.0) :  0.0; ok &:= not isNegativeZero(number);
+    number :=  TRUE ? floatExpr( 0.0) : -0.0; ok &:= not isNegativeZero(number);
+    number := FALSE ? floatExpr( 0.0) : -0.0; ok &:=     isNegativeZero(number);
+    number :=  TRUE ? floatExpr(-0.0) : floatExpr( 0.0); ok &:=     isNegativeZero(number);
+    number := FALSE ? floatExpr(-0.0) : floatExpr( 0.0); ok &:= not isNegativeZero(number);
+    number :=  TRUE ? floatExpr( 0.0) : floatExpr(-0.0); ok &:= not isNegativeZero(number);
+    number := FALSE ? floatExpr( 0.0) : floatExpr(-0.0); ok &:=     isNegativeZero(number);
+    number := boolExpr( TRUE) ? -0.0 :  0.0; ok &:=     isNegativeZero(number);
+    number := boolExpr(FALSE) ? -0.0 :  0.0; ok &:= not isNegativeZero(number);
+    number := boolExpr( TRUE) ?  0.0 : -0.0; ok &:= not isNegativeZero(number);
+    number := boolExpr(FALSE) ?  0.0 : -0.0; ok &:=     isNegativeZero(number);
+    number := boolExpr( TRUE) ? -0.0 : floatExpr( 0.0); ok &:=     isNegativeZero(number);
+    number := boolExpr(FALSE) ? -0.0 : floatExpr( 0.0); ok &:= not isNegativeZero(number);
+    number := boolExpr( TRUE) ?  0.0 : floatExpr(-0.0); ok &:= not isNegativeZero(number);
+    number := boolExpr(FALSE) ?  0.0 : floatExpr(-0.0); ok &:=     isNegativeZero(number);
+    number := boolExpr( TRUE) ? floatExpr(-0.0) :  0.0; ok &:=     isNegativeZero(number);
+    number := boolExpr(FALSE) ? floatExpr(-0.0) :  0.0; ok &:= not isNegativeZero(number);
+    number := boolExpr( TRUE) ? floatExpr( 0.0) : -0.0; ok &:= not isNegativeZero(number);
+    number := boolExpr(FALSE) ? floatExpr( 0.0) : -0.0; ok &:=     isNegativeZero(number);
+    number := boolExpr( TRUE) ? floatExpr(-0.0) : floatExpr( 0.0); ok &:=     isNegativeZero(number);
+    number := boolExpr(FALSE) ? floatExpr(-0.0) : floatExpr( 0.0); ok &:= not isNegativeZero(number);
+    number := boolExpr( TRUE) ? floatExpr( 0.0) : floatExpr(-0.0); ok &:= not isNegativeZero(number);
+    number := boolExpr(FALSE) ? floatExpr( 0.0) : floatExpr(-0.0); ok &:=     isNegativeZero(number);
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correctly. (4)");
       okay := FALSE;
     end if;
 
