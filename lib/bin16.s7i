@@ -1,0 +1,591 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bin16.s7i     16-bit binary value support library               *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin64.s7i";
+include "float.s7i";
+
+
+(**
+ *  Binary values with 16 bits.
+ *  This type supports bitwise operations but no integer arithmetic.
+ *  The internal representation is the same as for integer.
+ *)
+const type: bin16 is subtype object;
+
+const creator: (ref bin16: dest) ::= (ref bin16: source)       is action "INT_CREATE";
+const destroyer: destroy (ref bin16: aValue)                   is action "GEN_DESTR";
+IN_PARAM_IS_VALUE(bin16);
+
+const proc: (inout bin16: dest) := (in bin16: source)          is action "INT_CPY";
+
+
+(**
+ *  Convert to bin16.
+ *  @return the unchanged value as bin16.
+ *)
+const func bin16: bin16 (in integer: number)                   is action "INT_ICONV1";
+
+
+(**
+ *  Default value of ''bin16'' (bin16(0)).
+ *)
+const bin16: (attr bin16) . value   is bin16(0);
+
+
+(**
+ *  Convert to bin16.
+ *  @return the unchanged value as bin16.
+ *  @exception RANGE_ERROR If the result does not fit into 16 bits.
+ *)
+const func bin16: bin16 (in char: ch) is func
+  result
+    var bin16: bits is bin16(0);
+  begin
+    if ch < '\0;' or ch > '\65535;' then
+      raise RANGE_ERROR;
+    else
+      bits := bin16(ord(ch));
+    end if;
+  end func;
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: (attr integer) conv (in bin16: bits)       is action "INT_ICONV3";
+
+
+(**
+ *  Convert to bin16.
+ *  @return the unchanged value as bin16.
+ *)
+const func bin16: (attr bin16) conv (in integer: anInt)        is action "INT_ICONV3";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: ord (in bin16: bits)                       is action "INT_ICONV1";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: integer (in bin16: bits)                   is action "INT_ICONV1";
+
+
+(**
+ *  Convert to char.
+ *  @return the unchanged value as char.
+ *)
+const func char: char (in bin16: bits) is
+  return char(integer(bits));
+
+
+(**
+ *  Convert to bin64.
+ *  @return the unchanged value as bin64.
+ *)
+const func bin64: bin64 (in bin16: bits)                       is action "INT_ICONV1";
+
+
+(**
+ *  Convert to bin16.
+ *  @return the unchanged value as bin16.
+ *)
+const func bin16: bin16 (in bin64: bits)                       is action "INT_ICONV1";
+
+
+(**
+ *  Compare two bin16 values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bin16: bits1, in bin16: bits2) is action "BIN_CMP";
+
+
+(**
+ *  Compute the hash value of a bin16 value.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bin16: bits)                  is action "INT_HASHCODE";
+
+
+(**
+ *  Compute pseudo-random bin16 value.
+ *  The random values are uniform distributed.
+ *  @return a random bin16 value.
+ *)
+const func bin16: rand (attr bin16) is
+  return bin16(rand(0, 65535));
+
+
+(**
+ *  Number of bits in the minimum binary representation.
+ *  Leading zero bits are not part of the minimum binary representation.
+ *   bitLength(bin16(0))  returns 0
+ *   bitLength(bin16(1))  returns 1
+ *   bitLength(bin16(4))  returns 3
+ *  @return the number of bits.
+ *)
+const func integer: bitLength (in bin16: bits)                 is action "BIN_BIT_LENGTH";
+
+
+(**
+ *  Number of lowest-order zero bits in the binary representation.
+ *  This is equal to the index of the lowest-order one bit (indices start with 0).
+ *  If there are only zero bits (''bits'' is bin16(0)) the result is -1.
+ *   lowestSetBit(bin16(0))  returns -1
+ *   lowestSetBit(bin16(1))  returns  0
+ *   lowestSetBit(bin16(4))  returns  2
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(bin16(0)).
+ *)
+const func integer: lowestSetBit (in bin16: bits)              is action "BIN_LOWEST_SET_BIT";
+
+
+(**
+ *  Convert an ''bin16'' value to a [[string]].
+ *  The values is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in bin16: bits)                        is action "BIN_STR";
+
+
+(**
+ *  Convert a ''bin16'' value to a [[string]] using a radix.
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *   bin16(48879) radix 16   returns "beef"
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in bin16: bits) radix (in integer: base)   is action "BIN_radix";
+
+
+(**
+ *  Convert a ''bin16'' value to a [[string]] using a radix.
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *   bin16(48879) RADIX 16   returns "BEEF"
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in bin16: bits) RADIX (in integer: base)   is action "BIN_RADIX";
+
+
+(**
+ *  Convert a ''bin16'' into a [[string]] of bytes with big-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(bin16(20299), BE, 3)  returns "\0;OK"
+ *   bytes(bin16(20299), BE, 2)  returns "OK"
+ *   bytes(bin16(20299), BE, 1)  raises RANGE_ERROR
+ *  @param bits Bin16 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''bits''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin16: bits, BE, in integer: length) is action "BIN_N_BYTES_BE";
+
+
+(**
+ *  Convert a ''bin16'' into a [[string]] of bytes with little-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(bin16(20299), LE, 3)  returns "OK\0;"
+ *   bytes(bin16(20299), LE, 2)  returns "OK"
+ *   bytes(bin16(20299), LE, 1)  raises RANGE_ERROR
+ *  @param bits Bin16 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''bits''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin16: bits, LE, in integer: length) is action "BIN_N_BYTES_LE";
+
+
+(**
+ *  Check if two bin16 values are equal.
+ *  @return TRUE if the two values are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bin16: bits1) = (in bin16: bits2)      is action "INT_EQ";
+
+
+(**
+ *  Check if two bin16 values are not equal.
+ *  @return FALSE if both values are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in bin16: bits1) <> (in bin16: bits2)     is action "INT_NE";
+
+
+(**
+ *  Compute a bitwise ''and'' of two bin16 values.
+ *   bin16(2#1100) & bin16(2#1010)  returns  bin16(2#1000)
+ *  @return the bitwise ''and'' of the two values.
+ *)
+const func bin16: (in bin16: bits1) & (in bin16: bits2)        is action "BIN_AND";
+
+
+(**
+ *  Compute a bitwise inclusive ''or'' of two bin16 values.
+ *   bin16(2#1100) | bin16(2#1010)  returns  bin16(2#1110)
+ *  @return the bitwise inclusive ''or'' of the two values.
+ *)
+const func bin16: (in bin16: bits1) | (in bin16: bits2)        is action "BIN_OR";
+
+
+(**
+ *  Compute a bitwise exclusive or (''xor'') of two bin16 values.
+ *   bin16(2#1100) >< bin16(2#1010)  returns  bin16(2#0110)
+ *  @return the bitwise ''xor'' of the two values.
+ *)
+const func bin16: (in bin16: bits1) >< (in bin16: bits2)       is action "BIN_XOR";
+
+
+(**
+ *  Compute a bitwise ''not'' of a bin16 value.
+ *   ~bin16(2#1)  returns  bin16(16#fffe)
+ *  @return the bitwise ''not'' of the value.
+ *)
+const func bin16: ~ (in bin16: bits) is
+  return bits >< bin16(16#ffff);
+
+
+(**
+ *  Compute ''bits'' logically left shifted by ''lshift''.
+ *   bin16(16#abc) << 4  returns  bin16(16#abc0)
+ *   bin16(1) << 64         raises OVERFLOW_ERROR
+ *  @return the left shifted value.
+ *  @exception OVERFLOW_ERROR If the shift amount is
+ *             negative or greater equal 64.
+ *)
+const func bin16: (in bin16: bits) << (in integer: lshift)     is action "BIN_LSHIFT";
+
+
+(**
+ *  Compute ''bits'' logically right shifted by ''rshift''.
+ *  Bits shifted beyond the lowest bit position are lost.
+ *   bin16(16#abcd) >> 4  returns  bin16(16#abc)
+ *  @return the right shifted value.
+ *  @exception OVERFLOW_ERROR If the shift amount is
+ *             negative or greater equal 64.
+ *)
+const func bin16: (in bin16: bits) >> (in integer: rshift)     is action "BIN_RSHIFT";
+
+
+(**
+ *  Logical left shift ''bits'' by ''lshift'' and assign the result back to ''bits''.
+ *  @exception OVERFLOW_ERROR If the shift amount is
+ *             negative or greater equal 64.
+ *)
+const proc: (inout bin16: bits) <<:= (in integer: lshift)      is action "BIN_LSHIFT_ASSIGN";
+
+
+(**
+ *  Logical right shift ''bits'' by ''rshift'' and assign the result back to ''bits''.
+ *  Bits shifted beyond the lowest bit position are lost.
+ *  @exception OVERFLOW_ERROR If the shift amount is
+ *             negative or greater equal 64.
+ *)
+const proc: (inout bin16: bits) >>:= (in integer: rshift)      is action "BIN_RSHIFT_ASSIGN";
+
+
+(**
+ *  Compute a bitwise ''and'' and assign the result back to ''bits1''.
+ *)
+const proc: (inout bin16: bits1) &:= (in bin16: bits2)         is action "BIN_AND_ASSIGN";
+
+
+(**
+ *  Compute a bitwise inclusive ''or'' and assign the result back to ''bits1''.
+ *)
+const proc: (inout bin16: bits1) |:= (in bin16: bits2)         is action "BIN_OR_ASSIGN";
+
+
+(**
+ *  Compute a bitwise exclusive or (''xor'') and assign the result back to ''bits1''.
+ *)
+const proc: (inout bin16: bits1) ><:= (in bin16: bits2)        is action "BIN_XOR_ASSIGN";
+
+
+(**
+ *  Rotate the bits of a bin16 value left by shiftCount bits.
+ *  The vacant bit positions at the right side are filled in with
+ *  the bits that are shifted out at the left side.
+ *   rotLeft(bin16(16#1234), 4)  returns  bin16(16#2341)
+ *  @return the left rotated value.
+ *  @exception OVERFLOW_ERROR If the shift amount is negative
+ *             or greater than 16.
+ *)
+const func bin16: rotLeft (in bin16: x, in integer: shiftCount) is
+  return (x << shiftCount | x >> (16 - shiftCount)) & bin16(16#ffff);
+
+
+(**
+ *  Rotate the bits of a bin16 value right by shiftCount bits.
+ *  The vacant bit positions at the left side are filled in with
+ *  the bits that are shifted out at the right side.
+ *   rotRight(bin16(16#1234), 4)  returns  bin16(16#4123)
+ *  @return the right rotated value.
+ *  @exception OVERFLOW_ERROR If the shift amount is negative
+ *             or greater than 16.
+ *)
+const func bin16: rotRight (in bin16: x, in integer: shiftCount) is
+  return (x >> shiftCount | x << (16 - shiftCount)) & bin16(16#ffff);
+
+
+const integer: FLOAT64_SIZE is 64;
+const integer: FLOAT64_MANTISSA_BITS        is 52;
+const integer: FLOAT64_INF_AND_NAN_EXPONENT is 16#7ff;
+const integer: FLOAT64_EXPONENT_BITS        is 11;
+const integer: FLOAT64_EXPONENT_OFFSET      is 1023;
+const bin64: FLOAT64_EXPONENT_MASK is bin64((1 << FLOAT64_EXPONENT_BITS) - 1);
+const bin64: FLOAT64_MANTISSA_MASK is bin64((1 << FLOAT64_MANTISSA_BITS) - 1);
+
+const integer: FLOAT16_SIZE is 16;
+const integer: FLOAT16_MANTISSA_BITS        is 10;
+const integer: FLOAT16_INF_AND_NAN_EXPONENT is 16#1f;
+const integer: FLOAT16_EXPONENT_OFFSET      is 15;
+
+const integer: FLOAT64_16_MANTISSA_SHIFT is
+                   FLOAT64_MANTISSA_BITS - FLOAT16_MANTISSA_BITS;
+const integer: FLOAT64_16_EXPONENT_OFFSET_DIFF is
+                   FLOAT64_EXPONENT_OFFSET - FLOAT16_EXPONENT_OFFSET;
+
+
+(**
+ *  Get a float from bits in IEEE 754 16-bit half-precision representation.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The 16-bit half-precision format of IEEE 754 (called FP16 or float16)
+ *  has a sign bit, a 5 bit exponent, and a 10 bit mantissa.
+ *   float(bin16(16#3c00))  returns  1.0
+ *  @param bits 16 bits to be converted to a float.
+ *  @return a float from 16 bits in half-precision float representation.
+ *)
+const func float: float (in bin16: bits) is func
+  result
+    var float: number is 0.0;
+  local
+    var bin64: sign is bin64(0);
+    var integer: exponent is 0;
+    var bin64: mantissa is bin64(0);
+    var boolean: doConvert is TRUE;
+    var bin64: binaryValue is bin64(0);
+  begin
+    if bits >> 16 <> bin16(0) then
+      raise RANGE_ERROR;
+    else
+      sign     :=     (bin64(bits) >> 15) & bin64(1);
+      exponent := ord((bin64(bits) >> 10) & bin64(16#1f));
+      mantissa :=      bin64(bits)        & bin64(16#3ff);
+      if exponent = 0 then
+        if mantissa = bin64(0) then
+          number := sign = bin64(0) ? 0.0 : -0.0;
+          doConvert := FALSE;
+        else
+          # Denormalized float: Renormalize it
+          while mantissa & bin64(16#400) = bin64(0) do
+            mantissa <<:= 1;
+            decr(exponent);
+          end while;
+          incr(exponent);
+          # The leading one bit of the mantissa is not stored
+          mantissa &:= ~bin64(16#400);
+        end if;
+      elsif exponent = FLOAT16_INF_AND_NAN_EXPONENT then
+        if mantissa = bin64(0) then
+          number := sign = bin64(0) ? Infinity : -Infinity;
+        else
+          # NaN: Preserve sign and mantissa bits
+          exponent := FLOAT64_INF_AND_NAN_EXPONENT;
+          mantissa <<:= FLOAT64_16_MANTISSA_SHIFT;
+          binaryValue := sign << pred(FLOAT64_SIZE) |
+                         bin64(exponent) << FLOAT64_MANTISSA_BITS |
+                         mantissa;
+          number := float(binaryValue);
+        end if;
+        doConvert := FALSE;
+      end if;
+      if doConvert then
+        # Convert to float64
+        exponent +:= FLOAT64_16_EXPONENT_OFFSET_DIFF;
+        mantissa <<:= FLOAT64_16_MANTISSA_SHIFT;
+        binaryValue := sign << pred(FLOAT64_SIZE) |
+                       bin64(exponent) << FLOAT64_MANTISSA_BITS |
+                       mantissa;
+        number := float(binaryValue);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get bits in IEEE 754 16-bit half-precision representation from a float.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The 16-bit half-precision format of IEEE 754 (called FP16 or float16)
+ *  has a sign bit, a 5 bit exponent, and a 10 bit mantissa.
+ *   bin16(1.0)  returns  bin16(16#3c00)
+ *  @param number Float value to be converted to bin16.
+ *  @return 16 bits in IEEE 754 half-precision float representation.
+ *)
+const func bin16: bin16 (in float: number) is func
+  result
+    var bin16: bits is bin16(0);
+  local
+    var bin64: binaryValue is bin64(0);
+    var bin16: sign is bin16(0);
+    var integer: exponent is 0;
+    var bin64: mantissa is bin64(0);
+    var integer: mantissaShift is 0;
+    var integer: oneBits is 0;
+    var integer: lowestBit is 0;
+  begin
+    binaryValue := bin64(number);
+    sign     := bin16(binaryValue >> (FLOAT64_SIZE - FLOAT16_SIZE)) &
+                bin16(16#8000);
+    exponent := ord((binaryValue >> FLOAT64_MANTISSA_BITS) &
+                    FLOAT64_EXPONENT_MASK) -
+                FLOAT64_16_EXPONENT_OFFSET_DIFF;
+    mantissa := binaryValue & FLOAT64_MANTISSA_MASK;
+    if exponent <= 0 then
+      if exponent < -10 then
+        # Underflow: The number cannot be represented as float16.
+        # Return zero with the same sign as number.
+        bits := sign;
+      else
+        # Normalized float which cannot be represented as
+        # normalized float16. Convert to denormalized float16.
+
+        # Add an explicit leading 1 bit to the mantissa.
+        mantissa |:= bin64(1) << FLOAT64_MANTISSA_BITS;
+
+        # Round the mantissa to the nearest (10+e)-bit value
+        # (with exponent between -10 and 0).
+        # In case of a tie, round to the nearest even value.
+
+        # The rounding may cause that the number is not representable
+        # as denormalized float16. The code below handles this
+        # case correctly: The leading one bit of the mantissa is
+        # shifted into the exponent area. This results in an
+        # exponent of one and a mantissa of zero, which is the
+        # normalized float16 representation of the rounded result.
+
+        mantissaShift := FLOAT64_16_MANTISSA_SHIFT + 1 - exponent;
+        oneBits := pred(1 << pred(mantissaShift));
+        lowestBit := ord(mantissa >> mantissaShift) mod 2;
+        mantissa := bin64(ord(mantissa) + oneBits + lowestBit);
+        bits := sign | bin16(mantissa) >> mantissaShift;
+      end if;
+    elsif exponent = FLOAT64_INF_AND_NAN_EXPONENT -
+          FLOAT64_16_EXPONENT_OFFSET_DIFF then
+      if mantissa = bin64(0) then
+        # Infinity: Return float16 infinity with the same sign.
+        bits := sign | bin16(16#7c00);
+      else
+        # NaN: Return a float16 NaN that preserves the sign bit and
+        # the 10 leftmost bits of the mantissa. If the 10 leftmost
+        # mantissa bits are all zero, the NaN would turn into infinity.
+        # In this case the lowest bit of the mantissa is set to one.
+        # This generates NaN instead of infinity.
+
+        mantissa >>:= FLOAT64_16_MANTISSA_SHIFT;
+        bits := sign | bin16(16#7c00) | bin16(mantissa) |
+                bin16(ord(mantissa = bin64(0)));
+      end if;
+    else
+      # Normalized float with an exponent greater than zero:
+      # Try to convert it to a normalized float16.
+
+      # Round mantissa to the nearest 10-bit value.
+      # In case of a tie, round to the nearest even value.
+
+      oneBits := pred(1 << pred(FLOAT64_16_MANTISSA_SHIFT));
+      lowestBit := ord(mantissa >> FLOAT64_16_MANTISSA_SHIFT) mod 2;
+      mantissa := bin64(ord(mantissa) + oneBits + lowestBit);
+
+      if mantissa & (bin64(1) << FLOAT64_MANTISSA_BITS) <> bin64(0) then
+        # Overflow in mantissa: Adjust the exponent
+        mantissa := bin64(0);
+        incr(exponent);
+      end if;
+
+      if exponent >= FLOAT16_INF_AND_NAN_EXPONENT then
+        # Exponent overflow:
+        # Return float16 infinity with the same sign as number.
+        bits := sign | bin16(16#7c00);
+      else
+        bits := sign |
+                bin16(exponent << FLOAT16_MANTISSA_BITS) |
+                bin16(mantissa >> FLOAT64_16_MANTISSA_SHIFT);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a string of two little-endian bytes to a bin16 value.
+ *  @return the bin16 value.
+ *)
+const func bin16: bin16 (in string: twoBytes, LE) is
+  return bin16(twoBytes[1])       |
+         bin16(twoBytes[2]) <<  8;
+
+
+(**
+ *  Convert a string of two big-endian bytes to a bin16 value.
+ *  @return the bin16 value.
+ *)
+const func bin16: bin16 (in string: twoBytes, BE) is
+  return bin16(twoBytes[1]) <<  8 |
+         bin16(twoBytes[2]);
+
+
+# Allows 'array bin16' everywhere without extra type definition.
+const type: _bin16Array is array bin16;
+
+
+enable_output(bin16);
+
+CASE_DECLS(bin16);
+DECLARE_TERNARY(bin16);
