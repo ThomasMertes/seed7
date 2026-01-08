@@ -648,17 +648,45 @@ const proc: predictor (in tiffHeader: header, inout string: stripData,
     var integer: column is 0;
     var integer: index is 0;
   begin
-    if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
-      delta := header.samplesPerPixel;
-    end if;
-    for line range 1 to height do
-      index := pred(line) * delta * width + succ(delta);
-      for column range succ(delta) to delta * width do
-        stripData @:= [index] char((ord(stripData[index - delta]) +
-                                    ord(stripData[index])) mod 256);
-        incr(index);
-      end for;
-    end for;
+    case header.bitsPerSample[1] of
+      when {8}:
+        if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
+          delta := header.samplesPerPixel;
+        end if;
+        for line range 1 to height do
+          index := pred(line) * delta * width + succ(delta);
+          for column range succ(delta) to delta * width do
+            stripData @:= [index] char((ord(stripData[index - delta]) +
+                                        ord(stripData[index])) mod 256);
+            incr(index);
+          end for;
+        end for;
+      when {16}:
+        if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
+          delta := header.bitsPerSample[1] mdiv 8;
+        end if;
+        if header.littleEndian then
+          for line range 1 to height do
+            index := pred(line) * delta * width + succ(delta);
+            for column range succ(delta) to pred(delta * width) step 2 do
+              stripData @:= [index] bytes((bytes2Int(stripData[index - delta fixLen 2], UNSIGNED, LE) +
+                                           bytes2Int(stripData[index         fixLen 2], UNSIGNED, LE)) mod 65536, UNSIGNED, LE, 2);
+              index +:= 2;
+            end for;
+          end for;
+        else
+          for line range 1 to height do
+            index := pred(line) * delta * width + succ(delta);
+            for column range succ(delta) to pred(delta * width) step 2 do
+              stripData @:= [index] bytes((bytes2Int(stripData[index - delta fixLen 2], UNSIGNED, BE) +
+                                           bytes2Int(stripData[index         fixLen 2], UNSIGNED, BE)) mod 65536, UNSIGNED, BE, 2);
+              index +:= 2;
+            end for;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
   end func;
 
 
