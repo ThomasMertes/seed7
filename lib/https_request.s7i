@@ -1,0 +1,219 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  https_request.s7i  Support to get and send data with the HTTPS  *)
+(*  protocol                                                        *)
+(*  Copyright (C) 2013, 2014, 2023, 2026  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "http_request.s7i";
+include "tls.s7i";
+
+
+const func file: openHttps (in httpRequest: request) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    # writeln("openHttps: " <& literal(request.location.serverName) <& " " <& request.location.portNumber);
+    # writeln(request.location.hostName <& ":" <& request.location.portNumber <& "/" <& request.location.path);
+    # writeln("params=" <& request.location.params);
+    if request.location.httpsProtocol then
+      sock := openTlsSocket(request.location.serverName, request.location.portNumber);
+    else
+      sock := openInetSocket(request.location.serverName, request.location.portNumber);
+    end if;
+    if sock <> STD_NULL then
+      sendHttp(sock, request);
+    end if;
+  end func;
+
+
+const func file: openHttps (in string: serverName, in integer: serverPortNumber, in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.location.httpsProtocol := TRUE;
+    request.location.serverName := serverName;
+    request.location.portNumber := serverPortNumber;
+    sock := openHttps(request);
+  end func;
+
+
+const func file: openHttps (in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.location.httpsProtocol := TRUE;
+    if proxyServer <> "" then
+      request.location.serverName := proxyServer;
+      request.location.portNumber := proxyHttpPort;
+    end if;
+    sock := openHttps(request);
+  end func;
+
+
+const func httpResponse: sendHttps (in var httpRequest: request, in boolean: proxy) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var file: sock is STD_NULL;
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
+  begin
+    request.location.httpsProtocol := TRUE;
+    if proxy and proxyServer <> "" then
+      request.location.serverName := proxyServer;
+      request.location.portNumber := proxyHttpPort;
+    end if;
+    repeat
+      okay := TRUE;
+      sock := openHttps(request);
+      if sock <> STD_NULL then
+        response.status := getHttpStatusCode(sock);
+        # writeln("statusCode: " <& response.status);
+        if response.status = "301" or response.status = "302" or
+            response.status = "303" or response.status = "307" then
+          request.location := getHttpLocation(request.location, sock);
+          # show(locationData);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        elsif response.status = "401" and request.creds.username <> "" and not request.creds.utilize then
+          request.creds.utilize := TRUE;
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+        end if;
+      else
+        writeln("Failed to open socket.");
+      end if;
+    until okay or repeatCount > 5;
+    if sock <> STD_NULL then
+      response.body := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
+
+const func httpResponse: sendHttps (in httpRequest: request) is
+  return sendHttps(request, FALSE);
+
+
+const func httpResponse: getHttps (in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.creds := creds;
+    response := sendHttps(request, TRUE);
+  end func;
+
+(**
+ *  Get data specified by a ''location'' using the HTTPS protocol.
+ *   getHttps("example.com")
+ *   getHttps("www.example.com/index.html")
+ *  @param location Url without https:// at the beginning.
+ *  @return the string of data found, or "" if nothing was found.
+ *)
+const func httpResponse: getHttps (in string: location) is
+  return getHttps(location, httpCreds.value);
+
+const func httpResponse: getHttps (in string: serverName, in integer: portNumber, in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.location.serverName := serverName;
+    request.location.portNumber := portNumber;
+    request.creds := creds;
+    response := sendHttps(request, FALSE);
+  end func;
+
+const func httpResponse: getHttps (in string: serverName, in integer: portNumber, in string: location) is
+  return getHttps(serverName, portNumber, location, httpCreds.value);
+
+const func httpResponse: postHttps (in string: location, in httpBody: body, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.body := body;
+    request.creds := creds;
+    response := sendHttps(request, TRUE);
+  end func;
+
+const func httpResponse: postHttps (in string: location, in httpBody: body) is
+  return postHttps(location, body);
+
+const func httpResponse: postHttps (in string: location, in string: plain, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.body.contentType := "text/plain";
+    request.body.content := plain;
+    request.creds := creds;
+    response := sendHttps(request, TRUE);
+  end func;
+
+const func httpResponse: postHttps (in string: location, in string: plain) is
+  return postHttps(location, plain);
+
+const func httpResponse: postHttps (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+    var string: name is "";
+    var string: value is "";
+  begin
+    request.method := "POST";
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.body.contentType := "application/x-www-form-urlencoded";
+    for value key name range fields do
+      request.body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+    end for;
+    if endsWith(request.body.content, "&") then
+      request.body.content := request.body.content[.. length(request.body.content)-1];
+    end if;
+    request.creds := creds;
+    response := sendHttps(request, TRUE);
+  end func;
+
+const func httpResponse: postHttps (in string: location, in hash [string] string: fields) is
+  return postHttps(location, fields, httpCreds.value);
