@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ccittfax.s7i  CCITT fax decoding support library                *)
-(*  Copyright (C) 2015, 2022, 2023, 2024  Thomas Mertes             *)
+(*  Copyright (C) 2015, 2022 - 2026  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
