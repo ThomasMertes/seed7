@@ -638,7 +638,7 @@ const proc: processHuffman1d (inout file: bmpFile,
       processCcittFaxRow(faxDataStream, whiteMsbHuffmanDecoder,
                          blackMsbHuffmanDecoder, whitePixel, blackPixel,
                          width, image[line]);
-      skipFillBits(faxDataStream);
+      skipEol(faxDataStream);
     end for;
   end func;
 
