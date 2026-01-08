@@ -1,8 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  http_response.s7i   Support to get and send data with the HTTP  *)
-(*  protocol                                                        *)
+(*  http_request.s7i  Support to get and send data with HTTP        *)
 (*  Copyright (C) 2008, 2010, 2011, 2013 - 2015  Thomas Mertes      *)
 (*                2021 - 2023, 2025, 2026  Thomas Mertes            *)
 (*                                                                  *)

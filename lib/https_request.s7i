@@ -1,8 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  https_request.s7i  Support to get and send data with the HTTPS  *)
-(*  protocol                                                        *)
+(*  https_request.s7i  Support to get and send data with HTTPS      *)
 (*  Copyright (C) 2013, 2014, 2023, 2026  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
