@@ -34,6 +34,7 @@ include "jpeg.s7i";
 include "strifile.s7i";
 include "gzip.s7i";
 include "compress.s7i";
+include "bin16.s7i";
 include "pixelimage.s7i";
 include "exif.s7i";
 
@@ -135,6 +136,10 @@ const integer: TIFF_PHOTOMETRIC_INTERPRETATION_TRANSPARENCY_MASK is 4;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_CMYK              is 5;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr             is 6;
 
+const integer: TIFF_SAMPLE_FORMAT_UNSIGNED is 1;
+const integer: TIFF_SAMPLE_FORMAT_SIGNED   is 2;
+const integer: TIFF_SAMPLE_FORMAT_FLOAT    is 3;
+
 const integer: TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT is 1;
 const integer: TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT is 2;
 
@@ -151,6 +156,7 @@ const type: tiffHeader is new struct
     var integer: fillOrder is 1;                  # Default in the TIFF 6.0 specification
     var integer: samplesPerPixel is 1;            # Default in the TIFF 6.0 specification
     var array integer: bitsPerSample is [] (1);   # Default in the TIFF 6.0 specification
+    var integer: sampleFormat is 0;
     var integer: rowsPerStrip is pred(2 ** 32);   # Default in the TIFF 6.0 specification
     var array integer: stripOffsets is 0 times 0;
     var array integer: stripByteCounts is 0 times 0;
@@ -176,11 +182,13 @@ const proc: showHeader (in tiffHeader: header) is func
     writeln("fillOrder: " <& header.fillOrder);
     writeln("samplesPerPixel: " <& header.samplesPerPixel);
     writeln("length(bitsPerSample): " <& length(header.bitsPerSample));
+    writeln("sampleFormat: " <& header.sampleFormat);
     writeln("rowsPerStrip: " <& header.rowsPerStrip);
     writeln("length(stripOffsets): " <& length(header.stripOffsets));
     writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
     writeln("orientation: " <& header.orientation);
     writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
+    writeln("bitsPerPixel: " <& header.bitsPerPixel);
   end func;
 
 
@@ -1243,6 +1251,10 @@ const proc: processRowWithColorMap (in tiffHeader: header,
   end func;
 
 
+const func integer: clampColor2 (in integer: col) is
+  return col < 0 ? 0 : (col > 65535 ? 65535 : col);
+
+
 const proc: processRowWithGrayscale (in tiffHeader: header,
     in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
@@ -1253,32 +1265,81 @@ const proc: processRowWithGrayscale (in tiffHeader: header,
     var integer: positionDelta is 0;
     var integer: grayIntensity is 0;
   begin
-    case header.bitsPerSample[1] of
-      when {8}:
-        for column range startColumn to endColumn do
-          grayIntensity := ord(stripData[currPosition]) * 256;
-          imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
-          incr(currPosition);
-        end for;
-      when {16, 24, 32, 64}:
-        positionIncrement := header.bitsPerSample[1] mdiv 8;
-        positionDelta := positionIncrement - 2;
-        if header.littleEndian then
+    if header.sampleFormat = TIFF_SAMPLE_FORMAT_FLOAT then
+      case header.bitsPerSample[1] of
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin16(stripData[currPosition fixLen 2], LE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 2;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin16(stripData[currPosition fixLen 2], BE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 2;
+            end for;
+          end if;
+        when {32}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin32(stripData[currPosition fixLen 4], LE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 4;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin32(stripData[currPosition fixLen 4], BE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 4;
+            end for;
+          end if;
+        when {64}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin64(stripData[currPosition fixLen 8], LE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 8;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              grayIntensity := clampColor2(round(float(bin64(stripData[currPosition fixLen 8], BE)) * 65535.0));
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= 8;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      case header.bitsPerSample[1] of
+        when {8}:
           for column range startColumn to endColumn do
-            grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
+            grayIntensity := ord(stripData[currPosition]) * 256;
             imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
-            currPosition +:= positionIncrement;
+            incr(currPosition);
           end for;
-        else
-          for column range startColumn to endColumn do
-            grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
-            imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
-            currPosition +:= positionIncrement;
-          end for;
-        end if;
-      otherwise:
-        raise RANGE_ERROR;
-    end case;
+        when {16, 24, 32, 64}:
+          positionIncrement := header.bitsPerSample[1] mdiv 8;
+          positionDelta := positionIncrement - 2;
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              grayIntensity := bytes2Int(stripData[currPosition + positionDelta fixLen 2], UNSIGNED, LE);
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= positionIncrement;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              grayIntensity := bytes2Int(stripData[currPosition fixLen 2], UNSIGNED, BE);
+              imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+              currPosition +:= positionIncrement;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
   end func;
 
 
@@ -1410,39 +1471,78 @@ const proc: processRowWithRGB (in tiffHeader: header,
     var integer: deltaGreen is 0;
     var integer: deltaBlue is 0;
   begin
-    case header.bitsPerSample[1] of
-      when {8}:
-        for column range startColumn to endColumn do
-          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                        ord(stripData[succ(currPosition)]) * 256,
-                                        ord(stripData[currPosition + 2]) * 256);
-          currPosition +:= 3;
-        end for;
-      when {16, 24, 32, 64}:
-        positionIncrement := header.bitsPerSample[1] mdiv 8 * 3;
-        if header.littleEndian then
-          deltaRed := header.bitsPerSample[1] mdiv 8 - 2;
-          deltaGreen := deltaRed + header.bitsPerSample[1] mdiv 8;
-          deltaBlue := deltaGreen + header.bitsPerSample[1] mdiv 8;
+    if header.sampleFormat = TIFF_SAMPLE_FORMAT_FLOAT then
+      case header.bitsPerSample[1] of
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin16(stripData[currPosition     fixLen 2], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 2 fixLen 2], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 4 fixLen 2], LE)) * 65535.0)));
+              currPosition +:= 6;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin16(stripData[currPosition     fixLen 2], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 2 fixLen 2], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 4 fixLen 2], BE)) * 65535.0)));
+              currPosition +:= 6;
+            end for;
+          end if;
+        when {32}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin32(stripData[currPosition     fixLen 4], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 4 fixLen 4], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 8 fixLen 4], LE)) * 65535.0)));
+              currPosition +:= 12;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin32(stripData[currPosition     fixLen 4], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 4 fixLen 4], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 8 fixLen 4], BE)) * 65535.0)));
+              currPosition +:= 12;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      case header.bitsPerSample[1] of
+        when {8}:
           for column range startColumn to endColumn do
-            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
-                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
-                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
-            currPosition +:= positionIncrement;
+            imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                          ord(stripData[succ(currPosition)]) * 256,
+                                          ord(stripData[currPosition + 2]) * 256);
+            currPosition +:= 3;
           end for;
-        else
-          deltaGreen := header.bitsPerSample[1] mdiv 8;
-          deltaBlue := 2 * deltaGreen;
-          for column range startColumn to endColumn do
-            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
-                                          bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
-                                          bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
-            currPosition +:= positionIncrement;
-          end for;
-        end if;
-      otherwise:
-        raise RANGE_ERROR;
-    end case;
+        when {16, 24, 32, 64}:
+          positionIncrement := header.bitsPerSample[1] mdiv 8 * 3;
+          if header.littleEndian then
+            deltaRed := header.bitsPerSample[1] mdiv 8 - 2;
+            deltaGreen := deltaRed + header.bitsPerSample[1] mdiv 8;
+            deltaBlue := deltaGreen + header.bitsPerSample[1] mdiv 8;
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, LE));
+              currPosition +:= positionIncrement;
+            end for;
+          else
+            deltaGreen := header.bitsPerSample[1] mdiv 8;
+            deltaBlue := 2 * deltaGreen;
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition              fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaGreen fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  fixLen 2], UNSIGNED, BE));
+              currPosition +:= positionIncrement;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
   end func;
 
 
@@ -1490,37 +1590,63 @@ const proc: processRowWithCMYK (in tiffHeader: header,
   local
     var integer: column is 0;
     var integer: inverseBlack is 0;
+    var float: inverseBlackFlt is 0.0;
   begin
-    case header.bitsPerSample[1] of
-      when {8}:
-        for column range startColumn to endColumn do
-          inverseBlack := 255 - ord(stripData[currPosition + 3]);
-          imageLine[column] := rgbPixel((255 - ord(stripData[currPosition]))       * inverseBlack,
-                                        (255 - ord(stripData[succ(currPosition)])) * inverseBlack,
-                                        (255 - ord(stripData[currPosition + 2]))   * inverseBlack);
-          currPosition +:= 4;
-        end for;
-      when {16}:
-        if header.littleEndian then
+    if header.sampleFormat = TIFF_SAMPLE_FORMAT_FLOAT then
+      case header.bitsPerSample[1] of
+        when {32}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              inverseBlackFlt := 1.0 - float(bin32(stripData[currPosition + 12 fixLen 4], LE));
+              imageLine[column] := rgbPixel(clampColor(round((1.0 - float(bin32(stripData[currPosition     fixLen 4], LE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 4 fixLen 4], LE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 8 fixLen 4], LE))) * inverseBlackFlt * 256.0)));
+              currPosition +:= 16;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              inverseBlackFlt := 1.0 - float(bin32(stripData[currPosition + 12 fixLen 4], BE));
+              imageLine[column] := rgbPixel(clampColor(round((1.0 - float(bin32(stripData[currPosition     fixLen 4], BE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 4 fixLen 4], BE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 8 fixLen 4], BE))) * inverseBlackFlt * 256.0)));
+              currPosition +:= 16;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      case header.bitsPerSample[1] of
+        when {8}:
           for column range startColumn to endColumn do
-            inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, LE);
-            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
-                                          (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
-                                          (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16);
-            currPosition +:= 8;
+            inverseBlack := 255 - ord(stripData[currPosition + 3]);
+            imageLine[column] := rgbPixel((255 - ord(stripData[currPosition]))       * inverseBlack,
+                                          (255 - ord(stripData[succ(currPosition)])) * inverseBlack,
+                                          (255 - ord(stripData[currPosition + 2]))   * inverseBlack);
+            currPosition +:= 4;
           end for;
-        else
-          for column range startColumn to endColumn do
-            inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, BE);
-            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
-                                          (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
-                                          (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16);
-            currPosition +:= 8;
-          end for;
-        end if;
-      otherwise:
-        raise RANGE_ERROR;
-    end case;
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, LE);
+              imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16);
+              currPosition +:= 8;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, BE);
+              imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16);
+              currPosition +:= 8;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
   end func;
 
 
@@ -2060,6 +2186,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
         end if;
         if TIFF_TAG_BITS_PER_SAMPLE in header.integerTagValues then
           header.bitsPerSample := header.integerTagValues[TIFF_TAG_BITS_PER_SAMPLE];
+        end if;
+        if TIFF_TAG_SAMPLE_FORMAT in header.integerTagValues then
+          header.sampleFormat := header.integerTagValues[TIFF_TAG_SAMPLE_FORMAT][1];
         end if;
         if TIFF_TAG_ROWS_PER_STRIP in header.integerTagValues then
           header.rowsPerStrip := header.integerTagValues[TIFF_TAG_ROWS_PER_STRIP][1];
