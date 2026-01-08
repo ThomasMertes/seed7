@@ -36,5 +36,5 @@ include "http_request.s7i";
  *  @param location Url without http:// at the beginning.
  *  @return the string of data found, or "" if nothing was found.
  *)
-const func string: getHttp (in string: location) is func
+const func string: getHttp (in string: location) is
   return getHttpResponse(location).body;
