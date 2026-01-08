@@ -27,3 +27,14 @@
 
 
 include "https_request.s7i";
+
+
+(**
+ *  Get data specified by a ''location'' using the HTTPS protocol.
+ *   getHttps("example.com")
+ *   getHttps("www.example.com/index.html")
+ *  @param location Url without https:// at the beginning.
+ *  @return the string of data found, or "" if nothing was found.
+ *)
+const func string: getHttps (in string: location) is
+  return getHttpsResponse(location).body;

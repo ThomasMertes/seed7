@@ -137,14 +137,15 @@ const func httpResponse: getHttps (in string: location, in httpCreds: creds) is 
   end func;
 
 (**
- *  Get data specified by a ''location'' using the HTTPS protocol.
- *   getHttps("example.com")
- *   getHttps("www.example.com/index.html")
+ *  Get the response from the ''location'' using the HTTPS protocol.
+ *   getHttpsResponse("example.com")
+ *   getHttpsResponse("www.example.com/index.html")
  *  @param location Url without https:// at the beginning.
- *  @return the string of data found, or "" if nothing was found.
+ *  @return the HTTP response from the ''location''.
  *)
-const func httpResponse: getHttps (in string: location) is
+const func httpResponse: getHttpsResponse (in string: location) is
   return getHttps(location, httpCreds.value);
+
 
 const func httpResponse: getHttps (in string: serverName, in integer: portNumber, in string: location, in httpCreds: creds) is func
   result

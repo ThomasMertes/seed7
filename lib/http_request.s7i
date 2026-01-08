@@ -587,13 +587,13 @@ const func httpResponse: getHttp (in string: serverName, in integer: portNumber,
 
 
 (**
- *  Get data specified by a ''location'' using the HTTP protocol.
- *   getHttp("example.com")
- *   getHttp("www.example.com/index.html")
+ *  Get the response from the ''location'' using the HTTP protocol.
+ *   getHttpResponse("example.com")
+ *   getHttpResponse("www.example.com/index.html")
  *  @param location Url without http:// at the beginning.
- *  @return the string of data found, or "" if nothing was found.
+ *  @return the HTTP response from the ''location''.
  *)
-const func httpResponse: getHttp (in string: location) is func
+const func httpResponse: getHttpResponse (in string: location) is func
   result
     var httpResponse: response is httpResponse.value;
   local
