@@ -534,11 +534,11 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
       sock := openHttp(request);
       if sock <> STD_NULL then
         response.status := getHttpStatusCode(sock);
-        # writeln("statusCode: " <& statusCode);
+        # writeln("statusCode: " <& response.status);
         if response.status = "301" or response.status = "302" or
             response.status = "303" or response.status = "307" then
           request.location := getHttpLocation(request.location, sock);
-          # show(locationData);
+          # show(request.location);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
