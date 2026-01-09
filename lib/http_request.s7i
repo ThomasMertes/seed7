@@ -255,24 +255,28 @@ const proc: sendHttp (inout file: sock, in httpRequest: request) is func
   end func;
 
 
-const func file: openHttp (in httpRequest: request) is func
+const func file: openHttp (in httpLocation: locationData) is func
   result
     var file: sock is STD_NULL;
   begin
-    # writeln("openHttp: " <& literal(request.location.serverName) <& " " <& request.location.portNumber);
-    # writeln(request.location.hostName <& ":" <& request.location.portNumber <& "/" <& request.location.path);
-    # writeln("params=" <& request.location.params);
-    if not request.location.httpsProtocol then
-      sock := openInetSocket(request.location.serverName, request.location.portNumber);
-    end if;
-    if sock <> STD_NULL then
-      sendHttp(sock, request);
+    # writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
+    # writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
+    # writeln("params=" <& locationData.params);
+    if not locationData.httpsProtocol then
+      sock := openInetSocket(locationData.serverName, locationData.portNumber);
     end if;
   end func;
 
 
-const func file: openHttp (in httpLocation: locationData) is
-  return openHttp(httpGetRequest(locationData));
+const func file: openHttp (in httpRequest: request) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    sock := openHttp(request.location);
+    if sock <> STD_NULL then
+      sendHttp(sock, request);
+    end if;
+  end func;
 
 
 const func string: getHttpStatusCode (inout file: sock) is func

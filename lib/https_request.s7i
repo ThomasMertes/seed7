@@ -30,18 +30,26 @@ include "http_request.s7i";
 include "tls.s7i";
 
 
+const func file: openHttps (in httpLocation: locationData) is func
+  result
+    var file: sock is STD_NULL;
+  begin
+    # writeln("openHttps: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
+    # writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
+    # writeln("params=" <& locationData.params);
+    if locationData.httpsProtocol then
+      sock := openTlsSocket(locationData.serverName, locationData.portNumber);
+    else
+      sock := openInetSocket(locationData.serverName, locationData.portNumber);
+    end if;
+  end func;
+
+
 const func file: openHttps (in httpRequest: request) is func
   result
     var file: sock is STD_NULL;
   begin
-    # writeln("openHttps: " <& literal(request.location.serverName) <& " " <& request.location.portNumber);
-    # writeln(request.location.hostName <& ":" <& request.location.portNumber <& "/" <& request.location.path);
-    # writeln("params=" <& request.location.params);
-    if request.location.httpsProtocol then
-      sock := openTlsSocket(request.location.serverName, request.location.portNumber);
-    else
-      sock := openInetSocket(request.location.serverName, request.location.portNumber);
-    end if;
+    sock := openHttps(request.location);
     if sock <> STD_NULL then
       sendHttp(sock, request);
     end if;
