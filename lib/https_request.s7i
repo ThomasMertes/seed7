@@ -48,36 +48,6 @@ const func file: openHttps (in httpRequest: request) is func
   end func;
 
 
-const func file: openHttps (in string: serverName, in integer: serverPortNumber, in string: location) is func
-  result
-    var file: sock is STD_NULL;
-  local
-    var httpRequest: request is httpRequest.value;
-  begin
-    request.location := getHttpLocation(location, httpsDefaultPort);
-    request.location.httpsProtocol := TRUE;
-    request.location.serverName := serverName;
-    request.location.portNumber := serverPortNumber;
-    sock := openHttps(request);
-  end func;
-
-
-const func file: openHttps (in string: location) is func
-  result
-    var file: sock is STD_NULL;
-  local
-    var httpRequest: request is httpRequest.value;
-  begin
-    request.location := getHttpLocation(location, httpsDefaultPort);
-    request.location.httpsProtocol := TRUE;
-    if proxyServer <> "" then
-      request.location.serverName := proxyServer;
-      request.location.portNumber := proxyHttpPort;
-    end if;
-    sock := openHttps(request);
-  end func;
-
-
 const func httpResponse: sendHttps (in var httpRequest: request, in boolean: proxy) is func
   result
     var httpResponse: response is httpResponse.value;
