@@ -125,22 +125,6 @@ const func httpResponse: getHttpsResponse (in string: location) is
   return getHttps(location, httpCreds.value);
 
 
-const func httpResponse: getHttps (in string: serverName, in integer: portNumber, in string: location, in httpCreds: creds) is func
-  result
-    var httpResponse: response is httpResponse.value;
-  local
-    var httpRequest: request is httpRequest.value;
-  begin
-    request.location := getHttpLocation(location, httpsDefaultPort);
-    request.location.serverName := serverName;
-    request.location.portNumber := portNumber;
-    request.creds := creds;
-    response := sendHttps(request, FALSE);
-  end func;
-
-const func httpResponse: getHttps (in string: serverName, in integer: portNumber, in string: location) is
-  return getHttps(serverName, portNumber, location, httpCreds.value);
-
 const func httpResponse: postHttps (in string: location, in httpBody: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
