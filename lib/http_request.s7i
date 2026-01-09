@@ -275,35 +275,6 @@ const func file: openHttp (in httpLocation: locationData) is
   return openHttp(httpGetRequest(locationData));
 
 
-const func file: openHttp (in string: serverName, in integer: serverPortNumber,
-    in string: location) is func
-  result
-    var file: sock is STD_NULL;
-  local
-    var httpLocation: locationData is httpLocation.value;
-  begin
-    locationData := getHttpLocation(location, httpDefaultPort);
-    locationData.serverName := serverName;
-    locationData.portNumber := serverPortNumber;
-    sock := openHttp(locationData);
-  end func;
-
-
-const func file: openHttp (in string: location) is func
-  result
-    var file: sock is STD_NULL;
-  local
-    var httpLocation: locationData is httpLocation.value;
-  begin
-    locationData := getHttpLocation(location, httpDefaultPort);
-    if proxyServer <> "" then
-      locationData.serverName := proxyServer;
-      locationData.portNumber := proxyHttpPort;
-    end if;
-    sock := openHttp(locationData);
-  end func;
-
-
 const func string: getHttpStatusCode (inout file: sock) is func
   result
     var string: statusCode is "";
