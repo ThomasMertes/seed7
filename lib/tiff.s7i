@@ -1240,7 +1240,8 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
 
 
 const proc: processRow (in tiffHeader: header,
-    inout msbInBitStream: stripDataStream, inout pixelArray: imageLine) is func
+    inout msbInBitStream: stripDataStream, in integer: startColumn,
+    in integer: endColumn, inout pixelArray: imageLine) is func
   local
     var integer: bitsPerSample1 is 0;
     var pixel: whitePixel is pixel.value;
@@ -1256,7 +1257,7 @@ const proc: processRow (in tiffHeader: header,
       when {1}:
         bitsPerSample1 := header.bitsPerSample[1];
         if length(header.colorMap) <> 0 then
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             imageLine[column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
           end for;
         elsif bitsPerSample1 = 1 then
@@ -1268,7 +1269,7 @@ const proc: processRow (in tiffHeader: header,
             whitePixel := colorPixel(black);
             blackPixel := colorPixel(white);
           end if;
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             if getBit(stripDataStream) = 0 then
               imageLine[column] := whitePixel;
             else
@@ -1277,7 +1278,7 @@ const proc: processRow (in tiffHeader: header,
           end for;
         else
           grayFactor := 65535 div pred(2 ** bitsPerSample1);
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity :=  getBits(stripDataStream, bitsPerSample1) * grayFactor;
             imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
           end for;
@@ -1286,7 +1287,7 @@ const proc: processRow (in tiffHeader: header,
         colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
         colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
         colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
                                         getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
                                         getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
@@ -1295,7 +1296,7 @@ const proc: processRow (in tiffHeader: header,
         colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
         colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
         colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
-        for column range 1 to header.width do
+        for column range startColumn to endColumn do
           imageLine[column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
                                         getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
                                         getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
@@ -1966,6 +1967,29 @@ const proc: readThunderScan (in tiffHeader: header, in string: stripData,
   end func;
 
 
+const proc: nextTile (in tiffHeader: header, in integer: tileWidth,
+    inout integer: currentRow, inout integer: tileStartColumn,
+    inout integer: tileEndColumn) is func
+  begin
+    tileStartColumn := succ(tileEndColumn);
+    if tileStartColumn <= header.width then
+      if tileStartColumn + tileWidth - 1 <= header.width then
+        tileEndColumn := tileStartColumn + tileWidth - 1;
+      else
+        tileEndColumn := header.width;
+      end if;
+    else
+      currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
+      tileStartColumn := 1;
+      if header.width >= tileWidth then
+        tileEndColumn := tileWidth;
+      else
+        tileEndColumn := header.width;
+      end if;
+    end if;
+  end func;
+
+
 const proc: readTiffStripOrTile (inout file: tiffFile,
     inout tiffHeader: header, in integer: offset, in integer: byteCount,
     in integer: numberOfRows, inout integer: currentRow,
@@ -1982,7 +2006,6 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
   begin
     seek(tiffFile, succ(offset));
     stripData := gets(tiffFile, byteCount);
-    # writeln("length(stripData): " <& length(stripData));
     if length(stripData) = byteCount then
       if header.height - currentRow + 1 >= numberOfRows then
         rowsInCurrentStrip := numberOfRows;
@@ -2005,41 +2028,36 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
                                 tileWidth);
           if header.bitsPerSample[1] mod 8 <> 0 then
             stripDataStream := openMsbInBitStream(stripData);
-            for rowIndex range 1 to rowsInCurrentStrip do
-              # writeln("rowIndex: " <& rowIndex);
-              # writeln("currentRow: " <& currentRow);
-              processRow(header, stripDataStream, image[currentRow]);
-              ignore(gets(stripDataStream, 0));
-              incr(currentRow);
-            end for;
+            if TIFF_TAG_TILE_WIDTH in header.integerTagValues and
+               TIFF_TAG_TILE_LENGTH in header.integerTagValues then
+              tileStartRow := currentRow;
+              for rowIndex range 1 to rowsInCurrentStrip do
+                processRow(header, stripDataStream, tileStartColumn,
+                           tileEndColumn, image[tileStartRow]);
+                ignore(gets(stripDataStream, 0));
+                incr(tileStartRow);
+              end for;
+              nextTile(header, tileWidth, currentRow,
+                       tileStartColumn, tileEndColumn);
+            else
+              for rowIndex range 1 to rowsInCurrentStrip do
+                processRow(header, stripDataStream, 1, header.width,
+                           image[currentRow]);
+                ignore(gets(stripDataStream, 0));
+                incr(currentRow);
+              end for;
+            end if;
           elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
                 TIFF_TAG_TILE_LENGTH in header.integerTagValues then
-            # writeln("currentRow: " <& currentRow);
-            # writeln("tileStartColumn: " <& tileStartColumn);
             currPosition := 1;
             tileStartRow := currentRow;
             for rowIndex range 1 to rowsInCurrentStrip do
-              # writeln("rowIndex: " <& rowIndex);
               processRow(header, stripData, currPosition,
                          tileStartColumn, tileEndColumn, image[tileStartRow]);
               incr(tileStartRow);
             end for;
-            tileStartColumn := succ(tileEndColumn);
-            if tileStartColumn <= header.width then
-              if tileStartColumn + tileWidth - 1 <= header.width then
-                tileEndColumn := tileStartColumn + tileWidth - 1;
-              else
-                tileEndColumn := header.width;
-              end if;
-            else
-              currentRow +:= header.integerTagValues[TIFF_TAG_TILE_LENGTH][1];
-              tileStartColumn := 1;
-              if header.width >= tileWidth then
-                tileEndColumn := tileWidth;
-              else
-                tileEndColumn := header.width;
-              end if;
-            end if;
+            nextTile(header, tileWidth, currentRow,
+                     tileStartColumn, tileEndColumn);
           else
             currPosition := 1;
             for rowIndex range 1 to rowsInCurrentStrip do
