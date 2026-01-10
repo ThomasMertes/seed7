@@ -34,6 +34,7 @@ include "jpeg.s7i";
 include "strifile.s7i";
 include "gzip.s7i";
 include "compress.s7i";
+include "bitdata.s7i";
 include "bin16.s7i";
 include "pixelimage.s7i";
 include "exif.s7i";
@@ -1804,6 +1805,9 @@ const proc: decompressStripOrTile (in tiffHeader: header,
       when {TIFF_NO_COMPRESSION}:
         noop;
       when {TIFF_COMPRESSION_PACK_BITS}:
+        if header.fillOrder = 2 then
+          stripData := reverseBits(stripData);
+        end if;
         stripData := fromPackBits(stripData);
       when {TIFF_COMPRESSION_LEMPEL_ZIV_WELCH}:
         if stripData[1] = '\0;' then
