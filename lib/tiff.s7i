@@ -1822,6 +1822,8 @@ const proc: decompressStripOrTile (in tiffHeader: header,
         differencingPredictor(header, stripData, height, width);
       when {TIFF_PREDICTOR_FLOAT}:
         floatPredictor(header, stripData, height, width);
+      otherwise:
+        raise RANGE_ERROR;
     end case;
   end func;
 
