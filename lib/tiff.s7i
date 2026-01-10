@@ -128,6 +128,10 @@ const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
 const integer: TIFF_COMPRESSION_THUNDERSCAN            is 32809;
 const integer: TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE is 32946;
 
+const integer: TIFF_PREDICTOR_NONE         is 1;
+const integer: TIFF_PREDICTOR_DIFFERENCING is 2;
+const integer: TIFF_PREDICTOR_FLOAT        is 3;
+
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO     is 0;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO     is 1;
 const integer: TIFF_PHOTOMETRIC_INTERPRETATION_RGB               is 2;
@@ -151,6 +155,7 @@ const type: tiffHeader is new struct
     var integer: width is 0;
     var integer: height is 0;                     # Named length the TIFF 6.0 specification
     var integer: compression is 0;
+    var integer: predictor is 1;
     var integer: photometricInterpretation is -1;
     var integer: planarConfiguration is 1;        # Default in the TIFF 6.0 specification
     var integer: fillOrder is 1;                  # Default in the TIFF 6.0 specification
@@ -177,6 +182,7 @@ const proc: showHeader (in tiffHeader: header) is func
     writeln("width: " <& header.width);
     writeln("height: " <& header.height);
     writeln("compression: " <& header.compression);
+    writeln("predictor: " <& header.predictor);
     writeln("photometricInterpretation: " <& header.photometricInterpretation);
     writeln("planarConfiguration: " <& header.planarConfiguration);
     writeln("fillOrder: " <& header.fillOrder);
@@ -640,7 +646,7 @@ const proc: readColorMap (inout tiffHeader: header) is func
   end func;
 
 
-const proc: predictor (in tiffHeader: header, inout string: stripData,
+const proc: differencingPredictor (in tiffHeader: header, inout string: stripData,
     in integer: height, in integer: width) is func
   local
     var integer: delta is 1;
@@ -684,6 +690,56 @@ const proc: predictor (in tiffHeader: header, inout string: stripData,
       otherwise:
         raise RANGE_ERROR;
     end case;
+  end func;
+
+
+const proc: floatPredictor (in tiffHeader: header, inout string: stripData,
+    in integer: height, in integer: width) is func
+  local
+    var integer: delta is 0;
+    var integer: bytesPerColumn is 0;
+    var integer: bytesPerSample is 0;
+    var integer: samplesPerColumn is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: lineStart is 0;
+    var integer: byteIndex is 0;
+    var string: output is "";
+  begin
+    delta := header.samplesPerPixel;
+    bytesPerColumn := width * header.bitsPerPixel mdiv 8;
+    for line range 1 to height do
+      lineStart := pred(line) * bytesPerColumn;
+      for column range lineStart + succ(delta) to lineStart + bytesPerColumn do
+        stripData @:= [column] char((ord(stripData[column - delta]) +
+                                     ord(stripData[column])) mod 256);
+      end for;
+    end for;
+    output := "\0;" mult length(stripData);
+    bytesPerSample := header.bitsPerSample[1] mdiv 8;
+    samplesPerColumn := width * header.samplesPerPixel;
+    if header.littleEndian then
+      for line range 1 to height do
+        lineStart := pred(line) * bytesPerColumn;
+        for column range 1 to samplesPerColumn do
+          for byteIndex range 1 to bytesPerSample do
+            output @:= [lineStart + pred(column) * bytesPerSample + byteIndex]
+                stripData[lineStart + (bytesPerSample - byteIndex) * samplesPerColumn + column];
+          end for;
+        end for;
+      end for;
+    else
+      for line range 1 to height do
+        lineStart := pred(line) * bytesPerColumn;
+        for column range 1 to samplesPerColumn do
+          for byteIndex range 1 to bytesPerSample do
+            output @:= [lineStart + pred(column) * bytesPerSample + byteIndex]
+                stripData[lineStart + pred(byteIndex) * samplesPerColumn + column];
+          end for;
+        end for;
+      end for;
+    end if;
+    stripData := output;
   end func;
 
 
@@ -1759,10 +1815,14 @@ const proc: decompressStripOrTile (in tiffHeader: header,
     if bytesPerLine * height <> length(stripData) and width < tileWidth then
       removeUnusedData(stripData, bytesPerLine, bytesPerTileLine);
     end if;
-    if TIFF_TAG_PREDICTOR in header.integerTagValues and
-        header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
-      predictor(header, stripData, height, width);
-    end if;
+    case header.predictor of
+      when {TIFF_PREDICTOR_NONE}:
+        noop;
+      when {TIFF_PREDICTOR_DIFFERENCING}:
+        differencingPredictor(header, stripData, height, width);
+      when {TIFF_PREDICTOR_FLOAT}:
+        floatPredictor(header, stripData, height, width);
+    end case;
   end func;
 
 
@@ -2198,6 +2258,9 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
         header.width := header.integerTagValues[TIFF_TAG_IMAGE_WIDTH][1];
         header.height := header.integerTagValues[TIFF_TAG_IMAGE_LENGTH][1];
         header.compression := header.integerTagValues[TIFF_TAG_COMPRESSION][1];
+        if TIFF_TAG_PREDICTOR in header.integerTagValues then
+          header.predictor := header.integerTagValues[TIFF_TAG_PREDICTOR][1];
+        end if;
         header.photometricInterpretation :=
             header.integerTagValues[TIFF_TAG_PHOTOMETRIC_INTERPRETATION][1];
         if TIFF_TAG_PLANAR_CONFIGURATION in header.integerTagValues then
