@@ -177,6 +177,8 @@ const type: tiffHeader is new struct
 
 
 const proc: showHeader (in tiffHeader: header) is func
+  local
+    var integer: bits is 0;
   begin
     writeln("littleEndian: " <& header.littleEndian);
     writeln("width: " <& header.width);
@@ -187,7 +189,11 @@ const proc: showHeader (in tiffHeader: header) is func
     writeln("planarConfiguration: " <& header.planarConfiguration);
     writeln("fillOrder: " <& header.fillOrder);
     writeln("samplesPerPixel: " <& header.samplesPerPixel);
-    writeln("length(bitsPerSample): " <& length(header.bitsPerSample));
+    write("bitsPerSample:");
+    for bits range header.bitsPerSample do
+      write(" " <& bits);
+    end for;
+    writeln;
     writeln("sampleFormat: " <& header.sampleFormat);
     writeln("rowsPerStrip: " <& header.rowsPerStrip);
     writeln("length(stripOffsets): " <& length(header.stripOffsets));
