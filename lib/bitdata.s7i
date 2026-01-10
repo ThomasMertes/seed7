@@ -120,6 +120,20 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
   end func;
 
 
+const func string: reverseBits (in string: stri) is func
+  result
+    var string: reversed is "";
+  local
+    var char: aChar is ' ';
+    var integer: index is 0;
+  begin
+    reversed := "\0;" mult length(stri);
+    for aChar key index range stri do
+      reversed @:= [index] char(reverseBits[8][ord(aChar)]);
+    end for;
+  end func;
+
+
 (**
  *  Type to read bitwise data starting with the least significant bit.
  *  This is used by the Huffman compression (as part of the deflate
