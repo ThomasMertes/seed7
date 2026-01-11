@@ -715,37 +715,31 @@ const proc: floatPredictor (in tiffHeader: header, inout string: stripData,
   begin
     delta := header.samplesPerPixel;
     bytesPerColumn := width * header.bitsPerPixel mdiv 8;
+    bytesPerSample := header.bitsPerSample[1] mdiv 8;
+    samplesPerColumn := width * header.samplesPerPixel;
+    output := "\0;" mult length(stripData);
     for line range 1 to height do
       lineStart := pred(line) * bytesPerColumn;
       for column range lineStart + succ(delta) to lineStart + bytesPerColumn do
         stripData @:= [column] char((ord(stripData[column - delta]) +
                                      ord(stripData[column])) mod 256);
       end for;
-    end for;
-    output := "\0;" mult length(stripData);
-    bytesPerSample := header.bitsPerSample[1] mdiv 8;
-    samplesPerColumn := width * header.samplesPerPixel;
-    if header.littleEndian then
-      for line range 1 to height do
-        lineStart := pred(line) * bytesPerColumn;
+      if header.littleEndian then
         for column range 1 to samplesPerColumn do
           for byteIndex range 1 to bytesPerSample do
             output @:= [lineStart + pred(column) * bytesPerSample + byteIndex]
                 stripData[lineStart + (bytesPerSample - byteIndex) * samplesPerColumn + column];
           end for;
         end for;
-      end for;
-    else
-      for line range 1 to height do
-        lineStart := pred(line) * bytesPerColumn;
+      else
         for column range 1 to samplesPerColumn do
           for byteIndex range 1 to bytesPerSample do
             output @:= [lineStart + pred(column) * bytesPerSample + byteIndex]
                 stripData[lineStart + pred(byteIndex) * samplesPerColumn + column];
           end for;
         end for;
-      end for;
-    end if;
+      end if;
+    end for;
     stripData := output;
   end func;
 
