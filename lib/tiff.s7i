@@ -1806,7 +1806,7 @@ const proc: decompressStripOrTile (in tiffHeader: header,
         noop;
       when {TIFF_COMPRESSION_PACK_BITS}:
         if header.fillOrder = 2 then
-          stripData := reverseBits(stripData);
+          stripData := reverseByteBits(stripData);
         end if;
         stripData := fromPackBits(stripData);
       when {TIFF_COMPRESSION_LEMPEL_ZIV_WELCH}:

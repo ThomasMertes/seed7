@@ -120,7 +120,7 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
   end func;
 
 
-const func string: reverseBits (in string: stri) is func
+const func string: reverseByteBits (in string: stri) is func
   result
     var string: reversed is "";
   local
