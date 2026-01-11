@@ -1739,6 +1739,52 @@ const proc: processRowWithCMYK (in tiffHeader: header,
   end func;
 
 
+const proc: processRowWithYCbCr (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
+  local
+    var integer: horizontal is 0;
+    var integer: vertical is 0;
+    var integer: column is 0;
+    var array integer: luminance is 0 times 0;
+    var integer: index is 0;
+    var integer: chromaBlue is 0;
+    var integer: chromaRed is 0;
+  begin
+    if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
+      horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
+      vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
+    else
+      horizontal := 1;
+      vertical := 1;
+    end if;
+    if vertical = 1 then
+      luminance := horizontal times 0;
+      case header.bitsPerSample[1] of
+        when {8}:
+          for column range startColumn to endColumn step horizontal do
+            for index range 1 to horizontal do
+              luminance[index] := ord(stripData[currPosition]);
+              incr(currPosition);
+            end for;
+            chromaBlue := ord(stripData[currPosition]) * 8 - 1024;
+            chromaRed  := ord(stripData[succ(currPosition)]) * 8 - 1024;
+            for index range 1 to horizontal do
+              imageLine[pred(column + index)] :=
+                  setPixel(luminance[index], chromaBlue, chromaRed);
+            end for;
+            currPosition +:= horizontal;
+          end for;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
 const proc: processRow (in tiffHeader: header, in string: stripData,
     inout integer: currPosition, in integer: startColumn,
     in integer: endColumn, inout pixelArray: imageLine) is func
@@ -1774,8 +1820,14 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
           raise RANGE_ERROR;
         end if;
       when {3}:
-        processRowWithRGB(header, stripData, currPosition,
-                          startColumn, endColumn, imageLine);
+        if header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr then
+          processRowWithYCbCr(header, stripData, currPosition,
+                             startColumn, endColumn, imageLine);
+        else
+          processRowWithRGB(header, stripData, currPosition,
+                            startColumn, endColumn, imageLine);
+        end if;
       when {4}:
         if header.photometricInterpretation =
             TIFF_PHOTOMETRIC_INTERPRETATION_CMYK then
