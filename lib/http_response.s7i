@@ -39,7 +39,7 @@ include "shell.s7i";
  *  where the files are found. Additionally it defines also which directory
  *  from a HTTP request should be interpreted as CGI directory.
  *)
-const type: httpResponseData is new struct
+const type: httpServerResponse is new struct
     var string: htdocs is "";
     var string: cgiDir is "";
     var string: cgiName is "";
@@ -53,17 +53,17 @@ const type: httpResponseData is new struct
  *  @param cgiDir Path of the directory with the CGI programs (cgi-bin directory).
  *  @param cgiName Name of the CGI directory in HTTP requests.
  *  @param backendSys File system where the ''htdocs'' and ''cgiDir'' files are found.
- *  @return a ''httpResponseData'' value with the given parameters.
+ *  @return a ''httpServerResponse'' value with the given parameters.
  *)
-const func httpResponseData: httpResponseData (in string: htdocs, in string: cgiDir,
+const func httpServerResponse: httpServerResponse (in string: htdocs, in string: cgiDir,
     in string: cgiName, inout fileSys: backendSys) is func
   result
-    var httpResponseData: responseData is httpResponseData.value;
+    var httpServerResponse: response is httpServerResponse.value;
   begin
-    responseData.htdocs := toAbsPath(getcwd(backendSys), htdocs);
-    responseData.cgiDir := toAbsPath(getcwd(backendSys), cgiDir);
-    responseData.cgiName := cgiName;
-    responseData.backendSys := backendSys;
+    response.htdocs := toAbsPath(getcwd(backendSys), htdocs);
+    response.cgiDir := toAbsPath(getcwd(backendSys), cgiDir);
+    response.cgiName := cgiName;
+    response.backendSys := backendSys;
   end func;
 
 
@@ -158,11 +158,11 @@ const proc: sendClientError (inout file: sock, in integer: statuscode,
   end func;
 
 
-const func string: callCgi (in httpResponseData: responseData, in string: filePath,
+const func string: callCgi (in httpServerResponse: response, in string: filePath,
     in string: queryParams, in string: postParams, in string: cookies,
     inout array string: header) is func
   result
-    var string: response is "";
+    var string: responseStri is "";
   local
     var string: cgiPath is "";
     var string: tempInputName is "";
@@ -176,11 +176,11 @@ const func string: callCgi (in httpResponseData: responseData, in string: filePa
   begin
     # writeln("callCgi " <& filePath <& " " <& queryParams);
     # writeln(postParams);
-    cgiPath := toStdPath(responseData.cgiDir & filePath);
+    cgiPath := toStdPath(response.cgiDir & filePath);
     setenv("QUERY_STRING", queryParams);
     setenv("CONTENT_LENGTH", str(length(postParams)));
     setenv("HTTP_COOKIE", cookies);
-    setenv("DOCUMENT_ROOT", toOsPath(responseData.htdocs));
+    setenv("DOCUMENT_ROOT", toOsPath(response.htdocs));
     if postParams <> "" then
       tempInputName := "cgiInput_" & str(rand(0, 99999));
       cgiInput := open(tempInputName, "w");
@@ -215,28 +215,28 @@ const func string: callCgi (in httpResponseData: responseData, in string: filePa
         line := getln(cgiOutput);
       end while;
       # writeln("->");
-      response := gets(cgiOutput, 999999999);
-      # writeln(length(response));
-      # writeln("-> " <& literal(response));
+      responseStri := gets(cgiOutput, 999999999);
+      # writeln(length(responseStri));
+      # writeln("-> " <& literal(responseStri));
       close(cgiOutput);
       if postParams <> "" then
         removeFile(tempInputName);
       end if;
     end if;
-    if response = "" then
+    if responseStri = "" then
       header &:= "Status: 404 Not Found";
       header &:= "Content-Type: text/html";
-      response := "<html><head>\n\
-                  \<title>CGI Error</title>\n\
-                  \</head><body>\n\
-                  \<h1>CGI Error</h1>\n\
-                  \<p>The requested CGI script " <& filePath <&
-                  " could not be executed or did not produce any output.</p>\n\
-                  \<p>Query params: " <& queryParams <& "</p>\n\
-                  \<p>Post params: " <& postParams <& "</p>\n\
-                  \<hr>\n\
-                  \<address>Comanche</address>\n\
-                  \</body></html>\n";
+      responseStri := "<html><head>\n\
+                      \<title>CGI Error</title>\n\
+                      \</head><body>\n\
+                      \<h1>CGI Error</h1>\n\
+                      \<p>The requested CGI script " <& filePath <&
+                      " could not be executed or did not produce any output.</p>\n\
+                      \<p>Query params: " <& queryParams <& "</p>\n\
+                      \<p>Post params: " <& postParams <& "</p>\n\
+                      \<hr>\n\
+                      \<address>Comanche</address>\n\
+                      \</body></html>\n";
     end if;
   end func;
 
@@ -244,10 +244,10 @@ const func string: callCgi (in httpResponseData: responseData, in string: filePa
 (**
  *  Process a GET ''request'' and send a response to the ''request'' destination.
  *  If the ''request'' refers to a CGI the corresponding CGI program is executed.
- *  @param responseData The data source of a web server.
+ *  @param response The data source of a web server.
  *  @param request The [[httpserv#httpServerRequest|httpServerRequest]] (GET) to be processed.
  *)
-const proc: processGet (inout httpResponseData: responseData,
+const proc: processGet (inout httpServerResponse: response,
     inout httpServerRequest: request) is func
   local
     var string: filePath is "";
@@ -260,31 +260,31 @@ const proc: processGet (inout httpResponseData: responseData,
     if "Cookie" in request.properties then
       cookies := request.properties["Cookie"];
     end if;
-    if startsWith(request.path, responseData.cgiName) then
+    if startsWith(request.path, response.cgiName) then
       setenv("REQUEST_METHOD", "GET");
-      buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
+      buffer := callCgi(response, request.path[length(response.cgiName) ..], request.queryStri,
                         "", cookies, cgiHeader);
       if buffer <> "" then
         sendHttpResponse(request.sock, buffer, "", cgiHeader);
       end if;
     else
-      filePath := toStdPath(responseData.htdocs & "/" & request.path);
+      filePath := toStdPath(response.htdocs & "/" & request.path);
       # writeln(literal(filePath));
-      if fileType(responseData.backendSys, filePath) = FILE_ABSENT then
-        if fileType(responseData.backendSys, filePath & ".html") <> FILE_ABSENT then
+      if fileType(response.backendSys, filePath) = FILE_ABSENT then
+        if fileType(response.backendSys, filePath & ".html") <> FILE_ABSENT then
           filePath &:= ".html";
-        elsif fileType(responseData.backendSys, filePath & ".htm") <> FILE_ABSENT then
+        elsif fileType(response.backendSys, filePath & ".htm") <> FILE_ABSENT then
           filePath &:= ".htm";
         end if;
-      elsif fileType(responseData.backendSys, filePath) = FILE_DIR then
-        if fileType(responseData.backendSys, filePath & "/index.html") <> FILE_ABSENT then
+      elsif fileType(response.backendSys, filePath) = FILE_DIR then
+        if fileType(response.backendSys, filePath & "/index.html") <> FILE_ABSENT then
           filePath &:= "/index.html";
-        elsif fileType(responseData.backendSys, filePath & "/index.htm") <> FILE_ABSENT then
+        elsif fileType(response.backendSys, filePath & "/index.htm") <> FILE_ABSENT then
           filePath &:= "/index.htm";
         end if;
       end if;
-      if fileType(responseData.backendSys, filePath) = FILE_REGULAR then
-        buffer := getFile(responseData.backendSys, filePath);
+      if fileType(response.backendSys, filePath) = FILE_REGULAR then
+        buffer := getFile(response.backendSys, filePath);
       else
         buffer := "";
       end if;
@@ -310,10 +310,10 @@ const proc: processGet (inout httpResponseData: responseData,
 (**
  *  Process a POST ''request'' and send a response to the ''request'' destination.
  *  If the ''request'' refers to a CGI the corresponding CGI program is executed.
- *  @param responseData The data source of a web server.
+ *  @param response The data source of a web server.
  *  @param request The [[httpserv#httpServerRequest|httpServerRequest]] (POST) to be processed.
  *)
-const proc: processPost (in httpResponseData: responseData,
+const proc: processPost (in httpServerResponse: response,
     inout httpServerRequest: request) is func
   local
     var string: cookies is "";
@@ -326,9 +326,9 @@ const proc: processPost (in httpResponseData: responseData,
     if "Cookie" in request.properties then
       cookies := request.properties["Cookie"];
     end if;
-    if startsWith(request.path, responseData.cgiName) then
+    if startsWith(request.path, response.cgiName) then
       setenv("REQUEST_METHOD", "POST");
-      buffer := callCgi(responseData, request.path[length(responseData.cgiName) ..], request.queryStri,
+      buffer := callCgi(response, request.path[length(response.cgiName) ..], request.queryStri,
                         request.body, cookies, cgiHeader);
     end if;
     if buffer <> "" then

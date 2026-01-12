@@ -57,7 +57,7 @@ const proc: main is func
     var integer: port is 1080;
     var httpServer: server is httpServer.value;
     var httpServerRequest: request is httpServerRequest.value;
-    var httpResponseData: responseData is httpResponseData.value;
+    var httpServerResponse: response is httpServerResponse.value;
   begin
     writeln("Comanche Version 2.0 - Simple webserver for static and cgi pages");
     writeln("Copyright (C) 2009 - 2017, 2023 Thomas Mertes");
@@ -121,15 +121,15 @@ const proc: main is func
           cgiName := cgiDir[slashPos ..] & "/";
         end if;
       end if;
-      responseData := httpResponseData(htdocs, cgiDir, cgiName, osFiles);
-      if fileType(responseData.backendSys, responseData.htdocs) <> FILE_DIR then
-        writeln(" *** Directory " <& literal(responseData.htdocs) <& " not found.");
+      response := httpServerResponse(htdocs, cgiDir, cgiName, osFiles);
+      if fileType(response.backendSys, response.htdocs) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(response.htdocs) <& " not found.");
         writeln("     You need to specify a directory which contains");
         writeln("     at least \"index.htm\" and possibly other HTML files.");
         okay := FALSE;
       end if;
-      if fileType(responseData.backendSys, responseData.cgiDir) <> FILE_DIR then
-        writeln(" *** Directory " <& literal(responseData.cgiDir) <& " not found.");
+      if fileType(response.backendSys, response.cgiDir) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(response.cgiDir) <& " not found.");
         writeln("     You need to specify a directory which contains");
         writeln("     executable CGI scripts.");
         okay := FALSE;
@@ -147,14 +147,14 @@ const proc: main is func
       if not okay then
         writeln("Use the option -? (or -h) to get more information.");
       else
-        chdir(responseData.cgiDir);
-        writeln("HTML directory: " <& responseData.htdocs);
-        writeln("CGI directory: " <& responseData.cgiDir);
-        writeln("CGI name: " <& responseData.cgiName);
+        chdir(response.cgiDir);
+        writeln("HTML directory: " <& response.htdocs);
+        writeln("CGI directory: " <& response.cgiDir);
+        writeln("CGI name: " <& response.cgiName);
         writeln("Port: " <& port);
         server := openHttpServer(port, stdCertificate, useTls);
         writeln("To test comanche make sure that " <&
-                literal(responseData.htdocs & "/index.htm") <& " exists and");
+                literal(response.htdocs & "/index.htm") <& " exists and");
         write("open http");
         if useTls then
           write("s");
@@ -165,9 +165,9 @@ const proc: main is func
           request := getHttpRequest(server);
           # writeln(request.method <& " " <& request.path);
           if request.method = "GET" then
-            processGet(responseData, request);
+            processGet(response, request);
           elsif request.method = "POST" then
-            processPost(responseData, request);
+            processPost(response, request);
           else
             sendClientError(request.sock, 405, "Method Not Allowed",
                 "The HTTP-method " <& request.method <& " is not allowed.");
