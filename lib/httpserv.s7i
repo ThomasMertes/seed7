@@ -45,7 +45,7 @@ const type: setOfFile is hashset(file);
  *  Destribes an incoming HTTP request.
  *  This is formatted to be easily processed by an ''httpServer''.
  *)
-const type: httpRequest is new struct
+const type: httpServerRequest is new struct
     var file: sock is STD_NULL;
     var string: method is "";
     var string: path is "";
@@ -68,7 +68,7 @@ const type: httpServerConnection is new struct
     var integer: readPos is 1;
     var boolean: readingHeader is TRUE;
     var integer: contentToRead is 0;
-    var httpRequest: request is httpRequest.value;
+    var httpServerRequest: request is httpServerRequest.value;
   end struct;
 
 const type: httpConnectionHash is hash [file] httpServerConnection;
@@ -91,9 +91,9 @@ const type: httpServer is new struct
 ##
 #  Reads a chunk of request data from an open connection.
 #
-const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is func
+const func httpServerRequest: getHttpRequest (inout httpServerConnection: conn) is func
   result
-    var httpRequest: request is httpRequest.value;
+    var httpServerRequest: request is httpServerRequest.value;
   local
     var string: line is "";
     var integer: lfPos is 0;
@@ -176,7 +176,7 @@ const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is fun
         request := conn.request;
         request.sock := conn.sock;
         conn.readingHeader := TRUE;
-        conn.request := httpRequest.value;
+        conn.request := httpServerRequest.value;
       end if;
     end if;
   end func;
@@ -219,9 +219,9 @@ const proc: closeHttpSession (inout httpServer: server, inout file: sock) is fun
   end func;
 
 
-const func httpRequest: getHttpRequest (inout httpServer: server, inout file: sock) is func
+const func httpServerRequest: getHttpRequest (inout httpServer: server, inout file: sock) is func
   result
-    var httpRequest: request is httpRequest.value;
+    var httpServerRequest: request is httpServerRequest.value;
   begin
     # writeln("getHttpRequest: " <& ord(sock));
     if sock not in server.sessions then
@@ -283,9 +283,9 @@ const func httpServer: openHttpServer (in integer: port,
  *  @param server HTTP or HTTPS server that receives the request.
  *  @return the received HTTP request.
  *)
-const func httpRequest: getHttpRequest (inout httpServer: server) is func
+const func httpServerRequest: getHttpRequest (inout httpServer: server) is func
   result
-    var httpRequest: request is httpRequest.value;
+    var httpServerRequest: request is httpServerRequest.value;
   local
     var file: existingConnection is STD_NULL;
     var file: newConnection is STD_NULL;

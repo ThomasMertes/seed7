@@ -56,7 +56,7 @@ const proc: main is func
     var boolean: okay is TRUE;
     var integer: port is 1080;
     var httpServer: server is httpServer.value;
-    var httpRequest: request is httpRequest.value;
+    var httpServerRequest: request is httpServerRequest.value;
     var httpResponseData: responseData is httpResponseData.value;
   begin
     writeln("Comanche Version 2.0 - Simple webserver for static and cgi pages");
