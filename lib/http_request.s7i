@@ -39,6 +39,7 @@ var integer: proxyHttpPort is 0;
 const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
 
+# Describes a response from a foreign server (after sending an httpOutRequest).
 const type: httpResponse is new struct
     var string: status is ""; # Should be an integer?
     # var array string: headers is 0 times "";
@@ -85,7 +86,11 @@ const type: httpBody is new struct
     var string: content is "";
   end struct;
 
-const type: httpRequest is new struct
+(* Describes an HTTP request to be sent to a server. This differs from
+the ''httpRequest'' found in httpserv.s7i, in that this is meant to be
+usad as an outgoing request, while the other describes an incoming
+request. *)
+const type: httpOutRequest is new struct
     var string: method is "";
     var httpLocation: location is httpLocation.value;
     var httpBody: body is httpBody.value;
@@ -93,9 +98,9 @@ const type: httpRequest is new struct
   end struct;
 
 
-const func httpRequest: httpGetRequest (in httpLocation: locationData) is func
+const func httpOutRequest: httpGetRequest (in httpLocation: locationData) is func
   result
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.location := locationData;
   end func;
@@ -204,7 +209,7 @@ const func string: toHttpAscii (in string: stri) is func
   end func;
 
 
-const proc: sendHttp (inout file: sock, in httpRequest: request) is func
+const proc: sendHttp (inout file: sock, in httpOutRequest: request) is func
   local
     var string: address is "";
     var string: plain is "";
@@ -268,7 +273,7 @@ const func file: openHttp (in httpLocation: locationData) is func
   end func;
 
 
-const func file: openHttp (in httpRequest: request) is func
+const func file: openHttp (in httpOutRequest: request) is func
   result
     var file: sock is STD_NULL;
   begin
@@ -491,7 +496,7 @@ const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
   end func;
 
 
-const func httpResponse: sendHttp (in var httpRequest: request, in boolean: proxy) is func
+const func httpResponse: sendHttp (in var httpOutRequest: request, in boolean: proxy) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -518,6 +523,9 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
+        (* Upon receiving a 401 Unauthorized code, repeat the request with Basic Auth
+        credentials if they were supplied, and if they were not all ready sent in the
+        prior request. *)
         elsif response.status = "401" and request.creds.username <> "" and not request.creds.utilize then
           request.creds.utilize := TRUE;
           close(sock);
@@ -532,44 +540,53 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
     end if;
   end func;
 
-const func httpResponse: sendHttp (in var httpRequest: request) is
+const func httpResponse: sendHttp (in var httpOutRequest: request) is
   return sendHttp(request, FALSE);
 
 
 (**
- *  Get the response from the ''location'' using the HTTP protocol.
- *   getHttpResponse("example.com")
- *   getHttpResponse("www.example.com/index.html")
+ *  Get the extended response from the ''location'' using the HTTP protocol.
+ *   http(GET, "example.com")
+ *   http(GET, "www.example.com/index.html")
  *  @param location Url without http:// at the beginning.
  *  @return the HTTP response from the ''location''.
  *)
-const func httpResponse: getHttpResponse (in string: location) is func
+const func httpResponse: http (GET, in string: location) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.location := getHttpLocation(location, httpDefaultPort);
     response := sendHttp(request, TRUE);
   end func;
 
-
-const func httpResponse: getHttp (in string: location, in httpCreds: creds) is func
+(**
+ *  Get the extended response from the ''location'' using HTTP and some form
+ *  of authentication.
+ *   http(GET, "example.com", basicAuth("lelouch", "lamperouge"))
+ *   http(GET, "www.example.com/index.html", bearerAuth("ahardwontoken"))
+ *  @param location Url without http:// at the beginning.
+ *  @param creds Authorization data for the request (such as username and password).
+ *  @return the HTTP response from the ''location''.
+ *)
+const func httpResponse: http (GET, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.location := getHttpLocation(location, httpDefaultPort);
     request.creds := creds;
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: deleteHttp (in string: location, in httpCreds: creds) is func
+# Send a DELETE request.
+const func httpResponse: http (DELETE, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.method := "DELETE";
     request.location := getHttpLocation(location, httpDefaultPort);
@@ -577,14 +594,15 @@ const func httpResponse: deleteHttp (in string: location, in httpCreds: creds) i
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: deleteHttp (in string: location) is
-  return deleteHttp(location, httpCreds.value);
+const func httpResponse: http (DELETE, in string: location) is
+  return http(DELETE, location, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in httpBody: body, in httpCreds: creds) is func
+# Send a custom POST request (i.e. one with a preformatted body).
+const func httpResponse: http (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpDefaultPort);
@@ -593,14 +611,15 @@ const func httpResponse: postHttp (in string: location, in httpBody: body, in ht
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in httpBody: body) is
-  return postHttp(location, body, httpCreds.value);
+const func httpResponse: http (POST, in string: location, in httpBody: body) is
+  return http(POST, location, body, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in string: body, in httpCreds: creds) is func
+# Send a text/plain POST request.
+const func httpResponse: http (POST, in string: location, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpDefaultPort);
@@ -610,14 +629,15 @@ const func httpResponse: postHttp (in string: location, in string: body, in http
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in string: body) is
-  return postHttp(location, body, httpCreds.value);
+const func httpResponse: http (POST, in string: location, in string: body) is
+  return http(POST, location, body, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
+# Send an application/x-www-form-urlencoded POST request.
+const func httpResponse: http (POST, in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
-    var httpRequest: request is httpRequest.value;
+    var httpOutRequest: request is httpOutRequest.value;
     var string: name is "";
     var string: value is "";
   begin
@@ -634,5 +654,5 @@ const func httpResponse: postHttp (in string: location, in hash [string] string:
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in hash [string] string: fields) is
-  return postHttp(location, fields, httpCreds.value);
+const func httpResponse: http (POST, in string: location, in hash [string] string: fields) is
+  return http(POST, location, fields, httpCreds.value);

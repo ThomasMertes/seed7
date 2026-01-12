@@ -37,4 +37,4 @@ include "https_request.s7i";
  *  @return the string of data found, or "" if nothing was found.
  *)
 const func string: getHttps (in string: location) is
-  return getHttpsResponse(location).body;
+  return https(GET, location).body;

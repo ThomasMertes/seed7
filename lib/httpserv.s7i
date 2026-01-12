@@ -1,7 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  httpserv.s7i  Support for HTTP server and HTTP requests.        *)
+(*  httpserv.s7i  Support for an HTTP server and HTTP requests made *)
+(*  to it.                                                          *)
 (*  Copyright (C) 2015  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -42,7 +43,8 @@ const type: setOfFile is hashset(file);
 
 
 (**
- *  Destribes a HTTP request.
+ *  Destribes an incoming HTTP request. This is formatted to be easily
+ *  processed by an ''httpServer''.
  *)
 const type: httpRequest is new struct
     var file: sock is STD_NULL;
@@ -57,7 +59,7 @@ const type: httpRequest is new struct
 
 
 (**
- *  Destribes a HTTP server connection.
+ *  Destribes an HTTP server connection.
  *)
 const type: httpServerConnection is new struct
     var file: sock is STD_NULL;
@@ -74,7 +76,7 @@ const type: httpConnectionHash is hash [file] httpServerConnection;
 
 
 (**
- *  Destribes a HTTP server.
+ *  Destribes an HTTP server.
  *)
 const type: httpServer is new struct
     var boolean: useTls is FALSE;
@@ -87,6 +89,9 @@ const type: httpServer is new struct
   end struct;
 
 
+(**
+ *  Reads a chunk of request data from an open connection.
+ *)
 const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is func
   result
     var httpRequest: request is httpRequest.value;
@@ -101,7 +106,9 @@ const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is fun
     conn.timeout := time(NOW) + conn.keepAliveTime;
     conn.buffer := conn.buffer[conn.readPos ..];
     conn.readPos := 1;
-    conn.buffer &:= gets(conn.sock, 16384);
+    (* The common upper-limit for headers is 16 KB, while body limits can be far larger;
+    so--for the body--read in 512 KB chunks to require fewer loops when possible. *)
+    conn.buffer &:= gets(conn.sock, conn.readingHeader ? 16384 : 524288);
     if conn.readingHeader then
       lfPos := pos(conn.buffer, '\n');
       while lfPos <> 0 do
@@ -153,7 +160,8 @@ const func httpRequest: getHttpRequest (inout httpServerConnection: conn) is fun
     end if;
     if not conn.readingHeader then
       if conn.contentToRead <> 0 then
-        if length(conn.buffer) - conn.readPos + 1 <= conn.contentToRead then
+        # If the remaining buffer contains the rest of the content, acquire and finish.
+        if length(conn.buffer) - conn.readPos + 1 >= conn.contentToRead then
           # writeln("<- " <& conn.buffer[conn.readPos len conn.contentToRead]);
           conn.request.body &:= conn.buffer[conn.readPos len conn.contentToRead];
           conn.readPos +:= conn.contentToRead;
