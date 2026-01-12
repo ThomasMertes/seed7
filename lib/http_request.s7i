@@ -532,18 +532,19 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
     end if;
   end func;
 
+
 const func httpResponse: sendHttp (in var httpRequest: request) is
   return sendHttp(request, FALSE);
 
 
 (**
  *  Get the response from the ''location'' using the HTTP protocol.
- *   getHttpResponse("example.com")
- *   getHttpResponse("www.example.com/index.html")
+ *   http(GET, "example.com")
+ *   http(GET, "www.example.com/index.html")
  *  @param location Url without http:// at the beginning.
  *  @return the HTTP response from the ''location''.
  *)
-const func httpResponse: getHttpResponse (in string: location) is func
+const func httpResponse: http (GET, in string: location) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -554,7 +555,7 @@ const func httpResponse: getHttpResponse (in string: location) is func
   end func;
 
 
-const func httpResponse: getHttp (in string: location, in httpCreds: creds) is func
+const func httpResponse: http (GET, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -565,7 +566,8 @@ const func httpResponse: getHttp (in string: location, in httpCreds: creds) is f
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: deleteHttp (in string: location, in httpCreds: creds) is func
+
+const func httpResponse: http (DELETE, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -577,10 +579,12 @@ const func httpResponse: deleteHttp (in string: location, in httpCreds: creds) i
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: deleteHttp (in string: location) is
-  return deleteHttp(location, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in httpBody: body, in httpCreds: creds) is func
+const func httpResponse: http (DELETE, in string: location) is
+  return http(DELETE, location, httpCreds.value);
+
+
+const func httpResponse: http (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -593,10 +597,12 @@ const func httpResponse: postHttp (in string: location, in httpBody: body, in ht
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in httpBody: body) is
-  return postHttp(location, body, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in string: body, in httpCreds: creds) is func
+const func httpResponse: http (POST, in string: location, in httpBody: body) is
+  return http(POST, location, body, httpCreds.value);
+
+
+const func httpResponse: http (POST, in string: location, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -610,10 +616,12 @@ const func httpResponse: postHttp (in string: location, in string: body, in http
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in string: body) is
-  return postHttp(location, body, httpCreds.value);
 
-const func httpResponse: postHttp (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
+const func httpResponse: http (POST, in string: location, in string: body) is
+  return http(POST, location, body, httpCreds.value);
+
+
+const func httpResponse: http (POST, in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -634,5 +642,6 @@ const func httpResponse: postHttp (in string: location, in hash [string] string:
     response := sendHttp(request, TRUE);
   end func;
 
-const func httpResponse: postHttp (in string: location, in hash [string] string: fields) is
-  return postHttp(location, fields, httpCreds.value);
+
+const func httpResponse: http (POST, in string: location, in hash [string] string: fields) is
+  return http(POST, location, fields, httpCreds.value);

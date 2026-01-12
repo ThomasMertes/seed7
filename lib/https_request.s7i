@@ -99,11 +99,12 @@ const func httpResponse: sendHttps (in var httpRequest: request, in boolean: pro
     end if;
   end func;
 
+
 const func httpResponse: sendHttps (in httpRequest: request) is
   return sendHttps(request, FALSE);
 
 
-const func httpResponse: getHttps (in string: location, in httpCreds: creds) is func
+const func httpResponse: https (GET, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -114,18 +115,36 @@ const func httpResponse: getHttps (in string: location, in httpCreds: creds) is 
     response := sendHttps(request, TRUE);
   end func;
 
+
 (**
  *  Get the response from the ''location'' using the HTTPS protocol.
- *   getHttpsResponse("example.com")
- *   getHttpsResponse("www.example.com/index.html")
+ *   https(GET, "example.com")
+ *   https(GET, "www.example.com/index.html")
  *  @param location Url without https:// at the beginning.
  *  @return the HTTP response from the ''location''.
  *)
-const func httpResponse: getHttpsResponse (in string: location) is
-  return getHttps(location, httpCreds.value);
+const func httpResponse: https (GET, in string: location) is
+  return https(GET, location, httpCreds.value);
 
 
-const func httpResponse: postHttps (in string: location, in httpBody: body, in httpCreds: creds) is func
+const func httpResponse: https (DELETE, in string: location, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.method := "DELETE";
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.creds := creds;
+    response := sendHttps(request, TRUE);
+  end func;
+
+
+const func httpResponse: https (DELETE, in string: location) is
+  return https(DELETE, location, httpCreds.value);
+
+
+const func httpResponse: https (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -137,10 +156,12 @@ const func httpResponse: postHttps (in string: location, in httpBody: body, in h
     response := sendHttps(request, TRUE);
   end func;
 
-const func httpResponse: postHttps (in string: location, in httpBody: body) is
-  return postHttps(location, body);
 
-const func httpResponse: postHttps (in string: location, in string: plain, in httpCreds: creds) is func
+const func httpResponse: https (POST, in string: location, in httpBody: body) is
+  return https(POST, location, body);
+
+
+const func httpResponse: https (POST, in string: location, in string: plain, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -153,10 +174,12 @@ const func httpResponse: postHttps (in string: location, in string: plain, in ht
     response := sendHttps(request, TRUE);
   end func;
 
-const func httpResponse: postHttps (in string: location, in string: plain) is
-  return postHttps(location, plain);
 
-const func httpResponse: postHttps (in string: location, in hash [string] string: fields, in httpCreds: creds) is func
+const func httpResponse: https (POST, in string: location, in string: plain) is
+  return https(POST, location, plain);
+
+
+const func httpResponse: https (POST, in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -177,5 +200,6 @@ const func httpResponse: postHttps (in string: location, in hash [string] string
     response := sendHttps(request, TRUE);
   end func;
 
-const func httpResponse: postHttps (in string: location, in hash [string] string: fields) is
-  return postHttps(location, fields, httpCreds.value);
+
+const func httpResponse: https (POST, in string: location, in hash [string] string: fields) is
+  return https(POST, location, fields, httpCreds.value);
