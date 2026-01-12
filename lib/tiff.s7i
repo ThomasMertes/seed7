@@ -1780,11 +1780,11 @@ const proc: processRowWithYCbCr (in tiffHeader: header,
             end for;
             chromaBlue := ord(stripData[currPosition]) * 8 - 1024;
             chromaRed  := ord(stripData[succ(currPosition)]) * 8 - 1024;
+            currPosition +:= 2;
             for index range 1 to horizontal do
               imageLine[pred(column + index)] :=
                   setPixel(luminance[index], chromaBlue, chromaRed);
             end for;
-            currPosition +:= horizontal;
           end for;
         otherwise:
           raise RANGE_ERROR;
@@ -1792,6 +1792,53 @@ const proc: processRowWithYCbCr (in tiffHeader: header,
     else
       raise RANGE_ERROR;
     end if;
+  end func;
+
+
+const proc: processRowWithYCbCr2 (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine1, inout pixelArray: imageLine2,
+    in boolean: twoLines) is func
+  local
+    var integer: horizontal is 0;
+    var integer: vertical is 2;
+    var integer: column is 0;
+    var array integer: luminance is 0 times 0;
+    var integer: index is 0;
+    var integer: chromaBlue is 0;
+    var integer: chromaRed is 0;
+  begin
+    if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
+      horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
+    else
+      horizontal := 1;
+    end if;
+    luminance := 2 * horizontal times 0;
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range startColumn to endColumn step horizontal do
+          for index range 1 to 2 * horizontal do
+            luminance[index] := ord(stripData[currPosition]);
+            incr(currPosition);
+          end for;
+          chromaBlue := ord(stripData[currPosition]) * 8 - 1024;
+          chromaRed  := ord(stripData[succ(currPosition)]) * 8 - 1024;
+          currPosition +:= 2;
+          for index range 1 to horizontal do
+            imageLine1[pred(column + index)] :=
+                setPixel(luminance[index], chromaBlue, chromaRed);
+          end for;
+          if twoLines then
+            for index range 1 to horizontal do
+              imageLine2[pred(column + index)] :=
+                  setPixel(luminance[horizontal + index], chromaBlue, chromaRed);
+            end for;
+          end if;
+        end for;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
   end func;
 
 
@@ -2126,11 +2173,28 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
                      tileStartColumn, tileEndColumn);
           else
             currPosition := 1;
-            for rowIndex range 1 to rowsInCurrentStrip do
-              processRow(header, stripData, currPosition,
-                         1, header.width, image[currentRow]);
-              incr(currentRow);
-            end for;
+            if header.photometricInterpretation =
+                TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr and
+                TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues and
+                header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2] = 2 then
+              for rowIndex range 1 to pred(rowsInCurrentStrip) step 2 do
+                processRowWithYCbCr2(header, stripData, currPosition,
+                                     1, header.width, image[currentRow],
+                                     image[succ(currentRow)], TRUE);
+                currentRow +:= 2;
+              end for;
+              if odd(rowsInCurrentStrip) then
+                processRowWithYCbCr2(header, stripData, currPosition,
+                                     1, header.width, image[currentRow],
+                                     image[currentRow], FALSE);
+              end if;
+           else
+              for rowIndex range 1 to rowsInCurrentStrip do
+                processRow(header, stripData, currPosition,
+                           1, header.width, image[currentRow]);
+                incr(currentRow);
+              end for;
+            end if;
           end if;
         when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
           processCcittModifiedGroup3Fax(header, stripData, currentRow,
