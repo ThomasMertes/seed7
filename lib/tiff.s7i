@@ -2104,7 +2104,7 @@ const proc: nextTile (in tiffHeader: header, in integer: tileWidth,
 
 
 const proc: readTiffStripOrTile (inout file: tiffFile,
-    inout tiffHeader: header, in integer: offset, in integer: byteCount,
+    in tiffHeader: header, in integer: offset, in integer: byteCount,
     in integer: numberOfRows, inout integer: currentRow,
     inout integer: tileStartColumn, inout integer: tileEndColumn,
     inout pixelImage: image) is func
