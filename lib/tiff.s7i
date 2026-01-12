@@ -1600,7 +1600,23 @@ const proc: processRowWithRGB (in tiffHeader: header,
                                           ord(stripData[currPosition + 2]) * 256);
             currPosition +:= 3;
           end for;
-        when {16, 24, 32, 64}:
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
+              currPosition +:= 6;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
+              currPosition +:= 6;
+            end for;
+          end if;
+        when {24, 32, 64}:
           positionIncrement := header.bitsPerSample[1] mdiv 8 * 3;
           if header.littleEndian then
             deltaRed := header.bitsPerSample[1] mdiv 8 - 2;
