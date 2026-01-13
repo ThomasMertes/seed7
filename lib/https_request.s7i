@@ -75,15 +75,17 @@ const func httpResponse: sendHttps (in var httpRequest: request, in boolean: pro
       if sock <> STD_NULL then
         response.status := getHttpStatusCode(sock);
         # writeln("statusCode: " <& response.status);
-        if response.status = "301" or response.status = "302" or
-            response.status = "303" or response.status = "307" then
+        if response.status = HTTP_MOVED_PERMANENTLY or
+            response.status = HTTP_FOUND or
+            response.status = HTTP_SEE_OTHER or
+            response.status = HTTP_TEMPORARY_REDIRECT then
           request.location := getHttpLocation(request.location, sock);
           # show(locationData);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
-        elsif response.status = "401" and
+        elsif response.status = HTTP_UNAUTHORIZED and
               request.creds.username <> "" and
               not request.creds.utilize then
           # Upon receiving a 401 Unauthorized code, repeat the request

@@ -40,6 +40,13 @@ const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
 
 
+const string: HTTP_MOVED_PERMANENTLY  is "301";
+const string: HTTP_FOUND              is "302";
+const string: HTTP_SEE_OTHER          is "303";
+const string: HTTP_TEMPORARY_REDIRECT is "307";
+const string: HTTP_UNAUTHORIZED       is "401";
+
+
 (**
  *  Describes a response from a server (after sending an httpRequest).
  *)
@@ -518,15 +525,17 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
       if sock <> STD_NULL then
         response.status := getHttpStatusCode(sock);
         # writeln("statusCode: " <& response.status);
-        if response.status = "301" or response.status = "302" or
-            response.status = "303" or response.status = "307" then
+        if response.status = HTTP_MOVED_PERMANENTLY or
+            response.status = HTTP_FOUND or
+            response.status = HTTP_SEE_OTHER or
+            response.status = HTTP_TEMPORARY_REDIRECT then
           request.location := getHttpLocation(request.location, sock);
           # show(request.location);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
-        elsif response.status = "401" and
+        elsif response.status = HTTP_UNAUTHORIZED and
               request.creds.username <> "" and
               not request.creds.utilize then
           # Upon receiving a 401 Unauthorized code, repeat the request
