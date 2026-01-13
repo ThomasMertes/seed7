@@ -47,13 +47,31 @@ const string: HTTP_TEMPORARY_REDIRECT is "307";
 const string: HTTP_UNAUTHORIZED       is "401";
 
 
-(**
- *  Describes a response from a server (after sending an httpRequest).
- *)
-const type: httpResponse is new struct
-    var string: status is ""; # Should be an integer?
-    # var array string: headers is 0 times "";
-    var string: body is "";
+const type: httpLocation is new struct
+    var boolean: httpsProtocol is FALSE;
+    var string: serverName is "";
+    var integer: portNumber is 0;
+    var string: hostName is "";
+    var string: path is "";
+    var string: params is "";
+    var array string: cookies is 0 times "";
+  end struct;
+
+
+const proc: show (in httpLocation: location) is func
+  begin
+    writeln("httpsProtocol: " <& location.httpsProtocol);
+    writeln("serverName:    " <& location.serverName);
+    writeln("portNumber:    " <& location.portNumber);
+    writeln("hostName:      " <& location.hostName);
+    writeln("path:          " <& location.path);
+    writeln("params:        " <& location.params);
+  end func;
+
+
+const type: httpBody is new struct
+    var string: contentType is "";
+    var string: content is "";
   end struct;
 
 
@@ -82,21 +100,6 @@ const func httpCreds: bearerAuth (in string: token) is func
   end func;
 
 
-const type: httpLocation is new struct
-    var boolean: httpsProtocol is FALSE;
-    var string: serverName is "";
-    var integer: portNumber is 0;
-    var string: hostName is "";
-    var string: path is "";
-    var string: params is "";
-    var array string: cookies is 0 times "";
-  end struct;
-
-const type: httpBody is new struct
-    var string: contentType is "";
-    var string: content is "";
-  end struct;
-
 (**
  *  Describes an HTTP request to be sent to a server.
  *)
@@ -115,15 +118,15 @@ const func httpRequest: httpGetRequest (in httpLocation: locationData) is func
     request.location := locationData;
   end func;
 
-const proc: show (in httpLocation: location) is func
-  begin
-    writeln("httpsProtocol: " <& location.httpsProtocol);
-    writeln("serverName:    " <& location.serverName);
-    writeln("portNumber:    " <& location.portNumber);
-    writeln("hostName:      " <& location.hostName);
-    writeln("path:          " <& location.path);
-    writeln("params:        " <& location.params);
-  end func;
+
+(**
+ *  Describes a response from a server (after sending an httpRequest).
+ *)
+const type: httpResponse is new struct
+    var string: status is ""; # Should be an integer?
+    # var array string: headers is 0 times "";
+    var string: body is "";
+  end struct;
 
 
 (**
