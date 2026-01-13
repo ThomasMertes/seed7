@@ -40,6 +40,7 @@ const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
 
 
+const string: HTTP_OK                 is "200";
 const string: HTTP_MOVED_PERMANENTLY  is "301";
 const string: HTTP_FOUND              is "302";
 const string: HTTP_SEE_OTHER          is "303";
