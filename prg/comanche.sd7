@@ -28,7 +28,7 @@ $ include "seed7_05.s7i";
   include "httpserv.s7i";
   include "x509cert.s7i";
   include "osfiles.s7i";
-  include "http_response.s7i";
+  include "http_srv_resp.s7i";
 
 
 const string: htdocsDefault is "../htdocs";
