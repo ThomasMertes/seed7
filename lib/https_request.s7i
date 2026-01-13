@@ -83,14 +83,17 @@ const func httpResponse: sendHttps (in var httpRequest: request, in boolean: pro
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
-        elsif response.status = "401" and request.creds.username <> "" and not request.creds.utilize then
+        elsif response.status = "401" and
+              request.creds.username <> "" and
+              not request.creds.utilize then
+          # Upon receiving a 401 Unauthorized code, repeat the request
+          # with Basic Auth credentials if they were supplied, and
+          # if they were not all ready sent in the prior request.
           request.creds.utilize := TRUE;
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
         end if;
-      else
-        writeln("Failed to open socket.");
       end if;
     until okay or repeatCount > 5;
     if sock <> STD_NULL then
