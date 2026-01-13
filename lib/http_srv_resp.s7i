@@ -245,10 +245,10 @@ const func string: callCgi (in httpResponseData: responseData, in string: filePa
  *  Process a GET ''request'' and send a response to the ''request'' destination.
  *  If the ''request'' refers to a CGI the corresponding CGI program is executed.
  *  @param responseData The data source of a web server.
- *  @param request The [[httpserv#httpRequest|httpRequest]] (GET) to be processed.
+ *  @param request The [[httpserv#httpServerRequest|httpServerRequest]] (GET) to be processed.
  *)
 const proc: processGet (inout httpResponseData: responseData,
-    inout httpRequest: request) is func
+    inout httpServerRequest: request) is func
   local
     var string: filePath is "";
     var string: cookies is "";
@@ -311,10 +311,10 @@ const proc: processGet (inout httpResponseData: responseData,
  *  Process a POST ''request'' and send a response to the ''request'' destination.
  *  If the ''request'' refers to a CGI the corresponding CGI program is executed.
  *  @param responseData The data source of a web server.
- *  @param request The [[httpserv#httpRequest|httpRequest]] (POST) to be processed.
+ *  @param request The [[httpserv#httpServerRequest|httpServerRequest]] (POST) to be processed.
  *)
 const proc: processPost (in httpResponseData: responseData,
-    inout httpRequest: request) is func
+    inout httpServerRequest: request) is func
   local
     var string: cookies is "";
     var array string: cgiHeader is 0 times "";
