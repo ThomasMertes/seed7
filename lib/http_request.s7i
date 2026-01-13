@@ -39,6 +39,10 @@ var integer: proxyHttpPort is 0;
 const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
 
+
+(**
+ *  Describes a response from a server (after sending an httpRequest).
+ *)
 const type: httpResponse is new struct
     var string: status is ""; # Should be an integer?
     # var array string: headers is 0 times "";
@@ -61,6 +65,7 @@ const func httpCreds: basicAuth (in string: username, in string: password) is fu
     creds.password := password;
     creds.utilize := FALSE; # Default is to only use basic-auth when asked for.
   end func;
+
 
 const func httpCreds: bearerAuth (in string: token) is func
   result
@@ -85,6 +90,9 @@ const type: httpBody is new struct
     var string: content is "";
   end struct;
 
+(**
+ *  Describes an HTTP request to be sent to a server.
+ *)
 const type: httpRequest is new struct
     var string: method is "";
     var httpLocation: location is httpLocation.value;
@@ -518,7 +526,12 @@ const func httpResponse: sendHttp (in var httpRequest: request, in boolean: prox
           sock := STD_NULL;
           okay := FALSE;
           incr(repeatCount);
-        elsif response.status = "401" and request.creds.username <> "" and not request.creds.utilize then
+        elsif response.status = "401" and
+              request.creds.username <> "" and
+              not request.creds.utilize then
+          # Upon receiving a 401 Unauthorized code, repeat the request
+          # with Basic Auth credentials if they were supplied, and
+          # if they were not all ready sent in the prior request.
           request.creds.utilize := TRUE;
           close(sock);
           sock := STD_NULL;
@@ -555,6 +568,14 @@ const func httpResponse: http (GET, in string: location) is func
   end func;
 
 
+(**
+ *  Get the response from the ''location'' using HTTP and some authentication.
+ *   http(GET, "example.com", basicAuth("lelouch", "lamperouge"))
+ *   http(GET, "www.example.com/index.html", bearerAuth("ahardwontoken"))
+ *  @param location Url without http:// at the beginning.
+ *  @param creds Authorization data for the request (such as username and password).
+ *  @return the HTTP response from the ''location''.
+ *)
 const func httpResponse: http (GET, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
@@ -567,6 +588,9 @@ const func httpResponse: http (GET, in string: location, in httpCreds: creds) is
   end func;
 
 
+(**
+ *  Send a DELETE request.
+ *)
 const func httpResponse: http (DELETE, in string: location, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
@@ -584,6 +608,9 @@ const func httpResponse: http (DELETE, in string: location) is
   return http(DELETE, location, httpCreds.value);
 
 
+(**
+ *  Send a custom POST request (i.e. one with a preformatted body).
+ *)
 const func httpResponse: http (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
@@ -602,6 +629,9 @@ const func httpResponse: http (POST, in string: location, in httpBody: body) is
   return http(POST, location, body, httpCreds.value);
 
 
+(**
+ * Send a text/plain POST request.
+ *)
 const func httpResponse: http (POST, in string: location, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
@@ -621,6 +651,9 @@ const func httpResponse: http (POST, in string: location, in string: body) is
   return http(POST, location, body, httpCreds.value);
 
 
+(**
+ *  Send an application/x-www-form-urlencoded POST request.
+ *)
 const func httpResponse: http (POST, in string: location, in hash [string] string: fields, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
