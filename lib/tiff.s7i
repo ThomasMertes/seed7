@@ -2277,6 +2277,32 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
   end func;
 
 
+const proc: processRow (in tiffHeader: header,
+    inout array msbInBitStream: stripDataStream,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
+  local
+    var integer: colorFactor1 is 0;
+    var integer: colorFactor2 is 0;
+    var integer: colorFactor3 is 0;
+    var integer: column is 1;
+  begin
+    case header.samplesPerPixel of
+      when {3}:
+        colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
+        colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
+        colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
+        for column range startColumn to endColumn do
+          imageLine[column] := rgbPixel(getBits(stripDataStream[1], header.bitsPerSample[1]) * colorFactor1,
+                                        getBits(stripDataStream[2], header.bitsPerSample[2]) * colorFactor2,
+                                        getBits(stripDataStream[3], header.bitsPerSample[3]) * colorFactor3);
+        end for;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
 const proc: processRow (in tiffHeader: header, in array string: stripData,
     inout integer: currPosition, in integer: startColumn,
     in integer: endColumn, inout pixelArray: imageLine) is func
@@ -2346,6 +2372,7 @@ const proc: readStripOrTile (inout file: tiffFile,
     var array string: stripData is 0 times "";
     var integer: sampleIndex is 0;
     var integer: stripIndex is 0;
+    var array msbInBitStream: stripDataStream is 0 times msbInBitStream.value;
     var integer: tileStartRow is 0;
     var integer: rowIndex is 0;
     var integer: currPosition is 1;
@@ -2375,7 +2402,22 @@ const proc: readStripOrTile (inout file: tiffFile,
         raise RANGE_ERROR;
       end if;
     end for;
-    if TIFF_TAG_TILE_WIDTH in header.integerTagValues and
+    if header.bitsPerSample[1] mod 8 <> 0 then
+      stripDataStream := header.samplesPerPixel times msbInBitStream.value;
+      for sampleIndex range 1 to header.samplesPerPixel do
+        stripDataStream[sampleIndex] := openMsbInBitStream(stripData[sampleIndex]);
+      end for;
+      for rowIndex range 1 to rowsInCurrentStrip do
+        # writeln("rowIndex: " <& rowIndex);
+        # writeln("currentRow: " <& currentRow);
+        processRow(header, stripDataStream, 1, header.width,
+                   image[currentRow]);
+        for sampleIndex range 1 to header.samplesPerPixel do
+          ignore(gets(stripDataStream[sampleIndex], 0));
+        end for;
+        incr(currentRow);
+      end for;
+    elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
         TIFF_TAG_TILE_LENGTH in header.integerTagValues then
       tileStartRow := currentRow;
       for rowIndex range 1 to rowsInCurrentStrip do
@@ -2417,24 +2459,20 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
     else
       tileEndColumn := header.width;
     end if;
-    if header.bitsPerSample[1] mod 8 <> 0 then
-      raise RANGE_ERROR;
+    if length(header.stripOffsets) <> 0 then
+      for index range 1 to length(header.stripOffsets) div header.samplesPerPixel do
+        readStripOrTile(tiffFile, header, header.stripOffsets,
+                        header.stripByteCounts, index,
+                        currentRow, header.rowsPerStrip,
+                        tileStartColumn, tileEndColumn, image);
+      end for;
     else
-      if length(header.stripOffsets) <> 0 then
-        for index range 1 to length(header.stripOffsets) div header.samplesPerPixel do
-          readStripOrTile(tiffFile, header, header.stripOffsets,
-                          header.stripByteCounts, index,
-                          currentRow, header.rowsPerStrip,
-                          tileStartColumn, tileEndColumn, image);
-        end for;
-      else
-        for index range 1 to length(header.tileOffsets) div header.samplesPerPixel do
-          readStripOrTile(tiffFile, header, header.tileOffsets,
-                          header.tileByteCounts, index, currentRow,
-                          header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
-                          tileStartColumn, tileEndColumn, image);
-        end for;
-      end if;
+      for index range 1 to length(header.tileOffsets) div header.samplesPerPixel do
+        readStripOrTile(tiffFile, header, header.tileOffsets,
+                        header.tileByteCounts, index, currentRow,
+                        header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                        tileStartColumn, tileEndColumn, image);
+      end for;
     end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
