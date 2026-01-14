@@ -199,6 +199,8 @@ const proc: showHeader (in tiffHeader: header) is func
     writeln("rowsPerStrip: " <& header.rowsPerStrip);
     writeln("length(stripOffsets): " <& length(header.stripOffsets));
     writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
+    writeln("length(tileOffsets): " <& length(header.tileOffsets));
+    writeln("length(tileByteCounts): " <& length(header.tileByteCounts));
     writeln("orientation: " <& header.orientation);
     writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
     writeln("bitsPerPixel: " <& header.bitsPerPixel);
@@ -582,7 +584,7 @@ const proc: readIDFEntry (inout file: tiffFile, inout tiffHeader: header) is fun
       elsif fieldType = TIFF_FIELD_FLOAT then
         writeln(" " <& float(bin32(valueOrOffset)));
       elsif fieldType = TIFF_FIELD_UNDEFINED then
-        writeln(" " <& hex(header.stringTagValues[tag]));
+        writeln(" " <& hex(header.stringTagValues[tag][.. 64]));
       else
         if tag in header.integerTagValues then
           for aValue range header.integerTagValues[tag] do
@@ -2162,7 +2164,6 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
             end if;
           elsif TIFF_TAG_TILE_WIDTH in header.integerTagValues and
                 TIFF_TAG_TILE_LENGTH in header.integerTagValues then
-            currPosition := 1;
             tileStartRow := currentRow;
             for rowIndex range 1 to rowsInCurrentStrip do
               processRow(header, stripData, currPosition,
@@ -2172,7 +2173,6 @@ const proc: readTiffStripOrTile (inout file: tiffFile,
             nextTile(header, tileWidth, currentRow,
                      tileStartColumn, tileEndColumn);
           else
-            currPosition := 1;
             if header.photometricInterpretation =
                 TIFF_PHOTOMETRIC_INTERPRETATION_YCbCr and
                 TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues and
@@ -2279,7 +2279,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
 
 
 const proc: processRow (in tiffHeader: header, in array string: stripData,
-    inout integer: currPosition, inout pixelArray: imageLine) is func
+    inout integer: currPosition, in integer: startColumn,
+    in integer: endColumn, inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -2289,7 +2290,7 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
     if header.samplesPerPixel = 1 or header.samplesPerPixel = 2 then
       case header.bitsPerSample[1] of
         when {8}:
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             grayIntensity :=  ord(stripData[1][currPosition]) * 256;
             imageLine[column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
             incr(currPosition);
@@ -2300,7 +2301,7 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
     elsif header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
       case header.bitsPerSample[1] of
         when {8}:
-          for column range 1 to header.width do
+          for column range startColumn to endColumn do
             imageLine[column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
                                           ord(stripData[2][currPosition]) * 256,
                                           ord(stripData[3][currPosition]) * 256);
@@ -2310,14 +2311,14 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
           positionIncrement := header.bitsPerSample[1] mdiv 8;
           positionDelta := positionIncrement - 2;
           if header.littleEndian then
-            for column range 1 to header.width do
+            for column range startColumn to endColumn do
               imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
                                             bytes2Int(stripData[2][currPosition + positionDelta fixLen 2], UNSIGNED, LE),
                                             bytes2Int(stripData[3][currPosition + positionDelta fixLen 2], UNSIGNED, LE));
               currPosition +:= positionIncrement;
             end for;
           else
-            for column range 1 to header.width do
+            for column range startColumn to endColumn do
               imageLine[column] := rgbPixel(bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE),
                                             bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE),
                                             bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE));
@@ -2333,53 +2334,109 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
   end func;
 
 
+const proc: readTiffStripOrTile (inout file: tiffFile,
+    in tiffHeader: header, in array integer: offsets,
+    in array integer: byteCounts, inout integer: baseStripIndex,
+    inout integer: currentRow, in integer: numberOfRows,
+    inout integer: tileStartColumn, inout integer: tileEndColumn,
+    inout pixelImage: image) is func
+  local
+    var integer: rowsInCurrentStrip is 0;
+    var integer: tileWidth is 0;
+    var integer: stripsPerImage is 0;
+    var array string: stripData is 0 times "";
+    var integer: sampleIndex is 0;
+    var integer: stripIndex is 0;
+    var integer: tileStartRow is 0;
+    var integer: rowIndex is 0;
+    var integer: currPosition is 1;
+  begin
+    if header.height - currentRow + 1 >= numberOfRows then
+      rowsInCurrentStrip := numberOfRows;
+    else
+      rowsInCurrentStrip := header.height - currentRow + 1;
+    end if;
+    if TIFF_TAG_TILE_WIDTH in header.integerTagValues then
+      tileWidth := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+    else
+      tileWidth := header.width;
+    end if;
+    stripsPerImage := length(offsets) div header.samplesPerPixel;
+    stripData := header.samplesPerPixel times "";
+    for sampleIndex range 1 to header.samplesPerPixel do
+      stripIndex := baseStripIndex + pred(sampleIndex) * stripsPerImage;
+      seek(tiffFile, succ(offsets[stripIndex]));
+      stripData[sampleIndex] := gets(tiffFile, byteCounts[stripIndex]);
+      if length(stripData[sampleIndex]) = byteCounts[stripIndex] then
+        decompressStripOrTile(header, stripData[sampleIndex],
+                              rowsInCurrentStrip,
+                              succ(tileEndColumn - tileStartColumn),
+                              tileWidth);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+    if TIFF_TAG_TILE_WIDTH in header.integerTagValues and
+        TIFF_TAG_TILE_LENGTH in header.integerTagValues then
+      tileStartRow := currentRow;
+      for rowIndex range 1 to rowsInCurrentStrip do
+        processRow(header, stripData, currPosition,
+                   tileStartColumn, tileEndColumn, image[tileStartRow]);
+        incr(tileStartRow);
+      end for;
+      nextTile(header, tileWidth, currentRow,
+               tileStartColumn, tileEndColumn);
+    else
+      for rowIndex range 1 to rowsInCurrentStrip do
+        processRow(header, stripData, currPosition, 1,
+                   header.width, image[currentRow]);
+        incr(currentRow);
+      end for;
+    end if;
+  end func;
+
+
 const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
     in tiffHeader: header) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
-    var integer: stripsPerImage is 0;
-    var integer: baseStripIndex is 1;
-    var integer: stripIndex is 0;
-    var integer: stripLineMax is 0;
-    var array string: stripData is 0 times "";
-    var integer: sampleIndex is 0;
-    var integer: line is 0;
-    var integer: currPosition is 0;
+    var integer: index is 0;
+    var integer: currentRow is 1;
+    var integer: tileStartColumn is 1;
+    var integer: tileEndColumn is 1;
     var pixelImage: image is pixelImage.value;
   begin
     image := pixelImage[.. header.height] times
              pixelArray[.. header.width] times pixel.value;
-    stripsPerImage := (header.height + header.rowsPerStrip - 1) div header.rowsPerStrip;
-    # writeln("length(stripOffsets): " <& length(header.stripOffsets));
-    # writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
-    # writeln("stripsPerImage: " <& stripsPerImage);
-    for line range 1 to header.height do
-      # writeln("line: " <& line);
-      if line > stripLineMax then
-        # writeln("read strips");
-        stripData := header.samplesPerPixel times "";
-        for sampleIndex range 1 to header.samplesPerPixel do
-          # writeln("baseStripIndex: " <& baseStripIndex);
-          # writeln("sampleIndex: " <& sampleIndex);
-          stripIndex := baseStripIndex + pred(sampleIndex) * stripsPerImage;
-          # writeln("index: " <& stripIndex);
-          seek(tiffFile, succ(header.stripOffsets[stripIndex]));
-          stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
-          if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
-            decompressStripOrTile(header, stripData[sampleIndex],
-                                  header.rowsPerStrip, header.width, header.width);
-          else
-            raise RANGE_ERROR;
-          end if;
-          # writeln("length(stripData[" <& sampleIndex <& "]): " <& length(stripData[sampleIndex]));
-        end for;
-        stripLineMax +:= header.rowsPerStrip;
-        incr(baseStripIndex);
-        currPosition := 1;
+    if TIFF_TAG_TILE_WIDTH in header.integerTagValues then
+      if header.width >= header.integerTagValues[TIFF_TAG_TILE_WIDTH][1] then
+        tileEndColumn := header.integerTagValues[TIFF_TAG_TILE_WIDTH][1];
+      else
+        tileEndColumn := header.width;
       end if;
-      processRow(header, stripData, currPosition, image[line]);
-    end for;
+    else
+      tileEndColumn := header.width;
+    end if;
+    if header.bitsPerSample[1] mod 8 <> 0 then
+      raise RANGE_ERROR;
+    else
+      if length(header.stripOffsets) <> 0 then
+        for index range 1 to length(header.stripOffsets) div header.samplesPerPixel do
+          readTiffStripOrTile(tiffFile, header, header.stripOffsets,
+                              header.stripByteCounts, index,
+                              currentRow, header.rowsPerStrip,
+                              tileStartColumn, tileEndColumn, image);
+        end for;
+      else
+        for index range 1 to length(header.tileOffsets) div header.samplesPerPixel do
+          readTiffStripOrTile(tiffFile, header, header.tileOffsets,
+                              header.tileByteCounts, index, currentRow,
+                              header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                              tileStartColumn, tileEndColumn, image);
+        end for;
+      end if;
+    end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
         header.orientation < EXIF_ORIENTATION_UNDEFINED then
       changeOrientation(image, header.orientation);
