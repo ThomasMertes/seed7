@@ -2105,9 +2105,9 @@ const proc: nextTile (in tiffHeader: header, in integer: tileWidth,
   end func;
 
 
-const proc: readTiffStripOrTile (inout file: tiffFile,
+const proc: readStripOrTile (inout file: tiffFile,
     in tiffHeader: header, in integer: offset, in integer: byteCount,
-    in integer: numberOfRows, inout integer: currentRow,
+    inout integer: currentRow, in integer: numberOfRows,
     inout integer: tileStartColumn, inout integer: tileEndColumn,
     inout pixelImage: image) is func
   local
@@ -2255,19 +2255,18 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
     if length(header.stripOffsets) <> 0 then
       for offset key index range header.stripOffsets do
         # writeln("index: " <& index);
-        readTiffStripOrTile(tiffFile, header, offset,
-                            header.stripByteCounts[index],
-                            header.rowsPerStrip, currentRow,
-                            tileStartColumn, tileEndColumn, image);
+        readStripOrTile(tiffFile, header, offset,
+                        header.stripByteCounts[index],
+                        currentRow, header.rowsPerStrip,
+                        tileStartColumn, tileEndColumn, image);
       end for;
     else
       for offset key index range header.tileOffsets do
         # writeln("index: " <& index);
-        readTiffStripOrTile(tiffFile, header, offset,
-                            header.tileByteCounts[index],
-                            header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
-                            currentRow, tileStartColumn,
-                            tileEndColumn, image);
+        readStripOrTile(tiffFile, header, offset,
+                        header.tileByteCounts[index], currentRow,
+                        header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                        tileStartColumn, tileEndColumn, image);
       end for;
     end if;
     if header.orientation > EXIF_ORIENTATION_NORMAL and
@@ -2334,7 +2333,7 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
   end func;
 
 
-const proc: readTiffStripOrTile (inout file: tiffFile,
+const proc: readStripOrTile (inout file: tiffFile,
     in tiffHeader: header, in array integer: offsets,
     in array integer: byteCounts, inout integer: baseStripIndex,
     inout integer: currentRow, in integer: numberOfRows,
@@ -2423,17 +2422,17 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
     else
       if length(header.stripOffsets) <> 0 then
         for index range 1 to length(header.stripOffsets) div header.samplesPerPixel do
-          readTiffStripOrTile(tiffFile, header, header.stripOffsets,
-                              header.stripByteCounts, index,
-                              currentRow, header.rowsPerStrip,
-                              tileStartColumn, tileEndColumn, image);
+          readStripOrTile(tiffFile, header, header.stripOffsets,
+                          header.stripByteCounts, index,
+                          currentRow, header.rowsPerStrip,
+                          tileStartColumn, tileEndColumn, image);
         end for;
       else
         for index range 1 to length(header.tileOffsets) div header.samplesPerPixel do
-          readTiffStripOrTile(tiffFile, header, header.tileOffsets,
-                              header.tileByteCounts, index, currentRow,
-                              header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
-                              tileStartColumn, tileEndColumn, image);
+          readStripOrTile(tiffFile, header, header.tileOffsets,
+                          header.tileByteCounts, index, currentRow,
+                          header.integerTagValues[TIFF_TAG_TILE_LENGTH][1],
+                          tileStartColumn, tileEndColumn, image);
         end for;
       end if;
     end if;
