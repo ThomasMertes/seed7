@@ -2303,9 +2303,10 @@ const proc: processRow (in tiffHeader: header,
   end func;
 
 
-const proc: processRow (in tiffHeader: header, in array string: stripData,
-    inout integer: currPosition, in integer: startColumn,
-    in integer: endColumn, inout pixelArray: imageLine) is func
+const proc: processRowRGB (in tiffHeader: header,
+    in array string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
   local
     var integer: column is 0;
     var integer: positionIncrement is 0;
@@ -2355,6 +2356,63 @@ const proc: processRow (in tiffHeader: header, in array string: stripData,
       end case;
     else
       raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processRowWithCMYK (in tiffHeader: header,
+    in array string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
+  local
+    var integer: column is 0;
+    var integer: inverseBlack is 0;
+    var float: inverseBlackFlt is 0.0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range startColumn to endColumn do
+          inverseBlack := 255 - ord(stripData[4][currPosition]);
+          imageLine[column] := rgbPixel((255 - ord(stripData[1][currPosition])) * inverseBlack,
+                                        (255 - ord(stripData[2][currPosition])) * inverseBlack,
+                                        (255 - ord(stripData[3][currPosition])) * inverseBlack);
+          incr(currPosition);
+        end for;
+      when {16}:
+        if header.littleEndian then
+          for column range startColumn to endColumn do
+            inverseBlack := 65535 - bytes2Int(stripData[4][currPosition fixLen 2], UNSIGNED, LE);
+            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16);
+            currPosition +:= 2;
+          end for;
+        else
+          for column range startColumn to endColumn do
+            inverseBlack := 65535 - bytes2Int(stripData[4][currPosition fixLen 2], UNSIGNED, BE);
+            imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[1][currPosition fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[2][currPosition fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                          (65535 - bytes2Int(stripData[3][currPosition fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16);
+            currPosition +:= 2;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRow (in tiffHeader: header, in array string: stripData,
+    inout integer: currPosition, in integer: startColumn,
+    in integer: endColumn, inout pixelArray: imageLine) is func
+  begin
+    if header.photometricInterpretation =
+        TIFF_PHOTOMETRIC_INTERPRETATION_CMYK then
+      processRowWithCMYK(header, stripData, currPosition,
+                         startColumn, endColumn, imageLine);
+    else
+      processRowRGB(header, stripData, currPosition,
+                    startColumn, endColumn, imageLine);
     end if;
   end func;
 
