@@ -1654,33 +1654,72 @@ const proc: processRowWithRGBA (in tiffHeader: header,
   local
     var integer: column is 0;
   begin
-    case header.bitsPerSample[1] of
-      when {8}:
-        for column range startColumn to endColumn do
-          imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
-                                        ord(stripData[succ(currPosition)]) * 256,
-                                        ord(stripData[currPosition + 2]) * 256);
-          currPosition +:= 4;
-        end for;
-      when {16}:
-        if header.littleEndian then
+    if header.sampleFormat = TIFF_SAMPLE_FORMAT_FLOAT then
+      case header.bitsPerSample[1] of
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin16(stripData[currPosition     fixLen 2], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 2 fixLen 2], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 4 fixLen 2], LE)) * 65535.0)));
+              currPosition +:= 8;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin16(stripData[currPosition     fixLen 2], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 2 fixLen 2], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin16(stripData[currPosition + 4 fixLen 2], BE)) * 65535.0)));
+              currPosition +:= 8;
+            end for;
+          end if;
+        when {32}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin32(stripData[currPosition     fixLen 4], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 4 fixLen 4], LE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 8 fixLen 4], LE)) * 65535.0)));
+              currPosition +:= 16;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(clampColor2(round(float(bin32(stripData[currPosition     fixLen 4], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 4 fixLen 4], BE)) * 65535.0)),
+                                            clampColor2(round(float(bin32(stripData[currPosition + 8 fixLen 4], BE)) * 65535.0)));
+              currPosition +:= 16;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      case header.bitsPerSample[1] of
+        when {8}:
           for column range startColumn to endColumn do
-            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
-                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
-                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
-            currPosition +:= 8;
+            imageLine[column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                          ord(stripData[succ(currPosition)]) * 256,
+                                          ord(stripData[currPosition + 2]) * 256);
+            currPosition +:= 4;
           end for;
-        else
-          for column range startColumn to endColumn do
-            imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
-                                          bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
-                                          bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
-            currPosition +:= 8;
-          end for;
-        end if;
-      otherwise:
-        raise RANGE_ERROR;
-    end case;
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE));
+              currPosition +:= 8;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              imageLine[column] := rgbPixel(bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE));
+              currPosition +:= 8;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
   end func;
 
 
