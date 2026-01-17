@@ -128,6 +128,7 @@ const integer: TIFF_COMPRESSION_DEFLATE                is     8;
 const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
 const integer: TIFF_COMPRESSION_THUNDERSCAN            is 32809;
 const integer: TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE is 32946;
+const integer: TIFF_COMPRESSION_PIXTIFF_DEFLATE        is 50013;
 
 const integer: TIFF_PREDICTOR_NONE         is 1;
 const integer: TIFF_PREDICTOR_DIFFERENCING is 2;
@@ -1968,7 +1969,8 @@ const proc: decompressStripOrTile (in tiffHeader: header,
           stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
         end if;
       when {TIFF_COMPRESSION_DEFLATE,
-            TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+            TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
+            TIFF_COMPRESSION_PIXTIFF_DEFLATE}:
         stripData := gzuncompress(stripData);
       otherwise:
         raise RANGE_ERROR;
@@ -2176,7 +2178,8 @@ const proc: readStripOrTile (inout file: tiffFile,
               TIFF_COMPRESSION_PACK_BITS,
               TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
               TIFF_COMPRESSION_DEFLATE,
-              TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+              TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
+              TIFF_COMPRESSION_PIXTIFF_DEFLATE}:
           decompressStripOrTile(header, stripData, rowsInCurrentStrip,
                                 succ(tileEndColumn - tileStartColumn),
                                 tileWidth);
@@ -2663,6 +2666,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                 TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
                 TIFF_COMPRESSION_DEFLATE,
                 TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
+                TIFF_COMPRESSION_PIXTIFF_DEFLATE,
                 TIFF_COMPRESSION_THUNDERSCAN}:
             if header.planarConfiguration = TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT then
               pixmap := readTiff(tiffFile, header);
