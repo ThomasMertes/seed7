@@ -24,6 +24,7 @@
 
 $ include "seed7_05.s7i";
   include "stdio.s7i";
+  include "bin16.s7i";
   include "bin32.s7i";
   include "bin64.s7i";
   include "bigint.s7i";
@@ -3586,6 +3587,106 @@ const proc: checkFloat2Bits is func
   local
     var boolean: okay is TRUE;
   begin
+    if  bin16(float(bin64(16#0000000000000000))) <> bin16(16#0000) or   # exponent: -1008 Positive zero
+        bin16(float(bin64(16#0000000000000001))) <> bin16(16#0000) or   # exponent: -1008 Min subnormal positive double
+        bin16(float(bin64(16#000fffffffffffff))) <> bin16(16#0000) or   # exponent: -1008 Max subnormal positive double
+        bin16(float(bin64(16#0010000000000000))) <> bin16(16#0000) or   # exponent: -1007 Min normalized positive double
+        bin16(float(bin64(16#3e5fffffffffffff))) <> bin16(16#0000) or   # exponent:   -11
+        bin16(float(bin64(16#3e60000000000000))) <> bin16(16#0000) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(float(bin64(16#3e60000000000001))) <> bin16(16#0001) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(float(bin64(16#3e6fffffffffffff))) <> bin16(16#0001) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(float(bin64(16#3e70000000000000))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3e77ffffffffffff))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3e78000000000000))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3efff7ffffffffff))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(float(bin64(16#3efff80000000000))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(float(bin64(16#3effffffffffffff))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(float(bin64(16#3f00000000000000))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f00040000000000))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f00040000000001))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f000bffffffffff))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(float(bin64(16#3f000c0000000000))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(float(bin64(16#3f00140000000000))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f00140000000001))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f0ff40000000000))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f0ff40000000001))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f0ffbffffffffff))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(float(bin64(16#3f0ffc0000000000))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(float(bin64(16#3f0fffffffffffff))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(float(bin64(16#3f10000000000000))) <> bin16(16#0400) or   # exponent:     1
+        bin16(float(bin64(16#3f1ffdffffffffff))) <> bin16(16#07ff) or   # exponent:     1
+        bin16(float(bin64(16#3f1ffe0000000000))) <> bin16(16#0800) or   # exponent:     2 mantissa overflow
+        bin16(float(bin64(16#40effdffffffffff))) <> bin16(16#7bff) or   # exponent:    30
+        bin16(float(bin64(16#40effe0000000000))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#40efffffffffffff))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#40f0000000000000))) <> bin16(16#7c00) or   # exponent:    31 exponent overflow
+        bin16(float(bin64(16#7feffdffffffffff))) <> bin16(16#7c00) or   # exponent:  1038 exponent overflow
+        bin16(float(bin64(16#7feffe0000000000))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#7fefffffffffffff))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#7ff0000000000000))) <> bin16(16#7c00) or   # exponent:  1039 Positive infinity
+        bin16(float(bin64(16#7ff0000000000001))) <> bin16(16#7c01) or   # exponent:  1039 NaN, mantissa set to one
+        bin16(float(bin64(16#7ff003ffffffffff))) <> bin16(16#7c01) or   # exponent:  1039 NaN, mantissa set to one
+        bin16(float(bin64(16#7ff0040000000000))) <> bin16(16#7c01) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7ff007ffffffffff))) <> bin16(16#7c01) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7ff0080000000000))) <> bin16(16#7c02) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7ffff80000000000))) <> bin16(16#7ffe) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7ffffbffffffffff))) <> bin16(16#7ffe) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7ffffc0000000000))) <> bin16(16#7fff) or   # exponent:  1039 NaN
+        bin16(float(bin64(16#7fffffffffffffff))) <> bin16(16#7fff) then # exponent:  1039 NaN
+      writeln(" ***** Converting float to IEEE half precision float representation does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin16(floatExpr(float(bin64(16#0000000000000000)))) <> bin16(16#0000) or   # exponent: -1008 Positive zero
+        bin16(floatExpr(float(bin64(16#0000000000000001)))) <> bin16(16#0000) or   # exponent: -1008 Min subnormal positive double
+        bin16(floatExpr(float(bin64(16#000fffffffffffff)))) <> bin16(16#0000) or   # exponent: -1008 Max subnormal positive double
+        bin16(floatExpr(float(bin64(16#0010000000000000)))) <> bin16(16#0000) or   # exponent: -1007 Min normalized positive double
+        bin16(floatExpr(float(bin64(16#3e5fffffffffffff)))) <> bin16(16#0000) or   # exponent:   -11
+        bin16(floatExpr(float(bin64(16#3e60000000000000)))) <> bin16(16#0000) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e60000000000001)))) <> bin16(16#0001) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e6fffffffffffff)))) <> bin16(16#0001) or   # exponent:   -10 mantissaShift: 53 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e70000000000000)))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3e77ffffffffffff)))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3e78000000000000)))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3efff7ffffffffff)))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3efff80000000000)))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3effffffffffffff)))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f00000000000000)))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f00040000000000)))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f00040000000001)))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f000bffffffffff)))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f000c0000000000)))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f00140000000000)))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f00140000000001)))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f0ff40000000000)))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f0ff40000000001)))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f0ffbffffffffff)))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f0ffc0000000000)))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(floatExpr(float(bin64(16#3f0fffffffffffff)))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(floatExpr(float(bin64(16#3f10000000000000)))) <> bin16(16#0400) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f1ffdffffffffff)))) <> bin16(16#07ff) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f1ffe0000000000)))) <> bin16(16#0800) or   # exponent:     2 mantissa overflow
+        bin16(floatExpr(float(bin64(16#40effdffffffffff)))) <> bin16(16#7bff) or   # exponent:    30
+        bin16(floatExpr(float(bin64(16#40effe0000000000)))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#40efffffffffffff)))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#40f0000000000000)))) <> bin16(16#7c00) or   # exponent:    31 exponent overflow
+        bin16(floatExpr(float(bin64(16#7feffdffffffffff)))) <> bin16(16#7c00) or   # exponent:  1038 exponent overflow
+        bin16(floatExpr(float(bin64(16#7feffe0000000000)))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#7fefffffffffffff)))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#7ff0000000000000)))) <> bin16(16#7c00) or   # exponent:  1039 Positive infinity
+        bin16(floatExpr(float(bin64(16#7ff0000000000001)))) <> bin16(16#7c01) or   # exponent:  1039 NaN, mantissa set to one
+        bin16(floatExpr(float(bin64(16#7ff003ffffffffff)))) <> bin16(16#7c01) or   # exponent:  1039 NaN, mantissa set to one
+        bin16(floatExpr(float(bin64(16#7ff0040000000000)))) <> bin16(16#7c01) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7ff007ffffffffff)))) <> bin16(16#7c01) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7ff0080000000000)))) <> bin16(16#7c02) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7ffff80000000000)))) <> bin16(16#7ffe) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7ffffbffffffffff)))) <> bin16(16#7ffe) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7ffffc0000000000)))) <> bin16(16#7fff) or   # exponent:  1039 NaN
+        bin16(floatExpr(float(bin64(16#7fffffffffffffff)))) <> bin16(16#7fff) then # exponent:  1039 NaN
+      writeln(" ***** Converting float to IEEE half precision float representation does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
     if  bin32( 0.0)                     <> bin32(16#00000000) or
         bin32( 0.5)                     <> bin32(16#3f000000) or
         bin32( 0.9999999403953552)      <> bin32(16#3f7fffff) or  # The largest number < 1
