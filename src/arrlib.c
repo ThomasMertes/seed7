@@ -225,6 +225,9 @@ objectType arr_append (listType arguments)
     isit_array(arg_3(arguments));
     extension = take_array(arg_3(arguments));
     extension_size = arraySize(extension);
+    logFunction(printf("arr_append(arr1 (size=" FMT_U_MEM
+                       "), extension (size=" FMT_U_MEM "))\n",
+                       arraySize(arr_to), extension_size););
     if (extension_size != 0) {
       arr_to_size = arraySize(arr_to);
       if (unlikely(arr_to_size > MAX_ARR_LEN - extension_size ||
@@ -508,13 +511,15 @@ objectType arr_cat (listType arguments)
     arrayType result;
 
   /* arr_cat */
-    logFunction(printf("arr_cat\n"););
     isit_array(arg_1(arguments));
     isit_array(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     arr2 = take_array(arg_3(arguments));
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
+    logFunction(printf("arr_cat(arr1 (size=" FMT_U_MEM
+                       "), arr2 (size=" FMT_U_MEM "))\n",
+                       arr1_size, arr2_size););
     if (unlikely(arr1_size > MAX_ARR_LEN - arr2_size ||
                  arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size))) {
       logError(printf("arr_cat: Result size bigger than MAX_ARR_LEN.\n"););

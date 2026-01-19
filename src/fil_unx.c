@@ -327,7 +327,9 @@ void filPipe (fileType *inFile, fileType *outFile)
 void setupFiles (void)
 
   { /* setupFiles */
-    logFunction(printf("setupFiles\n"););
+    logFunction(printf("setupFiles: stdin=%d, stdout=%d, stderr=%d)\n",
+                       os_fileno(stdin), os_fileno(stdout),
+                       os_fileno(stderr)););
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;

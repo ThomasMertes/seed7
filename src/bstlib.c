@@ -502,6 +502,7 @@ objectType bst_value (listType arguments)
     bstriType result;
 
   /* bst_value */
+    logFunction(printf("bst_value\n"););
     isit_reference(arg_1(arguments));
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
@@ -519,6 +520,7 @@ objectType bst_value (listType arguments)
         result->size = bstri->size;
         memcpy_size_0_okay(result->mem, bstri->mem,
                            (size_t) bstri->size);
+        logFunction(printf("bst_value -->\n"););
         return bld_bstri_temp(result);
       } /* if */
     } /* if */

@@ -1913,6 +1913,7 @@ objectType plt_value (listType arguments)
     bstriType result;
 
   /* plt_value */
+    logFunction(printf("plt_value\n"););
     isit_reference(arg_1(arguments));
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
@@ -1930,6 +1931,7 @@ objectType plt_value (listType arguments)
         result->size = plist->size;
         memcpy_size_0_okay(result->mem, plist->mem,
                            (size_t) plist->size);
+        logFunction(printf("plt_value -->\n"););
         return bld_pointlist_temp(result);
       } /* if */
     } /* if */

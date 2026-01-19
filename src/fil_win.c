@@ -461,6 +461,9 @@ void setupFiles (void)
     DWORD mode;
 
   /* setupFiles */
+    logFunction(printf("setupFiles: stdin=%d, stdout=%d, stderr=%d)\n",
+                       os_fileno(stdin), os_fileno(stdout),
+                       os_fileno(stderr)););
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;
@@ -485,4 +488,5 @@ void setupFiles (void)
         GetConsoleMode(hConsole, &mode) == 0) {
       os_setmode(os_fileno(stderr), _O_BINARY);
     } /* if */
+    logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */

@@ -594,6 +594,9 @@ objectType prgEval (progType aProgram, objectType anExpression)
       raise_error(err_info);
       result = NULL;
     } /* if */
+    logFunction(printf("prgEval --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* prgEval */
 
