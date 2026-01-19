@@ -1764,6 +1764,7 @@ void set_protfile_name (const const_striType protfile_name)
         if (protfile->cFile == NULL) {
           protfile->cFile = stdout;
         } /* if */
+        setvbuf(protfile->cFile, NULL, _IOLBF, 0);
       } /* if */
     } else if (protfile->cFile == NULL) {
       protfile->cFile = stdout;
