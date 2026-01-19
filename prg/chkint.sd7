@@ -33184,6 +33184,52 @@ const func boolean: check_reduced_overflow_checking_for_lshift is func
   end func;
 
 
+const func boolean: check_lshift_by_sum is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if                    1 << (intExpr(-1) + 1) <>                   1 or
+                          1 << (intExpr(61) + 1) <> 4611686018427387904 or
+        4611686018427387903 << (intExpr(-1) + 1) <> 4611686018427387903 or
+        4611686018427387903 << (intExpr( 0) + 1) <> 9223372036854775806 then
+      writeln(" ***** LShift by sum does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if                    1 << (1 + intExpr(-1)) <>                   1 or
+                          1 << (1 + intExpr(61)) <> 4611686018427387904 or
+        4611686018427387903 << (1 + intExpr(-1)) <> 4611686018427387903 or
+        4611686018427387903 << (1 + intExpr( 0)) <> 9223372036854775806 then
+      writeln(" ***** LShift by sum does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if                    1 << (intExpr( 1) - 1) <>                   1 or
+                          1 << (intExpr(63) - 1) <> 4611686018427387904 or
+        4611686018427387903 << (intExpr( 1) - 1) <> 4611686018427387903 or
+        4611686018427387903 << (intExpr( 2) - 1) <> 9223372036854775806 then
+      writeln(" ***** LShift by sum does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    if                    1 << succ(intExpr(-1)) <>                   1 or
+                          1 << succ(intExpr(61)) <> 4611686018427387904 or
+        4611686018427387903 << succ(intExpr(-1)) <> 4611686018427387903 or
+        4611686018427387903 << succ(intExpr( 0)) <> 9223372036854775806 then
+      writeln(" ***** LShift by sum does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if                    1 << pred(intExpr( 1)) <>                   1 or
+                          1 << pred(intExpr(63)) <> 4611686018427387904 or
+        4611686018427387903 << pred(intExpr( 1)) <> 4611686018427387903 or
+        4611686018427387903 << pred(intExpr( 2)) <> 9223372036854775806 then
+      writeln(" ***** LShift by sum does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: chkLShift (in integer: number, in integer: lshift,
     in integer: checkValue) is func
   result
@@ -34061,6 +34107,10 @@ const proc: check_lShift is func
     end if;
 
     if not check_reduced_overflow_checking_for_lshift then
+      okay := FALSE;
+    end if;
+
+    if not check_lshift_by_sum then
       okay := FALSE;
     end if;
 
