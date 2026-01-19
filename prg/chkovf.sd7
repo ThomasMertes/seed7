@@ -5047,6 +5047,76 @@ const func boolean: check_reduced_overflow_checking_for_lshift is func
   end func;
 
 
+const func boolean: check_lshift_by_sum is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError(                  1 << (intExpr(-2) + 1)) or
+        not raisesOverflowError(                  1 << (intExpr(62) + 1)) or
+        not raisesOverflowError(4611686018427387903 << (intExpr(-2) + 1)) or
+        not raisesOverflowError(4611686018427387903 << (intExpr( 1) + 1)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) +                   -1)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) + -9223372036854775744)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) + -9223372036854775745)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) + -9223372036854775746)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) + -9223372036854775747)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) + -9223372036854775807)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) +        integer.first)) or
+        not raisesOverflowError(                  1 << (intExpr(-9223372036854775807) + -9223372036854775807)) then
+      writeln(" ***** LShift by sum does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                  1 << (1 + intExpr(-2))) or
+        not raisesOverflowError(                  1 << (1 + intExpr(62))) or
+        not raisesOverflowError(4611686018427387903 << (1 + intExpr(-2))) or
+        not raisesOverflowError(4611686018427387903 << (1 + intExpr( 1))) or
+        not raisesOverflowError(                  1 << (                  -1 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775744 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775745 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775746 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775747 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775807 + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (       integer.first + intExpr(       integer.first))) or
+        not raisesOverflowError(                  1 << (-9223372036854775807 + intExpr(-9223372036854775807))) then
+      writeln(" ***** LShift by sum does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                  1 << (intExpr( 0) - 1)) or
+        not raisesOverflowError(                  1 << (intExpr(64) - 1)) or
+        not raisesOverflowError(4611686018427387903 << (intExpr( 0) - 1)) or
+        not raisesOverflowError(4611686018427387903 << (intExpr( 3) - 1)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) -                   1)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775744)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775745)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775746)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775747)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775806)) or
+        not raisesOverflowError(                  1 << (intExpr(       integer.first) - 9223372036854775807)) or
+        not raisesOverflowError(                  1 << (intExpr(-9223372036854775807) - 9223372036854775807)) then
+      writeln(" ***** LShift by sum does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                  1 << succ(intExpr(-2))) or
+        not raisesOverflowError(                  1 << succ(intExpr(62))) or
+        not raisesOverflowError(4611686018427387903 << succ(intExpr(-2))) or
+        not raisesOverflowError(4611686018427387903 << succ(intExpr( 1))) then
+      writeln(" ***** LShift by sum does not raise OVERFLOW_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                  1 << pred(intExpr( 0))) or
+        not raisesOverflowError(                  1 << pred(intExpr(64))) or
+        not raisesOverflowError(4611686018427387903 << pred(intExpr( 0))) or
+        not raisesOverflowError(4611686018427387903 << pred(intExpr( 3))) then
+      writeln(" ***** LShift by sum does not raise OVERFLOW_ERROR. (5)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_lShift is func
   local
     var boolean: okay is TRUE;
@@ -5784,6 +5854,10 @@ const proc: check_lShift is func
     end if;
 
     if not check_reduced_overflow_checking_for_lshift then
+      okay := FALSE;
+    end if;
+
+    if not check_lshift_by_sum then
       okay := FALSE;
     end if;
 
