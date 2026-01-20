@@ -3583,7 +3583,7 @@ const proc: checkBytesLe2Bin64 is func
   end func;
 
 
-const proc: checkFloat2Bits is func
+const proc: checkFloat2Bin16 is func
   local
     var boolean: okay is TRUE;
   begin
@@ -3598,27 +3598,51 @@ const proc: checkFloat2Bits is func
         bin16(float(bin64(16#3e70000000000000))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
         bin16(float(bin64(16#3e77ffffffffffff))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
         bin16(float(bin64(16#3e78000000000000))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3e7fffffffffffff))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3e80000000000000))) <> bin16(16#0002) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(float(bin64(16#3e84000000000000))) <> bin16(16#0002) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(float(bin64(16#3e84000000000001))) <> bin16(16#0003) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(float(bin64(16#3e88000000000000))) <> bin16(16#0003) or   # exponent:    -8 mantissaShift: 52 lowestBit: 1
+        bin16(float(bin64(16#3efff00000000000))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(float(bin64(16#3efff7ffffffffff))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(float(bin64(16#3efff80000000000))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(float(bin64(16#3effffffffffffff))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(float(bin64(16#3f00000000000000))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f00040000000000))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f00040000000001))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f00080000000000))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(float(bin64(16#3f000bffffffffff))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(float(bin64(16#3f000c0000000000))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(float(bin64(16#3f00100000000000))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f00140000000000))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f00140000000001))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f00180000000000))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(float(bin64(16#3f0ff00000000000))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f0ff40000000000))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(float(bin64(16#3f0ff40000000001))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(float(bin64(16#3f0ff80000000000))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(float(bin64(16#3f0ffbffffffffff))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
-        bin16(float(bin64(16#3f0ffc0000000000))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
-        bin16(float(bin64(16#3f0fffffffffffff))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(float(bin64(16#3f0ffc0000000000))) <> bin16(16#0400) or   # exponent:     0 mantissa overflow: exponent: 1
+        bin16(float(bin64(16#3f0fffffffffffff))) <> bin16(16#0400) or   # exponent:     0 mantissa overflow: exponent: 1
         bin16(float(bin64(16#3f10000000000000))) <> bin16(16#0400) or   # exponent:     1
+        bin16(float(bin64(16#3f10020000000000))) <> bin16(16#0400) or   # exponent:     1
+        bin16(float(bin64(16#3f10020000000001))) <> bin16(16#0401) or   # exponent:     1
+        bin16(float(bin64(16#3f10040000000000))) <> bin16(16#0401) or   # exponent:     1
+        bin16(float(bin64(16#3f1005ffffffffff))) <> bin16(16#0401) or   # exponent:     1
+        bin16(float(bin64(16#3f10060000000000))) <> bin16(16#0402) or   # exponent:     1
+        bin16(float(bin64(16#3f10080000000000))) <> bin16(16#0402) or   # exponent:     1
+        bin16(float(bin64(16#3f100a0000000000))) <> bin16(16#0402) or   # exponent:     1
+        bin16(float(bin64(16#3f100a0000000001))) <> bin16(16#0403) or   # exponent:     1
+        bin16(float(bin64(16#3f100c0000000000))) <> bin16(16#0403) or   # exponent:     1
+        bin16(float(bin64(16#3f1ffc0000000000))) <> bin16(16#07ff) or   # exponent:     1
         bin16(float(bin64(16#3f1ffdffffffffff))) <> bin16(16#07ff) or   # exponent:     1
-        bin16(float(bin64(16#3f1ffe0000000000))) <> bin16(16#0800) or   # exponent:     2 mantissa overflow
+        bin16(float(bin64(16#3f1ffe0000000000))) <> bin16(16#0800) or   # exponent:     1 mantissa overflow: exponent: 2
+        bin16(float(bin64(16#3f1fffffffffffff))) <> bin16(16#0800) or   # exponent:     1 mantissa overflow: exponent: 2
+        bin16(float(bin64(16#3f20000000000000))) <> bin16(16#0800) or   # exponent:     2
+        bin16(float(bin64(16#40effc0000000000))) <> bin16(16#7bff) or   # exponent:    30
         bin16(float(bin64(16#40effdffffffffff))) <> bin16(16#7bff) or   # exponent:    30
-        bin16(float(bin64(16#40effe0000000000))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
-        bin16(float(bin64(16#40efffffffffffff))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#40effe0000000000))) <> bin16(16#7c00) or   # exponent:    30 mantissa overflow, exponent overflow
+        bin16(float(bin64(16#40efffffffffffff))) <> bin16(16#7c00) or   # exponent:    30 mantissa overflow, exponent overflow
         bin16(float(bin64(16#40f0000000000000))) <> bin16(16#7c00) or   # exponent:    31 exponent overflow
         bin16(float(bin64(16#7feffdffffffffff))) <> bin16(16#7c00) or   # exponent:  1038 exponent overflow
         bin16(float(bin64(16#7feffe0000000000))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
@@ -3648,27 +3672,51 @@ const proc: checkFloat2Bits is func
         bin16(floatExpr(float(bin64(16#3e70000000000000)))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3e77ffffffffffff)))) <> bin16(16#0001) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3e78000000000000)))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3e7fffffffffffff)))) <> bin16(16#0002) or   # exponent:    -9 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3e80000000000000)))) <> bin16(16#0002) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e84000000000000)))) <> bin16(16#0002) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e84000000000001)))) <> bin16(16#0003) or   # exponent:    -8 mantissaShift: 52 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3e88000000000000)))) <> bin16(16#0003) or   # exponent:    -8 mantissaShift: 52 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3efff00000000000)))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3efff7ffffffffff)))) <> bin16(16#01ff) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3efff80000000000)))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3effffffffffffff)))) <> bin16(16#0200) or   # exponent:    -1 mantissaShift: 44 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3f00000000000000)))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f00040000000000)))) <> bin16(16#0200) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f00040000000001)))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f00080000000000)))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3f000bffffffffff)))) <> bin16(16#0201) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3f000c0000000000)))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f00100000000000)))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f00140000000000)))) <> bin16(16#0202) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f00140000000001)))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f00180000000000)))) <> bin16(16#0203) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
+        bin16(floatExpr(float(bin64(16#3f0ff00000000000)))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f0ff40000000000)))) <> bin16(16#03fe) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
         bin16(floatExpr(float(bin64(16#3f0ff40000000001)))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 0
+        bin16(floatExpr(float(bin64(16#3f0ff80000000000)))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
         bin16(floatExpr(float(bin64(16#3f0ffbffffffffff)))) <> bin16(16#03ff) or   # exponent:     0 mantissaShift: 43 lowestBit: 1
-        bin16(floatExpr(float(bin64(16#3f0ffc0000000000)))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
-        bin16(floatExpr(float(bin64(16#3f0fffffffffffff)))) <> bin16(16#0400) or   # exponent:     1 mantissa overflow
+        bin16(floatExpr(float(bin64(16#3f0ffc0000000000)))) <> bin16(16#0400) or   # exponent:     0 mantissa overflow: exponent: 1
+        bin16(floatExpr(float(bin64(16#3f0fffffffffffff)))) <> bin16(16#0400) or   # exponent:     0 mantissa overflow: exponent: 1
         bin16(floatExpr(float(bin64(16#3f10000000000000)))) <> bin16(16#0400) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f10020000000000)))) <> bin16(16#0400) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f10020000000001)))) <> bin16(16#0401) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f10040000000000)))) <> bin16(16#0401) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f1005ffffffffff)))) <> bin16(16#0401) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f10060000000000)))) <> bin16(16#0402) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f10080000000000)))) <> bin16(16#0402) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f100a0000000000)))) <> bin16(16#0402) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f100a0000000001)))) <> bin16(16#0403) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f100c0000000000)))) <> bin16(16#0403) or   # exponent:     1
+        bin16(floatExpr(float(bin64(16#3f1ffc0000000000)))) <> bin16(16#07ff) or   # exponent:     1
         bin16(floatExpr(float(bin64(16#3f1ffdffffffffff)))) <> bin16(16#07ff) or   # exponent:     1
-        bin16(floatExpr(float(bin64(16#3f1ffe0000000000)))) <> bin16(16#0800) or   # exponent:     2 mantissa overflow
+        bin16(floatExpr(float(bin64(16#3f1ffe0000000000)))) <> bin16(16#0800) or   # exponent:     1 mantissa overflow: exponent: 2
+        bin16(floatExpr(float(bin64(16#3f1fffffffffffff)))) <> bin16(16#0800) or   # exponent:     1 mantissa overflow: exponent: 2
+        bin16(floatExpr(float(bin64(16#3f20000000000000)))) <> bin16(16#0800) or   # exponent:     2
+        bin16(floatExpr(float(bin64(16#40effc0000000000)))) <> bin16(16#7bff) or   # exponent:    30
         bin16(floatExpr(float(bin64(16#40effdffffffffff)))) <> bin16(16#7bff) or   # exponent:    30
-        bin16(floatExpr(float(bin64(16#40effe0000000000)))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
-        bin16(floatExpr(float(bin64(16#40efffffffffffff)))) <> bin16(16#7c00) or   # exponent:    31 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#40effe0000000000)))) <> bin16(16#7c00) or   # exponent:    30 mantissa overflow, exponent overflow
+        bin16(floatExpr(float(bin64(16#40efffffffffffff)))) <> bin16(16#7c00) or   # exponent:    30 mantissa overflow, exponent overflow
         bin16(floatExpr(float(bin64(16#40f0000000000000)))) <> bin16(16#7c00) or   # exponent:    31 exponent overflow
         bin16(floatExpr(float(bin64(16#7feffdffffffffff)))) <> bin16(16#7c00) or   # exponent:  1038 exponent overflow
         bin16(floatExpr(float(bin64(16#7feffe0000000000)))) <> bin16(16#7c00) or   # exponent:  1038 mantissa overflow, exponent overflow
@@ -3687,6 +3735,80 @@ const proc: checkFloat2Bits is func
       okay := FALSE;
     end if;
 
+    if okay then
+      writeln("Converting float to bin16 values works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkBin16ToFloat is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  float(bin16(16#0000)) <> float(bin64(16#0000000000000000)) or   # Positive zero
+        float(bin16(16#0001)) <> float(bin64(16#3e70000000000000)) or   # Min subnormal positive float16
+        float(bin16(16#0002)) <> float(bin64(16#3e80000000000000)) or
+        float(bin16(16#0003)) <> float(bin64(16#3e88000000000000)) or
+        float(bin16(16#01ff)) <> float(bin64(16#3efff00000000000)) or
+        float(bin16(16#0200)) <> float(bin64(16#3f00000000000000)) or
+        float(bin16(16#0201)) <> float(bin64(16#3f00080000000000)) or
+        float(bin16(16#0202)) <> float(bin64(16#3f00100000000000)) or
+        float(bin16(16#0203)) <> float(bin64(16#3f00180000000000)) or
+        float(bin16(16#03fe)) <> float(bin64(16#3f0ff00000000000)) or
+        float(bin16(16#03ff)) <> float(bin64(16#3f0ff80000000000)) or   # Max subnormal positive float16
+        float(bin16(16#0400)) <> float(bin64(16#3f10000000000000)) or   # Min normalized positive float16
+        float(bin16(16#0401)) <> float(bin64(16#3f10040000000000)) or
+        float(bin16(16#0402)) <> float(bin64(16#3f10080000000000)) or
+        float(bin16(16#0403)) <> float(bin64(16#3f100c0000000000)) or
+        float(bin16(16#07ff)) <> float(bin64(16#3f1ffc0000000000)) or
+        float(bin16(16#0800)) <> float(bin64(16#3f20000000000000)) or
+        float(bin16(16#7bff)) <> float(bin64(16#40effc0000000000)) or   # Max finite positive float16
+        float(bin16(16#7c00)) <> float(bin64(16#7ff0000000000000)) or   # Positive infinity
+        bin64(float(bin16(16#7c01))) <> bin64(16#7ff0040000000000) or   # NaN
+        bin64(float(bin16(16#7c02))) <> bin64(16#7ff0080000000000) or   # NaN
+        bin64(float(bin16(16#7ffe))) <> bin64(16#7ffff80000000000) or   # NaN
+        bin64(float(bin16(16#7fff))) <> bin64(16#7ffffc0000000000) then # NaN
+      writeln(" ***** Converting IEEE half precision float to float does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  float(bin16(intExpr(16#0000))) <> float(bin64(16#0000000000000000)) or   # Positive zero
+        float(bin16(intExpr(16#0001))) <> float(bin64(16#3e70000000000000)) or   # Min subnormal positive float16
+        float(bin16(intExpr(16#0002))) <> float(bin64(16#3e80000000000000)) or
+        float(bin16(intExpr(16#0003))) <> float(bin64(16#3e88000000000000)) or
+        float(bin16(intExpr(16#01ff))) <> float(bin64(16#3efff00000000000)) or
+        float(bin16(intExpr(16#0200))) <> float(bin64(16#3f00000000000000)) or
+        float(bin16(intExpr(16#0201))) <> float(bin64(16#3f00080000000000)) or
+        float(bin16(intExpr(16#0202))) <> float(bin64(16#3f00100000000000)) or
+        float(bin16(intExpr(16#0203))) <> float(bin64(16#3f00180000000000)) or
+        float(bin16(intExpr(16#03fe))) <> float(bin64(16#3f0ff00000000000)) or
+        float(bin16(intExpr(16#03ff))) <> float(bin64(16#3f0ff80000000000)) or   # Max subnormal positive float16
+        float(bin16(intExpr(16#0400))) <> float(bin64(16#3f10000000000000)) or   # Min normalized positive float16
+        float(bin16(intExpr(16#0401))) <> float(bin64(16#3f10040000000000)) or
+        float(bin16(intExpr(16#0402))) <> float(bin64(16#3f10080000000000)) or
+        float(bin16(intExpr(16#0403))) <> float(bin64(16#3f100c0000000000)) or
+        float(bin16(intExpr(16#07ff))) <> float(bin64(16#3f1ffc0000000000)) or
+        float(bin16(intExpr(16#0800))) <> float(bin64(16#3f20000000000000)) or
+        float(bin16(intExpr(16#7bff))) <> float(bin64(16#40effc0000000000)) or   # Max finite positive float16
+        float(bin16(intExpr(16#7c00))) <> float(bin64(16#7ff0000000000000)) or   # Positive infinity
+        bin64(float(bin16(intExpr(16#7c01)))) <> bin64(16#7ff0040000000000) or   # NaN
+        bin64(float(bin16(intExpr(16#7c02)))) <> bin64(16#7ff0080000000000) or   # NaN
+        bin64(float(bin16(intExpr(16#7ffe)))) <> bin64(16#7ffff80000000000) or   # NaN
+        bin64(float(bin16(intExpr(16#7fff)))) <> bin64(16#7ffffc0000000000) then # NaN
+      writeln(" ***** Converting IEEE half precision float to float does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Converting bin16 values to float works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkFloat2Bin32 is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  bin32( 0.0)                     <> bin32(16#00000000) or
         bin32( 0.5)                     <> bin32(16#3f000000) or
         bin32( 0.9999999403953552)      <> bin32(16#3f7fffff) or  # The largest number < 1
@@ -3763,89 +3885,13 @@ const proc: checkFloat2Bits is func
       okay := FALSE;
     end if;
 
-    if  bin64( 0.0)                     <> bin64(16#0000000000000000_) or
-        bin64( 0.5)                     <> bin64(16#3fe0000000000000_) or
-        bin64( 0.9999999403953552)      <> bin64(16#3fefffffe0000000_) or
-        bin64( 0.9999999999999999)      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
-        bin64( 1.0)                     <> bin64(16#3ff0000000000000_) or
-        bin64( 1.0000000000000002)      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
-        bin64( 1.0000000000000004)      <> bin64(16#3ff0000000000002_) or
-        bin64( 1.0000001192092896)      <> bin64(16#3ff0000020000000_) or
-        bin64( 2.0)                     <> bin64(16#4000000000000000_) or
-        bin64(-2.0)                     <> bin64(16#c000000000000000_) or
-        bin64( 5.0e-324)                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
-        bin64( 2.2250738585072009e-308) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
-        bin64( 2.2250738585072014e-308) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
-        bin64( 1.4012984643248171e-45)  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
-        bin64( 2.9387358770557188e-39)  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
-        bin64( 1.1754942106924411e-38)  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
-        bin64( 1.1754943508222875e-38)  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
-        bin64( 1.7014118346046923e+38)  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
-        bin64( 3.4028234663852886e+38)  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
-        bin64( 1.7976931348623157e+308) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
-        bin64( Infinity)                <> bin64(16#7ff0000000000000_) or
-        bin64(-Infinity)                <> bin64(16#fff0000000000000_) or
-        bin64( 1.0 / 3.0)               <> bin64(16#3fd5555555555555_) or
-        bin64( 0.25)                    <> bin64(16#3fd0000000000000_) or
-        bin64( 0.7071067811865476)      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
-        bin64( 1.4142135623730951)      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
-        bin64( 0.6931471805599453)      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
-        bin64( 1.4426950408889634)      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
-        bin64( 1.5707963267948966)      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
-        bin64( 3.1415926535897931)      <> bin64(16#400921fb54442d18_) or  # PI
-        bin64( 6.2831853071795862)      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
-        bin64(-0.0)                     <> bin64(16#8000000000000000_) or
-        bin64( NaN)                     <> bin64(16#7ff8000000000000_) and
-        bin64( NaN)                     <> bin64(16#fff8000000000000_) then
-      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (1)");
-      okay := FALSE;
-    end if;
-
-    if  bin64(floatExpr( 0.0))                     <> bin64(16#0000000000000000_) or
-        bin64(floatExpr( 0.5))                     <> bin64(16#3fe0000000000000_) or
-        bin64(floatExpr( 0.9999999403953552))      <> bin64(16#3fefffffe0000000_) or
-        bin64(floatExpr( 0.9999999999999999))      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
-        bin64(floatExpr( 1.0))                     <> bin64(16#3ff0000000000000_) or
-        bin64(floatExpr( 1.0000000000000002))      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
-        bin64(floatExpr( 1.0000000000000004))      <> bin64(16#3ff0000000000002_) or
-        bin64(floatExpr( 1.0000001192092896))      <> bin64(16#3ff0000020000000_) or
-        bin64(floatExpr( 2.0))                     <> bin64(16#4000000000000000_) or
-        bin64(floatExpr(-2.0))                     <> bin64(16#c000000000000000_) or
-        bin64(floatExpr( 5.0e-324))                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
-        bin64(floatExpr( 2.2250738585072009e-308)) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
-        bin64(floatExpr( 2.2250738585072014e-308)) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
-        bin64(floatExpr( 1.4012984643248171e-45))  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
-        bin64(floatExpr( 2.9387358770557188e-39))  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
-        bin64(floatExpr( 1.1754942106924411e-38))  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
-        bin64(floatExpr( 1.1754943508222875e-38))  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
-        bin64(floatExpr( 1.7014118346046923e+38))  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
-        bin64(floatExpr( 3.4028234663852886e+38))  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
-        bin64(floatExpr( 1.7976931348623157e+308)) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
-        bin64(floatExpr( Infinity))                <> bin64(16#7ff0000000000000_) or
-        bin64(floatExpr(-Infinity))                <> bin64(16#fff0000000000000_) or
-        bin64(floatExpr( 1.0 / 3.0))               <> bin64(16#3fd5555555555555_) or
-        bin64(floatExpr( 0.25))                    <> bin64(16#3fd0000000000000_) or
-        bin64(floatExpr( 0.7071067811865476))      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
-        bin64(floatExpr( 1.4142135623730951))      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
-        bin64(floatExpr( 0.6931471805599453))      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
-        bin64(floatExpr( 1.4426950408889634))      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
-        bin64(floatExpr( 1.5707963267948966))      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
-        bin64(floatExpr( 3.1415926535897931))      <> bin64(16#400921fb54442d18_) or  # PI
-        bin64(floatExpr( 6.2831853071795862))      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
-        bin64(floatExpr(-0.0))                     <> bin64(16#8000000000000000_) or
-        bin64(floatExpr( NaN))                     <> bin64(16#7ff8000000000000_) and
-        bin64(floatExpr( NaN))                     <> bin64(16#fff8000000000000_) then
-      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (2)");
-      okay := FALSE;
-    end if;
-
     if okay then
-      writeln("Converting float to bin32 and bin64 values works correctly.");
+      writeln("Converting float to bin32 values works correctly.");
     end if;
   end func;
 
 
-const proc: checkBits2Float is func
+const proc: checkBin32ToFloat is func
   local
     var boolean: okay is TRUE;
   begin
@@ -3975,6 +4021,102 @@ const proc: checkBits2Float is func
       okay := FALSE;
     end if;
 
+    if okay then
+      writeln("Converting bin32 values to float works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkFloat2Bin64 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bin64( 0.0)                     <> bin64(16#0000000000000000_) or
+        bin64( 0.5)                     <> bin64(16#3fe0000000000000_) or
+        bin64( 0.9999999403953552)      <> bin64(16#3fefffffe0000000_) or
+        bin64( 0.9999999999999999)      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
+        bin64( 1.0)                     <> bin64(16#3ff0000000000000_) or
+        bin64( 1.0000000000000002)      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
+        bin64( 1.0000000000000004)      <> bin64(16#3ff0000000000002_) or
+        bin64( 1.0000001192092896)      <> bin64(16#3ff0000020000000_) or
+        bin64( 2.0)                     <> bin64(16#4000000000000000_) or
+        bin64(-2.0)                     <> bin64(16#c000000000000000_) or
+        bin64( 5.0e-324)                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
+        bin64( 2.2250738585072009e-308) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
+        bin64( 2.2250738585072014e-308) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
+        bin64( 1.4012984643248171e-45)  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
+        bin64( 2.9387358770557188e-39)  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
+        bin64( 1.1754942106924411e-38)  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
+        bin64( 1.1754943508222875e-38)  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
+        bin64( 1.7014118346046923e+38)  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
+        bin64( 3.4028234663852886e+38)  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
+        bin64( 1.7976931348623157e+308) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
+        bin64( Infinity)                <> bin64(16#7ff0000000000000_) or
+        bin64(-Infinity)                <> bin64(16#fff0000000000000_) or
+        bin64( 1.0 / 3.0)               <> bin64(16#3fd5555555555555_) or
+        bin64( 0.25)                    <> bin64(16#3fd0000000000000_) or
+        bin64( 0.7071067811865476)      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
+        bin64( 1.4142135623730951)      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
+        bin64( 0.6931471805599453)      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
+        bin64( 1.4426950408889634)      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
+        bin64( 1.5707963267948966)      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
+        bin64( 3.1415926535897931)      <> bin64(16#400921fb54442d18_) or  # PI
+        bin64( 6.2831853071795862)      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
+        bin64(-0.0)                     <> bin64(16#8000000000000000_) or
+        bin64( NaN)                     <> bin64(16#7ff8000000000000_) and
+        bin64( NaN)                     <> bin64(16#fff8000000000000_) then
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin64(floatExpr( 0.0))                     <> bin64(16#0000000000000000_) or
+        bin64(floatExpr( 0.5))                     <> bin64(16#3fe0000000000000_) or
+        bin64(floatExpr( 0.9999999403953552))      <> bin64(16#3fefffffe0000000_) or
+        bin64(floatExpr( 0.9999999999999999))      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
+        bin64(floatExpr( 1.0))                     <> bin64(16#3ff0000000000000_) or
+        bin64(floatExpr( 1.0000000000000002))      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
+        bin64(floatExpr( 1.0000000000000004))      <> bin64(16#3ff0000000000002_) or
+        bin64(floatExpr( 1.0000001192092896))      <> bin64(16#3ff0000020000000_) or
+        bin64(floatExpr( 2.0))                     <> bin64(16#4000000000000000_) or
+        bin64(floatExpr(-2.0))                     <> bin64(16#c000000000000000_) or
+        bin64(floatExpr( 5.0e-324))                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
+        bin64(floatExpr( 2.2250738585072009e-308)) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
+        bin64(floatExpr( 2.2250738585072014e-308)) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
+        bin64(floatExpr( 1.4012984643248171e-45))  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
+        bin64(floatExpr( 2.9387358770557188e-39))  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
+        bin64(floatExpr( 1.1754942106924411e-38))  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
+        bin64(floatExpr( 1.1754943508222875e-38))  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
+        bin64(floatExpr( 1.7014118346046923e+38))  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
+        bin64(floatExpr( 3.4028234663852886e+38))  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
+        bin64(floatExpr( 1.7976931348623157e+308)) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
+        bin64(floatExpr( Infinity))                <> bin64(16#7ff0000000000000_) or
+        bin64(floatExpr(-Infinity))                <> bin64(16#fff0000000000000_) or
+        bin64(floatExpr( 1.0 / 3.0))               <> bin64(16#3fd5555555555555_) or
+        bin64(floatExpr( 0.25))                    <> bin64(16#3fd0000000000000_) or
+        bin64(floatExpr( 0.7071067811865476))      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
+        bin64(floatExpr( 1.4142135623730951))      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
+        bin64(floatExpr( 0.6931471805599453))      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
+        bin64(floatExpr( 1.4426950408889634))      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
+        bin64(floatExpr( 1.5707963267948966))      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
+        bin64(floatExpr( 3.1415926535897931))      <> bin64(16#400921fb54442d18_) or  # PI
+        bin64(floatExpr( 6.2831853071795862))      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
+        bin64(floatExpr(-0.0))                     <> bin64(16#8000000000000000_) or
+        bin64(floatExpr( NaN))                     <> bin64(16#7ff8000000000000_) and
+        bin64(floatExpr( NaN))                     <> bin64(16#fff8000000000000_) then
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Converting float to bin64 values works correctly.");
+    end if;
+  end func;
+
+
+const proc: checkBin64ToFloat is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  float(bin64(16#0000000000000000_)) <>  0.0 or
         float(bin64(16#3fe0000000000000_)) <>  0.5 or
         float(bin64(16#3fefffffe0000000_)) <>  0.9999999403953552 or
@@ -4056,7 +4198,7 @@ const proc: checkBits2Float is func
     end if;
 
     if okay then
-      writeln("Converting bin32 and bin64 values to float works correctly.");
+      writeln("Converting bin64 values to float works correctly.");
     end if;
   end func;
 
@@ -6343,8 +6485,12 @@ const proc: main is func
     checkBytesLeWithLength;
     checkBytesBe2Bin64;
     checkBytesLe2Bin64;
-    checkFloat2Bits;
-    checkBits2Float;
+    checkFloat2Bin16;
+    checkBin16ToFloat;
+    checkFloat2Bin32;
+    checkBin32ToFloat;
+    checkFloat2Bin64;
+    checkBin64ToFloat;
     checkFloat2MbfBits;
     checkMbfBits2Float;
     checkBinBinaryWithBigMod;

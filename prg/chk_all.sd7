@@ -152,8 +152,12 @@ const string: chkbin_output is "\n\
   \Conversion of bin64 to little endian byte string with length works correctly.\n\
   \Conversion of big endian byte string to bin64 works correctly.\n\
   \Conversion of little endian byte string to bin64 works correctly.\n\
-  \Converting float to bin32 and bin64 values works correctly.\n\
-  \Converting bin32 and bin64 values to float works correctly.\n\
+  \Converting float to bin16 values works correctly.\n\
+  \Converting bin16 values to float works correctly.\n\
+  \Converting float to bin32 values works correctly.\n\
+  \Converting bin32 values to float works correctly.\n\
+  \Converting float to bin64 values works correctly.\n\
+  \Converting bin64 values to float works correctly.\n\
   \float2MbfBits works correctly for bin32 and bin64 values.\n\
   \mbfBits2Float works correctly for bin32 and bin64 values.\n\
   \bin64(aBigInteger mod 2_**y) works correctly.\n\
