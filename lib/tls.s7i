@@ -555,9 +555,6 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
             genAsn1Element(tagInteger, bytes(ecdsaSignature.r, SIGNED, BE)) &
             genAsn1Element(tagInteger, bytes(ecdsaSignature.s, SIGNED, BE)));
     end case;
-    signatureStri := bytes(parameters.signatureScheme, UNSIGNED, BE, 2) &
-                     bytes(length(signatureStri),      UNSIGNED, BE, 2) &
-                     signatureStri;
   end func;
 
 
@@ -1341,6 +1338,9 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
       signatureStri := genSignature(parameters.client_random &
                                     parameters.server_random &
                                     serverParams, parameters);
+      signatureStri := bytes(parameters.signatureScheme, UNSIGNED, BE, 2) &
+                       bytes(length(signatureStri),      UNSIGNED, BE, 2) &
+                       signatureStri;
       serverKeyExchange &:= serverParams & signatureStri;
     end if;
     length := length(serverKeyExchange);
