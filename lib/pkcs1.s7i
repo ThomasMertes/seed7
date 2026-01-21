@@ -489,6 +489,7 @@ const func string: rsaesPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ci
 
 (**
  *  Encrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 encryption.
+ *  RSASSA-PKCS1-V1_5 is used for signature encryption / decryption.
  *  @return the RSASSA-PKCS1-V1_5 encrypted [[string]] of bytes.
  *  @exception RANGE_ERROR If the length of the ''message'' is too long
  *                         to be encrypted.
@@ -515,6 +516,7 @@ const func string: rsassaPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: m
 
 (**
  *  Decrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 decryption.
+ *  RSASSA-PKCS1-V1_5 is used for signature encryption / decryption.
  *  @return the RSASSA-PKCS1-V1_5 decrypted [[string]] of bytes.
  *  @exception RANGE_ERROR If the length of the ''ciphertext'' is too long
  *                         to be decrypted.
