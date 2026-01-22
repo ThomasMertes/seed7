@@ -643,7 +643,7 @@ const func httpResponse: http (POST, in string: location, in httpBody: body) is
 
 
 (**
- * Send a text/plain POST request.
+ *  Send a text/plain POST request.
  *)
 const func httpResponse: http (POST, in string: location, in string: body, in httpCreds: creds) is func
   result

@@ -80,7 +80,7 @@ const func httpResponse: sendHttps (in var httpRequest: request, in boolean: pro
             response.status = HTTP_SEE_OTHER or
             response.status = HTTP_TEMPORARY_REDIRECT then
           request.location := getHttpLocation(request.location, sock);
-          # show(locationData);
+          # show(request.location);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
@@ -163,7 +163,7 @@ const func httpResponse: https (POST, in string: location, in httpBody: body, in
 
 
 const func httpResponse: https (POST, in string: location, in httpBody: body) is
-  return https(POST, location, body);
+  return https(POST, location, body, httpCreds.value);
 
 
 const func httpResponse: https (POST, in string: location, in string: plain, in httpCreds: creds) is func
@@ -181,7 +181,7 @@ const func httpResponse: https (POST, in string: location, in string: plain, in 
 
 
 const func httpResponse: https (POST, in string: location, in string: plain) is
-  return https(POST, location, plain);
+  return https(POST, location, plain, httpCreds.value);
 
 
 const func httpResponse: https (POST, in string: location, in hash [string] string: fields, in httpCreds: creds) is func
