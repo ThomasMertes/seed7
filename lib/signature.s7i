@@ -1,0 +1,187 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  signature.s7i  Support for RSA signatures.                      *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "pkcs1.s7i";
+include "asn1.s7i";
+include "asn1oid.s7i";
+
+
+const type: algorithmIdentifierType is new struct
+    var string: algorithm is "";     # OBJECT IDENTIFIER
+    var string: subAlgorithm is "";  # OBJECT IDENTIFIER
+    var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
+  end struct;
+
+
+const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, inout integer: pos) is func
+  result
+    var algorithmIdentifierType: algId is algorithmIdentifierType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: beyond is 0;
+  begin
+    dataElem := getAsn1DataElement(asn1, pos);
+    # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+    if dataElem.tagType = tagSequence then
+      beyond := pos + dataElem.length;
+      dataElem := getAsn1DataElement(asn1, pos);
+      # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+      if dataElem.tagType = tagObjectIdentifier then
+        algId.algorithm := getData(asn1, pos, dataElem);
+      end if;
+      if pos < beyond then
+        dataElem := getAsn1DataElement(asn1, pos);
+        # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+        if dataElem.tagType = tagObjectIdentifier then
+          algId.subAlgorithm := getData(asn1, pos, dataElem);
+          # writeln("algId.subAlgorithm: " <& literal(algId.subAlgorithm));
+        elsif dataElem.tagType = tagSequence then
+          algId.parameters := getData(asn1, pos, dataElem);
+          # writeln("algId.parameters: " <& literal(algId.parameters));
+        elsif dataElem.tagType <> tagNull then
+          writeln("*** Unexpected data element " <&
+                  classTagName[ord(dataElem.tagType)] <& " ***");
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is func
+  result
+    var string: asn1 is "";
+  begin
+    asn1 := genAsn1Element(tagObjectIdentifier, algId.algorithm);
+    if algId.subAlgorithm <> "" then
+      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.subAlgorithm);
+    elsif algId.parameters <> "" then
+      asn1 &:= genAsn1Sequence(algId.parameters);
+    else
+      asn1 &:= genAsn1Element(tagNull, "");
+    end if;
+    asn1 := genAsn1Sequence(asn1);
+  end func;
+
+
+const type: rsaSignatureType is new struct
+    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
+    var string: signature is "";
+  end struct;
+
+
+const func string: genRsaSignature (in string: signature, in digestAlgorithm: digestAlg) is func
+  result
+    var string: signatureString is "";
+  local
+    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
+  begin
+    case digestAlg of
+      when {SHA1}:   algorithmIdentifier.algorithm := SHA1_OID;
+      when {SHA256}: algorithmIdentifier.algorithm := SHA256_OID;
+      when {SHA384}: algorithmIdentifier.algorithm := SHA384_OID;
+      when {SHA512}: algorithmIdentifier.algorithm := SHA512_OID;
+    end case;
+    signatureString := genAsn1Sequence(
+            genAlgorithmIdentifier(algorithmIdentifier) &
+            genAsn1Element(tagOctetString, signature));
+  end func;
+
+
+const func rsaSignatureType: getRsaSignature (in string: signatureStri) is func
+  result
+    var rsaSignatureType: signature is rsaSignatureType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: pos is 1;
+  begin
+    dataElem := getAsn1DataElement(signatureStri, pos);
+    if dataElem.tagType = tagSequence then
+      signature.algorithmIdentifier := getAlgorithmIdentifier(signatureStri, pos);
+      dataElem := getAsn1DataElement(signatureStri, pos);
+      if dataElem.tagType = tagOctetString then
+        signature.signature := getData(signatureStri, pos, dataElem);
+      end if;
+    end if;
+    if pos <> succ(length(signatureStri)) then
+      # Tailing garbage bytes
+      # writeln("Tailing garbage bytes");
+      signature.algorithmIdentifier.algorithm := "";
+      signature.algorithmIdentifier.subAlgorithm := "";
+      signature.algorithmIdentifier.parameters := "";
+      signature.signature := "";
+    end if;
+  end func;
+
+
+(**
+ *  Generate an RSA signature for ''data''.
+ *   genSignature("abcde", SHA256, stdRsaKeyPair.privateKey)
+ *  @param data Data for which the signature is generated.
+ *  @param digestAlg Digest algorithm to be used.
+ *  @param encryptionKey RSA key to encrypt the signature.
+ *  @return the signature of ''data''.
+ *)
+const func string: genSignature (in string: data,
+    in digestAlgorithm: digestAlg, in rsaKey: encryptionKey) is func
+  result
+    var string: signature is "";
+  local
+    var string: signatureHash is "";
+    var string: rsaSignatureStri is "";
+  begin
+    signatureHash := msgDigest(digestAlg, data);
+    rsaSignatureStri := genRsaSignature(signatureHash, digestAlg);
+    signature := rsassaPkcs1V15Encrypt(encryptionKey, rsaSignatureStri);
+  end func;
+
+
+(**
+ *  Verify ''data'' with the RSA signature ''signature''.
+ *   verifySignature("abcde", signature, SHA256, stdRsaKeyPair.privateKey)
+ *  @param data Data which should be verified with the signature.
+ *  @param signature Signature of ''data''.
+ *  @param digestAlg Digest algorithm to be used.
+ *  @param decryptionKey RSA key to decrypt the ''signature''.
+ *  @return TRUE if ''data'' could be verified with ''signature'',
+ *          FALSE otherwise.
+ *)
+const func boolean: verifySignature (in string: data,
+    in string: signature, in digestAlgorithm: digestAlg,
+    in rsaKey: decryptionKey) is func
+  result
+    var boolean: verified is FALSE;
+  local
+    var string: signatureHash is "";
+    var string: decryptedSignature is "";
+    var rsaSignatureType: rsaSignature is rsaSignatureType.value;
+  begin
+    signatureHash := msgDigest(digestAlg, data);
+    decryptedSignature := rsassaPkcs1V15Decrypt(decryptionKey, signature);
+    rsaSignature := getRsaSignature(decryptedSignature);
+    verified := rsaSignature.signature = signatureHash;
+  end func;

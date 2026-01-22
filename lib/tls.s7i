@@ -32,6 +32,8 @@ include "x509cert.s7i";
 include "hmac.s7i";
 include "elliptic.s7i";
 include "cipher.s7i";
+include "signature.s7i";
+include "asn1oid.s7i";
 include "arc4.s7i";
 include "des.s7i";
 include "tdes.s7i";
@@ -468,24 +470,6 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
       parameters.writeCipherState := setCipherKey(parameters.bulk_cipher_algorithm,
           server_write_key, server_initialization_vector);
     end if;
-  end func;
-
-
-const func string: genRsaSignature (in string: signature, in digestAlgorithm: digestAlg) is func
-  result
-    var string: signatureString is "";
-  local
-    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
-  begin
-    case digestAlg of
-      when {SHA1}:   algorithmIdentifier.algorithm := SHA1_OID;
-      when {SHA256}: algorithmIdentifier.algorithm := SHA256_OID;
-      when {SHA384}: algorithmIdentifier.algorithm := SHA384_OID;
-      when {SHA512}: algorithmIdentifier.algorithm := SHA512_OID;
-    end case;
-    signatureString := genAsn1Sequence(
-            genAlgorithmIdentifier(algorithmIdentifier) &
-            genAsn1Element(tagOctetString, signature));
   end func;
 
 

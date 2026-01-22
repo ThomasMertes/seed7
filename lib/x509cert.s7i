@@ -31,16 +31,12 @@ include "asn1.s7i";
 include "pkcs1.s7i";
 include "elliptic.s7i";
 include "msgdigest.s7i";
+include "signature.s7i";
+include "asn1oid.s7i";
 include "unicode.s7i";
 include "time.s7i";
 include "duration.s7i";
 
-
-const type: algorithmIdentifierType is new struct
-    var string: algorithm is "";     # OBJECT IDENTIFIER
-    var string: subAlgorithm is "";  # OBJECT IDENTIFIER
-    var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
-  end struct;
 
 const type: x509Name is hash [string] string;
 
@@ -102,80 +98,6 @@ const type: certAndKey is new struct
     var bigInteger: privateEccKey is 0_;
   end struct;
 
-const type: rsaSignatureType is new struct
-    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
-    var string: signature is "";
-  end struct;
-
-const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4;\1;"
-const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4;\2;"
-const string: COMMON_NAME_OID               is encodeObjectIdentifier([] (2, 5, 4, 3));   # "U\4;\3;"
-const string: SURNAME_OID                   is encodeObjectIdentifier([] (2, 5, 4, 4));   # "U\4;\4;"
-const string: SERIAL_NUMBER_OID             is encodeObjectIdentifier([] (2, 5, 4, 5));   # "U\4;\5;"
-const string: COUNTRY_NAME_OID              is encodeObjectIdentifier([] (2, 5, 4, 6));   # "U\4;\6;"
-const string: LOCALITY_NAME_OID             is encodeObjectIdentifier([] (2, 5, 4, 7));   # "U\4;\a"
-const string: STATE_OR_OR_PROVINCE_NAME_OID is encodeObjectIdentifier([] (2, 5, 4, 8));   # "U\4;\b"
-const string: STREET_ADDRESS_OID            is encodeObjectIdentifier([] (2, 5, 4, 9));   # "U\4;\t"
-const string: ORGANIZATION_NAME_OID         is encodeObjectIdentifier([] (2, 5, 4, 10));  # "U\4;\n"
-const string: ORGANIZATION_UNIT_NAME_OID    is encodeObjectIdentifier([] (2, 5, 4, 11));  # "U\4;\v"
-const string: TITLE_OID                     is encodeObjectIdentifier([] (2, 5, 4, 12));  # "U\4;\f"
-
-const string: SUBJECT_KEY_IDENTIFIER_OID    is encodeObjectIdentifier([] (2, 5, 29, 14));  # "U\29;\14;"
-const string: KEY_USAGE_OID                 is encodeObjectIdentifier([] (2, 5, 29, 15));  # "U\29;\15;"
-const string: SUBJECT_ALT_NAME              is encodeObjectIdentifier([] (2, 5, 29, 17));  # "U\29;\17;"
-const string: BASIC_CONSTRAINTS_OID         is encodeObjectIdentifier([] (2, 5, 29, 19));  # "U\29;\19;"
-const string: CRLD_DISTRIBUTION_POINTS_OID  is encodeObjectIdentifier([] (2, 5, 29, 31));  # "U\29;\31;"
-const string: CERTIFICATE_POLICIES_OID      is encodeObjectIdentifier([] (2, 5, 29, 32));  # "U\29; "
-const string: AUTHORITY_KEY_IDENTIFIER_OID  is encodeObjectIdentifier([] (2, 5, 29, 35));  # "U\29;#"
-const string: EXT_KEY_USAGE_OID             is encodeObjectIdentifier([] (2, 5, 29, 37));  # "U\29;%"
-
-const string: CERT_TYPE_OID                 is encodeObjectIdentifier([] (2, 16, 840, 1, 113730, 1, 1));  # "`\134;H\1;\134;�B\1;\1;"
-
-# iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) 1
-const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134;H\134;\247;\r\1;\1;"
-const string: RSA_ENCRYPTION_OID         is PKCS_1 & "\1;";
-const string: MD2_WITH_RSA_ENCRYPTION    is PKCS_1 & "\2;";
-const string: MD5_WITH_RSA_ENCRYPTION    is PKCS_1 & "\4;";
-const string: SHA1_WITH_RSA_ENCRYPTION   is PKCS_1 & "\5;";
-const string: RSAES_OAEP_OID             is PKCS_1 & "\7;";
-const string: MGF1_OID                   is PKCS_1 & "\8;";
-const string: P_SPECIFIED_OID            is PKCS_1 & "\9;";
-const string: RSASSA_PSS_OID             is PKCS_1 & "\10;";
-const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11;";
-const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12;";
-const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13;";
-
-const string: PKCS_7 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 7));  # "*\134;H\134;\247;\r\1;\a"
-const string: PKCS_7_DATA                      is PKCS_7 & "\1;";
-const string: PKCS_7_SIGNED_DATA               is PKCS_7 & "\2;";
-const string: PKCS_7_ENVELOPED_DATA            is PKCS_7 & "\3;";
-const string: PKCS_7_SIGNED_AND_ENVELOPED_DATA is PKCS_7 & "\4;";
-const string: PKCS_7_DIGESTED_DATA             is PKCS_7 & "\5;";
-const string: PKCS_7_ENCRYPTED_DATA            is PKCS_7 & "\6;";
-
-const string: ECDSA_WITH_SHA224 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 1));
-const string: ECDSA_WITH_SHA256 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 2));
-const string: ECDSA_WITH_SHA384 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 3));
-const string: ECDSA_WITH_SHA512 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 4));
-
-const string: PRIME_FIELD   is encodeObjectIdentifier([] (1, 2, 840, 10045, 1, 1));     # "*\134;H\206;=\1;\1;"
-const string: EC_PUBLIC_KEY is encodeObjectIdentifier([] (1, 2, 840, 10045, 2, 1));     # "*\134;H\206;=\2;\1;"
-
-const string: SECP192K1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 31));
-const string: SECP192R1_OID is encodeObjectIdentifier([] (1, 2, 840, 10045, 3, 1, 1));
-const string: SECP224K1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 32));
-const string: SECP224R1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 33));
-const string: SECP256K1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 10));
-const string: SECP256R1_OID is encodeObjectIdentifier([] (1, 2, 840, 10045, 3, 1, 7));
-const string: SECP384R1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 34));
-const string: SECP521R1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 35));
-
-const string: MD5_OID    is encodeObjectIdentifier([] (1, 2, 840, 113549, 2, 5));
-const string: SHA1_OID   is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
-const string: SHA256_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 1));
-const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 2));
-const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
-
 
 const integer: KEY_USAGE_DIGITAL_SIGNATURE is  7;
 const integer: KEY_USAGE_NON_REPUDIATION   is  6;
@@ -186,56 +108,6 @@ const integer: KEY_USAGE_KEY_CERT_SIGN     is  2;
 const integer: KEY_USAGE_CRL_SIGN          is  1;
 const integer: KEY_USAGE_ENCIPHER_ONLY     is  0;
 const integer: KEY_USAGE_DECIPHER_ONLY     is 15;
-
-
-const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, inout integer: pos) is func
-  result
-    var algorithmIdentifierType: algId is algorithmIdentifierType.value;
-  local
-    var asn1DataElement: dataElem is asn1DataElement.value;
-    var integer: beyond is 0;
-  begin
-    dataElem := getAsn1DataElement(asn1, pos);
-    # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
-    if dataElem.tagType = tagSequence then
-      beyond := pos + dataElem.length;
-      dataElem := getAsn1DataElement(asn1, pos);
-      # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
-      if dataElem.tagType = tagObjectIdentifier then
-        algId.algorithm := getData(asn1, pos, dataElem);
-      end if;
-      if pos < beyond then
-        dataElem := getAsn1DataElement(asn1, pos);
-        # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
-        if dataElem.tagType = tagObjectIdentifier then
-          algId.subAlgorithm := getData(asn1, pos, dataElem);
-          # writeln("algId.subAlgorithm: " <& literal(algId.subAlgorithm));
-        elsif dataElem.tagType = tagSequence then
-          algId.parameters := getData(asn1, pos, dataElem);
-          # writeln("algId.parameters: " <& literal(algId.parameters));
-        elsif dataElem.tagType <> tagNull then
-          writeln("*** Unexpected data element " <&
-                  classTagName[ord(dataElem.tagType)] <& " ***");
-        end if;
-      end if;
-    end if;
-  end func;
-
-
-const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is func
-  result
-    var string: asn1 is "";
-  begin
-    asn1 := genAsn1Element(tagObjectIdentifier, algId.algorithm);
-    if algId.subAlgorithm <> "" then
-      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.subAlgorithm);
-    elsif algId.parameters <> "" then
-      asn1 &:= genAsn1Sequence(algId.parameters);
-    else
-      asn1 &:= genAsn1Element(tagNull, "");
-    end if;
-    asn1 := genAsn1Sequence(asn1);
-  end func;
 
 
 const func rsaKey: getRsaKey (in string: asn1) is func
@@ -269,32 +141,6 @@ const func string: genX509RsaKey (in rsaKey: anRsaKey) is func
     asn1 := genAsn1Integer(bytes(anRsaKey.modulus, SIGNED, BE));
     asn1 &:= genAsn1Integer(bytes(anRsaKey.exponent, SIGNED, BE));
     asn1 := genAsn1Sequence(asn1);
-  end func;
-
-
-const func rsaSignatureType: getRsaSignature (in string: signatureStri) is func
-  result
-    var rsaSignatureType: signature is rsaSignatureType.value;
-  local
-    var asn1DataElement: dataElem is asn1DataElement.value;
-    var integer: pos is 1;
-  begin
-    dataElem := getAsn1DataElement(signatureStri, pos);
-    if dataElem.tagType = tagSequence then
-      signature.algorithmIdentifier := getAlgorithmIdentifier(signatureStri, pos);
-      dataElem := getAsn1DataElement(signatureStri, pos);
-      if dataElem.tagType = tagOctetString then
-        signature.signature := getData(signatureStri, pos, dataElem);
-      end if;
-    end if;
-    if pos <> succ(length(signatureStri)) then
-      # Tailing garbage bytes
-      # writeln("Tailing garbage bytes");
-      signature.algorithmIdentifier.algorithm := "";
-      signature.algorithmIdentifier.subAlgorithm := "";
-      signature.algorithmIdentifier.parameters := "";
-      signature.signature := "";
-    end if;
   end func;
 
 
