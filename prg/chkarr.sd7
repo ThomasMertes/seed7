@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "float.s7i";
   include "complex.s7i";
+  include "strifile.s7i";
 
 
 const array integer: testNumArr is [] (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -2393,6 +2394,52 @@ const func boolean: testBaseArrayIndex is func
   end func;
 
 
+const type: fileArrayType is array file;
+
+
+const func fileArrayType: returnFileArray is
+  return [] (openStriFile("abcde"), openStriFile("fghij"), openStriFile("klmno"));
+
+
+const func boolean: testFileArray is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var file: aFile is STD_NULL;
+  begin
+    aFile := returnFileArray[1];
+    if gets(aFile, integer.last) <> "abcde" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    aFile := returnFileArray[2];
+    if gets(aFile, integer.last) <> "fghij" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    aFile := returnFileArray[3];
+    if gets(aFile, integer.last) <> "klmno" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    aFile := returnFileArray[intExpr(1)];
+    if gets(aFile, integer.last) <> "abcde" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+    aFile := returnFileArray[intExpr(2)];
+    if gets(aFile, integer.last) <> "fghij" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (5)");
+      okay := FALSE;
+    end if;
+    aFile := returnFileArray[intExpr(3)];
+    if gets(aFile, integer.last) <> "klmno" then
+      writeln(" ***** Indexing into an array of files does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: testIndex is func
   local
     var boolean: okay is TRUE;
@@ -2821,6 +2868,9 @@ const proc: testIndex is func
       okay := FALSE;
     end if;
     if not testBaseArrayIndex then
+      okay := FALSE;
+    end if;
+    if not testFileArray then
       okay := FALSE;
     end if;
 
