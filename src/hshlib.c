@@ -990,6 +990,13 @@ objectType hsh_for_key (listType arguments)
 
 
 
+/**
+ *  Create a hash literal from key-value pairs.
+ *  One or many key-value pairs are used to create a hash literal:
+ *   [] (["one" : 1], ["two" : 2])
+ *  This hash literal defines a hash with the keys "one" and "two"
+ *  and the corresponding values 1 and 2.
+ */
 objectType hsh_gen_hash (listType arguments)
 
   {
@@ -1093,6 +1100,15 @@ objectType hsh_gen_hash (listType arguments)
 
 
 
+/**
+ *  Create a key-value pair to be used in a hash literal.
+ *  A key-value pair with the key "one" and the value 1 is created with
+ *   ["one" : 1]
+ *  A key-value pair can only be used inside a hash literal. E.g.:
+ *   [] (["one" : 1], ["two" : 2])
+ *  This hash literal defines a hash with the keys "one" and "two"
+ *  and the corresponding values 1 and 2.
+ */
 objectType hsh_gen_key_value (listType arguments)
 
   {
