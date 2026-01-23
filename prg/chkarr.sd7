@@ -2480,6 +2480,11 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (8)");
       okay := FALSE;
     end if;
+    blnElem := (blnArr & blnArr)[intExpr(8)];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (9)");
+      okay := FALSE;
+    end if;
 
     if length(intArr) <> 7 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 then
@@ -2519,6 +2524,11 @@ const proc: testIndex is func
     intElem := (intArr & intArr)[8];
     if intElem <> 1 then
       writeln(" ***** ARRAY [ INDEX ] for integer array failed. (8)");
+      okay := FALSE;
+    end if;
+    intElem := (intArr & intArr)[intExpr(8)];
+    if intElem <> 1 then
+      writeln(" ***** ARRAY [ INDEX ] for integer array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -2562,6 +2572,11 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (8)");
       okay := FALSE;
     end if;
+    bigElem := (bigArr & bigArr)[intExpr(8)];
+    if bigElem <> 1_ then
+      writeln(" ***** ARRAY [ INDEX ] for bigInteger array failed. (9)");
+      okay := FALSE;
+    end if;
 
     if length(fltArr) <> 7 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
           fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 then
@@ -2601,6 +2616,11 @@ const proc: testIndex is func
     fltElem := (fltArr & fltArr)[8];
     if fltElem <> 1.0 then
       writeln(" ***** ARRAY [ INDEX ] for float array failed. (8)");
+      okay := FALSE;
+    end if;
+    fltElem := (fltArr & fltArr)[intExpr(8)];
+    if fltElem <> 1.0 then
+      writeln(" ***** ARRAY [ INDEX ] for float array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -2646,6 +2666,11 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for complex array failed. (8)");
       okay := FALSE;
     end if;
+    cpxElem := (cpxArr & cpxArr)[intExpr(8)];
+    if cpxElem <> complex(1.0, 1.0) then
+      writeln(" ***** ARRAY [ INDEX ] for complex array failed. (9)");
+      okay := FALSE;
+    end if;
 
     if length(chrArr) <> 7 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
           chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' then
@@ -2685,6 +2710,11 @@ const proc: testIndex is func
     chrElem := (chrArr & chrArr)[8];
     if chrElem <> 'a' then
       writeln(" ***** ARRAY [ INDEX ] for char array failed. (8)");
+      okay := FALSE;
+    end if;
+    chrElem := (chrArr & chrArr)[intExpr(8)];
+    if chrElem <> 'a' then
+      writeln(" ***** ARRAY [ INDEX ] for char array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -2729,6 +2759,11 @@ const proc: testIndex is func
       writeln(" ***** ARRAY [ INDEX ] for string array failed. (8)");
       okay := FALSE;
     end if;
+    strElem := (strArr & strArr)[intExpr(8)];
+    if strElem <> "one" then
+      writeln(" ***** ARRAY [ INDEX ] for string array failed. (9)");
+      okay := FALSE;
+    end if;
 
     if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
                               setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
@@ -2769,6 +2804,11 @@ const proc: testIndex is func
     setElem := (setArr & setArr)[8];
     if setElem <> {1} then
       writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+    setElem := (setArr & setArr)[intExpr(8)];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (9)");
       okay := FALSE;
     end if;
 
