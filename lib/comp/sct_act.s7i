@@ -110,18 +110,83 @@ const proc: process (SCT_SELECT, in reference: function,
 
   local
     var type: object_type is void;
+    var type: result_type is void;
+    var expr_type: c_param1 is expr_type.value;
+    var string: result_name is "";
+    var string: temp_name is "";
+    var string: source is "";
   begin
     object_type := getExprResultType(params[1]);
+    result_type := resultType(getType(function));
     if object_type in typeData.struct_element_idx and
         params[3] in typeData.struct_element_idx[object_type] then
-      c_expr.expr &:= "((structType)(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= "))->stru[";
-      c_expr.expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
-      c_expr.expr &:= "]";
-      c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
-      c_expr.expr &:= "/*->o_";
-      create_name2(params[3], c_expr.expr);
-      c_expr.expr &:= "*/";
+      prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+      c_expr.temp_decls &:= c_param1.result_decl;
+      c_expr.temp_frees &:= c_param1.result_free;
+      c_expr.temp_to_null &:= c_param1.result_to_null;
+      if c_param1.result_expr <> "" then
+        if valueIsAtHeap(result_type) then
+          incr(c_expr.temp_num);
+          result_name := "tmp_" & str(c_expr.temp_num);
+          c_expr.temp_decls &:= type_name(result_type);
+          c_expr.temp_decls &:= " ";
+          c_expr.temp_decls &:= result_name;
+          c_expr.temp_decls &:= ";\n";
+          incr(c_expr.temp_num);
+          temp_name := "tmp_" & str(c_expr.temp_num);
+          c_expr.temp_decls &:= type_name(result_type);
+          c_expr.temp_decls &:= " *";
+          c_expr.temp_decls &:= temp_name;
+          c_expr.temp_decls &:= ";\n";
+          prepare_typed_result(result_type, c_expr);
+          c_expr.result_expr := "(";
+          c_expr.result_expr &:= temp_name;
+          c_expr.result_expr &:= "=&((structType)(";
+          c_expr.result_expr &:= c_param1.result_intro;
+          c_expr.result_expr &:= c_param1.result_expr;
+          c_expr.result_expr &:= c_param1.result_finish;
+          c_expr.result_expr &:= "))->stru[";
+          c_expr.result_expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
+          c_expr.result_expr &:= "]";
+          c_expr.result_expr &:= select_value_from_rtlObjectStruct(result_type);
+          c_expr.result_expr &:= "/*->o_";
+          create_name2(params[3], c_expr.result_expr);
+          c_expr.result_expr &:= "*/,";
+          c_expr.result_expr &:= result_name;
+          c_expr.result_expr &:= "= *";
+          c_expr.result_expr &:= temp_name;
+          c_expr.result_expr &:= ",*";
+          c_expr.result_expr &:= temp_name;
+          c_expr.result_expr &:= "=(";
+          c_expr.result_expr &:= type_name(result_type);
+          c_expr.result_expr &:= ")(NULL),";
+          c_expr.result_expr &:= result_name;
+          c_expr.result_expr &:= ")";
+        else
+          source := "((structType)(";
+          source &:= c_param1.result_intro;
+          source &:= c_param1.result_expr;
+          source &:= c_param1.result_finish;
+          source &:= "))->stru[";
+          source &:= str(typeData.struct_element_idx[object_type][params[3]]);
+          source &:= "]";
+          source &:= select_value_from_rtlObjectStruct(result_type);
+          source &:= "/*->o_";
+          create_name2(params[3], source);
+          source &:= "*/";
+          process_create_declaration(result_type, global_c_expr);
+          process_create_call(result_type, source, c_expr.expr);
+        end if;
+      else
+        c_expr.expr &:= "((structType)(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "))->stru[";
+        c_expr.expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
+        c_expr.expr &:= "]";
+        c_expr.expr &:= select_value_from_rtlObjectStruct(result_type);
+        c_expr.expr &:= "/*->o_";
+        create_name2(params[3], c_expr.expr);
+        c_expr.expr &:= "*/";
+      end if;
     end if;
   end func;
