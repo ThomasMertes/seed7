@@ -509,9 +509,7 @@ const func boolean: (attr boolean) parse (in string: stri) is func
   begin
     if stri = "TRUE" then
       aBoolean := TRUE;
-    elsif stri = "FALSE" then
-      aBoolean := FALSE;
-    else
+    elsif stri <> "FALSE" then
       raise RANGE_ERROR;
     end if;
   end func;
