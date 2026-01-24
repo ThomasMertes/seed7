@@ -1581,7 +1581,7 @@ void trace1 (const_objectType traceobject)
       if (TEMP2_OBJECT(traceobject)) {
         prot_cstri(" [TEMP2]");
       } /* if */
-      if (TEMP_DYNAMIC_OBJECT(anyobject)) {
+      if (TEMP_DYNAMIC_OBJECT(traceobject)) {
         prot_cstri("[TEMP_DYNAMIC] ");
       } /* if */
       if (IS_UNUSED(traceobject)) {
