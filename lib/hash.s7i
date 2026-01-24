@@ -252,7 +252,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
                                (in keyValueType: element2)                     is action "HSH_CONCAT_KEY_VALUE";
 
       (**
-       *  Declare a hash literal from key-value pairs.
+       *  Create a hash literal from key-value pairs.
        *  One or many key-value pairs are used to create a hash literal:
        *   [] (["one" : 1], ["two" : 2])
        *  This hash literal defines a hash with the keys "one" and "two"
