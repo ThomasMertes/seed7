@@ -144,7 +144,7 @@ const func boolean: (in database: db1) <> (in database: db2)   is action "SQL_NE
 const func integer: DRIVER_NUM (in database: db)               is action "SQL_DRIVER";
 
 
-const func integer: DB_CATEGORY_NUM (in database: db)          is action "SQL_DRIVER";
+const func integer: DB_CATEGORY_NUM (in database: db)          is action "SQL_DB_CATEGORY";
 
 
 (**
