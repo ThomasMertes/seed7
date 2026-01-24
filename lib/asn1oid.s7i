@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "asn1.s7i";
+
+
 const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4;\1;"
 const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4;\2;"
 const string: COMMON_NAME_OID               is encodeObjectIdentifier([] (2, 5, 4, 3));   # "U\4;\3;"
@@ -94,3 +97,60 @@ const string: SHA1_OID   is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
 const string: SHA256_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 1));
 const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 2));
 const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
+
+
+const type: algorithmIdentifierType is new struct
+    var string: algorithm is "";     # OBJECT IDENTIFIER
+    var string: subAlgorithm is "";  # OBJECT IDENTIFIER
+    var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
+  end struct;
+
+
+const func algorithmIdentifierType: getAlgorithmIdentifier (in string: asn1, inout integer: pos) is func
+  result
+    var algorithmIdentifierType: algId is algorithmIdentifierType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: beyond is 0;
+  begin
+    dataElem := getAsn1DataElement(asn1, pos);
+    # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+    if dataElem.tagType = tagSequence then
+      beyond := pos + dataElem.length;
+      dataElem := getAsn1DataElement(asn1, pos);
+      # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+      if dataElem.tagType = tagObjectIdentifier then
+        algId.algorithm := getData(asn1, pos, dataElem);
+      end if;
+      if pos < beyond then
+        dataElem := getAsn1DataElement(asn1, pos);
+        # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagType)]);
+        if dataElem.tagType = tagObjectIdentifier then
+          algId.subAlgorithm := getData(asn1, pos, dataElem);
+          # writeln("algId.subAlgorithm: " <& literal(algId.subAlgorithm));
+        elsif dataElem.tagType = tagSequence then
+          algId.parameters := getData(asn1, pos, dataElem);
+          # writeln("algId.parameters: " <& literal(algId.parameters));
+        elsif dataElem.tagType <> tagNull then
+          writeln("*** Unexpected data element " <&
+                  classTagName[ord(dataElem.tagType)] <& " ***");
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: genAlgorithmIdentifier (in algorithmIdentifierType: algId) is func
+  result
+    var string: asn1 is "";
+  begin
+    asn1 := genAsn1Element(tagObjectIdentifier, algId.algorithm);
+    if algId.subAlgorithm <> "" then
+      asn1 &:= genAsn1Element(tagObjectIdentifier, algId.subAlgorithm);
+    elsif algId.parameters <> "" then
+      asn1 &:= genAsn1Sequence(algId.parameters);
+    else
+      asn1 &:= genAsn1Element(tagNull, "");
+    end if;
+    asn1 := genAsn1Sequence(asn1);
+  end func;
