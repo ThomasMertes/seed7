@@ -85,6 +85,64 @@ const func string: toBase64 (in string: byteStri) is func
 
 
 (**
+ *  Encode a string with the Base64 URL-variant encoding.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '-' and '_'.
+ *  @param byteStri The string to encode.
+ *  @param pad Wether or not to pad the result with '='.
+ *  @return the Base64Url encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase64Url (in string: byteStri, in boolean: pad) is func
+  result
+    var string: base64 is "";
+  local
+    const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var char: ch is ' ';
+    var integer: threeBytes is 0;
+    var string: fourBytes is "    ";
+  begin
+    for index range 1 to length(byteStri) step 3 do
+      threeBytes := 0;
+      for subIndex range index to index + 2 do
+        threeBytes <<:= 8;
+        if subIndex <= length(byteStri) then
+          ch := byteStri[subIndex];
+          if ch >= '\256;' then
+            raise RANGE_ERROR;
+          end if;
+          threeBytes +:= ord(ch);
+        end if;
+      end for;
+      fourBytes @:= [1] coding[succ( threeBytes >> 18)];
+      fourBytes @:= [2] coding[succ((threeBytes >> 12) mod 64)];
+      fourBytes @:= [3] coding[succ((threeBytes >>  6) mod 64)];
+      fourBytes @:= [4] coding[succ( threeBytes        mod 64)];
+      base64 &:= fourBytes;
+    end for;
+    index := length(base64);
+    if length(byteStri) rem 3 = 2 then
+      if pad then
+        base64 @:= [index] '=';
+      else
+        base64 := base64[.. pred(index)];
+      end if;
+    elsif length(byteStri) rem 3 = 1 then
+      if pad then
+        base64 @:= [pred(index)] "==";
+      else
+        base64 := base64[.. index-2];
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Decode a Base64 encoded string.
  *  @param base64 Base64 encoded string without leading or trailing
  *         whitespace characters.
@@ -115,6 +173,72 @@ const func string: fromBase64 (in string: base64) is func
         fourBytes := 0;
         for subIndex range index to index + 3 do
           number := decode[ord(base64[subIndex]) - ord(pred('+'))];
+          if number = -1 then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes := (fourBytes << 6) + number;
+        end for;
+        threeBytes @:= [1] char( fourBytes >> 16);
+        threeBytes @:= [2] char((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] char( fourBytes        mod 256);
+        decoded &:= threeBytes;
+        index +:= 4;
+      elsif base64[index] = '\n' or base64[index] = '\r' then
+        incr(index);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end while;
+    if index <> succ(length(base64)) or
+        (length(base64) >= 2 and
+         pos(base64[.. length(base64) - 2], '=') <> 0) then
+      raise RANGE_ERROR;
+    end if;
+    if length(base64) >= 2 and base64[pred(length(base64)) fixLen 2] = "==" then
+      decoded := decoded[.. length(decoded) - 2];
+    elsif length(base64) >= 1 and base64[length(base64)] = '=' then
+      decoded := decoded[.. pred(length(decoded))];
+    end if;
+  end func;
+
+
+(**
+ *  Decode a Base64Url encoded string.
+ *  @param base64 Base64Url encoded string without leading or trailing
+ *         whitespace characters. Accepts padded and unpadded values.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''base64'' is not in Base64Url format.
+ *)
+const func string: fromBase64Url (in var string: base64) is func
+  result
+    var string: decoded is "";
+  local
+    const array integer: decode is [] (                      # -1 is illegal
+        62, -1, -1,                                          # - (dash)
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61,              # 0 - 9
+        -1, -1, -1,  0, -1, -1, -1,                          # =
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,  # A - M
+        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  # N - Z
+        -1, -1, -1, -1, 63, -1,                              # _ (underscore)
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,  # a - m
+        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var integer: number is 0;
+    var integer: fourBytes is 0;
+    var string: threeBytes is "   ";
+  begin
+    # Supply padding when absent.
+    case length(base64) rem 4 of
+      when {3}: base64 &:= '=';
+      when {2}: base64 &:= "==";
+      when {1}: raise RANGE_ERROR;
+    end case;
+    while index <= length(base64) - 3 do
+      if base64[index] >= '-' then
+        fourBytes := 0;
+        for subIndex range index to index + 3 do
+          number := decode[ord(base64[subIndex]) - ord(pred('-'))];
           if number = -1 then
             raise RANGE_ERROR;
           end if;
