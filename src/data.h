@@ -512,17 +512,18 @@ extern progType prog;
 #define PROPERTY_FILE_NUM(O) (O)->descriptor.property->file_number
 #define PROPERTY_LINE_NUM(O) (O)->descriptor.property->line
 
-#define CATEGORY_MASK     ((categoryType)   63)
-#define VAR_MASK          ((categoryType)   64)
-#define TEMP_MASK         ((categoryType)  128)
-#define TEMP2_MASK        ((categoryType)  256)
-#define POSINFO_MASK      ((categoryType)  512)
-#define MATCH_ERR_MASK    ((categoryType) 1024)
-#define EMBEDDED_MASK     ((categoryType) 2048)
-#define STRUCT_OWNER_MASK ((categoryType) 4096)
-#define UNUSED_MASK       ((categoryType) 8192)
+#define CATEGORY_MASK     ((categoryType)    63)
+#define VAR_MASK          ((categoryType)    64)
+#define TEMP_MASK         ((categoryType)   128)
+#define TEMP2_MASK        ((categoryType)   256)
+#define TEMP_DYNAMIC_MASK ((categoryType)   512)
+#define POSINFO_MASK      ((categoryType)  1024)
+#define MATCH_ERR_MASK    ((categoryType)  2048)
+#define EMBEDDED_MASK     ((categoryType)  4096)
+#define STRUCT_OWNER_MASK ((categoryType)  8192)
+#define UNUSED_MASK       ((categoryType) 16384)
 
-#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 16383)
+#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 32767)
 #define LEGAL_CATEGORY_FIELD(O)  ((objectCategory) ((O)->objcategory <= MAX_CATEGORY_FIELD_VALUE))
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categoryType) ((O)->objcategory | (FLAG))
@@ -546,6 +547,10 @@ extern progType prog;
 #define SET_TEMP2_FLAG(O)               (O)->objcategory = (categoryType) ((O)->objcategory | TEMP2_MASK)
 #define CLEAR_TEMP2_FLAG(O)             (O)->objcategory = (categoryType) ((O)->objcategory & ~TEMP2_MASK)
 #define TEMP2_OBJECT(O)                 ((O)->objcategory & TEMP2_MASK)
+
+#define SET_TEMP_DYNAMIC_FLAG(O)        (O)->objcategory = (categoryType) ((O)->objcategory | TEMP_DYNAMIC_MASK)
+#define CLEAR_TEMP_DYNAMIC_FLAG(O)      (O)->objcategory = (categoryType) ((O)->objcategory & ~TEMP_DYNAMIC_MASK)
+#define TEMP_DYNAMIC_OBJECT(O)          ((O)->objcategory & TEMP_DYNAMIC_MASK)
 
 #define INIT_CATEGORY_OF_POSINFO(O,CAT) (O)->objcategory = (categoryType) ((CAT) | POSINFO_MASK)
 #define SET_POSINFO_FLAG(O)             (O)->objcategory = (categoryType) ((O)->objcategory | POSINFO_MASK)

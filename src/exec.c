@@ -530,7 +530,9 @@ static objectType exec_lambda (const_blockType block,
       free_list(backup_form_params);
       free_list(evaluated_act_params);
     } /* if */
-    logFunction(printf("exec_lambda -->\n"););
+    logFunction(printf("exec_lambda --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* exec_lambda */
 
@@ -1031,6 +1033,7 @@ objectType exec_dynamic (listType expr_list)
             /* to double frees of temporary values. To avoid that the */
             /* TEMP flag must be cleared here.                        */
             CLEAR_TEMP_FLAG(element_value);
+            SET_TEMP_DYNAMIC_FLAG(element_value);
             temp_insert_place = append_element_to_list(temp_insert_place,
                 element_value, &err_info);
           } /* if */
@@ -1112,6 +1115,7 @@ objectType exec_dynamic (listType expr_list)
         /* exec_action() can free temporary objects. */
         actual_element = temp_values;
         do {
+          CLEAR_TEMP_DYNAMIC_FLAG(actual_element->obj);
           SET_TEMP_FLAG(actual_element->obj);
           temp_list_end = temp_values;
           actual_element = actual_element->next;
