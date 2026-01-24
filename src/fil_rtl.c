@@ -1879,7 +1879,8 @@ static cFileType cFileOpen (const const_striType path,
     logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", *)\n",
                        striAsUnquotedCStri(path), os_mode););
     os_path = cp_to_os_path(path, &path_info, err_info);
-    /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, *err_info); */
+    logMessage(printf("cFileOpen: os_path \"" FMT_S_OS "\" %d %d\n",
+                      os_path, path_info, *err_info););
     if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT ||

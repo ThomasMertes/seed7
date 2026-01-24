@@ -562,7 +562,6 @@ intType socAddrFamily (const const_bstriType address)
     } else {
       addr = (const struct sockaddr *) address->mem;
       result = addr->sa_family;
-      /* printf("socAddrFamily --> %d\n", result); */
     } /* if */
     logFunction(printf("socAddrFamily(\"%s\") --> " FMT_D "\n",
                        socAddressCStri(address), result););
@@ -2174,7 +2173,6 @@ socketType socSocket (intType domain, intType type, intType protocol)
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
       check_initialization((socketType) -1);
       result = (os_socketType) socket((int) domain, (int) type, (int) protocol);
 #if SOCKET_LIB == WINSOCK_SOCKETS && !TWOS_COMPLEMENT_INTTYPE
