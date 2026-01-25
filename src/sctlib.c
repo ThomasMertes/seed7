@@ -323,13 +323,11 @@ objectType sct_create (listType arguments)
     SET_STRUCT_OWNER_FLAG(dest);
     isit_struct(source);
     if (TEMP_OBJECT(source)) {
-/*
-printf("create: pointer assignment\n");
-*/
+      /* Pointer assignment */
       dest->value.structValue = take_struct(source);
-      /* printf("sct_create: usage_count=%u %lu\n",
-          dest->value.structValue->usage_count,
-          (unsigned long) dest->value.structValue); */
+      logMessage(printf("sct_create: usage_count=%u " FMT_U_MEM "\n",
+                        dest->value.structValue->usage_count,
+                        (memSizeType) dest->value.structValue););
       source->value.structValue = NULL;
     } else {
       new_size = take_struct(source)->size;
@@ -544,24 +542,19 @@ objectType sct_select (listType arguments)
       position = stru1->size;
       struct_pointer = &stru1->stru[position - 1];
       while (position > 0) {
-/*
-printf("test " FMT_U_MEM ": ", position);
-trace1(struct_pointer);
-printf("\n");
-*/
+        logMessage(printf("sct_select: " FMT_U_MEM ": ", position);
+                   trace1(struct_pointer);
+                   printf("\n"););
         if (HAS_ENTITY(struct_pointer) &&
             GET_ENTITY(struct_pointer)->syobject == selector_syobject) {
           if (TEMP_OBJECT(arg_1(arguments)) ||
               TEMP_DYNAMIC_OBJECT(arg_1(arguments))) {
-/*
-            printf("sct_select of TEMP_OBJECT\n");
-            printf("stru1 ");
-            trace1(arg_1(arguments));
-            printf("\n");
-            printf("selector ");
-            trace1(selector);
-            printf("\n");
-*/
+            logMessage(printf("sct_select of TEMP_OBJECT\n");
+                       printf("struct: ");
+                       trace1(arg_1(arguments));
+                       printf("\nselector: ");
+                       trace1(selector);
+                       printf("\n"););
             /* The struct will be destroyed after selecting. */
             /* A copy is necessary here to avoid a crash !!!!! */
             if (unlikely(!ALLOC_OBJECT(result))) {
