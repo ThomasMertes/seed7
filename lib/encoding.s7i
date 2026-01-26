@@ -387,48 +387,47 @@ const func string: toUuencoded (in string: byteStri) is func
   result
     var string: uuencoded is "";
   local
+    var integer: destLength is 0;
     var integer: index is 1;
-    var integer: subIndex is 1;
-    var char: ch is ' ';
+    var integer: destIndex is 1;
+    var integer: remainingChars is 0;
     var integer: threeBytes is 0;
-    var string: fourBytes is "    ";
     var integer: posToAddNewline is 43;
   begin
     if length(byteStri) <> 0 then
-      if length(byteStri) < 45 then
-        uuencoded &:= char(32 + length(byteStri));
-      else
-        uuencoded &:= "M";
-      end if;
-      for index range 1 to length(byteStri) step 3 do
-        threeBytes := 0;
-        for subIndex range index to index + 2 do
-          threeBytes <<:= 8;
-          if subIndex <= length(byteStri) then
-            ch := byteStri[subIndex];
-            if ch >= '\256;' then
-              raise RANGE_ERROR;
-            end if;
-            threeBytes +:= ord(ch);
-          end if;
-        end for;
-        fourBytes @:= [1] char(32 + (threeBytes >> 18));
-        fourBytes @:= [2] char(32 + (threeBytes >> 12) mod 64);
-        fourBytes @:= [3] char(32 + (threeBytes >>  6) mod 64);
-        fourBytes @:= [4] char(32 +  threeBytes        mod 64);
-        uuencoded &:= fourBytes;
-        if index = posToAddNewline and length(byteStri) > index + 2 then
-          if length(byteStri) - index - 2 < 45 then
-            uuencoded &:= "\n" <& char(32 + length(byteStri) - index - 2);
-          else
-            uuencoded &:= "\nM";
-          end if;
+      destLength := (length(byteStri) + 2) div 3 * 4 + 4;
+      destLength +:= pred(length(byteStri)) div 45 * 2;  # Add space for newlines
+      uuencoded := "\0;" mult destLength;
+      uuencoded @:= [destIndex] char(32 + min(length(byteStri), 45));
+      incr(destIndex);
+      for index range 1 to length(byteStri) - 2 step 3 do
+        threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
+        uuencoded @:= [destIndex]       char(32 + (threeBytes >> 18));
+        uuencoded @:= [succ(destIndex)] char(32 + (threeBytes >> 12) mod 64);
+        uuencoded @:= [destIndex + 2]   char(32 + (threeBytes >>  6) mod 64);
+        uuencoded @:= [destIndex + 3]   char(32 +  threeBytes        mod 64);
+        destIndex +:= 4;
+        if index = posToAddNewline and index < length(byteStri) - 2 then
+          uuencoded @:= [destIndex] "\n" <& char(32 + min(length(byteStri) - index - 2, 45));
           posToAddNewline +:= 45;
+          destIndex +:= 2;
         end if;
       end for;
-      uuencoded &:= "\n";
+      remainingChars := length(byteStri) rem 3;
+      if remainingChars <> 0 then
+        index := succ(length(byteStri) - remainingChars);
+        threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
+                      256 ** (3  - remainingChars);
+        uuencoded @:= [destIndex]       char(32 + (threeBytes >> 18));
+        uuencoded @:= [succ(destIndex)] char(32 + (threeBytes >> 12) mod 64);
+        uuencoded @:= [destIndex + 2]   char(32 + (threeBytes >>  6) mod 64);
+        uuencoded @:= [destIndex + 3]   char(32 +  threeBytes        mod 64);
+        destIndex +:= 4;
+      end if;
+      uuencoded @:= [destIndex] "\n`\n";
+    else
+      uuencoded := "`\n";
     end if;
-    uuencoded &:= "`\n";
   end func;
 
 
