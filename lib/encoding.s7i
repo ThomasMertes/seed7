@@ -46,40 +46,47 @@ const func string: toBase64 (in string: byteStri) is func
     var string: base64 is "";
   local
     const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var integer: base64Length is 0;
     var integer: index is 1;
-    var integer: subIndex is 1;
-    var char: ch is ' ';
+    var integer: destIndex is 1;
+    var integer: remainingChars is 0;
     var integer: threeBytes is 0;
-    var string: fourBytes is "    ";
     var integer: posToAddNewline is 58;
   begin
-    for index range 1 to length(byteStri) step 3 do
-      threeBytes := 0;
-      for subIndex range index to index + 2 do
-        threeBytes <<:= 8;
-        if subIndex <= length(byteStri) then
-          ch := byteStri[subIndex];
-          if ch >= '\256;' then
-            raise RANGE_ERROR;
-          end if;
-          threeBytes +:= ord(ch);
-        end if;
-      end for;
-      fourBytes @:= [1] coding[succ( threeBytes >> 18)];
-      fourBytes @:= [2] coding[succ((threeBytes >> 12) mod 64)];
-      fourBytes @:= [3] coding[succ((threeBytes >>  6) mod 64)];
-      fourBytes @:= [4] coding[succ( threeBytes        mod 64)];
+    base64Length := (length(byteStri) + 2) div 3 * 4;
+    base64Length +:= pred(length(byteStri)) div 57;  # Add space for newlines
+    base64 := "\0;" mult base64Length;
+    for index range 1 to length(byteStri) - 2 step 3 do
       if index = posToAddNewline then
-        base64 &:= "\n";
+        base64 @:= [destIndex] '\n';
         posToAddNewline +:= 57;
+        incr(destIndex);
       end if;
-      base64 &:= fourBytes;
+      threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      base64 @:= [destIndex + 3]   coding[succ( threeBytes        mod 64)];
+      destIndex +:= 4;
     end for;
-    index := length(base64);
-    if length(byteStri) rem 3 = 2 then
-      base64 @:= [index] '=';
-    elsif length(byteStri) rem 3 = 1 then
-      base64 @:= [pred(index)] "==";
+    remainingChars := length(byteStri) rem 3;
+    if remainingChars <> 0 then
+      if index = posToAddNewline then
+        base64 @:= [destIndex] '\n';
+        incr(destIndex);
+      end if;
+      index := succ(length(byteStri) - remainingChars);
+      threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
+                    256 ** (3  - remainingChars);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      index := length(base64);
+      if remainingChars = 2 then
+        base64 @:= [index] '=';
+      elsif remainingChars = 1 then
+        base64 @:= [pred(index)] "==";
+      end if;
     end if;
   end func;
 
