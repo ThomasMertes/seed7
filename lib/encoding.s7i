@@ -71,11 +71,11 @@ const func string: toBase64 (in string: byteStri) is func
     end for;
     remainingChars := length(byteStri) rem 3;
     if remainingChars <> 0 then
+      index := succ(length(byteStri) - remainingChars);
       if index = posToAddNewline then
         base64 @:= [destIndex] '\n';
         incr(destIndex);
       end if;
-      index := succ(length(byteStri) - remainingChars);
       threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
                     256 ** (3  - remainingChars);
       base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
