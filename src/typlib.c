@@ -135,26 +135,23 @@ objectType typ_create (listType arguments)
     typeType type_from;
 
   /* typ_create */
-    logFunction(printf("typ_create\n"););
     isit_type(arg_3(arguments));
     dest = arg_1(arguments);
     type_from = take_type(arg_3(arguments));
-#ifdef TRACE_typ_create
-    printf("\nbefore type assignment\n");
-    trace1(dest);
-    printf("\n");
-    trace1(type_from->match_obj);
-    printf("\n");
-#endif
+    logFunction(printf("typ_create(");
+                trace1(dest);
+                printf(", ");
+                printtype(type_from);
+                printf("\n"););
     SET_CATEGORY_OF_OBJ(dest, TYPEOBJECT);
     dest->value.typeValue = type_from;
     if (!VAR_OBJECT(dest)) {
       if (type_from->name == NULL &&
           HAS_ENTITY(dest) &&
           GET_ENTITY(dest)->ident != NULL) {
-        /* printf("typ_create: Define ");
-        trace1(dest);
-        printf("\n"); */
+        logMessage(printf("typ_create: Define ");
+                   trace1(dest);
+                   printf("\n"););
         type_from->name = GET_ENTITY(dest)->ident;
       } /* if */
     } /* if */
@@ -170,11 +167,10 @@ objectType typ_create (listType arguments)
 objectType typ_destr (listType arguments)
 
   { /* typ_destr */
-    logFunction(printf("typ_destr\n"););
     isit_type(arg_1(arguments));
-    /* printf("typ_destr ");
-    trace1(take_type(arg_1(arguments))->match_obj);
-    printf("\n"); */
+    logFunction(printf("typ_destr(");
+                printtype(take_type(arg_1(arguments)));
+                printf(")\n"););
     SET_UNUSED_FLAG(arg_1(arguments));
     logFunction(printf("typ_destr -->\n"););
     return SYS_EMPTY_OBJECT;
@@ -220,12 +216,9 @@ objectType typ_func (listType arguments)
     if ((result = get_func_type(NULL, basic_type)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    /* printf("typ_func ");
-    printobject(result);
-    prot_cstri("=");
-    prot_int((intType) result);
-    printf("\n"); */
-    logFunction(printf("typ_func -->\n"););
+    logFunction(printf("typ_func --> ");
+                printtype(result);
+                printf("\n"););
     return bld_type_temp(result);
   } /* typ_func */
 
@@ -244,7 +237,9 @@ objectType typ_gensub (listType arguments)
     if ((result = new_type(meta_type->owningProg, meta_type, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    logFunction(printf("typ_gensub -->\n"););
+    logFunction(printf("typ_gensub --> ");
+                printtype(result);
+                printf("\n"););
     return bld_type_temp(result);
   } /* typ_gensub */
 
@@ -260,7 +255,9 @@ objectType typ_gentype (listType arguments)
     if ((result = new_type(prog, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    logFunction(printf("typ_gentype -->\n"););
+    logFunction(printf("typ_gentype --> ");
+                printtype(result);
+                printf("\n"););
     return bld_type_temp(result);
   } /* typ_gentype */
 
@@ -599,11 +596,8 @@ objectType typ_varfunc (listType arguments)
     if ((result = get_varfunc_type(NULL, basic_type)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    /* printf("typ_varfunc ");
-    printobject(result);
-    prot_cstri("=");
-    prot_int((intType) result);
-    printf("\n"); */
-    logFunction(printf("typ_varfunc -->\n"););
+    logFunction(printf("typ_varfunc --> ");
+                printtype(result);
+                printf("\n"););
     return bld_type_temp(result);
   } /* typ_varfunc */
