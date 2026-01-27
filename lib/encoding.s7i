@@ -231,9 +231,9 @@ const func string: fromBase64Url (in var string: base64) is func
         39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
     var integer: index is 1;
     var integer: subIndex is 1;
+    var integer: destIndex is 1;
     var integer: number is 0;
     var integer: fourBytes is 0;
-    var string: threeBytes is "   ";
   begin
     # Supply padding when absent.
     case length(base64) rem 4 of
@@ -241,6 +241,7 @@ const func string: fromBase64Url (in var string: base64) is func
       when {2}: base64 &:= "==";
       when {1}: raise RANGE_ERROR;
     end case;
+    decoded := "\0;" mult (length(base64) + 3) div 4 * 3;
     while index <= length(base64) - 3 do
       if base64[index] >= '-' then
         fourBytes := 0;
@@ -251,10 +252,8 @@ const func string: fromBase64Url (in var string: base64) is func
           end if;
           fourBytes := (fourBytes << 6) + number;
         end for;
-        threeBytes @:= [1] char( fourBytes >> 16);
-        threeBytes @:= [2] char((fourBytes >>  8) mod 256);
-        threeBytes @:= [3] char( fourBytes        mod 256);
-        decoded &:= threeBytes;
+        decoded @:= [destIndex] bytes(fourBytes, UNSIGNED, BE, 3);
+        destIndex +:= 3;
         index +:= 4;
       elsif base64[index] = '\n' or base64[index] = '\r' then
         incr(index);
@@ -268,9 +267,11 @@ const func string: fromBase64Url (in var string: base64) is func
       raise RANGE_ERROR;
     end if;
     if length(base64) >= 2 and base64[pred(length(base64)) fixLen 2] = "==" then
-      decoded := decoded[.. length(decoded) - 2];
+      decoded := decoded[.. destIndex - 3];
     elsif length(base64) >= 1 and base64[length(base64)] = '=' then
-      decoded := decoded[.. pred(length(decoded))];
+      decoded := decoded[.. destIndex - 2];
+    else
+      decoded := decoded[.. pred(destIndex)];
     end if;
   end func;
 
