@@ -446,10 +446,11 @@ const func string: fromUuencoded (in string: uuencoded) is func
     var integer: lineLength is 1;
     var integer: index is 1;
     var integer: subIndex is 1;
+    var integer: destIndex is 1;
     var integer: number is 0;
     var integer: fourBytes is 0;
-    var string: threeBytes is "   ";
   begin
+    decoded := "\0;" mult (length(uuencoded) + 3) div 4 * 3;
     lineLength := ord(uuencoded[1]) - 32;
     while lineLength <> 0 and lineLength <> 64 do
       incr(index);
@@ -464,10 +465,8 @@ const func string: fromUuencoded (in string: uuencoded) is func
           end if;
           fourBytes := (fourBytes << 6) + number;
         end for;
-        threeBytes @:= [1] char( fourBytes >> 16);
-        threeBytes @:= [2] char((fourBytes >>  8) mod 256);
-        threeBytes @:= [3] char( fourBytes        mod 256);
-        decoded &:= threeBytes[ .. lineLength];
+        decoded @:= [destIndex] bytes(fourBytes, UNSIGNED, BE, 3);
+        destIndex +:= min(lineLength, 3);
         lineLength -:= 3;
         index +:= 4;
       end while;
@@ -481,6 +480,7 @@ const func string: fromUuencoded (in string: uuencoded) is func
         lineLength := 0;
       end if;
     end while;
+    decoded := decoded[.. pred(destIndex)];
   end func;
 
 
