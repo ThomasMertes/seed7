@@ -638,22 +638,23 @@ const func string: toAscii85 (in string: byteStri) is func
     var string: ascii85 is "";
   local
     var integer: index is 0;
+    var integer: destIndex is 1;
     var integer: subIndex is 0;
     var integer: fourBytes is 0;
-    var string: fiveBytes is "     ";
     var integer: partialGroupSize is 0;
-    var char: ch is ' ';
   begin
+    ascii85 := "\0;" mult (length(byteStri) + 3) div 4 * 5;
     for index range 1 to length(byteStri) - 3 step 4 do
       fourBytes := bytes2Int(byteStri[index fixLen 4], UNSIGNED, BE);
       if fourBytes = 0 then
-        ascii85 &:= 'z';
+        ascii85 @:= [destIndex] 'z';
+        incr(destIndex);
       else
-        for subIndex range 5 downto 1 do
-          fiveBytes @:= [subIndex] char(ord('!') + fourBytes rem 85);
+        for subIndex range destIndex + 4 downto destIndex do
+          ascii85 @:= [subIndex] char(ord('!') + fourBytes rem 85);
           fourBytes := fourBytes div 85;
         end for;
-        ascii85 &:= fiveBytes;
+        destIndex +:= 5;
       end if;
     end for;
     partialGroupSize := length(byteStri) mod 4;
@@ -662,11 +663,13 @@ const func string: toAscii85 (in string: byteStri) is func
       fourBytes := bytes2Int(byteStri[index ..] &
                              "\0;" mult 4 - partialGroupSize,
                              UNSIGNED, BE);
-      for subIndex range 5 downto 1 do
-        fiveBytes @:= [subIndex] char(ord('!') + fourBytes rem 85);
-        fourBytes := fourBytes div 85;
-      end for;
-      ascii85 &:= fiveBytes[.. succ(partialGroupSize)];
+      ascii85 @:= [destIndex]       char(ord('!') + fourBytes div 52200625);
+      ascii85 @:= [succ(destIndex)] char(ord('!') + fourBytes div   614125 rem 85);
+      ascii85 @:= [destIndex + 2]   char(ord('!') + fourBytes div     7225 rem 85);
+      ascii85 @:= [destIndex + 3]   char(ord('!') + fourBytes div       85 rem 85);
+      ascii85 := ascii85[.. destIndex + partialGroupSize];
+    else
+      ascii85 := ascii85[.. pred(destIndex)];
     end if;
   end func;
 
