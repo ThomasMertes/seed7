@@ -46,20 +46,21 @@ const func string: toBase64 (in string: byteStri) is func
     var string: base64 is "";
   local
     const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const integer: newlineDelta is 57;
     var integer: base64Length is 0;
     var integer: index is 1;
     var integer: destIndex is 1;
     var integer: remainingChars is 0;
     var integer: threeBytes is 0;
-    var integer: posToAddNewline is 58;
+    var integer: posToAddNewline is succ(newlineDelta);
   begin
     base64Length := (length(byteStri) + 2) div 3 * 4;
-    base64Length +:= pred(length(byteStri)) div 57;  # Add space for newlines
+    base64Length +:= pred(length(byteStri)) div newlineDelta;  # Add space for newlines
     base64 := "\0;" mult base64Length;
     for index range 1 to length(byteStri) - 2 step 3 do
       if index = posToAddNewline then
         base64 @:= [destIndex] '\n';
-        posToAddNewline +:= 57;
+        posToAddNewline +:= newlineDelta;
         incr(destIndex);
       end if;
       threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
@@ -389,18 +390,19 @@ const func string: toUuencoded (in string: byteStri) is func
   result
     var string: uuencoded is "";
   local
+    const integer: newlineDelta is 45;
     var integer: destLength is 0;
     var integer: index is 1;
     var integer: destIndex is 1;
     var integer: remainingChars is 0;
     var integer: threeBytes is 0;
-    var integer: posToAddNewline is 43;
+    var integer: posToAddNewline is newlineDelta - 2;
   begin
     if length(byteStri) <> 0 then
       destLength := (length(byteStri) + 2) div 3 * 4 + 4;
-      destLength +:= pred(length(byteStri)) div 45 * 2;  # Add space for newlines
+      destLength +:= pred(length(byteStri)) div newlineDelta * 2;  # Add space for newlines
       uuencoded := "\0;" mult destLength;
-      uuencoded @:= [destIndex] char(32 + min(length(byteStri), 45));
+      uuencoded @:= [destIndex] char(32 + min(length(byteStri), newlineDelta));
       incr(destIndex);
       for index range 1 to length(byteStri) - 2 step 3 do
         threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
@@ -410,8 +412,9 @@ const func string: toUuencoded (in string: byteStri) is func
         uuencoded @:= [destIndex + 3]   char(32 +  threeBytes        mod 64);
         destIndex +:= 4;
         if index = posToAddNewline and index < length(byteStri) - 2 then
-          uuencoded @:= [destIndex] "\n" <& char(32 + min(length(byteStri) - index - 2, 45));
-          posToAddNewline +:= 45;
+          uuencoded @:= [destIndex] "\n" <&
+                        char(32 + min(length(byteStri) - index - 2, newlineDelta));
+          posToAddNewline +:= newlineDelta;
           destIndex +:= 2;
         end if;
       end for;
