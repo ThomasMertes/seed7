@@ -1791,6 +1791,73 @@ const proc: processRowWithCMYK (in tiffHeader: header,
   end func;
 
 
+const proc: processRowWithCMYKA (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition,
+    in integer: startColumn, in integer: endColumn,
+    inout pixelArray: imageLine) is func
+  local
+    var integer: column is 0;
+    var integer: inverseBlack is 0;
+    var float: inverseBlackFlt is 0.0;
+  begin
+    if header.sampleFormat = TIFF_SAMPLE_FORMAT_FLOAT then
+      case header.bitsPerSample[1] of
+        when {32}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              inverseBlackFlt := 1.0 - float(bin32(stripData[currPosition + 12 fixLen 4], LE));
+              imageLine[column] := rgbPixel(clampColor(round((1.0 - float(bin32(stripData[currPosition     fixLen 4], LE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 4 fixLen 4], LE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 8 fixLen 4], LE))) * inverseBlackFlt * 256.0)));
+              currPosition +:= 20;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              inverseBlackFlt := 1.0 - float(bin32(stripData[currPosition + 12 fixLen 4], BE));
+              imageLine[column] := rgbPixel(clampColor(round((1.0 - float(bin32(stripData[currPosition     fixLen 4], BE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 4 fixLen 4], BE))) * inverseBlackFlt * 256.0)),
+                                            clampColor(round((1.0 - float(bin32(stripData[currPosition + 8 fixLen 4], BE))) * inverseBlackFlt * 256.0)));
+              currPosition +:= 20;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      case header.bitsPerSample[1] of
+        when {8}:
+          for column range startColumn to endColumn do
+            inverseBlack := 255 - ord(stripData[currPosition + 3]);
+            imageLine[column] := rgbPixel((255 - ord(stripData[currPosition]))       * inverseBlack,
+                                          (255 - ord(stripData[succ(currPosition)])) * inverseBlack,
+                                          (255 - ord(stripData[currPosition + 2]))   * inverseBlack);
+            currPosition +:= 5;
+          end for;
+        when {16}:
+          if header.littleEndian then
+            for column range startColumn to endColumn do
+              inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, LE);
+              imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, LE)) * inverseBlack >> 16);
+              currPosition +:= 10;
+            end for;
+          else
+            for column range startColumn to endColumn do
+              inverseBlack := 65535 - bytes2Int(stripData[currPosition + 6 fixLen 2], UNSIGNED, BE);
+              imageLine[column] := rgbPixel((65535 - bytes2Int(stripData[currPosition     fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 2 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16,
+                                            (65535 - bytes2Int(stripData[currPosition + 4 fixLen 2], UNSIGNED, BE)) * inverseBlack >> 16);
+              currPosition +:= 10;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end if;
+  end func;
+
+
 const proc: processRowWithYCbCr (in tiffHeader: header,
     in string: stripData, inout integer: currPosition,
     in integer: startColumn, in integer: endColumn,
@@ -1935,6 +2002,14 @@ const proc: processRow (in tiffHeader: header, in string: stripData,
         else
           processRowWithRGBA(header, stripData, currPosition,
                              startColumn, endColumn, imageLine);
+        end if;
+      when {5}:
+        if header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_CMYK then
+          processRowWithCMYKA(header, stripData, currPosition,
+                              startColumn, endColumn, imageLine);
+        else
+          raise RANGE_ERROR;
         end if;
       otherwise:
         raise RANGE_ERROR;
