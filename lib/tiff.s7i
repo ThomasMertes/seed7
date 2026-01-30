@@ -678,7 +678,7 @@ const proc: differencingPredictor (in tiffHeader: header, inout string: stripDat
         end for;
       when {16}:
         if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
-          delta := header.bitsPerSample[1] mdiv 8;
+          delta := 2 * header.samplesPerPixel;
         end if;
         if header.littleEndian then
           for line range 1 to height do
