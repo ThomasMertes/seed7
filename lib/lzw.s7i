@@ -643,7 +643,11 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
-          decompressed &:= table[code];
+          if code < clearCode then
+            decompressed &:= char(code);
+          else
+            decompressed &:= table[code];
+          end if;
         elsif code = nextTableIndex then
           if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
