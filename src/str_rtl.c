@@ -2270,12 +2270,13 @@ striType strConcatChar (const const_striType stri1, const charType aChar)
     logFunction(printf("strConcatChar(\"%s\", '\\" FMT_U32 ";')",
                        striAsUnquotedCStri(stri1), aChar);
                 fflush(stdout););
-    if (unlikely(stri1->size > MAX_STRI_LEN - 1)) {
+    /* Incrementing a string size cannot overflow. */
+    result_size = stri1->size + 1;
+    if (unlikely(result_size > MAX_STRI_LEN)) {
       /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result_size = stri1->size + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -2308,13 +2309,14 @@ striType strConcatCharTemp (striType stri1, const charType aChar)
     logFunction(printf("strConcatCharTemp(\"%s\", '\\" FMT_U32 ";')",
                        striAsUnquotedCStri(stri1), aChar);
                 fflush(stdout););
-    if (unlikely(stri1->size > MAX_STRI_LEN - 1)) {
+    /* Incrementing a string size cannot overflow. */
+    result_size = stri1->size + 1;
+    if (unlikely(result_size > MAX_STRI_LEN)) {
       /* number of bytes does not fit into memSizeType */
       FREE_STRI(stri1);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
     } else {
-      result_size = stri1->size + 1;
 #if WITH_STRI_CAPACITY
       if (result_size > stri1->capacity) {
         resized_stri1 = growStri(stri1, result_size);
