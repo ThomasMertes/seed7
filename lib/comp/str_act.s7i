@@ -81,6 +81,7 @@ const proc: str_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "void        strAppend (striType *const, const_striType);");
+    declareExtern(c_prog, "void        strAppendNoOverlap (striType *const, const const_striType);");
     declareExtern(c_prog, "void        strAppendN (striType *const, const const_striType[], memSizeType);");
     declareExtern(c_prog, "void        strAppendChMult (striType *const, const charType, const intType);");
     declareExtern(c_prog, "void        strAppendZeroMult (striType *const, const intType);");
@@ -406,7 +407,7 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
       incr(count.optimizations);
       process_const_str_push(param1, stri[1], c_expr);
     else
-      c_expr.expr &:= "strAppend(&(";
+      c_expr.expr &:= "strAppendNoOverlap(&(";
       process_expr(param1, c_expr);
       c_expr.expr &:= "), ";
       c_expr.expr &:= stringLiteral(stri);

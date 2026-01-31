@@ -1518,6 +1518,66 @@ void strAppendN (striType *const destination,
 
 
 
+/**
+ *  Append the string 'extension' to 'destination'.
+ *  This function assumes that 'destination' and 'extension' do not
+ *  overlap. It is not possible that 'extension' is identical to
+ *  'destination' or a slice of it.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
+void strAppendNoOverlap (striType *const destination,
+    const const_striType extension)
+
+  {
+    memSizeType new_size;
+    striType stri_dest;
+    striType new_stri;
+    memSizeType extension_size;
+
+  /* strAppendNoOverlap */
+    logFunction(printf("strAppendNoOverlap(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                printf("\"%s\")", striAsUnquotedCStri(extension));
+                fflush(stdout););
+    stri_dest = *destination;
+    extension_size = extension->size;
+    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension_size)) {
+      /* number of bytes does not fit into memSizeType */
+      raise_error(MEMORY_ERROR);
+    } else {
+      new_size = stri_dest->size + extension_size;
+#if WITH_STRI_CAPACITY
+      if (new_size > stri_dest->capacity) {
+        new_stri = growStri(stri_dest, new_size);
+        if (unlikely(new_stri == NULL)) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          stri_dest = new_stri;
+          *destination = stri_dest;
+        } /* if */
+      } /* if */
+      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+             extension_size * sizeof(strElemType));
+      stri_dest->size = new_size;
+#else
+      GROW_STRI(new_stri, stri_dest, new_size);
+      if (unlikely(new_stri == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        memcpy(&new_stri->mem[new_stri->size], extension->mem,
+               extension_size * sizeof(strElemType));
+        new_stri->size = new_size;
+        *destination = new_stri;
+      } /* if */
+#endif
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strAppendNoOverlap */
+
+
+
 void strAppendChMult (striType *const destination, const charType ch,
     const intType factor)
 
