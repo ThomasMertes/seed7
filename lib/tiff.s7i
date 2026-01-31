@@ -371,18 +371,11 @@ const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header
         seek(tiffFile, oldPos);
       when {TIFF_FIELD_SHORT}:
         if header.littleEndian then
-          if valueOrOffset < 2**16 then
-            stri := str(valueOrOffset);
-          else
-            raise RANGE_ERROR;
-          end if;
+          # Ignore possible garbage in higher bits.
+          stri := str(valueOrOffset mod 2**16);
         else
-          # writeln("valueOrOffset: " <& valueOrOffset radix 16 lpad0 8);
-          if valueOrOffset mod 2**16 = 0 then
-            stri := str(valueOrOffset >> 16);
-          else
-            raise RANGE_ERROR;
-          end if;
+          # Ignore possible garbage in lower bits.
+          stri := str(valueOrOffset >> 16);
         end if;
       when {TIFF_FIELD_LONG}:
         stri := str(valueOrOffset);
@@ -483,17 +476,11 @@ const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: 
       when {TIFF_FIELD_SHORT}:
         if count = 1 then
           if header.littleEndian then
-            if valueOrOffset < 2**16 then
-              tagValues := [] valueOrOffset;
-            else
-              raise RANGE_ERROR;
-            end if;
+            # Ignore possible garbage in higher bits.
+            tagValues := [] (valueOrOffset mod 2**16);
           else
-            if valueOrOffset mod 2**16 = 0 then
-              tagValues := [] (valueOrOffset >> 16);
-            else
-              raise RANGE_ERROR;
-            end if;
+            # Ignore possible garbage in lower bits.
+            tagValues := [] (valueOrOffset >> 16);
           end if;
         elsif count = 2 then
           if header.littleEndian then
