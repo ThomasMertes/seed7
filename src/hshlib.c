@@ -1336,10 +1336,10 @@ objectType hsh_idx2 (listType arguments)
       } else {
         result->type_of = defaultValue->type_of;
         result->descriptor.property = NULL;
-        if (TEMP2_OBJECT(arg_3(arguments))) {
+        if (TEMP2_OBJECT(arg_4(arguments))) {
           INIT_CATEGORY_OF_TEMP(result, CATEGORY_OF_OBJ(defaultValue));
           result->value = defaultValue->value;
-          memset(&arg_3(arguments)->value, 0, sizeof(valueUnion));
+          memset(&arg_4(arguments)->value, 0, sizeof(valueUnion));
         } else {
           INIT_CATEGORY_OF_OBJ(result, DECLAREDOBJECT);
           param3_call(data_create_func, result, SYS_CREA_OBJECT, defaultValue);
