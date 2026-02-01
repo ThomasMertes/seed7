@@ -149,16 +149,21 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
     moreBitsNeeded := 1 << bitsToRead;
     previousCode := clearCode;
     code := getBits(compressedStream, bitsToRead);
+    if code < clearCode then
+      decompressed &:= char(code);
+      previousCode := code;
+      code := getBits(compressedStream, bitsToRead);
+    end if;
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
         nextTableIndex := succ(endOfInformationCode);
         moreBitsNeeded := 1 << bitsToRead;
-      elsif previousCode = clearCode then
-        if code < nextTableIndex then
-          decompressed &:= table[code];
-        else
-          raise RANGE_ERROR;
+        code := getBits(compressedStream, bitsToRead);
+        if code < clearCode then
+          decompressed &:= char(code);
+          previousCode := code;
+          code := getBits(compressedStream, bitsToRead);
         end if;
       else
         if code < nextTableIndex then
@@ -166,7 +171,11 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
-          decompressed &:= table[code];
+          if code < clearCode then
+            decompressed &:= char(code);
+          else
+            decompressed &:= table[code];
+          end if;
         elsif code = nextTableIndex then
           if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
@@ -184,9 +193,9 @@ const func string: lzwDecompress (inout lsbInBitStream: compressedStream,
             moreBitsNeeded := 1 << bitsToRead;
           end if;
         end if;
+        previousCode := code;
+        code := getBits(compressedStream, bitsToRead);
       end if;
-      previousCode := code;
-      code := getBits(compressedStream, bitsToRead);
     end while;
   end func;
 
@@ -332,16 +341,21 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
     moreBitsNeeded := 1 << bitsToRead;
     previousCode := clearCode;
     code := getBits(compressedStream, bitsToRead);
+    if code < clearCode then
+      decompressed &:= char(code);
+      previousCode := code;
+      code := getBits(compressedStream, bitsToRead);
+    end if;
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
         nextTableIndex := succ(endOfInformationCode);
         moreBitsNeeded := 1 << bitsToRead;
-      elsif previousCode = clearCode then
-        if code < nextTableIndex then
-          decompressed &:= table[code];
-        else
-          raise RANGE_ERROR;
+        code := getBits(compressedStream, bitsToRead);
+        if code < clearCode then
+          decompressed &:= char(code);
+          previousCode := code;
+          code := getBits(compressedStream, bitsToRead);
         end if;
       else
         if code < nextTableIndex then
@@ -349,7 +363,11 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
-          decompressed &:= table[code];
+          if code < clearCode then
+            decompressed &:= char(code);
+          else
+            decompressed &:= table[code];
+          end if;
         elsif code = nextTableIndex then
           if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
@@ -367,9 +385,9 @@ const func string: lzwDecompress (inout msbInBitStream: compressedStream,
             moreBitsNeeded := 1 << bitsToRead;
           end if;
         end if;
+        previousCode := code;
+        code := getBits(compressedStream, bitsToRead);
       end if;
-      previousCode := code;
-      code := getBits(compressedStream, bitsToRead);
     end while;
   end func;
 
@@ -518,16 +536,21 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
     moreBitsNeeded := pred(1 << bitsToRead);
     previousCode := clearCode;
     code := getBits(compressedStream, bitsToRead);
+    if code < clearCode then
+      decompressed &:= char(code);
+      previousCode := code;
+      code := getBits(compressedStream, bitsToRead);
+    end if;
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
         nextTableIndex := succ(endOfInformationCode);
         moreBitsNeeded := pred(1 << bitsToRead);
-      elsif previousCode = clearCode then
-        if code < nextTableIndex then
-          decompressed &:= table[code];
-        else
-          raise RANGE_ERROR;
+        code := getBits(compressedStream, bitsToRead);
+        if code < clearCode then
+          decompressed &:= char(code);
+          previousCode := code;
+          code := getBits(compressedStream, bitsToRead);
         end if;
       else
         if code < nextTableIndex then
@@ -535,7 +558,11 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
             table[nextTableIndex] := table[previousCode] & str(table[code][1]);
             incr(nextTableIndex);
           end if;
-          decompressed &:= table[code];
+          if code < clearCode then
+            decompressed &:= char(code);
+          else
+            decompressed &:= table[code];
+          end if;
         elsif code = nextTableIndex then
           if nextTableIndex <= LZW_MAX_CODE then
             table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
@@ -553,9 +580,9 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
             moreBitsNeeded := pred(1 << bitsToRead);
           end if;
         end if;
+        previousCode := code;
+        code := getBits(compressedStream, bitsToRead);
       end if;
-      previousCode := code;
-      code := getBits(compressedStream, bitsToRead);
     end while;
   end func;
 
@@ -626,16 +653,21 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
     moreBitsNeeded := pred(1 << bitsToRead);
     previousCode := clearCode;
     code := getBits(compressedStream, bitsToRead);
+    if code < clearCode and length(decompressed) < requestedLength then
+      decompressed &:= char(code);
+      previousCode := code;
+      code := getBits(compressedStream, bitsToRead);
+    end if;
     while code <> endOfInformationCode and length(decompressed) < requestedLength do
       if code = clearCode then
         bitsToRead := succ(codeSize);
         nextTableIndex := succ(endOfInformationCode);
         moreBitsNeeded := pred(1 << bitsToRead);
-      elsif previousCode = clearCode then
-        if code < nextTableIndex then
-          decompressed &:= table[code];
-        else
-          raise RANGE_ERROR;
+        code := getBits(compressedStream, bitsToRead);
+        if code < clearCode then
+          decompressed &:= char(code);
+          previousCode := code;
+          code := getBits(compressedStream, bitsToRead);
         end if;
       else
         if code < nextTableIndex then
@@ -665,9 +697,9 @@ const func string: lzwDecompressEarlyChange (inout msbInBitStream: compressedStr
             moreBitsNeeded := pred(1 << bitsToRead);
           end if;
         end if;
+        previousCode := code;
+        code := getBits(compressedStream, bitsToRead);
       end if;
-      previousCode := code;
-      code := getBits(compressedStream, bitsToRead);
     end while;
   end func;
 
