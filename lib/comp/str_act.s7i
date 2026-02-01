@@ -451,6 +451,53 @@ const proc: optimize_append_mult (in reference: dest, in string: stri,
   end func;
 
 
+const func boolean: mightOverlap (in reference: dest, in reference: source) is func
+  result
+    var boolean: mightOverlap is TRUE;
+  local
+    const set of string: stringActions0 is
+        {"BIG_RADIX", "BIG_radix", "BIG_STR", "BIN_RADIX", "BIN_radix",
+         "BIN_STR", "BST_STR", "ENU_LIT", "INT_RADIX", "INT_radix",
+         "INT_STR"};
+    const set of string: stringActions1 is
+        {"ARR_IDX", "SCT_SELECT", "STR_HEAD", "STR_RANGE",
+         "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL"};
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var string: actionName is "";
+  begin
+    if category(dest) in {RESULTOBJECT, LOCALVOBJECT} then
+      if category(source) in {VALUEPARAMOBJECT, REFPARAMOBJECT,
+                              RESULTOBJECT, LOCALVOBJECT} and
+          dest <> source then
+        mightOverlap := FALSE;
+      elsif category(source) = CALLOBJECT then
+        params := getValue(source, ref_list);
+        function := params[1];
+        params := params[2 ..];
+        if category(function) = ACTOBJECT then
+          actionName := str(getValue(function, ACTION));
+          if actionName in stringActions0 then
+            mightOverlap := FALSE;
+          elsif actionName in stringActions1 and
+              not mightOverlap(dest, params[1]) then
+            mightOverlap := FALSE;
+          end if;
+        end if;
+      end if;
+    elsif category(source) = CALLOBJECT then
+      params := getValue(source, ref_list);
+      function := params[1];
+      if category(function) = ACTOBJECT then
+        actionName := str(getValue(function, ACTION));
+        if actionName in stringActions0 then
+          mightOverlap := FALSE;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
 (**
  *  Produces code for the string append operator.
  *  If two or more strings are appended the function
@@ -526,7 +573,11 @@ const proc: optimize_str_append (in reference: dest, in reference: extension,
             statement.expr &:= "), ";
             statement.expr &:= c_extension.result_expr;
           else
-            statement.expr := "strAppend(&(";
+            if mightOverlap(dest, extension) then
+              statement.expr := "strAppend(&(";
+            else
+              statement.expr := "strAppendNoOverlap(&(";
+            end if;
             process_expr(dest, statement);
             statement.expr &:= "), ";
             statement.expr &:= c_extension.expr;
