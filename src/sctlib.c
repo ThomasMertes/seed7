@@ -540,8 +540,8 @@ objectType sct_select (listType arguments)
         GET_ENTITY(selector)->syobject != NULL) {
       selector_syobject = GET_ENTITY(selector)->syobject;
       position = stru1->size;
-      struct_pointer = &stru1->stru[position - 1];
       while (position > 0) {
+        struct_pointer = &stru1->stru[position - 1];
         logMessage(printf("sct_select: " FMT_U_MEM ": ", position);
                    trace1(struct_pointer);
                    printf("\n"););
@@ -582,7 +582,6 @@ objectType sct_select (listType arguments)
           } /* if */
         } /* if */
         position--;
-        struct_pointer--;
       } /* while */
     } /* if */
     logError(printf("sct_select(");
