@@ -900,6 +900,8 @@ objectType str_head (listType arguments)
     isit_int(arg_4(arguments));
     stri = take_stri(arg_1(arguments));
     stop = take_int(arg_4(arguments));
+    logFunction(printf("str_head(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), stop););
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       if (striSize <= (uintType) stop) {
@@ -939,6 +941,8 @@ objectType str_head (listType arguments)
         result = (striType) emptyStri;
       } /* if */
     } /* if */
+    logFunction(printf("str_head --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return bld_stri_temp(result);
   } /* str_head */
 

@@ -314,9 +314,7 @@ objectType sct_create (listType arguments)
   /* sct_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
-    logFunction(printf("sct_create(");
-                trace1(dest);
-                printf(", ");
+    logFunction(printf("sct_create(*, ");
                 trace1(source);
                 printf(")\n"););
     SET_CATEGORY_OF_OBJ(dest, STRUCTOBJECT);

@@ -1588,8 +1588,10 @@ objectType prc_return (listType arguments)
     blockType block;
 
   /* prc_return */
-    logFunction(printf("prc_return\n"););
     block_body = arg_2(arguments);
+    logFunction(printf("prc_return(");
+                trace1(block_body);
+                printf(")\n"););
     proc_exec_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
@@ -1598,6 +1600,9 @@ objectType prc_return (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
+    logMessage(printf("prc_return: block_body=");
+               trace1(block_body);
+               printf("\n"););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_return: No memory\n"););
       return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
@@ -1616,11 +1621,9 @@ objectType prc_return (listType arguments)
         fix_posinfo(block_body, block_body_list);
       } /* if */
       pop_stack();
-#ifdef OUT_OF_ORDER
-      printf("prc_return block_body=");
-      trace1(block_body);
-      printf("\n");
-#endif
+      logMessage(printf("prc_return: block_body=");
+                 trace1(block_body);
+                 printf("\n"););
       if (block_body != NULL) {
         return_type = block_body->type_of;
         if (return_type->result_type != NULL) {
@@ -1629,11 +1632,11 @@ objectType prc_return (listType arguments)
       } else {
         return_type = NULL;
       } /* if */
-#ifdef OUT_OF_ORDER
-      printf("return_type=");
-      trace1(return_type->match_obj);
-      printf("\n");
-#endif
+      logMessage(printf("prc_return: return_type=");
+                 if (return_type != NULL) {
+                   trace1(return_type->match_obj);
+                 }
+                 printf("\n"););
       get_return_var(&return_var, return_type, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         logError(printf("prc_return: error - err_info: %d\n", err_info););
@@ -1672,8 +1675,10 @@ objectType prc_return2 (listType arguments)
     blockType block;
 
   /* prc_return2 */
-    logFunction(printf("prc_return2\n"););
     block_body = arg_3(arguments);
+    logFunction(printf("prc_return2(");
+                trace1(block_body);
+                printf(")\n"););
     proc_exec_object = curr_exec_object;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listValue != NULL &&
@@ -1682,6 +1687,9 @@ objectType prc_return2 (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
+    logMessage(printf("prc_return2: block_body=");
+               trace1(block_body);
+               printf("\n"););
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prc_return2: No memory\n"););
       return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
@@ -1700,11 +1708,9 @@ objectType prc_return2 (listType arguments)
         fix_posinfo(block_body, block_body_list);
       } /* if */
       pop_stack();
-#ifdef OUT_OF_ORDER
-      printf("prc_return2 block_body=");
-      trace1(block_body);
-      printf("\n");
-#endif
+      logMessage(printf("prc_return2: block_body=");
+                 trace1(block_body);
+                 printf("\n"););
       if (block_body != NULL) {
         return_type = block_body->type_of;
         if (return_type->result_type != NULL) {
@@ -1713,11 +1719,11 @@ objectType prc_return2 (listType arguments)
       } else {
         return_type = NULL;
       } /* if */
-#ifdef OUT_OF_ORDER
-      printf("return_type=");
-      trace1(return_type->match_obj);
-      printf("\n");
-#endif
+      logMessage(printf("prc_return2: return_type=");
+                 if (return_type != NULL) {
+                   trace1(return_type->match_obj);
+                 }
+                 printf("\n"););
       get_return_var(&return_var, return_type, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         logError(printf("prc_return2: error - err_info: %d\n", err_info););
