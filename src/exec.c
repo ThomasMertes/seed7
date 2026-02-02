@@ -944,7 +944,8 @@ objectType evaluate (objectType object)
         logError(printf("evaluate: evaluate unknown\n");
                  trace1(object);
                  printf("\n"););
-        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, NULL);
+        result = raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         NULL, NULL);
         break;
     } /* switch */
     logFunction(printf("evaluate --> ");
