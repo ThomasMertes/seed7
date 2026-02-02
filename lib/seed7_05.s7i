@@ -289,7 +289,7 @@ const func type: func (in type: baseType) is func
 
 
 const type: EXCEPTION      is newtype;
-
+IN_PARAM_IS_VALUE(EXCEPTION);
 const type: DISCRETE       is subtype object;
 const type: integer        is subtype DISCRETE;
 IN_PARAM_IS_VALUE(integer);
@@ -310,7 +310,7 @@ const creator: (ref ENUMERATION: dest) ::= enumlit                   is action "
 const creator: (ref func object: dest) ::= (in ACTION: source)       is action "ACT_CREATE";
 const creator: (ref EXCEPTION: dest) ::= (ref EXCEPTION: source)     is action "ENU_CREATE";
 const creator: (ref EXCEPTION: dest) ::= enumlit                     is action "ENU_GENLIT";
-const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)       is action "ENU_CPY";
+const proc: (inout EXCEPTION: dest) := (in EXCEPTION: source)        is action "ENU_CPY";
 
 const EXCEPTION: MEMORY_ERROR    is enumlit;
 const EXCEPTION: ASSERTION_ERROR is enumlit;
@@ -338,7 +338,8 @@ $ system "database_error"  is DATABASE_ERROR;
 $ system "graphic_error"   is GRAPHIC_ERROR;
 $ system "illegal_action"  is ILLEGAL_ACTION;
 
-const proc: raise (ref EXCEPTION: anException)     is action "PRC_RAISE";
+const proc: raise (in EXCEPTION: anException)      is action "PRC_RAISE";
+const func string: str (in EXCEPTION: anException) is action "ENU_LIT";
 
 const func string: str (in ACTION: anAction)       is action "ACT_STR";
 
@@ -1111,8 +1112,8 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
                   otherwise : (ref proc: otherwiseStatements)
                 end block                                                          is action "PRC_BLOCK_CATCH_ALL";
     const creator: (ref CATCH_PROC: dest) ::= (ref CATCH_RESULT: source)           is action "ENU_CREATE";
-    const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)  is CATCH_RESULT.value;
-    const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)
+    const CATCH_PROC: catch (in EXCEPTION: anException) : (ref proc: statements)   is CATCH_RESULT.value;
+    const CATCH_PROC: catch (in EXCEPTION: anException) : (ref proc: statements)
                        (ref CATCH_PROC: catchPart)                                 is CATCH_RESULT.value;
   end func;
 
