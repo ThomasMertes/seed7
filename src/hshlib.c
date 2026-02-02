@@ -1517,8 +1517,7 @@ objectType hsh_rand_key (listType arguments)
     /* printf("num_elements " FMT_U_MEM "\n", num_elements); */
     if (unlikely(num_elements == 0)) {
       logError(printf("hsh_rand_key(): Hash map is empty.\n"););
-      raise_error(RANGE_ERROR);
-      result = NULL;
+      result = raise_exception(SYS_RNG_EXCEPTION);
     } else {
       elem_index = (memSizeType) (uintType)
           intRand((intType) 1, (intType) num_elements);

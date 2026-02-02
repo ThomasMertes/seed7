@@ -947,7 +947,7 @@ objectType prc_exit (listType arguments)
       logError(printf("prc_exit(" FMT_D "): "
                       "Exit status not in allowed range (%d .. %d).\n",
                       status, INT_MIN, INT_MAX););
-      raise_error(RANGE_ERROR);
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       shutDrivers();
       os_exit((int) status);
