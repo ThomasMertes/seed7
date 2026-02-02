@@ -931,6 +931,7 @@ objectType evaluate (objectType object)
       case REFOBJECT:
       case REFLISTOBJECT:
       case ENUMLITERALOBJECT:
+      case TYPEOBJECT:
         result = object;
         break;
       case BLOCKOBJECT:
