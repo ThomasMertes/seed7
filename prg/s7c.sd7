@@ -7553,9 +7553,9 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     c_expr.expr &:= "arr[";
     c_expr.expr &:= str(number);
     c_expr.expr &:= "]=arrMalloc(";
-    c_expr.expr &:= str(arrayMinIdx(const_object));
+    c_expr.expr &:= integerLiteral(arrayMinIdx(const_object));
     c_expr.expr &:= ", ";
-    c_expr.expr &:= str(pred(arrayMinIdx(const_object) + length(array_list)));
+    c_expr.expr &:= integerLiteral(pred(arrayMinIdx(const_object) + length(array_list)));
     c_expr.expr &:= ");\n";
     if not ccConf.UNIONS_CAN_CONVERT_TO_GENERIC then
       # Avoid that a sanitizer complains about uninitialized data.
