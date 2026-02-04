@@ -37,6 +37,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "heaputl.h"
 #include "fil_drv.h"
 #include "rtl_err.h"
 
@@ -295,6 +296,12 @@ static void handleTermSignal (int signalNum)
 static void handleSegvSignal (int signalNum)
 
   { /* handleSegvSignal */
+#if HAS_SIGALTSTACK
+#if SIGNAL_RESETS_HANDLER
+    signal(signalNum, handleSegvSignal);
+#endif
+    no_memory(SOURCE_POSITION(3011));
+#else
     shutDrivers();
     printf("\n*** SIGNAL SEGV RAISED\n"
            "\n*** Program terminated.\n");
@@ -310,6 +317,7 @@ static void handleSegvSignal (int signalNum)
     signal(SIGABRT, SIG_DFL);
 #endif
     abort();
+#endif
   } /* handleSegvSignal */
 
 
@@ -372,13 +380,11 @@ void setupSignalHandlers (boolType handleSignals,
 #endif
       sigAct.sa_handler = handleTermSignal;
       okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
-      if (traceSignals) {
-        sigAct.sa_handler = handleSegvSignal;
-      } else {
-        sigAct.sa_handler = SIG_DFL;
-      } /* if */
+      sigAct.sa_flags = SA_ONSTACK;
+      sigAct.sa_handler = handleSegvSignal;
       okay = okay && sigaction(SIGSEGV, &sigAct, NULL) == 0;
 #ifdef SIGPIPE
+      sigAct.sa_flags = SA_RESTART;
       sigAct.sa_handler = SIG_IGN;
       okay = okay && sigaction(SIGPIPE, &sigAct, NULL) == 0;
 #endif

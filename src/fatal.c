@@ -36,7 +36,6 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#include "setjmp.h"
 
 #include "common.h"
 #include "data.h"
@@ -44,8 +43,6 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "traceutl.h"
-#include "infile.h"
-#include "error.h"
 #include "sigutl.h"
 
 #undef EXTERN
@@ -53,17 +50,12 @@
 #include "fatal.h"
 
 
-/* The long jump position memoryErrorOccurred is  */
-/* only used during the analysis phase (parsing). */
-boolType currentlyAnalyzing = FALSE;
-longjmpPosition memoryErrorOccurred;
 
+void fatal_memory_error (const_cstriType source_file, int source_line)
 
-
-static void no_memory (const_cstriType source_file, int source_line)
-
-  { /* no_memory */
-    logFunction(printf("no_memory(\"%s\", %d)\n", source_file, source_line););
+  { /* fatal_memory_error */
+    logFunction(printf("fatal_memory_error(\"%s\", %d)\n",
+                       source_file, source_line););
 #ifdef WITH_PROTOCOL
     if (trace.exceptions) {
       printf("\n*** %s(%1d): No more memory. Parsing terminated.\n",
@@ -81,24 +73,5 @@ static void no_memory (const_cstriType source_file, int source_line)
 #endif
     } /* if */
 #endif
-    if (currentlyAnalyzing) {
-      logFunction(printf("no_memory(\"%s\", %d) --> longjmp\n",
-                         source_file, source_line););
-      do_longjmp(memoryErrorOccurred, 1);
-    } else {
-      shutDrivers();
-      logFunction(printf("no_memory(\"%s\", %d) --> exit\n",
-                         source_file, source_line););
-      os_exit(1);
-    } /* if */
-  } /* no_memory */
-
-
-
-void fatal_memory_error (const_cstriType source_file, int source_line)
-
-  { /* fatal_memory_error */
-    logFunction(printf("fatal_memory_error(\"%s\", %d)\n",
-                       source_file, source_line););
     no_memory(source_file, source_line);
   } /* fatal_memory_error */

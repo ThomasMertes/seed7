@@ -87,10 +87,10 @@
 #define TRACE_DECL_ANY 0
 
 
-/* The long jump position memoryErrorOccurred is  */
-/* only used during the analysis phase (parsing). */
-extern boolType currentlyAnalyzing;
-extern longjmpPosition memoryErrorOccurred;
+typedef longjmpPosition catch_type;
+extern catch_type *catch_stack;
+extern size_t catch_stack_pos;
+extern size_t max_catch_stack;
 
 /* If the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
@@ -532,9 +532,14 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       backup_curr_argument_list = curr_argument_list;
       memcpy(&traceBackup, &trace, sizeof(traceRecord));
       progBackup = prog;
-      if (*err_info == OKAY_NO_ERROR &&
-          do_setjmp(memoryErrorOccurred) == 0) {
-        currentlyAnalyzing = TRUE;
+      catch_stack_pos++;
+      if (unlikely(catch_stack_pos >= max_catch_stack)) {
+        if (unlikely(!resizeCatchStackOkay())) {
+          *err_info = MEMORY_ERROR;
+        } /* if */
+      } /* if */
+      if (likely(*err_info == OKAY_NO_ERROR &&
+                 do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
         resultProg->option_flags = options;
         set_trace(resultProg->option_flags);
         prog = resultProg;
@@ -576,7 +581,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         resultProg = NULL;
         *err_info = MEMORY_ERROR;
       } /* if */
-      currentlyAnalyzing = FALSE;
+      catch_stack_pos--;
       curr_exec_object = backup_curr_exec_object;
       curr_argument_list = backup_curr_argument_list;
       memcpy(&trace, &traceBackup, sizeof(traceRecord));

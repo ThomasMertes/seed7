@@ -304,10 +304,14 @@ void uncaught_exception (progType aProg)
         prot_cstri("*** Program terminated after exception ");
       } /* if */
       printobject(fail_value);
-      prot_cstri(" raised with");
-      prot_nl();
-      prot_string(fail_expr_stri);
-      prot_nl();
+      prot_cstri(" raised");
+      if (fail_expr_stri != NULL) {
+        prot_cstri(" with");
+        prot_nl();
+        prot_string(fail_expr_stri);
+      } else {
+        prot_nl();
+      } /* if */
     } else {
       printf("\n*** Program terminated after signal %s\n",
              signalName(signal_number));

@@ -615,6 +615,9 @@ EXTERN unsigned int sflist_allowed;
 
 
 void setupStack (memSizeType stackSize);
+boolType resizeCatchStackOkay (void);
+void resize_catch_stack (void);
+void no_memory (const_cstriType source_file, int source_line);
 #if CHECK_STACK
 boolType checkStack (boolType inLogMacro);
 memSizeType getMaxStackSize (void);

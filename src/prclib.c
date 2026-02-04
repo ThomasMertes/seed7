@@ -36,6 +36,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "setjmp.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -69,6 +70,12 @@
 #undef EXTERN
 #define EXTERN
 #include "prclib.h"
+
+
+typedef longjmpPosition catch_type;
+extern catch_type *catch_stack;
+extern size_t catch_stack_pos;
+extern size_t max_catch_stack;
 
 
 
@@ -280,7 +287,20 @@ objectType prc_block (listType arguments)
 
   /* prc_block */
     statement = arg_2(arguments);
-    evaluate(statement);
+    catch_stack_pos++;
+    if (unlikely(catch_stack_pos >= max_catch_stack)) {
+      if (unlikely(!resizeCatchStackOkay())) {
+        /* Don't handle this error in the catch below. */
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+    } /* if */
+    if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
+      evaluate(statement);
+    } else {
+      set_fail_flag(TRUE);
+      fail_value = SYS_MEM_EXCEPTION;
+    } /* if */
+    catch_stack_pos--;
     if (unlikely(fail_flag && catch_exceptions)) {
       searching = TRUE;
       current_catch = arg_4(arguments);
@@ -315,7 +335,20 @@ objectType prc_block_catch_all (listType arguments)
 
   /* prc_block_catch_all */
     statement = arg_2(arguments);
-    evaluate(statement);
+    catch_stack_pos++;
+    if (unlikely(catch_stack_pos >= max_catch_stack)) {
+      if (unlikely(!resizeCatchStackOkay())) {
+        /* Don't handle this error in the catch below. */
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+    } /* if */
+    if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
+      evaluate(statement);
+    } else {
+      set_fail_flag(TRUE);
+      fail_value = SYS_MEM_EXCEPTION;
+    } /* if */
+    catch_stack_pos--;
     if (unlikely(fail_flag && catch_exceptions)) {
       default_statement = arg_6(arguments);
       leaveExceptionHandling();
@@ -338,7 +371,20 @@ objectType prc_block_otherwise (listType arguments)
 
   /* prc_block_otherwise */
     statement = arg_2(arguments);
-    evaluate(statement);
+    catch_stack_pos++;
+    if (unlikely(catch_stack_pos >= max_catch_stack)) {
+      if (unlikely(!resizeCatchStackOkay())) {
+        /* Don't handle this error in the catch below. */
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } /* if */
+    } /* if */
+    if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
+      evaluate(statement);
+    } else {
+      set_fail_flag(TRUE);
+      fail_value = SYS_MEM_EXCEPTION;
+    } /* if */
+    catch_stack_pos--;
     if (unlikely(fail_flag && catch_exceptions)) {
       searching = TRUE;
       current_catch = arg_4(arguments);

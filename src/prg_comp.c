@@ -35,6 +35,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "setjmp.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -68,6 +69,11 @@
 #define EXTERN
 #include "prg_comp.h"
 
+
+typedef longjmpPosition catch_type;
+extern catch_type *catch_stack;
+extern size_t catch_stack_pos;
+extern size_t max_catch_stack;
 
 extern boolType interpreter_exception;
 
@@ -272,6 +278,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
         } /* if */
         prog->arg_v = copy_args(argv, argvStart);
         if (unlikely(prog->arg_v == NULL)) {
+          prog = progBackup;
           raise_error(MEMORY_ERROR);
         } else {
           /* printf("main defined as: ");
@@ -287,10 +294,25 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
             prot_nl();
           } /* if */
 #endif
+          catch_stack_pos++;
+          if (unlikely(catch_stack_pos >= max_catch_stack)) {
+            if (unlikely(!resizeCatchStackOkay())) {
+              prog = progBackup;
+              raise_error(MEMORY_ERROR);
+              return;
+            } /* if */
+          } /* if */
           backup_interpreter_exception = interpreter_exception;
           interpreter_exception = TRUE;
           curr_exec_object = NULL;
-          evaluate(prog->main_object);
+          if (likely(do_setjmp(catch_stack[catch_stack_pos])) == 0) {
+            evaluate(prog->main_object);
+          } else {
+            logMessage(printf("memory error occurred\n"););
+            set_fail_flag(TRUE);
+            fail_value = SYS_MEM_EXCEPTION;
+          } /* if */
+          catch_stack_pos--;
           interpreter_exception = backup_interpreter_exception;
           free_args(prog->arg_v);
           prog->arg_v = NULL;
