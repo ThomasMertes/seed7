@@ -316,9 +316,11 @@ void uncaught_exception (progType aProg)
       printf("\n*** Program terminated after signal %s\n",
              signalName(signal_number));
     } /* if */
-    prot_nl();
-    prot_cstri("Stack:\n");
-    write_call_stack(fail_stack);
+    if (fail_stack != NULL) {
+      prot_nl();
+      prot_cstri("Stack:\n");
+      write_call_stack(fail_stack);
+    } /* if */
     prog = progBackup;
   } /* uncaught_exception */
 
