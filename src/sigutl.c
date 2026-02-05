@@ -299,6 +299,7 @@ static void handleTermSignal (int signalNum)
 static void handleTracedSegvSignal (int signalNum)
 
   { /* handleTracedSegvSignal */
+#if HAS_SIGALTSTACK
 #if defined SIGALRM && !HAS_SIGACTION
     signal(SIGALRM, SIG_IGN);
 #endif
@@ -309,7 +310,6 @@ static void handleTracedSegvSignal (int signalNum)
       suspendInterpreter(signalNum);
     } /* if */
 #endif
-#if HAS_SIGALTSTACK
 #if SIGNAL_RESETS_HANDLER
     signal(signalNum, handleTracedSegvSignal);
 #endif
@@ -341,28 +341,10 @@ static void handleTracedSegvSignal (int signalNum)
 static void handleSegvSignal (int signalNum)
 
   { /* handleSegvSignal */
-#if HAS_SIGALTSTACK
 #if SIGNAL_RESETS_HANDLER
     signal(signalNum, handleSegvSignal);
 #endif
-    no_memory(SOURCE_POSITION(3011));
-#else
-    shutDrivers();
-    printf("\n*** SIGNAL SEGV RAISED\n"
-           "\n*** Program terminated.\n");
-#if HAS_SIGACTION
-    {
-      struct sigaction sigAct;
-      sigemptyset(&sigAct.sa_mask);
-      sigAct.sa_flags = SA_RESTART;
-      sigAct.sa_handler = SIG_DFL;
-      sigaction(SIGABRT, &sigAct, NULL);
-    }
-#elif HAS_SIGNAL
-    signal(SIGABRT, SIG_DFL);
-#endif
-    abort();
-#endif
+    no_memory(SOURCE_POSITION(3012));
   } /* handleSegvSignal */
 
 
@@ -429,7 +411,11 @@ void setupSignalHandlers (boolType handleSignals,
       if (traceSignals) {
         sigAct.sa_handler = handleTracedSegvSignal;
       } else {
+#if HAS_SIGALTSTACK
         sigAct.sa_handler = handleSegvSignal;
+#else
+        sigAct.sa_handler = SIG_DFL;
+#endif
       } /* if */
       okay = okay && sigaction(SIGSEGV, &sigAct, NULL) == 0;
 #ifdef SIGPIPE
@@ -489,7 +475,7 @@ void setupSignalHandlers (boolType handleSignals,
 #endif
       okay = okay && signal(SIGTERM, handleTermSignal) != SIG_ERR;
       if (traceSignals) {
-        sigHandler = handleSegvSignal;
+        sigHandler = handleTracedSegvSignal;
       } else {
         sigHandler = SIG_DFL;
       } /* if */
