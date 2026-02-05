@@ -202,7 +202,8 @@ static boolType signalDecision (int signalNum, boolType inHandler)
       buffer[position] = '\0';
       if (position > 0 && buffer[0] >= '0' && buffer[0] <= '9') {
         exceptionNum = strtoul(buffer, NULL, 10);
-        if (exceptionNum > OKAY_NO_ERROR && exceptionNum <= ACTION_ERROR) {
+        if (exceptionNum > OKAY_NO_ERROR &&
+            exceptionNum <= ACTION_ERROR && signalNum != SIGSEGV) {
           raise_error((int) exceptionNum);
         } /* if */
       } /* if */
@@ -219,7 +220,7 @@ static boolType signalDecision (int signalNum, boolType inHandler)
 
 #if HAS_SIGACTION || HAS_SIGNAL
 /**
- *  Signal handler that is used if tracing signals as been activated.
+ *  Tracing signal handler for normalSignals.
  *  Tracing signals is activated in interpreter and compiler with the
  *  option -ts. This signal handler is used for normalSignals
  *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE).
@@ -287,6 +288,50 @@ static void handleTermSignal (int signalNum)
     shutDrivers();
     os_exit(1);
   } /* handleTermSignal */
+
+
+
+/**
+ *  Tracing signal handler for the signal SIGSEGV.
+ *  Tracing signals is activated in interpreter and
+ *  compiler with the option -ts.
+ */
+static void handleTracedSegvSignal (int signalNum)
+
+  { /* handleTracedSegvSignal */
+#if defined SIGALRM && !HAS_SIGACTION
+    signal(SIGALRM, SIG_IGN);
+#endif
+#if DIALOG_IN_SIGNAL_HANDLER
+    (void) signalDecision(signalNum, TRUE);
+#else
+    if (suspendInterpreter != NULL) {
+      suspendInterpreter(signalNum);
+    } /* if */
+#endif
+#if HAS_SIGALTSTACK
+#if SIGNAL_RESETS_HANDLER
+    signal(signalNum, handleTracedSegvSignal);
+#endif
+    no_memory(SOURCE_POSITION(3011));
+#else
+    shutDrivers();
+    printf("\n*** SIGNAL SEGV RAISED\n"
+           "\n*** Program terminated.\n");
+#if HAS_SIGACTION
+    {
+      struct sigaction sigAct;
+      sigemptyset(&sigAct.sa_mask);
+      sigAct.sa_flags = SA_RESTART;
+      sigAct.sa_handler = SIG_DFL;
+      sigaction(SIGABRT, &sigAct, NULL);
+    }
+#elif HAS_SIGNAL
+    signal(SIGABRT, SIG_DFL);
+#endif
+    abort();
+#endif
+  } /* handleTracedSegvSignal */
 
 
 
@@ -381,7 +426,11 @@ void setupSignalHandlers (boolType handleSignals,
       sigAct.sa_handler = handleTermSignal;
       okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
       sigAct.sa_flags = SA_ONSTACK;
-      sigAct.sa_handler = handleSegvSignal;
+      if (traceSignals) {
+        sigAct.sa_handler = handleTracedSegvSignal;
+      } else {
+        sigAct.sa_handler = handleSegvSignal;
+      } /* if */
       okay = okay && sigaction(SIGSEGV, &sigAct, NULL) == 0;
 #ifdef SIGPIPE
       sigAct.sa_flags = SA_RESTART;
