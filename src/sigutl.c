@@ -45,6 +45,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "fil_drv.h"
+#include "segv_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -430,6 +431,7 @@ void setupSignalHandlers (boolType handleSignals,
       okay = okay && sigaction(SIGPIPE, &sigAct, NULL) == 0;
 #endif
     } /* if */
+    okay = okay && setupSegmentationViolationHandler();
     if (!okay) {
       printf("\n*** Activating signal handlers failed.\n");
     } /* if */
@@ -490,6 +492,7 @@ void setupSignalHandlers (boolType handleSignals,
       signal(SIGPIPE, SIG_IGN);
 #endif
     } /* if */
+    okay = okay && setupSegmentationViolationHandler();
     if (!okay) {
       printf("\n*** Activating signal handlers failed.\n");
     } /* if */
@@ -509,6 +512,9 @@ void setupSignalHandlers (boolType handleSignals,
     logFunction(printf("setupSignalHandlers(%d, %d, %d, %d, " FMT_U_MEM ")\n",
                        handleSignals, traceSignals, overflowSigError,
                        fpeNumericError, (memSizeType) suspendInterpr););
+    if (!setupSegmentationViolationHandler()) {
+      printf("\n*** Activating signal handlers failed.\n");
+    } /* if */
     logFunction(printf("setupSignalHandlers -->\n"););
   } /* setupSignalHandlers */
 #endif
