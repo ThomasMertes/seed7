@@ -24698,6 +24698,11 @@ const func boolean: check_string_append_self_ref1 is func
     var string: stri7 is "1234567890";
     var string: stri8 is "1234567890";
     var string: stri9 is "1234567890";
+    var string: stri10 is "1234567890";
+    const proc: test1 (in string: stri) is func
+      begin
+        stri10 &:= stri;
+      end func;
   begin
     stri1 &:= stri1;             ok &:= stri1 = "12345678901234567890";
     stri2 &:= stri2[2 ..];       ok &:= stri2 = "1234567890234567890";
@@ -24709,7 +24714,13 @@ const func boolean: check_string_append_self_ref1 is func
     stri8 &:= str(stri8[3]);     ok &:= stri8 = "12345678903";
     do_append(stri9, stri9);     ok &:= stri9 = "12345678901234567890";
     if not ok then
-      writeln(" ***** String append with one self reference does not work correctly.");
+      writeln(" ***** String append with one self reference does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    test1(stri10);
+    if stri10 <> "12345678901234567890" then
+      writeln(" ***** String append with one self reference does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;
@@ -24774,7 +24785,7 @@ const func boolean: check_string_append_self_ref2_short is func
     do_append(stri20, stri20, "789");  ok &:= stri20 = "123456123456789";
     do_append(stri21, stri21, stri21); ok &:= stri21 = "123456123456123456";
     if not ok then
-      writeln(" ***** String append with two self references does not work correctly.");
+      writeln(" ***** String append with two self references does not work correctly. (1)");
       okay := FALSE;
     end if;
   end func;
@@ -24829,7 +24840,7 @@ const func boolean: check_string_append_self_ref2_long is func
     do_append(stri20, stri20, "456");  ok &:= stri20 = "1234567890abcdef1234567890abcdef456";
     do_append(stri21, stri21, stri21); ok &:= stri21 = "1234567890abcdef1234567890abcdef1234567890abcdef";
     if not ok then
-      writeln(" ***** String append with two self references does not work correctly.");
+      writeln(" ***** String append with two self references does not work correctly. (2)");
       okay := FALSE;
     end if;
   end func;
