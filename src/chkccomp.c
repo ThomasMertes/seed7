@@ -7572,7 +7572,7 @@ static void determinePartialLinking (FILE *versionFile)
 #endif
     if (!supportsPartialLinking) {
       appendToFile("macros", "LINKER_OPT_PARTIAL_LINKING =\n");
-      appendToFile("macros", "OBJCOPY = @echo \"No partial linking with objcopy\"\n");
+      appendToFile("macros", "OBJCOPY = echo \"***** No partial linking with objcopy\"\n");
     } /* if */
   } /* determinePartialLinking */
 
