@@ -40,6 +40,8 @@ objectType prc_create           (listType arguments);
 objectType prc_decls            (listType arguments);
 objectType prc_destr            (listType arguments);
 objectType prc_dynamic          (listType arguments);
+objectType prc_err_file         (listType arguments);
+objectType prc_err_line         (listType arguments);
 objectType prc_exit             (listType arguments);
 objectType prc_for_downto       (listType arguments);
 objectType prc_for_downto_step  (listType arguments);
