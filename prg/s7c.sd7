@@ -2637,6 +2637,10 @@ const proc: process_main_declaration (in reference: current_object,
       end if;
     end if;
     declare_exception_name(c_expr);
+    if not programUses.compilerLibrary then
+      c_expr.expr &:= "const char *error_file = NULL;\n";
+      c_expr.expr &:= "int error_line = 0;\n\n";
+    end if;
     c_expr.currentFile := file(current_object);
     c_expr.currentLine := line(current_object);
     if ccConf.USE_WMAIN then
@@ -6006,8 +6010,8 @@ const proc: write_file_head is func
     writeln(c_prog, "extern catch_type *catch_stack;");
     writeln(c_prog, "extern size_t catch_stack_pos;");
     writeln(c_prog, "extern size_t max_catch_stack;");
-    writeln(c_prog, "const char *error_file = NULL;");
-    writeln(c_prog, "int error_line = 0;");
+    writeln(c_prog, "extern const char *error_file;");
+    writeln(c_prog, "extern int error_line;");
     writeln(c_prog, "intType ustriCmpGeneric (const genericType value1, const genericType value2);");
     writeln(c_prog, "genericType ustriCreateGeneric (const genericType source);");
     writeln(c_prog, "intType ustriHash (const const_ustriType stri);");

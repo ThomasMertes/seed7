@@ -68,6 +68,7 @@
 #include "fil_drv.h"
 #include "big_drv.h"
 #include "drw_drv.h"
+#include "rtl_err.h"
 
 #ifdef USE_WINMAIN
 typedef struct {
@@ -89,6 +90,8 @@ void raise_error2 (int exception_num, const_cstriType fileName, int line)
     } else {
       (void) raise_with_arguments(NULL, NULL);
     } /* if */
+    error_file = fileName;
+    error_line = line;
   } /* raise_error2 */
 
 

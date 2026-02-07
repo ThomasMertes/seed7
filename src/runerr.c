@@ -63,6 +63,9 @@
 #include "runerr.h"
 
 
+const char *error_file = NULL;
+int error_line = 0;
+
 static longjmpPosition sigsegvOccurred;
 
 
@@ -438,6 +441,8 @@ objectType raise_with_obj_and_args (objectType exception,
       prot_nl(); */
     } /* if */
     set_fail_flag(TRUE);
+    error_file = NULL;
+    error_line = 0;
     logFunction(printf("raise_with_obj_and_args -->\n"););
     return exception;
   } /* raise_with_obj_and_args */
@@ -471,6 +476,8 @@ void interprRaiseError (int exception_num, const_cstriType fileName, int line)
     logFunction(printf("interprRaiseError(%d, \"%s\", %d)\n",
                        exception_num, fileName, line););
     (void) raise_exception(prog->sys_var[exception_num]);
+    error_file = fileName;
+    error_line = line;
   } /* interprRaiseError */
 
 

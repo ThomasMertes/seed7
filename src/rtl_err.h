@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+extern const char *error_file;
+extern int error_line;
+
 #define raise_error(num) raise_error2(num, __FILE__, __LINE__)
 
 

@@ -211,6 +211,8 @@ void no_memory (const_cstriType source_file, int source_line)
 
   { /* no_memory */
     logFunction(printf("no_memory(\"%s\", %d)\n", source_file, source_line););
+    error_file = source_file;
+    error_line = source_line;
     if (catch_stack_pos > 0) {
       logFunction(printf("no_memory(\"%s\", %d) --> longjmp\n",
                          source_file, source_line););
