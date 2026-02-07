@@ -1366,6 +1366,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_CPY, function, params, c_expr);
       when {"PRC_DYNAMIC"}:
         process(PRC_DYNAMIC, function, params, c_expr);
+      when {"PRC_ERR_FILE"}:
+        process(PRC_ERR_FILE, function, params, c_expr);
+      when {"PRC_ERR_LINE"}:
+        process(PRC_ERR_LINE, function, params, c_expr);
       when {"PRC_EXIT"}:
         process(PRC_EXIT, function, params, c_expr);
       when {"PRC_FOR_DOWNTO"}:
