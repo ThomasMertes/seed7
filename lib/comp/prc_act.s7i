@@ -66,6 +66,11 @@ const proc: prc_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "void        heapStatistic (void);");
     declareExtern(c_prog, "striType    cstri8_or_cstri_to_stri (const_cstriType);");
+    if ccConf.HAS_VECTORED_EXCEPTION_HANDLER then
+      declareExtern(c_prog, "void        resetExceptionCheck (void);");
+    else
+      writeln(c_prog, "#define     resetExceptionCheck()");
+    end if;
   end func;
 
 
@@ -1013,6 +1018,8 @@ const proc: process (PRC_BLOCK, in reference: function,
     c_expr.expr &:= diagnosticLine(current_catch);
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
+    c_expr.expr &:= "resetExceptionCheck();\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
     while current_catch <> NIL and
@@ -1074,6 +1081,8 @@ const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
+    c_expr.expr &:= "resetExceptionCheck();\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[6]);
     process_call_by_name_expr(params[6], c_expr);
@@ -1117,6 +1126,8 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     catch_expr := getValue(current_catch, ref_list);
     c_expr.expr &:= diagnosticLine(current_catch);
     c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "resetExceptionCheck();\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
