@@ -4781,7 +4781,7 @@ static void determineSigaltstack (FILE *versionFile)
 static void determineAddVectoredExceptionHandler (FILE *versionFile)
 
   { /* determineAddVectoredExceptionHandler */
-    fprintf(versionFile, "#define HAS_ADD_VECTORED_EXCEPTION_HANDLER %d\n",
+    fprintf(versionFile, "#define HAS_VECTORED_EXCEPTION_HANDLER %d\n",
             compileAndLinkOk("#define _WIN32_WINNT 0x500\n"
                             "#include <windows.h>\n#include <stdio.h>\n"
                             "#include <setjmp.h>\n"

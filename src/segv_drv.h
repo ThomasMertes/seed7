@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#if HAS_ADD_VECTORED_EXCEPTION_HANDLER
+#if HAS_VECTORED_EXCEPTION_HANDLER
 boolType setupSegmentationViolationHandler (void);
 void resetExceptionCheck (void);
 #else
