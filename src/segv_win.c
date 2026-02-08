@@ -42,13 +42,15 @@
 #include "common.h"
 #include "heaputl.h"
 
-#define SEGV_HANDLER_NAME "segmentationViolationHandler\n"
+static boolType stackOverflow = FALSE;
 
 
 static LONG WINAPI segmentationViolationHandler (PEXCEPTION_POINTERS pExp)
 
   { /* segmentationViolationHandler */
     logFunction(printf("segmentationViolationHandler\n"););
+    stackOverflow = pExp->ExceptionRecord->ExceptionCode ==
+                    EXCEPTION_STACK_OVERFLOW;
     no_memory(SOURCE_POSITION(3021));
     return 0;
   } /* segmentationViolationHandler */
@@ -67,3 +69,15 @@ boolType setupSegmentationViolationHandler (void)
                        okay););
     return okay;
   } /* setupSegmentationViolationHandler */
+
+
+
+void resetExceptionCheck (void)
+
+  { /* resetExceptionCheck */
+    logFunction(printf("resetExceptionCheck\n"););
+    if (stackOverflow) {
+      _resetstkoflw();
+      stackOverflow = FALSE;
+    } /* if */
+  } /* resetExceptionCheck */

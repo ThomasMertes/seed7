@@ -79,6 +79,7 @@
 #include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "prg_comp.h"
+#include "segv_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -571,6 +572,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
       } else {
+        logMessage(printf("analyzeProg: MEMORY_ERROR cought\n");)
+        resetExceptionCheck();
         prog = progBackup;
         closeInfile();
         clean_idents(resultProg);

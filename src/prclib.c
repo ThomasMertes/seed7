@@ -66,6 +66,7 @@
 #include "error.h"
 #include "set_rtl.h"
 #include "str_rtl.h"
+#include "segv_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -287,6 +288,7 @@ objectType prc_block (listType arguments)
     boolType searching;
 
   /* prc_block */
+    logFunction(printf("prc_block\n"););
     statement = arg_2(arguments);
     catch_stack_pos++;
     if (unlikely(catch_stack_pos >= max_catch_stack)) {
@@ -298,6 +300,8 @@ objectType prc_block (listType arguments)
     if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
       evaluate(statement);
     } else {
+      logMessage(printf("prc_block: MEMORY_ERROR cought\n");)
+      resetExceptionCheck();
       set_fail_flag(TRUE);
       fail_value = SYS_MEM_EXCEPTION;
     } /* if */
@@ -323,6 +327,7 @@ objectType prc_block (listType arguments)
         } /* if */
       } /* while */
     } /* if */
+    logFunction(printf("prc_block -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_block */
 
@@ -335,6 +340,7 @@ objectType prc_block_catch_all (listType arguments)
     objectType default_statement;
 
   /* prc_block_catch_all */
+    logFunction(printf("prc_block_catch_all\n"););
     statement = arg_2(arguments);
     catch_stack_pos++;
     if (unlikely(catch_stack_pos >= max_catch_stack)) {
@@ -346,6 +352,8 @@ objectType prc_block_catch_all (listType arguments)
     if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
       evaluate(statement);
     } else {
+      logMessage(printf("prc_block_catch_all: MEMORY_ERROR cought\n");)
+      resetExceptionCheck();
       set_fail_flag(TRUE);
       fail_value = SYS_MEM_EXCEPTION;
     } /* if */
@@ -355,6 +363,7 @@ objectType prc_block_catch_all (listType arguments)
       leaveExceptionHandling();
       evaluate(default_statement);
     } /* if */
+    logFunction(printf("prc_block_catch_all -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_block_catch_all */
 
@@ -371,6 +380,7 @@ objectType prc_block_otherwise (listType arguments)
     boolType searching;
 
   /* prc_block_otherwise */
+    logFunction(printf("prc_block_otherwise\n"););
     statement = arg_2(arguments);
     catch_stack_pos++;
     if (unlikely(catch_stack_pos >= max_catch_stack)) {
@@ -382,6 +392,8 @@ objectType prc_block_otherwise (listType arguments)
     if (likely(do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
       evaluate(statement);
     } else {
+      logMessage(printf("prc_block_otherwise: MEMORY_ERROR cought\n");)
+      resetExceptionCheck();
       set_fail_flag(TRUE);
       fail_value = SYS_MEM_EXCEPTION;
     } /* if */
@@ -412,6 +424,7 @@ objectType prc_block_otherwise (listType arguments)
         evaluate(otherwise_statement);
       } /* if */
     } /* if */
+    logFunction(printf("prc_block_otherwise -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_block_otherwise */
 

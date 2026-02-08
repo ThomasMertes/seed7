@@ -63,6 +63,7 @@
 #include "set_rtl.h"
 #include "hsh_rtl.h"
 #include "fil_rtl.h"
+#include "segv_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -308,7 +309,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
           if (likely(do_setjmp(catch_stack[catch_stack_pos])) == 0) {
             evaluate(prog->main_object);
           } else {
-            logMessage(printf("memory error occurred\n"););
+            logMessage(printf("interpret: MEMORY_ERROR cought\n");)
+            resetExceptionCheck();
             set_fail_flag(TRUE);
             fail_value = SYS_MEM_EXCEPTION;
           } /* if */

@@ -31,6 +31,8 @@
 
 #if HAS_ADD_VECTORED_EXCEPTION_HANDLER
 boolType setupSegmentationViolationHandler (void);
+void resetExceptionCheck (void);
 #else
 #define setupSegmentationViolationHandler() TRUE
+#define resetExceptionCheck()
 #endif
