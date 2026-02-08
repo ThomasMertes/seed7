@@ -299,6 +299,13 @@ const type: ccConfigType is new struct
     var boolean: STMT_BLOCK_IN_PARENTHESES_OK is FALSE;
 
     (**
+     *  TRUE if the function AddVectoredExceptionHandler() is available.
+     *  This function can be used to register a handler for stack overflow
+     *  and other segmentation violation errors.
+     *)
+    var boolean: HAS_VECTORED_EXCEPTION_HANDLER is FALSE;
+
+    (**
      *  TRUE if #line directives can use UTF-8 encoded file names.
      *  The file names from #line directives are used by the debugger to
      *  allow source code debugging.
@@ -983,6 +990,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.LIMITED_CSTRI_LITERAL_LEN        := boolean(configValue("LIMITED_CSTRI_LITERAL_LEN"));
     conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(configValue("SWITCH_WORKS_FOR_INT64TYPE"));
     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(configValue("STMT_BLOCK_IN_PARENTHESES_OK"));
+    conf.HAS_VECTORED_EXCEPTION_HANDLER   := boolean(configValue("HAS_VECTORED_EXCEPTION_HANDLER"));
     conf.CC_SOURCE_UTF8                   := boolean(configValue("CC_SOURCE_UTF8"));
     conf.USE_WMAIN                        := boolean(configValue("USE_WMAIN"));
     conf.USE_WINMAIN                      := boolean(configValue("USE_WINMAIN"));
@@ -1147,6 +1155,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"LIMITED_CSTRI_LITERAL_LEN"}:        conf.LIMITED_CSTRI_LITERAL_LEN        := boolean(value);
       when {"SWITCH_WORKS_FOR_INT64TYPE"}:       conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(value);
       when {"STMT_BLOCK_IN_PARENTHESES_OK"}:     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(value);
+      when {"HAS_VECTORED_EXCEPTION_HANDLER"}:   conf.HAS_VECTORED_EXCEPTION_HANDLER   := boolean(value);
       when {"CC_SOURCE_UTF8"}:                   conf.CC_SOURCE_UTF8                   := boolean(value);
       when {"USE_WMAIN"}:                        conf.USE_WMAIN                        := boolean(value);
       when {"USE_WINMAIN"}:                      conf.USE_WINMAIN                      := boolean(value);

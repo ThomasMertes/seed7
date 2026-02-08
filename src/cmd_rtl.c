@@ -2414,6 +2414,8 @@ striType cmdConfigValue (const const_striType name)
       opt = SWITCH_WORKS_FOR_INT64TYPE ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "STMT_BLOCK_IN_PARENTHESES_OK") == 0) {
       opt = STMT_BLOCK_IN_PARENTHESES_OK ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_VECTORED_EXCEPTION_HANDLER") == 0) {
+      opt = HAS_VECTORED_EXCEPTION_HANDLER ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
 #ifdef CC_SOURCE_UTF8
       opt = "TRUE";
