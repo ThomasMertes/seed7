@@ -366,9 +366,17 @@ objectType ref_create (listType arguments)
 
 objectType ref_deref (listType arguments)
 
-  { /* ref_deref */
+  {
+    objectType result;
+
+  /* ref_deref */
     isit_reference(arg_1(arguments));
-    return take_reference(arg_1(arguments));
+    result = take_reference(arg_1(arguments));
+    if (unlikely(result == NULL)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      return result;
+    } /* if */
   } /* ref_deref */
 
 
