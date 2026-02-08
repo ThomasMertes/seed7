@@ -116,9 +116,6 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
                                    in reference: keyCompare,
                                    in reference: dataCreate)                   is action "HSH_IDX2";
 
-      const func ptr baseType: REFINDEX (in hashType: aHashMap, in keyType: aKey,
-                                         in integer: hashCode,
-                                         in reference: keyCompare)             is action "HSH_REFIDX";
       const proc: INCL (inout hashType: aHashMap, in keyType: aKey,
                         in baseType: anElem, in integer: hashCode,
                         in reference: keyCompare, in reference: keyCreate,
