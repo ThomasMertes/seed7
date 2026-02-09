@@ -3212,6 +3212,14 @@ to 'newFile'.
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
+      A &:= B   Assign the result of A and B to A.
+                  ( The expression B is always evaluated,
+                    A &:= B => A := A and B )
+      A |:= B   Assign the result of A or B to A.
+                  ( The expression B is always evaluated,
+                    A |:= B => A := A or B )
+      A ><:= B   Assign the result of A <> B (exclusive or) to A.
+                  ( A ><:= B => A := A <> B )
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
       decr(A)   Decrement
@@ -3432,6 +3440,9 @@ to 'newFile'.
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(12345) => "12345" )
+      string(A)  Conversion to string
+                  ( Type of result: string,
+                    string(12345) => "12345" )
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(A) => str(A) )
@@ -4450,11 +4461,36 @@ to 'newFile'.
                     round(1.5) => 2, round(-1.5) => -2,
                     round(0.5) => 1, round(-0.5) => -1,
                     round(0.4) => 0, round(-0.4) => 0 )
+      round10(A, p)  Round a float number with a decimal precision
+                  ( Type of argument p: integer,
+                    round10(0.4990234375, 0) => 0.0,
+                    round10(0.4990234375, 1) => 0.5,
+                    round10(0.4990234375, 2) => 0.5,
+                    round10(0.4990234375, 3) => 0.499 )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(Infinity) => "Infinity",
                     str(-Infinity) => "-Infinity",
                     str(NaN) => "NaN" )
+      string(A)  Conversion to string
+                  ( Type of result: string,
+                    string(Infinity) => "Infinity",
+                    string(-Infinity) => "-Infinity",
+                    string(NaN) => "NaN" )
+      str(A, SCIENTIFIC)  Conversion to string in scientific notation
+                  ( Type of result: string,
+                    str(0.012345,  SCIENTIFIC) => "1.2345e-2",
+                    str(1246800.0, SCIENTIFIC) => "1.2468e+6",
+                    str(Infinity, SCIENTIFIC) => "Infinity",
+                    str(-Infinity, SCIENTIFIC) => "-Infinity",
+                    str(NaN, SCIENTIFIC) => "NaN" )
+      literal(A)  Conversion to string in decimal or scientific notation
+                  ( Type of result: string,
+                    literal(12345.0) => "12345.0",
+                    literal(12000.0) => "1.2e+4",
+                    literal(Infinity) => "Infinity",
+                    literal(-Infinity) => "-Infinity",
+                    literal(NaN) => "NaN" )
       isNaN(A)  Check if A is Not-a-Number
       isNegativeZero(A)   Check if A is negative zero (-0.0)
       isPositiveZero(A)   Check if A is +0.0
@@ -4688,7 +4724,9 @@ to 'newFile'.
                     str('A') => "A" )
       literal(A) Conversion to a literal
                   ( Type of result: string,
-                    literal('A') => "'A'" )
+                    literal('A') => "'A'",
+                    literal('\n') => "'\\n'",
+                    literal('\0;') => "'\\0;'" )
       upper(A)  Conversion to upper case character
                   ( upper('A') => 'A',
                     upper('z') => 'Z' )
@@ -4973,7 +5011,8 @@ to 'newFile'.
                   ( str(A) => A )
       literal(A) Conversion to a literal
                   ( literal("ABC") => "\"ABC\"",
-                    literal("O' \"X\"") => "\"O' \\\"X\\\"\"" )
+                    literal("O' \"X\"") => "\"O' \\\"X\\\"\"",
+                    literal("A\nB\tC") => "\"A\\nB\\tC\"" )
       upper(A)  Conversion to upper case characters
                   ( upper("Upper") => "UPPER" )
       lower(A)  Conversion to lower case characters
@@ -6905,6 +6944,13 @@ to 'newFile'.
     Relations:
       =, <>
     Functions:
+      startProcess(command, parameters, stdin, stdout, stderr)  Start a new process.
+           Redirect from/to stdin, stdout and stderr.
+                  ( Type of argument command: string,
+                    Type of argument parameters: array string,
+                    Type of argument stdin: file,
+                    Type of argument stdout: file,
+                    Type of argument stderr: file )
       startProcess(command, parameters)  Start a new process
                   ( Type of argument command: string,
                     Type of argument parameters: array string )
@@ -7289,7 +7335,7 @@ to 'newFile'.
     Prefix operators:
       symb    Convert into a symbol parameter
                   ( Type of result: f_param,
-		    symb structElement.value => EXCEPTION RANGE_ERROR )
+                    symb structElement.value => EXCEPTION RANGE_ERROR )
     Relations:
       =, <>
     Functions:
@@ -8330,8 +8376,8 @@ to 'newFile'.
         var integer: radius is 0;
       end struct;
 
-  The fact that the type 'circle' is an implementation type of
-  'shape' is described with:
+  The fact that 'circle' is an implementation type of the
+  'shape' interface type is described with:
 
     type_implements_interface(circle, shape);
 
@@ -8727,7 +8773,7 @@ to 'newFile'.
     const proc: addItem (inout element: anElem, in integer: item) is func
       begin
         if anElem = element.NIL then
-          anElem := xalloc(treeElement.value);
+          anElem := create(treeElement);
           anElem.item := item;
         elsif item < anElem.item then
           addItem(anElem.left, item);
@@ -8754,7 +8800,7 @@ to 'newFile'.
         end if;
       end func;
 
-  New elements can be created with the function 'xalloc'.
+  New elements can be created with the function 'create'.
   This way interface and implementation types help to provide the
   pointer functionality.
 

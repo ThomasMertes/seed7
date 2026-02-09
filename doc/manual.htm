@@ -3434,6 +3434,14 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
+      A <span class="op_no_ul">&amp;:=</span> B   Assign the result of A <span class="op">and</span> B to A.
+                  ( The expression B is always evaluated,
+                    A <span class="op_no_ul">&amp;:=</span> B <b>&rArr;</b> A := A <span class="op">and</span> B )
+      A <span class="op_no_ul">|:=</span> B   Assign the result of A <span class="op">or</span> B to A.
+                  ( The expression B is always evaluated,
+                    A <span class="op_no_ul">|:=</span> B <b>&rArr;</b> A := A <span class="op">or</span> B )
+      A <span class="op_no_ul">>&lt;:=</span> B   Assign the result of A <span class="op_no_ul">&lt;></span> B (exclusive or) to A.
+                  ( A <span class="op_no_ul">>&lt;:=</span> B <b>&rArr;</b> A := A <span class="op_no_ul">&lt;></span> B )
       <span class="func">incr</span>(A)   Increment
                   ( <span class="func">incr</span>(A) <b>&rArr;</b> A:=succ(A) )
       <span class="func">decr</span>(A)   Decrement
@@ -3654,6 +3662,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(12345) <b>&rArr;</b> <span class="stri">"12345"</span> )
+      <span class="func">string</span>(A)  Conversion to <a class="type" href="#types_string">string</a>
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    string(12345) <b>&rArr;</b> <span class="stri">"12345"</span> )
       <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     literal(A) <b>&rArr;</b> str(A) )
@@ -4672,11 +4683,36 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     round(1.5) <b>&rArr;</b> 2, round(-1.5) <b>&rArr;</b> -2,
                     round(0.5) <b>&rArr;</b> 1, round(-0.5) <b>&rArr;</b> -1,
                     round(0.4) <b>&rArr;</b> 0, round(-0.4) <b>&rArr;</b> 0 )
+      <span class="func">round10</span>(A, p)  Round a float number with a decimal precision
+                  ( Type of argument p: <a class="type" href="#types_integer">integer</a>,
+                    round10(0.4990234375, 0) <b>&rArr;</b> 0.0,
+                    round10(0.4990234375, 1) <b>&rArr;</b> 0.5,
+                    round10(0.4990234375, 2) <b>&rArr;</b> 0.5,
+                    round10(0.4990234375, 3) <b>&rArr;</b> 0.499 )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(Infinity) <b>&rArr;</b> <span class="stri">"Infinity"</span>,
                     str(-Infinity) <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
                     str(NaN) <b>&rArr;</b> <span class="stri">"NaN"</span> )
+      <span class="func">string</span>(A)  Conversion to <a class="type" href="#types_string">string</a>
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    string(Infinity) <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    string(-Infinity) <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    string(NaN) <b>&rArr;</b> <span class="stri">"NaN"</span> )
+      <span class="func">str</span>(A, SCIENTIFIC)  Conversion to <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    str(0.012345,  SCIENTIFIC) <b>&rArr;</b> <span class="stri">"1.2345e-2"</span>,
+                    str(1246800.0, SCIENTIFIC) <b>&rArr;</b> <span class="stri">"1.2468e+6"</span>,
+                    str(Infinity, SCIENTIFIC) <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    str(-Infinity, SCIENTIFIC) <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    str(NaN, SCIENTIFIC) <b>&rArr;</b> <span class="stri">"NaN"</span> )
+      <span class="func">literal</span>(A)  Conversion to <a class="type" href="#types_string">string</a> in decimal or scientific notation
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    literal(12345.0) <b>&rArr;</b> <span class="stri">"12345.0"</span>,
+                    literal(12000.0) <b>&rArr;</b> <span class="stri">"1.2e+4"</span>,
+                    literal(Infinity) <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    literal(-Infinity) <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    literal(NaN) <b>&rArr;</b> <span class="stri">"NaN"</span> )
       <span class="func">isNaN</span>(A)  Check if A is Not-a-Number
       <span class="func">isNegativeZero</span>(A)   Check if A is negative zero (-0.0)
       <span class="func">isPositiveZero</span>(A)   Check if A is +0.0
@@ -4910,7 +4946,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     str(<span class="stri">'A'</span>) <b>&rArr;</b> <span class="stri">"A"</span> )
       <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
-                    literal(<span class="stri">'A'</span>) <b>&rArr;</b> <span class="stri">"'A'"</span> )
+                    literal(<span class="stri">'A'</span>) <b>&rArr;</b> <span class="stri">"'A'"</span>,
+                    literal(<span class="stri">'\n'</span>) <b>&rArr;</b> <span class="stri">"'\\n'"</span>,
+                    literal(<span class="stri">'\0;'</span>) <b>&rArr;</b> <span class="stri">"'\\0;'"</span> )
       <span class="func">upper</span>(A)  Conversion to upper case character
                   ( upper(<span class="stri">'A'</span>) <b>&rArr;</b> <span class="stri">'A'</span>,
                     upper(<span class="stri">'z'</span>) <b>&rArr;</b> <span class="stri">'Z'</span> )
@@ -5195,7 +5233,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( str(A) <b>&rArr;</b> A )
       <span class="func">literal</span>(A) Conversion to a literal
                   ( literal(<span class="stri">"ABC"</span>) <b>&rArr;</b> <span class="stri">"\"ABC\""</span>,
-                    literal(<span class="stri">"O' \"X\""</span>) <b>&rArr;</b> <span class="stri">"\"O' \\\"X\\\"\""</span> )
+                    literal(<span class="stri">"O' \"X\""</span>) <b>&rArr;</b> <span class="stri">"\"O' \\\"X\\\"\""</span>,
+                    literal(<span class="stri">"A\nB\tC"</span>) <b>&rArr;</b> <span class="stri">"\"A\\nB\\tC\""</span> )
       <span class="func">upper</span>(A)  Conversion to upper case characters
                   ( upper(<span class="stri">"Upper"</span>) <b>&rArr;</b> <span class="stri">"UPPER"</span> )
       <span class="func">lower</span>(A)  Conversion to lower case characters
@@ -7127,6 +7166,13 @@ enable_output(<span class="type">anEnumType</span>);
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
+      <span class="func">startProcess</span>(command, parameters, stdin, stdout, stderr)  Start a new process.
+           Redirect from/to stdin, stdout and stderr.
+                  ( Type of argument command: <a class="type" href="#types_string">string</a>,
+                    Type of argument parameters: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>,
+                    Type of argument stdin: <a class="type" href="#types_file">file</a>,
+                    Type of argument stdout: <a class="type" href="#types_file">file</a>,
+                    Type of argument stderr: <a class="type" href="#types_file">file</a> )
       <span class="func">startProcess</span>(command, parameters)  Start a new process
                   ( Type of argument command: <a class="type" href="#types_string">string</a>,
                     Type of argument parameters: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
@@ -7511,7 +7557,7 @@ integer: number
     Prefix operators:
       <span class="op">symb</span>    Convert into a <a class="link" href="#params_Symbol_parameter">symbol parameter</a>
                   ( Type of result: <span class="type">f_param</span>,
-		    <span class="op_no_ul">symb</span> <span class="type_no_ul">structElement</span>.<span class="var_no_ul">value</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="op_no_ul">symb</span> <span class="type_no_ul">structElement</span>.<span class="var_no_ul">value</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
@@ -8538,7 +8584,7 @@ writeln(name(<a class="type" href="#types_char">char</a>));
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_type">type</a>: shape <span class="keywd">is</span> <span class="keywd">new interface</span>;
 </pre><p>
-  Interface (DYNAMIC) functions describe what can be done
+  Interface (<a name="objects_DYNAMIC">DYNAMIC</a>) functions describe what can be done
   with objects of an interface type. An interface function
   for a <tt><span class="type">shape</span></tt> could be:
 </p><pre class="indent">
@@ -8552,8 +8598,8 @@ writeln(name(<a class="type" href="#types_char">char</a>));
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: radius <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 </pre><p>
-  The fact that the type <tt><span class="type">circle</span></tt> is an implementation type of
-  <tt><span class="type">shape</span></tt> is described with:
+  <a name="objects_type_implements_interface"></a>The fact that <tt><span class="type">circle</span></tt> is an implementation type of the
+  <tt><span class="type">shape</span></tt> interface type is described with:
 </p><pre class="indent">
 type_implements_interface(<span class="type">circle</span>, <span class="type">shape</span>);
 </pre><p>
@@ -8949,7 +8995,7 @@ type_implements_interface(<span class="type">treeElement</span>, <span class="ty
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: addItem (<span class="keywd">inout</span> <span class="type">element</span>: anElem, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: item) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">if</span> anElem = <span class="type">element</span>.NIL <span class="keywd">then</span>
-      anElem := xalloc(<span class="type">treeElement</span>.value);
+      anElem := create(<span class="type">treeElement</span>);
       anElem.item := item;
     <span class="keywd">elsif</span> item < anElem.item <span class="keywd">then</span>
       addItem(anElem.left, item);
@@ -8976,7 +9022,7 @@ type_implements_interface(<span class="type">treeElement</span>, <span class="ty
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  New elements can be created with the function 'xalloc'.
+  New elements can be created with the function 'create'.
   This way interface and implementation types help to provide the
   pointer functionality.
 </p><p>
