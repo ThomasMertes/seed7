@@ -24,7 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: REF_ADDR           is action "REF_ADDR";
 const ACTION: REF_ALLOC          is action "REF_ALLOC";
 const ACTION: REF_ALLOC_INT      is action "REF_ALLOC_INT";
 const ACTION: REF_ALLOC_STRI     is action "REF_ALLOC_STRI";
@@ -109,22 +108,6 @@ const proc: ref_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "objRefType  refSymb (const const_objRefType);");
     declareExtern(c_prog, "typeType    refType (const const_objRefType);");
     declareExtern(c_prog, "objRefType  refValue (const const_objRefType);");
-  end func;
-
-
-const proc: process (REF_ADDR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(void *)(";
-    if valueIsAtHeap(getExprResultType(params[2])) then
-      process_expr(params[2], c_expr);
-    else
-      c_expr.expr &:= "&(";
-      process_expr(params[2], c_expr);
-      c_expr.expr &:= ")";
-    end if;
-    c_expr.expr &:= ")";
   end func;
 
 

@@ -25,7 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType ref_addr          (listType arguments);
 objectType ref_alloc         (listType arguments);
 objectType ref_alloc_int     (listType arguments);
 objectType ref_alloc_stri    (listType arguments);

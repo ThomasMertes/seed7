@@ -66,17 +66,6 @@
 
 
 
-objectType ref_addr (listType arguments)
-
-  { /* ref_addr */
-    logFunction(printf("ref_addr(");
-                trace1(arg_2(arguments));
-                printf(")\n"););
-    return bld_reference_temp(arg_2(arguments));
-  } /* ref_addr */
-
-
-
 objectType ref_alloc (listType arguments)
 
   { /* ref_alloc */
