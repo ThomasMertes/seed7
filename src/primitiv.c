@@ -815,7 +815,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_LINE",                     ref_line,                     },
     { "REF_LOCAL_CONSTS",             ref_local_consts,             },
     { "REF_LOCAL_VARS",               ref_local_vars,               },
-    { "REF_MKREF",                    ref_mkref,                    },
     { "REF_NE",                       ref_ne,                       },
     { "REF_NIL",                      ref_nil,                      },
     { "REF_NUM",                      ref_num,                      },

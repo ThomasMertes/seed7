@@ -560,30 +560,6 @@ objectType ref_local_vars (listType arguments)
 
 
 
-objectType ref_mkref (listType arguments)
-
-  {
-    objectType refe_to;
-    objectType refe_from;
-
-  /* ref_mkref */
-    refe_to = arg_1(arguments);
-    refe_from = arg_3(arguments);
-    isit_reference(refe_to);
-/*  is_variable(refe_to); */
-/*
-printf("ASSIGN ");
-trace2(arg_3(arguments));
-printf("\nTO ");
-trace2(refe_to);
-*/
-/* FIX !!!!! @@@@@ ##### $$$$$ %%%%% ^^^^^ &&&&& */
-    refe_to->value.objValue = refe_from;
-    return SYS_EMPTY_OBJECT;
-  } /* ref_mkref */
-
-
-
 /**
  *  Check if two references are not equal.
  *  @return FALSE if both references are equal,

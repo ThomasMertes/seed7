@@ -56,7 +56,6 @@ objectType ref_itftosct      (listType arguments);
 objectType ref_line          (listType arguments);
 objectType ref_local_consts  (listType arguments);
 objectType ref_local_vars    (listType arguments);
-objectType ref_mkref         (listType arguments);
 objectType ref_ne            (listType arguments);
 objectType ref_nil           (listType arguments);
 objectType ref_num           (listType arguments);
