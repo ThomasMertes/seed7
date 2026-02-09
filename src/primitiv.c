@@ -794,7 +794,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_ARRMINIDX",                ref_arrminidx,                },
     { "REF_ARRTOLIST",                ref_arrtolist,                },
     { "REF_BODY",                     ref_body,                     },
-    { "REF_CAST",                     ref_cast,                     },
     { "REF_CATEGORY",                 ref_category,                 },
     { "REF_CAT_PARSE",                ref_cat_parse,                },
     { "REF_CAT_STR",                  ref_cat_str,                  },

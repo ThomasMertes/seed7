@@ -34,7 +34,6 @@ objectType ref_arrmaxidx     (listType arguments);
 objectType ref_arrminidx     (listType arguments);
 objectType ref_arrtolist     (listType arguments);
 objectType ref_body          (listType arguments);
-objectType ref_cast          (listType arguments);
 objectType ref_category      (listType arguments);
 objectType ref_cat_parse     (listType arguments);
 objectType ref_cat_str       (listType arguments);

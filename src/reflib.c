@@ -211,15 +211,6 @@ objectType ref_body (listType arguments)
 
 
 
-objectType ref_cast (listType arguments)
-
-  { /* ref_cast */
-    /* The reference value is taken as int on purpose */
-    return bld_int_temp(take_int(arg_3(arguments)));
-  } /* ref_cast */
-
-
-
 /**
  *  Get the category of a referenced object.
  *  @return the category of the referenced object.
