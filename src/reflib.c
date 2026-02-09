@@ -364,23 +364,6 @@ objectType ref_create (listType arguments)
 
 
 
-objectType ref_deref (listType arguments)
-
-  {
-    objectType result;
-
-  /* ref_deref */
-    isit_reference(arg_1(arguments));
-    result = take_reference(arg_1(arguments));
-    if (unlikely(result == NULL)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      return result;
-    } /* if */
-  } /* ref_deref */
-
-
-
 /**
  *  Check if two references are equal.
  *  @return TRUE if both references are equal,

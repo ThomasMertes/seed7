@@ -39,7 +39,6 @@ const ACTION: REF_CAT_PARSE      is action "REF_CAT_PARSE";
 const ACTION: REF_CAT_STR        is action "REF_CAT_STR";
 const ACTION: REF_CMP            is action "REF_CMP";
 const ACTION: REF_CPY            is action "REF_CPY";
-const ACTION: REF_DEREF          is action "REF_DEREF";
 const ACTION: REF_EQ             is action "REF_EQ";
 const ACTION: REF_FILE           is action "REF_FILE";
 const ACTION: REF_GETREF         is action "REF_GETREF";
@@ -299,18 +298,6 @@ const proc: process (REF_CPY, in reference: function,
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
-  end func;
-
-
-const proc: process (REF_DEREF, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "/*ref_deref*/ *((";
-    c_expr.expr &:= type_name(resultType(getType(function)));
-    c_expr.expr &:= " *)(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= "))";
   end func;
 
 

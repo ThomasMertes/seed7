@@ -44,7 +44,6 @@ objectType ref_content       (listType arguments);
 objectType ref_conv          (listType arguments);
 objectType ref_cpy           (listType arguments);
 objectType ref_create        (listType arguments);
-objectType ref_deref         (listType arguments);
 objectType ref_eq            (listType arguments);
 objectType ref_file          (listType arguments);
 objectType ref_getref        (listType arguments);

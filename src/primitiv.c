@@ -803,7 +803,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_CONTENT",                  ref_content,                  },
     { "REF_CPY",                      ref_cpy,                      },
     { "REF_CREATE",                   ref_create,                   },
-    { "REF_DEREF",                    ref_deref,                    },
     { "REF_EQ",                       ref_eq,                       },
     { "REF_FILE",                     ref_file,                     },
     { "REF_GETREF",                   ref_getref,                   },

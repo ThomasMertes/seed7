@@ -1486,8 +1486,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_CMP, function, params, c_expr);
       when {"REF_CPY"}:
         process(REF_CPY, function, params, c_expr);
-      when {"REF_DEREF"}:
-        process(REF_DEREF, function, params, c_expr);
       when {"REF_EQ"}:
         process(REF_EQ, function, params, c_expr);
       when {"REF_FILE"}:
