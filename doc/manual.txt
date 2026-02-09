@@ -102,16 +102,15 @@ CONTENTS
   5.32    structElement
   5.33    program
   5.34    parseError
-  5.35    ptr
-  5.36    func
-  5.37    varfunc
-  5.38    void
-  5.39    proc
-  5.40    creator
-  5.41    destroyer
-  5.42    type
-  5.43    object
-  5.44    expr
+  5.35    func
+  5.36    varfunc
+  5.37    void
+  5.38    proc
+  5.39    creator
+  5.40    destroyer
+  5.41    type
+  5.42    object
+  5.43    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -5610,8 +5609,6 @@ to 'newFile'.
     Infix operators:
       .         Access Element of STRUCT
                   ( example.element )
-      ->        Access Element of ptr STRUCT
-                  ( example->element )
     Relations:
       =, <>
     Statements:
@@ -7426,34 +7423,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.35 ptr
-
-    The type 'ptr baseType' describes a pointer to an object
-  of a 'baseType'. With
-
-    const type: ptrType is ptr baseType;
-
-  a new pointer type 'ptrType' is declared.
-
-    Constants:
-      ptrType.NIL   Reference to no element
-    Prefix operators:
-      &         Address of
-                  ( Type of operand: baseType )
-    Postfix operators:
-      ^         Dereference
-                  ( Type of result: baseType )
-    Infix operators:
-      ptrType conv A  Conversion from reference A to ptrType
-      reference conv A  Conversion from ptrType A to reference
-    Relations:
-      =, <>
-    Functions:
-      base_type(ptrType)  Gets the baseType of a ptrType
-                  ( Type of argument ptrType: type )
-
-
-5.36 func
+5.35 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -7542,7 +7512,7 @@ to 'newFile'.
   parameter is TRUE.
 
 
-5.37 varfunc
+5.36 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -7575,7 +7545,7 @@ to 'newFile'.
   and structs can be used in the usual way.
 
 
-5.38 void
+5.37 void
 
     The type 'void' describes the empty type.
 
@@ -7585,7 +7555,7 @@ to 'newFile'.
       void.value  Default value of void (empty)
 
 
-5.39 proc
+5.38 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -7622,7 +7592,7 @@ to 'newFile'.
                     Type of result: proc )
 
 
-5.40 creator
+5.39 creator
 
     The type 'creator' describes create operators. Create operators ( ::= )
   are used for initializations. They are similar to assignment statements
@@ -7658,7 +7628,7 @@ to 'newFile'.
         number ::= 1;
 
 
-5.41 destroyer
+5.40 destroyer
 
     The type 'destroyer' describes destroy operations. Destroy operations are
   used to free data. They are not called explicitly. Destroy operations are
@@ -7687,7 +7657,7 @@ to 'newFile'.
         destroy(number);
 
 
-5.42 type
+5.41 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -7731,8 +7701,6 @@ to 'newFile'.
                   ( func char => Function which returns a char )
       varfunc   Varfunc type
                   ( varfunc char => Function which returns a char variable )
-      ptr       Pointer type
-                  ( ptr bitset => Pointer to bitset )
       array     Array type
                   ( array string => Array of strings )
       set of    Set type
@@ -7777,7 +7745,6 @@ to 'newFile'.
       base_type(A)  Get the base type of an array, pointer or
                     set type
                   ( base_type(array char) => char,
-                    base_type(ptr string) => string,
                     base_type(set of integer) => integer )
       typeNumber(A)  Get an unique number for a type
                   ( Type of result: integer )
@@ -7796,7 +7763,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.43 object
+5.42 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7809,7 +7776,7 @@ to 'newFile'.
       TRACE_OBJ(A)  Write internal information
 
 
-5.44 expr
+5.43 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
