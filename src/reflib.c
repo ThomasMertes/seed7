@@ -641,14 +641,6 @@ objectType ref_path (listType arguments)
 
 
 
-objectType ref_prog (listType arguments)
-
-  { /* ref_prog */
-    return bld_reference_temp(NULL);
-  } /* ref_prog */
-
-
-
 /**
  *  Gets the initialization value of the result variable of funcRef/arg_1.
  *  @return a reference to the initialization value.
