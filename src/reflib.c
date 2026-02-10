@@ -681,48 +681,6 @@ objectType ref_result (listType arguments)
 
 
 
-objectType ref_scan (listType arguments)
-
-  {
-    striType str1;
-    objectType obj_variable;
-    cstriType name;
-    identType ident_found;
-    errInfoType err_info = OKAY_NO_ERROR;
-    objectType result;
-
-  /* ref_scan */
-    isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    obj_variable = arg_2(arguments);
-    isit_reference(obj_variable);
-    is_variable(obj_variable);
-    name = stri_to_cstri8(str1, &err_info);
-    if (name == NULL) {
-      raise_error(err_info);
-      result = NULL;
-    } else {
-      ident_found = get_ident(prog, (const_ustriType) name);
-      free_cstri8(name, str1);
-      if (ident_found == NULL ||
-          ident_found->entity == NULL ||
-          ident_found->entity->data.owner == NULL) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        if (ident_found->entity->data.owner->obj != NULL) {
-          obj_variable->value.objValue = ident_found->entity->data.owner->obj;
-          result = SYS_TRUE_OBJECT;
-        } else {
-          obj_variable->value.objValue = ident_found->entity->syobject;
-          result = SYS_TRUE_OBJECT;
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* ref_scan */
-
-
-
 objectType ref_scttolist (listType arguments)
 
   { /* ref_scttolist */

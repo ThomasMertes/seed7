@@ -63,7 +63,6 @@ objectType ref_path          (listType arguments);
 objectType ref_prog          (listType arguments);
 objectType ref_resini        (listType arguments);
 objectType ref_result        (listType arguments);
-objectType ref_scan          (listType arguments);
 objectType ref_scttolist     (listType arguments);
 objectType ref_select        (listType arguments);
 objectType ref_setcategory   (listType arguments);

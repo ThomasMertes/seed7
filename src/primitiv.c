@@ -822,7 +822,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_PROG",                     ref_prog,                     },
     { "REF_RESINI",                   ref_resini,                   },
     { "REF_RESULT",                   ref_result,                   },
-    { "REF_SCAN",                     ref_scan,                     },
     { "REF_SCTTOLIST",                ref_scttolist,                },
     { "REF_SELECT",                   ref_select,                   },
     { "REF_SETCATEGORY",              ref_setcategory,              },
