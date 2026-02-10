@@ -798,7 +798,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_CAT_PARSE",                ref_cat_parse,                },
     { "REF_CAT_STR",                  ref_cat_str,                  },
     { "REF_CMP",                      ref_cmp,                      },
-    { "REF_CONTENT",                  ref_content,                  },
     { "REF_CPY",                      ref_cpy,                      },
     { "REF_CREATE",                   ref_create,                   },
     { "REF_EQ",                       ref_eq,                       },

@@ -286,21 +286,6 @@ objectType ref_cmp (listType arguments)
 
 
 
-objectType ref_content (listType arguments)
-
-  {
-    objectType obj_arg1;
-    listType result;
-
-  /* ref_content */
-    obj_arg1 = arg_1(arguments);
-    isit_reference(obj_arg1);
-    result = NULL;
-    return bld_reflist_temp(result);
-  } /* ref_content */
-
-
-
 /**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.

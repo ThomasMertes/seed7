@@ -38,7 +38,6 @@ objectType ref_category      (listType arguments);
 objectType ref_cat_parse     (listType arguments);
 objectType ref_cat_str       (listType arguments);
 objectType ref_cmp           (listType arguments);
-objectType ref_content       (listType arguments);
 objectType ref_conv          (listType arguments);
 objectType ref_cpy           (listType arguments);
 objectType ref_create        (listType arguments);
