@@ -4783,22 +4783,22 @@ static void determineAddVectoredExceptionHandler (FILE *versionFile)
   { /* determineAddVectoredExceptionHandler */
     fprintf(versionFile, "#define HAS_VECTORED_EXCEPTION_HANDLER %d\n",
             compileAndLinkOk("#define _WIN32_WINNT 0x500\n"
-                            "#include <windows.h>\n#include <stdio.h>\n"
-                            "#include <setjmp.h>\n"
-                            "jmp_buf jump_buffer;\n"
-                            "LONG WINAPI stackOverflowHandler (PEXCEPTION_POINTERS pExp) {\n"
-                            "  longjmp(jump_buffer, 1); return 0; }\n"
-                            "void stackOverflow (unsigned int param) {\n"
-                            "  stackOverflow(param + 1); }\n"
-                            "int main (int argc, char *argv[]) {\n"
-                            "  int jmpret;\n"
-                            "  AddVectoredExceptionHandler(1, stackOverflowHandler);\n"
-                            "  if ((jmpret = setjmp(jump_buffer)) == 0 ) {\n"
-                            "    stackOverflow(1);\n"
-                            "    printf(\"0\\n\");\n"
-                            "  } else {\n"
-                            "    printf(\"%d\\n\", jmpret);\n"
-                            "  } return 0; }\n") && doTest() == 1);
+                             "#include <windows.h>\n#include <stdio.h>\n"
+                             "#include <setjmp.h>\n"
+                             "jmp_buf jump_buffer;\n"
+                             "LONG WINAPI stackOverflowHandler (PEXCEPTION_POINTERS pExp) {\n"
+                             "  longjmp(jump_buffer, 1); return 0; }\n"
+                             "void stackOverflow (unsigned int param) {\n"
+                             "  stackOverflow(param + 1); }\n"
+                             "int main (int argc, char *argv[]) {\n"
+                             "  int jmpret;\n"
+                             "  AddVectoredExceptionHandler(1, stackOverflowHandler);\n"
+                             "  if ((jmpret = setjmp(jump_buffer)) == 0 ) {\n"
+                             "    stackOverflow(1);\n"
+                             "    printf(\"0\\n\");\n"
+                             "  } else {\n"
+                             "    printf(\"%d\\n\", jmpret);\n"
+                             "  } return 0; }\n") && doTest() == 1);
   } /* determineAddVectoredExceptionHandler */
 
 
