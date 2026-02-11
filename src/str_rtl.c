@@ -2273,19 +2273,13 @@ striType strConcatChar (const const_striType stri1, const charType aChar)
                 fflush(stdout););
     /* Incrementing a string size cannot overflow. */
     result_size = stri1->size + 1;
-    if (unlikely(result_size > MAX_STRI_LEN)) {
-      /* number of bytes does not fit into memSizeType */
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        memcpy(result->mem, stri1->mem,
-               stri1->size * sizeof(strElemType));
-        result->mem[stri1->size] = aChar;
-      } /* if */
+      result->size = result_size;
+      memcpy(result->mem, stri1->mem,
+             stri1->size * sizeof(strElemType));
+      result->mem[stri1->size] = aChar;
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
