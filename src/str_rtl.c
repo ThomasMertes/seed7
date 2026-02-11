@@ -1526,8 +1526,8 @@ void strAppendN (striType *const destination,
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strAppendNoOverlap (striType *const destination,
-    const const_striType extension)
+void strAppendNoOverlap (striType *const restrict destination,
+    const const_striType restrict extension)
 
   {
     memSizeType new_size;
@@ -1700,7 +1700,8 @@ void strAppendZeroMult (striType *const destination, const intType factor)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strAppendTemp (striType *const destination, const striType extension)
+void strAppendTemp (striType *const restrict destination,
+    const striType restrict extension)
 
   {
     striType stri_dest;
@@ -2410,7 +2411,8 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
  *  if 'stri1' is temporary value that can be reused.
  *  @return the resized parameter 'stri1.
  */
-striType strConcatTemp (striType stri1, const const_striType stri2)
+striType strConcatTemp (striType restrict stri1,
+    const const_striType restrict stri2)
 
   {
     memSizeType result_size;
