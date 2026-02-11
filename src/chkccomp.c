@@ -1921,7 +1921,14 @@ static void writeMacroDefs (FILE *versionFile)
                           "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA + *ptrB;}\n"
                           "int main(int argc,char *argv[])\n"
                           "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
-      fputs("#define restrict\n", versionFile);
+      if (compileAndLinkOk("int test (int *__restrict__ ptrA, int *__restrict__ ptrB, int *__restrict__ ptrC)\n"
+                           "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA + *ptrB;}\n"
+                           "int main(int argc,char *argv[])\n"
+                           "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
+        fputs("#define restrict __restrict__\n", versionFile);
+      } else {
+        fputs("#define restrict\n", versionFile);
+      } /* if */
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                          "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");\n"
