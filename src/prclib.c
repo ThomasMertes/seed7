@@ -996,46 +996,6 @@ objectType prc_dynamic (listType arguments)
 
 
 
-objectType prc_err_file (listType arguments)
-
-  {
-    striType file_name;
-
-  /* prc_err_file */
-    logMessage(printf("error_file: %s\n", error_file););
-    if (error_file != NULL) {
-      file_name = cstri8_or_cstri_to_stri(error_file);
-      if (unlikely(file_name == NULL)) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } /* if */
-    } else {
-      file_name = strCreate(get_file_name(prog, fail_file_number));
-    } /* if */
-    logFunction(printf("prc_err_file --> \"%s\"\n",
-                       striAsUnquotedCStri(file_name)););
-    return bld_stri_temp(file_name);
-  } /* prc_err_file */
-
-
-
-objectType prc_err_line (listType arguments)
-
-  {
-    intType line;
-
-  /* prc_err_line */
-    logMessage(printf("error_line: %d\n", error_line););
-    if (error_line != 0) {
-      line = (intType) error_line;
-    } else {
-      line = (intType) fail_line_number;
-    } /* if */
-    logFunction(printf("prc_err_line --> " FMT_D "\n", line););
-    return bld_int_temp(line);
-  } /* prc_err_line */
-
-
-
 objectType prc_exit (listType arguments)
 
   {

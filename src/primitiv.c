@@ -727,8 +727,6 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_DECLS",                    prc_decls,                    },
     { "PRC_DESTR",                    prc_destr,                    },
     { "PRC_DYNAMIC",                  prc_dynamic,                  },
-    { "PRC_ERR_FILE",                 prc_err_file,                 },
-    { "PRC_ERR_LINE",                 prc_err_line,                 },
     { "PRC_EXIT",                     prc_exit,                     },
     { "PRC_FOR_DOWNTO",               prc_for_downto,               },
     { "PRC_FOR_DOWNTO_STEP",          prc_for_downto_step,          },

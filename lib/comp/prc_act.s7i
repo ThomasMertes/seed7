@@ -34,8 +34,6 @@ const ACTION: PRC_CASE_HASHSET     is action "PRC_CASE_HASHSET";
 const ACTION: PRC_CASE_HASHSET_DEF is action "PRC_CASE_HASHSET_DEF";
 const ACTION: PRC_CPY              is action "PRC_CPY";
 const ACTION: PRC_DYNAMIC          is action "PRC_DYNAMIC";
-const ACTION: PRC_ERR_FILE         is action "PRC_ERR_FILE";
-const ACTION: PRC_ERR_LINE         is action "PRC_ERR_LINE";
 const ACTION: PRC_EXIT             is action "PRC_EXIT";
 const ACTION: PRC_FOR_DOWNTO       is action "PRC_FOR_DOWNTO";
 const ACTION: PRC_FOR_DOWNTO_STEP  is action "PRC_FOR_DOWNTO_STEP";
@@ -67,7 +65,6 @@ const proc: prc_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "void        heapStatistic (void);");
     declareExtern(c_prog, "void        prcGetRunError (intType *, striType *, intType *);");
-    declareExtern(c_prog, "striType    cstri8_or_cstri_to_stri (const_cstriType);");
     if ccConf.HAS_VECTORED_EXCEPTION_HANDLER then
       declareExtern(c_prog, "void        resetExceptionCheck (void);");
     else
@@ -1175,32 +1172,6 @@ const proc: process (PRC_DYNAMIC, in reference: function,
 
   begin
     process_func_call(function, params, c_expr);
-  end func;
-
-
-const proc: process (PRC_ERR_FILE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var string: resultName is "";
-  begin
-    prepare_stri_result(c_expr);
-    resultName := defineTempVariable("striType", "name_", c_expr);
-    c_expr.result_expr := "(error_file==NULL?strEmpty():(memChk((";
-    c_expr.result_expr &:= resultName;
-    c_expr.result_expr &:= "=cstri8_or_cstri_to_stri(error_file))==NULL)?";
-    c_expr.result_expr &:= strRaiseError("MEMORY_ERROR");
-    c_expr.result_expr &:= ":";
-    c_expr.result_expr &:= resultName;
-    c_expr.result_expr &:= "))";
-  end func;
-
-
-const proc: process (PRC_ERR_LINE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(intType) error_line";
   end func;
 
 
