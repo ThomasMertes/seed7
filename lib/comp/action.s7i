@@ -804,12 +804,16 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ENU_EQ, function, params, c_expr);
       when {"ENU_ICONV2"}:
         process(ENU_ICONV2, function, params, c_expr);
+      when {"ENU_ICONV3_EXCEPT"}:
+        process(ENU_ICONV3_EXCEPT, function, params, c_expr);
       when {"ENU_LIT"}:
         process(ENU_LIT, function, params, c_expr);
       when {"ENU_NE"}:
         process(ENU_NE, function, params, c_expr);
       when {"ENU_ORD2"}:
         process(ENU_ORD2, function, params, c_expr);
+      when {"ENU_ORD_EXCEPT"}:
+        process(ENU_ORD_EXCEPT, function, params, c_expr);
       when {"ENU_VALUE"}:
         process(ENU_VALUE, function, params, c_expr);
       when {"FIL_BIG_LNG"}:
