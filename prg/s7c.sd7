@@ -2596,7 +2596,6 @@ const proc: declare_exception_name (inout expr_type: c_expr) is func
     exceptionRef := sysVar(prog, "memory_error");
     enumType := getType(exceptionRef);
     c_expr.expr &:=  "static const char *exception_name[] = {\n";
-    c_expr.expr &:=  "    \"OKAY_NO_ERROR\",\n";
     enumsByIntValue := flip(typeData.enum_literal[enumType]);
     # Sort by integer values to always produce the same C code
     for intValueOfEnum range sort(keys(enumsByIntValue)) do
