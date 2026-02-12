@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+extern int exception_number;
 extern const char *error_file;
 extern int error_line;
 

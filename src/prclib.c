@@ -78,6 +78,7 @@ typedef longjmpPosition catch_type;
 extern catch_type *catch_stack;
 extern size_t catch_stack_pos;
 extern size_t max_catch_stack;
+extern objectType last_exception;
 
 
 
@@ -1190,6 +1191,58 @@ objectType prc_for_to_step (listType arguments)
     } /* while */
     return SYS_EMPTY_OBJECT;
   } /* prc_for_to_step */
+
+
+
+objectType prc_get_run_error (listType arguments)
+
+  {
+    int exceptionNum;
+    striType file_name;
+    intType line;
+
+  /* prc_get_run_error */
+    logMessage(printf("prc_get_run_error\n"););
+    isit_int(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    logMessage(printf("prc_get_run_error: last_exception: ");
+               trace1(last_exception);
+               printf("\n"););
+    if (exception_number == 0 && last_exception != NULL) {
+      for (exceptionNum = FIRST_EXCEPTION_SYS_VAR;
+           exceptionNum <= LAST_EXCEPTION_SYS_VAR;
+           exceptionNum++) {
+        if (prog->sys_var[exceptionNum] == last_exception) {
+          exception_number = exceptionNum;
+          exceptionNum = LAST_EXCEPTION_SYS_VAR;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (error_file != NULL) {
+      file_name = cstri8_or_cstri_to_stri(error_file);
+    } else {
+      file_name = strCreate(get_file_name(prog, fail_file_number));
+    } /* if */
+    if (unlikely(file_name == NULL)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      if (error_line != 0) {
+        line = (intType) error_line;
+      } else {
+        line = (intType) fail_line_number;
+      } /* if */
+      arg_1(arguments)->value.intValue = (intType) exception_number;
+      strDestr(take_stri(arg_2(arguments)));
+      arg_2(arguments)->value.striValue = file_name;
+      arg_3(arguments)->value.intValue = line;
+    } /* if */
+    logFunction(printf("prc_get_run_error --> " FMT_D " %s(" FMT_D ")\n",
+                       (intType) exception_number,
+                       striAsUnquotedCStri(file_name),
+                       line););
+    return SYS_EMPTY_OBJECT;
+  } /* prc_get_run_error */
 
 
 

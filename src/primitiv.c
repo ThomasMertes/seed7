@@ -734,6 +734,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_FOR_DOWNTO_STEP",          prc_for_downto_step,          },
     { "PRC_FOR_TO",                   prc_for_to,                   },
     { "PRC_FOR_TO_STEP",              prc_for_to_step,              },
+    { "PRC_GET_RUN_ERROR",            prc_get_run_error,            },
     { "PRC_HEAPSTAT",                 prc_heapstat,                 },
     { "PRC_HSIZE",                    prc_hsize,                    },
     { "PRC_IF",                       prc_if,                       },

@@ -41,6 +41,7 @@ const ACTION: PRC_FOR_DOWNTO       is action "PRC_FOR_DOWNTO";
 const ACTION: PRC_FOR_DOWNTO_STEP  is action "PRC_FOR_DOWNTO_STEP";
 const ACTION: PRC_FOR_TO           is action "PRC_FOR_TO";
 const ACTION: PRC_FOR_TO_STEP      is action "PRC_FOR_TO_STEP";
+const ACTION: PRC_GET_RUN_ERROR    is action "PRC_GET_RUN_ERROR";
 const ACTION: PRC_HEAPSTAT         is action "PRC_HEAPSTAT";
 const ACTION: PRC_HSIZE            is action "PRC_HSIZE";
 const ACTION: PRC_IF               is action "PRC_IF";
@@ -65,6 +66,7 @@ const proc: prc_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "void        heapStatistic (void);");
+    declareExtern(c_prog, "void        prcGetRunError (intType *, striType *, intType *);");
     declareExtern(c_prog, "striType    cstri8_or_cstri_to_stri (const_cstriType);");
     if ccConf.HAS_VECTORED_EXCEPTION_HANDLER then
       declareExtern(c_prog, "void        resetExceptionCheck (void);");
@@ -1210,6 +1212,20 @@ const proc: process (PRC_EXIT, in reference: function,
     c_expr.expr &:= "doExit(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (PRC_GET_RUN_ERROR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "prcGetRunError(&(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 

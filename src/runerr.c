@@ -63,6 +63,8 @@
 #include "runerr.h"
 
 
+objectType last_exception = NULL;
+int exception_number;
 const char *error_file = NULL;
 int error_line = 0;
 
@@ -441,6 +443,11 @@ objectType raise_with_obj_and_args (objectType exception,
       prot_nl(); */
     } /* if */
     set_fail_flag(TRUE);
+    last_exception = fail_value;
+    logMessage(printf("raise_with_obj_and_args: last_exception: ");
+               trace1(last_exception);
+               printf("\n"););
+    exception_number = 0;
     error_file = NULL;
     error_line = 0;
     logFunction(printf("raise_with_obj_and_args -->\n"););
@@ -476,6 +483,7 @@ void interprRaiseError (int exception_num, const_cstriType fileName, int line)
     logFunction(printf("interprRaiseError(%d, \"%s\", %d)\n",
                        exception_num, fileName, line););
     (void) raise_exception(prog->sys_var[exception_num]);
+    exception_number = exception_num;
     error_file = fileName;
     error_line = line;
   } /* interprRaiseError */

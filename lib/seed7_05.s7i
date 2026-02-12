@@ -1018,6 +1018,33 @@ const func boolean: succeeds (ref proc: statement) is func
     end block;
   end func;
 
+(**
+ *  Type to describe the run-time error which raised an exception.
+ *  It contains information about the exception, file and line.
+ *)
+const type: runError is new struct
+    var EXCEPTION: error is MEMORY_ERROR;
+    var string: fileName is "";
+    var integer: lineNumber is 0;
+  end struct;
+
+const proc: GET_RUN_ERROR (inout integer: errorNumber,
+    inout string: fileName, inout integer: lineNumber) is action "PRC_GET_RUN_ERROR";
+
+(**
+ *  Get the error details of the last exception.
+ *  @return the run-time error details.
+ *)
+const func runError: getRunError is func
+  result
+    var runError: error is runError.value;
+  local
+    var integer: errorNumber is 0;
+  begin
+    GET_RUN_ERROR(errorNumber, error.fileName, error.lineNumber);
+    error.error := EXCEPTION conv errorNumber;
+  end func;
+
 
 (* ARGS + ENV *)
 

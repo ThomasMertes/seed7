@@ -48,6 +48,8 @@
 #include "data_rtl.h"
 #include "os_decls.h"
 #include "sigutl.h"
+#include "striutl.h"
+#include "str_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -211,6 +213,7 @@ void no_memory (const_cstriType source_file, int source_line)
 
   { /* no_memory */
     logFunction(printf("no_memory(\"%s\", %d)\n", source_file, source_line););
+    exception_number = MEMORY_ERROR;
     error_file = source_file;
     error_line = source_line;
     if (catch_stack_pos > 0) {
@@ -224,6 +227,32 @@ void no_memory (const_cstriType source_file, int source_line)
       os_exit(1);
     } /* if */
   } /* no_memory */
+
+
+
+void prcGetRunError (intType *exceptionNumber, striType *fileName,
+    intType *lineNumber)
+
+  {
+    striType file_name;
+
+  /* prcGetRunError */
+    logMessage(printf("prcGetRunError\n"););
+    if (error_file != NULL) {
+      file_name = cstri8_or_cstri_to_stri(error_file);
+    } else {
+      file_name = cstri_to_stri("");
+    } /* if */
+    if (unlikely(file_name == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      *exceptionNumber = (intType) exception_number;
+      strDestr(*fileName);
+      *fileName = file_name;
+      *lineNumber = (intType) error_line;
+    } /* if */
+    logFunction(printf("prcGetRunError --> \n"););
+  } /* prcGetRunError */
 
 
 

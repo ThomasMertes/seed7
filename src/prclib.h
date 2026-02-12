@@ -47,6 +47,7 @@ objectType prc_for_downto       (listType arguments);
 objectType prc_for_downto_step  (listType arguments);
 objectType prc_for_to           (listType arguments);
 objectType prc_for_to_step      (listType arguments);
+objectType prc_get_run_error    (listType arguments);
 objectType prc_heapstat         (listType arguments);
 objectType prc_hsize            (listType arguments);
 objectType prc_if               (listType arguments);

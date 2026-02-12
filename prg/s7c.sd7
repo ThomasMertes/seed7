@@ -2637,6 +2637,7 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     declare_exception_name(c_expr);
     if not programUses.compilerLibrary then
+      c_expr.expr &:= "int exception_number;\n";
       c_expr.expr &:= "const char *error_file = NULL;\n";
       c_expr.expr &:= "int error_line = 0;\n\n";
     end if;
@@ -6012,6 +6013,7 @@ const proc: write_file_head is func
     writeln(c_prog, "extern catch_type *catch_stack;");
     writeln(c_prog, "extern size_t catch_stack_pos;");
     writeln(c_prog, "extern size_t max_catch_stack;");
+    writeln(c_prog, "extern int exception_number;");
     writeln(c_prog, "extern const char *error_file;");
     writeln(c_prog, "extern int error_line;");
     writeln(c_prog, "intType ustriCmpGeneric (const genericType value1, const genericType value2);");
@@ -8051,6 +8053,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "    triggerSigfpe();\n";
       c_expr.expr &:= "  }\n";
     end if;
+    c_expr.expr &:= "  exception_number = fail_value;\n";
     c_expr.expr &:= "  error_file = file_name;\n";
     c_expr.expr &:= "  error_line = line_number;\n";
     if config.signal_exception then

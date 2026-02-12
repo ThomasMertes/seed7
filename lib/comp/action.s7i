@@ -1384,6 +1384,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_FOR_TO, function, params, c_expr);
       when {"PRC_FOR_TO_STEP"}:
         process(PRC_FOR_TO_STEP, function, params, c_expr);
+      when {"PRC_GET_RUN_ERROR"}:
+        process(PRC_GET_RUN_ERROR, function, params, c_expr);
       when {"PRC_HEAPSTAT"}:
         process(PRC_HEAPSTAT, function, params, c_expr);
       when {"PRC_HSIZE"}:
