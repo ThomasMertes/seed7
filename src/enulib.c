@@ -181,6 +181,29 @@ objectType enu_iconv2 (listType arguments)
 
 
 
+objectType enu_iconv3_except (listType arguments)
+
+  {
+    intType exceptionNum;
+    objectType result;
+
+  /* enu_iconv3_except */
+    isit_int(arg_3(arguments));
+    exceptionNum = take_int(arg_3(arguments));
+    logFunction(printf("enu_iconv3_except(" FMT_D ")\n", exceptionNum););
+    if (exceptionNum > OKAY_NO_ERROR && exceptionNum <= ACTION_ERROR) {
+      result = prog->sys_var[exceptionNum];
+    } else {
+      logError(printf("enu_iconv3_except(" FMT_D "): "
+                      "Exception number not in allowed range.",
+                      exceptionNum););
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return result;
+  } /* enu_iconv3_except */
+
+
+
 objectType enu_lit (listType arguments)
 
   {
@@ -262,6 +285,33 @@ objectType enu_ord2 (listType arguments)
     } /* if */
     return result;
   } /* enu_ord2 */
+
+
+
+objectType enu_ord_except (listType arguments)
+
+  {
+    objectType enum_value;
+    int exceptionNum;
+    objectType result = NULL;
+
+  /* enu_ord_except */
+    isit_enum(arg_1(arguments));
+    enum_value = take_enum(arg_1(arguments));
+    for (exceptionNum = FIRST_EXCEPTION_SYS_VAR;
+         exceptionNum <= LAST_EXCEPTION_SYS_VAR;
+         exceptionNum++) {
+      if (prog->sys_var[exceptionNum] == enum_value) {
+        result = bld_int_temp(exceptionNum);
+        exceptionNum = LAST_EXCEPTION_SYS_VAR;
+      } /* if */
+    } /* for */
+    if (unlikely(result == NULL)) {
+      logError(printf("enu_ord_except: Not a valid exception value."););
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return result;
+  } /* enu_ord_except */
 
 
 
