@@ -2199,6 +2199,7 @@ static void numericSizes (FILE *versionFile)
     int sizeof_short;
     int sizeof_int64;
     int sizeof_gid_t;
+    int sizeof_pid_t;
     int sizeof_uid_t;
 
   /* numericSizes */
@@ -2222,6 +2223,7 @@ static void numericSizes (FILE *versionFile)
     sizeof_float     = getSizeof("float");
     sizeof_double    = getSizeof("double");
     sizeof_gid_t     = getSizeof("gid_t");
+    sizeof_pid_t     = getSizeof("pid_t");
     sizeof_uid_t     = getSizeof("uid_t");
 
     fprintf(versionFile, "#define CHAR_SIZE %d\n",        char_bit * sizeof_char);
@@ -2243,6 +2245,10 @@ static void numericSizes (FILE *versionFile)
     if (sizeof_gid_t > 0) {
       fprintf(versionFile, "#define GID_T_SIZE %d\n",     char_bit * sizeof_gid_t);
       fprintf(versionFile, "#define GID_T_SIGNED %d\n", isSignedType("gid_t"));
+    } /* if */
+    if (sizeof_pid_t > 0) {
+      fprintf(versionFile, "#define PID_T_SIZE %d\n",     char_bit * sizeof_pid_t);
+      fprintf(versionFile, "#define PID_T_SIGNED %d\n", isSignedType("pid_t"));
     } /* if */
     if (sizeof_uid_t > 0) {
       fprintf(versionFile, "#define UID_T_SIZE %d\n",     char_bit * sizeof_uid_t);
