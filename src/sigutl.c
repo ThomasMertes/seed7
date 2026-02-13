@@ -414,6 +414,7 @@ void setupSignalHandlers (boolType handleSignals,
         sigAct.sa_flags = SA_ONSTACK | SA_SIGINFO;
         sigAct.sa_sigaction = sigactionSegvSignal;
 #else
+        sigAct.sa_flags = 0;
         sigAct.sa_handler = SIG_DFL;
 #endif
       } /* if */
