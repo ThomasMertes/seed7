@@ -116,7 +116,8 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
     # writeln("Content-Length: " <& length(content));
     response &:= "Content-Length: " <& length(content) <& "\r\n";
     for line range header do
-      if not startsWith(line, "Content-Type") and
+      if not startsWith(line, "Status") and
+          not startsWith(line, "Content-Type") and
           not startsWith(line, "Connection") then
         response &:= line <& "\r\n";
       end if;
