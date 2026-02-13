@@ -298,27 +298,23 @@ static void handleTermSignal (int signalNum)
 
 
 
+#if HAS_SIGACTION
+
 /**
  *  Tracing signal handler for the signal SIGSEGV.
  *  Tracing signals is activated in interpreter and
  *  compiler with the option -ts.
  */
-static void handleTracedSegvSignal (int signalNum)
+static void sigactionTracedSegvSignal (int signalNum, siginfo_t *info, void *context)
 
-  { /* handleTracedSegvSignal */
+  { /* sigactionTracedSegvSignal */
 #if HAS_SIGALTSTACK
-#if defined SIGALRM && !HAS_SIGACTION
-    signal(SIGALRM, SIG_IGN);
-#endif
 #if DIALOG_IN_SIGNAL_HANDLER
     (void) signalDecision(signalNum, TRUE);
 #else
     if (suspendInterpreter != NULL) {
       suspendInterpreter(signalNum);
     } /* if */
-#endif
-#if SIGNAL_RESETS_HANDLER
-    signal(signalNum, handleTracedSegvSignal);
 #endif
     no_memory(SOURCE_POSITION(3011));
 #else
@@ -338,21 +334,18 @@ static void handleTracedSegvSignal (int signalNum)
 #endif
     abort();
 #endif
-  } /* handleTracedSegvSignal */
+  } /* sigactionTracedSegvSignal */
 
 
 
 /**
  *  Signal handler for the signal SIGSEGV.
  */
-static void handleSegvSignal (int signalNum)
+static void sigactionSegvSignal (int signalNum, siginfo_t *info, void *context)
 
-  { /* handleSegvSignal */
-#if SIGNAL_RESETS_HANDLER
-    signal(signalNum, handleSegvSignal);
-#endif
+  { /* sigactionSegvSignal */
     no_memory(SOURCE_POSITION(3012));
-  } /* handleSegvSignal */
+  } /* sigactionSegvSignal */
 
 
 
@@ -365,7 +358,6 @@ static void handleSegvSignal (int signalNum)
  *                          raise OVERFLOW_ERROR.
  *  @param fpeNumericError Specifies if SIGFPE should raise NUMERIC_ERROR.
  */
-#if HAS_SIGACTION
 void setupSignalHandlers (boolType handleSignals,
     boolType traceSignals, boolType overflowSigError,
     boolType fpeNumericError, suspendInterprType suspendInterpr)
@@ -414,12 +406,13 @@ void setupSignalHandlers (boolType handleSignals,
 #endif
       sigAct.sa_handler = handleTermSignal;
       okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
-      sigAct.sa_flags = SA_ONSTACK;
       if (traceSignals) {
-        sigAct.sa_handler = handleTracedSegvSignal;
+        sigAct.sa_flags = SA_ONSTACK | SA_SIGINFO;
+        sigAct.sa_sigaction = sigactionTracedSegvSignal;
       } else {
 #if HAS_SIGALTSTACK
-        sigAct.sa_handler = handleSegvSignal;
+        sigAct.sa_flags = SA_ONSTACK | SA_SIGINFO;
+        sigAct.sa_sigaction = sigactionSegvSignal;
 #else
         sigAct.sa_handler = SIG_DFL;
 #endif
@@ -439,6 +432,50 @@ void setupSignalHandlers (boolType handleSignals,
   } /* setupSignalHandlers */
 
 #elif HAS_SIGNAL
+
+
+
+/**
+ *  Tracing signal handler for the signal SIGSEGV.
+ *  Tracing signals is activated in interpreter and
+ *  compiler with the option -ts.
+ */
+static void handleTracedSegvSignal (int signalNum)
+
+  { /* handleTracedSegvSignal */
+#if HAS_SIGALTSTACK
+#if defined SIGALRM && !HAS_SIGACTION
+    signal(SIGALRM, SIG_IGN);
+#endif
+#if DIALOG_IN_SIGNAL_HANDLER
+    (void) signalDecision(signalNum, TRUE);
+#else
+    if (suspendInterpreter != NULL) {
+      suspendInterpreter(signalNum);
+    } /* if */
+#endif
+#if SIGNAL_RESETS_HANDLER
+    signal(signalNum, handleTracedSegvSignal);
+#endif
+    no_memory(SOURCE_POSITION(3011));
+#else
+    shutDrivers();
+    printf("\n*** SIGNAL SEGV RAISED\n"
+           "\n*** Program terminated.\n");
+#if HAS_SIGACTION
+    {
+      struct sigaction sigAct;
+      sigemptyset(&sigAct.sa_mask);
+      sigAct.sa_flags = SA_RESTART;
+      sigAct.sa_handler = SIG_DFL;
+      sigaction(SIGABRT, &sigAct, NULL);
+    }
+#elif HAS_SIGNAL
+    signal(SIGABRT, SIG_DFL);
+#endif
+    abort();
+#endif
+  } /* handleTracedSegvSignal */
 
 
 
