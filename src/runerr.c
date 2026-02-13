@@ -309,14 +309,23 @@ void uncaught_exception (progType aProg)
         prot_cstri("*** Program terminated after exception ");
       } /* if */
       printobject(fail_value);
-      prot_cstri(" raised");
+      prot_cstri(" raised at ");
+      if (error_file != NULL && error_line != 0) {
+        prot_cstri(error_file);
+        prot_cstri("(");
+        prot_int((intType) error_line);
+      } else {
+        prot_string(get_file_name(aProg, fail_file_number));
+        prot_cstri("(");
+        prot_int((intType) fail_line_number);
+      } /* if */
+      prot_cstri(")");
       if (fail_expr_stri != NULL) {
         prot_cstri(" with");
         prot_nl();
         prot_string(fail_expr_stri);
-      } else {
-        prot_nl();
       } /* if */
+      prot_nl();
     } else {
       printf("\n*** Program terminated after signal %s\n",
              signalName(signal_number));
