@@ -88,6 +88,30 @@ const type: httpServer is new struct
   end struct;
 
 
+(**
+ *  Check if the request has a particular expectation.
+ *  In accordance with the specification, this comparison is done case-insensitively.
+ *  @param a previously received HTTP request.
+ *  @return TRUE if the expectation is present; FALSE otherwise.
+ *)
+const func boolean: expecting (in httpServerRequest: request, in string: expectation) is
+  return "Expect" in request.properties and lower(request.properties["Expect"]) = lower(expectation);
+
+
+##
+#  Reset a request that has been "paused" by an "Expect" header.
+#  It appears that 100 and 417 responses often result in the continuance
+#  of a request--meaning the body will be sent next without any headers--
+#  but since I couldn't find this as an official rule, I've left the decision
+#  to reset or retain the data up to the user.
+#
+const proc: resetRequest (inout httpServer: server, inout file: sock) is func
+  begin
+    server.sessions[sock].readingHeader := TRUE;
+    server.sessions[sock].request := httpServerRequest.value;
+  end func;
+
+
 ##
 #  Reads a chunk of request data from an open connection.
 #
@@ -158,25 +182,36 @@ const func httpServerRequest: getHttpRequest (inout httpServerConnection: conn) 
       end while;
     end if;
     if not conn.readingHeader then
-      if conn.contentToRead <> 0 then
-        # If the remaining buffer contains the rest of the content, acquire and finish.
-        if length(conn.buffer) - conn.readPos + 1 >= conn.contentToRead then
-          # writeln("<- " <& conn.buffer[conn.readPos len conn.contentToRead]);
-          conn.request.body &:= conn.buffer[conn.readPos len conn.contentToRead];
-          conn.readPos +:= conn.contentToRead;
-          conn.contentToRead := 0;
-        else
-          # writeln("<- " <& conn.buffer[conn.readPos ..]);
-          conn.request.body &:= conn.buffer[conn.readPos ..];
-          conn.contentToRead -:= length(conn.buffer) - conn.readPos + 1;
-          conn.readPos := succ(length(conn.buffer));
-        end if;
-      end if;
-      if conn.contentToRead = 0 then
+      (* It can be that a client sends an "Expect: 100-continue" header, indicating that there
+      is a large amount of data to follow. In this case, store the request without resetting it,
+      so as to allow the program to check if the request is possible and to respond accordingly.
+      In the event we respond with a "Status: 100 Continue", then the body will be sent without
+      any headers. *)
+      if expecting(conn.request, "100-continue") then
         request := conn.request;
         request.sock := conn.sock;
-        conn.readingHeader := TRUE;
-        conn.request := httpServerRequest.value;
+        excl(conn.request.properties, "Expect"); # Now exclude from the connection's side, so as to avoid an eternal loop.
+      else
+        if conn.contentToRead <> 0 then
+          # If the remaining buffer contains the rest of the content, acquire and finish.
+          if length(conn.buffer) - conn.readPos + 1 >= conn.contentToRead then
+            # writeln("<- " <& conn.buffer[conn.readPos len conn.contentToRead]);
+            conn.request.body &:= conn.buffer[conn.readPos len conn.contentToRead];
+            conn.readPos +:= conn.contentToRead;
+            conn.contentToRead := 0;
+          else
+            # writeln("<- '" <& conn.buffer[conn.readPos ..] <& "'");
+            conn.request.body &:= conn.buffer[conn.readPos ..];
+            conn.contentToRead -:= length(conn.buffer) - conn.readPos + 1;
+            conn.readPos := succ(length(conn.buffer));
+          end if;
+        end if;
+        if conn.contentToRead = 0 then
+          request := conn.request;
+          request.sock := conn.sock;
+          conn.readingHeader := TRUE;
+          conn.request := httpServerRequest.value;
+        end if;
       end if;
     end if;
   end func;
