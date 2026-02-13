@@ -1320,6 +1320,7 @@ const proc: process (PRC_NOOP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "/*noop*/";
     noop_params(formalParams(function), params, c_expr);
     c_expr.expr &:= "\n";
