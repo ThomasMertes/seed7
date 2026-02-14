@@ -1530,10 +1530,10 @@ void strAppendNoOverlap (striType *const restrict destination,
     const const_striType restrict extension)
 
   {
+    memSizeType old_size;
     memSizeType new_size;
     striType stri_dest;
     striType new_stri;
-    memSizeType extension_size;
 
   /* strAppendNoOverlap */
     logFunction(printf("strAppendNoOverlap(\"%s\", ",
@@ -1541,9 +1541,9 @@ void strAppendNoOverlap (striType *const restrict destination,
                 printf("\"%s\")", striAsUnquotedCStri(extension));
                 fflush(stdout););
     stri_dest = *destination;
-    extension_size = extension->size;
+    old_size = stri_dest->size;
     /* Adding two string sizes cannot overflow. */
-    new_size = stri_dest->size + extension_size;
+    new_size = old_size + extension->size;
 #if WITH_STRI_CAPACITY
     if (new_size > stri_dest->capacity) {
       new_stri = growStri(stri_dest, new_size);
@@ -1555,16 +1555,16 @@ void strAppendNoOverlap (striType *const restrict destination,
         *destination = stri_dest;
       } /* if */
     } /* if */
-    memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-           extension_size * sizeof(strElemType));
+    memcpy(&stri_dest->mem[old_size], extension->mem,
+           extension->size * sizeof(strElemType));
     stri_dest->size = new_size;
 #else
     GROW_STRI(new_stri, stri_dest, new_size);
     if (unlikely(new_stri == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      memcpy(&new_stri->mem[new_stri->size], extension->mem,
-             extension_size * sizeof(strElemType));
+      memcpy(&new_stri->mem[old_size], extension->mem,
+             extension->size * sizeof(strElemType));
       new_stri->size = new_size;
       *destination = new_stri;
     } /* if */
