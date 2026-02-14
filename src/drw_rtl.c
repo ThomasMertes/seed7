@@ -384,7 +384,7 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
           } /* if */
         } /* for */
       } /* if */
-      bstDestr(pixelData);
+      FREE_BSTRI(pixelData, pixelData->size);
       if (unlikely(imageArray == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */
