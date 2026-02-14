@@ -247,7 +247,7 @@ void prcGetRunError (intType *exceptionNumber, striType *fileName,
       raise_error(MEMORY_ERROR);
     } else {
       *exceptionNumber = (intType) exception_number;
-      strDestr(*fileName);
+      FREE_STRI(*fileName);
       *fileName = file_name;
       *lineNumber = (intType) error_line;
     } /* if */
