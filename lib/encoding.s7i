@@ -93,63 +93,6 @@ const func string: toBase64 (in string: byteStri) is func
 
 
 (**
- *  Encode a string with the Base64 URL-variant encoding.
- *  Base64 encodes a byte string as ASCII string. This is done by
- *  taking packs of 6-bits and translating them into a radix-64
- *  representation. The radix-64 digits are encoded with letters
- *  (upper case followed by lower case), digits and the characters
- *  '-' and '_'.
- *  @param byteStri The string to encode.
- *  @param pad Wether or not to pad the result with '='.
- *  @return the Base64Url encoded string.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present.
- *)
-const func string: toBase64Url (in string: byteStri, in boolean: pad) is func
-  result
-    var string: base64 is "";
-  local
-    const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    var integer: index is 1;
-    var integer: destIndex is 1;
-    var integer: remainingChars is 0;
-    var integer: threeBytes is 0;
-  begin
-    base64 := "\0;" mult (length(byteStri) + 2) div 3 * 4;
-    for index range 1 to length(byteStri) - 2 step 3 do
-      threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
-      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
-      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
-      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
-      base64 @:= [destIndex + 3]   coding[succ( threeBytes        mod 64)];
-      destIndex +:= 4;
-    end for;
-    remainingChars := length(byteStri) rem 3;
-    if remainingChars <> 0 then
-      index := succ(length(byteStri) - remainingChars);
-      threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
-                    256 ** (3  - remainingChars);
-      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
-      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
-      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
-      index := length(base64);
-      if remainingChars = 2 then
-        if pad then
-          base64 @:= [index] '=';
-        else
-          base64 := base64[.. pred(index)];
-        end if;
-      elsif remainingChars = 1 then
-        if pad then
-          base64 @:= [pred(index)] "==";
-        else
-          base64 := base64[.. index - 2];
-        end if;
-      end if;
-    end if;
-  end func;
-
-
-(**
  *  Decode a Base64 encoded string.
  *  @param base64 Base64 encoded string without leading or trailing
  *         whitespace characters.
@@ -206,6 +149,63 @@ const func string: fromBase64 (in string: base64) is func
       decoded := decoded[.. destIndex - 2];
     else
       decoded := decoded[.. pred(destIndex)];
+    end if;
+  end func;
+
+
+(**
+ *  Encode a string with the Base64 URL-variant encoding.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '-' and '_'.
+ *  @param byteStri The string to encode.
+ *  @param pad Wether or not to pad the result with '='.
+ *  @return the Base64Url encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase64Url (in string: byteStri, in boolean: pad) is func
+  result
+    var string: base64 is "";
+  local
+    const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    var integer: index is 1;
+    var integer: destIndex is 1;
+    var integer: remainingChars is 0;
+    var integer: threeBytes is 0;
+  begin
+    base64 := "\0;" mult (length(byteStri) + 2) div 3 * 4;
+    for index range 1 to length(byteStri) - 2 step 3 do
+      threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      base64 @:= [destIndex + 3]   coding[succ( threeBytes        mod 64)];
+      destIndex +:= 4;
+    end for;
+    remainingChars := length(byteStri) rem 3;
+    if remainingChars <> 0 then
+      index := succ(length(byteStri) - remainingChars);
+      threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
+                    256 ** (3  - remainingChars);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      index := length(base64);
+      if remainingChars = 2 then
+        if pad then
+          base64 @:= [index] '=';
+        else
+          base64 := base64[.. pred(index)];
+        end if;
+      elsif remainingChars = 1 then
+        if pad then
+          base64 @:= [pred(index)] "==";
+        else
+          base64 := base64[.. index - 2];
+        end if;
+      end if;
     end if;
   end func;
 
