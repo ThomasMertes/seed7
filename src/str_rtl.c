@@ -1542,37 +1542,33 @@ void strAppendNoOverlap (striType *const restrict destination,
                 fflush(stdout););
     stri_dest = *destination;
     extension_size = extension->size;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension_size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension_size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension_size;
 #if WITH_STRI_CAPACITY
-      if (new_size > stri_dest->capacity) {
-        new_stri = growStri(stri_dest, new_size);
-        if (unlikely(new_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          stri_dest = new_stri;
-          *destination = stri_dest;
-        } /* if */
-      } /* if */
-      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-             extension_size * sizeof(strElemType));
-      stri_dest->size = new_size;
-#else
-      GROW_STRI(new_stri, stri_dest, new_size);
+    if (new_size > stri_dest->capacity) {
+      new_stri = growStri(stri_dest, new_size);
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
+        return;
       } else {
-        memcpy(&new_stri->mem[new_stri->size], extension->mem,
-               extension_size * sizeof(strElemType));
-        new_stri->size = new_size;
-        *destination = new_stri;
+        stri_dest = new_stri;
+        *destination = stri_dest;
       } /* if */
-#endif
     } /* if */
+    memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+           extension_size * sizeof(strElemType));
+    stri_dest->size = new_size;
+#else
+    GROW_STRI(new_stri, stri_dest, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memcpy(&new_stri->mem[new_stri->size], extension->mem,
+             extension_size * sizeof(strElemType));
+      new_stri->size = new_size;
+      *destination = new_stri;
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendNoOverlap */
 
