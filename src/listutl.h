@@ -38,8 +38,8 @@
 
 #if WITH_LIST_FREELIST
 #define free_list2(list_begin, list_end) { \
-    list_end->next = flist.list_elems;        \
-    flist.list_elems = list_begin;            \
+    list_end->next = flist.list_elems;     \
+    flist.list_elems = list_begin;         \
     }
 #else
 #define free_list2(list_begin, list_end) free_list(list_begin)
