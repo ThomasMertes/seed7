@@ -2235,21 +2235,16 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
     logFunction(printf("strConcat(\"%s\", ", striAsUnquotedCStri(stri1));
                 printf("\"%s\")", striAsUnquotedCStri(stri2));
                 fflush(stdout););
-    if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
-      /* number of bytes does not fit into memSizeType */
+    /* Adding two string sizes cannot overflow. */
+    result_size = stri1->size + stri2->size;
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
     } else {
-      result_size = stri1->size + stri2->size;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        memcpy(result->mem, stri1->mem,
-               stri1->size * sizeof(strElemType));
-        memcpy(&result->mem[stri1->size], stri2->mem,
-               stri2->size * sizeof(strElemType));
-      } /* if */
+      result->size = result_size;
+      memcpy(result->mem, stri1->mem,
+             stri1->size * sizeof(strElemType));
+      memcpy(&result->mem[stri1->size], stri2->mem,
+             stri2->size * sizeof(strElemType));
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
