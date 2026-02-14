@@ -1708,42 +1708,26 @@ void strAppendTemp (striType *const restrict destination,
                 printf("\"%s\")", striAsUnquotedCStri(extension));
                 fflush(stdout););
     stri_dest = *destination;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension->size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension->size;
 #if WITH_STRI_CAPACITY
-      if (new_size <= stri_dest->capacity) {
-        memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-               extension->size * sizeof(strElemType));
-        stri_dest->size = new_size;
-        FREE_STRI(extension);
-      } else if (new_size <= extension->capacity) {
-        if (stri_dest->size != 0) {
-          memmove(&extension->mem[stri_dest->size], extension->mem,
-                  extension->size * sizeof(strElemType));
-          memcpy(extension->mem, stri_dest->mem,
-                 stri_dest->size * sizeof(strElemType));
-          extension->size = new_size;
-        } /* if */
-        *destination = extension;
-        FREE_STRI(stri_dest);
-      } else {
-        stri_dest = growStri(stri_dest, new_size);
-        if (unlikely(stri_dest == NULL)) {
-          FREE_STRI(extension);
-          raise_error(MEMORY_ERROR);
-        } else {
-          *destination = stri_dest;
-          memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-                 extension->size * sizeof(strElemType));
-          stri_dest->size = new_size;
-          FREE_STRI(extension);
-        } /* if */
+    if (new_size <= stri_dest->capacity) {
+      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+             extension->size * sizeof(strElemType));
+      stri_dest->size = new_size;
+      FREE_STRI(extension);
+    } else if (new_size <= extension->capacity) {
+      if (stri_dest->size != 0) {
+        memmove(&extension->mem[stri_dest->size], extension->mem,
+                extension->size * sizeof(strElemType));
+        memcpy(extension->mem, stri_dest->mem,
+               stri_dest->size * sizeof(strElemType));
+        extension->size = new_size;
       } /* if */
-#else
-      GROW_STRI(stri_dest, stri_dest, new_size);
+      *destination = extension;
+      FREE_STRI(stri_dest);
+    } else {
+      stri_dest = growStri(stri_dest, new_size);
       if (unlikely(stri_dest == NULL)) {
         FREE_STRI(extension);
         raise_error(MEMORY_ERROR);
@@ -1754,8 +1738,20 @@ void strAppendTemp (striType *const restrict destination,
         stri_dest->size = new_size;
         FREE_STRI(extension);
       } /* if */
-#endif
     } /* if */
+#else
+    GROW_STRI(stri_dest, stri_dest, new_size);
+    if (unlikely(stri_dest == NULL)) {
+      FREE_STRI(extension);
+      raise_error(MEMORY_ERROR);
+    } else {
+      *destination = stri_dest;
+      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+             extension->size * sizeof(strElemType));
+      stri_dest->size = new_size;
+      FREE_STRI(extension);
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendTemp */
 
