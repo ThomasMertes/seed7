@@ -51,8 +51,12 @@ static LONG WINAPI segmentationViolationHandler (PEXCEPTION_POINTERS pExp)
     logFunction(printf("segmentationViolationHandler\n"););
     stackOverflow = pExp->ExceptionRecord->ExceptionCode ==
                     EXCEPTION_STACK_OVERFLOW;
-    no_memory(SOURCE_POSITION(3021));
-    return 0;
+    if (stackOverflow) {
+      no_memory(SOURCE_POSITION(3021));
+    } /* if */
+    logFunction(printf("segmentationViolationHandler --> "
+                       "EXCEPTION_CONTINUE_SEARCH\n"););
+    return EXCEPTION_CONTINUE_SEARCH;
   } /* segmentationViolationHandler */
 
 
