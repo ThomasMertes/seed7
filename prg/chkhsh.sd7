@@ -415,6 +415,23 @@ const proc: chkBooleanHash is func
       writeln(" ***** Indexing into an empty hash[boolean] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  booleanBooleanHashVar     [TRUE default TRUE                    ] <> TRUE                     or
+        booleanIntegerHashVar     [TRUE default 1234                    ] <> 1234                     or
+        booleanBigIntegerHashVar  [TRUE default 9999999999_             ] <> 9999999999_              or
+        booleanBigRationalHashVar [TRUE default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        booleanFloatHashVar       [TRUE default 3.1415926535            ] <> 3.1415926535             or
+        booleanComplexHashVar     [TRUE default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        booleanCharHashVar        [TRUE default 'Q'                     ] <> 'Q'                      or
+        booleanStringHashVar      [TRUE default "success"               ] <> "success"                or
+        booleanBstringHashVar     [TRUE default bstring("okay")         ] <> bstring("okay")          or
+        booleanBitsetHashVar      [TRUE default {123}                   ] <> {123}                    or
+        booleanTimeHashVar        [TRUE default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        booleanEnumTypeHashVar    [TRUE default GREEN                   ] <> GREEN                    or
+        booleanTypeHashVar        [TRUE default char                    ] <> char                     or
+        booleanReferenceHashVar   [TRUE default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[boolean] table");
+      okay := FALSE;
+    end if;
     booleanBooleanHashVar     @:= [TRUE] TRUE;
     booleanIntegerHashVar     @:= [TRUE] 1234;
     booleanBigIntegerHashVar  @:= [TRUE] 9999999999_;
@@ -700,6 +717,23 @@ const proc: chkIntegerHash is func
         not raisesIndexError(integerTypeHashVar        [87654321]) or
         not raisesIndexError(integerReferenceHashVar   [87654321]) then
       writeln(" ***** Indexing into an empty hash[integer] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  integerBooleanHashVar     [87654321 default TRUE                    ] <> TRUE                     or
+        integerIntegerHashVar     [87654321 default 1234                    ] <> 1234                     or
+        integerBigIntegerHashVar  [87654321 default 9999999999_             ] <> 9999999999_              or
+        integerBigRationalHashVar [87654321 default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        integerFloatHashVar       [87654321 default 3.1415926535            ] <> 3.1415926535             or
+        integerComplexHashVar     [87654321 default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        integerCharHashVar        [87654321 default 'Q'                     ] <> 'Q'                      or
+        integerStringHashVar      [87654321 default "success"               ] <> "success"                or
+        integerBstringHashVar     [87654321 default bstring("okay")         ] <> bstring("okay")          or
+        integerBitsetHashVar      [87654321 default {123}                   ] <> {123}                    or
+        integerTimeHashVar        [87654321 default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        integerEnumTypeHashVar    [87654321 default GREEN                   ] <> GREEN                    or
+        integerTypeHashVar        [87654321 default char                    ] <> char                     or
+        integerReferenceHashVar   [87654321 default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[integer] table");
       okay := FALSE;
     end if;
     integerBooleanHashVar     @:= [87654321] TRUE;
@@ -990,6 +1024,23 @@ const proc: chkBigIntegerHash is func
       writeln(" ***** Indexing into an empty hash[bigInteger] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  bigIntegerBooleanHashVar     [9223372036854775808_ default TRUE                    ] <> TRUE                     or
+        bigIntegerIntegerHashVar     [9223372036854775808_ default 1234                    ] <> 1234                     or
+        bigIntegerBigIntegerHashVar  [9223372036854775808_ default 9999999999_             ] <> 9999999999_              or
+        bigIntegerBigRationalHashVar [9223372036854775808_ default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        bigIntegerFloatHashVar       [9223372036854775808_ default 3.1415926535            ] <> 3.1415926535             or
+        bigIntegerComplexHashVar     [9223372036854775808_ default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        bigIntegerCharHashVar        [9223372036854775808_ default 'Q'                     ] <> 'Q'                      or
+        bigIntegerStringHashVar      [9223372036854775808_ default "success"               ] <> "success"                or
+        bigIntegerBstringHashVar     [9223372036854775808_ default bstring("okay")         ] <> bstring("okay")          or
+        bigIntegerBitsetHashVar      [9223372036854775808_ default {123}                   ] <> {123}                    or
+        bigIntegerTimeHashVar        [9223372036854775808_ default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        bigIntegerEnumTypeHashVar    [9223372036854775808_ default GREEN                   ] <> GREEN                    or
+        bigIntegerTypeHashVar        [9223372036854775808_ default char                    ] <> char                     or
+        bigIntegerReferenceHashVar   [9223372036854775808_ default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[bigInteger] table");
+      okay := FALSE;
+    end if;
     bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
     bigIntegerIntegerHashVar     @:= [9223372036854775808_] 1234;
     bigIntegerBigIntegerHashVar  @:= [9223372036854775808_] 9999999999_;
@@ -1276,6 +1327,23 @@ const proc: chkRationalHash is func
         not raisesIndexError(rationalTypeHashVar        [9876543212 / 1234567890]) or
         not raisesIndexError(rationalReferenceHashVar   [9876543212 / 1234567890]) then
       writeln(" ***** Indexing into an empty hash[rational] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  rationalBooleanHashVar     [9876543212 / 1234567890 default TRUE                    ] <> TRUE                     or
+        rationalIntegerHashVar     [9876543212 / 1234567890 default 1234                    ] <> 1234                     or
+        rationalBigIntegerHashVar  [9876543212 / 1234567890 default 9999999999_             ] <> 9999999999_              or
+        rationalBigRationalHashVar [9876543212 / 1234567890 default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        rationalFloatHashVar       [9876543212 / 1234567890 default 3.1415926535            ] <> 3.1415926535             or
+        rationalComplexHashVar     [9876543212 / 1234567890 default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        rationalCharHashVar        [9876543212 / 1234567890 default 'Q'                     ] <> 'Q'                      or
+        rationalStringHashVar      [9876543212 / 1234567890 default "success"               ] <> "success"                or
+        rationalBstringHashVar     [9876543212 / 1234567890 default bstring("okay")         ] <> bstring("okay")          or
+        rationalBitsetHashVar      [9876543212 / 1234567890 default {123}                   ] <> {123}                    or
+        rationalTimeHashVar        [9876543212 / 1234567890 default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        rationalEnumTypeHashVar    [9876543212 / 1234567890 default GREEN                   ] <> GREEN                    or
+        rationalTypeHashVar        [9876543212 / 1234567890 default char                    ] <> char                     or
+        rationalReferenceHashVar   [9876543212 / 1234567890 default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[rational] table");
       okay := FALSE;
     end if;
     rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
@@ -1566,6 +1634,23 @@ const proc: chkBigRationalHash is func
       writeln(" ***** Indexing into an empty hash[bigRational] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  bigRationalBooleanHashVar     [9876543212_ / 1234567890_ default TRUE                    ] <> TRUE                     or
+        bigRationalIntegerHashVar     [9876543212_ / 1234567890_ default 1234                    ] <> 1234                     or
+        bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_ default 9999999999_             ] <> 9999999999_              or
+        bigRationalBigRationalHashVar [9876543212_ / 1234567890_ default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        bigRationalFloatHashVar       [9876543212_ / 1234567890_ default 3.1415926535            ] <> 3.1415926535             or
+        bigRationalComplexHashVar     [9876543212_ / 1234567890_ default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        bigRationalCharHashVar        [9876543212_ / 1234567890_ default 'Q'                     ] <> 'Q'                      or
+        bigRationalStringHashVar      [9876543212_ / 1234567890_ default "success"               ] <> "success"                or
+        bigRationalBstringHashVar     [9876543212_ / 1234567890_ default bstring("okay")         ] <> bstring("okay")          or
+        bigRationalBitsetHashVar      [9876543212_ / 1234567890_ default {123}                   ] <> {123}                    or
+        bigRationalTimeHashVar        [9876543212_ / 1234567890_ default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        bigRationalEnumTypeHashVar    [9876543212_ / 1234567890_ default GREEN                   ] <> GREEN                    or
+        bigRationalTypeHashVar        [9876543212_ / 1234567890_ default char                    ] <> char                     or
+        bigRationalReferenceHashVar   [9876543212_ / 1234567890_ default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[bigRational] table");
+      okay := FALSE;
+    end if;
     bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
     bigRationalIntegerHashVar     @:= [9876543212_ / 1234567890_] 1234;
     bigRationalBigIntegerHashVar  @:= [9876543212_ / 1234567890_] 9999999999_;
@@ -1852,6 +1937,23 @@ const proc: chkFloatHash is func
         not raisesIndexError(floatTypeHashVar        [3.1415926535]) or
         not raisesIndexError(floatReferenceHashVar   [3.1415926535]) then
       writeln(" ***** Indexing into an empty hash[float] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  floatBooleanHashVar     [3.1415926535 default TRUE                    ] <> TRUE                     or
+        floatIntegerHashVar     [3.1415926535 default 1234                    ] <> 1234                     or
+        floatBigIntegerHashVar  [3.1415926535 default 9999999999_             ] <> 9999999999_              or
+        floatBigRationalHashVar [3.1415926535 default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        floatFloatHashVar       [3.1415926535 default 3.1415926535            ] <> 3.1415926535             or
+        floatComplexHashVar     [3.1415926535 default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        floatCharHashVar        [3.1415926535 default 'Q'                     ] <> 'Q'                      or
+        floatStringHashVar      [3.1415926535 default "success"               ] <> "success"                or
+        floatBstringHashVar     [3.1415926535 default bstring("okay")         ] <> bstring("okay")          or
+        floatBitsetHashVar      [3.1415926535 default {123}                   ] <> {123}                    or
+        floatTimeHashVar        [3.1415926535 default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        floatEnumTypeHashVar    [3.1415926535 default GREEN                   ] <> GREEN                    or
+        floatTypeHashVar        [3.1415926535 default char                    ] <> char                     or
+        floatReferenceHashVar   [3.1415926535 default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[float] table");
       okay := FALSE;
     end if;
     floatBooleanHashVar     @:= [3.1415926535] TRUE;
@@ -2142,6 +2244,23 @@ const proc: chkComplexHash is func
       writeln(" ***** Indexing into an empty hash[complex] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  complexBooleanHashVar     [complex(5.6, 7.8) default TRUE                    ] <> TRUE                     or
+        complexIntegerHashVar     [complex(5.6, 7.8) default 1234                    ] <> 1234                     or
+        complexBigIntegerHashVar  [complex(5.6, 7.8) default 9999999999_             ] <> 9999999999_              or
+        complexBigRationalHashVar [complex(5.6, 7.8) default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        complexFloatHashVar       [complex(5.6, 7.8) default 3.1415926535            ] <> 3.1415926535             or
+        complexComplexHashVar     [complex(5.6, 7.8) default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        complexCharHashVar        [complex(5.6, 7.8) default 'Q'                     ] <> 'Q'                      or
+        complexStringHashVar      [complex(5.6, 7.8) default "success"               ] <> "success"                or
+        complexBstringHashVar     [complex(5.6, 7.8) default bstring("okay")         ] <> bstring("okay")          or
+        complexBitsetHashVar      [complex(5.6, 7.8) default {123}                   ] <> {123}                    or
+        complexTimeHashVar        [complex(5.6, 7.8) default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        complexEnumTypeHashVar    [complex(5.6, 7.8) default GREEN                   ] <> GREEN                    or
+        complexTypeHashVar        [complex(5.6, 7.8) default char                    ] <> char                     or
+        complexReferenceHashVar   [complex(5.6, 7.8) default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[complex] table");
+      okay := FALSE;
+    end if;
     complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
     complexIntegerHashVar     @:= [complex(5.6, 7.8)] 1234;
     complexBigIntegerHashVar  @:= [complex(5.6, 7.8)] 9999999999_;
@@ -2428,6 +2547,23 @@ const proc: chkCharHash is func
         not raisesIndexError(charTypeHashVar        ['k']) or
         not raisesIndexError(charReferenceHashVar   ['k']) then
       writeln(" ***** Indexing into an empty hash[char] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  charBooleanHashVar     ['k' default TRUE                    ] <> TRUE                     or
+        charIntegerHashVar     ['k' default 1234                    ] <> 1234                     or
+        charBigIntegerHashVar  ['k' default 9999999999_             ] <> 9999999999_              or
+        charBigRationalHashVar ['k' default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        charFloatHashVar       ['k' default 3.1415926535            ] <> 3.1415926535             or
+        charComplexHashVar     ['k' default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        charCharHashVar        ['k' default 'Q'                     ] <> 'Q'                      or
+        charStringHashVar      ['k' default "success"               ] <> "success"                or
+        charBstringHashVar     ['k' default bstring("okay")         ] <> bstring("okay")          or
+        charBitsetHashVar      ['k' default {123}                   ] <> {123}                    or
+        charTimeHashVar        ['k' default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        charEnumTypeHashVar    ['k' default GREEN                   ] <> GREEN                    or
+        charTypeHashVar        ['k' default char                    ] <> char                     or
+        charReferenceHashVar   ['k' default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[char] table");
       okay := FALSE;
     end if;
     charBooleanHashVar     @:= ['k'] TRUE;
@@ -2718,6 +2854,23 @@ const proc: chkStringHash is func
       writeln(" ***** Indexing into an empty hash[string] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  stringBooleanHashVar     ["asdfghjkl" default TRUE                    ] <> TRUE                     or
+        stringIntegerHashVar     ["asdfghjkl" default 1234                    ] <> 1234                     or
+        stringBigIntegerHashVar  ["asdfghjkl" default 9999999999_             ] <> 9999999999_              or
+        stringBigRationalHashVar ["asdfghjkl" default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        stringFloatHashVar       ["asdfghjkl" default 3.1415926535            ] <> 3.1415926535             or
+        stringComplexHashVar     ["asdfghjkl" default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        stringCharHashVar        ["asdfghjkl" default 'Q'                     ] <> 'Q'                      or
+        stringStringHashVar      ["asdfghjkl" default "success"               ] <> "success"                or
+        stringBstringHashVar     ["asdfghjkl" default bstring("okay")         ] <> bstring("okay")          or
+        stringBitsetHashVar      ["asdfghjkl" default {123}                   ] <> {123}                    or
+        stringTimeHashVar        ["asdfghjkl" default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        stringEnumTypeHashVar    ["asdfghjkl" default GREEN                   ] <> GREEN                    or
+        stringTypeHashVar        ["asdfghjkl" default char                    ] <> char                     or
+        stringReferenceHashVar   ["asdfghjkl" default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[string] table");
+      okay := FALSE;
+    end if;
     stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
     stringIntegerHashVar     @:= ["asdfghjkl"] 1234;
     stringBigIntegerHashVar  @:= ["asdfghjkl"] 9999999999_;
@@ -3004,6 +3157,23 @@ const proc: chkBstringHash is func
         not raisesIndexError(bstringTypeHashVar        [bstring("qwert")]) or
         not raisesIndexError(bstringReferenceHashVar   [bstring("qwert")]) then
       writeln(" ***** Indexing into an empty hash[bstring] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  bstringBooleanHashVar     [bstring("qwert") default TRUE                    ] <> TRUE                     or
+        bstringIntegerHashVar     [bstring("qwert") default 1234                    ] <> 1234                     or
+        bstringBigIntegerHashVar  [bstring("qwert") default 9999999999_             ] <> 9999999999_              or
+        bstringBigRationalHashVar [bstring("qwert") default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        bstringFloatHashVar       [bstring("qwert") default 3.1415926535            ] <> 3.1415926535             or
+        bstringComplexHashVar     [bstring("qwert") default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        bstringCharHashVar        [bstring("qwert") default 'Q'                     ] <> 'Q'                      or
+        bstringStringHashVar      [bstring("qwert") default "success"               ] <> "success"                or
+        bstringBstringHashVar     [bstring("qwert") default bstring("okay")         ] <> bstring("okay")          or
+        bstringBitsetHashVar      [bstring("qwert") default {123}                   ] <> {123}                    or
+        bstringTimeHashVar        [bstring("qwert") default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        bstringEnumTypeHashVar    [bstring("qwert") default GREEN                   ] <> GREEN                    or
+        bstringTypeHashVar        [bstring("qwert") default char                    ] <> char                     or
+        bstringReferenceHashVar   [bstring("qwert") default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[bstring] table");
       okay := FALSE;
     end if;
     bstringBooleanHashVar     @:= [bstring("qwert")] TRUE;
@@ -3294,6 +3464,23 @@ const proc: chkBitsetHash is func
       writeln(" ***** Indexing into an empty hash[bitset] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  bitsetBooleanHashVar     [{234} default TRUE                    ] <> TRUE                     or
+        bitsetIntegerHashVar     [{234} default 1234                    ] <> 1234                     or
+        bitsetBigIntegerHashVar  [{234} default 9999999999_             ] <> 9999999999_              or
+        bitsetBigRationalHashVar [{234} default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        bitsetFloatHashVar       [{234} default 3.1415926535            ] <> 3.1415926535             or
+        bitsetComplexHashVar     [{234} default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        bitsetCharHashVar        [{234} default 'Q'                     ] <> 'Q'                      or
+        bitsetStringHashVar      [{234} default "success"               ] <> "success"                or
+        bitsetBstringHashVar     [{234} default bstring("okay")         ] <> bstring("okay")          or
+        bitsetBitsetHashVar      [{234} default {123}                   ] <> {123}                    or
+        bitsetTimeHashVar        [{234} default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        bitsetEnumTypeHashVar    [{234} default GREEN                   ] <> GREEN                    or
+        bitsetTypeHashVar        [{234} default char                    ] <> char                     or
+        bitsetReferenceHashVar   [{234} default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[bitset] table");
+      okay := FALSE;
+    end if;
     bitsetBooleanHashVar     @:= [{234}] TRUE;
     bitsetIntegerHashVar     @:= [{234}] 1234;
     bitsetBigIntegerHashVar  @:= [{234}] 9999999999_;
@@ -3582,6 +3769,23 @@ const proc: chkTimeHash is func
       writeln(" ***** Indexing into an empty hash[time] does not raise INDEX_ERROR");
       okay := FALSE;
     end if;
+    if  timeBooleanHashVar     [time("2010-11-12 13:14") default TRUE                    ] <> TRUE                     or
+        timeIntegerHashVar     [time("2010-11-12 13:14") default 1234                    ] <> 1234                     or
+        timeBigIntegerHashVar  [time("2010-11-12 13:14") default 9999999999_             ] <> 9999999999_              or
+        timeBigRationalHashVar [time("2010-11-12 13:14") default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        timeFloatHashVar       [time("2010-11-12 13:14") default 3.1415926535            ] <> 3.1415926535             or
+        timeComplexHashVar     [time("2010-11-12 13:14") default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        timeCharHashVar        [time("2010-11-12 13:14") default 'Q'                     ] <> 'Q'                      or
+        timeStringHashVar      [time("2010-11-12 13:14") default "success"               ] <> "success"                or
+        timeBstringHashVar     [time("2010-11-12 13:14") default bstring("okay")         ] <> bstring("okay")          or
+        timeBitsetHashVar      [time("2010-11-12 13:14") default {123}                   ] <> {123}                    or
+        timeTimeHashVar        [time("2010-11-12 13:14") default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        timeEnumTypeHashVar    [time("2010-11-12 13:14") default GREEN                   ] <> GREEN                    or
+        timeTypeHashVar        [time("2010-11-12 13:14") default char                    ] <> char                     or
+        timeReferenceHashVar   [time("2010-11-12 13:14") default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[time] table");
+      okay := FALSE;
+    end if;
     timeBooleanHashVar     @:= [time("2010-11-12 13:14")] TRUE;
     timeIntegerHashVar     @:= [time("2010-11-12 13:14")] 1234;
     timeBigIntegerHashVar  @:= [time("2010-11-12 13:14")] 9999999999_;
@@ -3868,6 +4072,23 @@ const proc: chkEnumerationTypeHash is func
         not raisesIndexError(enumTypeTypeHashVar        [YELLOW]) or
         not raisesIndexError(enumTypeReferenceHashVar   [YELLOW]) then
       writeln(" ***** Indexing into an empty hash[enumerationType] does not raise INDEX_ERROR");
+      okay := FALSE;
+    end if;
+    if  enumTypeBooleanHashVar     [YELLOW default TRUE                    ] <> TRUE                     or
+        enumTypeIntegerHashVar     [YELLOW default 1234                    ] <> 1234                     or
+        enumTypeBigIntegerHashVar  [YELLOW default 9999999999_             ] <> 9999999999_              or
+        enumTypeBigRationalHashVar [YELLOW default 9999999999_ / 12345678_ ] <> 9999999999_ / 12345678_  or
+        enumTypeFloatHashVar       [YELLOW default 3.1415926535            ] <> 3.1415926535             or
+        enumTypeComplexHashVar     [YELLOW default complex(1.2, 3.4)       ] <> complex(1.2, 3.4)        or
+        enumTypeCharHashVar        [YELLOW default 'Q'                     ] <> 'Q'                      or
+        enumTypeStringHashVar      [YELLOW default "success"               ] <> "success"                or
+        enumTypeBstringHashVar     [YELLOW default bstring("okay")         ] <> bstring("okay")          or
+        enumTypeBitsetHashVar      [YELLOW default {123}                   ] <> {123}                    or
+        enumTypeTimeHashVar        [YELLOW default time("2011-12-13 14:15")] <> time("2011-12-13 14:15") or
+        enumTypeEnumTypeHashVar    [YELLOW default GREEN                   ] <> GREEN                    or
+        enumTypeTypeHashVar        [YELLOW default char                    ] <> char                     or
+        enumTypeReferenceHashVar   [YELLOW default NIL                     ] <> NIL                      then
+      writeln(" ***** The default value is not returned from a hash[enumerationType] table");
       okay := FALSE;
     end if;
     enumTypeBooleanHashVar     @:= [YELLOW] TRUE;
