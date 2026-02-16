@@ -263,7 +263,8 @@ const string: chkprc_output is "\n\
   \Case char statements work correctly.\n\
   \Case string statements work correctly.\n\
   \Case bigInteger statements work correctly.\n\
-  \Case float statements work correctly.\n";
+  \Case float statements work correctly.\n\
+  \Case rational statements work correctly.\n";
 
 const string: chkbig_output is "\n\
   \Based bigInteger literals work correctly.\n\
