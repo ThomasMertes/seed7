@@ -26,10 +26,12 @@
 $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "float.s7i";
+  include "rational.s7i";
   include "stdio.s7i";
 
 
 CASE_DECLS(float);
+CASE_DECLS(rational);
 
 var boolean: global_loop_control is TRUE;
 
@@ -67,6 +69,10 @@ const func bigInteger: bigintExpr (in bigInteger: number) is func
 
 const func float: floatExpr (in float: number) is
   return number;
+
+
+const func rational: rationalExpr (in rational: number) is
+  return intExpr(number.numerator) / intExpr(number.denominator);
 
 
 const proc: check_if is func
@@ -6554,6 +6560,672 @@ const proc: check_case_float is func
   end func;
 
 
+const proc: check_case_rational is func
+  local
+    var rational: num is rational(0);
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case 1 of
+    end case;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)}  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    case rational(3) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(3) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    case rational(4) of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case rational(1) of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(3) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(1) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(2) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(3) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+      otherwise: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rational(4) of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    case rationalExpr(rational(1)) of
+    end case;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)}  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    case rationalExpr(rational(3)) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(3)) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    case rationalExpr(rational(4)) of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(3)) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(1)) of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(2)) of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(3)) of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+      otherwise: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case rationalExpr(rational(4)) of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    case num of
+    end case;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)}  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    num := rational(3);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(3);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    num := rational(4);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)}  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    num := rational(1);
+    case num of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(3);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(1);
+    case num of
+      when {rational(1)}: incr(counter);
+      when {rational(2)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(1) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(2);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: incr(counter);
+      when {rational(3)}: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)}  otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(2) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(3);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: incr(counter);
+      otherwise: writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(3) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := rational(4);
+    case num of
+      when {rational(1)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(2)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      when {rational(3)}: writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(4) of when {rational(1)} {rational(2)} {rational(3)} otherwise  ...  does not work correctly. (3)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    num := rational(0);
+    case num of
+      when {rational(-2147483648)}: writeln(" ***** case rational(0) of when {rational(-2147483648)} {rational(rational(0)} {rational(2147483647)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+      when {rational(0)}: incr(counter);
+      when {rational(2147483647)}: writeln(" ***** case rational(0) of when {rational(-2147483648)} {rational(rational(0)} {rational(2147483647)}  ...  does not work correctly. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case rational(0) of when {rational(-2147483648)} {rational(rational(0)} {rational(2147483647)}  ...  does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case rational statements work correctly.");
+    else
+      writeln(" ***** Case rational statements do not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -6577,4 +7249,5 @@ const proc: main is func
     check_case_string;
     check_case_bigint;
     check_case_float;
+    check_case_rational;
   end func;
