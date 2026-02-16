@@ -182,7 +182,7 @@ const proc: process (ENU_ORD2, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "(intType)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
