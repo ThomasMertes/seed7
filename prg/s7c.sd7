@@ -7790,6 +7790,11 @@ const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWh
     hash_key_list := hashKeysToList(whenLabels);
     if length(hash_key_list) <> 0 then
       for key_element range hash_key_list do
+        if category(key_element) in {ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT} then
+          if key_element not in constTable.other_const then
+            constTable.other_const @:= [key_element] length(constTable.other_const);
+          end if;
+        end if;
         c_expr.expr &:= "hash_key";
         init_const_value(key_element, c_expr);
         c_expr.expr &:= ";\n";
