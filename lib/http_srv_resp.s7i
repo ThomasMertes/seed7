@@ -116,7 +116,8 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
     # writeln("Content-Length: " <& length(content));
     response &:= "Content-Length: " <& length(content) <& "\r\n";
     for line range header do
-      if not startsWith(line, "Content-Type") and
+      if not startsWith(line, "Status") and
+          not startsWith(line, "Content-Type") and
           not startsWith(line, "Connection") then
         response &:= line <& "\r\n";
       end if;
@@ -126,6 +127,43 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
     response &:= content;
     block
       write(sock, response);
+    exception
+      catch FILE_ERROR: close(sock);
+    end block;
+  end func;
+
+
+##
+#  Shorthand for sending a 417 HTTP response that keeps the request's data.
+#
+const proc: failExpectation (inout httpServer: server, inout file: sock, RETAIN) is func
+  begin
+    block
+      write(sock, "HTTP/1.1 417 Expectation Failed\r\nContent-Length: 0\r\n\r\n");
+    exception
+      catch FILE_ERROR: close(sock);
+    end block;
+  end func;
+
+
+##
+#  Shorthand for sending a 417 HTTP response that discards the request's data.
+#
+const proc: failExpectation (inout httpServer: server, inout file: sock, RESET) is func
+  begin
+    block
+      write(sock, "HTTP/1.1 417 Expectation Failed\r\nContent-Length: 0\r\n\r\n");
+      resetRequest(server, sock);
+    exception
+      catch FILE_ERROR: close(sock);
+    end block;
+  end func;
+
+
+const proc: sendHttpContinue (inout file: sock) is func
+  begin
+    block
+      write(sock, "HTTP/1.1 100 Continue\r\nContent-Length: 0\r\n\r\n");
     exception
       catch FILE_ERROR: close(sock);
     end block;
@@ -257,8 +295,8 @@ const proc: processGet (inout httpResponseData: responseData,
     var string: contentType is "";
   begin
     # writeln("processGet " <& request.path);
-    if "Cookie" in request.properties then
-      cookies := request.properties["Cookie"];
+    if "cookie" in request.properties then
+      cookies := request.properties["cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
       setenv("REQUEST_METHOD", "GET");
@@ -323,8 +361,8 @@ const proc: processPost (in httpResponseData: responseData,
     # writeln("processPost " <& request.path);
     # writeln("queryStri: " <& request.queryStri);
     # writeln("postParams: " <& request.body);
-    if "Cookie" in request.properties then
-      cookies := request.properties["Cookie"];
+    if "cookie" in request.properties then
+      cookies := request.properties["cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
       setenv("REQUEST_METHOD", "POST");
