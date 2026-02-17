@@ -95,7 +95,7 @@ const type: httpServer is new struct
  *  @return TRUE if the expectation is present; FALSE otherwise.
  *)
 const func boolean: expecting (in httpServerRequest: request, in string: expectation) is
-  return "Expect" in request.properties and lower(request.properties["Expect"]) = lower(expectation);
+  return "expect" in request.properties and lower(request.properties["expect"]) = lower(expectation);
 
 
 ##
@@ -144,9 +144,9 @@ const func httpServerRequest: getHttpRequest (inout httpServerConnection: conn) 
         conn.readPos := succ(lfPos);
         # writeln("<- " <& line);
         if line = "" then
-          if "Content-Length" in conn.request.properties then
+          if "content-length" in conn.request.properties then
             block
-              conn.contentToRead := integer(conn.request.properties["Content-Length"]);
+              conn.contentToRead := integer(conn.request.properties["content-length"]);
             exception
               catch RANGE_ERROR:
                 noop;
@@ -173,7 +173,8 @@ const func httpServerRequest: getHttpRequest (inout httpServerConnection: conn) 
         else
           colonPos := pos(line, ':');
           if colonPos <> 0 then
-            conn.request.properties @:= [trim(line[.. pred(colonPos)])] trim(line[succ(colonPos) ..]);
+            # Coerce the keys to lowercase for simplicity's sake, as the spec dictates that they are case-insensitive.
+            conn.request.properties @:= [lower(trim(line[.. pred(colonPos)]))] trim(line[succ(colonPos) ..]);
           end if;
         end if;
         if conn.readingHeader then
@@ -190,7 +191,7 @@ const func httpServerRequest: getHttpRequest (inout httpServerConnection: conn) 
       if expecting(conn.request, "100-continue") then
         request := conn.request;
         request.sock := conn.sock;
-        excl(conn.request.properties, "Expect"); # Now exclude from the connection's side, so as to avoid an eternal loop.
+        excl(conn.request.properties, "expect"); # Now exclude from the connection's side, so as to avoid an eternal loop.
       else
         if conn.contentToRead <> 0 then
           # If the remaining buffer contains the rest of the content, acquire and finish.

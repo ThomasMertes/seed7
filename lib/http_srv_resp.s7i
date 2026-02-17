@@ -295,8 +295,8 @@ const proc: processGet (inout httpResponseData: responseData,
     var string: contentType is "";
   begin
     # writeln("processGet " <& request.path);
-    if "Cookie" in request.properties then
-      cookies := request.properties["Cookie"];
+    if "cookie" in request.properties then
+      cookies := request.properties["cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
       setenv("REQUEST_METHOD", "GET");
@@ -361,8 +361,8 @@ const proc: processPost (in httpResponseData: responseData,
     # writeln("processPost " <& request.path);
     # writeln("queryStri: " <& request.queryStri);
     # writeln("postParams: " <& request.body);
-    if "Cookie" in request.properties then
-      cookies := request.properties["Cookie"];
+    if "cookie" in request.properties then
+      cookies := request.properties["cookie"];
     end if;
     if startsWith(request.path, responseData.cgiName) then
       setenv("REQUEST_METHOD", "POST");
