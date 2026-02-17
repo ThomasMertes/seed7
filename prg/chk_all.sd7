@@ -264,6 +264,7 @@ const string: chkprc_output is "\n\
   \Case enumeration statements work correctly.\n\
   \Case char statements work correctly.\n\
   \Case string statements work correctly.\n\
+  \Case bstring statements work correctly.\n\
   \Case bigInteger statements work correctly.\n\
   \Case float statements work correctly.\n\
   \Case rational statements work correctly.\n";
