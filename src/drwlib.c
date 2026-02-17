@@ -665,7 +665,7 @@ objectType drw_get_pixel_array (listType arguments)
           } /* if */
         } /* for */
       } /* if */
-      bstDestr(pixelData);
+      FREE_BSTRI(pixelData, pixelData->size);
       if (unlikely(imageArray == NULL)) {
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {

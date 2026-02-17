@@ -176,7 +176,7 @@ objectType refAllocVar (typeType aType, const intType aCategory)
     logFunction(printf("refAllocVar(");
                 printtype(aType);
                 printf(", ");
-                printcategory(aCategory);
+                printcategory((objectCategory) aCategory);
                 printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
@@ -195,6 +195,9 @@ objectType refAllocVar (typeType aType, const intType aCategory)
         memset(&created_object->value, 0, sizeof(valueUnion));
       } /* if */
     } /* if */
+    logFunction(printf("refAllocVar --> ");
+                trace1(created_object);
+                printf("\n"););
     return created_object;
   } /* refAllocVar */
 
@@ -262,17 +265,24 @@ void refAppendParams (objectType funcRef, const_listType params)
  */
 intType refArrMaxIdx (const const_objectType arrayRef)
 
-  { /* refArrMaxIdx */
+  {
+    intType maxIdx;
+
+  /* refArrMaxIdx */
+    logFunction(printf("refArrMaxIdx(");
+                trace1(arrayRef);
+                printf(")\n"););
     if (unlikely(arrayRef == NULL ||
                  CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrMaxIdx(");
                trace1(arrayRef);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
-      return 0;
+      maxIdx = 0;
     } else {
-      return take_array(arrayRef)->max_position;
+      maxIdx = take_array(arrayRef)->max_position;
     } /* if */
+    return maxIdx;
   } /* refArrMaxIdx */
 
 
@@ -285,17 +295,24 @@ intType refArrMaxIdx (const const_objectType arrayRef)
  */
 intType refArrMinIdx (const const_objectType arrayRef)
 
-  { /* refArrMinIdx */
+  {
+    intType minIdx;
+
+  /* refArrMinIdx */
+    logFunction(printf("refArrMinIdx(");
+                trace1(arrayRef);
+                printf(")\n"););
     if (unlikely(arrayRef == NULL ||
                  CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrMinIdx(");
                trace1(arrayRef);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
-      return 0;
+      minIdx = 0;
     } else {
-      return take_array(arrayRef)->min_position;
+      minIdx = take_array(arrayRef)->min_position;
     } /* if */
+    return minIdx;
   } /* refArrMinIdx */
 
 
@@ -308,6 +325,9 @@ listType refArrToList (const const_objectType arrayRef)
     listType result;
 
   /* refArrToList */
+    logFunction(printf("refArrToList(");
+                trace1(arrayRef);
+                printf(")\n"););
     if (unlikely(arrayRef == NULL ||
                  CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrToList(");
@@ -400,6 +420,8 @@ intType refCatParse (const const_striType catName)
     intType category;
 
   /* refCatParse */
+    logFunction(printf("refCatParse(\"%s\")\n",
+                       striAsUnquotedCStri(catName)););
     if (unlikely(catName->size > MAX_CSTRI_BUFFER_LEN)) {
       category = -1;
     } else {
@@ -476,6 +498,9 @@ listType refHshDataToList (const const_objectType aReference)
     listType result;
 
   /* refHshDataToList */
+    logFunction(printf("refHshDataToList(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
       logError(printf("refHshDataToList(");
@@ -502,6 +527,9 @@ listType refHshKeysToList (const const_objectType aReference)
     listType result;
 
   /* refHshKeysToList */
+    logFunction(printf("refHshKeysToList(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
       logError(printf("refHshKeysToList(");
@@ -527,6 +555,9 @@ intType refHshLength (const const_objectType aReference)
     intType length;
 
   /* refHshLength */
+    logFunction(printf("refHshLength(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != HASHOBJECT)) {
       logError(printf("refHshLength(");

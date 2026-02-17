@@ -259,11 +259,17 @@ const string: chkprc_output is "\n\
   \For boolean to statements work correctly.\n\
   \For boolean downto statements work correctly.\n\
   \For bigInteger statements work correctly.\n\
+  \Case boolean statements work correctly.\n\
   \Case integer statements work correctly.\n\
+  \Case enumeration statements work correctly.\n\
   \Case char statements work correctly.\n\
   \Case string statements work correctly.\n\
+  \Case bstring statements work correctly.\n\
   \Case bigInteger statements work correctly.\n\
-  \Case float statements work correctly.\n";
+  \Case float statements work correctly.\n\
+  \Case rational statements work correctly.\n\
+  \Case bitset statements work correctly.\n\
+  \Case type statements work correctly.\n";
 
 const string: chkbig_output is "\n\
   \Based bigInteger literals work correctly.\n\

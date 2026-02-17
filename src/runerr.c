@@ -436,7 +436,7 @@ objectType raise_with_obj_and_args (objectType exception,
       } /* if */
       fail_expression = copy_list(list, &err_info);
       if (fail_expr_stri != NULL) {
-        strDestr(fail_expr_stri);
+        FREE_STRI(fail_expr_stri);
       } /* if */
       copyCStri(&fail_expr_stri, "");
       appendListLimited(&fail_expr_stri, list, 3);

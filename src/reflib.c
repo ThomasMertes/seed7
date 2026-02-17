@@ -128,7 +128,7 @@ objectType ref_alloc_var (listType arguments)
     logFunction(printf("ref_alloc_var(");
                 printtype(take_type(arg_1(arguments)));
                 printf(", ");
-                printcategory(take_int(arg_2(arguments)));
+                printcategory((objectCategory) take_int(arg_2(arguments)));
                 printf(")\n"););
     return bld_reference_temp(
         refAllocVar(take_type(arg_1(arguments)),
@@ -163,6 +163,9 @@ objectType ref_arrmaxidx (listType arguments)
 
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
+    logFunction(printf("ref_arrmaxidx(");
+                trace1(take_reference(arg_1(arguments)));
+                printf(")\n"););
     return bld_int_temp(refArrMaxIdx(
         take_reference(arg_1(arguments))));
   } /* ref_arrmaxidx */
@@ -179,6 +182,9 @@ objectType ref_arrminidx (listType arguments)
 
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
+    logFunction(printf("ref_arrminidx(");
+                trace1(take_reference(arg_1(arguments)));
+                printf(")\n"););
     return bld_int_temp(refArrMinIdx(
         take_reference(arg_1(arguments))));
   } /* ref_arrminidx */

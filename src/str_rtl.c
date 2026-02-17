@@ -1100,51 +1100,19 @@ void strAppend (striType *const destination, const_striType extension)
     stri_dest = *destination;
     extension_size = extension->size;
     extension_mem = extension->mem;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension_size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension_size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension_size;
 #if WITH_STRI_CAPACITY
-      if (new_size > stri_dest->capacity) {
-        if (SLICE_OVERLAPPING(extension, stri_dest)) {
-          extension_origin = stri_dest->mem;
-        } else {
-          extension_origin = NULL;
-        } /* if */
-        new_stri = growStri(stri_dest, new_size);
-        if (unlikely(new_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          if (unlikely(extension_origin != NULL)) {
-            /* It is possible that 'extension' is identical to    */
-            /* 'stri_dest' or a slice of it. This can be checked  */
-            /* with the origin. In this case 'extension_mem' must */
-            /* be corrected after realloc() enlarged 'stri_dest'. */
-            extension_mem = &new_stri->mem[extension_mem - extension_origin];
-            /* Correcting extension->mem is not necessary, since  */
-            /* a slice will not be used afterwards. In case       */
-            /* 'extension is identical to 'stri_dest' changing    */
-            /* extension->mem is dangerous since 'extension'      */
-            /* could have been released.                          */
-          } /* if */
-          stri_dest = new_stri;
-          *destination = stri_dest;
-        } /* if */
-      } /* if */
-      memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
-             extension_size * sizeof(strElemType));
-      stri_dest->size = new_size;
-#else
+    if (new_size > stri_dest->capacity) {
       if (SLICE_OVERLAPPING(extension, stri_dest)) {
         extension_origin = stri_dest->mem;
       } else {
         extension_origin = NULL;
       } /* if */
-      GROW_STRI(new_stri, stri_dest, new_size);
+      new_stri = growStri(stri_dest, new_size);
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
+        return;
       } else {
         if (unlikely(extension_origin != NULL)) {
           /* It is possible that 'extension' is identical to    */
@@ -1158,13 +1126,41 @@ void strAppend (striType *const destination, const_striType extension)
           /* extension->mem is dangerous since 'extension'      */
           /* could have been released.                          */
         } /* if */
-        memcpy(&new_stri->mem[new_stri->size], extension_mem,
-               extension_size * sizeof(strElemType));
-        new_stri->size = new_size;
-        *destination = new_stri;
+        stri_dest = new_stri;
+        *destination = stri_dest;
       } /* if */
-#endif
     } /* if */
+    memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
+           extension_size * sizeof(strElemType));
+    stri_dest->size = new_size;
+#else
+    if (SLICE_OVERLAPPING(extension, stri_dest)) {
+      extension_origin = stri_dest->mem;
+    } else {
+      extension_origin = NULL;
+    } /* if */
+    GROW_STRI(new_stri, stri_dest, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      if (unlikely(extension_origin != NULL)) {
+        /* It is possible that 'extension' is identical to    */
+        /* 'stri_dest' or a slice of it. This can be checked  */
+        /* with the origin. In this case 'extension_mem' must */
+        /* be corrected after realloc() enlarged 'stri_dest'. */
+        extension_mem = &new_stri->mem[extension_mem - extension_origin];
+        /* Correcting extension->mem is not necessary, since  */
+        /* a slice will not be used afterwards. In case       */
+        /* 'extension is identical to 'stri_dest' changing    */
+        /* extension->mem is dangerous since 'extension'      */
+        /* could have been released.                          */
+      } /* if */
+      memcpy(&new_stri->mem[new_stri->size], extension_mem,
+             extension_size * sizeof(strElemType));
+      new_stri->size = new_size;
+      *destination = new_stri;
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
@@ -1362,35 +1358,14 @@ void strAppend (striType *const destination, const_striType extension)
                 printf("\"%s\")", striAsUnquotedCStri(extension));
                 fflush(stdout););
     stri_dest = *destination;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension->size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension->size;
 #if WITH_STRI_CAPACITY
-      if (new_size > stri_dest->capacity) {
-        new_stri = growStri(stri_dest, new_size);
-        if (unlikely(new_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          if (unlikely(stri_dest == extension)) {
-            /* It is possible that stri_dest == extension holds. */
-            /* In this case 'extension' must be corrected        */
-            /* after realloc() enlarged 'stri_dest'.             */
-            extension = new_stri;
-          } /* if */
-          stri_dest = new_stri;
-          *destination = stri_dest;
-        } /* if */
-      } /* if */
-      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-             extension->size * sizeof(strElemType));
-      stri_dest->size = new_size;
-#else
-      GROW_STRI(new_stri, stri_dest, new_size);
+    if (new_size > stri_dest->capacity) {
+      new_stri = growStri(stri_dest, new_size);
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
+        return;
       } else {
         if (unlikely(stri_dest == extension)) {
           /* It is possible that stri_dest == extension holds. */
@@ -1398,13 +1373,30 @@ void strAppend (striType *const destination, const_striType extension)
           /* after realloc() enlarged 'stri_dest'.             */
           extension = new_stri;
         } /* if */
-        memcpy(&new_stri->mem[new_stri->size], extension->mem,
-               extension->size * sizeof(strElemType));
-        new_stri->size = new_size;
-        *destination = new_stri;
+        stri_dest = new_stri;
+        *destination = stri_dest;
       } /* if */
-#endif
     } /* if */
+    memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+           extension->size * sizeof(strElemType));
+    stri_dest->size = new_size;
+#else
+    GROW_STRI(new_stri, stri_dest, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      if (unlikely(stri_dest == extension)) {
+        /* It is possible that stri_dest == extension holds. */
+        /* In this case 'extension' must be corrected        */
+        /* after realloc() enlarged 'stri_dest'.             */
+        extension = new_stri;
+      } /* if */
+      memcpy(&new_stri->mem[new_stri->size], extension->mem,
+             extension->size * sizeof(strElemType));
+      new_stri->size = new_size;
+      *destination = new_stri;
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
@@ -1530,10 +1522,10 @@ void strAppendNoOverlap (striType *const restrict destination,
     const const_striType restrict extension)
 
   {
+    memSizeType old_size;
     memSizeType new_size;
     striType stri_dest;
     striType new_stri;
-    memSizeType extension_size;
 
   /* strAppendNoOverlap */
     logFunction(printf("strAppendNoOverlap(\"%s\", ",
@@ -1541,38 +1533,34 @@ void strAppendNoOverlap (striType *const restrict destination,
                 printf("\"%s\")", striAsUnquotedCStri(extension));
                 fflush(stdout););
     stri_dest = *destination;
-    extension_size = extension->size;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension_size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension_size;
+    old_size = stri_dest->size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = old_size + extension->size;
 #if WITH_STRI_CAPACITY
-      if (new_size > stri_dest->capacity) {
-        new_stri = growStri(stri_dest, new_size);
-        if (unlikely(new_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          stri_dest = new_stri;
-          *destination = stri_dest;
-        } /* if */
-      } /* if */
-      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-             extension_size * sizeof(strElemType));
-      stri_dest->size = new_size;
-#else
-      GROW_STRI(new_stri, stri_dest, new_size);
+    if (new_size > stri_dest->capacity) {
+      new_stri = growStri(stri_dest, new_size);
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
+        return;
       } else {
-        memcpy(&new_stri->mem[new_stri->size], extension->mem,
-               extension_size * sizeof(strElemType));
-        new_stri->size = new_size;
-        *destination = new_stri;
+        stri_dest = new_stri;
+        *destination = stri_dest;
       } /* if */
-#endif
     } /* if */
+    memcpy(&stri_dest->mem[old_size], extension->mem,
+           extension->size * sizeof(strElemType));
+    stri_dest->size = new_size;
+#else
+    GROW_STRI(new_stri, stri_dest, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memcpy(&new_stri->mem[old_size], extension->mem,
+             extension->size * sizeof(strElemType));
+      new_stri->size = new_size;
+      *destination = new_stri;
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendNoOverlap */
 
@@ -1712,42 +1700,26 @@ void strAppendTemp (striType *const restrict destination,
                 printf("\"%s\")", striAsUnquotedCStri(extension));
                 fflush(stdout););
     stri_dest = *destination;
-    if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
-      /* number of bytes does not fit into memSizeType */
-      raise_error(MEMORY_ERROR);
-    } else {
-      new_size = stri_dest->size + extension->size;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension->size;
 #if WITH_STRI_CAPACITY
-      if (new_size <= stri_dest->capacity) {
-        memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-               extension->size * sizeof(strElemType));
-        stri_dest->size = new_size;
-        FREE_STRI(extension);
-      } else if (new_size <= extension->capacity) {
-        if (stri_dest->size != 0) {
-          memmove(&extension->mem[stri_dest->size], extension->mem,
-                  extension->size * sizeof(strElemType));
-          memcpy(extension->mem, stri_dest->mem,
-                 stri_dest->size * sizeof(strElemType));
-          extension->size = new_size;
-        } /* if */
-        *destination = extension;
-        FREE_STRI(stri_dest);
-      } else {
-        stri_dest = growStri(stri_dest, new_size);
-        if (unlikely(stri_dest == NULL)) {
-          FREE_STRI(extension);
-          raise_error(MEMORY_ERROR);
-        } else {
-          *destination = stri_dest;
-          memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-                 extension->size * sizeof(strElemType));
-          stri_dest->size = new_size;
-          FREE_STRI(extension);
-        } /* if */
+    if (new_size <= stri_dest->capacity) {
+      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+             extension->size * sizeof(strElemType));
+      stri_dest->size = new_size;
+      FREE_STRI(extension);
+    } else if (new_size <= extension->capacity) {
+      if (stri_dest->size != 0) {
+        memmove(&extension->mem[stri_dest->size], extension->mem,
+                extension->size * sizeof(strElemType));
+        memcpy(extension->mem, stri_dest->mem,
+               stri_dest->size * sizeof(strElemType));
+        extension->size = new_size;
       } /* if */
-#else
-      GROW_STRI(stri_dest, stri_dest, new_size);
+      *destination = extension;
+      FREE_STRI(stri_dest);
+    } else {
+      stri_dest = growStri(stri_dest, new_size);
       if (unlikely(stri_dest == NULL)) {
         FREE_STRI(extension);
         raise_error(MEMORY_ERROR);
@@ -1758,8 +1730,20 @@ void strAppendTemp (striType *const restrict destination,
         stri_dest->size = new_size;
         FREE_STRI(extension);
       } /* if */
-#endif
     } /* if */
+#else
+    GROW_STRI(stri_dest, stri_dest, new_size);
+    if (unlikely(stri_dest == NULL)) {
+      FREE_STRI(extension);
+      raise_error(MEMORY_ERROR);
+    } else {
+      *destination = stri_dest;
+      memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
+             extension->size * sizeof(strElemType));
+      stri_dest->size = new_size;
+      FREE_STRI(extension);
+    } /* if */
+#endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendTemp */
 
@@ -2235,21 +2219,16 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
     logFunction(printf("strConcat(\"%s\", ", striAsUnquotedCStri(stri1));
                 printf("\"%s\")", striAsUnquotedCStri(stri2));
                 fflush(stdout););
-    if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
-      /* number of bytes does not fit into memSizeType */
+    /* Adding two string sizes cannot overflow. */
+    result_size = stri1->size + stri2->size;
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
     } else {
-      result_size = stri1->size + stri2->size;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        memcpy(result->mem, stri1->mem,
-               stri1->size * sizeof(strElemType));
-        memcpy(&result->mem[stri1->size], stri2->mem,
-               stri2->size * sizeof(strElemType));
-      } /* if */
+      result->size = result_size;
+      memcpy(result->mem, stri1->mem,
+             stri1->size * sizeof(strElemType));
+      memcpy(&result->mem[stri1->size], stri2->mem,
+             stri2->size * sizeof(strElemType));
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
