@@ -261,6 +261,7 @@ const string: chkprc_output is "\n\
   \For bigInteger statements work correctly.\n\
   \Case boolean statements work correctly.\n\
   \Case integer statements work correctly.\n\
+  \Case enumeration statements work correctly.\n\
   \Case char statements work correctly.\n\
   \Case string statements work correctly.\n\
   \Case bigInteger statements work correctly.\n\
