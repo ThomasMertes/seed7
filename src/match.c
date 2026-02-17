@@ -925,10 +925,12 @@ static objectType match_subexpr (objectType expr_object,
         } /* if */
         if (CATEGORY_OF_OBJ(attribute_object) == TYPEOBJECT) {
           object_type = take_type(attribute_object);
-          /* Attribute */
-          matched_object = match_subexpr_attr(expr_object, start_node,
-              object_type, rest_of_expression, check_access_right,
-              look_for_interfaces);
+          if (object_type != NULL) {
+            /* Attribute */
+            matched_object = match_subexpr_attr(expr_object, start_node,
+                object_type, rest_of_expression, check_access_right,
+                look_for_interfaces);
+          } /* if */
         } /* if */
       } /* if */
       if (matched_object == NULL) {
@@ -984,13 +986,12 @@ static objectType match_subexpr (objectType expr_object,
               if (CATEGORY_OF_OBJ(current_element) == CALLOBJECT) {
                 if (CATEGORY_OF_OBJ(current_element->value.listValue->obj) == TYPEOBJECT) {
                   object_type = take_type(current_element->value.listValue->obj);
-                  /* Attribute */
-                  matched_object = match_subexpr_attr(expr_object, start_node,
-                      object_type, rest_of_expression, check_access_right,
-                      look_for_interfaces);
-                /* } else {
-                  trace1(current_element->value.listValue->obj);
-                  printf("\n"); */
+                  if (object_type != NULL) {
+                    /* Attribute */
+                    matched_object = match_subexpr_attr(expr_object, start_node,
+                        object_type, rest_of_expression, check_access_right,
+                        look_for_interfaces);
+                  } /* if */
                 } /* if */
               } else if (CATEGORY_OF_OBJ(current_element) == MATCHOBJECT) {
                 if (CATEGORY_OF_OBJ(current_element->value.listValue->obj) == ACTOBJECT) {
