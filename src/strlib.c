@@ -1916,20 +1916,17 @@ objectType str_value (listType arguments)
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != STRIOBJECT ||
-                 take_stri(aReference) == NULL)) {
+                 (stri = take_stri(aReference)) == NULL)) {
       logError(printf("str_value(");
                trace1(aReference);
-               printf("): Category is not STRIOBJECT.\n"););
+               printf("): Not a legal STRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(!ALLOC_STRI_SIZE_OK(result, stri->size))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      stri = take_stri(aReference);
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, stri->size))) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result->size = stri->size;
-        memcpy(result->mem, stri->mem,
-               result->size * sizeof(strElemType));
-        return bld_stri_temp(result);
-      } /* if */
+      result->size = stri->size;
+      memcpy(result->mem, stri->mem,
+             result->size * sizeof(strElemType));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_value */

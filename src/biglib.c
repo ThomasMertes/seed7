@@ -1065,23 +1065,25 @@ objectType big_to_bstri_le (listType arguments)
  *  Get 'bigInteger' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'bigInteger' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
- *             category(aReference) <> BIGINTOBJECT holds.
+ *             category(aReference/arg_1) <> BIGINTOBJECT holds.
  */
 objectType big_value (listType arguments)
 
   {
     objectType aReference;
+    bigIntType number;
 
   /* big_value */
     isit_reference(arg_1(arguments));
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != BIGINTOBJECT)) {
+                 CATEGORY_OF_OBJ(aReference) != BIGINTOBJECT ||
+                 (number = take_bigint(aReference)) == NULL)) {
       logError(printf("big_value(");
                trace1(aReference);
-               printf("): Category is not BIGINTOBJECT.\n"););
+               printf("): Not a legal BIGINTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_bigint_temp(bigCreate(take_bigint(aReference)));
+      return bld_bigint_temp(bigCreate(number));
     } /* if */
   } /* big_value */

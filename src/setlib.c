@@ -1076,13 +1076,12 @@ objectType set_value (listType arguments)
     obj_arg = take_reference(arg_1(arguments));
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
-                 take_set(obj_arg) == NULL)) {
+                 (aSet = take_set(obj_arg)) == NULL)) {
       logError(printf("set_value(");
                trace1(obj_arg);
-               printf("): Category is not SETOBJECT.\n"););
+               printf("): Not a legal SETOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      aSet = take_set(obj_arg);
       set_size = bitsetSize(aSet);
       if (!ALLOC_SET(result, set_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);

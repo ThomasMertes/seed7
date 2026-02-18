@@ -393,17 +393,19 @@ objectType pol_value (listType arguments)
 
   {
     objectType obj_arg;
+    pollType pollData;
 
   /* pol_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT)) {
+                 CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT ||
+                 (pollData = take_poll(obj_arg)) == NULL)) {
       logError(printf("pol_value(");
                trace1(obj_arg);
-               printf("): Category is not POLLOBJECT.\n"););
+               printf("): Not a legal POLLOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_poll_temp(polCreate(take_poll(obj_arg)));
+      return bld_poll_temp(polCreate(pollData));
     } /* if */
   } /* pol_value */

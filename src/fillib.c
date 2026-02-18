@@ -793,18 +793,23 @@ objectType fil_value (listType arguments)
 
   {
     objectType aReference;
+    fileType aFile;
 
   /* fil_value */
     isit_reference(arg_1(arguments));
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != FILEOBJECT)) {
+                 CATEGORY_OF_OBJ(aReference) != FILEOBJECT ||
+                 (aFile = take_file(aReference)) == NULL)) {
       logError(printf("fil_value(");
                trace1(aReference);
-               printf("): Category is not FILEOBJECT.\n"););
+               printf("): Not a legal FILEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_file_temp(take_file(aReference));
+      if (aFile->usage_count != 0) {
+        aFile->usage_count++;
+      } /* if */
+      return bld_file_temp(aFile);
     } /* if */
   } /* fil_value */
 

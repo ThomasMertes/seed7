@@ -1554,14 +1554,14 @@ objectType drw_value (listType arguments)
                        obj_arg != NULL ? CATEGORY_OF_OBJ(obj_arg)
                                        : 0););
     if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
+                 CATEGORY_OF_OBJ(obj_arg) != WINOBJECT ||
+                 (win_value = take_win(obj_arg)) == NULL)) {
       logError(printf("drw_value(");
                trace1(obj_arg);
-               printf("): Category is not WINOBJECT.\n"););
+               printf("): Not a legal WINOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      win_value = take_win(obj_arg);
-      if (win_value != NULL && win_value->usage_count != 0) {
+      if (win_value->usage_count != 0) {
         win_value->usage_count++;
       } /* if */
       logFunction(printf("drw_value --> " FMT_U_MEM " (usage=" FMT_U ")\n",
@@ -1918,21 +1918,18 @@ objectType plt_value (listType arguments)
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != POINTLISTOBJECT ||
-                 take_pointlist(aReference) == NULL)) {
+                 (plist = take_pointlist(aReference)) == NULL)) {
       logError(printf("plt_value(");
                trace1(aReference);
-               printf("): Category is not POINTLISTOBJECT.\n"););
+               printf("): Not a legal POINTLISTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, plist->size))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      plist = take_pointlist(aReference);
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, plist->size))) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result->size = plist->size;
-        memcpy_size_0_okay(result->mem, plist->mem,
-                           (size_t) plist->size);
-        logFunction(printf("plt_value -->\n"););
-        return bld_pointlist_temp(result);
-      } /* if */
+      result->size = plist->size;
+      memcpy_size_0_okay(result->mem, plist->mem,
+                         (size_t) plist->size);
+      logFunction(printf("plt_value -->\n"););
+      return bld_pointlist_temp(result);
     } /* if */
   } /* plt_value */

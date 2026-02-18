@@ -625,6 +625,7 @@ objectType prg_value (listType arguments)
 
   {
     objectType aReference;
+    progType aProg;
 
   /* prg_value */
     isit_reference(arg_1(arguments));
@@ -636,6 +637,10 @@ objectType prg_value (listType arguments)
                printf("): Category is not PROGOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_prog_temp(take_prog(aReference));
+      aProg = take_prog(aReference);
+      if (aProg != NULL) {
+        aProg->usage_count++;
+      } /* if */
+      return bld_prog_temp(aProg);
     } /* if */
   } /* prg_value */

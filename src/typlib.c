@@ -557,10 +557,11 @@ objectType typ_value (listType arguments)
     isit_reference(arg_1(arguments));
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != TYPEOBJECT)) {
+                 CATEGORY_OF_OBJ(aReference) != TYPEOBJECT ||
+                 take_type(aReference) == NULL)) {
       logError(printf("typ_value(");
                trace1(aReference);
-               printf("): Category is not TYPEOBJECT.\n"););
+               printf("): Not a legal TYPEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return aReference;

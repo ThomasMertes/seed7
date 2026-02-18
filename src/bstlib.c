@@ -507,21 +507,18 @@ objectType bst_value (listType arguments)
     aReference = take_reference(arg_1(arguments));
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != BSTRIOBJECT ||
-                 take_bstri(aReference) == NULL)) {
+                 (bstri = take_bstri(aReference)) == NULL)) {
       logError(printf("bst_value(");
                trace1(aReference);
-               printf("): Category is not BSTRIOBJECT.\n"););
+               printf("): Not a legal BSTRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      bstri = take_bstri(aReference);
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result->size = bstri->size;
-        memcpy_size_0_okay(result->mem, bstri->mem,
-                           (size_t) bstri->size);
-        logFunction(printf("bst_value -->\n"););
-        return bld_bstri_temp(result);
-      } /* if */
+      result->size = bstri->size;
+      memcpy_size_0_okay(result->mem, bstri->mem,
+                         (size_t) bstri->size);
+      logFunction(printf("bst_value -->\n"););
+      return bld_bstri_temp(result);
     } /* if */
   } /* bst_value */
