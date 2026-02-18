@@ -1524,8 +1524,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_RESULT, function, params, c_expr);
       when {"REF_SCTTOLIST"}:
         process(REF_SCTTOLIST, function, params, c_expr);
-      when {"REF_SELECT"}:
-        process(REF_SELECT, function, params, c_expr);
       when {"REF_SETCATEGORY"}:
         process(REF_SETCATEGORY, function, params, c_expr);
       when {"REF_SETPARAMS"}:

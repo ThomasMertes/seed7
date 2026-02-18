@@ -57,7 +57,6 @@ const ACTION: REF_PATH           is action "REF_PATH";
 const ACTION: REF_RESINI         is action "REF_RESINI";
 const ACTION: REF_RESULT         is action "REF_RESULT";
 const ACTION: REF_SCTTOLIST      is action "REF_SCTTOLIST";
-const ACTION: REF_SELECT         is action "REF_SELECT";
 const ACTION: REF_SETCATEGORY    is action "REF_SETCATEGORY";
 const ACTION: REF_SETPARAMS      is action "REF_SETPARAMS";
 const ACTION: REF_SETTYPE        is action "REF_SETTYPE";
@@ -491,34 +490,6 @@ const proc: process (REF_SCTTOLIST, in reference: function,
     c_expr.result_expr := "refSctToList(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (REF_SELECT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var type: object_type is void;
-  begin
-    object_type := getExprResultType(params[1]);
-    if object_type in typeData.struct_element_idx and
-        params[3] in typeData.struct_element_idx[object_type] then
-      if category(params[1]) = REFPARAMOBJECT and isVar(params[1]) then
-        c_expr.expr &:= "(*((structType *)(";
-        getAnyParamToExpr(params[1], c_expr);
-        c_expr.expr &:= ")))->stru[";
-      else
-        c_expr.expr &:= "((structType)(";
-        getAnyParamToExpr(params[1], c_expr);
-        c_expr.expr &:= "))->stru[";
-      end if;
-      c_expr.expr &:= str(typeData.struct_element_idx[object_type][params[3]]);
-      c_expr.expr &:= "]";
-      c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
-      c_expr.expr &:= "/*->o_";
-      create_name2(params[3], c_expr.expr);
-      c_expr.expr &:= "*/";
-    end if;
   end func;
 
 

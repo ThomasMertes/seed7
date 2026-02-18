@@ -4960,34 +4960,6 @@ const proc: addStructElem (in type: structType, in type: elemType, in reference:
   end func;
 
 
-const proc: process_ref_select_declaration (in reference: current_object,
-    inout expr_type: c_expr) is func
-
-  local
-    var ref_list: params is ref_list.EMPTY;
-    var type: elemType is void;
-    var type: structType is void;
-    var reference: elementOfStruct is NIL;
-  begin
-    params := formalParams(current_object);
-    if length(params) >= 3 and not isVar(params[1]) then
-      structType := getType(params[1]);
-      elementOfStruct := params[3];
-      elemType := resultType(getType(current_object));
-      addStructElem(structType, elemType, elementOfStruct);
-      c_expr.expr &:= "/* ref struct element ";
-      c_expr.expr &:= type_name2(elemType);
-      c_expr.expr &:= " ** ";
-      c_expr.expr &:= type_name2(structType);
-      c_expr.expr &:= "->o_";
-      create_name2(elementOfStruct, c_expr.expr);
-      c_expr.expr &:= " = ";
-      c_expr.expr &:= str(typeData.struct_element_idx[structType][elementOfStruct]);
-      c_expr.expr &:= " */\n";
-    end if;
-  end func;
-
-
 const proc: process_sct_cpy_declaration (in reference: current_object) is func
 
   local
@@ -5186,9 +5158,6 @@ const proc: process_action_declaration (in reference: current_object,
         count_declarations(c_expr);
       elsif action_name = "REF_CPY" or action_name = "REF_CREATE" then
         defineParam1TypeCategory(current_object, REFOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "REF_SELECT" then
-        process_ref_select_declaration(current_object, c_expr);
         count_declarations(c_expr);
       elsif action_name = "RFL_CPY" or action_name = "RFL_CREATE" then
         defineParam1TypeCategory(current_object, REFLISTOBJECT);
