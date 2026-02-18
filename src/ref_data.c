@@ -166,43 +166,6 @@ objectType refAllocStri (boolType isVar, typeType aType,
 
 
 
-objectType refAllocVar (typeType aType, const intType aCategory)
-
-  {
-    errInfoType err_info = OKAY_NO_ERROR;
-    objectType created_object;
-
-  /* refAllocVar */
-    logFunction(printf("refAllocVar(");
-                printtype(aType);
-                printf(", ");
-                printcategory((objectCategory) aCategory);
-                printf(")\n"););
-    if (unlikely(!ALLOC_OBJECT(created_object))) {
-      raise_error(MEMORY_ERROR);
-    } else if (unlikely(aType->owningProg == NULL)) {
-      raise_error(RANGE_ERROR);
-    } else {
-      incl_list(&aType->owningProg->allocated_objects, created_object, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_OBJECT(created_object);
-        raise_error(MEMORY_ERROR);
-      } else {
-        created_object->type_of = aType;
-        created_object->descriptor.property = NULL;
-        INIT_CATEGORY_OF_OBJ(created_object, aCategory);
-        SET_VAR_FLAG(created_object);
-        memset(&created_object->value, 0, sizeof(valueUnion));
-      } /* if */
-    } /* if */
-    logFunction(printf("refAllocVar --> ");
-                trace1(created_object);
-                printf("\n"););
-    return created_object;
-  } /* refAllocVar */
-
-
-
 /**
  *  Append 'params' to the formal parameters of 'funcRef'.
  *  @exception RANGE_ERROR If 'funcRef' is NIL.

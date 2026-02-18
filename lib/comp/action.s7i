@@ -1464,8 +1464,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_ALLOC_INT, function, params, c_expr);
       when {"REF_ALLOC_STRI"}:
         process(REF_ALLOC_STRI, function, params, c_expr);
-      when {"REF_ALLOC_VAR"}:
-        process(REF_ALLOC_VAR, function, params, c_expr);
       when {"REF_APPEND_PARAMS"}:
         process(REF_APPEND_PARAMS, function, params, c_expr);
       when {"REF_ARRMAXIDX"}:

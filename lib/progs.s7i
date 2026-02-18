@@ -746,8 +746,6 @@ const func reference: alloc (in reference: aReference)                 is action
 const func reference: alloc (in boolean: isVar, in type: aType, in integer: number) is action "REF_ALLOC_INT";
 const func reference: alloc (in boolean: isVar, in type: aType, in string: stri)    is action "REF_ALLOC_STRI";
 
-const func reference: allocVar (in type: aType, in category: aCategory)      is action "REF_ALLOC_VAR";
-
 const func boolean: getValue (in reference: aReference, attr boolean)        is action "BLN_VALUE";
 const func integer: getValue (in reference: aReference, attr integer)        is action "INT_VALUE";
 const func char: getValue (in reference: aReference, attr char)              is action "CHR_VALUE";

@@ -120,23 +120,6 @@ objectType ref_alloc_stri (listType arguments)
 
 
 
-objectType ref_alloc_var (listType arguments)
-
-  { /* ref_alloc_var */
-    isit_type(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    logFunction(printf("ref_alloc_var(");
-                printtype(take_type(arg_1(arguments)));
-                printf(", ");
-                printcategory((objectCategory) take_int(arg_2(arguments)));
-                printf(")\n"););
-    return bld_reference_temp(
-        refAllocVar(take_type(arg_1(arguments)),
-                    take_int(arg_2(arguments))));
-  } /* ref_alloc_var */
-
-
-
 /**
  *  Append params/arg_2 to the formal parameters of funcRef/arg_1.
  *  @exception RANGE_ERROR If funcRef/arg_1 is NIL.
