@@ -229,6 +229,7 @@ void refAppendParams (objectType funcRef, const_listType params)
 intType refArrMaxIdx (const const_objectType arrayRef)
 
   {
+    arrayType arrayValue;
     intType maxIdx;
 
   /* refArrMaxIdx */
@@ -243,7 +244,16 @@ intType refArrMaxIdx (const const_objectType arrayRef)
       raise_error(RANGE_ERROR);
       maxIdx = 0;
     } else {
-      maxIdx = take_array(arrayRef)->max_position;
+      arrayValue = take_array(arrayRef);
+      if (unlikely(arrayValue == NULL)) {
+        logError(printf("refArrMaxIdx(");
+                 trace1(arrayRef);
+                 printf("): Array value is NULL\n"););
+        raise_error(RANGE_ERROR);
+        maxIdx = 0;
+      } else {
+        maxIdx = arrayValue->max_position;
+      } /* if */
     } /* if */
     return maxIdx;
   } /* refArrMaxIdx */
@@ -259,6 +269,7 @@ intType refArrMaxIdx (const const_objectType arrayRef)
 intType refArrMinIdx (const const_objectType arrayRef)
 
   {
+    arrayType arrayValue;
     intType minIdx;
 
   /* refArrMinIdx */
@@ -273,7 +284,16 @@ intType refArrMinIdx (const const_objectType arrayRef)
       raise_error(RANGE_ERROR);
       minIdx = 0;
     } else {
-      minIdx = take_array(arrayRef)->min_position;
+      arrayValue = take_array(arrayRef);
+      if (unlikely(arrayValue == NULL)) {
+        logError(printf("refArrMinIdx(");
+                 trace1(arrayRef);
+                 printf("): Array value is NULL\n"););
+        raise_error(RANGE_ERROR);
+        minIdx = 0;
+      } else {
+        minIdx = arrayValue->min_position;
+      } /* if */
     } /* if */
     return minIdx;
   } /* refArrMinIdx */
@@ -300,7 +320,14 @@ listType refArrToList (const const_objectType arrayRef)
       result = NULL;
     } else {
       arrayValue = take_array(arrayRef);
-      if (unlikely(arrayValue->min_position > arrayValue->max_position &&
+      if (unlikely(arrayValue == NULL)) {
+        logError(printf("refArrToList(");
+                 trace1(arrayRef);
+                 printf("): Array value is NULL\n"););
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else if (unlikely(arrayValue->min_position >
+                          arrayValue->max_position &&
                    arraySize(arrayValue) != 0)) {
         logError(printf("refArrToList(");
                  trace1(arrayRef);
