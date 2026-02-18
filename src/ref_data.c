@@ -80,7 +80,11 @@ objectType refAlloc (const const_objectType obj1)
   /* refAlloc */
     logFunction(printf("refAlloc(" FMT_U_MEM ")",
                        (memSizeType) obj1););
-    if (unlikely(!ALLOC_OBJECT(created_object))) {
+    if (unlikely(obj1 == NULL)) {
+      logError(printf("refAlloc(NULL)\n"););
+      raise_error(RANGE_ERROR);
+      created_object = NULL;
+    } else if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
       if (HAS_PROPERTY(obj1)) {
