@@ -742,6 +742,7 @@ const func integer: objNumber (in reference: aReference)               is action
 
 
 const func reference: alloc (in reference: aReference)                 is action "REF_ALLOC";
+const func reference: alloc (in category: aCategory, in reference: aReference)      is action "REF_ALLOC_REF";
 
 const func reference: alloc (in boolean: isVar, in type: aType, in integer: number) is action "REF_ALLOC_INT";
 const func reference: alloc (in boolean: isVar, in type: aType, in string: stri)    is action "REF_ALLOC_STRI";

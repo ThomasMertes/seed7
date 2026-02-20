@@ -5308,8 +5308,7 @@ const proc: replaceLocalsFromOutside (in reference: local_function,
             formalRefParam := params_added[local_function][aParam];
           else
             additional_act_params &:= make_list(aParam);
-            formalRefParam := alloc(aParam);
-            setCategory(formalRefParam, REFPARAMOBJECT);
+            formalRefParam := alloc(REFPARAMOBJECT, aParam);
             additional_form_params &:= make_list(formalRefParam);
           end if;
           params @:= [paramNum] formalRefParam;
