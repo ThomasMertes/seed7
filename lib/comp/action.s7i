@@ -1462,6 +1462,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_ALLOC, function, params, c_expr);
       when {"REF_ALLOC_INT"}:
         process(REF_ALLOC_INT, function, params, c_expr);
+      when {"REF_ALLOC_REF"}:
+        process(REF_ALLOC_REF, function, params, c_expr);
       when {"REF_ALLOC_STRI"}:
         process(REF_ALLOC_STRI, function, params, c_expr);
       when {"REF_APPEND_PARAMS"}:
