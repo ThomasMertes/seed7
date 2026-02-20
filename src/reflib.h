@@ -27,6 +27,7 @@
 
 objectType ref_alloc         (listType arguments);
 objectType ref_alloc_int     (listType arguments);
+objectType ref_alloc_ref     (listType arguments);
 objectType ref_alloc_stri    (listType arguments);
 objectType ref_append_params (listType arguments);
 objectType ref_arrmaxidx     (listType arguments);

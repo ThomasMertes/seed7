@@ -142,6 +142,87 @@ objectType refAllocInt (boolType isVar, typeType aType,
 
 
 
+objectType refAllocRef (const intType aCategory,
+    const const_objectType obj1)
+
+  {
+    propertyType created_property;
+    objectType created_object;
+
+  /* refAllocRef */
+    logFunction(printf("refAllocRef(");
+                printcategory((objectCategory) aCategory);
+                printf(", ");
+                trace1(obj1);
+                printf(")\n"););
+    if (unlikely(obj1 == NULL ||
+               (CATEGORY_OF_OBJ(obj1) != FWDREFOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != REFOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != STRUCTELEMOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != VALUEPARAMOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != REFPARAMOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != RESULTOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != LOCALVOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != ENUMLITERALOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != CONSTENUMOBJECT &&
+                CATEGORY_OF_OBJ(obj1) != VARENUMOBJECT))) {
+      logError(printf("refAllocRef(");
+               printcategory((objectCategory) aCategory);
+               printf(", ");
+               trace1(obj1);
+               printf("): Not a legal object reference.\n"););
+      raise_error(RANGE_ERROR);
+      created_object = NULL;
+    } else if (unlikely(aCategory != FWDREFOBJECT &&
+                        aCategory != REFOBJECT &&
+                        aCategory != STRUCTELEMOBJECT &&
+                        aCategory != VALUEPARAMOBJECT &&
+                        aCategory != REFPARAMOBJECT &&
+                        aCategory != RESULTOBJECT &&
+                        aCategory != LOCALVOBJECT &&
+                        aCategory != ENUMLITERALOBJECT &&
+                        aCategory != CONSTENUMOBJECT &&
+                        aCategory != VARENUMOBJECT)) {
+      logError(printf("refAllocRef(");
+               printcategory((objectCategory) aCategory);
+               printf(", ");
+               trace1(obj1);
+               printf("): Not a object reference category.\n"););
+      raise_error(RANGE_ERROR);
+      created_object = NULL;
+    } else if (unlikely(!ALLOC_OBJECT(created_object))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      if (HAS_PROPERTY(obj1)) {
+        if (unlikely(!ALLOC_PROPERTY(created_property))) {
+          FREE_OBJECT(created_object);
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } else {
+          created_property->entity = obj1->descriptor.property->entity;
+          created_property->params = obj1->descriptor.property->params;
+          created_property->file_number = PROPERTY_FILE_NUM(obj1);
+          created_property->line        = PROPERTY_LINE_NUM(obj1);
+          /* created_property->syNumberInLine = obj1->descriptor.property->syNumberInLine; */
+          created_object->descriptor.property = created_property;
+        } /* if */
+      } else {
+        created_object->descriptor.posinfo = obj1->descriptor.posinfo;
+      } /* if */
+      created_object->type_of = obj1->type_of;
+      /* Copies the POSINFO flag (and all other flags): */
+      INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
+      SET_CATEGORY_OF_OBJ(created_object, aCategory);
+      created_object->value.objValue = NULL;
+    } /* if */
+    logFunction(printf("refAllocRef -> ");
+                trace1(created_object);
+                printf("\n"););
+    return created_object;
+  } /* refAllocRef */
+
+
+
 objectType refAllocStri (boolType isVar, typeType aType,
     const const_striType stri)
 
@@ -1536,6 +1617,7 @@ objectType refValue (const const_objectType aReference)
                (CATEGORY_OF_OBJ(aReference) == FWDREFOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == REFOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == STRUCTELEMOBJECT ||
+                CATEGORY_OF_OBJ(aReference) == VALUEPARAMOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == REFPARAMOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == RESULTOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == LOCALVOBJECT ||
