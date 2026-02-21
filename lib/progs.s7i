@@ -590,7 +590,8 @@ const func category: category (in reference: aReference)                 is acti
 
 (**
  *  Set the category of ''aReference'' to ''aCategory''.
- *  @exception RANGE_ERROR If ''aReference'' is NIL.
+ *  @exception RANGE_ERROR If ''aReference'' is NIL or
+ *             the category conversion is illegal.
  *)
 const proc: setCategory (in reference: aReference,
                          in category: aCategory)                         is action "REF_SETCATEGORY";

@@ -692,7 +692,8 @@ objectType ref_scttolist (listType arguments)
 /**
  *  Set the category of aReference/arg_1 to aCategory/arg_2.
  *  Set the category of a referenced object.
- *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL or
+ *             the category conversion is illegal.
  */
 objectType ref_setcategory (listType arguments)
 
