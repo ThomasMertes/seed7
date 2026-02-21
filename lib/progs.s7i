@@ -590,6 +590,17 @@ const func category: category (in reference: aReference)                 is acti
 
 (**
  *  Set the category of ''aReference'' to ''aCategory''.
+ *  Not every reference - category combination is legal.
+ *  The categories FWDREFOBJECT, FORMPARAMOBJECT, REFOBJECT,
+ *  STRUCTELEMOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT,
+ *  LOCALVOBJECT, ENUMLITERALOBJECT, CONSTENUMOBJECT and VARENUMOBJECT
+ *  all refer to an object. The function ''setCategory'' allows
+ *  switching between these categories. The categories CALLOBJECT,
+ *  MATCHOBJECT, REFLISTOBJECT and EXPROBJECT all refer to a ref_list.
+ *  The function ''setCategory'' allows switching between these
+ *  categories. Setting ''aReference'' to the category it already has
+ *  is okay. All other combinations of referece and category raise
+ *  a RANGE_ERROR.
  *  @exception RANGE_ERROR If ''aReference'' is NIL or
  *             the category conversion is illegal.
  *)
