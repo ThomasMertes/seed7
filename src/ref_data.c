@@ -1008,20 +1008,72 @@ listType refSctToList (const const_objectType aReference)
 
 /**
  *  Set the category of 'aReference' to 'aCategory'.
- *  @exception RANGE_ERROR If 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             the category conversion is illegal.
  */
 void refSetCategory (objectType aReference, intType aCategory)
 
-  { /* refSetCategory */
+  {
+    objectCategory objCategory;
+
+  /* refSetCategory */
     logFunction(printf("refSetCategory(");
                 trace1(aReference);
-                printf(", " FMT_D ")\n", aCategory););
+                printf(", ");
+                printcategory((objectCategory) aCategory);
+                printf(")\n"););
     if (unlikely(aReference == NULL)) {
-      logError(printf("refSetCategory(NULL, " FMT_D "): Object is NULL.\n",
-                      aCategory););
+      logError(printf("refSetCategory(NULL, ");
+               printcategory((objectCategory) aCategory);
+               printf("): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      SET_CATEGORY_OF_OBJ(aReference, aCategory);
+      objCategory = CATEGORY_OF_OBJ(aReference);
+      if (objCategory != aCategory) {
+        if (((objCategory == FWDREFOBJECT ||
+              objCategory == FORMPARAMOBJECT ||
+              objCategory == REFOBJECT ||
+              objCategory == STRUCTELEMOBJECT ||
+              objCategory == VALUEPARAMOBJECT ||
+              objCategory == REFPARAMOBJECT ||
+              objCategory == RESULTOBJECT ||
+              objCategory == LOCALVOBJECT ||
+              objCategory == ENUMLITERALOBJECT ||
+              objCategory == CONSTENUMOBJECT ||
+              objCategory == VARENUMOBJECT) &&
+             (aCategory == FWDREFOBJECT ||
+              aCategory == FORMPARAMOBJECT ||
+              aCategory == REFOBJECT ||
+              aCategory == STRUCTELEMOBJECT ||
+              aCategory == VALUEPARAMOBJECT ||
+              aCategory == REFPARAMOBJECT ||
+              aCategory == RESULTOBJECT ||
+              aCategory == LOCALVOBJECT ||
+              aCategory == ENUMLITERALOBJECT ||
+              aCategory == CONSTENUMOBJECT ||
+              aCategory == VARENUMOBJECT)) ||
+          ((objCategory == CALLOBJECT ||
+              objCategory == MATCHOBJECT ||
+              objCategory == REFLISTOBJECT ||
+              objCategory == EXPROBJECT) &&
+           (aCategory == CALLOBJECT ||
+              aCategory == MATCHOBJECT ||
+              aCategory == REFLISTOBJECT ||
+              aCategory == EXPROBJECT))) {
+          SET_CATEGORY_OF_OBJ(aReference, aCategory);
+        } else {
+          logError(printf("refSetCategory(");
+                   trace1(aReference);
+                   printf(", ");
+                   printcategory((objectCategory) aCategory);
+                   printf("): Cannot convert ");
+                   printcategory(objCategory);
+                   printf(" to ");
+                   printcategory((objectCategory) aCategory);
+                   printf(".\n"););
+          raise_error(RANGE_ERROR);
+        } /* if */
+      } /* if */
     } /* if */
   } /* refSetCategory */
 
