@@ -137,6 +137,9 @@ objectType refAllocInt (boolType isVar, typeType aType,
       } /* if */
       created_object->value.intValue = number;
     } /* if */
+    logFunction(printf("refAllocInt --> ");
+                trace1(created_object);
+                printf("\n"););
     return created_object;
   } /* refAllocInt */
 
@@ -250,6 +253,9 @@ objectType refAllocStri (boolType isVar, typeType aType,
       } /* if */
       created_object->value.striValue = strCreate(stri);
     } /* if */
+    logFunction(printf("refAllocStri --> ");
+                trace1(created_object);
+                printf("\n"););
     return created_object;
   } /* refAllocStri */
 
