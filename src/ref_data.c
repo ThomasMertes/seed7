@@ -146,6 +146,7 @@ objectType refAllocRef (const intType aCategory,
     const const_objectType obj1)
 
   {
+    objectCategory objCategory;
     propertyType created_property;
     objectType created_object;
 
@@ -155,39 +156,42 @@ objectType refAllocRef (const intType aCategory,
                 printf(", ");
                 trace1(obj1);
                 printf(")\n"););
-    if (unlikely(obj1 == NULL ||
-               (CATEGORY_OF_OBJ(obj1) != FWDREFOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != REFOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != STRUCTELEMOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != VALUEPARAMOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != REFPARAMOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != RESULTOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != LOCALVOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != ENUMLITERALOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != CONSTENUMOBJECT &&
-                CATEGORY_OF_OBJ(obj1) != VARENUMOBJECT))) {
-      logError(printf("refAllocRef(");
-               printcategory((objectCategory) aCategory);
-               printf(", ");
-               trace1(obj1);
-               printf("): Not a legal object reference.\n"););
-      raise_error(RANGE_ERROR);
-      created_object = NULL;
-    } else if (unlikely(aCategory != FWDREFOBJECT &&
-                        aCategory != REFOBJECT &&
-                        aCategory != STRUCTELEMOBJECT &&
-                        aCategory != VALUEPARAMOBJECT &&
-                        aCategory != REFPARAMOBJECT &&
-                        aCategory != RESULTOBJECT &&
-                        aCategory != LOCALVOBJECT &&
-                        aCategory != ENUMLITERALOBJECT &&
-                        aCategory != CONSTENUMOBJECT &&
-                        aCategory != VARENUMOBJECT)) {
+    if (unlikely(aCategory != FWDREFOBJECT &&
+                 aCategory != FORMPARAMOBJECT &&
+                 aCategory != REFOBJECT &&
+                 aCategory != STRUCTELEMOBJECT &&
+                 aCategory != VALUEPARAMOBJECT &&
+                 aCategory != REFPARAMOBJECT &&
+                 aCategory != RESULTOBJECT &&
+                 aCategory != LOCALVOBJECT &&
+                 aCategory != ENUMLITERALOBJECT &&
+                 aCategory != CONSTENUMOBJECT &&
+                 aCategory != VARENUMOBJECT)) {
       logError(printf("refAllocRef(");
                printcategory((objectCategory) aCategory);
                printf(", ");
                trace1(obj1);
                printf("): Not a object reference category.\n"););
+      raise_error(RANGE_ERROR);
+      created_object = NULL;
+    } else if (unlikely(obj1 == NULL ||
+                        (objCategory = CATEGORY_OF_OBJ(obj1),
+                         objCategory != FWDREFOBJECT &&
+                         objCategory != FORMPARAMOBJECT &&
+                         objCategory != REFOBJECT &&
+                         objCategory != STRUCTELEMOBJECT &&
+                         objCategory != VALUEPARAMOBJECT &&
+                         objCategory != REFPARAMOBJECT &&
+                         objCategory != RESULTOBJECT &&
+                         objCategory != LOCALVOBJECT &&
+                         objCategory != ENUMLITERALOBJECT &&
+                         objCategory != CONSTENUMOBJECT &&
+                         objCategory != VARENUMOBJECT))) {
+      logError(printf("refAllocRef(");
+               printcategory((objectCategory) aCategory);
+               printf(", ");
+               trace1(obj1);
+               printf("): Not a legal object reference.\n"););
       raise_error(RANGE_ERROR);
       created_object = NULL;
     } else if (unlikely(!ALLOC_OBJECT(created_object))) {
