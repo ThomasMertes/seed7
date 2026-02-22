@@ -384,25 +384,6 @@ objectType bld_int_temp (intType temp_int)
 
 
 
-objectType bld_list_temp (listType temp_list)
-
-  {
-    register objectType result;
-
-  /* bld_list_temp */
-    if (ALLOC_OBJECT(result)) {
-      result->type_of = NULL;
-      result->descriptor.property = NULL;
-      INIT_CATEGORY_OF_TEMP(result, LISTOBJECT);
-      result->value.listValue = temp_list;
-      return result;
-    } else {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } /* if */
-  } /* bld_list_temp */
-
-
-
 objectType bld_param_temp (objectType temp_param)
 
   {

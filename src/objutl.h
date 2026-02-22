@@ -218,7 +218,6 @@ objectType bld_float_temp (double temp_float);
 objectType bld_hash_temp (hashType temp_hash);
 objectType bld_hashelem_temp (hashElemType temp_hashelem);
 objectType bld_int_temp (intType temp_int);
-objectType bld_list_temp (listType temp_list);
 objectType bld_param_temp (objectType temp_param);
 objectType bld_poll_temp (pollType temp_poll);
 objectType bld_prog_temp (progType temp_prog);
