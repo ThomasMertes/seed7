@@ -68,8 +68,8 @@ const func boolean: isConstantCall (in reference: current_expression,
     const set of string: copyActions is
         {"ACT_CPY", "ARR_CPY", "BIG_CPY", "BLN_CPY", "BST_CPY", "CHR_CPY",
          "DRW_CPY", "ENU_CPY", "FIL_CPY", "FLT_CPY", "HSH_CPY", "INT_CPY",
-         "ITF_CPY", "LST_CPY", "PCS_CPY", "PLT_CPY", "POL_CPY", "PRC_CPY",
-         "PRG_CPY", "REF_CPY", "RFL_CPY", "SCT_CPY", "SET_CPY", "SOC_CPY",
+         "ITF_CPY", "PCS_CPY", "PLT_CPY", "POL_CPY", "PRC_CPY", "PRG_CPY",
+         "REF_CPY", "RFL_CPY", "SCT_CPY", "SET_CPY", "SOC_CPY",
          "SQL_CPY_DB", "SQL_CPY_STMT", "STR_CPY", "TYP_CPY"};
     var ref_list: formal_params is ref_list.EMPTY;
     var ref_list: actual_params is ref_list.EMPTY;
@@ -244,8 +244,6 @@ const func boolean: isPureFunction (in reference: function) is func
          "INT_RSHIFT", "INT_SBTR", "INT_SQRT", "INT_STR", "INT_SUCC",
          "INT_VALUE",
          "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
-         "LST_CAT", "LST_EMPTY", "LST_HEAD", "LST_IDX", "LST_LNG", "LST_RANGE",
-         "LST_TAIL",
          "PLT_BSTRING", "PLT_CMP", "PLT_EQ", "PLT_HASHCODE", "PLT_NE",
          "PLT_POINT_LIST", "PLT_VALUE",
          "PRG_EQ", "PRG_NE",
