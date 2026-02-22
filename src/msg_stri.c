@@ -860,6 +860,14 @@ static void appendListElement (striType *const msg, const const_objectType anyob
         case TYPEOBJECT:
           appendType(msg, anyobject->value.typeValue);
           break;
+        case REFOBJECT:
+          if (anyobject->value.objValue == NULL) {
+            appendCStri(msg, "NIL");
+          } else {
+            appendCStri(msg, "reference ");
+            appendValue(msg, anyobject->value.objValue);
+          } /* if */
+          break;
         default:
           if (HAS_ENTITY(anyobject) &&
               GET_ENTITY(anyobject)->ident != NULL) {
