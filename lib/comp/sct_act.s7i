@@ -24,32 +24,9 @@
 (********************************************************************)
 
 
-const ACTION: SCT_ALLOC   is action "SCT_ALLOC";
+const ACTION: SCT_CONV    is action "SCT_CONV";
 const ACTION: SCT_CPY     is action "SCT_CPY";
 const ACTION: SCT_SELECT  is action "SCT_SELECT";
-
-
-const proc: process (SCT_ALLOC, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var type: param_type is void;
-    var expr_type: c_param1 is expr_type.value;
-  begin
-    param_type := getExprResultType(params[1]);
-    # prepare_typed_result(param_type, c_expr);
-    prepareAnyParamTemporarys(params[1], c_param1, c_expr);
-    c_expr.expr &:= "/* SCT_ALLOC */ (objRefType)(";
-    if c_param1.result_expr <> "" then
-      c_expr.expr &:= c_param1.result_expr;
-    else
-      typeData.typeCategory @:= [param_type] STRUCTOBJECT;
-      process_create_declaration(param_type, global_c_expr);
-      process_create_call(param_type,
-          c_param1.expr, c_expr.expr);
-    end if;
-    c_expr.expr &:= ")";
-  end func;
 
 
 const proc: process (SCT_CONV, in reference: function,

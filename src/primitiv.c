@@ -847,7 +847,6 @@ static const actEntryRecord actEntryTable[] = {
     { "RFL_VALUE",                    rfl_value,                    },
 #endif
 
-    { "SCT_ALLOC",                    sct_alloc,                    },
     { "SCT_CAT",                      sct_cat,                      },
     { "SCT_CONV",                     sct_conv,                     },
     { "SCT_CPY",                      sct_cpy,                      },

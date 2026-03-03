@@ -56,60 +56,6 @@
 
 
 
-objectType sct_alloc (listType arguments)
-
-  {
-    objectType stru_from;
-    objectType struct_exec_object;
-    memSizeType new_size;
-    structType new_stru;
-    objectType result;
-
-  /* sct_alloc */
-    stru_from = arg_1(arguments);
-    isit_struct(stru_from);
-    if (TEMP_OBJECT(stru_from)) {
-      CLEAR_TEMP_FLAG(stru_from);
-      result = stru_from;
-      arg_1(arguments) = NULL;
-    } else {
-      if (unlikely(!ALLOC_OBJECT(result))) {
-        logError(printf("sct_alloc: ALLOC_OBJECT() failed.\n"););
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        new_size = take_struct(stru_from)->size;
-        if (unlikely(!ALLOC_STRUCT(new_stru, new_size))) {
-          logError(printf("sct_alloc: ALLOC_STRUCT() failed.\n"););
-          FREE_OBJECT(result);
-          return raise_exception(SYS_MEM_EXCEPTION);
-        } else {
-          struct_exec_object = curr_exec_object;
-          new_stru->usage_count = 1;
-          new_stru->size = new_size;
-          if (unlikely(!crea_struct(new_stru->stru,
-                                    take_struct(stru_from)->stru,
-                                    new_size))) {
-            logError(printf("sct_alloc: crea_struct() failed.\n"););
-            FREE_OBJECT(result);
-            FREE_STRUCT(new_stru, new_size);
-            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                           struct_exec_object,
-                                           arguments);
-          } /* if */
-          result->type_of = stru_from->type_of;
-          memcpy(&result->descriptor, &stru_from->descriptor,
-              sizeof(descriptorUnion));
-          /* Copies the POSINFO flag (and all other flags): */
-          INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
-          result->value.structValue = new_stru;
-        } /* if */
-      } /* if */
-    } /* if */
-    return bld_reference_temp(result);
-  } /* sct_alloc */
-
-
-
 objectType sct_cat (listType arguments)
 
   {

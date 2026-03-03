@@ -1582,8 +1582,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(RFL_TAIL, function, params, c_expr);
       when {"RFL_VALUE"}:
         process(RFL_VALUE, function, params, c_expr);
-      when {"SCT_ALLOC"}:
-        process(SCT_ALLOC, function, params, c_expr);
       when {"SCT_CONV"}:
         process(SCT_CONV, function, params, c_expr);
       when {"SCT_CPY"}:

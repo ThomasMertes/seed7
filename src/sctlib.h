@@ -25,7 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType sct_alloc  (listType arguments);
 objectType sct_cat    (listType arguments);
 objectType sct_conv   (listType arguments);
 objectType sct_cpy    (listType arguments);
