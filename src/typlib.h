@@ -37,7 +37,6 @@ objectType typ_gentype            (listType arguments);
 objectType typ_hashcode           (listType arguments);
 objectType typ_interfaces         (listType arguments);
 objectType typ_isderived          (listType arguments);
-objectType typ_isforward          (listType arguments);
 objectType typ_isfunc             (listType arguments);
 objectType typ_isvarfunc          (listType arguments);
 objectType typ_matchobj           (listType arguments);

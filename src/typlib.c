@@ -346,22 +346,6 @@ objectType typ_isderived (listType arguments)
 
 
 
-objectType typ_isforward (listType arguments)
-
-  {
-    objectType result;
-
-  /* typ_isforward */
-    if (CATEGORY_OF_OBJ(arg_1(arguments)) == FORWARDOBJECT) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
-    return result;
-  } /* typ_isforward */
-
-
-
 objectType typ_isfunc (listType arguments)
 
   {

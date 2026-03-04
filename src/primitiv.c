@@ -1075,7 +1075,6 @@ static const actEntryRecord actEntryTable[] = {
     { "TYP_HASHCODE",                 typ_hashcode,                 },
     { "TYP_INTERFACES",               typ_interfaces,               },
     { "TYP_ISDERIVED",                typ_isderived,                },
-    { "TYP_ISFORWARD",                typ_isforward,                },
     { "TYP_ISFUNC",                   typ_isfunc,                   },
     { "TYP_ISVARFUNC",                typ_isvarfunc,                },
     { "TYP_MATCHOBJ",                 typ_matchobj,                 },
