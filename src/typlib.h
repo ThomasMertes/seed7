@@ -36,7 +36,6 @@ objectType typ_gensub             (listType arguments);
 objectType typ_gentype            (listType arguments);
 objectType typ_hashcode           (listType arguments);
 objectType typ_interfaces         (listType arguments);
-objectType typ_isdeclared         (listType arguments);
 objectType typ_isderived          (listType arguments);
 objectType typ_isforward          (listType arguments);
 objectType typ_isfunc             (listType arguments);

@@ -327,22 +327,6 @@ objectType typ_interfaces (listType arguments)
 
 
 
-objectType typ_isdeclared (listType arguments)
-
-  {
-    objectType result;
-
-  /* typ_isdeclared */
-    if (CATEGORY_OF_OBJ(arg_1(arguments)) == DECLAREDOBJECT) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
-    return result;
-  } /* typ_isdeclared */
-
-
-
 objectType typ_isderived (listType arguments)
 
   {
