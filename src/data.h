@@ -82,7 +82,9 @@ typedef enum {
     DATABASEOBJECT,      /* databaseValue - Database                */
     SQLSTMTOBJECT,       /* sqlStmtValue -  SQL statement           */
     PROGOBJECT,          /* progValue -   Program                   */
-    VOIDOBJECT
+    BOOLOBJECT,          /* boolean     - Only used in the compiler */
+    ENUMOBJECT,          /* enumeration - Only used in the compiler */
+    VOIDOBJECT           /* void        - Only used in the compiler */
   } objectCategory;
 
 typedef enum {

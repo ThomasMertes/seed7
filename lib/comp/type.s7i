@@ -24,10 +24,6 @@
 (********************************************************************)
 
 
-# Category values only used in the Compiler:
-const category: BOOLOBJECT        is category conv 256;
-const category: ENUMOBJECT        is category conv 257;
-
 const type: typeReferenceHash is hash [type] reference;
 const type: typeCategoryHash is hash [type] category;
 const type: type_hash is hash [type] type;
