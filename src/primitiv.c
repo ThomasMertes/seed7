@@ -388,8 +388,6 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_PUT",                      drw_put,                      },
     { "DRW_PUT_SCALED",               drw_put_scaled,               },
     { "DRW_RGBCOL",                   drw_rgbcol,                   },
- /* { "DRW_ROT",                      drw_rot,                      }, */
- /* { "DRW_SCALE",                    drw_scale,                    }, */
     { "DRW_SCREEN_HEIGHT",            drw_screen_height,            },
     { "DRW_SCREEN_WIDTH",             drw_screen_width,             },
     { "DRW_SET_CONTENT",              drw_set_content,              },
@@ -1011,7 +1009,6 @@ static const actEntryRecord actEntryTable[] = {
     { "STR_CHSPLIT",                  str_chsplit,                  },
     { "STR_CLIT",                     str_clit,                     },
     { "STR_CMP",                      str_cmp,                      },
- /* { "STR_CNT",                      str_cnt,                      }, */
     { "STR_CPY",                      str_cpy,                      },
     { "STR_CREATE",                   str_create,                   },
     { "STR_DESTR",                    str_destr,                    },
