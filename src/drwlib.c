@@ -1345,22 +1345,6 @@ objectType drw_rgbcol (listType arguments)
 
 
 
-objectType drw_rot (listType arguments)
-
-  { /* drw_rot */
-    return SYS_EMPTY_OBJECT;
-  } /* drw_rot */
-
-
-
-objectType drw_scale (listType arguments)
-
-  { /* drw_scale */
-    return SYS_EMPTY_OBJECT;
-  } /* drw_scale */
-
-
-
 /**
  *  Determine the height of the screen in pixels.
  */
