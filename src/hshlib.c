@@ -690,6 +690,10 @@ objectType hsh_cpy (listType arguments)
     isit_hash(dest);
     isit_hash(source);
     is_variable(dest);
+    isit_reference(arg_3(arguments));
+    isit_reference(arg_4(arguments));
+    isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
     hsh_dest = take_hash(dest);
     hsh_source = take_hash(source);
     /* The following check avoids an error for: aHash := aHash; */
@@ -747,6 +751,10 @@ objectType hsh_create (listType arguments)
     source = arg_2(arguments);
     isit_hash(source);
     hsh_source = take_hash(source);
+    isit_reference(arg_3(arguments));
+    isit_reference(arg_4(arguments));
+    isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
     key_create_func  = take_reference(arg_3(arguments));
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
@@ -800,6 +808,8 @@ objectType hsh_destr (listType arguments)
 
   /* hsh_destr */
     isit_hash(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    isit_reference(arg_3(arguments));
     old_hash        =      take_hash(arg_1(arguments));
     key_destr_func  = take_reference(arg_2(arguments));
     data_destr_func = take_reference(arg_3(arguments));
@@ -862,6 +872,8 @@ objectType hsh_excl (listType arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
+    isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
     aHashMap        =      take_hash(arg_1(arguments));
     aKey            =                arg_2(arguments);
     hashcode        =       take_int(arg_3(arguments));
@@ -925,6 +937,7 @@ objectType hsh_for (listType arguments)
 
   /* hsh_for */
     isit_hash(arg_2(arguments));
+    isit_reference(arg_4(arguments));
     for_variable = arg_1(arguments);
     aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
@@ -951,6 +964,8 @@ objectType hsh_for_data_key (listType arguments)
 
   /* hsh_for_data_key */
     isit_hash(arg_3(arguments));
+    isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
     for_variable = arg_1(arguments);
     key_variable = arg_2(arguments);
     aHashMap = take_hash(arg_3(arguments));
@@ -979,6 +994,7 @@ objectType hsh_for_key (listType arguments)
 
   /* hsh_for_key */
     isit_hash(arg_2(arguments));
+    isit_reference(arg_4(arguments));
     key_variable = arg_1(arguments);
     aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
@@ -1017,6 +1033,10 @@ objectType hsh_gen_hash (listType arguments)
 
   /* hsh_gen_hash */
     isit_hashelem(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    isit_reference(arg_3(arguments));
+    isit_reference(arg_4(arguments));
+    isit_reference(arg_5(arguments));
     keyValuePairs      = take_hashelem(arg_1(arguments));
     logFunction(printf("hsh_gen_hash(" FMT_X_MEM ", ...)\n",
                        (memSizeType) keyValuePairs););
@@ -1385,6 +1405,9 @@ objectType hsh_incl (listType arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_4(arguments));
     isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
+    isit_reference(arg_7(arguments));
+    isit_reference(arg_8(arguments));
     aHashMap         =      take_hash(arg_1(arguments));
     aKey             =                arg_2(arguments);
     data             =                arg_3(arguments);
@@ -1468,6 +1491,8 @@ objectType hsh_keys (listType arguments)
 
   /* hsh_keys */
     isit_hash(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    isit_reference(arg_3(arguments));
     aHashMap = take_hash(arg_1(arguments));
     key_create_func = take_reference(arg_2(arguments));
     key_destr_func = take_reference(arg_3(arguments));
@@ -1583,6 +1608,8 @@ objectType hsh_update (listType arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_4(arguments));
     isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
+    isit_reference(arg_7(arguments));
     aHashMap         =      take_hash(arg_1(arguments));
     aKey             =                arg_2(arguments);
     data             =                arg_3(arguments);
@@ -1667,6 +1694,8 @@ objectType hsh_values (listType arguments)
 
   /* hsh_values */
     isit_hash(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    isit_reference(arg_3(arguments));
     aHashMap = take_hash(arg_1(arguments));
     value_create_func = take_reference(arg_2(arguments));
     value_destr_func = take_reference(arg_3(arguments));
