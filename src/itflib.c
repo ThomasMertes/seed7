@@ -515,47 +515,6 @@ objectType itf_ne (listType arguments)
 
 
 
-objectType itf_new (listType arguments)
-
-  {
-    objectType stru_arg;
-    structType stru1;
-    objectType interface_exec_object;
-    structType result_struct;
-    objectType result;
-
-  /* itf_new */
-    stru_arg = arg_1(arguments);
-    isit_struct(stru_arg);
-    if (TEMP_OBJECT(stru_arg)) {
-      result = stru_arg;
-      result->type_of = NULL;
-      arg_1(arguments) = NULL;
-    } else {
-      stru1 = take_struct(stru_arg);
-      if (unlikely(!ALLOC_STRUCT(result_struct, stru1->size))) {
-        logError(printf("itf_new: ALLOC_STRUCT() failed.\n"););
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        interface_exec_object = curr_exec_object;
-        result_struct->usage_count = 1;
-        result_struct->size = stru1->size;
-        if (unlikely(!crea_struct(result_struct->stru, stru1->stru,
-                                  stru1->size))) {
-          logError(printf("itf_new: crea_struct() failed.\n"););
-          FREE_STRUCT(result_struct, stru1->size);
-          return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
-                                         interface_exec_object,
-                                         arguments);
-        } /* if */
-        result = bld_struct_temp(result_struct);
-      } /* if */
-    } /* if */
-    return result;
-  } /* itf_new */
-
-
-
 objectType itf_select (listType arguments)
 
   {
