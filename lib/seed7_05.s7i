@@ -352,7 +352,6 @@ const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 const proc: TRACE_OPTIONS (in string: traceLevel)  is action "PRC_SETTRACE";
 const proc: TRACE_OBJ (in object: traceobject)     is action "REF_TRACE";
 const proc: TRACE_PROC (in proc: traceobject)      is action "REF_TRACE";
-const proc: DECLS                                  is action "PRC_DECLS";
 
 
 (* void *)
@@ -877,18 +876,6 @@ const func type: sub (in type: baseType) interface is func
     const func boolean: (in interfaceType: itf1) <> (in interfaceType: itf2) is action "ITF_NE";
     end global;
   end func;
-
-
-(* body *)
-(*
-const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
-  begin
-    const proc: DECL_BODY (attr STRU) is func
-        DECLS;
-      end func;
-    DECL_BODY(STRU);
-  end func;
-*)
 
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func

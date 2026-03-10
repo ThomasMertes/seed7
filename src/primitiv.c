@@ -707,7 +707,6 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_CASE_HASHSET_DEF",         prc_case_hashset_def,         },
     { "PRC_CPY",                      prc_cpy,                      },
     { "PRC_CREATE",                   prc_create,                   },
-    { "PRC_DECLS",                    prc_decls,                    },
     { "PRC_DESTR",                    prc_destr,                    },
     { "PRC_DYNAMIC",                  prc_dynamic,                  },
     { "PRC_EXIT",                     prc_exit,                     },

@@ -933,15 +933,6 @@ objectType prc_create (listType arguments)
 
 
 
-objectType prc_decls (listType arguments)
-
-  { /* prc_decls */
-    trace_nodes();
-    return SYS_EMPTY_OBJECT;
-  } /* prc_decls */
-
-
-
 /**
  *  Free the memory referred by 'old_prc/arg_1'.
  *  After prc_destr is left 'old_prc/arg_1' is NULL.

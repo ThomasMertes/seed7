@@ -37,7 +37,6 @@ objectType prc_case_hashset     (listType arguments);
 objectType prc_case_hashset_def (listType arguments);
 objectType prc_cpy              (listType arguments);
 objectType prc_create           (listType arguments);
-objectType prc_decls            (listType arguments);
 objectType prc_destr            (listType arguments);
 objectType prc_dynamic          (listType arguments);
 objectType prc_exit             (listType arguments);
