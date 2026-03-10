@@ -380,7 +380,10 @@ objectType rfl_expr (listType arguments)
     listType result;
 
   /* rfl_expr */
-    isit_list(arg_1(arguments));
+    logFunction(printf("rfl_expr(");
+                trace1(arg_1(arguments));
+                printf("\n"););
+    isit_expr(arg_1(arguments));
     list1 = take_list(arg_1(arguments));
     logFunction(printf("rfl_expr(");
                 prot_list(list1);

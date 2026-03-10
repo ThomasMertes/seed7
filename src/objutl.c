@@ -103,17 +103,6 @@ void isit_enum (objectType argument)
       category_required(CONSTENUMOBJECT, argument);
     } /* if */
   } /* isit_enum */
-
-
-
-void isit_list (objectType argument)
-
-  { /* isit_list */
-    if (CATEGORY_OF_OBJ(argument) != LISTOBJECT &&
-        CATEGORY_OF_OBJ(argument) != EXPROBJECT) {
-      category_required(LISTOBJECT, argument);
-    } /* if */
-  } /* isit_list */
 #endif
 
 

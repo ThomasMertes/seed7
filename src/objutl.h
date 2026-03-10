@@ -98,6 +98,7 @@
 #define isit_interface(arg)  hasCategory2(arg, INTERFACEOBJECT, STRUCTOBJECT); \
                              if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return NULL; }
 /*      isit_enum(arg)       */
+#define isit_expr(arg)       hasCategory(arg, EXPROBJECT)
 #define isit_file(arg)       hasCategory(arg, FILEOBJECT)
 #define isit_float(arg)      hasCategory(arg, FLOATOBJECT)
 #define isit_hash(arg)       hasCategory(arg, HASHOBJECT); \
@@ -105,7 +106,6 @@
 #define isit_hashelem(arg)   hasCategory(arg, HASHELEMOBJECT); \
                              if (unlikely(take_hashelem(arg) == NULL))   { empty_value(arg); return NULL; }
 #define isit_int(arg)        hasCategory(arg, INTOBJECT)
-/*      isit_list(arg)       */
 #define isit_param(arg)      hasCategory(arg, FORMPARAMOBJECT)
 #define isit_poll(arg)       hasCategory(arg, POLLOBJECT)
 #define isit_proc(arg)       hasCategory3(arg, BLOCKOBJECT, MATCHOBJECT, ACTOBJECT)
@@ -144,12 +144,12 @@
 #define isit_database(arg)
 #define isit_interface(arg)
 #define isit_enum(arg)
+#define isit_expr(arg)
 #define isit_file(arg)
 #define isit_float(arg)
 #define isit_hash(arg)
 #define isit_hashelem(arg)
 #define isit_int(arg)
-#define isit_list(arg)
 #define isit_param(arg)
 #define isit_proc(arg)
 #define isit_prog(arg)
@@ -183,6 +183,7 @@
 /* void isit_char (objectType argument); */
 /* void isit_interface (objectType argument); */
 void isit_enum (objectType argument);
+/* void isit_expr (objectType argument); */
 /* void isit_file (objectType argument); */
 #if WITH_FLOAT
 /* void isit_float (objectType argument); */
@@ -190,7 +191,6 @@ void isit_enum (objectType argument);
 /* void isit_hash (objectType argument); */
 /* void isit_hashelem (objectType argument); */
 /* void isit_int (objectType argument); */
-void isit_list (objectType argument);
 /* void isit_proc (objectType argument); */
 /* void isit_prog (objectType argument); */
 /* void isit_reference (objectType argument); */
