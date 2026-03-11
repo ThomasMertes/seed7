@@ -225,9 +225,9 @@ static void type_create_call_obj (objectType destination,
     } else if (*err_info == OKAY_NO_ERROR) {
       *err_info = copy_err_info;
     } /* if */
-    logFunction(printf("type_create_call_obj -> " FMT_U_MEM "\n",
-                       (memSizeType) destination->type_of->
-                       create_call_obj););
+    logFunction(printf("type_create_call_obj -> ");
+                trace1(destination->type_of->create_call_obj);
+                printf("\n"););
   } /* type_create_call_obj */
 
 
@@ -482,6 +482,13 @@ static void old_do_create (objectType destination, objectType source,
       crea_expr[2].obj = source;
       call_result = exec1(crea_expr);
       if (call_result != SYS_EMPTY_OBJECT) {
+        logError(printf("old_do_create(");
+                 trace1(destination);
+                 printf(", ");
+                 trace1(source);
+                 printf("): call_result: ");
+                 trace1(call_result);
+                 printf("\n"););
         if (fail_flag && trace.exceptions) {
           write_exception_info();
         } /* if */
@@ -554,6 +561,13 @@ void do_create (objectType destination, objectType source,
         /* printf("do_create: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
+          logError(printf("do_create(");
+                   trace1(destination);
+                   printf(", ");
+                   trace1(source);
+                   printf("): call_result: ");
+                   trace1(call_result);
+                   printf("\n"););
           if (fail_flag && trace.exceptions) {
             write_exception_info();
           } /* if */
