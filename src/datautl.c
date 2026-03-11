@@ -88,6 +88,7 @@ static const const_cstriType category_name[] = {
     "REFOBJECT",         /* objValue -    reference                 */
     "REFLISTOBJECT",     /* listValue -   ref_list                  */
     "EXPROBJECT",        /* listValue -   expression                */
+    "ACTENTRYOBJECT",    /* actEntryValue - actionEntry             */
     "ACTOBJECT",         /* actValue -    Action                    */
     "VALUEPARAMOBJECT",  /* objValue -    Formal value parameter    */
     "REFPARAMOBJECT",    /* objValue -    Formal ref parameter      */

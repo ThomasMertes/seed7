@@ -98,24 +98,24 @@ const proc: process_action (in reference: function, in ref_list: params,
     actionName := str(currentAction);
     # c_expr.expr &:= "/* " <& actionName <& " */\n";
     case actionName of
-      when {"ACT_CPY"}:
-        process(ACT_CPY, function, params, c_expr);
-      when {"ACT_EQ"}:
-        process(ACT_EQ, function, params, c_expr);
-      when {"ACT_GEN"}:
-        process(ACT_GEN, function, params, c_expr);
-      when {"ACT_ICONV1"}:
-        process(ACT_ICONV1, function, params, c_expr);
-      when {"ACT_ICONV3"}:
-        process(ACT_ICONV3, function, params, c_expr);
-      when {"ACT_NE"}:
-        process(ACT_NE, function, params, c_expr);
-      when {"ACT_ORD"}:
-        process(ACT_ORD, function, params, c_expr);
-      when {"ACT_STR"}:
-        process(ACT_STR, function, params, c_expr);
-      when {"ACT_VALUE"}:
-        process(ACT_VALUE, function, params, c_expr);
+      when {"ACE_CPY"}:
+        process(ACE_CPY, function, params, c_expr);
+      when {"ACE_EQ"}:
+        process(ACE_EQ, function, params, c_expr);
+      when {"ACE_GEN"}:
+        process(ACE_GEN, function, params, c_expr);
+      when {"ACE_ICONV1"}:
+        process(ACE_ICONV1, function, params, c_expr);
+      when {"ACE_ICONV3"}:
+        process(ACE_ICONV3, function, params, c_expr);
+      when {"ACE_NE"}:
+        process(ACE_NE, function, params, c_expr);
+      when {"ACE_ORD"}:
+        process(ACE_ORD, function, params, c_expr);
+      when {"ACE_STR"}:
+        process(ACE_STR, function, params, c_expr);
+      when {"ACE_VALUE"}:
+        process(ACE_VALUE, function, params, c_expr);
       when {"ARR_APPEND"}:
         process(ARR_APPEND, function, params, c_expr);
       when {"ARR_ARRLIT"}:

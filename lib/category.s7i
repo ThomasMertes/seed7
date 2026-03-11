@@ -162,6 +162,7 @@ const category: VARENUMOBJECT     is category("VARENUMOBJECT");
 const category: REFOBJECT         is category("REFOBJECT");
 const category: REFLISTOBJECT     is category("REFLISTOBJECT");
 const category: EXPROBJECT        is category("EXPROBJECT");
+const category: ACTENTRYOBJECT    is category("ACTENTRYOBJECT");
 const category: ACTOBJECT         is category("ACTOBJECT");
 const category: VALUEPARAMOBJECT  is category("VALUEPARAMOBJECT");
 const category: REFPARAMOBJECT    is category("REFPARAMOBJECT");

@@ -115,7 +115,7 @@ static int actEntryMapCmp (const void *act_ptr1, const void *act_ptr2)
  *  @param actionName Name of the action searched.
  *  @return The action found, or NULL if no such action exists.
  */
-static actType searchAction (cstriType actionName)
+static const_actEntryType searchAction (cstriType actionName)
 
   {
 #if USE_BSEARCH
@@ -127,7 +127,7 @@ static actType searchAction (cstriType actionName)
     int comparison;
 #endif
     unsigned int actionNumber;
-    actType actionFound;
+    const_actEntryType actEntryFound;
 
   /* searchAction */
     logFunction(printf("searchAction(\"%s\")\n", actionName););
@@ -161,44 +161,44 @@ static actType searchAction (cstriType actionName)
     if (actTable.table != NULL && actionNumber != 0) {
       logMessage(printf("action name: \"%s\"\n",
                         actTable.table[actionNumber].name););
-      actionFound = actTable.table[actionNumber].action;
+      actEntryFound = &actTable.table[actionNumber];
     } else {
-      actionFound = NULL;
+      actEntryFound = NULL;
     } /* if */
     logFunction(printf("searchAction --> " FMT_U_MEM "\n",
-                       (memSizeType) actionFound););
-    return actionFound;
+                       (memSizeType) actEntryFound););
+    return actEntryFound;
   } /* searchAction */
 
 
 
 /**
- *  Find the action with the given ''actionName''.
+ *  Find the action entry with the given ''actionName''.
  *  @param actionName Name of the action searched.
- *  @return The action found, or NULL if no such action exists.
+ *  @return The action entry found, or NULL if no such action exists.
  */
-actType findAction (const const_striType actionName)
+const_actEntryType findActEntry (const const_striType actionName)
 
   {
     char actName[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    actType actionFound;
+    const_actEntryType actEntryFound;
 
- /* findAction */
-    logFunction(printf("findAction(\"%s\")\n",
+ /* findActEntry */
+    logFunction(printf("findActEntry(\"%s\")\n",
                        striAsUnquotedCStri(actionName)););
     if (unlikely(actionName->size > MAX_CSTRI_BUFFER_LEN)) {
-      actionFound = NULL;
+      actEntryFound = NULL;
     } else {
       if (unlikely(conv_to_cstri(actName, actionName) == NULL)) {
-        actionFound = NULL;
+        actEntryFound = NULL;
       } else {
-        actionFound = searchAction(actName);
+        actEntryFound = searchAction(actName);
       } /* if */
     } /* if */
-    logFunction(printf("findAction --> " FMT_U_MEM "\n",
-                       (memSizeType) actionFound););
-    return actionFound;
-  } /* findAction */
+    logFunction(printf("findActEntry --> " FMT_U_MEM "\n",
+                       (memSizeType) actEntryFound););
+    return actEntryFound;
+  } /* findActEntry */
 
 
 

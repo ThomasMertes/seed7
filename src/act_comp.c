@@ -38,6 +38,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "objutl.h"
 #include "actutl.h"
 #include "rtl_err.h"
 
@@ -53,24 +54,24 @@
  *  @return an action which corresponds to the given string.
  *  @exception RANGE_ERROR No such action exists.
  */
-actType actGen (const const_striType actionName)
+const_actEntryType aceGen (const const_striType actionName)
 
   {
-    actType anAction;
+    const_actEntryType actEntry;
 
-  /* actGen */
-    logFunction(printf("actGen(\"%s\")\n",
+  /* aceGen */
+    logFunction(printf("aceGen(\"%s\")\n",
                        striAsUnquotedCStri(actionName)););
-    anAction = findAction(actionName);
-    if (unlikely(anAction == NULL)) {
-      logError(printf("actGen(\"%s\"): No such action exists.\n",
+    actEntry = findActEntry(actionName);
+    if (unlikely(actEntry == NULL)) {
+      logError(printf("aceGen(\"%s\"): No such action exists.\n",
                       striAsUnquotedCStri(actionName)););
       raise_error(RANGE_ERROR);
     } /* if */
-    logFunction(printf("actGen --> " FMT_U_MEM "\n",
-                       (memSizeType) anAction););
-    return anAction;
-  } /* actGen */
+    logFunction(printf("aceGen --> " FMT_U_MEM "\n",
+                       (memSizeType) actEntry););
+    return actEntry;
+  } /* aceGen */
 
 
 
@@ -80,47 +81,53 @@ actType actGen (const const_striType actionName)
  *  @return an action which corresponds to the given integer.
  *  @exception RANGE_ERROR Number not in allowed range.
  */
-actType actIConv (intType ordinal)
+const_actEntryType aceIConv (intType ordinal)
 
   {
-    actType anAction;
+    const_actEntryType actEntry;
 
-  /* actIConv */
-    logFunction(printf("actIConv(" FMT_D ")\n", ordinal););
+  /* aceIConv */
+    logFunction(printf("aceIConv(" FMT_D ")\n", ordinal););
     if (unlikely(ordinal < 0 || (uintType) ordinal >= actTable.size)) {
-      logError(printf("actIConv(" FMT_D "): "
+      logError(printf("aceIConv(" FMT_D "): "
                       "Number not in allowed range of 0 .. %lu.\n",
                       ordinal, (unsigned long) (actTable.size - 1)););
       raise_error(RANGE_ERROR);
-      anAction = NULL;
+      actEntry = NULL;
     } else {
-      anAction = actTable.table[ordinal].action;
+      actEntry = &actTable.table[ordinal];
     } /* if */
-    logFunction(printf("actIConv --> " FMT_U_MEM "\n",
-                       (memSizeType) anAction););
-    return anAction;
-  } /* actIConv */
+    logFunction(printf("aceIConv --> " FMT_U_MEM "\n",
+                       (memSizeType) actEntry););
+    return actEntry;
+  } /* aceIConv */
 
 
 
 /**
  *  Get the ordinal number of an action.
  *  The action ACT_ILLEGAL has the ordinal number 0.
- *  @param anAction Action for which the ordinal number is determined.
+ *  @param actEntry Action for which the ordinal number is determined.
  *  @return the ordinal number of the action.
  */
-intType actOrd (actType anAction)
+intType aceOrd (const_actEntryType actEntry)
 
   {
     intType ordinal;
 
-  /* actOrd */
-    logFunction(printf("actOrd(" FMT_U_MEM ")\n",
-                       (memSizeType) anAction););
-    ordinal = getActEntry(anAction) - actTable.table;
-    logFunction(printf("actOrd --> " FMT_D "\n", ordinal););
+  /* aceOrd */
+    logFunction(printf("aceOrd(" FMT_U_MEM ")\n",
+                       (memSizeType) actEntry););
+    if (unlikely(actEntry == NULL)) {
+      logError(printf("aceOrd: NULL action entry.\n"););
+      raise_error(RANGE_ERROR);
+      ordinal = 0;
+    } else {
+      ordinal = actEntry - actTable.table;
+    } /* if */
+    logFunction(printf("aceOrd --> " FMT_D "\n", ordinal););
     return ordinal;
-  } /* actOrd */
+  } /* aceOrd */
 
 
 
@@ -128,23 +135,61 @@ intType actOrd (actType anAction)
  *  Convert an action to a string.
  *  If the action is not found in the table of legal actions
  *  the string "ACT_ILLEGAL" is returned.
- *  @param anAction Action which is converted to a string..
+ *  @param actEntry Action which is converted to a string..
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType actStr (actType anAction)
+striType aceStr (const_actEntryType actEntry)
 
   {
     striType actionName;
 
-  /* actStr */
-    logFunction(printf("actStr(" FMT_U_MEM ")\n",
-                       (memSizeType) anAction););
-    actionName = cstri_to_stri(getActEntry(anAction)->name);
-    if (unlikely(actionName == NULL)) {
-      raise_error(MEMORY_ERROR);
+  /* aceStr */
+    logFunction(printf("aceStr(" FMT_U_MEM ")\n",
+                       (memSizeType) actEntry););
+    if (unlikely(actEntry == NULL)) {
+      logError(printf("aceStr: NULL action entry.\n"););
+      raise_error(RANGE_ERROR);
+      actionName = NULL;
+    } else {
+      actionName = cstri_to_stri(actEntry->name);
+      if (unlikely(actionName == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
-    logFunction(printf("actStr --> \"%s\"\n",
+    logFunction(printf("aceStr --> \"%s\"\n",
                        striAsUnquotedCStri(actionName)););
     return actionName;
-  } /* actStr */
+  } /* aceStr */
+
+
+
+/**
+ *  Get 'ACTION' value of the object referenced by 'aReference'.
+ *  @return the 'ACTION' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             category(aReference) <> ACTOBJECT holds.
+ */
+const_actEntryType aceValue (const const_objectType aReference)
+
+  {
+    const_actEntryType actEntry;
+
+  /* aceValue */
+    if (unlikely(aReference == NULL)) {
+      logError(printf("aceValue(NULL): Object is NULL.\n"););
+      raise_error(RANGE_ERROR);
+      actEntry = NULL;
+    } else if (CATEGORY_OF_OBJ(aReference) == ACTENTRYOBJECT) {
+      actEntry = take_actentry(aReference);
+    } else if (CATEGORY_OF_OBJ(aReference) == ACTOBJECT) {
+      actEntry = getActEntry(take_action(aReference));
+    } else {
+      logError(printf("aceValue(");
+               trace1(aReference);
+               printf("): Category neither ACTENTRYOBJECT nor ACTOBJECT.\n"););
+      raise_error(RANGE_ERROR);
+      actEntry = NULL;
+    } /* if */
+    return actEntry;
+  } /* aceValue */

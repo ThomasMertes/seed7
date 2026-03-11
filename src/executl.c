@@ -466,7 +466,7 @@ static void old_do_create (objectType destination, objectType source,
                  !destination->type_of->is_varfunc_type &&
                  (CATEGORY_OF_OBJ(source) != MATCHOBJECT &&
                   CATEGORY_OF_OBJ(source) != CALLOBJECT &&
-                  CATEGORY_OF_OBJ(source) != ACTOBJECT))) {
+                  CATEGORY_OF_OBJ(source) != ACTENTRYOBJECT))) {
       logError(printf("old_do_create(");
                trace1(destination);
                printf(", ");

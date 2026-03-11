@@ -104,6 +104,7 @@ static inline void init_dollar (objectType declared_object,
     objectType meta_type;
     objectType basic_type;
     typeType generated_type;
+    const_actEntryType actEntry;
 
   /* init_dollar */
     logFunction(printf("init_dollar\n"););
@@ -153,10 +154,12 @@ static inline void init_dollar (objectType declared_object,
       scan_symbol();
       if (symbol.sycategory == STRILITERAL) {
         SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
-        declared_object->value.actValue = findAction(symbol.striValue);
-        if (unlikely(declared_object->value.actValue == NULL)) {
+        actEntry = findActEntry(symbol.striValue);
+        if (unlikely(actEntry == NULL)) {
           err_stri(UNDEFINED_ACTION, symbol.striValue);
           declared_object->value.actValue = getActIllegal();
+        } else {
+          declared_object->value.actValue = actEntry->action;
         } /* if */
         scan_symbol();
       } else {

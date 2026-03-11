@@ -24,29 +24,29 @@
 (********************************************************************)
 
 
-const ACTION: ACT_CPY    is action "ACT_CPY";
-const ACTION: ACT_EQ     is action "ACT_EQ";
-const ACTION: ACT_GEN    is action "ACT_GEN";
-const ACTION: ACT_ICONV1 is action "ACT_ICONV1";
-const ACTION: ACT_ICONV3 is action "ACT_ICONV3";
-const ACTION: ACT_NE     is action "ACT_NE";
-const ACTION: ACT_ORD    is action "ACT_ORD";
-const ACTION: ACT_STR    is action "ACT_STR";
-const ACTION: ACT_VALUE  is action "ACT_VALUE";
+const ACTION: ACE_CPY    is action "ACE_CPY";
+const ACTION: ACE_EQ     is action "ACE_EQ";
+const ACTION: ACE_GEN    is action "ACE_GEN";
+const ACTION: ACE_ICONV1 is action "ACE_ICONV1";
+const ACTION: ACE_ICONV3 is action "ACE_ICONV3";
+const ACTION: ACE_NE     is action "ACE_NE";
+const ACTION: ACE_ORD    is action "ACE_ORD";
+const ACTION: ACE_STR    is action "ACE_STR";
+const ACTION: ACE_VALUE  is action "ACE_VALUE";
 
 
 const proc: act_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "actType     actGen (const const_striType);");
-    declareExtern(c_prog, "actType     actIConv (intType);");
-    declareExtern(c_prog, "intType     actOrd (actType);");
-    declareExtern(c_prog, "striType    actStr (actType);");
-    declareExtern(c_prog, "actType     actValue (const const_objRefType);");
+    declareExtern(c_prog, "const_actEntryType aceGen (const const_striType);");
+    declareExtern(c_prog, "const_actEntryType aceIConv (intType);");
+    declareExtern(c_prog, "intType            aceOrd (const_actEntryType);");
+    declareExtern(c_prog, "striType           aceStr (const_actEntryType);");
+    declareExtern(c_prog, "const_actEntryType aceValue (const const_objRefType);");
   end func;
 
 
-const proc: process (ACT_CPY, in reference: function,
+const proc: process (ACE_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -80,7 +80,7 @@ const proc: process (ACT_CPY, in reference: function,
   end func;
 
 
-const proc: process (ACT_EQ, in reference: function,
+const proc: process (ACE_EQ, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -92,40 +92,40 @@ const proc: process (ACT_EQ, in reference: function,
   end func;
 
 
-const proc: process (ACT_GEN, in reference: function,
+const proc: process (ACE_GEN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compilerLibrary := TRUE;
-    c_expr.expr &:= "actGen(";
+    c_expr.expr &:= "aceGen(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process (ACT_ICONV1, in reference: function,
+const proc: process (ACE_ICONV1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compDataLibrary := TRUE;
-    c_expr.expr &:= "actIConv(";
+    c_expr.expr &:= "aceIConv(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process (ACT_ICONV3, in reference: function,
+const proc: process (ACE_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compDataLibrary := TRUE;
-    c_expr.expr &:= "actIConv(";
+    c_expr.expr &:= "aceIConv(";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process (ACT_NE, in reference: function,
+const proc: process (ACE_NE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -137,35 +137,35 @@ const proc: process (ACT_NE, in reference: function,
   end func;
 
 
-const proc: process (ACT_ORD, in reference: function,
+const proc: process (ACE_ORD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compilerLibrary := TRUE;
-    c_expr.expr := "actOrd(";
+    c_expr.expr := "aceOrd(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process (ACT_STR, in reference: function,
+const proc: process (ACE_STR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compilerLibrary := TRUE;
     prepare_stri_result(c_expr);
-    c_expr.result_expr := "actStr(";
+    c_expr.result_expr := "aceStr(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
 
-const proc: process (ACT_VALUE, in reference: function,
+const proc: process (ACE_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     programUses.compDataLibrary := TRUE;
-    c_expr.expr &:= "actValue(";
+    c_expr.expr &:= "aceValue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

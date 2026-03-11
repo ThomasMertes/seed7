@@ -45,8 +45,8 @@ $ const type: f_param  is $ newtype;
 $ const $ func type: $ func (ref type param)    is $ action "TYP_FUNC";
 $ const $ func type: $ varfunc (ref type param) is $ action "TYP_VARFUNC";
 
-$ const func ACTION: $ action (ref string param)                    is $ action "ACT_GEN";
-$ const creator:     $ (ref creator param) ::= (ref ACTION param)   is $ action "ACT_CREATE";
+$ const func ACTION: $ action (ref string param)                      is $ action "ACE_GEN";
+$ const creator:     $ (ref creator param) ::= (ref ACTION param)     is $ action "ACT_CREATE";
 
 $ const creator:      $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
 $ const func f_param: $ ref (ref type param) param                      is action "DCL_REF1";
@@ -303,8 +303,8 @@ const destroyer: destroy (ref ENUMERATION: aValue) is action "GEN_DESTR";
 const destroyer: destroy (ref integer: aValue)     is action "GEN_DESTR";
 const destroyer: destroy (ref EXCEPTION: aValue)   is action "GEN_DESTR";
 
-const creator: (ref ACTION: dest) ::= (in ACTION: source)            is action "ACT_CREATE";
-const proc: (inout ACTION: dest) := (in ACTION: source)              is action "ACT_CPY";
+const creator: (ref ACTION: dest) ::= (in ACTION: source)            is action "ACE_CREATE";
+const proc: (inout ACTION: dest) := (in ACTION: source)              is action "ACE_CPY";
 const creator: (ref ENUMERATION: dest) ::= (ref ENUMERATION: source) is action "ENU_CREATE";
 const creator: (ref ENUMERATION: dest) ::= enumlit                   is action "ENU_GENLIT";
 const creator: (ref func object: dest) ::= (in ACTION: source)       is action "ACT_CREATE";
@@ -344,7 +344,7 @@ const func string: str (in EXCEPTION: anException) is action "ENU_LIT";
 const func EXCEPTION: (attr EXCEPTION) conv (in integer: exceptionNum) is action "ENU_ICONV3_EXCEPT";
 const func integer: ord (in EXCEPTION: anException) is action "ENU_ORD_EXCEPT";
 
-const func string: str (in ACTION: anAction)       is action "ACT_STR";
+const func string: str (in ACTION: anAction)       is action "ACE_STR";
 
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 

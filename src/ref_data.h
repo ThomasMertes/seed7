@@ -64,7 +64,6 @@ void refSetVar (objectType aReference, boolType var_flag);
 striType refStr (const const_objectType aReference);
 objectType refSymb (const const_objectType aReference);
 typeType refType (const const_objectType aReference);
-actType actValue (const const_objectType aReference);
 bigIntType bigValue (const const_objectType aReference);
 boolType blnValue (const_objectType aReference);
 bstriType bstValue (const const_objectType aReference);

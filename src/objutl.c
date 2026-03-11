@@ -107,6 +107,25 @@ void isit_enum (objectType argument)
 
 
 
+objectType bld_actentry_temp (const_actEntryType temp_actentry)
+
+  {
+    register objectType result;
+
+  /* bld_actentry_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, ACTENTRYOBJECT);
+      result->value.actEntryValue = temp_actentry;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_actentry_temp */
+
+
+
 objectType bld_action_temp (actType temp_action)
 
   {
@@ -679,6 +698,7 @@ void dump_temp_value (objectType object)
       case FLOATOBJECT:
       case REFOBJECT:
       case STRUCTELEMOBJECT:
+      case ACTENTRYOBJECT:
       case ACTOBJECT:
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:

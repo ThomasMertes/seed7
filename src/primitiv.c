@@ -74,16 +74,18 @@
 static const actEntryRecord actEntryTable[] = {
     { "ACT_ILLEGAL",                  act_illegal,                  },
 
-    { "ACT_CPY",                      act_cpy,                      },
+    { "ACE_CPY",                      ace_cpy,                      },
+    { "ACE_CREATE",                   ace_create,                   },
+    { "ACE_EQ",                       ace_eq,                       },
+    { "ACE_GEN",                      ace_gen,                      },
+    { "ACE_ICONV1",                   ace_iconv1,                   },
+    { "ACE_ICONV3",                   ace_iconv3,                   },
+    { "ACE_NE",                       ace_ne,                       },
+    { "ACE_ORD",                      ace_ord,                      },
+    { "ACE_STR",                      ace_str,                      },
+    { "ACE_VALUE",                    ace_value,                    },
+
     { "ACT_CREATE",                   act_create,                   },
-    { "ACT_EQ",                       act_eq,                       },
-    { "ACT_GEN",                      act_gen,                      },
-    { "ACT_ICONV1",                   act_iconv1,                   },
-    { "ACT_ICONV3",                   act_iconv3,                   },
-    { "ACT_NE",                       act_ne,                       },
-    { "ACT_ORD",                      act_ord,                      },
-    { "ACT_STR",                      act_str,                      },
-    { "ACT_VALUE",                    act_value,                    },
 
     { "ARR_APPEND",                   arr_append,                   },
     { "ARR_ARRLIT",                   arr_arrlit,                   },

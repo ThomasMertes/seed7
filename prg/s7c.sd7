@@ -5691,6 +5691,12 @@ const proc: write_file_head is func
                     \typedef struct listStruct *listType;\n\
                     \typedef const struct listStruct *const_listType;\n\
                     \typedef objRefType (*actType) (listType);\n\
+                    \typedef struct {\n\
+                    \  const_cstriType name;\n\
+                    \  actType action;\n\
+                    \} actEntryRecord;\n\
+                    \typedef actEntryRecord *actEntryType;\n\
+                    \typedef const actEntryRecord *const_actEntryType;\n\
                     \typedef int socketType;");
     writeln(c_prog, "typedef uint" <& ccConf.GENERIC_SIZE <& "Type genericType;");
     writeln(c_prog, "typedef union {\n\
@@ -5719,6 +5725,7 @@ const proc: write_file_head is func
                     \  interfaceType interfaceValue;\n\
                     \  objRefType    objRefValue;\n\
                     \  listType      listValue;\n\
+                    \  const_actEntryType actEntryValue;\n\
                     \  actType       actValue;\n\
                     \  ustriType     ustriValue;\n\
                     \} rtlValueUnion;");

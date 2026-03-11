@@ -767,7 +767,7 @@ const func bstring: getValue (in reference: aReference, attr bstring)        is 
 const func bitset: getValue (in reference: aReference, attr bitset)          is action "SET_VALUE";
 const func pollData: getValue (in reference: aReference, attr pollData)      is action "POL_VALUE";
 const func program: getValue (in reference: aReference, attr program)        is action "PRG_VALUE";
-const func ACTION: getValue (in reference: aReference, attr ACTION)          is action "ACT_VALUE";
+const func ACTION: getValue (in reference: aReference, attr ACTION)          is action "ACE_VALUE";
 const func clib_file: getValue (in reference: aReference, attr clib_file)    is action "FIL_VALUE";
 const func ref_list: getValue (in reference: aReference, attr ref_list)      is action "RFL_VALUE";
 const func bigInteger: getValue (in reference: aReference, attr bigInteger)  is action "BIG_VALUE";

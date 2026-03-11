@@ -26,14 +26,6 @@
 /********************************************************************/
 
 typedef struct {
-    const_cstriType name;
-    actType action;
-  } actEntryRecord;
-
-typedef actEntryRecord *actEntryType;
-typedef const actEntryRecord *const_actEntryType;
-
-typedef struct {
     unsigned int size;
     const_actEntryType table;
   } actTableType;
@@ -45,7 +37,7 @@ EXTERN actTableType actTable;
 #endif
 
 
-actType findAction (const const_striType actionName);
+const_actEntryType findActEntry (const const_striType actionName);
 actType getActIllegal (void);
 void freeActPtrTable (void);
 const_actEntryType getActEntry (actType actionSearched);

@@ -74,6 +74,7 @@ typedef enum {
     REFOBJECT,           /* objValue -    reference                 */
     REFLISTOBJECT,       /* listValue -   ref_list                  */
     EXPROBJECT,          /* listValue -   expression                */
+    ACTENTRYOBJECT,      /* actEntryValue actionEntry               */
     ACTOBJECT,           /* actValue -    Action                    */
     VALUEPARAMOBJECT,    /* objValue -    Formal value parameter    */
     REFPARAMOBJECT,      /* objValue -    Formal ref parameter      */
@@ -143,6 +144,14 @@ typedef const struct progStruct       *const_progType;
 typedef const struct inFileStruct     *const_inFileType;
 
 typedef objectType (*actType) (listType);
+
+typedef struct {
+    const_cstriType name;
+    actType action;
+  } actEntryRecord;
+
+typedef actEntryRecord *actEntryType;
+typedef const actEntryRecord *const_actEntryType;
 
 typedef struct identStruct {
     ustriType name;
@@ -226,6 +235,7 @@ typedef union {
                                 /* LOCALVOBJECT, FORMPARAMOBJECT */
                                 /* INTERFACEOBJECT */
     blockType    blockValue;    /* BLOCKOBJECT */
+    const_actEntryType actEntryValue; /* ACTENTRYOBJECT */
     actType      actValue;      /* ACTOBJECT */
     databaseType databaseValue; /* DATABASEOBJECT */
     sqlStmtType  sqlStmtValue;  /* SQLSTMTOBJECT */

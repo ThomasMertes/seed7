@@ -865,6 +865,7 @@ objectType prc_create (listType arguments)
     objectType dest;
     objectType source;
     blockType block_value;
+    const_actEntryType actEntry;
 
   /* prc_create */
     dest = arg_1(arguments);
@@ -894,6 +895,10 @@ objectType prc_create (listType arguments)
           block_value->usage_count++;
         } /* if */
       } /* if */
+    } else if (CATEGORY_OF_OBJ(source) == ACTENTRYOBJECT) {
+      actEntry = source->value.actEntryValue;
+      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+      dest->value.actValue = actEntry->action;
     } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
       SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
       dest->value.actValue = source->value.actValue;

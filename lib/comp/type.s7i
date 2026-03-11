@@ -132,6 +132,7 @@ const func string: raw_type_name (in type: object_type) is func
         when {REFOBJECT}:        typeName := "objRefType";
         when {REFLISTOBJECT}:    typeName := "listType";
         when {TYPEOBJECT}:       typeName := "typeType";
+        when {ACTENTRYOBJECT}:   typeName := "const_actEntryType";
         when {ACTOBJECT}:        typeName := "actType";
         otherwise:
           typeName := "t_";
@@ -240,6 +241,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {REFOBJECT}:        valueName := "objRefValue";
         when {REFLISTOBJECT}:    valueName := "listValue";
         when {TYPEOBJECT}:       valueName := "typeValue";
+        when {ACTENTRYOBJECT}:   valueName := "actEntryValue";
         when {ACTOBJECT}:        valueName := "actValue";
         otherwise:               valueName := "genericValue";
        end case;

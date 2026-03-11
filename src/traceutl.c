@@ -639,6 +639,11 @@ static void print_real_value (const_objectType anyobject)
       case SETOBJECT:
         prot_set(anyobject->value.setValue);
         break;
+      case ACTENTRYOBJECT:
+        prot_cstri("actEntry \"");
+        prot_cstri(anyobject->value.actEntryValue->name);
+        prot_cstri("\"");
+        break;
       case ACTOBJECT:
         prot_cstri("action \"");
         prot_cstri(getActEntry(anyobject->value.actValue)->name);
@@ -774,6 +779,7 @@ void printobject (const_objectType anyobject)
         case PROGOBJECT:
           printvalue(anyobject);
           break;
+        case ACTENTRYOBJECT:
         case ACTOBJECT:
           print_real_value(anyobject);
           break;
@@ -1024,6 +1030,7 @@ void prot_list_limited (const_listType list, int depthLimit)
           case STRUCTOBJECT:
           case INTERFACEOBJECT:
           case SETOBJECT:
+          case ACTENTRYOBJECT:
           case ACTOBJECT:
           case BLOCKOBJECT:
           case WINOBJECT:
@@ -1649,6 +1656,7 @@ void trace1 (const_objectType traceobject)
           case STRUCTOBJECT:
           case INTERFACEOBJECT:
           case SETOBJECT:
+          case ACTENTRYOBJECT:
           case ACTOBJECT:
           case BLOCKOBJECT:
           case WINOBJECT:

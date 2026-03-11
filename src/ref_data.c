@@ -1312,32 +1312,6 @@ typeType refType (const const_objectType aReference)
 
 
 /**
- *  Get 'ACTION' value of the object referenced by 'aReference'.
- *  @return the 'ACTION' value of the referenced object.
- *  @exception RANGE_ERROR If 'aReference' is NIL or
- *             category(aReference) <> ACTOBJECT holds.
- */
-actType actValue (const const_objectType aReference)
-
-  {
-    actType anAction;
-
-  /* actValue */
-    if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != ACTOBJECT ||
-                 (anAction = take_action(aReference)) == NULL)) {
-      logError(printf("actValue(");
-               trace1(aReference);
-               printf("): Not a legal ACTOBJECT.\n"););
-      raise_error(RANGE_ERROR);
-      anAction = NULL;
-    } /* if */
-    return anAction;
-  } /* actValue */
-
-
-
-/**
  *  Get 'bigInteger' value of the object referenced by 'aReference'.
  *  @return the 'bigInteger' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference' is NIL or
