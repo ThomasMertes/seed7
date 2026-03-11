@@ -422,12 +422,8 @@ objectType rfl_expr (listType arguments)
         } else {
           logError(printf("rfl_expr: Not okay\n");
                    printf("list1: " FMT_X_MEM "\n", (memSizeType) list1);
-                   printf("list1->next: " FMT_X_MEM "\n",
-                          (memSizeType) list1->next);
-                   printf("list1->next->next: " FMT_X_MEM "\n",
-                          (memSizeType) list1->next->next);
-                   printf("list1->next->next->next: " FMT_X_MEM "\n",
-                          (memSizeType) list1->next->next->next););
+                   prot_list(list1);
+                   printf("\n"););
           return raise_exception(SYS_RNG_EXCEPTION);
         } /* if */
       } while (okay);
