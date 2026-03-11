@@ -611,7 +611,8 @@ void categoryRequired (objectCategory required, objectType argument,
           curr_action_object = curr_exec_object->value.listValue->obj;
         } /* if */
         printf("\n*** Action $");
-        if (curr_action_object->value.actValue != NULL) {
+        if (curr_action_object != NULL &&
+            curr_action_object->value.actValue != NULL) {
           printf("%s", getActEntry(curr_action_object->value.actValue)->name);
         } else {
           printf("NULL");
