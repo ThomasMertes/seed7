@@ -51,9 +51,6 @@ const type: null_file is new struct
 
 type_implements_interface(null_file, file);
 
-const func boolean: (in null_file: aFile1) = (in null_file: aFile2)   is action "ENU_EQ";
-const func boolean: (in null_file: aFile1) <> (in null_file: aFile2)  is action "ENU_NE";
-
 
 (**
  *  Standard null file.
