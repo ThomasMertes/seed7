@@ -344,6 +344,7 @@ const func string: str (in EXCEPTION: anException) is action "ENU_LIT";
 const func EXCEPTION: (attr EXCEPTION) conv (in integer: exceptionNum) is action "ENU_ICONV3_EXCEPT";
 const func integer: ord (in EXCEPTION: anException) is action "ENU_ORD_EXCEPT";
 
+const func integer: ord (in ACTION: anAction)      is action "ACE_ORD";
 const func string: str (in ACTION: anAction)       is action "ACE_STR";
 
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
