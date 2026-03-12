@@ -878,6 +878,9 @@ objectType prc_create (listType arguments)
                          take_block(take_act_obj(source)) != NULL ?
                              take_block(take_act_obj(source))->usage_count :
                              (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTENTRYOBJECT) {
+                  printf("actEntry \"%s\")\n",
+                         take_actentry(take_act_obj(source))->name);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\")\n",
                          getActEntry(take_obj_action(source))->name);
@@ -927,6 +930,9 @@ objectType prc_create (listType arguments)
                          take_block(take_act_obj(source)) != NULL ?
                              take_block(take_act_obj(source))->usage_count :
                              (memSizeType) 0);
+                } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTENTRYOBJECT) {
+                  printf("actEntry \"%s\") -->\n",
+                         take_actentry(take_act_obj(source))->name);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\") -->\n",
                          getActEntry(take_obj_action(source))->name);
