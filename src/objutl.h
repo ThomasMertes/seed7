@@ -39,8 +39,9 @@
 #define arg_12(arguments) arguments->next->next->next->next->next->next->next->next->next->next->next->obj
 
 #define take_act_obj(arg)    (CATEGORY_OF_OBJ(arg) == MATCHOBJECT ? take_reflist(arg)->obj : (arg))
+#define take_obj_action(arg) take_act_obj(arg)->value.actValue
 #define take_actentry(arg)   (arg)->value.actEntryValue
-#define take_action(arg)     take_act_obj(arg)->value.actValue
+#define take_action(arg)     (arg)->value.actValue
 #define take_array(arg)      (arg)->value.arrayValue
 #define take_binary(arg)     (arg)->value.binaryValue
 #define take_block(arg)      (arg)->value.blockValue
@@ -82,7 +83,7 @@
                                                       CATEGORY_OF_OBJ(arg) != (cat2) && \
                                                       CATEGORY_OF_OBJ(arg) != (cat3))) expected_category(cat1, arg)
 #define isit_actentry(arg)   hasCategory(arg, ACTENTRYOBJECT)
-#define isit_action(arg)     hasCategory(take_act_obj(arg), ACTOBJECT)
+#define isit_action(arg)     hasCategory(arg, ACTOBJECT)
 #define isit_array(arg)      hasCategory(arg, ARRAYOBJECT); \
                              if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return NULL; }
 #define isit_binary(arg)     hasCategory(arg, INTOBJECT)

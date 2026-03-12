@@ -747,7 +747,7 @@ objectType prc_cpy (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
                   printf("action \"%s\", ",
-                         getActEntry(take_action(dest))->name);
+                         getActEntry(take_obj_action(dest))->name);
                 } else {
                   printf("category %u, ", CATEGORY_OF_OBJ(dest));
                 }
@@ -759,7 +759,7 @@ objectType prc_cpy (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\")\n",
-                         getActEntry(take_action(source))->name);
+                         getActEntry(take_obj_action(source))->name);
                 } else {
                   printf("category %u)\n", CATEGORY_OF_OBJ(source));
                 });
@@ -832,7 +832,7 @@ objectType prc_cpy (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
                   printf("action \"%s\", ",
-                         getActEntry(take_action(dest))->name);
+                         getActEntry(take_obj_action(dest))->name);
                 } else {
                   printf("category %u, ", CATEGORY_OF_OBJ(dest));
                 }
@@ -844,7 +844,7 @@ objectType prc_cpy (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\") -->\n",
-                         getActEntry(take_action(source))->name);
+                         getActEntry(take_obj_action(source))->name);
                 } else {
                   printf("category %u) -->\n", CATEGORY_OF_OBJ(source));
                 });
@@ -880,7 +880,7 @@ objectType prc_create (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\")\n",
-                         getActEntry(take_action(source))->name);
+                         getActEntry(take_obj_action(source))->name);
                 } else {
                   printf("category %u)\n", CATEGORY_OF_OBJ(source));
                 });
@@ -901,10 +901,10 @@ objectType prc_create (listType arguments)
       dest->value.actValue = actEntry->action;
     } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
       SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-      dest->value.actValue = source->value.actValue;
+      dest->value.actValue = take_action(source);
     } else {
       logError(printf("prc_create: source category %d neither "
-                       "BLOCKOBJECT nor ACTOBJECT.\n",
+                       "BLOCKOBJECT nor ACTENTRYOBJECT nor ACTOBJECT.\n",
                        CATEGORY_OF_OBJ(source)););
       return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
     } /* if */
@@ -917,7 +917,7 @@ objectType prc_create (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(dest)) == ACTOBJECT) {
                   printf("action \"%s\", ",
-                         getActEntry(take_action(dest))->name);
+                         getActEntry(take_obj_action(dest))->name);
                 } else {
                   printf("category %u, ", CATEGORY_OF_OBJ(dest));
                 }
@@ -929,7 +929,7 @@ objectType prc_create (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(source)) == ACTOBJECT) {
                   printf("action \"%s\") -->\n",
-                         getActEntry(take_action(source))->name);
+                         getActEntry(take_obj_action(source))->name);
                 } else {
                   printf("category %u) -->\n", CATEGORY_OF_OBJ(source));
                 });
@@ -960,7 +960,7 @@ objectType prc_destr (listType arguments)
                              (memSizeType) 0);
                 } else if (CATEGORY_OF_OBJ(take_act_obj(old_proc)) == ACTOBJECT) {
                   printf("action \"%s\")\n",
-                         getActEntry(take_action(old_proc))->name);
+                         getActEntry(take_obj_action(old_proc))->name);
                 } else {
                   printf("category %u)\n", CATEGORY_OF_OBJ(old_proc));
                 });
