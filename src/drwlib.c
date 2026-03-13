@@ -1624,8 +1624,7 @@ objectType plt_bstring (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = plist->size;
-        memcpy_size_0_okay(result->mem, plist->mem,
-                           (size_t) plist->size);
+        memcpy(result->mem, plist->mem, (size_t) plist->size);
       } /* if */
     } /* if */
     logFunction(printf("plt_bstring --> \"%s\"\n",
@@ -1728,8 +1727,8 @@ objectType plt_create (listType arguments)
       } /* if */
       dest->value.bstriValue = new_plist;
       new_plist->size = new_size;
-      memcpy_size_0_okay(new_plist->mem, take_pointlist(source)->mem,
-                         (size_t) new_size);
+      memcpy(new_plist->mem, take_pointlist(source)->mem,
+             (size_t) new_size);
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* plt_create */
@@ -1872,8 +1871,7 @@ objectType plt_point_list (listType arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = bstri->size;
-        memcpy_size_0_okay(result->mem, bstri->mem,
-                           (size_t) bstri->size);
+        memcpy(result->mem, bstri->mem, (size_t) bstri->size);
       } /* if */
     } /* if */
     logFunction(printf("plt_point_list --> \"%s\"\n",
@@ -1911,8 +1909,7 @@ objectType plt_value (listType arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = plist->size;
-      memcpy_size_0_okay(result->mem, plist->mem,
-                         (size_t) plist->size);
+      memcpy(result->mem, plist->mem, (size_t) plist->size);
       logFunction(printf("plt_value -->\n"););
       return bld_pointlist_temp(result);
     } /* if */

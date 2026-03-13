@@ -53,10 +53,12 @@ typedef BOOLTYPE boolType;
 
 #define EXTERN          extern
 
-#if MEMCPY_ZERO_BYTES_DOES_NOTHING
-#define memcpy_size_0_okay(dest, source, size) memcpy(dest, source, size)
-#else
-#define memcpy_size_0_okay(dest, source, size) if ((size) != 0) {memcpy(dest, source, size);}
+#if !MEMCPY_ZERO_BYTES_DOES_NOTHING
+#define memcpy(dest, source, size) ((size) != 0 ? memcpy(dest, source, size) : dest)
+#endif
+
+#if !MEMCMP_WITH_SIZE_0_RETURNS_0
+#define memcmp(mem1, mem2, size) ((size) != 0 ? memcmp(mem1, mem2, size) : 0)
 #endif
 
 

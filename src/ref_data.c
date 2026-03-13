@@ -1394,8 +1394,7 @@ bstriType bstValue (const const_objectType aReference)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = bstri->size;
-      memcpy_size_0_okay(result->mem, bstri->mem,
-                         (size_t) (bstri->size));
+      memcpy(result->mem, bstri->mem, (size_t) (bstri->size));
     } /* if */
     return result;
   } /* bstValue */
@@ -1594,8 +1593,7 @@ bstriType pltValue (const const_objectType aReference)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = plist->size;
-      memcpy_size_0_okay(result->mem, plist->mem,
-                         (size_t) (plist->size));
+      memcpy(result->mem, plist->mem, (size_t) (plist->size));
     } /* if */
     return result;
   } /* pltValue */
