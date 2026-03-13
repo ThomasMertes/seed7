@@ -697,6 +697,9 @@ typedef struct emptyStriStruct {
 #if WITH_STRI_CAPACITY
     memSizeType capacity;
 #endif
+#if ALLOW_STRITYPE_SLICES
+    strElemType *mem;
+#endif
   } emptyStriRecord;
 
 typedef struct bstriStruct {
