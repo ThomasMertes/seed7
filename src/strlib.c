@@ -224,7 +224,7 @@ static arrayType strSplit (const const_striType mainStri,
     arrayType result_array;
 
   /* strSplit */
-    logFunction(printf("strChSplit(\"%s\", ",
+    logFunction(printf("strSplit(\"%s\", ",
                        striAsUnquotedCStri(mainStri));
                 printf("\"%s\")\n", striAsUnquotedCStri(delimiter)););
     if (ALLOC_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
@@ -1105,6 +1105,9 @@ objectType str_lpad (listType arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
+    logFunction(printf("str_lpad(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri),
+                       pad_size););
     striSize = stri->size;
     if (pad_size > 0 && (uintType) pad_size > striSize) {
       if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
@@ -1547,6 +1550,9 @@ objectType str_rpad (listType arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
+    logFunction(printf("str_rpad(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri),
+                       pad_size););
     striSize = stri->size;
     if (pad_size > 0 && (uintType) pad_size > striSize) {
       if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
