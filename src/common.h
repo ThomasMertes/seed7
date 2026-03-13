@@ -718,6 +718,9 @@ typedef struct emptyBStriStruct *emptyBStriType;
 
 typedef struct emptyBStriStruct {
     memSizeType size;
+#if ALLOW_BSTRITYPE_SLICES
+    ucharType *mem;
+#endif
   } emptyBStriRecord;
 
 typedef struct fileStruct {

@@ -520,13 +520,14 @@ EXTERN unsigned int sflist_allowed;
 #if ALLOW_BSTRITYPE_SLICES
 #define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?((var)->mem = (var)->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
+#define ALLOC_EMPTY_BSTRI(var)             (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?((var)->mem = (ucharType *)&(var)->mem, CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
 #else
 #define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)),0)
+#define ALLOC_EMPTY_BSTRI(var)             (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?(CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
 #endif
 
 #define ALLOC_BSTRI_CHECK_SIZE(var,len)       ((len) <= MAX_BSTRI_LEN?ALLOC_BSTRI_SIZE_OK(var, len):(var=NULL,FALSE))
-#define ALLOC_EMPTY_BSTRI(var)                (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?(CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
 #define FREE_BSTRI(var,len)                   (CNT(CNT2_BSTRI(len, SIZ_BSTRI(len))) FREE_HEAP(var, SIZ_BSTRI(len)))
 #define REALLOC_BSTRI_CHECK_SIZE(v1,v2,l1,l2) ((l2)  <= MAX_BSTRI_LEN?REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2):(v1=NULL,0))
 #define COUNT3_BSTRI(len1,len2)               CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)), CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
