@@ -106,7 +106,6 @@ objectType refAllocList (const intType aCategory,
 
   {
     objectCategory objCategory;
-    propertyType created_property;
     objectType created_object;
 
   /* refAllocList */
@@ -146,7 +145,7 @@ objectType refAllocList (const intType aCategory,
         created_object->descriptor.posinfo = obj1->descriptor.posinfo;
         INIT_CATEGORY_OF_POSINFO(created_object, aCategory);
       } else {
-        created_object->descriptor.property = prog->property.literal;
+        created_object->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(created_object, aCategory);
       } /* if */
       created_object->value.listValue = NULL;
