@@ -4779,6 +4779,7 @@ static void determineSigaltstack (FILE *versionFile)
                                "    }\n"
                                "  }\n"
                                "}\n"
+                               "free(ss.ss_sp);\n"
                                "return 0;}\n")) {
             fprintf(versionFile, "#define SIGNAL_STACK_SIZE %d\n", doTest());
           } /* if */
@@ -11711,12 +11712,13 @@ int main (int argc, char **argv)
                          "#include <string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char *buffer;\n"
-                         "argc <<= 3;\n"
+                         "argc >>= 3;\n"
                          "buffer = (char *) malloc(5);\n"
                          "memcpy(buffer, \"abcd\", 5);\n"
                          "memcpy(&buffer[1], \"xy\", argc);\n"
                          "memcpy(&buffer[5], \"xy\", argc);\n"
                          "printf(\"%d\\n\", memcmp(buffer, \"abcd\", 5) == 0);\n"
+                         "free(buffer);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define MEMCPY_ZERO_BYTES_DOES_NOTHING %d\n", doTest() == 1);
     } /* if */
@@ -11780,7 +11782,8 @@ int main (int argc, char **argv)
                          "       memcmp(stri2, stri1, 2) == -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define MEMCMP_WITH_SIZE_0_RETURNS_0 %d\n",
-        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "char stri1[3], stri2[3], *stri3, *stri4, *stri5, *stri6;\n"
                          "int size;\n"
@@ -11792,7 +11795,7 @@ int main (int argc, char **argv)
                          "strcpy(stri5, \"za\"); \n"
                          "stri6 = (char *) malloc(3);\n"
                          "strcpy(stri6, \"az\");\n"
-                         "size = 0;\n"
+                         "size = argc >> 3;\n"
                          "printf(\"%d\\n\",\n"
                          "       memcmp(stri1, stri2, size) == 0 &&\n"
                          "       memcmp(stri2, stri1, size) == 0 &&\n"
@@ -11805,6 +11808,8 @@ int main (int argc, char **argv)
                          "       memcmp(&stri5[3], stri3, size) == 0 &&\n"
                          "       memcmp(&stri5[3], &stri6[3], size) == 0 &&\n"
                          "       memcmp(&stri5[3], &stri6[3], size) == 0);\n"
+                         "free(stri5);\n"
+                         "free(stri6);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMCMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
