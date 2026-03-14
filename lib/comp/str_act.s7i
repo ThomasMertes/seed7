@@ -2217,10 +2217,9 @@ const proc: process_inline_str_head (in reference: stri, in reference: length,
         end if;
       end if;
       if not length_is_variable and length_value = 0 then
+        c_expr.expr &:= "SET_SLICE_EMPTY(";
         c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".mem = NULL, ";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = 0";
+        c_expr.expr &:= ")";
       else
         (* Formula used: slice.mem = stri->mem,
                          stri->size <= (uintType)length ?
@@ -3690,11 +3689,9 @@ const proc: process_inline_str_range (in reference: stri,
               incr(count.suppressedIndexChecks);
             end if;
           end if;
-          c_expr.expr &:= "(";
+          c_expr.expr &:= "SET_SLICE_EMPTY(";
           c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".mem = NULL,";
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".size = 0)";
+          c_expr.expr &:= ")";
         else
           (* Formula used: stop>=start && (uintType)start <= stri->size ?
                            (slice.mem = &stri->mem[start-1],
@@ -3772,11 +3769,9 @@ const proc: process_inline_str_range (in reference: stri,
               incr(count.suppressedIndexChecks);
             end if;
           end if;
-          c_expr.expr &:= " : (";
+          c_expr.expr &:= " : SET_SLICE_EMPTY(";
           c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".mem = NULL,";
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".size = 0)";
+          c_expr.expr &:= ")";
         end if;
       end if;
     end if;
@@ -4480,10 +4475,9 @@ const proc: process_inline_str_substr (in reference: stri,
         if (not length_is_variable and length_value = 0) or
             (not stri_is_variable and not start_is_variable and
              length(stri_value) < start_value) then
+          c_expr.expr &:= "SET_SLICE_EMPTY(";
           c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".mem = NULL, ";
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".size = 0";
+          c_expr.expr &:= ")";
         elsif not start_is_variable and not length_is_variable and
             start_value <= integer.last - length_value then
           (* Formula used: slice.mem = &stri->mem[start-1],
@@ -4572,11 +4566,9 @@ const proc: process_inline_str_substr (in reference: stri,
           c_expr.expr &:= slice_name;
           c_expr.expr &:= ".size = (memSizeType)";
           c_expr.expr &:= length_name;
-          c_expr.expr &:= ")) : (";
+          c_expr.expr &:= ")) : SET_SLICE_EMPTY(";
           c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".mem = NULL, ";
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".size = 0)";
+          c_expr.expr &:= ")";
         end if;
       end if;
     end if;

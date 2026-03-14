@@ -5940,6 +5940,7 @@ const proc: write_file_head is func
       writeln(c_prog, "#define NEGATIVE_INFINITY (-1.0 / 0.0)");
     end if;
     writeln(c_prog, "extern const floatType negativeZero;");
+    writeln(c_prog, "#define SET_SLICE_EMPTY(slice) ((slice).mem = (strElemType *) &(slice), (slice).size = 0)");
     writeln(c_prog, "extern struct fileStruct nullFileRecord;");
     writeln(c_prog, "extern struct fileStruct stdinFileRecord;");
     writeln(c_prog, "extern struct fileStruct stdoutFileRecord;");

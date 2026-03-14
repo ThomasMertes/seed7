@@ -3913,8 +3913,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
       raise_error(INDEX_ERROR);
     } else {
       SET_SLICE_CAPACITY(slice, 0);
-      slice->mem = NULL;
-      slice->size = 0;
+      SET_SLICE_EMPTY(slice);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strRangeSlice */
@@ -4671,8 +4670,7 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
           slice->size = (memSizeType) length;
         } /* if */
       } else {
-        slice->mem = NULL;
-        slice->size = 0;
+        SET_SLICE_EMPTY(slice);
       } /* if */
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
@@ -4840,8 +4838,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
       slice->size = striSize - (memSizeType) start + 1;
     } else {
       SET_SLICE_CAPACITY(slice, 0);
-      slice->mem = NULL;
-      slice->size = 0;
+      SET_SLICE_EMPTY(slice);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strTailSlice */

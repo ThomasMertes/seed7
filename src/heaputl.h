@@ -366,7 +366,7 @@ EXTERN memSizeType hs;
 #if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->mem=(var)->mem1,(var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3_STRI((v1)->capacity,cap))(v1)->mem=(v1)->mem1,(v1)->capacity=(cap);}
-#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?((var)->mem=(strElemType *)&(var)->mem,(var)->capacity=0,CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
+#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?((var)->mem=(strElemType *)&(var),(var)->capacity=0,CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
 #else
 #define HEAP_ALLOC_STRI(var,cap)             (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,unused,cap)  if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(cap)))!=NULL){CNT(COUNT3_STRI((v1)->capacity,cap))(v1)->capacity=(cap);}
@@ -377,7 +377,7 @@ EXTERN memSizeType hs;
 #if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){CNT(COUNT3_STRI(l1,l2))(v1)->mem=(v1)->mem1;}
-#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?((var)->mem=(strElemType *)&(var)->mem,CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
+#define HEAP_ALLOC_EMPTY_STRI(var)           (ALLOC_HEAP(var,emptyStriType,SIZ_STRI_0)?((var)->mem=(strElemType *)&(var),CNT(CNT1_STRI(0,SIZ_STRI_0)) TRUE):FALSE)
 #else
 #define HEAP_ALLOC_STRI(var,len)             (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2)       if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){COUNT3_STRI(l1,l2);}
@@ -514,13 +514,14 @@ EXTERN unsigned int sflist_allowed;
 #define SLICE_OVERLAPPING(var,dest)            ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->size])
 #define SET_SLICE_CAPACITY(var,cap)
 #endif
+#define SET_SLICE_EMPTY(var)                   ((var)->mem = (strElemType *) (var), (var)->size = 0)
 #endif
 
 
 #if ALLOW_BSTRITYPE_SLICES
 #define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?((var)->mem = (var)->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
-#define ALLOC_EMPTY_BSTRI(var)             (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?((var)->mem = (ucharType *)&(var)->mem, CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
+#define ALLOC_EMPTY_BSTRI(var)             (ALLOC_HEAP(var, emptyBStriType, SIZ_BSTRI_0)?((var)->mem = (ucharType *)&(var), CNT(CNT1_BSTRI(0, SIZ_BSTRI_0)) TRUE):FALSE)
 #else
 #define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)),0)
