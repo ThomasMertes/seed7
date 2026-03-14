@@ -61,6 +61,8 @@
 /* only better for lengths greater than 7.     */
 #define LPAD_WITH_MEMSET_TO_STRELEM 0
 
+#define DO_STR_APPEND_WITH_REALLOC 0
+
 #if WITH_STRI_FREELIST
 #define RESIZE_THRESHOLD MAX_STRI_LEN_IN_FREELIST
 #else
@@ -1078,6 +1080,7 @@ striType straightenAbsolutePath (const const_striType absolutePath)
 
 
 #if ALLOW_STRITYPE_SLICES
+#if DO_STR_APPEND_WITH_REALLOC
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -1163,6 +1166,8 @@ void strAppend (striType *const destination, const_striType extension)
 #endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
+
+#endif
 
 
 
@@ -1341,6 +1346,7 @@ void strAppendN (striType *const destination,
 
 
 
+#if DO_STR_APPEND_WITH_REALLOC
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -1399,6 +1405,8 @@ void strAppend (striType *const destination, const_striType extension)
 #endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
+
+#endif
 
 
 
@@ -1505,6 +1513,84 @@ void strAppendN (striType *const destination,
 #endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppendN */
+
+#endif
+
+
+
+#if !DO_STR_APPEND_WITH_REALLOC
+/**
+ *  Append the string 'extension' to 'destination'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
+void strAppend (striType *const destination, const_striType extension)
+
+  {
+    memSizeType new_size;
+    memSizeType newCapacity;
+    striType stri_dest;
+    striType new_stri;
+    memSizeType extension_size;
+    const strElemType *extension_mem;
+    const strElemType *extension_origin;
+
+  /* strAppend */
+    logFunction(printf("strAppend(\"%s\", ", striAsUnquotedCStri(*destination));
+                printf("\"%s\")", striAsUnquotedCStri(extension));
+                fflush(stdout););
+    stri_dest = *destination;
+    extension_size = extension->size;
+    extension_mem = extension->mem;
+    /* Adding two string sizes cannot overflow. */
+    new_size = stri_dest->size + extension_size;
+    if (unlikely(new_size > MAX_STRI_LEN)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+ #if WITH_STRI_CAPACITY
+      if (new_size > stri_dest->capacity) {
+        if (2 * stri_dest->capacity >= new_size) {
+          newCapacity = 2 * stri_dest->capacity;
+        } else {
+          newCapacity = 2 * new_size;
+        } /* if */
+        if (newCapacity < MIN_GROW_SHRINK_CAPACITY) {
+          newCapacity = MIN_GROW_SHRINK_CAPACITY;
+        } else if (unlikely(newCapacity > MAX_STRI_LEN)) {
+          newCapacity = MAX_STRI_LEN;
+        } /* if */
+        if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, newCapacity))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_stri->size = new_size;
+          memcpy(new_stri->mem, stri_dest->mem,
+                 stri_dest->size * sizeof(strElemType));
+          memcpy(&new_stri->mem[stri_dest->size], extension_mem,
+                 extension_size * sizeof(strElemType));
+          FREE_STRI(stri_dest);
+          *destination = new_stri;
+        } /* if */
+      } else {
+        memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
+               extension_size * sizeof(strElemType));
+        stri_dest->size = new_size;
+      } /* if */
+#else
+      if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_stri->size = new_size;
+        memcpy(new_stri->mem, stri_dest->mem,
+               stri_dest->size * sizeof(strElemType));
+        memcpy(&new_stri->mem[stri_dest->size], extension_mem,
+               extension_size * sizeof(strElemType));
+        FREE_STRI(stri_dest);
+        *destination = new_stri;
+      } /* if */
+#endif
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strAppend */
 
 #endif
 
