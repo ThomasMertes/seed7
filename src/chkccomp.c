@@ -2958,6 +2958,7 @@ static void numericProperties (FILE *versionFile)
     char computeValues[BUFFER_SIZE];
     const char *builtin_add_overflow = "nonexistent_function";
     const char *builtin_mul_overflow = "nonexistent_function";
+    const char *builtin_popcount = "nonexistent_function";
     int has_log2;
     const char *os_isnan_definition = NULL;
 
@@ -2990,12 +2991,15 @@ static void numericProperties (FILE *versionFile)
     if (sizeof_int == 8) {
       builtin_add_overflow = "__builtin_sadd_overflow";
       builtin_mul_overflow = "__builtin_smul_overflow";
+      builtin_popcount     = "__builtin_popcount";
     } else if (sizeof_long == 8) {
       builtin_add_overflow = "__builtin_saddl_overflow";
       builtin_mul_overflow = "__builtin_smull_overflow";
+      builtin_popcount     = "__builtin_popcountl";
     } else if (sizeof_long_long == 8) {
       builtin_add_overflow = "__builtin_saddll_overflow";
       builtin_mul_overflow = "__builtin_smulll_overflow";
+      builtin_popcount     = "__builtin_popcountll";
     } /* if */
     sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
                     "#include<signal.h>\n"
@@ -3008,6 +3012,18 @@ static void numericProperties (FILE *versionFile)
                     int64TypeStri, builtin_add_overflow);
     fprintf(versionFile, "#define HAS_BUILTIN_OVERFLOW_OPERATIONS %d\n",
             compileAndLinkOk(buffer) && doTest() == 1);
+    sprintf(buffer, "#include<stdio.h>\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "%s x=101;\n"
+                    "printf(\"%%d\\n\",%s(x)==4);\n"
+                    "return 0;}\n",
+                    int64TypeStri, builtin_popcount);
+    if (compileAndLinkOk(buffer) && doTest() == 1) {
+      fputs("#define HAS_BUILTIN_POPCOUNT 1\n", versionFile);
+      fprintf(versionFile, "#define builtin_popcount64(x) %s(x)\n", builtin_popcount);
+    } else {
+      fputs("#define HAS_BUILTIN_POPCOUNT 0\n", versionFile);
+    } /* if */
     sprintf(buffer, "intType lshift5 (intType number)\n"
                     "{intType result;\n"
                     "if (%s(number, (intType) 32, &result)) {\n"
