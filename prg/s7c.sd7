@@ -1120,6 +1120,9 @@ const proc: defineFunctype (in string: valueName, in reference: actual_param,
     c_expr.expr &:= "struct {\n";
     for dataItem range data_list do
       if not isVar(dataItem) then
+        if not isFunc(getType(dataItem)) then
+          c_expr.expr &:= "const ";
+        end if;
         if useConstPrefix(dataItem) then
           c_expr.expr &:= "const_";
         end if;
