@@ -139,10 +139,10 @@ typedef struct {
     unsigned char **attributes;
     unsigned char *attrib_data;
     strElemType *space;
-    int line_capacity;
-    int column_capacity;
-    int height;
-    int width;
+    unsigned int line_capacity;
+    unsigned int column_capacity;
+    unsigned int height;
+    unsigned int width;
     boolType size_changed;
   } consoleRecord,  *consoleType;
 
@@ -202,14 +202,14 @@ static void free_console (consoleType old_con)
 
 
 
-static consoleType create_console (int height, int width)
+static consoleType create_console (unsigned int height, unsigned int width)
 
   {
-    int line;
+    unsigned int line;
     consoleType new_con;
 
   /* create_console */
-    log2Function(fprintf(stderr, "create_console(%d, %d)\n", height, width););
+    log2Function(fprintf(stderr, "create_console(%u, %u)\n", height, width););
     new_con = (consoleType) malloc(sizeof(consoleRecord));
     if (new_con != NULL) {
       new_con->char_data = (strElemType *)
@@ -251,48 +251,51 @@ static void resize_console (void)
 
   {
     struct winsize window_size;
-    int height;
-    int width;
-    int line_capacity;
-    int column_capacity;
-    int line;
+    unsigned int height;
+    unsigned int width;
+    unsigned int line_capacity;
+    unsigned int column_capacity;
+    unsigned int line;
     consoleType new_con;
 
   /* resize_console */
-    ioctl(0, TIOCGWINSZ, &window_size);
-    /* printf("handle_winch_signal: lines=%d, columns=%d\n", w.ws_row, w.ws_col); */
-    height = window_size.ws_row;
-    width = window_size.ws_col;
-    if (height > con->line_capacity ||
-        width > con->column_capacity) {
-      if (height > con->line_capacity) {
-        line_capacity = height;
+    if (likely(ioctl(0, TIOCGWINSZ, &window_size) == 0 &&
+               window_size.ws_row > 0 && window_size.ws_col > 0)) {
+      height = window_size.ws_row;
+      width = window_size.ws_col;
+      logMessage(printf("resize_console: lines=%u, columns=%u\n",
+                        height, width););
+      if (height > con->line_capacity ||
+          width > con->column_capacity) {
+        if (height > con->line_capacity) {
+          line_capacity = height;
+        } else {
+          line_capacity = con->line_capacity;
+        } /* if */
+        if (width > con->column_capacity) {
+          column_capacity = width;
+        } else {
+          column_capacity = con->column_capacity;
+        } /* if */
+        new_con = create_console(line_capacity, column_capacity);
+        if (new_con != NULL) {
+          for (line = 0; line < con->height; line++) {
+            memcpy(new_con->chars[line], con->chars[line],
+                sizeof(strElemType) * (unsigned int) con->width);
+            memcpy(new_con->attributes[line], con->attributes[line],
+                (unsigned int) con->width);
+          } /* for */
+          new_con->height = height;
+          new_con->width = width;
+          free_console(con);
+          con = new_con;
+        } /* if */
       } else {
-        line_capacity = con->line_capacity;
+        con->height = height;
+        con->width = width;
       } /* if */
-      if (width > con->column_capacity) {
-        column_capacity = width;
-      } else {
-        column_capacity = con->column_capacity;
-      } /* if */
-      new_con = create_console(line_capacity, column_capacity);
-      if (new_con != NULL) {
-        for (line = 0; line < con->height; line++) {
-          memcpy(new_con->chars[line], con->chars[line],
-              sizeof(strElemType) * (unsigned int) con->width);
-          memcpy(new_con->attributes[line], con->attributes[line],
-              (unsigned int) con->width);
-        } /* for */
-        new_con->height = height;
-        new_con->width = width;
-        free_console(con);
-        con = new_con;
-      } /* if */
-    } else {
-      con->height = height;
-      con->width = width;
+      con->size_changed = FALSE;
     } /* if */
-    con->size_changed = FALSE;
   } /* resize_console */
 
 
@@ -394,7 +397,7 @@ int conHeight (void)
       if (con->size_changed) {
         resize_console();
       } /* if */
-      height = con->height;
+      height = (int) con->height;
     } /* if */
     log2Function(fprintf(stderr, "conHeight --> %d\n", height););
     return height;
@@ -417,7 +420,7 @@ int conWidth (void)
       if (con->size_changed) {
         resize_console();
       } /* if */
-      width = con->width;
+      width = (int) con->width;
     } /* if */
     log2Function(fprintf(stderr, "conWidth --> %d\n", width););
     return width;
@@ -534,9 +537,9 @@ static void doWrite (const strElemType *stri, memSizeType length)
       new_line = &con->chars[cursor_line - 1][cursor_column - 1];
       new_attr = &con->attributes[cursor_line - 1][cursor_column - 1];
       if (cursor_column <= con->width) {
-        if (length - 1 > con->width - cursor_column) {
-          end_pos = con->width - cursor_column;
-          new_cursor_column = con->width + 1;
+        if (length - 1 > (int) con->width - cursor_column) {
+          end_pos = (int) con->width - cursor_column;
+          new_cursor_column = (int) con->width + 1;
         } else {
           end_pos = (int) (length - 1);
           new_cursor_column = cursor_column + (int) length;
@@ -1402,7 +1405,7 @@ void conShut (void)
 
   { /* conShut */
     if (console_initialized) {
-      putgoto(cursor_address, 0, con->height - 1); /* cursor motion */
+      putgoto(cursor_address, 0, (int) con->height - 1); /* cursor motion */
       putctl(cursor_normal); /* cursor normal */
       putctl(clear_screen); /* clear screen */
       putctl(exit_ca_mode); /* end cursor addressing mode */
@@ -1447,7 +1450,7 @@ int conOpen (void)
         if (columns < 0) {
           columns = 80;
         } /* if */
-        con = create_console(lines, columns);
+        con = create_console((unsigned int) lines, (unsigned int) columns);
         if (con != NULL) {
           putctl(enter_ca_mode); /* enter cursor addressing mode */
           putctl(cursor_invisible); /* makes cursor invisible */
