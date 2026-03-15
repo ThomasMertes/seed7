@@ -254,7 +254,10 @@ static void fix_capability (void)
     if (terminal_name == NULL) {
       terminal_name = "";
     } /* if */
+    /* Reserve space for optional '/' + ".term" + terminal_name. */
     file_name_size = strlen(home_dir_path) + 6 + strlen(terminal_name);
+    /* The macro ALLOC_CSTRI() considers the '\0' termination. */
+    /* It allocates one byte more than file_name_size.         */
     if (ALLOC_CSTRI(file_name, file_name_size)) {
       strcpy(file_name, home_dir_path);
       len = strlen(file_name);
