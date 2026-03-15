@@ -753,8 +753,8 @@ void polClear (const pollType pollData)
              (destrFuncType) &genericDestr);
     var_conv(pollData)->readTest.indexHash = hshEmpty();
     /* Clear writeTest */
-    for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
-      fileObjectOps.decrUsageCount(conv(pollData)->readTest.files[pos].file);
+    for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      fileObjectOps.decrUsageCount(conv(pollData)->writeTest.files[pos].file);
     } /* for */
     var_conv(pollData)->writeTest.size = 0;
     var_conv(pollData)->writeTest.iterPos = 0;
