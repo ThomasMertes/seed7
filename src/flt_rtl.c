@@ -592,6 +592,9 @@ striType fltDgts (floatType number, intType precision)
         /* precision of PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION       */
         /* printf() will always work ok.                           */
         if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
+          /* NaN and Infinity are handled separately and the */
+          /* "C" locale is used. This way it is guaranteed   */
+          /* that buffer always contains a '.'.              */
           pos = (memSizeType) (strchr(buffer, '.') - buffer);
           if ((memSizeType) precision >= len - pos) {
             memSizeType numZeros = (memSizeType) precision - (len - pos) + 1;
@@ -1758,6 +1761,9 @@ striType fltSci (floatType number, intType precision)
         /* precision of PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION       */
         /* printf() will always work ok.                           */
         if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
+          /* NaN and Infinity are handled separately and an */
+          /* %e format is used. This way it is guaranteed   */
+          /* that buffer always contains an 'e'.            */
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
           if ((memSizeType) precision > pos - STRLEN("1.") -
               (buffer[0] == '-')){
