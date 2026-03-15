@@ -1080,8 +1080,8 @@ striType straightenAbsolutePath (const const_striType absolutePath)
 
 
 
-#if ALLOW_STRITYPE_SLICES
 #if DO_STR_APPEND_WITH_REALLOC
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -1167,8 +1167,6 @@ void strAppend (striType *const destination, const_striType extension)
 #endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
-
-#endif
 
 
 
@@ -1347,7 +1345,6 @@ void strAppendN (striType *const destination,
 
 
 
-#if DO_STR_APPEND_WITH_REALLOC
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -1406,8 +1403,6 @@ void strAppend (striType *const destination, const_striType extension)
 #endif
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
-
-#endif
 
 
 
@@ -1516,10 +1511,10 @@ void strAppendN (striType *const destination,
   } /* strAppendN */
 
 #endif
+#else
 
 
 
-#if !DO_STR_APPEND_WITH_REALLOC
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -1591,6 +1586,118 @@ void strAppend (striType *const destination, const_striType extension)
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
+
+
+
+void strAppendN (striType *const destination,
+    const const_striType extensionArray[], memSizeType arraySize)
+
+  {
+    striType stri_dest;
+    memSizeType size_limit;
+    memSizeType pos;
+    memSizeType new_size;
+    memSizeType newCapacity;
+    striType new_stri;
+    strElemType *dest;
+    memSizeType elem_size;
+
+  /* strAppendN */
+    logFunction(printf("strAppendN(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                for (pos = 0; pos < arraySize; pos++) {
+                  printf("\"%s\", ",
+                         striAsUnquotedCStri(extensionArray[pos]));
+                } /* for */
+                printf(FMT_U_MEM ")", arraySize);
+                fflush(stdout););
+    stri_dest = *destination;
+    size_limit = MAX_STRI_LEN - stri_dest->size;
+    pos = arraySize;
+    do {
+      pos--;
+      if (unlikely(extensionArray[pos]->size > size_limit)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        size_limit -= extensionArray[pos]->size;
+      } /* if */
+    } while (pos != 0);
+    new_size = MAX_STRI_LEN - size_limit;
+#if WITH_STRI_CAPACITY
+    if (new_size > stri_dest->capacity) {
+      if (new_size <= RESIZE_THRESHOLD) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_stri->size = new_size;
+          dest = new_stri->mem;
+          memcpy(dest, stri_dest->mem, stri_dest->size * sizeof(strElemType));
+          dest += stri_dest->size;
+          for (pos = 0; pos < arraySize; pos++) {
+            elem_size = extensionArray[pos]->size;
+            memcpy(dest, extensionArray[pos]->mem, elem_size * sizeof(strElemType));
+            dest += elem_size;
+          } /* for */
+          FREE_STRI(stri_dest);
+          *destination = new_stri;
+        } /* if */
+      } else {
+        if (2 * stri_dest->capacity >= new_size) {
+          newCapacity = 2 * stri_dest->capacity;
+        } else {
+          newCapacity = 2 * new_size;
+        } /* if */
+        if (newCapacity < MIN_GROW_SHRINK_CAPACITY) {
+          newCapacity = MIN_GROW_SHRINK_CAPACITY;
+        } else if (unlikely(newCapacity > MAX_STRI_LEN)) {
+          newCapacity = MAX_STRI_LEN;
+        } /* if */
+        if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, newCapacity))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_stri->size = new_size;
+          dest = new_stri->mem;
+          memcpy(dest, stri_dest->mem, stri_dest->size * sizeof(strElemType));
+          dest += stri_dest->size;
+          for (pos = 0; pos < arraySize; pos++) {
+            elem_size = extensionArray[pos]->size;
+            memcpy(dest, extensionArray[pos]->mem, elem_size * sizeof(strElemType));
+            dest += elem_size;
+          } /* for */
+          FREE_STRI(stri_dest);
+          *destination = new_stri;
+        } /* if */
+      } /* if */
+    } else {
+      dest = &stri_dest->mem[stri_dest->size];
+      for (pos = 0; pos < arraySize; pos++) {
+        elem_size = extensionArray[pos]->size;
+        memcpy(dest, extensionArray[pos]->mem,
+               elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      stri_dest->size = new_size;
+    } /* if */
+#else
+    if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      new_stri->size = new_size;
+      dest = new_stri->mem;
+      memcpy(dest, stri_dest->mem, stri_dest->size * sizeof(strElemType));
+      dest += stri_dest->size;
+      for (pos = 0; pos < arraySize; pos++) {
+        elem_size = extensionArray[pos]->size;
+        memcpy(dest, extensionArray[pos]->mem, elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      FREE_STRI(stri_dest);
+      *destination = new_stri;
+    } /* if */
+#endif
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strAppendN */
 
 #endif
 
