@@ -61,6 +61,7 @@
 /* only better for lengths greater than 7.     */
 #define LPAD_WITH_MEMSET_TO_STRELEM 0
 
+/* strAppend() has 22% more performance without realloc(). */
 #define DO_STR_APPEND_WITH_REALLOC 0
 
 #if WITH_STRI_FREELIST
@@ -1533,7 +1534,6 @@ void strAppend (striType *const destination, const_striType extension)
     striType new_stri;
     memSizeType extension_size;
     const strElemType *extension_mem;
-    const strElemType *extension_origin;
 
   /* strAppend */
     logFunction(printf("strAppend(\"%s\", ", striAsUnquotedCStri(*destination));
