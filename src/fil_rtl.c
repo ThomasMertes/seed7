@@ -828,7 +828,8 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
 
 
 
-static striType doLineReadFromTerminal (fileType inFile, charType *terminationChar)
+static striType doLineReadFromTerminal (fileType inFile,
+    charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -863,7 +864,8 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
 
 
 
-static striType doWordReadFromTerminal (fileType inFile, charType *terminationChar)
+static striType doWordReadFromTerminal (fileType inFile,
+    charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -1641,7 +1643,7 @@ boolType filHasNextChkCtrlC (fileType inFile)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-striType filLineRead (fileType inFile, charType *terminationChar)
+striType filLineRead (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -1731,7 +1733,7 @@ striType filLineRead (fileType inFile, charType *terminationChar)
 
 
 
-striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
+striType filLineReadChkCtrlC (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -2436,7 +2438,7 @@ intType filTell (fileType aFile)
  *  @exception FILE_ERROR A system function returns an error.
  */
 striType filTerminatedRead (fileType inFile, charType terminator,
-    charType *terminationChar)
+    charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -2620,7 +2622,7 @@ void filTruncate (fileType aFile, intType length)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-striType filWordRead (fileType inFile, charType *terminationChar)
+striType filWordRead (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -2715,7 +2717,7 @@ striType filWordRead (fileType inFile, charType *terminationChar)
 
 
 
-striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
+striType filWordReadChkCtrlC (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;

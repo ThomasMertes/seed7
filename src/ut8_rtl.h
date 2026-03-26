@@ -31,7 +31,7 @@
 
 charType ut8Getc (fileType inFile);
 striType ut8Gets (fileType inFile, intType length);
-striType ut8LineRead (fileType inFile, charType *terminationChar);
+striType ut8LineRead (fileType inFile, charType *const terminationChar);
 void ut8Seek (fileType aFile, intType file_position);
-striType ut8WordRead (fileType inFile, charType *terminationChar);
+striType ut8WordRead (fileType inFile, charType *const terminationChar);
 void ut8Write (fileType outFile, const const_striType stri);

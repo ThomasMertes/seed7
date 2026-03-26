@@ -1794,7 +1794,13 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
             /* bytes_received should always be identical to bytes_requested. */
             bytes_requested--;
             if (nlPos == buffer) {
+              /* The first character of the read buffer is a newline. */
+              /* Note that this place can only be reached after at    */
+              /* least one character has been successfully read.      */
+              /* Because of that result_pos >= 1 holds.               */
               if (result->mem[result_pos - 1] == '\r') {
+                /* If the last character in result->mem is a carriage */
+                /* return it is removed by decrementing result_pos.   */
                 result_pos--;
               } /* if */
             } else if (nlPos[-1] == '\r') {

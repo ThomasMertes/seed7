@@ -115,25 +115,13 @@ const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   end func;
 
 
+DECLARE_RAISES_RANGE_ERROR(void);
 DECLARE_RAISES_RANGE_ERROR(string);
 DECLARE_RAISES_RANGE_ERROR(integer);
 DECLARE_RAISES_RANGE_ERROR(float);
 DECLARE_RAISES_RANGE_ERROR(boolean);
 DECLARE_RAISES_RANGE_ERROR(directionType);
 DECLARE_RAISES_RANGE_ERROR(type);
-
-
-const func boolean: raisesRangeError (in proc: statement) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  begin
-    block
-      statement;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
-  end func;
 
 
 const proc: DECLARE_RAISES_ILLEGAL_ACTION (in type: aType) is func

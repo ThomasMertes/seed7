@@ -65,8 +65,9 @@ striType filGets (fileType inFile, intType length);
 striType filGetsChkCtrlC (fileType inFile, intType length);
 boolType filHasNext (fileType inFile);
 boolType filHasNextChkCtrlC (fileType inFile);
-striType filLineRead (fileType inFile, charType *terminationChar);
-striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar);
+striType filLineRead (fileType inFile, charType *const terminationChar);
+striType filLineReadChkCtrlC (fileType inFile,
+    charType *const terminationChar);
 striType filLit (fileType aFile);
 intType filLng (fileType aFile);
 fileType filOpen (const const_striType path, const const_striType mode);
@@ -80,8 +81,9 @@ boolType filSeekable (fileType aFile);
 void filSetbuf (fileType aFile, intType mode, intType size);
 intType filTell (fileType aFile);
 striType filTerminatedRead (fileType inFile, charType terminator,
-    charType *terminationChar);
+    charType *const terminationChar);
 void filTruncate (fileType aFile, intType length);
-striType filWordRead (fileType inFile, charType *terminationChar);
-striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar);
+striType filWordRead (fileType inFile, charType *const terminationChar);
+striType filWordReadChkCtrlC (fileType inFile,
+    charType *const terminationChar);
 void filWrite (fileType outFile, const const_striType stri);

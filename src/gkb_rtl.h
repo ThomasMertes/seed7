@@ -30,5 +30,5 @@
 /********************************************************************/
 
 striType gkbGets (intType length);
-striType gkbLineRead (charType *terminationChar);
-striType gkbWordRead (charType *terminationChar);
+striType gkbLineRead (charType *const terminationChar);
+striType gkbWordRead (charType *const terminationChar);

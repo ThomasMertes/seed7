@@ -30,5 +30,5 @@
 /********************************************************************/
 
 striType kbdGets (intType length);
-striType kbdLineRead (charType *terminationChar);
-striType kbdWordRead (charType *terminationChar);
+striType kbdLineRead (charType *const terminationChar);
+striType kbdWordRead (charType *const terminationChar);

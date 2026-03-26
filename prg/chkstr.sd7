@@ -46,47 +46,29 @@ const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesRangeError (in proc: statement) is func
-  result
-    var boolean: raisesRangeError is FALSE;
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
-    block
-      statement;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
+
+    const func boolean: raisesRangeError (in func aType: expression) is func
+      result
+        var boolean: raisesRangeError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch RANGE_ERROR:
+            raisesRangeError := TRUE;
+        end block;
+      end func;
+
   end func;
 
 
-const func boolean: raisesRangeError (in func string: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var string: exprResult is "";
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesRangeError (in func integer: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var integer: exprResult is 0;
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
-  end func;
+DECLARE_RAISES_RANGE_ERROR(void);
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(integer);
 
 
 const proc: check_string_literal is func

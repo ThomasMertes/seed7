@@ -684,7 +684,7 @@ striType ut8Gets (fileType inFile, intType length)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-striType ut8LineRead (fileType inFile, charType *terminationChar)
+striType ut8LineRead (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;
@@ -891,7 +891,7 @@ void ut8Seek (fileType aFile, intType position)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-striType ut8WordRead (fileType inFile, charType *terminationChar)
+striType ut8WordRead (fileType inFile, charType *const terminationChar)
 
   {
     cFileType cInFile;

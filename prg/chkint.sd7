@@ -51,64 +51,52 @@ const func boolean: boolExpr (ref boolean: value) is
   return value and str(rand(1, 9))[2 ..] = "";
 
 
-const func boolean: raisesRangeError (in func string: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var string: exprResult is "";
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
+
+    const func boolean: raisesRangeError (in func aType: expression) is func
+      result
+        var boolean: raisesRangeError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch RANGE_ERROR:
+            raisesRangeError := TRUE;
+        end block;
+      end func;
+
   end func;
 
 
-const func boolean: raisesRangeError (in func integer: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var integer: exprResult is 0;
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(integer);
+
+
+const proc: DECLARE_RAISES_NUMERIC_ERROR (in type: aType) is func
   begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
+
+    const func boolean: raisesNumericError (in func aType: expression) is func
+      result
+        var boolean: raisesNumericError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch NUMERIC_ERROR:
+            raisesNumericError := TRUE;
+        end block;
+      end func;
+
   end func;
 
 
-const func boolean: raisesNumericError (in func integer: expression) is func
-  result
-    var boolean: raisesNumericError is FALSE;
-  local
-    var integer: exprResult is 0;
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch NUMERIC_ERROR:
-        raisesNumericError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesNumericError (in func boolean: expression) is func
-  result
-    var boolean: raisesNumericError is FALSE;
-  local
-    var boolean: exprResult is FALSE;
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch NUMERIC_ERROR:
-        raisesNumericError := TRUE;
-    end block;
-  end func;
+DECLARE_RAISES_NUMERIC_ERROR(integer);
+DECLARE_RAISES_NUMERIC_ERROR(boolean);
 
 
 const func boolean: raisesIndexError (in func integer: expression) is func

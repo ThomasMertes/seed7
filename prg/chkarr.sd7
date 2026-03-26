@@ -177,7 +177,7 @@ DECLARE_RAISES_INDEX_ERROR(bstring);
 DECLARE_RAISES_INDEX_ERROR(bitset);
 
 
-const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
 
     const func boolean: raisesRangeError (in func array aType: expression) is func
@@ -197,15 +197,15 @@ const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
   end func;
 
 
-DECLARE_RAISES_RAMGE_ERROR(boolean);
-DECLARE_RAISES_RAMGE_ERROR(integer);
-DECLARE_RAISES_RAMGE_ERROR(bigInteger);
-DECLARE_RAISES_RAMGE_ERROR(float);
-DECLARE_RAISES_RAMGE_ERROR(complex);
-DECLARE_RAISES_RAMGE_ERROR(char);
-DECLARE_RAISES_RAMGE_ERROR(string);
-DECLARE_RAISES_RAMGE_ERROR(bstring);
-DECLARE_RAISES_RAMGE_ERROR(bitset);
+DECLARE_RAISES_RANGE_ERROR(boolean);
+DECLARE_RAISES_RANGE_ERROR(integer);
+DECLARE_RAISES_RANGE_ERROR(bigInteger);
+DECLARE_RAISES_RANGE_ERROR(float);
+DECLARE_RAISES_RANGE_ERROR(complex);
+DECLARE_RAISES_RANGE_ERROR(char);
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(bstring);
+DECLARE_RAISES_RANGE_ERROR(bitset);
 
 
 const proc: subprog1 is func

@@ -53,7 +53,7 @@ const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
-const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
 
     const func boolean: raisesRangeError (in func aType: expression) is func
@@ -73,8 +73,8 @@ const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
   end func;
 
 
-DECLARE_RAISES_RAMGE_ERROR(string);
-DECLARE_RAISES_RAMGE_ERROR(bigInteger);
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(bigInteger);
 
 
 const proc: DECLARE_RAISES_NUMERIC_ERROR (in type: aType) is func

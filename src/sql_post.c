@@ -102,6 +102,8 @@ typedef struct {
 #define STMT_NAME_BUFFER_SIZE STRLEN(STMT_NAME_PREFIX) + \
                               UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN
 
+#define USE_IMPLICIT_COMMIT_MECHANISM 1
+
 typedef struct {
     uintType       usage_count;
     dbType         db;
@@ -483,11 +485,20 @@ static errInfoType doExecSql (PGconn *connection, const char *query,
 
 
 
+/**
+ *  Determine if a SQL statement needs an implicit commit.
+ *  In PostgreSQL DDL statements like CREATE need a commit.
+ *  In other databases CREATE and other DDL statements are executed
+ *  without a need to be committed. The implicitCommit mechanism tries
+ *  to adjust the PostgreSQL behavior to what other databases do.
+ *  Instead of using a list of DDL statements it uses a list of
+ *  DML and TCS statements which need an explicit commit.
+ */
 static boolType implicitCommit (const_cstriType query)
 
   {
     const char *explicitCommit[] = {
-      /* DML */ "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE",
+      /* DML */ "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "WITH",
       /* TCS */ "COMMIT", "ROLLBACK", "SAVEPOINT", "BEGIN"};
     const_cstriType startPos;
     const_cstriType beyond;
@@ -3295,13 +3306,16 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
         if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
           preparedStmt->executeSuccessful = TRUE;
+#if USE_IMPLICIT_COMMIT_MECHANISM
           if (preparedStmt->implicitCommit && !preparedStmt->db->autoCommit) {
+            logMessage(printf("sqlExecute: Use implicitCommit mechanism.\n"););
             err_info = doExecSql(preparedStmt->db->connection, "COMMIT", err_info);
             err_info = doExecSql(preparedStmt->db->connection, "BEGIN TRANSACTION", err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               raise_error(err_info);
             } /* if */
           } /* if */
+#endif
         } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
           num_tuples = PQntuples(preparedStmt->execute_result);
           if (unlikely(num_tuples < 0)) {
