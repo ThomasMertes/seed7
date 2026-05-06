@@ -39,7 +39,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
-#include "ctype.h"
 #include "time.h"
 #include "sys/types.h"
 #include "sys/stat.h"
@@ -2048,20 +2047,15 @@ static memSizeType toShortFileName (striType path,
         case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
         case 'Z':
         case '^':  case '_':  case '`':
-        case '{':  case '}':  case '~':
-          if (writeToDest) {
-            dest[destPos] = ch;
-            destPos++;
-          } /* if */
-          break;
         case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
         case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
         case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
         case 'p':  case 'q':  case 'r':  case 's':  case 't':
         case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
         case 'z':
+        case '{':  case '}':  case '~':
           if (writeToDest) {
-            dest[destPos] = (charType) toupper((unsigned char) ch);
+            dest[destPos] = ch;
             destPos++;
           } /* if */
           break;

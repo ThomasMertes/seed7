@@ -2717,20 +2717,15 @@ static os_striType toShortFileName (os_striType dest, os_striType *sourceAddr)
         case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
         case 'Z':
         case '^':  case '_':  case '`':
-        case '{':  case '}':  case '~':
-          if (writeToDest) {
-            dest[destPos] = ch;
-            destPos++;
-          } /* if */
-          break;
         case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
         case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
         case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
         case 'p':  case 'q':  case 'r':  case 's':  case 't':
         case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
         case 'z':
+        case '{':  case '}':  case '~':
           if (writeToDest) {
-            dest[destPos] = (os_charType) toupper((unsigned char) ch);
+            dest[destPos] = ch;
             destPos++;
           } /* if */
           break;
