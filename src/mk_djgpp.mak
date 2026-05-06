@@ -206,7 +206,7 @@ base.h:
 	$(ECHO) "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> base.h
 	$(ECHO) "#define C_COMPILER \"$(CC)\"" >> base.h
 	$(ECHO) "#define CC_OPT_VERSION_INFO \"--version\"" >> base.h
-	$(ECHO) "#define CC_FLAGS \"\"" >> base.h
+	$(ECHO) "#define CC_FLAGS \"-x c\"" >> base.h
 	$(ECHO) "#define CC_ERROR_FILEDES 0" >> base.h
 	$(ECHO) "#define CC_VERSION_INFO_FILEDES 1" >> base.h
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> base.h

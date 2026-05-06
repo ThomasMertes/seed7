@@ -199,7 +199,7 @@ base.h:
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
 	echo #define C_COMPILER "$(CC)" >> base.h
 	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
-	echo #define CC_FLAGS "" >> base.h
+	echo #define CC_FLAGS "-x c" >> base.h
 	echo #define CC_ERROR_FILEDES 0 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
