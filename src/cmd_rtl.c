@@ -1985,7 +1985,7 @@ static boolType isShortFileName (strElemType *fileName,
       } /* switch */
       sourcePos++;
     } while (sourcePos < sourceLength &&
-             (ch = fileName[sourcePos]) != PATH_DELIMITER);
+             (ch = fileName[sourcePos]) != '/');
     if (dotPos == (memSizeType) -1) {
       if (sourcePos > 8) {
         shortFileName = FALSE;
@@ -2007,7 +2007,7 @@ static boolType findDot (striType path, memSizeType sourceIdx)
 
   /* findDot */
     while (sourceIdx < path->size &&
-           (ch = path->mem[sourceIdx]) != PATH_DELIMITER && !found) {
+           (ch = path->mem[sourceIdx]) != '/' && !found) {
       if (ch == '.') {
         found = TRUE;
       } /* if */
@@ -2095,7 +2095,7 @@ static memSizeType toShortFileName (striType path,
       } /* if */
       sourceIdx++;
     } while (sourceIdx < path->size &&
-             (ch = path->mem[sourceIdx]) != PATH_DELIMITER);
+             (ch = path->mem[sourceIdx]) != '/');
     if (dotPos == (memSizeType) -1) {
       if (!writeToDest && destIdx + destPos + 1 < path->size) {
         dest[destPos] = '~';
@@ -2125,28 +2125,29 @@ static memSizeType copyFileName (striType path,
       destIdx++;
       sourceIdx++;
     } while (sourceIdx < path->size &&
-             (ch = path->mem[sourceIdx]) != PATH_DELIMITER);
+             (ch = path->mem[sourceIdx]) != '/');
     *sourceIdxAddr = sourceIdx;
     return destIdx;
   } /* copyFileName */
 
 
 
-static void mapLongFileNamesToShort (striType path)
+static void mapLongFileNamesToShort (striType path,
+    memSizeType sourceIdx)
 
   {
     memSizeType sourceLength;
-    memSizeType sourceIdx = 0;
-    memSizeType destIdx = 0;
+    memSizeType destIdx;
 
   /* mapLongFileNamesToShort */
     logFunction(printf("mapLongFileNamesToShort(\"%s\")\n",
                        striAsUnquotedCStri(path)););
+    destIdx = sourceIdx;
     sourceLength = path->size;
     while (sourceIdx < sourceLength) {
-      if (path->mem[sourceIdx] == PATH_DELIMITER) {
+      if (path->mem[sourceIdx] == '/') {
         sourceIdx++;
-        path->mem[destIdx] = PATH_DELIMITER;
+        path->mem[destIdx] = '/';
         destIdx++;
       } else {
         if (isShortFileName(&path->mem[sourceIdx],
@@ -2218,6 +2219,9 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '/';
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+              mapLongFileNamesToShort(result, 2);
+#endif
             } /* if */
           } else if (unlikely(standardPath->mem[2] != '/')) {
             /* "/cd"  cannot be mapped to a drive letter */
@@ -2236,6 +2240,9 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[2] = '/';
               memcpy(&result->mem[3], &standardPath->mem[3],
                      (standardPath->size - 3) * sizeof(strElemType));
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+              mapLongFileNamesToShort(result, 2);
+#endif
             } /* if */
           } /* if */
         } else {
@@ -2251,17 +2258,15 @@ static striType toOsPath (const const_striType standardPath,
         } else {
           result->size = standardPath->size;
           memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+          mapLongFileNamesToShort(result, 0);
+#endif
         } /* if */
       });
     } /* if */
     if (unlikely(*err_info != OKAY_NO_ERROR)) {
       result = NULL;
     } else {
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
-      if (result != NULL) {
-        mapLongFileNamesToShort(result);
-      } /* if */
-#endif
       if_pathDelimiterNotSlash({
         memSizeType position;
 
