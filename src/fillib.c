@@ -261,6 +261,7 @@ objectType fil_destr (listType arguments)
       arg_1(arguments)->value.fileValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
+    logFunction(printf("fil_destr -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* fil_destr */
 
@@ -274,6 +275,11 @@ objectType fil_destr (listType arguments)
 objectType fil_empty (listType arguments)
 
   { /* fil_empty */
+    logFunction(printf("fil_empty --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &nullFileRecord,
+                       safe_fileno(nullFileRecord.cFile),
+                       nullFileRecord.usage_count););
     return bld_file_temp(&nullFileRecord);
   } /* fil_empty */
 
@@ -325,6 +331,11 @@ objectType fil_eq (listType arguments)
 objectType fil_err (listType arguments)
 
   { /* fil_err */
+    logFunction(printf("fil_err --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stderrFileRecord,
+                       safe_fileno(stderrFileRecord.cFile),
+                       stderrFileRecord.usage_count););
     return bld_file_temp(&stderrFileRecord);
   } /* fil_err */
 
@@ -402,6 +413,11 @@ objectType fil_has_next (listType arguments)
 objectType fil_in (listType arguments)
 
   { /* fil_in */
+    logFunction(printf("fil_in --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stdinFileRecord,
+                       safe_fileno(stdinFileRecord.cFile),
+                       stdinFileRecord.usage_count););
     return bld_file_temp(&stdinFileRecord);
   } /* fil_in */
 
@@ -505,7 +521,7 @@ objectType fil_ne (listType arguments)
 
 
 /**
- *  Opens a file with the specified 'path' and 'mode'.
+ *  Open a file with the specified 'path' and 'mode'.
  *  There are text modes and binary modes:
  *  - Binary modes:
  *   - "r"   Open file for reading.
@@ -527,7 +543,7 @@ objectType fil_ne (listType arguments)
  *  @param path/arg_1 Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode/arg_2 Mode of the file to be opened.
- *  @return the file opened, or NULL if it could not be opened or
+ *  @return the file opened, or CLIB_NULL_FILE if it could not be opened or
  *          if 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -570,6 +586,11 @@ objectType fil_open_null_device (listType arguments)
 objectType fil_out (listType arguments)
 
   { /* fil_out */
+    logFunction(printf("fil_out --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stdoutFileRecord,
+                       safe_fileno(stdoutFileRecord.cFile),
+                       stdoutFileRecord.usage_count););
     return bld_file_temp(&stdoutFileRecord);
   } /* fil_out */
 
@@ -694,19 +715,6 @@ objectType fil_seekable (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_seekable */
-
-
-
-objectType fil_setbuf (listType arguments)
-
-  { /* fil_setbuf */
-    isit_file(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    filSetbuf(take_file(arg_1(arguments)),
-        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* fil_setbuf */
 
 
 

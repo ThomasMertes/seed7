@@ -123,26 +123,26 @@ const type: killReason is new enum
     KWrMove, KBigMouth, KSuicide, KFnotEmpty
   end enum;
 
-const string: str (KEdge) is      "Edge";
-const string: str (KHunger) is    "Hunger";
-const string: str (KWrMove) is    "WrMove";
-const string: str (KBigMouth) is  "Big M.";
-const string: str (KSuicide) is   "Suic";
+const string: str (KEdge)      is "Edge";
+const string: str (KHunger)    is "Hunger";
+const string: str (KWrMove)    is "WrMove";
+const string: str (KBigMouth)  is "Big M.";
+const string: str (KSuicide)   is "Suic";
 const string: str (KFnotEmpty) is "F.n.e";
-const string: str (KWhite) is     str(WHITE);
-const string: str (KViolet) is    str(VIOLET);
-const string: str (KIndigo) is    str(INDIGO);
-const string: str (KBlue) is      str(BLUE);
-const string: str (KCyan) is      str(CYAN);
-const string: str (KGreen) is     str(GREEN);
-const string: str (KYellow) is    str(YELLOW);
-const string: str (KAmber) is     str(AMBER);
-const string: str (KOrange) is    str(ORANGE);
-const string: str (KRed) is       str(RED);
-const string: str (KScarlet) is   str(SCARLET);
-const string: str (KTan) is       str(TAN);
-const string: str (KLilac) is     str(LILIAC);
-const string: str (KPink) is      str(PINK);
+const string: str (KWhite)     is str(WHITE);
+const string: str (KViolet)    is str(VIOLET);
+const string: str (KIndigo)    is str(INDIGO);
+const string: str (KBlue)      is str(BLUE);
+const string: str (KCyan)      is str(CYAN);
+const string: str (KGreen)     is str(GREEN);
+const string: str (KYellow)    is str(YELLOW);
+const string: str (KAmber)     is str(AMBER);
+const string: str (KOrange)    is str(ORANGE);
+const string: str (KRed)       is str(RED);
+const string: str (KScarlet)   is str(SCARLET);
+const string: str (KTan)       is str(TAN);
+const string: str (KLilac)     is str(LILIAC);
+const string: str (KPink)      is str(PINK);
 
 const func string: str (in killReason: aReason) is DYNAMIC;
 

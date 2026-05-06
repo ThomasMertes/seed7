@@ -58,6 +58,7 @@
 #include "flt_rtl.h"
 #include "set_rtl.h"
 #include "str_rtl.h"
+#include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "big_drv.h"
 #include "con_rtl.h"
@@ -554,8 +555,17 @@ static void print_real_value (const_objectType anyobject)
         if (anyobject->value.socketValue == NULL) {
           prot_cstri(" *NULL_SOCKET* ");
         } else {
-          prot_cstri("socket ");
-          prot_int((intType) anyobject->value.socketValue->socketNumber);
+          if (anyobject->value.socketValue->socketNumber == EMPTY_SOCKET) {
+            prot_cstri(" *EMPTY_SOCKET* ");
+          } else {
+            prot_cstri("socket ");
+            prot_int((intType) anyobject->value.socketValue->socketNumber);
+            if (anyobject->value.socketValue->usage_count != 0) {
+              prot_cstri("<");
+              prot_int((intType) anyobject->value.socketValue->usage_count);
+              prot_cstri(">");
+            } /* if */
+          } /* if */
         } /* if */
         break;
 #if WITH_FLOAT
@@ -1154,7 +1164,7 @@ void prot_dot_expr (const_listType list)
             if (HAS_ENTITY(list->obj) &&
                 GET_ENTITY(list->obj)->ident != NULL) {
               idString = id_string(GET_ENTITY(list->obj)->ident);
-              if (isalpha(idString[0])) {
+              if (isalpha((unsigned char) idString[0])) {
                 prot_cstri8(idString);
               } else {
                 prot_cstri(" ");

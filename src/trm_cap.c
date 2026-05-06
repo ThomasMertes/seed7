@@ -190,7 +190,9 @@ int my_tgetnum (char *code)
     int cap_value = -1;
 
   /* my_tgetnum */
-    log2Function(fprintf(stderr, "my_tgetnum(\"%s\")\n", code););
+    log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\")\n",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : ""););
     if (likely(code != NULL)) {
       searched[0] = ':';
       while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
@@ -205,8 +207,9 @@ int my_tgetnum (char *code)
         sscanf(found + pos, "%d", &cap_value);
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetnum(\"%s\") --> %d\n",
-                         code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\") --> %d\n",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : "", cap_value););
     return cap_value;
   } /* my_tgetnum */
 
@@ -221,7 +224,9 @@ int my_tgetflag (char *code)
     int cap_value = FALSE;
 
   /* my_tgetflag */
-    log2Function(fprintf(stderr, "my_tgetflag(\"%s\")\n", code););
+    log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\")\n",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : ""););
     if (likely(code != NULL)) {
       searched[0] = ':';
       while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
@@ -236,8 +241,9 @@ int my_tgetflag (char *code)
         cap_value = TRUE;
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetflag(\"%s\") --> %d\n",
-                         code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\") --> %d\n",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : "", cap_value););
     return cap_value;
   } /* my_tgetflag */
 
@@ -255,13 +261,14 @@ char *my_tgetstr (char *code, char **area)
     char *cap_value = NULL;
 
   /* my_tgetstr */
-    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ")\n",
-                       code,
-                       area == NULL ? "NULL " : "",
-                       area != NULL && *area == NULL ?
-                           "(NULL) " : "",
-                       area == NULL ?
-                           (memSizeType) 0 : (memSizeType) *area););
+    log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ")\n",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : "",
+                         area == NULL ? "NULL " : "",
+                         area != NULL && *area == NULL ?
+                             "(NULL) " : "",
+                         area == NULL ?
+                             (memSizeType) 0 : (memSizeType) *area););
     if (likely(code != NULL)) {
       searched[0] = ':';
       while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
@@ -317,16 +324,17 @@ char *my_tgetstr (char *code, char **area)
             pos++;
           } /* while */
           if (pos < CAP_VALUE_BUFFER_SIZE) {
-            value[pos] = '\0';
             if (ALLOC_CSTRI(cap_value, pos)) {
-              strcpy(cap_value, value);
+              memcpy(cap_value, value, pos);
+              cap_value[pos] = '\0';
             } /* if */
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ") --> ",
-                         code,
+    log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ") --> ",
+                         code == NULL ? "NULL " : "",
+                         code != NULL ? code : "",
                          area == NULL ? "NULL " : "",
                          area != NULL && *area == NULL ?
                              "(NULL) " : "",

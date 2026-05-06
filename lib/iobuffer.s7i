@@ -35,13 +35,6 @@ const proc: setbuf (ref file: aFile, in bufferModeType: mode, in integer: size) 
 
 const proc: setbuf (in null_file: aFile, in bufferModeType: mode, in integer: size) is noop;
 
-const proc: setbuf (in clib_file: aFile, in integer: mode, in integer: size) is action "FIL_SETBUF";
-
-const proc: setbuf (in external_file: aFile, in bufferModeType: mode, in integer: size) is func
-  begin
-    setbuf(aFile.ext_file, ord(mode), size);
-  end func;
-
 
 (**
  *  [[file|File]] implementation type for buffered files.

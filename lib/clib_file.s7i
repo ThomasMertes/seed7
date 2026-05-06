@@ -79,7 +79,7 @@ const func clib_file: CLIB_ERROR  is action "FIL_ERR";
 
 
 (**
- *  Opens a clib_file with the specified ''path'' and ''mode''.
+ *  Open a clib_file with the specified ''path'' and ''mode''.
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
@@ -100,7 +100,7 @@ const func clib_file: CLIB_ERROR  is action "FIL_ERR";
  *  @param path Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
- *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *  @return the file opened, or [[#CLIB_NULL_FILE|CLIB_NULL_FILE]]
  *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path

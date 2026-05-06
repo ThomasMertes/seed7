@@ -1356,12 +1356,12 @@ floatType fltParse (const const_striType stri)
     } else {
 #if !STRTOD_ACCEPTS_INF || !STRTOD_ACCEPTS_INFINITY || !STRTOD_ACCEPTS_NAN
       next_ch = buffer_ptr;
-      while (*next_ch != '\0' && !isdigit(*next_ch)) {
-        *next_ch = tolower(*next_ch);
+      while (*next_ch != '\0' && !isdigit((unsigned char) *next_ch)) {
+        *next_ch = (char) tolower((unsigned char) *next_ch);
         next_ch++;
       } /* while */
 #endif
-      if (isspace(buffer_ptr[0])) {
+      if (isspace((unsigned char) buffer_ptr[0])) {
         logError(printf("fltParse(\"%s\"): String starts with whitespace.\n",
                         striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;

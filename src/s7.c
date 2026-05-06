@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2025  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2026  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -54,6 +54,7 @@
 #include "symbol.h"
 #include "analyze.h"
 #include "prg_comp.h"
+#include "objutl.h"
 #include "traceutl.h"
 #include "exec.h"
 #include "option.h"
@@ -70,6 +71,7 @@
 #include "fil_drv.h"
 #include "big_drv.h"
 #include "drw_drv.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_WINMAIN
@@ -79,7 +81,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.4.%d  Copyright (c) 1990-2025 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.4.%d  Copyright (c) 1990-2026 Thomas Mertes\n"
 
 
 
@@ -472,6 +474,8 @@ int main (int argc, char **argv)
               } /* if */
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
               prgDestr(currentProg);
+#elif CLOSE_ALL_GLOBAL_OBJECTS
+              closeAllGlobalObjects(currentProg);
 #endif
             } /* if */
           } /* if */
@@ -484,6 +488,7 @@ int main (int argc, char **argv)
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
       leaveExceptionHandling();
       freeActPtrTable();
+      freeNameCache();
       drawClose();
       closeBig();
       heapStatistic();

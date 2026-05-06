@@ -30,6 +30,11 @@
 /********************************************************************/
 
 void freeGenericHash (rtlHashType genericHash);
+boolType hashAdd (const rtlHashType aHashMap, const genericType aKey,
+                  const genericType data, intType hashcode,
+                  compareType cmp_func,
+                  const createFuncType key_create_func,
+                  const createFuncType data_create_func);
 rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
                                    rtlHashElemType element2);
 boolType hshContains (const const_rtlHashType aHashMap,

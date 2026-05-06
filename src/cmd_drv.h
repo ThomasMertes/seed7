@@ -91,6 +91,7 @@ void winCopySymlink (const const_os_striType sourcePath,
     const const_os_striType destPath, errInfoType *err_info);
 #endif
 #endif
+void freeNameCache (void);
 striType cmdGetGroup (const const_striType filePath);
 striType cmdGetGroupOfSymlink (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);

@@ -87,7 +87,6 @@ fileType filPopen (const const_striType command,
 void filPrint (const const_striType stri);
 void filSeek (const const_fileType aFile, intType file_position);
 boolType filSeekable (const const_fileType aFile);
-void filSetbuf (const const_fileType aFile, intType mode, intType size);
 intType filTell (const const_fileType aFile);
 striType filTerminatedRead (const const_fileType inFile,
                             charType terminator,

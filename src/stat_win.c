@@ -174,8 +174,9 @@ static int wstati64FollowSymlink (const wchar_t *path, os_stat_struct *statBuf)
                                             SHRT_MAX;
         statBuf->st_dev   =             0; /* Not assigned */
         statBuf->st_rdev  =             0; /* Not assigned */
-        statBuf->st_size = ((int64Type) handleFileInfo.nFileSizeHigh << 32) |
-                                        handleFileInfo.nFileSizeLow;
+        statBuf->st_size = (os_off_t)
+                           (((uint64Type) handleFileInfo.nFileSizeHigh << 32) |
+                                          handleFileInfo.nFileSizeLow);
         statBuf->st_atime = fileTime2UnixTime(&handleFileInfo.ftLastAccessTime);
         statBuf->st_mtime = fileTime2UnixTime(&handleFileInfo.ftLastWriteTime);
         statBuf->st_ctime = 0;  /* ftCreationTime is not the change time. */
@@ -220,8 +221,9 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
         statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
         statBuf->st_ctime = 0;  /* ftCreationTime is not the change time. */
         if (!S_ISDIR(statBuf->st_mode)) {
-          statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
-                                          fileInfo.nFileSizeLow;
+          statBuf->st_size = (os_off_t)
+                             (((uint64Type) fileInfo.nFileSizeHigh << 32) |
+                                            fileInfo.nFileSizeLow);
         } /* if */
         if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
           statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'a');
@@ -256,8 +258,9 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
           statBuf->st_nlink = 1;
           statBuf->st_mode = fileAttr2UnixMode(findFileData.dwFileAttributes, path);
           if (!S_ISDIR(statBuf->st_mode)) {
-            statBuf->st_size = ((int64Type) findFileData.nFileSizeHigh << 32) |
-                                            findFileData.nFileSizeLow;
+            statBuf->st_size = (os_off_t)
+                               (((uint64Type) findFileData.nFileSizeHigh << 32) |
+                                              findFileData.nFileSizeLow);
           } /* if */
           statBuf->st_atime = fileTime2UnixTime(&findFileData.ftLastAccessTime);
           statBuf->st_mtime = fileTime2UnixTime(&findFileData.ftLastWriteTime);
@@ -376,8 +379,9 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       } else {
         statBuf->st_mode = fileAttr2UnixMode(fileInfo.dwFileAttributes, path);
         if (!S_ISDIR(statBuf->st_mode)) {
-          statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
-                                          fileInfo.nFileSizeLow;
+          statBuf->st_size = (os_off_t)
+                             (((uint64Type) fileInfo.nFileSizeHigh << 32) |
+                                            fileInfo.nFileSizeLow);
         } /* if */
       } /* if */
       statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
@@ -420,8 +424,9 @@ int lstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
         } else {
           statBuf->st_mode = fileAttr2UnixMode(findFileData.dwFileAttributes, path);
           if (!S_ISDIR(statBuf->st_mode)) {
-            statBuf->st_size = ((int64Type) findFileData.nFileSizeHigh << 32) |
-                                            findFileData.nFileSizeLow;
+            statBuf->st_size = (os_off_t)
+                               (((uint64Type) findFileData.nFileSizeHigh << 32) |
+                                              findFileData.nFileSizeLow);
           } /* if */
         } /* if */
         statBuf->st_atime = fileTime2UnixTime(&findFileData.ftLastAccessTime);
@@ -483,8 +488,9 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
         if (!(fileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) {
           statBuf->st_mode |= S_IWUSR;
         } /* if */
-        statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
-                                        fileInfo.nFileSizeLow;
+        statBuf->st_size = (os_off_t)
+                           (((uint64Type) fileInfo.nFileSizeHigh << 32) |
+                                          fileInfo.nFileSizeLow);
       } else {
         logError(printf("fstati64Ext(%d, *): "
                         "GetFileInformationByHandle(" FMT_U_MEM ", *) failed.\n"
@@ -502,8 +508,9 @@ int fstati64Ext (int fd, os_fstat_struct *statBuf)
       statBuf->st_nlink =             fileInfo.nNumberOfLinks;
       statBuf->st_dev   =             0; /* Not assigned */
       statBuf->st_rdev  =             0; /* Not assigned */
-      statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
-                                      fileInfo.nFileSizeLow;
+      statBuf->st_size = (os_off_t)
+                         (((uint64Type) fileInfo.nFileSizeHigh << 32) |
+                                        fileInfo.nFileSizeLow);
       statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
       statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
       statBuf->st_ctime = 0;  /* ftCreationTime is not the change time. */

@@ -503,6 +503,78 @@ static void dump_hash (const const_rtlHashType curr_hash)
 
 
 
+/**
+ *  Add 'data' with the key 'aKey' to the hash map 'aHashMap'.
+ *  @return TRUE if 'data' has been added correctly, or
+ *          FALSE if an error occurred.
+ */
+boolType hashAdd (const rtlHashType aHashMap, const genericType aKey,
+    const genericType data, intType hashcode, compareType cmp_func,
+    const createFuncType key_create_func, const createFuncType data_create_func)
+
+  {
+    rtlHashElemType hashelem;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* hashAdd */
+    logFunction(printf("hashAdd(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
+                       (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    if (hashelem == NULL) {
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
+          key_create_func, data_create_func, &err_info);
+      /*
+      hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+      printf("aKey=%llX\n", (unsigned long long) aKey);
+      printf("new hashelem: aKey=%llX, data=%llX\n",
+          hashelem->key.value.intValue, hashelem->data.value.intValue);
+      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value.genericValue, aKey));
+      */
+      aHashMap->size++;
+    } else {
+      do {
+        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+        if (cmp < 0) {
+          if (hashelem->next_less == NULL) {
+            hashelem->next_less = new_helem(aKey, data,
+                key_create_func, data_create_func, &err_info);
+            aHashMap->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_less;
+          } /* if */
+        } else if (unlikely(cmp == 0)) {
+          logMessage(printf("hashAdd: Already in hash map.\n"););
+          err_info = INDEX_ERROR;
+          hashelem = NULL;
+        } else {
+          if (hashelem->next_greater == NULL) {
+            hashelem->next_greater = new_helem(aKey, data,
+                key_create_func, data_create_func, &err_info);
+            aHashMap->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_greater;
+          } /* if */
+        } /* if */
+      } while (hashelem != NULL);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (err_info == MEMORY_ERROR) {
+        aHashMap->size--;
+      } /* if */
+    } /* if */
+    logFunction(printf("hashAdd(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM " --> %d\n",
+                       (memSizeType) aHashMap, aKey, data, hashcode,
+                       aHashMap->size, err_info == OKAY_NO_ERROR););
+    return err_info == OKAY_NO_ERROR;
+  } /* hashAdd */
+
+
+
 rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
     rtlHashElemType element2)
 

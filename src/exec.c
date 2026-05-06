@@ -832,8 +832,12 @@ objectType exec_call (objectType object)
         result = evaluate(subroutine_object);
         break;
       case FORWARDOBJECT:
-        logError(printf("exec_call: forward object\n"););
-        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, actual_parameters);
+        logError(printf("exec_call: forward object\n");
+                 trace1(object);
+                 printf("\n"););
+        result = raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         object,
+                                         actual_parameters);
         break;
       default:
         printf("category_of_obj: ");

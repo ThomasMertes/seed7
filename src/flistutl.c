@@ -588,6 +588,13 @@ void heapStatistic (void)
           (unsigned int) (count.fetch_data_bytes / count.fetch_data));
       bytes_used += count.fetch_data_bytes;
     } /* if */
+    if (count.name_cache != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu nameCache records of   %4u bytes\n",
+          count.name_cache * sizeof_nameCacheEntryRecord,
+          count.name_cache,
+          (unsigned int) sizeof_nameCacheEntryRecord);
+      bytes_used += count.name_cache * sizeof_nameCacheEntryRecord;
+    } /* if */
     if (count.parseError != 0) {
       printf(F_U_MEM(9) " bytes in %8lu parse errors of        %4u bytes\n",
           count.parseError * SIZ_REC(parseErrorRecord),
@@ -761,6 +768,7 @@ static memSizeType compute_hs (void)
         (memSizeType) count.block          * SIZ_REC(blockRecord) +
         (memSizeType) count.loclist        * SIZ_REC(locListRecord) +
         (memSizeType) count.infil          * SIZ_REC(inFileRecord) +
+        (memSizeType) count.name_cache     * sizeof_nameCacheEntryRecord +
         (memSizeType) count.parseError     * SIZ_REC(parseErrorRecord) +
         (memSizeType) count.prog           * SIZ_REC(progRecord) +
         (memSizeType) count.polldata       * sizeof_pollRecord +

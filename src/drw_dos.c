@@ -29,10 +29,14 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -42,6 +46,34 @@
 #undef EXTERN
 #define EXTERN
 #include "drw_drv.h"
+
+
+static boolType init_called = FALSE;
+
+static winType emptyWindow = NULL;
+
+
+
+static winType generateEmptyWindow (void)
+
+  {
+    winType newWindow;
+
+  /* generateEmptyWindow */
+    logFunction(printf("generateEmptyWindow()\n"););
+    if (unlikely(!ALLOC_RECORD2(newWindow, winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(newWindow, 0, sizeof(winRecord));
+      newWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+    } /* if */
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM
+                       " (usage=" FMT_U ")\n",
+                       (memSizeType) newWindow,
+                       newWindow != NULL ?
+                           newWindow->usage_count : (uintType) 0););
+    return newWindow;
+  } /* generateEmptyWindow */
 
 
 
@@ -118,6 +150,12 @@ void drawClose (void)
 void drawInit (void)
 
   { /* drawInit */
+    if (emptyWindow == NULL) {
+      emptyWindow = generateEmptyWindow();
+    } /* if */
+    if (emptyWindow != NULL) {
+      init_called = TRUE;
+    } /* if */
   } /* drawInit */
 
 
@@ -229,7 +267,14 @@ void drwFlush (void)
 winType drwEmpty (void)
 
   { /* drwEmpty */
-    return NULL;
+    logFunction(printf("drwEmpty()\n"););
+    if (!init_called) {
+      drawInit();
+    } /* if */
+    logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) emptyWindow,
+                       emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
+    return emptyWindow;
   } /* drwEmpty */
 
 
@@ -374,8 +419,19 @@ rtlArrayType drwConvPointList (const const_bstriType pointList)
 
 bstriType drwGenPointList (const const_rtlArrayType xyArray)
 
-  { /* drwGenPointList */
-    return NULL;
+  {
+    emptyBStriType result;
+
+  /* drwGenPointList */
+    if (unlikely(!ALLOC_EMPTY_BSTRI(result))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = 0;
+      /* Note that the size of the allocated memory is smaller than */
+      /* the size of bstriStruct. But this is okay, because the */
+      /* elements 'mem' respectively 'mem1' are not used. */
+    } /* if */
+    return (bstriType) result;
   } /* drwGenPointList */
 
 
@@ -465,6 +521,13 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
   { /* drwSetPos */
   } /* drwSetPos */
+
+
+
+void drwSetSize (winType actual_window, intType width, intType height)
+
+  { /* drwSetSize */
+  } /* drwSetSize */
 
 
 

@@ -2462,7 +2462,7 @@ striType stri_to_standard_path (const striType stri)
       if (pathLength >= 2 && stdPath->mem[1] == ':' &&
           ((stdPath->mem[0] >= 'a' && stdPath->mem[0] <= 'z') ||
            (stdPath->mem[0] >= 'A' && stdPath->mem[0] <= 'Z'))) {
-        stdPath->mem[1] = (strElemType) tolower((int) stdPath->mem[0]);
+        stdPath->mem[1] = (strElemType) tolower((unsigned char) stdPath->mem[0]);
         stdPath->mem[0] = (strElemType) '/';
         if (pathLength >= 3) {
           if (stdPath->mem[2] != '/') {
@@ -2730,7 +2730,7 @@ static os_striType toShortFileName (os_striType dest, os_striType *sourceAddr)
         case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
         case 'z':
           if (writeToDest) {
-            dest[destPos] = (os_charType) toupper((char) ch);
+            dest[destPos] = (os_charType) toupper((unsigned char) ch);
             destPos++;
           } /* if */
           break;
@@ -2878,7 +2878,7 @@ void setEmulatedCwd (os_striType os_path, errInfoType *err_info)
       if (((new_cwd[0] >= 'a' && new_cwd[0] <= 'z') ||
            (new_cwd[0] >= 'A' && new_cwd[0] <= 'Z')) &&
           new_cwd[1] == ':') {
-        new_cwd[1] = (os_charType) tolower(new_cwd[0]);
+        new_cwd[1] = (os_charType) tolower((unsigned char) new_cwd[0]);
         new_cwd[0] = OS_PATH_DELIMITER;
       } /* if */
       if (current_emulated_cwd != NULL &&
@@ -3485,7 +3485,7 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
         memmove(&result->mem[1], result->mem, sizeof(os_charType) * outPos);
         result->mem[0] = '\"';
         result->mem[outPos + 1] = '\"';
-	outPos += 2;
+        outPos += 2;
       } /* if */
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         FREE_STRI2(result, stri->size + numOfQuotes);

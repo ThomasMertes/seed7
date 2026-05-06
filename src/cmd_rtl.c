@@ -39,6 +39,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "ctype.h"
 #include "time.h"
 #include "sys/types.h"
 #include "sys/stat.h"
@@ -1937,6 +1938,245 @@ static int systemForNodeJs (const char *command)
 
 
 
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+static boolType isShortFileName (strElemType *fileName,
+    memSizeType sourceLength)
+
+  {
+    memSizeType sourcePos = 0;
+    strElemType ch;
+    memSizeType dotPos = (memSizeType) -1;
+    boolType shortFileName = TRUE;
+
+  /* isShortFileName */
+    ch = fileName[0];
+    do {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+        case '{':  case '}':  case '~':
+          /* Characters allowed in 8.3 file names. */
+          break;
+        case '.':
+          if (dotPos == (memSizeType) -1) {
+            dotPos = sourcePos;
+          } else {
+            shortFileName = FALSE;
+          } /* if */
+          break;
+        default:
+          shortFileName = FALSE;
+          break;
+      } /* switch */
+      sourcePos++;
+    } while (sourcePos < sourceLength &&
+             (ch = fileName[sourcePos]) != PATH_DELIMITER);
+    if (dotPos == (memSizeType) -1) {
+      if (sourcePos > 8) {
+        shortFileName = FALSE;
+      } /* if */
+    } else if (dotPos == 0 || dotPos > 8 || sourcePos - dotPos > 4) {
+      shortFileName = FALSE;
+    } /* if */
+    logFunction(printf("isShortFileName --> %d\n", shortFileName););
+    return shortFileName;
+  } /* isShortFileName */
+
+
+
+static boolType findDot (striType path, memSizeType sourceIdx)
+
+  {
+    strElemType ch;
+    boolType found = FALSE;
+
+  /* findDot */
+    while (sourceIdx < path->size &&
+           (ch = path->mem[sourceIdx]) != PATH_DELIMITER && !found) {
+      if (ch == '.') {
+        found = TRUE;
+      } /* if */
+      sourceIdx++;
+    } /* while */
+    return found;
+  } /* findDot */
+
+
+
+static memSizeType toShortFileName (striType path,
+    memSizeType *sourceIdxAddr, memSizeType destIdx)
+
+  {
+    memSizeType sourceIdx;
+    strElemType *dest;
+    strElemType ch;
+    memSizeType destPos = 0;
+    memSizeType dotPos = (memSizeType) -1;
+    boolType writeToDest = TRUE;
+
+  /* toShortFileName */
+    sourceIdx = *sourceIdxAddr;
+    dest = &path->mem[destIdx];
+    ch = path->mem[sourceIdx];
+    do {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case '{':  case '}':  case '~':
+          if (writeToDest) {
+            dest[destPos] = ch;
+            destPos++;
+          } /* if */
+          break;
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+          if (writeToDest) {
+            dest[destPos] = (charType) toupper((unsigned char) ch);
+            destPos++;
+          } /* if */
+          break;
+        case '+':  case ',':  case ';':  case '=':  case '[':
+        case ']':
+          if (writeToDest) {
+            dest[destPos] = '_';
+            destPos++;
+          } /* if */
+          break;
+        case '.':
+          if (!findDot(path, sourceIdx + 1)) {
+            if (!writeToDest && destIdx + destPos + 2 < path->size) {
+              dest[destPos] = '~';
+              destPos++;
+              dest[destPos] = '1';
+              destPos++;
+              writeToDest = TRUE;
+            } /* if */
+            dotPos = destPos;
+            dest[destPos] = '.';
+            destPos++;
+          } /* if */
+          break;
+        default:
+          /* Ignore other characters */
+          break;
+      } /* switch */
+      if (dotPos == (memSizeType) -1) {
+        if (destPos >= 6) {
+          writeToDest = FALSE;
+        } /* if */
+      } else {
+        if (destPos - dotPos >= 4) {
+          writeToDest = FALSE;
+        } /* if */
+      } /* if */
+      sourceIdx++;
+    } while (sourceIdx < path->size &&
+             (ch = path->mem[sourceIdx]) != PATH_DELIMITER);
+    if (dotPos == (memSizeType) -1) {
+      if (!writeToDest && destIdx + destPos + 1 < path->size) {
+        dest[destPos] = '~';
+        destPos++;
+        dest[destPos] = '1';
+        destPos++;
+      } /* if */
+    } /* if */
+    *sourceIdxAddr = sourceIdx;
+    return destPos;
+  } /* toShortFileName */
+
+
+
+static memSizeType copyFileName (striType path,
+    memSizeType *sourceIdxAddr, memSizeType destIdx)
+
+  {
+    memSizeType sourceIdx;
+    strElemType ch;
+
+  /* copyFileName */
+    sourceIdx = *sourceIdxAddr;
+    ch = path->mem[sourceIdx];
+    do {
+      path->mem[destIdx] = ch;
+      destIdx++;
+      sourceIdx++;
+    } while (sourceIdx < path->size &&
+             (ch = path->mem[sourceIdx]) != PATH_DELIMITER);
+    *sourceIdxAddr = sourceIdx;
+    return destIdx;
+  } /* copyFileName */
+
+
+
+static void mapLongFileNamesToShort (striType path)
+
+  {
+    memSizeType sourceLength;
+    memSizeType sourceIdx = 0;
+    memSizeType destIdx = 0;
+
+  /* mapLongFileNamesToShort */
+    logFunction(printf("mapLongFileNamesToShort(\"%s\")\n",
+                       striAsUnquotedCStri(path)););
+    sourceLength = path->size;
+    while (sourceIdx < sourceLength) {
+      if (path->mem[sourceIdx] == PATH_DELIMITER) {
+        sourceIdx++;
+        path->mem[destIdx] = PATH_DELIMITER;
+        destIdx++;
+      } else {
+        if (isShortFileName(&path->mem[sourceIdx],
+                            sourceLength - sourceIdx)) {
+          destIdx = copyFileName(path, &sourceIdx, destIdx);
+        } else {
+          destIdx += toShortFileName(path, &sourceIdx, destIdx);
+        } /* if */
+      } /* if */
+    } /* while */
+    logMessage(printf("destIdx: " FMT_U_MEM "\n", destIdx););
+    logErrorIfTrue(destIdx > path->size,
+                   printf("mapLongFileNamesToShort: destIdx ("
+                          FMT_U_MEM ") larger than size ("
+                          FMT_U_MEM ")\n",
+                          destIdx, path->size););
+    path->size = destIdx;
+    logFunction(printf("mapLongFileNamesToShort --> \"%s\"\n",
+                       striAsUnquotedCStri(path)););
+  } /* mapLongFileNamesToShort */
+#endif
+
+
+
 /**
  *  Convert a standard path to the path of the operating system.
  *  The result must be escaped with 'cmdShellEscape' to be useable as
@@ -2022,6 +2262,11 @@ static striType toOsPath (const const_striType standardPath,
     if (unlikely(*err_info != OKAY_NO_ERROR)) {
       result = NULL;
     } else {
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+      if (result != NULL) {
+        mapLongFileNamesToShort(result);
+      } /* if */
+#endif
       if_pathDelimiterNotSlash({
         memSizeType position;
 
@@ -4827,6 +5072,8 @@ intType cmdShellExecute (const const_striType command,
       raise_error(err_info);
       returnCode = 0;
     } else {
+      logMessage(printf("cmdShellExecute: commandLine: \"%s\"\n",
+                        striAsUnquotedCStri(commandLine)););
       os_command = stri_to_os_stri(commandLine, &err_info);
       if (unlikely(os_command == NULL)) {
         logError(printf("cmdShellExecute: "

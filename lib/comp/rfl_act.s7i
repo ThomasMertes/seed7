@@ -24,26 +24,27 @@
 (********************************************************************)
 
 
-const ACTION: RFL_APPEND     is action "RFL_APPEND";
-const ACTION: RFL_CAT        is action "RFL_CAT";
-const ACTION: RFL_CPY        is action "RFL_CPY";
-const ACTION: RFL_ELEM       is action "RFL_ELEM";
-const ACTION: RFL_ELEMCPY    is action "RFL_ELEMCPY";
-const ACTION: RFL_EQ         is action "RFL_EQ";
-const ACTION: RFL_FOR        is action "RFL_FOR";
-const ACTION: RFL_FOR_UNTIL  is action "RFL_FOR_UNTIL";
-const ACTION: RFL_HEAD       is action "RFL_HEAD";
-const ACTION: RFL_IDX        is action "RFL_IDX";
-const ACTION: RFL_INCL       is action "RFL_INCL";
-const ACTION: RFL_IPOS       is action "RFL_IPOS";
-const ACTION: RFL_LNG        is action "RFL_LNG";
-const ACTION: RFL_MKLIST     is action "RFL_MKLIST";
-const ACTION: RFL_NE         is action "RFL_NE";
-const ACTION: RFL_NOT_ELEM   is action "RFL_NOT_ELEM";
-const ACTION: RFL_POS        is action "RFL_POS";
-const ACTION: RFL_SET_VALUE  is action "RFL_SET_VALUE";
-const ACTION: RFL_TAIL       is action "RFL_TAIL";
-const ACTION: RFL_VALUE      is action "RFL_VALUE";
+const ACTION: RFL_APPEND      is action "RFL_APPEND";
+const ACTION: RFL_CAT         is action "RFL_CAT";
+const ACTION: RFL_CPY         is action "RFL_CPY";
+const ACTION: RFL_ELEM        is action "RFL_ELEM";
+const ACTION: RFL_ELEMCPY     is action "RFL_ELEMCPY";
+const ACTION: RFL_EQ          is action "RFL_EQ";
+const ACTION: RFL_FOR         is action "RFL_FOR";
+const ACTION: RFL_FOR_UNTIL   is action "RFL_FOR_UNTIL";
+const ACTION: RFL_FOR_VAR_KEY is action "RFL_FOR_VAR_KEY";
+const ACTION: RFL_HEAD        is action "RFL_HEAD";
+const ACTION: RFL_IDX         is action "RFL_IDX";
+const ACTION: RFL_INCL        is action "RFL_INCL";
+const ACTION: RFL_IPOS        is action "RFL_IPOS";
+const ACTION: RFL_LNG         is action "RFL_LNG";
+const ACTION: RFL_MKLIST      is action "RFL_MKLIST";
+const ACTION: RFL_NE          is action "RFL_NE";
+const ACTION: RFL_NOT_ELEM    is action "RFL_NOT_ELEM";
+const ACTION: RFL_POS         is action "RFL_POS";
+const ACTION: RFL_SET_VALUE   is action "RFL_SET_VALUE";
+const ACTION: RFL_TAIL        is action "RFL_TAIL";
+const ACTION: RFL_VALUE       is action "RFL_VALUE";
 
 
 const proc: rfl_prototypes (inout file: c_prog) is func
@@ -297,6 +298,56 @@ const proc: process (RFL_FOR_UNTIL, in reference: function,
     c_expr.expr &:= "->next) {\n";
     process_call_by_name_expr(params[8], c_expr);
     c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process (RFL_FOR_VAR_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: elem_name is "";
+    var string: key_name is "";
+  begin
+    incr(c_expr.temp_num);
+    elem_name := "tmp_elem_" & str(c_expr.temp_num);
+    key_name := "tmp_key_" & str(c_expr.temp_num);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "listType ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "intType ";
+    c_expr.expr &:= key_name;
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    getAnyParamToExpr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= key_name;
+    c_expr.expr &:= " = 1; ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " != NULL; ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->next) {\n";
+    setDiagnosticLine(c_expr);
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= elem_name;
+    c_expr.expr &:= "->obj;\n";
+    setDiagnosticLine(c_expr);
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= " = ";
+    c_expr.expr &:= key_name;
+    c_expr.expr &:= ";\n";
+    process_call_by_name_expr(params[8], c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= key_name;
+    c_expr.expr &:= "++;\n}\n}\n";
   end func;
 
 

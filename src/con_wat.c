@@ -45,6 +45,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
@@ -661,8 +662,8 @@ void conLeftScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   {
-    int line;
-    int num_bytes;
+    intType line;
+    memSizeType num_bytes;
     char *destination;
     char *source;
 
@@ -671,7 +672,7 @@ void conLeftScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
-      num_bytes = 2 * (stopcol - startcol - numCols + 1);
+      num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol + numCols - 1];
       destination = (char *) &current_screen->
@@ -697,8 +698,8 @@ void conRightScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   {
-    int line;
-    int num_bytes;
+    intType line;
+    memSizeType num_bytes;
     char *destination;
     char *source;
 
@@ -707,7 +708,7 @@ void conRightScroll (intType startlin, intType startcol,
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
-      num_bytes = 2 * (stopcol - startcol - numCols + 1);
+      num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
       destination = (char *) &current_screen->

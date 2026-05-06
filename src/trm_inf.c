@@ -188,9 +188,9 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
       from = fgetc(fix_file);
     } /* while */
     if (pos < CAP_VALUE_BUFFER_SIZE) {
-      value[pos] = '\0';
       if (ALLOC_CSTRI(cap_value, pos)) {
-        strcpy(cap_value, value);
+        memcpy(cap_value, value, pos);
+        cap_value[pos] = '\0';
       } /* if */
     } /* if */
     *term_char = from;

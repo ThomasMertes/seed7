@@ -416,7 +416,7 @@ objectType raise_with_obj_and_args (objectType exception,
     } /* if */
 #endif
 #if !USE_CHUNK_ALLOCS
-    if (exception == SYS_MEM_EXCEPTION) {
+    if (prog != NULL && exception == SYS_MEM_EXCEPTION) {
       reuse_free_lists();
     } /* if */
 #endif

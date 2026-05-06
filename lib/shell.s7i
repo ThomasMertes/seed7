@@ -148,7 +148,7 @@ const func integer: shell (in string: command,
  *  @exception FILE_ERROR The shell command returns an error.
  *)
 const func integer: shell (in string: command,
-                           in var string: parameters) is
+                           in string: parameters) is
   return shell(command, parameters, "", "", "");
 
 

@@ -3070,7 +3070,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
         negative = FALSE;
       } /* if */
       bit_size = (unsigned int) (digitMostSignificantBit(base) + 1);
-      if (base == (bigDigitType) (1 << (bit_size - 1))) {
+      if (base == (bigDigitType) 1 << (bit_size - 1)) {
         power = bigLog2BaseIPow((intType) (bit_size - 1), exponent);
         if (power != NULL) {
           if (negative) {

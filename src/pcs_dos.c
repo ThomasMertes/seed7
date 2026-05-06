@@ -120,13 +120,11 @@ void pcsFree (processType oldProcess)
 
 
 
-
 intType pcsHashCode (const const_processType aProcess)
 
   { /* pcsHashCode */
     return 0;
   } /* pcsHashCode */
-
 
 
 
@@ -138,12 +136,10 @@ boolType pcsIsAlive (const processType aProcess)
 
 
 
-
 void pcsKill (const processType aProcess)
 
   { /* pcsKill */
   } /* pcsKill */
-
 
 
 
@@ -155,13 +151,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
 
 
 
-
 void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     fileType *childStdin, fileType *childStdout)
 
   { /* pcsPty */
   } /* pcsPty */
-
 
 
 
@@ -184,13 +178,23 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
 
 
 
+processType pcsStartPipe (const const_striType command, const const_rtlArrayType parameters)
+
+  { /* pcsStartPipe */
+    logFunction(printf("pcsStartPipe(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
+    logFunction(printf("pcsStartPipe -> 0\n"););
+    return NULL;
+  } /* pcsStartPipe */
+
+
 
 striType pcsStr (const const_processType process)
 
   { /* pcsStr */
     return NULL;
   } /* pcsStr */
-
 
 
 

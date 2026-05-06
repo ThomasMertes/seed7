@@ -38,6 +38,7 @@
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "soc_rtl.h"
 

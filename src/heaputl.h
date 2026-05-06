@@ -68,6 +68,7 @@ typedef struct {
     unsigned long block;
     unsigned long loclist;
     unsigned long infil;
+    unsigned long name_cache;
     unsigned long parseError;
     unsigned long prog;
     unsigned long polldata;
@@ -96,13 +97,14 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif
 
 extern size_t sizeof_pollRecord;
 extern size_t sizeof_processRecord;
+extern size_t sizeof_nameCacheEntryRecord;
 #endif
 
 #if DO_HEAP_STATISTIC || DO_HEAPSIZE_COMPUTATION || DO_HEAP_CHECK

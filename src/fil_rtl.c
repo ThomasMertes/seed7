@@ -1234,6 +1234,7 @@ void filDestr (const fileType oldFile)
         filFree(oldFile);
       } /* if */
     } /* if */
+    logFunction(printf("filDestr -->\n"););
   } /* filDestr */
 
 
@@ -1345,7 +1346,7 @@ void filFree (const fileType oldFile)
 
   { /* filFree */
     logFunction(printf("filFree(" FMT_U_MEM " %s%d"
-                       " (usage=" FMT_U "%s))\n",
+                       " (usage=" FMT_U "%s%s))\n",
                        (memSizeType) oldFile,
                        oldFile == NULL ? "NULL " : "",
                        oldFile != NULL ?
@@ -1353,16 +1354,24 @@ void filFree (const fileType oldFile)
                        oldFile != NULL ?
                            oldFile->usage_count : (uintType) 0,
                        oldFile != NULL && oldFile->isPipe ?
-                           ", isPipe" : ""););
+                           ", isPipe" : "",
+                       oldFile != NULL && oldFile->cFile != NULL ?
+                           ", doClose" : ""););
     assert_file_not_null(oldFile);
     if (oldFile->cFile != NULL) {
 #if HAS_POPEN
       if (oldFile->isPipe) {
+        logMessage(printf("filFree: pclose(%d)\n",
+                          safe_fileno(oldFile->cFile)););
         os_pclose(oldFile->cFile);
       } else {
+        logMessage(printf("filFree: fclose(%d)\n",
+                          safe_fileno(oldFile->cFile)););
         fclose(oldFile->cFile);
       } /* if */
 #else
+      logMessage(printf("filFree: fclose(%d)\n",
+                        safe_fileno(oldFile->cFile)););
       fclose(oldFile->cFile);
 #endif
     } /* if */
@@ -2018,7 +2027,7 @@ static cFileType cFileOpen (const const_striType path,
 
 
 /**
- *  Opens a file with the specified 'path' and 'mode'.
+ *  Open a file with the specified 'path' and 'mode'.
  *  There are text modes and binary modes:
  *  - Binary modes:
  *   - "r"   Open file for reading.
@@ -2399,38 +2408,6 @@ boolType filSeekable (const const_fileType aFile)
                        seekable););
     return seekable;
   } /* filSeekable */
-
-
-
-void filSetbuf (const const_fileType aFile, intType mode, intType size)
-
-  {
-    cFileType cFile;
-
-  /* filSetbuf */
-    logFunction(printf("filSetbuf(%s%d, " FMT_D ", " FMT_D ")\n",
-                       aFile == NULL ? "NULL " : "",
-                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
-                       mode, size););
-    assert_file_not_null(aFile);
-    cFile = aFile->cFile;
-    if (unlikely(cFile == NULL)) {
-      logError(printf("filSetbuf: Attempt to set the file buffering of a closed file.\n"););
-      raise_error(FILE_ERROR);
-    } else if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
-      logError(printf("filSetbuf(%d, " FMT_D ", " FMT_D "): "
-                      "Mode or size not in allowed range.\n",
-                      safe_fileno(cFile), mode, size););
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(setvbuf(cFile, NULL, (int) mode, (memSizeType) size) != 0)) {
-      logError(printf("filSetbuf: "
-                      "setvbuf(%d, NULL, %d, " FMT_U_MEM ") failed.:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(cFile), (int) mode, (memSizeType) size,
-                      errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-    } /* if */
-  } /* filSetbuf */
 
 
 

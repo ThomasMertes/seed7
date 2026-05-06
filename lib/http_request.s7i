@@ -154,7 +154,7 @@ const func httpLocation: getHttpLocation (in string: location, in integer: defau
   local
     var integer: slashPos is 0;
     var integer: questionMarkPos is 0;
-    var integer: bracketPos is 0;
+    var integer: rightBracketPos is 0;
     var integer: colonPos is 0;
   begin
     # writeln("getHttpLocation: " <& location);
@@ -185,16 +185,18 @@ const func httpLocation: getHttpLocation (in string: location, in integer: defau
         locationData.params   := location[succ(questionMarkPos) ..];
       end if;
     end if;
-    bracketPos := pos(locationData.hostName, "]:");
-    if bracketPos <> 0 and startsWith(locationData.hostName, "[") and
-        isDigitString(locationData.hostName[bracketPos + 2 ..]) then
-      locationData.portNumber := integer(locationData.hostName[bracketPos + 2 ..]);
-      locationData.hostName := locationData.hostName[2 .. pred(bracketPos)];
+    rightBracketPos := pos(locationData.hostName, "]:");
+    if rightBracketPos <> 0 and startsWith(locationData.hostName, "[") and
+        isDigitString(locationData.hostName[rightBracketPos + 2 ..]) and
+        length(locationData.hostName[rightBracketPos + 2 ..]) <= 18 then
+      locationData.portNumber := integer(locationData.hostName[rightBracketPos + 2 ..]);
+      locationData.hostName := locationData.hostName[2 .. pred(rightBracketPos)];
     else
       colonPos := pos(locationData.hostName, ":");
       if colonPos <> 0 and
           not isDigitString(locationData.hostName[.. pred(colonPos)]) and
-          isDigitString(locationData.hostName[succ(colonPos) ..]) then
+          isDigitString(locationData.hostName[succ(colonPos) ..]) and
+          length(locationData.hostName[succ(colonPos) ..]) <= 18 then
         locationData.portNumber := integer(locationData.hostName[succ(colonPos) ..]);
         locationData.hostName := locationData.hostName[.. pred(colonPos)];
       else
@@ -370,7 +372,8 @@ const func httpHeader: getHttpHeader (inout file: sock) is func
             header.contentEncoding := lower(trim(line[succ(colonPos) ..]));
           when {"content-length"}:
             contentLengthStri := trim(line[succ(colonPos) ..]);
-            if isDigitString(contentLengthStri) then
+            if isDigitString(contentLengthStri) and
+                length(contentLengthStri) <= 18 then
               header.contentLength := integer(contentLengthStri);
             else
               header.contentLength := -1;
@@ -406,7 +409,8 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
     if header.transferEncoding = "chunked" then
       if not eof(sock) then
         line := getln(sock);
-        if isDigitString(line, 16) then
+        if isDigitString(line, 16) and
+            length(line) <= 15 then
           chunkSize := integer(line, 16);
         else
           chunkSize := -1;
@@ -420,7 +424,8 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
           if not eof(sock) then
             ignore(getln(sock));
             line := getln(sock);
-            if isDigitString(line, 16) then
+            if isDigitString(line, 16) and
+                length(line) <= 15 then
               chunkSize := integer(line, 16);
             else
               chunkSize := -1;

@@ -72,12 +72,36 @@
 #include "tim_rtl.h"
 #include "str_rtl.h"
 #include "int_rtl.h"
+#include "hsh_rtl.h"
+#include "tim_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "cmd_drv.h"
 
+
+#define CACHE_GID_TO_NAME 1
+#define CACHE_UID_TO_NAME 1
+
+
+#if CACHE_GID_TO_NAME || CACHE_UID_TO_NAME
+typedef struct {
+    intType timestamp;
+    striType name;
+  } nameCacheEntryRecord, *nameCacheEntryType;
+#endif
+
+#if CACHE_GID_TO_NAME
+static rtlHashType groupCache = NULL;
+#endif
+#if CACHE_UID_TO_NAME
+static rtlHashType userCache = NULL;
+#endif
+
+#if DO_HEAP_STATISTIC
+size_t sizeof_nameCacheEntryRecord = 0;
+#endif
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
@@ -222,7 +246,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
 
   /* setenv7 */
     logFunction(printf("setenv7(%s\"%s\", %s\"%s\", %d)\n",
-                       name != NULL ? "NULL " : "",
+                       name == NULL ? "NULL " : "",
                        name != NULL ? name : "",
                        value == NULL ? "NULL " : "",
                        value != NULL ? value : "",
@@ -249,7 +273,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
                 return -1;
               } else {
                 *p = c;
-                strcpy(&c[nameLen + 1], value);
+                memcpy(&c[nameLen + 1], value, valueLen + 1);
               } /* if */
             } /* if **/
             return 0;
@@ -272,7 +296,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
         } else {
           memcpy(c, name, nameLen);
           c[nameLen] = '=';
-          strcpy(&c[nameLen + 1], value);
+          memcpy(&c[nameLen + 1], value, valueLen + 1);
           environ7[nameCount] = c;
           environ7[nameCount + 1] = NULL;
           return 0;
@@ -377,6 +401,120 @@ int unsetenvForNodeJs (const char *name)
 #endif
 
 
+#if CACHE_GID_TO_NAME || CACHE_UID_TO_NAME
+static void destrNameCacheEntry (genericType genericCacheEntry)
+
+  {
+    nameCacheEntryType cacheEntry;
+
+  /* destrNameCacheEntry */
+    cacheEntry = (nameCacheEntryType) (memSizeType) genericCacheEntry;
+    FREE_STRI(cacheEntry->name);
+    FREE_RECORD(cacheEntry, nameCacheEntryRecord, count.name_cache);
+  } /* destrNameCacheEntry */
+
+
+
+static striType getCachedNameFromId (rtlHashType nameCache, genericType id)
+
+  {
+    nameCacheEntryType cacheEntry;
+    striType name;
+
+  /* getCachedNameFromId */
+    if (nameCache != NULL &&
+        (cacheEntry = (nameCacheEntryType) (memSizeType)
+            hshIdxWithDefault(nameCache, id,
+                              (genericType) (memSizeType) NULL,
+                              (intType) id,
+                              (compareType) &genericCmp)) != NULL) {
+      if (cacheEntry->timestamp + 10000000 < timMicroSec()) {
+        hshExcl(nameCache, id, (intType) id,
+                (compareType) &genericCmp,
+                (destrFuncType) &genericDestr,
+                (destrFuncType) &destrNameCacheEntry);
+        name = NULL;
+      } else if (likely(ALLOC_STRI_SIZE_OK(name,
+                                           cacheEntry->name->size))) {
+        name->size = cacheEntry->name->size;
+        memcpy(name->mem, cacheEntry->name->mem,
+               cacheEntry->name->size * sizeof(strElemType));
+      } /* if */
+    } else {
+      name = NULL;
+    } /* if */
+    logFunction(printf("getCachedNameFromId(" FMT_X_MEM ", "
+                       FMT_U_GEN ") --> \"%s\"\n",
+                       (memSizeType) nameCache, id,
+                       striAsUnquotedCStri(name)););
+    return name;
+  } /* getCachedNameFromId */
+
+
+
+static rtlHashType addNameToCache (rtlHashType nameCache, genericType id, striType name)
+
+  {
+    nameCacheEntryType cacheEntry;
+
+  /* addNameToCache */
+    logFunction(printf("addNameToCache(" FMT_X_MEM ", " FMT_U_GEN
+                       ", \"%s\")\n",
+                        (memSizeType) nameCache, id,
+                        striAsUnquotedCStri(name)););
+    if (nameCache == NULL) {
+      logMessage(printf("addNameToCache: New hash table.\n"););
+      nameCache = hshEmpty();
+#if DO_HEAP_STATISTIC
+      sizeof_nameCacheEntryRecord = sizeof(nameCacheEntryRecord);
+#endif
+    } /* if */
+    if (likely(nameCache != NULL)) {
+      if (likely(ALLOC_RECORD(cacheEntry, nameCacheEntryRecord,
+                              count.name_cache))) {
+        if (likely(ALLOC_STRI_SIZE_OK(cacheEntry->name, name->size))) {
+          cacheEntry->name->size = name->size;
+          memcpy(cacheEntry->name->mem, name->mem,
+                 name->size * sizeof(strElemType));
+          cacheEntry->timestamp = timMicroSec();
+          if (unlikely(!hashAdd(nameCache, id,
+                                (genericType) cacheEntry,
+                                (intType) id,
+                                (compareType) &genericCmp,
+                                (createFuncType) &genericCreate,
+                                (createFuncType) &genericCreate))) {
+            FREE_STRI(cacheEntry->name);
+            FREE_RECORD(cacheEntry, nameCacheEntryRecord,
+                        count.name_cache);
+          } /* if */
+        } else {
+          FREE_RECORD(cacheEntry, nameCacheEntryRecord,
+                      count.name_cache);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("addNameToCache --> " FMT_X_MEM "\n",
+                       (memSizeType) nameCache););
+    return nameCache;
+  } /* addNameToCache */
+#endif
+
+
+
+void freeNameCache (void)
+
+  { /* freeNameCache */
+#if CACHE_GID_TO_NAME
+    hshDestr(groupCache, (destrFuncType) &genericDestr,
+             (destrFuncType) &destrNameCacheEntry);
+#endif
+#if CACHE_UID_TO_NAME
+    hshDestr(userCache, (destrFuncType) &genericDestr,
+             (destrFuncType) &destrNameCacheEntry);
+#endif
+  } /* freeNameCache */
+
+
 
 static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
 
@@ -397,6 +535,10 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
                        gid == (gid_t) -1 ? (gid_t) 1 : gid,
                        *err_info););
 #if HAS_GETGRGID_R || HAS_GETGRGID
+#if CACHE_GID_TO_NAME
+    group = getCachedNameFromId(groupCache, (genericType) gid);
+    if (group == NULL) {
+#endif
 #if HAS_GETGRGID_R
     getgrgid_result = getgrgid_r(gid, &grp, buffer,
                                  sizeof(buffer), &grpResult);
@@ -418,8 +560,15 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
       } /* if */
       if (unlikely(group == NULL)) {
         *err_info = MEMORY_ERROR;
+#if CACHE_GID_TO_NAME
+      } else {
+        groupCache = addNameToCache(groupCache, (genericType) gid, group);
+#endif
       } /* if */
     }
+#if CACHE_GID_TO_NAME
+    }
+#endif
 #else
     group = intStr((intType) gid);
     if (unlikely(group == NULL)) {
@@ -520,6 +669,10 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
                        uid == (uid_t) -1 ? (uid_t) 1 : uid,
                        *err_info););
 #if HAS_GETPWUID_R || HAS_GETPWUID
+#if CACHE_UID_TO_NAME
+    user = getCachedNameFromId(userCache, (genericType) uid);
+    if (user == NULL) {
+#endif
 #if HAS_GETPWUID_R
     getpwuid_result = getpwuid_r(uid, &pwd, buffer,
                                  sizeof(buffer), &pwdResult);
@@ -541,8 +694,15 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
       } /* if */
       if (unlikely(user == NULL)) {
         *err_info = MEMORY_ERROR;
+#if CACHE_UID_TO_NAME
+      } else {
+        userCache = addNameToCache(userCache, (genericType) uid, user);
+#endif
       } /* if */
     }
+#if CACHE_UID_TO_NAME
+    }
+#endif
 #else
     user = intStr((intType) uid);
     if (unlikely(user == NULL)) {

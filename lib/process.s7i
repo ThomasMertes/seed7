@@ -497,7 +497,6 @@ const proc: pipe2 (in string: command, in array string: parameters,
       childStdin := toInterface(new_ChildStdin);
     end if;
     if primitiveChildStdout <> CLIB_NULL_FILE then
-      # setbuf(primitiveChildStdout, IO_NO_BUFFERING, 0);
       new_ChildStdout.ext_file := primitiveChildStdout;
       childStdout := toInterface(new_ChildStdout);
     end if;

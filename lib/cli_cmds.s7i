@@ -1014,7 +1014,9 @@ const func integer: oneShellCommand (in string: commandWord,
       end if;
     end if;
     if doRedirect or doAppend then
-      # writeln("cmd: " <& literal(commandWord) <& " " <& literal(convDosPath(commandWord)));
+      # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+      #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+      #                                     : "");
       aPipe := popen(convDosPath(commandWord), parameterArray, "r");
       if aPipe <> STD_NULL then
         commandOutput := gets(aPipe, 999999999);
@@ -1028,7 +1030,9 @@ const func integer: oneShellCommand (in string: commandWord,
         returnCode := -1;
       end if;
     else
-      # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(commandWord)));
+      # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+      #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+      #                                     : "");
       returnCode := shell(convDosPath(commandWord), parameterArray);
     end if;
   end func;
@@ -1054,7 +1058,9 @@ const func integer: oneShellCommand (in string: commandWord,
       aParam := getCommandParameter(parameters);
     end while;
     skipWhiteSpace(parameters);
-    # writeln("cmd: " <& literal(commandWord) <& " " <& literal(convDosPath(commandWord)));
+    # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+    #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+    #                                     : "");
     aPipe := popen(convDosPath(commandWord), parameterArray, "r");
     if aPipe <> STD_NULL then
       commandOutput := gets(aPipe, 999999999);

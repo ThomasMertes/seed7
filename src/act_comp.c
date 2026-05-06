@@ -39,6 +39,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "actutl.h"
 #include "rtl_err.h"
 
