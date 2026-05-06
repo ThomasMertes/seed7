@@ -2173,8 +2173,9 @@ static void mapLongFileNamesToShort (striType path)
 
 /**
  *  Convert a standard path to the path of the operating system.
- *  The result must be escaped with 'cmdShellEscape' to be useable as
- *  parameter for the functions 'cmdShell' and 'filPopen'.
+ *  The function ''toOsPath'' should only be used for parameters which
+ *  represent a path. Don't use ''toOsPath'' for the command of a shell
+ *  or process function.
  *  @param standardPath Path in the standard path representation.
  *  @param err_info Unchanged if the function succeeds, and
  *                  MEMORY_ERROR if a memory allocation failed, and
@@ -5110,8 +5111,9 @@ intType cmdShellExecute (const const_striType command,
 
 /**
  *  Convert a standard path to the path of the operating system.
- *  The result must be escaped with 'cmdShellEscape' to be useable as
- *  parameter for the functions 'cmdShell' and 'filPopen'.
+ *  The function ''cmdToOsPath'' should only be used for parameters which
+ *  represent a path. Don't use ''cmdToOsPath'' for the command of a shell
+ *  or process function.
  *  @param standardPath Path in the standard path representation.
  *  @return a string containing an operating system path.
  *  @exception MEMORY_ERROR Not enough memory to convert 'standardPath'.
