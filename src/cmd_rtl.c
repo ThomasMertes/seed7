@@ -1974,7 +1974,18 @@ static boolType isShortFileName (strElemType *fileName,
           break;
         case '.':
           if (dotPos == (memSizeType) -1) {
-            dotPos = sourcePos;
+            if (sourcePos == 0 &&
+                (sourceLength == 1 || fileName[1] == '/')) {
+              /* The file name is ".". */
+              /* Keep dotPos to avoid that dotPos == 0 triggers later. */
+            } else {
+              dotPos = sourcePos;
+            } /* if */
+          } else if (dotPos == 0 && sourcePos == 1 &&
+                     (sourceLength == 2 || fileName[2] == '/')) {
+            /* The file name is "..". */
+            /* Change dotPos to avoid that dotPos == 0 triggers later. */
+            dotPos = 1;
           } else {
             shortFileName = FALSE;
           } /* if */
