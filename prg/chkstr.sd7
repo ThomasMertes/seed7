@@ -10060,7 +10060,13 @@ const func boolean: check_string_substr_func_1 is func
       writeln(" ***** STRING [ START len 1 ] via a function does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_func_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  substrFunction("",             1,             0) <> "" or
         substrFunction("",             1,             1) <> "" or
         substrFunction("",             1,             2) <> "" or
@@ -10280,7 +10286,13 @@ const func boolean: check_string_substr_func_1 is func
       writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_func_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  substrFunction("", intExpr(            1),             0) <> "" or
         substrFunction("", intExpr(            1),             1) <> "" or
         substrFunction("", intExpr(            1),             2) <> "" or
@@ -10503,7 +10515,7 @@ const func boolean: check_string_substr_func_1 is func
   end func;
 
 
-const func boolean: check_string_substr_func_2 is func
+const func boolean: check_string_substr_func_4 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -10726,7 +10738,13 @@ const func boolean: check_string_substr_func_2 is func
       writeln(" ***** STRING [ START len LENGTH ] via a function does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_func_5 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  substrFunction(striExpr(""), intExpr(            1),             0) <> "" or
         substrFunction(striExpr(""), intExpr(            1),             1) <> "" or
         substrFunction(striExpr(""), intExpr(            1),             2) <> "" or
@@ -10990,6 +11008,18 @@ const proc: check_string_substr is func
     end if;
 
     if not check_string_substr_func_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_func_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_func_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_func_5 then
       okay := FALSE;
     end if;
 
@@ -11957,26 +11987,6 @@ const func boolean: check_string_concat_1 is func
   result
     var boolean: okay is TRUE;
   begin
-    if           ""  &          ""  <> "" or
-        striExpr("") &          ""  <> "" or
-                 ""  & striExpr("") <> "" or
-        striExpr("") & striExpr("") <> "" or
-                 ""  &          "cd"  <> "cd" or
-        striExpr("") &          "cd"  <> "cd" or
-                 ""  & striExpr("cd") <> "cd" or
-        striExpr("") & striExpr("cd") <> "cd" or
-                 "ab"  &          ""  <> "ab" or
-        striExpr("ab") &          ""  <> "ab" or
-                 "ab"  & striExpr("") <> "ab" or
-        striExpr("ab") & striExpr("") <> "ab" or
-                 "ab"  &          "cd"  <> "abcd" or
-        striExpr("ab") &          "cd"  <> "abcd" or
-                 "ab"  & striExpr("cd") <> "abcd" or
-        striExpr("ab") & striExpr("cd") <> "abcd" then
-      writeln(" ***** STRING & STRING does not work correctly. (2)");
-      okay := FALSE;
-    end if;
-
     if           ""  &          ""  &          ""  <> "" or
         striExpr("") &          ""  &          ""  <> "" or
                  ""  & striExpr("") &          ""  <> "" or
@@ -12172,8 +12182,12 @@ const func boolean: check_string_concat_1 is func
                  ""  &          "cd"  & striExpr("ef") & striExpr("gh") <> "cdefgh" or
         striExpr("") &          "cd"  & striExpr("ef") & striExpr("gh") <> "cdefgh" or
                  ""  & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "cdefgh" or
-        striExpr("") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "cdefgh" or
-                 "ab"  &          ""  &          ""  &          ""  <> "ab" or
+        striExpr("") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "cdefgh" then
+      writeln(" ***** STRING & STRING does not work correctly. (4)");
+      okay := FALSE;
+    end if;
+
+    if           "ab"  &          ""  &          ""  &          ""  <> "ab" or
         striExpr("ab") &          ""  &          ""  &          ""  <> "ab" or
                  "ab"  & striExpr("") &          ""  &          ""  <> "ab" or
         striExpr("ab") & striExpr("") &          ""  &          ""  <> "ab" or
@@ -12301,7 +12315,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" then
-      writeln(" ***** STRING & STRING does not work correctly. (4)");
+      writeln(" ***** STRING & STRING does not work correctly. (5)");
       okay := FALSE;
     end if;
 
@@ -12337,7 +12351,7 @@ const func boolean: check_string_concat_1 is func
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" then
-      writeln(" ***** STRING & STRING does not work correctly. (5)");
+      writeln(" ***** STRING & STRING does not work correctly. (6)");
       okay := FALSE;
     end if;
   end func;
@@ -12411,7 +12425,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & striExpr("ef")) <> "abcdef" or
                  "ab"  & (striExpr("cd") & striExpr("ef")) <> "abcdef" or
         striExpr("ab") & (striExpr("cd") & striExpr("ef")) <> "abcdef" then
-      writeln(" ***** STRING & STRING does not work correctly. (6)");
+      writeln(" ***** STRING & STRING does not work correctly. (7)");
       okay := FALSE;
     end if;
 
@@ -12542,8 +12556,12 @@ const func boolean: check_string_concat_2 is func
                  ""  & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
         striExpr("") & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
                  ""  & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
-        striExpr("") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
-                 "ab"  & (         ""  & (         ""  &          "" )) <> "ab" or
+        striExpr("") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" then
+      writeln(" ***** STRING & STRING does not work correctly. (8)");
+      okay := FALSE;
+    end if;
+
+    if           "ab"  & (         ""  & (         ""  &          "" )) <> "ab" or
         striExpr("ab") & (         ""  & (         ""  &          "" )) <> "ab" or
                  "ab"  & (striExpr("") & (         ""  &          "" )) <> "ab" or
         striExpr("ab") & (striExpr("") & (         ""  &          "" )) <> "ab" or
@@ -12671,7 +12689,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
                  "ab"  & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
         striExpr("ab") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" then
-      writeln(" ***** STRING & STRING does not work correctly. (7)");
+      writeln(" ***** STRING & STRING does not work correctly. (9)");
       okay := FALSE;
     end if;
 
@@ -12707,7 +12725,7 @@ const func boolean: check_string_concat_2 is func
         striExpr("ab") & (         "cd"  & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
                  "ab"  & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
         striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" then
-      writeln(" ***** STRING & STRING does not work correctly. (8)");
+      writeln(" ***** STRING & STRING does not work correctly. (10)");
       okay := FALSE;
     end if;
   end func;
@@ -12757,6 +12775,26 @@ const proc: check_string_concat is func
         "abcdefghi" & "j" <> "abcdefghij" or
         "abcdefghij" & "" <> "abcdefghij" then
       writeln(" ***** STRING & STRING does not work correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if           ""  &          ""  <> "" or
+        striExpr("") &          ""  <> "" or
+                 ""  & striExpr("") <> "" or
+        striExpr("") & striExpr("") <> "" or
+                 ""  &          "cd"  <> "cd" or
+        striExpr("") &          "cd"  <> "cd" or
+                 ""  & striExpr("cd") <> "cd" or
+        striExpr("") & striExpr("cd") <> "cd" or
+                 "ab"  &          ""  <> "ab" or
+        striExpr("ab") &          ""  <> "ab" or
+                 "ab"  & striExpr("") <> "ab" or
+        striExpr("ab") & striExpr("") <> "ab" or
+                 "ab"  &          "cd"  <> "abcd" or
+        striExpr("ab") &          "cd"  <> "abcd" or
+                 "ab"  & striExpr("cd") <> "abcd" or
+        striExpr("ab") & striExpr("cd") <> "abcd" then
+      writeln(" ***** STRING & STRING does not work correctly. (2)");
       okay := FALSE;
     end if;
 
