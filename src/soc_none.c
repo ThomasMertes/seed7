@@ -118,10 +118,55 @@ void socConnect (const const_socketType aSocket,
 
 
 
+void socCpy (socketType *const dest, const socketType source)
+
+  { /* socCpy */
+    logError(printf("socGetLocalAddr: No socket support.\n"););
+    raise_error(FILE_ERROR);
+  } /* socCpy */
+
+
+
+void socCpyGeneric (genericType *const dest, const genericType source)
+
+  { /* socCpyGeneric */
+    logError(printf("socGetLocalAddr: No socket support.\n"););
+    raise_error(FILE_ERROR);
+  } /* socCpyGeneric */
+
+
+
+socketType socCreate (const socketType source)
+
+  { /* socCreate */
+    logError(printf("socGetLocalAddr: No socket support.\n"););
+    raise_error(FILE_ERROR);
+    return NULL;
+  } /* socCreate */
+
+
+
+genericType socCreateGeneric (const genericType from_value)
+
+  { /* socCreateGeneric */
+    logError(printf("socGetLocalAddr: No socket support.\n"););
+    raise_error(FILE_ERROR);
+    return 0;
+  } /* socCreateGeneric */
+
+
+
 void socDestr (const socketType oldSocket)
 
   { /* socDestr */
   } /* socDestr */
+
+
+
+void socDestrGeneric (const genericType old_value)
+
+  { /* socDestrGeneric */
+  } /* socDestrGeneric */
 
 
 
@@ -252,6 +297,16 @@ void socListen (const const_socketType listenerSocket, intType backlog)
     logError(printf("socListen: No socket support.\n"););
     raise_error(FILE_ERROR);
   } /* socListen */
+
+
+
+intType socOrd (const const_socketType aSocket)
+
+  { /* socOrd */
+    logError(printf("socOrd: No socket support.\n"););
+    raise_error(FILE_ERROR);
+    return 0;
+  } /* socOrd */
 
 
 
