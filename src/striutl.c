@@ -2134,7 +2134,8 @@ striType copy_stri (const const_striType source)
     if (likely(ALLOC_STRI_SIZE_OK(result, new_size))) {
       result->size = new_size;
       if (new_size != 0) {
-        memcpy(result->mem, source->mem, new_size * sizeof(strElemType));
+        memcpy(result->mem, source->mem,
+               new_size * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;
@@ -3615,8 +3616,9 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
             } /* while */
             if (inPos == outPos || result->mem[inPos] != '"') {
               countBackslash /= 2;
-              memcpy(&result->mem[inPos - countBackslash], &result->mem[inPos],
-                     (outPos - inPos) * sizeof(strElemType));
+              memmove(&result->mem[inPos - countBackslash],
+                      &result->mem[inPos],
+                      (outPos - inPos) * sizeof(strElemType));
               inPos -= countBackslash;
               outPos -= countBackslash;
             } /* if */
