@@ -3477,7 +3477,8 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
         } /* switch */
       } /* for */
       if (quotePath) {
-        memmove(&result->mem[1], result->mem, sizeof(os_charType) * outPos);
+        memmove(&result->mem[1], result->mem,
+                outPos * sizeof(strElemType));
         result->mem[0] = '\"';
         result->mem[outPos + 1] = '\"';
         outPos += 2;
