@@ -3531,9 +3531,9 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
  *  the backslashes must be escaped as well. This leads to 2*n + 1
  *  backslashes followed by a double quote. There can be also 2*n
  *  backslashes followed by a double quote. This means that there
- *  are n backslashes and a quoted part ends. Aside from these
- *  cases backslashes and other characters are not escaped. The
- *  function createCommandLine() processes all shell parameters
+ *  are n backslashes and a quoted part starts or ends. Aside from
+ *  these cases backslashes and other characters are not escaped.
+ *  The function createCommandLine() processes all shell parameters
  *  with escapeParameter(). In createCommandLine() escaped
  *  parameters are joined to a space separated list of parameters.
  *  @param err_info Unchanged if the function succeeds, and
