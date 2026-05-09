@@ -3444,73 +3444,57 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
   {
     /* A shell parameter might start and end with quote ("): */
     const memSizeType numOfQuotes = 2;
-    memSizeType inPos;
-    memSizeType outPos;
+    memSizeType pos;
     boolType quotePath = FALSE;
-    striType resized_result;
     striType result;
 
   /* escapeCommand */
     logFunction(printf("escapeCommand(\"%s\")\n",
                        striAsUnquotedCStri(stri)););
-    if (unlikely(stri->size > MAX_STRI_LEN - numOfQuotes ||
-                 !ALLOC_STRI_SIZE_OK(result, stri->size + numOfQuotes))) {
+    for (pos = 0; pos < stri->size; pos++) {
+      switch (stri->mem[pos]) {
+        case ' ':  case '%':  case '&':  case '\'': case '(':
+        case ')':  case ',':  case ';':  case '=':  case '^':
+        case '~':  case 160:
+          quotePath = TRUE;
+          break;
+        case ':':
+          if (likely(pos == 1 &&
+                     stri->mem[0] >= 'a' && stri->mem[0] <= 'z')) {
+            /* After the drive letter a colon is allowed. */
+          } else {
+            *err_info = RANGE_ERROR;
+          } /* if */
+          break;
+        case '\"': case '*':  case '<':  case '>':  case '?':
+        case '|':  case '\0': case '\n': case '\r':
+          *err_info = RANGE_ERROR;
+          break;
+      } /* switch */
+    } /* for */
+    if (unlikely(*err_info != OKAY_NO_ERROR)) {
+      result = NULL;
+    } else if (quotePath) {
+      if (unlikely(stri->size > MAX_STRI_LEN - numOfQuotes ||
+                   !ALLOC_STRI_SIZE_OK(result,
+                                       stri->size + numOfQuotes))) {
+        *err_info = MEMORY_ERROR;
+        result = NULL;
+      } else {
+        result->size = stri->size + numOfQuotes;
+        result->mem[0] = '\"';
+        memcpy(&result->mem[1], stri->mem,
+               stri->size * sizeof(strElemType));
+        result->mem[stri->size + 1] = '\"';
+      } /* if */
+    } else if (unlikely(stri->size > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, stri->size))) {
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {
-      for (inPos = 0, outPos = 0; inPos < stri->size; inPos++, outPos++) {
-        switch (stri->mem[inPos]) {
-          case ' ':  case '%':  case '&':  case '\'': case '(':
-          case ')':  case ',':  case ';':  case '=':  case '^':
-          case '~':  case 160:
-            quotePath = TRUE;
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-          case ':':
-            if (likely(inPos == 1 &&
-                       stri->mem[0] >= 'a' && stri->mem[0] <= 'z')) {
-              /* After the drive letter a colon is allowed. */
-              result->mem[outPos] = stri->mem[inPos];
-            } else {
-              *err_info = RANGE_ERROR;
-            } /* if */
-            break;
-          case '\"': case '*':  case '<':  case '>':  case '?':
-          case '|':  case '\0': case '\n': case '\r':
-            *err_info = RANGE_ERROR;
-            break;
-#if PATH_DELIMITER != '/'
-          case '/':
-            result->mem[outPos] = PATH_DELIMITER;
-            break;
-#endif
-          default:
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-        } /* switch */
-      } /* for */
-      if (quotePath) {
-        memmove(&result->mem[1], result->mem,
-                outPos * sizeof(strElemType));
-        result->mem[0] = '\"';
-        result->mem[outPos + 1] = '\"';
-        outPos += 2;
-      } /* if */
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
-        FREE_STRI2(result, stri->size + numOfQuotes);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
-            stri->size + numOfQuotes, outPos);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI2(result, stri->size + numOfQuotes);
-          *err_info = MEMORY_ERROR;
-          result = NULL;
-        } else {
-          result = resized_result;
-          result->size = outPos;
-        } /* if */
-      } /* if */
+      result->size = stri->size;
+      memcpy(result->mem, stri->mem,
+             stri->size * sizeof(strElemType));
     } /* if */
     logFunction(printf("escapeCommand --> \"%s\"\n",
                        striAsUnquotedCStri(result)););
