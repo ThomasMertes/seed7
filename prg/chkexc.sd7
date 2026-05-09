@@ -2134,10 +2134,12 @@ const proc: check_file is func
     end block;
 
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
     repeat
-      test_file_name8 := homeDir <& "/tmp_test_file8_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file8";
     until fileType(test_file_name8) = FILE_ABSENT;
 
     aFile := open(test_file_name, "w");
