@@ -1353,8 +1353,10 @@ static intType getFileTypeSL (const const_striType filePath, errInfoType *err_in
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       saved_errno = errno;
-      logMessage(printf("lstat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
-                        os_path, stat_result, saved_errno););
+      logMessage(printf("lstat(\"" FMT_S_OS "\") returns: %d,\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, stat_result,
+                        saved_errno, strerror(saved_errno)););
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -3318,8 +3320,10 @@ intType cmdFileType (const const_striType filePath)
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
-      logMessage(printf("stat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
-                        os_path, stat_result, saved_errno););
+      logMessage(printf("stat(\"" FMT_S_OS "\") returns: %d,\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, stat_result,
+                        saved_errno, strerror(saved_errno)););
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
