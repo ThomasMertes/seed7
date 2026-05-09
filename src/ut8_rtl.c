@@ -815,7 +815,7 @@ void ut8Seek (fileType aFile, intType position)
     int seekCorrection;
 
   /* ut8Seek */
-    logFunction(printf("ut8Seek(%s%d, " FMT_D ")\n",
+    logFunction(printf("ut8Seek(" FMT_U_MEM " %s%d, " FMT_D ")\n",
                        aFile == NULL ? "NULL " : "",
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        position););
@@ -843,6 +843,14 @@ void ut8Seek (fileType aFile, intType position)
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
+#endif
+#if FSEEK_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPipe)) {
+      logError(printf("ut8Seek(" FMT_U_MEM " %d, " FMT_D "): "
+                      "Attempt to set the current position of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile), position););
+      raise_error(FILE_ERROR);
 #endif
     } else if (unlikely(offsetSeek(cFile, (os_off_t) (position - 1), SEEK_SET) != 0)) {
       logError(printf("ut8Seek(%d, " FMT_D "): "
