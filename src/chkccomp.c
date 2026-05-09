@@ -2052,6 +2052,15 @@ static void checkPopen (FILE *versionFile)
                       "{FILE *aFile; aFile=%s(\""
                       LIST_DIRECTORY_CONTENTS
                       "\", \"r\");\n"
+                      "printf(\"%%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
+                      "return 0;}\n", popen);
+      if (assertCompAndLnk(buffer)) {
+        fprintf(versionFile, "#define FSEEK_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"r\");\n"
                       "printf(\"%%d\\n\", ftell(aFile) != -1); return 0;}\n", popen);
       if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define FTELL_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
