@@ -3265,8 +3265,13 @@ os_striType temp_name_in_dir (const const_os_striType path)
 
 #ifdef ESCAPE_SHELL_COMMANDS
 /**
- *  Return a string to be useable as command for system() and popen().
- *  Add escapes to a command for system() and popen().
+ *  Return a string to be usable as command for system() and popen().
+ *  The function adds escape characters to a string. The result is
+ *  usable as shell command for the functions system() and popen().
+ *  Characters are escaped by preceding them with a backslash (\).
+ *  Null bytes and newlines and are not allowed in shell commands.
+ *  The function createCommandLine() processes the shell command
+ *  with escapeCommand().
  *  @param err_info Unchanged if the function succeeds, and
  *                  MEMORY_ERROR if a memory allocation failed, and
  *                  RANGE_ERROR if an illegal character is in 'stri'.
@@ -3344,7 +3349,9 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
 /**
  *  Convert a string, such that it can be used as shell parameter.
  *  The function adds escape characters to a string. The result is
- *  useable as shell parameter for the functions system() and popen().
+ *  usable as shell parameter for the functions system() and popen().
+ *  Characters are escaped by preceding them with a backslash (\).
+ *  Null bytes and newlines and are not allowed in shell parameters.
  *  The function createCommandLine() processes all shell parameters
  *  with escapeParameter(). In createCommandLine() escaped parameters
  *  are joined to a space separated list of parameters.
@@ -3420,8 +3427,13 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
 
 
 /**
- *  Return a string to be useable as command for system() and popen().
- *  If necessary quote the command for system() and popen().
+ *  Return a string to be usable as command for system() and popen().
+ *  If necessary the whole command is quoted. The result is
+ *  usable as shell command for the functions system() and popen().
+ *  Forbidden file name characters as well as null bytes, carriage
+ *  returns and newlines and are not allowed in shell commands.
+ *  The function createCommandLine() processes the shell command
+ *  with escapeCommand().
  *  @param err_info Unchanged if the function succeeds, and
  *                  MEMORY_ERROR if a memory allocation failed, and
  *                  RANGE_ERROR if an illegal character is in 'stri'.
@@ -3511,10 +3523,19 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
  *  Convert a string, such that it can be used as shell parameter.
  *  The function adds escape characters or quotations to a string.
  *  The result is useable as shell parameter for the functions
- *  system() and popen(). The function createCommandLine() processes
- *  all shell parameters with escapeParameter(). In createCommandLine()
- *  escaped parameters are joined to a space separated list of
- *  parameters.
+ *  system() and popen(). The result of escapeParameter() can
+ *  consist of quoted and unquoted parts. Quoted parts are enclosed
+ *  in double quotes. Some characters are only allowed in quoted
+ *  parts. Double quotes themselves are escaped with a backslash.
+ *  If the double quote is preceded by one or more backslashes
+ *  the backslashes must be escaped as well. This leads to 2*n + 1
+ *  backslashes followed by a double quote. There can be also 2*n
+ *  backslashes followed by a double quote. This means that there
+ *  are n backslashes and a quoted part ends. Aside from these
+ *  cases backslashes and other characters are not escaped. The
+ *  function createCommandLine() processes all shell parameters
+ *  with escapeParameter(). In createCommandLine() escaped
+ *  parameters are joined to a space separated list of parameters.
  *  @param err_info Unchanged if the function succeeds, and
  *                  MEMORY_ERROR if a memory allocation failed, and
  *                  RANGE_ERROR if an illegal character is in 'stri'.
