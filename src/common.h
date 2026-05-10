@@ -732,7 +732,7 @@ typedef struct fileStruct {
     uintType usage_count;
     boolType readingAllowed;
     boolType writingAllowed;
-    boolType isPipe;
+    boolType isPopenPipe;
   } fileRecord;
 
 typedef struct socketStruct {

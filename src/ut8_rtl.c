@@ -845,7 +845,7 @@ void ut8Seek (fileType aFile, intType position)
 #endif
 #endif
 #if FSEEK_SUCCEEDS_FOR_PIPE
-    } else if (unlikely(aFile->isPipe)) {
+    } else if (unlikely(aFile->isPopenPipe)) {
       logError(printf("ut8Seek(" FMT_U_MEM " %d, " FMT_D "): "
                       "Attempt to set the current position of a pipe.\n",
                       (memSizeType) aFile,

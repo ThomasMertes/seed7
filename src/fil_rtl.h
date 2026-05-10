@@ -45,13 +45,13 @@ EXTERN fileRecord stderrFileRecord;
     (aFile)->usage_count = 1; \
     (aFile)->readingAllowed = (readingOkay); \
     (aFile)->writingAllowed = (writingOkay); \
-    (aFile)->isPipe = FALSE;
+    (aFile)->isPopenPipe = FALSE;
 
-#define initPipeType(aFile, readingOkay, writingOkay) \
+#define initPopenPipeType(aFile, readingOkay, writingOkay) \
     (aFile)->usage_count = 1; \
     (aFile)->readingAllowed = (readingOkay); \
     (aFile)->writingAllowed = (writingOkay); \
-    (aFile)->isPipe = TRUE;
+    (aFile)->isPopenPipe = TRUE;
 
 int offsetSeek (cFileType aFile, const os_off_t anOffset,
                 const int origin);
