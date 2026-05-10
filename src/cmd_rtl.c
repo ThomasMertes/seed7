@@ -1939,7 +1939,7 @@ static int systemForNodeJs (const char *command)
 
 
 
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
 static boolType isShortFileName (strElemType *fileName,
     memSizeType sourceLength)
 
@@ -2232,7 +2232,7 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '/';
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
               mapLongFileNamesToShort(result, 2);
 #endif
             } /* if */
@@ -2253,7 +2253,7 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[2] = '/';
               memcpy(&result->mem[3], &standardPath->mem[3],
                      (standardPath->size - 3) * sizeof(strElemType));
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
               mapLongFileNamesToShort(result, 2);
 #endif
             } /* if */
@@ -2271,7 +2271,7 @@ static striType toOsPath (const const_striType standardPath,
         } else {
           result->size = standardPath->size;
           memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
           mapLongFileNamesToShort(result, 0);
 #endif
         } /* if */

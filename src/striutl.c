@@ -2606,7 +2606,7 @@ striType cp_from_os_path_buffer (const_os_striType os_path,
 
 
 
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
 static boolType isShortFileName (os_striType fileName)
 
   {
@@ -3160,7 +3160,7 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
       } /* if */
 #endif
     } /* if */
-#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+#if !LONG_FILE_NAMES
     if (result != NULL) {
       mapLongFileNamesToShort(result);
     } /* if */

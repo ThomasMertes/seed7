@@ -11589,6 +11589,30 @@ int main (int argc, char **argv)
     versionFile = openVersionFile(versionFileName);
     makeDirDefinition = defineMakeDir();
     removeDirDefinition = defineRemoveDir();
+    if (assertCompAndLnk("#include <stdio.h>\n"
+                         "#define name1 \"LongFileA.txt\"\n"
+                         "#define name2 \"LongFileB.txt\"\n"
+                         "int main (int argc, char *argv[]) {\n"
+                         "  FILE *file1;\n"
+                         "  FILE *file2;\n"
+                         "  int ch = ' ';\n"
+                         "  if ((file1 = fopen(name1, \"w\")) != NULL) {\n"
+                         "    fputs(\"A\", file1);\n"
+                         "    fclose(file1);\n"
+                         "    if ((file2 = fopen(name2, \"w\")) != NULL) {\n"
+                         "      fputs(\"B\", file2);\n"
+                         "      fclose(file2);\n"
+                         "      if ((file1 = fopen(name1, \"r\")) != NULL) {\n"
+                         "        ch = fgetc(file1);\n"
+                         "        fclose(file1);\n"
+                         "  } } }\n"
+                         "  remove(name1);\n"
+                         "  remove(name2);\n"
+                         "  printf(\"%d\\n\", ch == 'A');\n"
+                         "  return 0;}\n")) {
+      fprintf(versionFile, "#define LONG_FILE_NAMES %d\n",
+              doTest() == 1);
+    } /* if */
     determineOsFunctions(versionFile);
     checkPopen(versionFile);
     checkSystemResult(versionFile);

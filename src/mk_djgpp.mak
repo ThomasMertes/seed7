@@ -220,7 +220,6 @@ settings.h:
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> settings.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> settings.h
 	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> settings.h
-	$(ECHO) "#define MAP_LONG_FILE_NAMES_TO_SHORT" >> settings.h
 	$(ECHO) "#define USE_CONSOLE_FOR_PROT_CSTRI" >> settings.h
 	$(ECHO) "#define LIBRARY_FILE_EXTENSION \".a\"" >> settings.h
 	$(ECHO) "#define CALL_C_COMPILER_FROM_SHELL 1" >> settings.h

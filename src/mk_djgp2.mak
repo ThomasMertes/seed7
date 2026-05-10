@@ -213,7 +213,6 @@ settings.h:
 	echo #define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo #define AWAIT_WITH_SELECT >> settings.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
-	echo #define MAP_LONG_FILE_NAMES_TO_SHORT >> settings.h
 	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
 	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> settings.h
