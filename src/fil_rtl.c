@@ -1108,8 +1108,8 @@ void filClose (const fileType aFile)
       } else {
         aFile->cFile = NULL;
       } /* if */
-    } else {
 #endif
+    } else {
 #if FCLOSE_FAILS_AFTER_PREVIOUS_ERROR
       clearerr(aFile->cFile);
 #endif
@@ -1125,9 +1125,7 @@ void filClose (const fileType aFile)
       } else {
         aFile->cFile = NULL;
       } /* if */
-#if HAS_POPEN
     } /* if */
-#endif
     logFunction(printf("filClose(" FMT_U_MEM " %d"
                        " (usage=" FMT_U "%s)) -->\n",
                        (memSizeType) aFile, safe_fileno(aFile->cFile),
