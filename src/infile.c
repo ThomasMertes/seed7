@@ -238,6 +238,9 @@ boolType openInfile (const_striType sourceFileName,
                       striAsUnquotedCStri(sourceFileName),
                       path_info, *err_info););
     } else {
+      logMessage(printf("openInfile: "
+                        "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                        os_path, os_mode_rb););
       in_fil = os_fopen(os_path, os_mode_rb);
       if (unlikely(in_fil == NULL)) {
         logError(printf("openInfile: "
