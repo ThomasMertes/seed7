@@ -3536,6 +3536,7 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
     memSizeType outPos;
     boolType quotation_mode = FALSE;
     boolType percent_mode = FALSE;
+    boolType exclamation_mode = FALSE;
     boolType in_escaped_quotation = FALSE;
     memSizeType countBackslash;
     striType resized_result;
@@ -3559,6 +3560,65 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
               outPos++;
             } /* if */
             result->mem[outPos] = stri->mem[inPos];
+            break;
+          case '!':
+            /* Assure that everything between two ! markers is   */
+            /* enclosed in double quotes ("). This prevents that */
+            /* cmd.exe does a delayed expansion of a possible    */
+            /* existing environment variable.                    */
+            if (exclamation_mode) {
+              /* Assure that the end of a possible environment   */
+              /* variable name is followed by double quote (")   */
+              /* before the exclamation mark (!) is added.       */
+              switch (stri->mem[inPos - 1]) {
+                case '\t': case '\f': case ' ':  case '*':  case ',':
+                case ';':  case '=':  case '~':  case 160:
+                case '&':  case '<':  case '>':  case '^':  case '|':
+                case '\"': case '\\':
+                  if (quotation_mode) {
+                    quotation_mode = FALSE;
+                    result->mem[outPos] = '"';
+                    outPos++;
+                  } /* if */
+                  break;
+                default:
+                  if (!quotation_mode) {
+                    quotation_mode = TRUE;
+                    result->mem[outPos] = '"';
+                    outPos++;
+                  } /* if */
+                  break;
+              } /* switch */
+              exclamation_mode = FALSE;
+            } else if (inPos + 1 < stri->size) {
+              /* Assure that the exclamation mark (!) is         */
+              /* followed by a double quote (") before a name    */
+              /* which might specify an environment variable.    */
+              switch (stri->mem[inPos + 1]) {
+                case '\t': case '\f': case ' ':  case '*':  case ',':
+                case ';':  case '=':  case '~':  case 160:
+                case '&':  case '<':  case '>':  case '^':  case '|':
+                case '\"': case '\\':
+                  exclamation_mode = TRUE;
+                  if (quotation_mode) {
+                    quotation_mode = FALSE;
+                    result->mem[outPos] = '"';
+                    outPos++;
+                  } /* if */
+                  break;
+                case '!':
+                  break;
+                default:
+                  exclamation_mode = TRUE;
+                  if (!quotation_mode) {
+                    quotation_mode = TRUE;
+                    result->mem[outPos] = '"';
+                    outPos++;
+                  } /* if */
+                  break;
+              } /* switch */
+            } /* if */
+            result->mem[outPos] = '!';
             break;
           case '%':
             /* Assure that everything between two % markers is   */
