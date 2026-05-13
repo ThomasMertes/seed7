@@ -46,24 +46,36 @@ int main (int argc, char *argv[])
       printf("usage: sudo command [parameters]\n");
     } else {
       for (idx = 2; idx < argc; idx++) {
-        length += strlen(argv[idx]) + 1;
+        const char *p = argv[idx];
+        length += 3; /* space + 2 surrounding quotes */
+        while (*p) {
+          if (*p == '"') length++; /* backslash escape for embedded quote */
+          length++;
+          p++;
+        }
       } /* for */
       if (length > 0) {
-        length--;
+        length--; /* remove leading space */
       } /* if */
       parameters = (char *) malloc(length + 1);
       if (parameters == NULL) {
         mainResult = -1;
       } else {
-        parameters[0] = '\0';
+        char *dst = parameters;
         if (argc > 2) {
-          strcat(parameters, argv[2]);
-          for (idx = 3; idx < argc; idx++) {
-            strcat(parameters, " ");
-            strcat(parameters, argv[idx]);
+          for (idx = 2; idx < argc; idx++) {
+            const char *src = argv[idx];
+            if (idx > 2) *dst++ = ' ';
+            *dst++ = '"';
+            while (*src) {
+              if (*src == '"') *dst++ = '\\';
+              *dst++ = *src++;
+            } /* while */
+            *dst++ = '"';
           } /* for */
         } /* if */
-        printf("%s %s\n", argv[1], parameters);
+        *dst = '\0';
+        fputs(argv[1], stdout); fputs(" ", stdout); puts(parameters);
         /* The result type of ShellExecuteA() is an HINSTANCE for   */
         /* backward compatibility with 16-bit Windows applications. */
         /* It is not a true HINSTANCE, however. It can be cast only */
