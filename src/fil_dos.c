@@ -172,6 +172,9 @@ void setupFiles (void)
     struct termios term_descr;
 
   /* setupFiles */
+    logFunction(printf("setupFiles: stdin=%d, stdout=%d, stderr=%d)\n",
+                       os_fileno(stdin), os_fileno(stdout),
+                       os_fileno(stderr)););
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;
@@ -197,4 +200,5 @@ void setupFiles (void)
     if (!os_isatty(STDERR_FILENO)) {
       setmode(STDERR_FILENO, O_BINARY);
     } /* if */
+    logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */
