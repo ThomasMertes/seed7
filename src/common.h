@@ -836,7 +836,7 @@ typedef mpz_srcptr  const_bigIntType;
 /* The logging infrastructure uses the following definitions:
      #define LOG_FUNCTIONS 0
      #define VERBOSE_EXCEPTIONS 0
-   These values must be definied at the beginning of a source file.
+   These values must be defined at the beginning of a source file.
    Possible values are:
      0 The logging is deactivated
      1 The logging is activated
