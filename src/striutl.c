@@ -3444,22 +3444,29 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
   {
     /* A shell command might start and end with quote ("): */
     const memSizeType numOfQuotes = 2;
-    memSizeType pos;
+    /* Maximum escape sequence length in shell command: */
+    const memSizeType escSequenceMax = 4;
+    memSizeType inPos;
+    memSizeType outPos;
     boolType quotePath = FALSE;
+    boolType quotation_mode = FALSE;
+    boolType percent_mode = FALSE;
+    boolType exclamation_mode = FALSE;
+    striType resized_result;
     striType result;
 
   /* escapeCommand */
     logFunction(printf("escapeCommand(\"%s\")\n",
                        striAsUnquotedCStri(stri)););
-    for (pos = 0; pos < stri->size; pos++) {
-      switch (stri->mem[pos]) {
-        case ' ':  case '%':  case '&':  case '\'': case '(':
-        case ')':  case ',':  case ';':  case '=':  case '^':
-        case '~':  case 160:
+    for (inPos = 0; inPos < stri->size; inPos++) {
+      switch (stri->mem[inPos]) {
+        case '\t': case '\f': case ' ':  case '!':  case '%':
+        case '&':  case '\'': case '(':  case ')':  case ',':
+        case ';':  case '=':  case '^':  case '~':  case 160:
           quotePath = TRUE;
           break;
         case ':':
-          if (likely(pos == 1 &&
+          if (likely(inPos == 1 &&
                      stri->mem[0] >= 'a' && stri->mem[0] <= 'z')) {
             /* After the drive letter a colon is allowed. */
           } else {
@@ -3478,17 +3485,166 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
     if (unlikely(*err_info != OKAY_NO_ERROR)) {
       result = NULL;
     } else if (quotePath) {
-      if (unlikely(stri->size > MAX_STRI_LEN - numOfQuotes ||
-                   !ALLOC_STRI_SIZE_OK(result,
-                                       stri->size + numOfQuotes))) {
+      if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
+                   !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
         *err_info = MEMORY_ERROR;
         result = NULL;
       } else {
-        result->size = stri->size + numOfQuotes;
-        result->mem[0] = '\"';
-        memcpy(&result->mem[1], stri->mem,
-               stri->size * sizeof(strElemType));
-        result->mem[stri->size + 1] = '\"';
+        for (inPos = 0, outPos = 0; inPos < stri->size; inPos++, outPos++) {
+          switch (stri->mem[inPos]) {
+            case '\t': case '\f': case ' ':  case '&':  case '\'':
+            case '(':  case ')':  case ',':  case ';':  case '=':
+            case '^':  case '~':  case 160:
+              if (!quotation_mode) {
+                quotation_mode = TRUE;
+                result->mem[outPos] = '"';
+                outPos++;
+              } /* if */
+              result->mem[outPos] = stri->mem[inPos];
+              break;
+            case '!':
+              /* Assure that everything between two ! markers is   */
+              /* enclosed in double quotes ("). This prevents that */
+              /* cmd.exe does a delayed expansion of a possible    */
+              /* existing environment variable.                    */
+              if (exclamation_mode) {
+                /* Assure that the end of a possible environment   */
+                /* variable name is followed by double quote (")   */
+                /* before the exclamation mark (!) is added.       */
+                switch (stri->mem[inPos - 1]) {
+                  case '\t': case '\f': case ' ':  case '&':  case '\'':
+                  case '(':  case ')':  case ',':  case ';':  case '=':
+                  case '^':  case '~':  case 160:
+                    if (quotation_mode) {
+                      quotation_mode = FALSE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                  default:
+                    if (!quotation_mode) {
+                      quotation_mode = TRUE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                } /* switch */
+                exclamation_mode = FALSE;
+              } else if (inPos + 1 < stri->size) {
+                /* Assure that the exclamation mark (!) is         */
+                /* followed by a double quote (") before a name    */
+                /* which might specify an environment variable.    */
+                switch (stri->mem[inPos + 1]) {
+                  case '\t': case '\f': case ' ':  case '&':  case '\'':
+                  case '(':  case ')':  case ',':  case ';':  case '=':
+                  case '^':  case '~':  case 160:
+                    exclamation_mode = TRUE;
+                    if (quotation_mode) {
+                      quotation_mode = FALSE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                  case '!':
+                    break;
+                  default:
+                    exclamation_mode = TRUE;
+                    if (!quotation_mode) {
+                      quotation_mode = TRUE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                } /* switch */
+              } /* if */
+              result->mem[outPos] = '!';
+              break;
+            case '%':
+              /* Assure that everything between two % markers is   */
+              /* enclosed in double quotes ("). This prevents      */
+              /* cmd.exe and command.com from replacing a possible */
+              /* existing environment variable with its value.     */
+              if (percent_mode) {
+                /* Assure that the end of a possible environment   */
+                /* variable name is followed by double quote (")   */
+                /* before the percent sign (%) is added.           */
+                switch (stri->mem[inPos - 1]) {
+                  case '\t': case '\f': case ' ':  case '&':  case '\'':
+                  case '(':  case ')':  case ',':  case ';':  case '=':
+                  case '^':  case '~':  case 160:
+                    if (quotation_mode) {
+                      quotation_mode = FALSE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                  default:
+                    if (!quotation_mode) {
+                      quotation_mode = TRUE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                } /* switch */
+                percent_mode = FALSE;
+              } else if (inPos + 1 < stri->size) {
+                /* Assure that the percent sign (%) is followed by */
+                /* a double quote (") before a name which might    */
+                /* specify an environment variable.                */
+                switch (stri->mem[inPos + 1]) {
+                  case '\t': case '\f': case ' ':  case '&':  case '\'':
+                  case '(':  case ')':  case ',':  case ';':  case '=':
+                  case '^':  case '~':  case 160:
+                    percent_mode = TRUE;
+                    if (quotation_mode) {
+                      quotation_mode = FALSE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                  case '%':
+                    break;
+                  default:
+                    percent_mode = TRUE;
+                    if (!quotation_mode) {
+                      quotation_mode = TRUE;
+                      result->mem[outPos] = '"';
+                      outPos++;
+                    } /* if */
+                    break;
+                } /* switch */
+              } /* if */
+              result->mem[outPos] = '%';
+              break;
+            default:
+              if (quotation_mode) {
+                quotation_mode = FALSE;
+                result->mem[outPos] = '"';
+                outPos++;
+              } /* if */
+              result->mem[outPos] = stri->mem[inPos];
+              break;
+          } /* switch */
+        } /* for */
+        if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
+          result = NULL;
+        } else {
+          if (quotation_mode) {
+            result->mem[outPos] = '"';
+            outPos++;
+          } /* if */
+          REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
+              escSequenceMax * stri->size + numOfQuotes, outPos);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
+            *err_info = MEMORY_ERROR;
+            result = NULL;
+          } else {
+            result = resized_result;
+            result->size = outPos;
+          } /* if */
+        } /* if */
       } /* if */
     } else if (unlikely(stri->size > MAX_STRI_LEN ||
                         !ALLOC_STRI_SIZE_OK(result, stri->size))) {
