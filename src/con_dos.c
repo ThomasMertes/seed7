@@ -280,11 +280,15 @@ void conSetCursor (intType line, intType column)
     union REGS r;
 
   /* conSetCursor */
-    r.h.ah = (unsigned char) 2; /* cursor addressing function */
-    r.h.dh = (unsigned char) (line - 1);
-    r.h.dl = (unsigned char) (column - 1);
-    r.h.bh = (unsigned char) 0; /* video page */
-    int86(0x10, &r, &r);
+    if (line <= 0 || column <= 0) {
+      raise_error(RANGE_ERROR);
+    } else if (line <= UINT8TYPE_MAX && column <= UINT8TYPE_MAX) {
+      r.h.ah = (unsigned char) 2; /* cursor addressing function */
+      r.h.dh = (unsigned char) (line - 1);
+      r.h.dl = (unsigned char) (column - 1);
+      r.h.bh = (unsigned char) 0; /* video page */
+      int86(0x10, &r, &r);
+    } /* if */
   } /* conSetCursor */
 
 
