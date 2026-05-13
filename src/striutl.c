@@ -3280,7 +3280,7 @@ os_striType temp_name_in_dir (const const_os_striType path)
 striType escapeCommand (const const_striType stri, errInfoType *err_info)
 
   {
-    /* Maximum escape sequence length in shell parameter: */
+    /* Maximum escape sequence length in shell command: */
     const memSizeType escSequenceMax = STRLEN("\\=");
     memSizeType inPos;
     memSizeType outPos;
@@ -3308,7 +3308,7 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
             result->mem[outPos] = stri->mem[inPos];
             break;
           case '\0': case '\n':
-            logError(printf("shellEscape: "
+            logError(printf("escapeCommand: "
                             "Illegal character in string ('\\" FMT_U32 ";').\n",
                             stri->mem[inPos]););
             *err_info = RANGE_ERROR;
@@ -3442,7 +3442,7 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
 striType escapeCommand (const const_striType stri, errInfoType *err_info)
 
   {
-    /* A shell parameter might start and end with quote ("): */
+    /* A shell command might start and end with quote ("): */
     const memSizeType numOfQuotes = 2;
     memSizeType pos;
     boolType quotePath = FALSE;
@@ -3468,6 +3468,9 @@ striType escapeCommand (const const_striType stri, errInfoType *err_info)
           break;
         case '\"': case '*':  case '<':  case '>':  case '?':
         case '|':  case '\0': case '\n': case '\r':
+          logError(printf("escapeCommand: "
+                          "Illegal character in string ('\\" FMT_U32 ";').\n",
+                          stri->mem[inPos]););
           *err_info = RANGE_ERROR;
           break;
       } /* switch */
