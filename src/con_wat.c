@@ -671,7 +671,8 @@ void conLeftScroll (intType startlin, intType startcol,
     if (startlin <= 0 || startcol <= 0 ||
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
-    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
       num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol + numCols - 1];
@@ -707,7 +708,8 @@ void conRightScroll (intType startlin, intType startcol,
     if (startlin <= 0 || startcol <= 0 ||
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
-    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
       num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
