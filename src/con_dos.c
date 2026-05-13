@@ -293,6 +293,38 @@ void conSetCursor (intType line, intType column)
 
 
 
+intType conColumn (void)
+
+  {
+    union REGS r;
+    intType column;
+
+  /* conColumn */
+    r.h.ah = (unsigned char) 3; /* get cursor position and shape */
+    r.h.bh = (unsigned char) 0; /* video page */
+    int86(0x10, &r, &r);
+    column = (intType) r.h.dl + 1;
+    return column;
+  } /* conColumn */
+
+
+
+intType conLine (void)
+
+  {
+    union REGS r;
+    intType line;
+
+  /* conLine */
+    r.h.ah = (unsigned char) 3; /* get cursor position and shape */
+    r.h.bh = (unsigned char) 0; /* video page */
+    int86(0x10, &r, &r);
+    line = (intType) r.h.dh + 1;
+    return line;
+  } /* conLine */
+
+
+
 /**
  *  This function writes the string stri to the console at the
  *  position (lin, col). The position (lin, col) must be a legal
@@ -556,7 +588,7 @@ int conOpen (void)
     cursor_endline = r.h.cl;
     conCursor(FALSE);
     console_initialized = TRUE;
-    atexit(conShut);
+    os_atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */
