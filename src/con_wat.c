@@ -423,7 +423,7 @@ void conCursor (boolType on)
 
 
 /**
- *  Moves the system curser to the given place of the console.
+ *  Moves the system cursor to the given place of the console.
  *  If no system cursor exists this function can be replaced by
  *  a dummy function.
  */

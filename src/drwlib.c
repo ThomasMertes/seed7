@@ -1382,7 +1382,7 @@ objectType drw_set_content (listType arguments)
  *  Set the visibility of the mouse cursor in aWindow/arg_1.
  *  @param aWindow/arg_1 Window for which the mouse cursor visibility is set.
  *  @param visible/arg_2 TRUE, if the mouse cursor should be visible, or
- *                       FALSE, if the mouse curser should be invisible.
+ *                       FALSE, if the mouse cursor should be invisible.
  */
 objectType drw_set_cursor_visible (listType arguments)
 

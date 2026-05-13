@@ -2120,7 +2120,7 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
  *  Set the visibility of the mouse cursor in 'aWindow'.
  *  @param aWindow Window for which the mouse cursor visibility is set.
  *  @param visible TRUE, if the mouse cursor should be visible in 'aWindow', or
- *                 FALSE, if the mouse curser should be invisible in 'aWindow'.
+ *                 FALSE, if the mouse cursor should be invisible in 'aWindow'.
  */
 void drwSetCursorVisible (winType aWindow, boolType visible)
 
