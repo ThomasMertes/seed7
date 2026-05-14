@@ -8455,6 +8455,23 @@ static void addDynamicLibsWithRpath (const char *scopeName, int baseDirExists,
 
 
 
+static void copyWithSlashes (char *dest, const char *source)
+
+  { /* copyWithSlashes */
+    while (*source != '\0') {
+      if (*source == '\\') {
+	*dest = '/';
+      } else {
+	*dest = *source;
+      } /* if */
+      source++;
+      dest++;
+    } /* while */
+    *dest = '\0';
+  } /* copyWithSlashes */
+
+
+
 static int visualDepthOf32BitsSupported (const char *x11IncludeCommand,
     const char *includeOption, const char *systemDrawLibs)
 
@@ -9014,6 +9031,7 @@ static void determineMySqlDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char aPath[PATH_SIZE];
     char includeOption[PATH_SIZE];
@@ -9035,8 +9053,9 @@ static void determineMySqlDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+        sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
         /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
@@ -9639,6 +9658,7 @@ static void determinePostgresDefines (FILE *versionFile,
     char filePath[PATH_SIZE + 1 + PATH_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE + 5 + PATH_SIZE];
     char serverIncludeOption[PATH_SIZE + 5 + PATH_SIZE];
@@ -9674,8 +9694,9 @@ static void determinePostgresDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbVersion) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/PostgreSQL/%s", programFiles, dbVersion[dirIndex]);
+        sprintf(dbHome, "%s/PostgreSQL/%s", programPath, dbVersion[dirIndex]);
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
         } /* if */
@@ -10229,6 +10250,7 @@ static void determineFireDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE];
     const char *fireInclude = NULL;
@@ -10249,8 +10271,9 @@ static void determineFireDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+        sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
         /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
@@ -10587,6 +10610,7 @@ static void determineInformixDefines (FILE *versionFile,
     const char *informixDir = NULL;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE];
     char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
@@ -10620,8 +10644,9 @@ static void determineInformixDefines (FILE *versionFile,
         if (sizeof(char *) == 4 && programFilesX86 != NULL) {
           programFiles = programFilesX86;
         } /* if */
+        copyWithSlashes(programPath, programFiles);
         for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-          sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+          sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
           /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
           if (fileIsDir(dbHome)) {
             dbHomeExists = 1;
