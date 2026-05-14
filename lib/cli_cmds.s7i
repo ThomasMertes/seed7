@@ -28,6 +28,7 @@
 
 
 include "osfiles.s7i";
+include "process.s7i";
 include "shell.s7i";
 include "getf.s7i";
 include "wildcard.s7i";
@@ -973,7 +974,7 @@ const proc: appendToFile (in string: file_name, in string: stri) is func
   end func;
 
 
-const func integer: oneShellCommand (in string: commandWord,
+const func integer: oneExternalCommand (in string: commandPath,
     inout string: parameters) is func
   result
     var integer: returnCode is 0;
@@ -983,6 +984,8 @@ const func integer: oneShellCommand (in string: commandWord,
     var string: fileName is "";
     var boolean: doRedirect is FALSE;
     var boolean: doAppend is FALSE;
+    var string: executablePath is "";
+    var process: aProcess is process.value;
     var file: aPipe is STD_NULL;
     var string: commandOutput is "";
   begin
@@ -1013,32 +1016,59 @@ const func integer: oneShellCommand (in string: commandWord,
         doRedirect := TRUE;
       end if;
     end if;
+    executablePath := commandPath(commandPath);
     if doRedirect or doAppend then
-      # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+      # writeln("cmd: " <& literal(commandPath) <& " " <&
       #         length(parameterArray) <> 0 ? join(parameterArray, " ")
       #                                     : "");
-      aPipe := popen(convDosPath(commandWord), parameterArray, "r");
-      if aPipe <> STD_NULL then
-        commandOutput := gets(aPipe, 999999999);
-        close(aPipe);
-        if doAppend then
-          appendToFile(convDosPath(fileName), commandOutput);
+      if executablePath <> "" then
+        if succeeds(aProcess := startPipe(executablePath, parameterArray)) then
+          aPipe := childStdOut(aProcess);
+          commandOutput := gets(aPipe, 999999999);
+          waitFor(aProcess);
+          returnCode := exitValue(aProcess);
+          if doAppend then
+            appendToFile(convDosPath(fileName), commandOutput);
+          else
+            putf(convDosPath(fileName), commandOutput);
+          end if;
         else
-          putf(convDosPath(fileName), commandOutput);
+          returnCode := -1;
         end if;
       else
-        returnCode := -1;
+        aPipe := popen(commandPath, parameterArray, "r");
+        if aPipe <> STD_NULL then
+          commandOutput := gets(aPipe, 999999999);
+          close(aPipe);
+          if doAppend then
+            appendToFile(convDosPath(fileName), commandOutput);
+          else
+            putf(convDosPath(fileName), commandOutput);
+          end if;
+        else
+          returnCode := -1;
+        end if;
       end if;
     else
-      # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+      # writeln("cmd: " <& literal(commandPath) <& " " <&
       #         length(parameterArray) <> 0 ? join(parameterArray, " ")
       #                                     : "");
-      returnCode := shell(convDosPath(commandWord), parameterArray);
+      if executablePath <> "" then
+        if succeeds(aProcess := startProcess(executablePath,
+                                             parameterArray)) then
+          waitFor(aProcess);
+          returnCode := exitValue(aProcess);
+        else
+          returnCode := -1;
+        end if;
+      else
+        returnCode := shell(commandPath, parameterArray);
+      end if;
     end if;
   end func;
 
 
-const func integer: oneShellCommand (in string: commandWord,
+const func integer: oneExternalCommand (in string: commandPath,
     inout string: parameters, inout string: commandOutput) is func
   result
     var integer: returnCode is 0;
@@ -1048,6 +1078,8 @@ const func integer: oneShellCommand (in string: commandWord,
     var string: fileName is "";
     var boolean: doRedirect is FALSE;
     var boolean: doAppend is FALSE;
+    var string: executablePath is "";
+    var process: aProcess is process.value;
     var file: aPipe is STD_NULL;
   begin
     skipWhiteSpace(parameters);
@@ -1058,15 +1090,27 @@ const func integer: oneShellCommand (in string: commandWord,
       aParam := getCommandParameter(parameters);
     end while;
     skipWhiteSpace(parameters);
-    # writeln("cmd: " <& literal(convDosPath(commandWord)) <& " " <&
+    # writeln("cmd: " <& literal(commandPath) <& " " <&
     #         length(parameterArray) <> 0 ? join(parameterArray, " ")
     #                                     : "");
-    aPipe := popen(convDosPath(commandWord), parameterArray, "r");
-    if aPipe <> STD_NULL then
-      commandOutput := gets(aPipe, 999999999);
-      close(aPipe);
+    executablePath := commandPath(commandPath);
+    if executablePath <> "" then
+      if succeeds(aProcess := startPipe(executablePath, parameterArray)) then
+        aPipe := childStdOut(aProcess);
+        commandOutput := gets(aPipe, 999999999);
+        waitFor(aProcess);
+        returnCode := exitValue(aProcess);
+      else
+        returnCode := -1;
+      end if;
     else
-      returnCode := -1;
+      aPipe := popen(commandPath, parameterArray, "r");
+      if aPipe <> STD_NULL then
+        commandOutput := gets(aPipe, 999999999);
+        close(aPipe);
+      else
+        returnCode := -1;
+      end if;
     end if;
   end func;
 
@@ -1150,7 +1194,8 @@ const func integer: doOneCommand (inout string: command,
           command := "";
           commandOutput := "";
         when {"("}:
-          returnCode := doOneCommand(command, doRedirection, commandOutput, redirected);
+          returnCode := doOneCommand(command, doRedirection,
+                                     commandOutput, redirected);
         otherwise:
           if  startsWith(commandName, "echo.") or
               startsWith(commandName, "echo:") or
@@ -1159,10 +1204,12 @@ const func integer: doOneCommand (inout string: command,
             command := commandWord[6 ..] & command;
             commandOutput := doEcho(command);
           elsif doRedirection then
-            returnCode := oneShellCommand(commandWord, command);
+            returnCode := oneExternalCommand(convDosPath(commandWord),
+                                             command);
             redirected := TRUE;
           else
-            returnCode := oneShellCommand(commandWord, command, commandOutput);
+            returnCode := oneExternalCommand(convDosPath(commandWord),
+                                             command, commandOutput);
           end if;
       end case;
     end if;
