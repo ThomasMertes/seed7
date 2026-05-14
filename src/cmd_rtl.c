@@ -2181,6 +2181,9 @@ static void mapLongFileNamesToShort (striType path,
     logFunction(printf("mapLongFileNamesToShort --> \"%s\"\n",
                        striAsUnquotedCStri(path)););
   } /* mapLongFileNamesToShort */
+
+#else
+#define mapLongFileNamesToShort(path, sourceIdx)
 #endif
 
 
@@ -2232,9 +2235,7 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '/';
-#if !LONG_FILE_NAMES
               mapLongFileNamesToShort(result, 2);
-#endif
             } /* if */
           } else if (unlikely(standardPath->mem[2] != '/')) {
             /* "/cd"  cannot be mapped to a drive letter */
@@ -2253,9 +2254,7 @@ static striType toOsPath (const const_striType standardPath,
               result->mem[2] = '/';
               memcpy(&result->mem[3], &standardPath->mem[3],
                      (standardPath->size - 3) * sizeof(strElemType));
-#if !LONG_FILE_NAMES
               mapLongFileNamesToShort(result, 2);
-#endif
             } /* if */
           } /* if */
         } else {
@@ -2271,9 +2270,7 @@ static striType toOsPath (const const_striType standardPath,
         } else {
           result->size = standardPath->size;
           memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
-#if !LONG_FILE_NAMES
           mapLongFileNamesToShort(result, 0);
-#endif
         } /* if */
       });
     } /* if */
