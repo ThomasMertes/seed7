@@ -172,6 +172,47 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
 
 
 
+static os_charType *processArgument (os_striType argument, os_charType *destChar,
+    os_charType *beyondDest, errInfoType *err_info)
+
+  {
+    boolType quoteArgument = FALSE;
+    os_charType *sourceChar;
+
+  /* processArgument */
+    for (sourceChar = argument; *sourceChar != '\0'; sourceChar++) {
+      if (*sourceChar <= ' ' || *sourceChar > '~' || *sourceChar == '"') {
+        quoteArgument = TRUE;
+      } /* if */
+    } /* for */
+    if (quoteArgument) {
+      if (&destChar[2] > beyondDest) {
+        destChar = beyondDest;
+      } else {
+        *(destChar++) = ' ';
+        *(destChar++) = '"';
+      } /* if */
+      destChar = copyQuotedPart(argument, destChar, beyondDest);
+      if (destChar >= beyondDest) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        *(destChar++) = '"';
+      } /* if */
+    } else {
+      if (destChar < beyondDest) {
+        *(destChar++) = ' ';
+      } /* if */
+      for (sourceChar = argument;
+           *sourceChar != '\0' && destChar < beyondDest;
+           sourceChar++, destChar++) {
+        *destChar = *sourceChar;
+      } /* for */
+    } /* if */
+    return destChar;
+  } /* processArgument */
+
+
+
 /**
  *  Create a command line string that can be used by CreateProcessW().
  *  All parameters that contain a space or a quotation (") or a control
@@ -192,10 +233,8 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
     memSizeType striSize;
     memSizeType pos;
     os_striType argument;
-    os_charType *sourceChar;
     os_charType *destChar;
     os_charType *beyondDest;
-    boolType quoteArgument;
     os_striType command_line;
 
   /* prepareCommandLine */
@@ -241,35 +280,10 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
       for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
         argument = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
         if (argument != NULL) {
-          /* fprintf(stderr, "argument[%d]=%ls\n", pos + 1, argument); */
-          quoteArgument = FALSE;
-          for (sourceChar = argument; *sourceChar != '\0'; sourceChar++) {
-            if (*sourceChar <= ' ' || *sourceChar > '~' || *sourceChar == '"') {
-              quoteArgument = TRUE;
-            } /* if */
-          } /* for */
-          if (quoteArgument) {
-            if (&destChar[2] > beyondDest) {
-              destChar = beyondDest;
-            } else {
-              *(destChar++) = ' ';
-              *(destChar++) = '"';
-            } /* if */
-            destChar = copyQuotedPart(argument, destChar, beyondDest);
-            if (destChar >= beyondDest) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              *(destChar++) = '"';
-            } /* if */
-          } else {
-            if (destChar < beyondDest) {
-              *(destChar++) = ' ';
-            } /* if */
-            for (sourceChar = argument; *sourceChar != '\0' && destChar < beyondDest;
-                 sourceChar++, destChar++) {
-              *destChar = *sourceChar;
-            } /* for */
-          } /* if */
+          logMessage(printf("prepareCommandLine: argument[" FMT_U_MEM
+                            "]=\"" FMT_S_OS "\"\n",
+                            pos + 1, argument););
+          destChar = processArgument(argument, destChar, beyondDest, err_info);
           os_stri_free(argument);
         } /* if */
       } /* for */
