@@ -2052,7 +2052,7 @@ static void checkPopen (FILE *versionFile)
                       "{FILE *aFile; aFile=%s(\""
                       LIST_DIRECTORY_CONTENTS
                       "\", \"r\");\n"
-                      "printf(\"%%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
+                      "printf(\"%%d\\n\", fseek(aFile, 0,  SEEK_SET) == 0);\n"
                       "return 0;}\n", popen);
       if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define FSEEK_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
