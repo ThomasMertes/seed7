@@ -290,18 +290,34 @@ const func string: getCommandParameter (inout string: parameters) is func
   local
     var integer: leng is 0;
     var integer: pos is 1;
-    var char: quotation is ' ';
     var integer: quotedPos is 0;
     var string: quotedPart is "";
     var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
     while pos <= leng and parameters[pos] in parameter_char and not quoteMissing do
-      if parameters[pos] = '"' or parameters[pos] = ''' then
-        quotation := parameters[pos];
+      if parameters[pos] = '"' then
         quotedPos := succ(pos);
         quotedPart := "";
-        while quotedPos <= leng and parameters[quotedPos] <> quotation do
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          # The backslash can escape a double quote.
+          if parameters[quotedPos] = '\\' and quotedPos < leng and
+              parameters[succ(quotedPos)] = '"' then
+            incr(quotedPos);
+          end if;
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      elsif parameters[pos] = ''' then
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> ''' do
           quotedPart &:= parameters[quotedPos];
           incr(quotedPos);
         end while;
@@ -437,6 +453,11 @@ const func string: getDosCommandParameter (inout string: parameters) is func
         quotedPos := succ(pos);
         quotedPart := "";
         while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          # The backslash can escape a double quote.
+          if parameters[quotedPos] = '\\' and quotedPos < leng and
+              parameters[succ(quotedPos)] = '"' then
+            incr(quotedPos);
+          end if;
           quotedPart &:= parameters[quotedPos];
           incr(quotedPos);
         end while;
