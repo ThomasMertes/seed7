@@ -292,21 +292,36 @@ const func string: getCommandParameter (inout string: parameters) is func
     var integer: pos is 1;
     var integer: quotedPos is 0;
     var string: quotedPart is "";
+    var integer: numberOfBackslashes is 0;
     var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
-    while pos <= leng and parameters[pos] in parameter_char and not quoteMissing do
+    while pos <= leng and parameters[pos] in parameter_char and
+        not quoteMissing do
       if parameters[pos] = '"' then
         quotedPos := succ(pos);
         quotedPart := "";
         while quotedPos <= leng and parameters[quotedPos] <> '"' do
           # The backslash can escape a double quote.
-          if parameters[quotedPos] = '\\' and quotedPos < leng and
-              parameters[succ(quotedPos)] = '"' then
+          if parameters[quotedPos] = '\\' then
+            incr(quotedPos);
+            numberOfBackslashes := 1;
+            while quotedPos <= leng and parameters[quotedPos] = '\\' do
+              incr(quotedPos);
+              incr(numberOfBackslashes);
+            end while;
+            if quotedPos <= leng and parameters[quotedPos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              quotedPart &:= "\\" mult numberOfBackslashes mdiv 2;
+              quotedPart &:= '"';
+              incr(quotedPos);
+            else
+              quotedPart &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            quotedPart &:= parameters[quotedPos];
             incr(quotedPos);
           end if;
-          quotedPart &:= parameters[quotedPos];
-          incr(quotedPos);
         end while;
         if quotedPos <= leng then
           pos := succ(quotedPos);
@@ -330,12 +345,25 @@ const func string: getCommandParameter (inout string: parameters) is func
       else
         repeat
           # The backslash can escape a double quote.
-          if parameters[pos] = '\\' and pos < leng and
-              parameters[succ(pos)] = '"' then
+          if parameters[pos] = '\\' then
+            incr(pos);
+            numberOfBackslashes := 1;
+            while pos <= leng and parameters[pos] = '\\' do
+              incr(pos);
+              incr(numberOfBackslashes);
+            end while;
+            if pos <= leng and parameters[pos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              symbol &:= "\\" mult numberOfBackslashes mdiv 2;
+              symbol &:= '"';
+              incr(pos);
+            else
+              symbol &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            symbol &:= parameters[pos];
             incr(pos);
           end if;
-          symbol &:= parameters[pos];
-          incr(pos);
         until pos > leng or parameters[pos] not in parameter_char or
             parameters[pos] = '"' or parameters[pos] = ''';
       end if;
@@ -444,6 +472,7 @@ const func string: getDosCommandParameter (inout string: parameters) is func
     var integer: pos is 1;
     var integer: quotedPos is 0;
     var string: quotedPart is "";
+    var integer: numberOfBackslashes is 0;
     var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
@@ -454,12 +483,25 @@ const func string: getDosCommandParameter (inout string: parameters) is func
         quotedPart := "";
         while quotedPos <= leng and parameters[quotedPos] <> '"' do
           # The backslash can escape a double quote.
-          if parameters[quotedPos] = '\\' and quotedPos < leng and
-              parameters[succ(quotedPos)] = '"' then
+          if parameters[quotedPos] = '\\' then
+            incr(quotedPos);
+            numberOfBackslashes := 1;
+            while quotedPos <= leng and parameters[quotedPos] = '\\' do
+              incr(quotedPos);
+              incr(numberOfBackslashes);
+            end while;
+            if quotedPos <= leng and parameters[quotedPos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              quotedPart &:= "\\" mult numberOfBackslashes mdiv 2;
+              quotedPart &:= '"';
+              incr(quotedPos);
+            else
+              quotedPart &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            quotedPart &:= parameters[quotedPos];
             incr(quotedPos);
           end if;
-          quotedPart &:= parameters[quotedPos];
-          incr(quotedPos);
         end while;
         if quotedPos <= leng then
           pos := succ(quotedPos);
@@ -475,15 +517,26 @@ const func string: getDosCommandParameter (inout string: parameters) is func
             if pos <= leng then
               symbol &:= parameters[pos];
             end if;
-          else
-            # The backslash can escape a double quote.
-            if parameters[pos] = '\\' and pos < leng and
-                parameters[succ(pos)] = '"' then
+            incr(pos);
+          elsif parameters[pos] = '\\' then
+            incr(pos);
+            numberOfBackslashes := 1;
+            while pos <= leng and parameters[pos] = '\\' do
               incr(pos);
+              incr(numberOfBackslashes);
+            end while;
+            if pos <= leng and parameters[pos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              symbol &:= "\\" mult numberOfBackslashes mdiv 2;
+              symbol &:= '"';
+              incr(pos);
+            else
+              symbol &:= "\\" mult numberOfBackslashes;
             end if;
+          else
             symbol &:= parameters[pos];
+            incr(pos);
           end if;
-          incr(pos);
         until pos > leng or parameters[pos] not in dos_parameter_char or
             parameters[pos] = '"';
       end if;
@@ -1189,6 +1242,9 @@ const func integer: doOneCommand (inout string: command,
       commandName := lower(commandWord);
       # writeln("doOneCommand: " <& commandName);
       case commandName of
+        when {""}:
+          commandOutput := "";
+          returnCode := -1;
         when {"rm"}:
           doRm(command);
           commandOutput := "";
