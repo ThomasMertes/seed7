@@ -114,12 +114,12 @@ static void printParameters (const const_rtlArrayType parameters)
 
 
 /**
- *  Fill the contents of a quoted part to be used by prepareCommandLine.
+ *  Fill the contents of a quoted part to be used by processArgument().
  *  This function does not create the surrounding quotations (").
  *  A string with the backslash logic of Windows commandline parameters
  *  is produced. 2 * N backslashes followed by a quotation (") means
  *  N backslashes and the end of the parameter. Note that in this case
- *  the quotation is written by prepareCommandLine. 2 * N + 1 backslashes
+ *  the quotation is written by processArgument(). 2 * N + 1 backslashes
  *  followed by a quotation (") means N backslashes and the quotation
  *  is part of the parameter. N backslashes not followed by a quotation
  *  means just N backslashes.
