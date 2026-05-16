@@ -148,6 +148,7 @@ int main (int argc, char *argv[])
             mainResult = -1;
           } /* if */
         } /* if */
+        free(fileName);
         free(parameters);
       } /* if */
     } /* if */
