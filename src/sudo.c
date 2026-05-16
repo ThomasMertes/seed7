@@ -40,7 +40,7 @@ static size_t estimateQuotedLength (char *sourceChar)
   /* estimateQuotedLength */
     while (*sourceChar != '\0') {
       if (*sourceChar == '\\' || *sourceChar == '"') {
-        /* Escape embedded quotes and backslashes. */
+        /* Escape embedded quotes and possible also backslashes. */
         length++;
       } /* if */
       length++;
@@ -93,8 +93,6 @@ static char *copyQuotedPart (char *sourceChar, char *destChar)
 int main (int argc, char *argv[])
 
   {
-    size_t fileNameLength;
-    char *fileName;
     size_t parametersLength = 0;
     char *parameters;
     char *destChar;
@@ -106,10 +104,6 @@ int main (int argc, char *argv[])
     if (argc < 2) {
       printf("usage: sudo command [parameters]\n");
     } else {
-      fileNameLength = estimateQuotedLength(argv[1]);
-      if (fileNameLength > 0) {
-        fileNameLength--; /* Remove the leading space. */
-      } /* if */
       /* Estimate the total length of the quoted parameters. */
       for (idx = 2; idx < argc; idx++) {
         parametersLength += estimateQuotedLength(argv[idx]);
@@ -117,13 +111,10 @@ int main (int argc, char *argv[])
       if (parametersLength > 0) {
         parametersLength--; /* Remove the leading space of the first parameter. */
       } /* if */
-      fileName = (char *) malloc(fileNameLength + 1);
       parameters = (char *) malloc(parametersLength + 1);
-      if (fileName == NULL || parameters == NULL) {
+      if (parameters == NULL) {
         mainResult = -1;
       } else {
-        destChar = copyQuotedPart(argv[1], fileName);
-        *destChar = '\0';
         destChar = parameters;
         for (idx = 2; idx < argc; idx++) {
           if (idx > 2) {
@@ -132,23 +123,22 @@ int main (int argc, char *argv[])
           destChar = copyQuotedPart(argv[idx], destChar);
         } /* for */
         *destChar = '\0';
-        printf("%s %s\n", fileName, parameters);
+        printf("%s %s\n", argv[1], parameters);
         /* The result type of ShellExecuteA() is an HINSTANCE for   */
         /* backward compatibility with 16-bit Windows applications. */
         /* It is not a true HINSTANCE, however. It can be cast only */
         /* to an int and compared to either 32 or an error code.    */
-        returnValue = (int) ShellExecuteA(NULL, "runas", fileName, parameters, NULL, SW_HIDE);
+        returnValue = (int) ShellExecuteA(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
           /* The function ShellExecuteA() failed. */
           /* Try to execute the program without administrator privileges. */
-          returnValue = (int) ShellExecuteA(NULL, NULL, fileName, parameters, NULL, SW_HIDE);
+          returnValue = (int) ShellExecuteA(NULL, NULL, argv[1], parameters, NULL, SW_HIDE);
           /* printf("returnValue: %d\n", returnValue); */
           if (returnValue <= 32) {
             mainResult = -1;
           } /* if */
         } /* if */
-        free(fileName);
         free(parameters);
       } /* if */
     } /* if */
