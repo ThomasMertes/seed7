@@ -128,7 +128,7 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
     os_charType *beyondDest)
 
   {
-    memSizeType countBackslash;
+    memSizeType numberOfBackslashes;
 
   /* copyQuotedPart */
     for (; *sourceChar != '\0' && destChar < beyondDest;
@@ -142,25 +142,27 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
         } /* if */
       } else if (*sourceChar == '\\') {
         sourceChar++;
-        countBackslash = 1;
+        numberOfBackslashes = 1;
         while (*sourceChar == '\\') {
           sourceChar++;
-          countBackslash++;
+          numberOfBackslashes++;
         } /* while */
-        /* fprintf(stderr, "countBackslash=" FMT_U_MEM "\n", countBackslash);
-           fprintf(stderr, "sourceChar=%c\n", *sourceChar); */
+        logMessage(printf("numberOfBackslashes=" FMT_U_MEM "\n",
+                          numberOfBackslashes););
+        logMessage(printf("sourceChar=%u\n",
+                          (unsigned int) *sourceChar););
         if (*sourceChar == '"' || *sourceChar == '\0') {
-          countBackslash *= 2;
+          numberOfBackslashes <<= 1;
         } /* if */
         sourceChar--;
-        if (countBackslash > MAXIMUM_COMMAND_LINE_LENGTH ||
-            &destChar[countBackslash] > beyondDest) {
+        if (numberOfBackslashes > MAXIMUM_COMMAND_LINE_LENGTH ||
+            &destChar[numberOfBackslashes] > beyondDest) {
           destChar = beyondDest;
         } else {
           do {
             *(destChar++) = '\\';
-            countBackslash--;
-          } while (countBackslash != 0);
+            numberOfBackslashes--;
+          } while (numberOfBackslashes != 0);
           destChar--;
         } /* if */
       } else {
@@ -173,7 +175,7 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
 
 
 static os_charType *processArgument (os_striType argument, os_charType *destChar,
-    os_charType *beyondDest, errInfoType *err_info)
+    os_charType *beyondDest)
 
   {
     boolType quoteArgument = FALSE;
@@ -186,22 +188,14 @@ static os_charType *processArgument (os_striType argument, os_charType *destChar
       } /* if */
     } /* for */
     if (quoteArgument) {
-      if (&destChar[2] > beyondDest) {
-        destChar = beyondDest;
-      } else {
-        *(destChar++) = ' ';
+      if (destChar < beyondDest) {
         *(destChar++) = '"';
       } /* if */
       destChar = copyQuotedPart(argument, destChar, beyondDest);
-      if (destChar >= beyondDest) {
-        *err_info = MEMORY_ERROR;
-      } else {
+      if (destChar < beyondDest) {
         *(destChar++) = '"';
       } /* if */
     } else {
-      if (destChar < beyondDest) {
-        *(destChar++) = ' ';
-      } /* if */
       for (sourceChar = argument;
            *sourceChar != '\0' && destChar < beyondDest;
            sourceChar++, destChar++) {
@@ -230,7 +224,6 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
   {
     const_os_striType command_stri;
     memSizeType arraySize;
-    memSizeType striSize;
     memSizeType pos;
     os_striType argument;
     os_charType *destChar;
@@ -266,24 +259,19 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
         } /* if */
       }
 #endif
-      striSize = os_stri_strlen(command_stri);
-      if (striSize > MAXIMUM_COMMAND_LINE_LENGTH - 2 ||
-          &command_line[striSize] > beyondDest) {
-        *err_info = MEMORY_ERROR;
-        destChar = beyondDest;
-      } else {
-        command_line[0] = '\"';
-        memcpy(&command_line[1], command_stri, sizeof(os_charType) * striSize);
-        command_line[striSize + 1] = '\"';
-        destChar = &command_line[striSize + 2];
-      } /* if */
-      for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
-        argument = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
+      destChar = processArgument(command_stri, command_line, beyondDest);
+      for (pos = 0; pos < arraySize && destChar < beyondDest &&
+           *err_info == OKAY_NO_ERROR; pos++) {
+        argument = stri_to_os_stri(parameters->arr[pos].value.striValue,
+                                   err_info);
         if (argument != NULL) {
           logMessage(printf("prepareCommandLine: argument[" FMT_U_MEM
                             "]=\"" FMT_S_OS "\"\n",
                             pos + 1, argument););
-          destChar = processArgument(argument, destChar, beyondDest, err_info);
+          if (destChar < beyondDest) {
+            *(destChar++) = ' ';
+          } /* if */
+          destChar = processArgument(argument, destChar, beyondDest);
           os_stri_free(argument);
         } /* if */
       } /* for */
@@ -295,8 +283,6 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         os_stri_free(command_line);
         command_line = NULL;
-      } else {
-        /* fprintf(stderr, "command_line=%ls\n", command_line); */
       } /* if */
     } /* if */
     logFunction(printf("prepareCommandLine --> \"" FMT_S_OS "\"\n",
