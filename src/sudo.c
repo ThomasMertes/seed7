@@ -32,10 +32,10 @@
 #include "shellapi.h"
 
 
-static unsigned int estimateQuotedLength (char *sourceChar)
+static size_t estimateQuotedLength (char *sourceChar)
 
   {
-    unsigned int length = 3; /* a leading space + 2 surrounding quotes */
+    size_t length = 3; /* a leading space + 2 surrounding quotes */
 
   /* estimateQuotedLength */
     while (*sourceChar != '\0') {
@@ -53,7 +53,7 @@ static unsigned int estimateQuotedLength (char *sourceChar)
 static char *copyQuotedPart (char *sourceChar, char *destChar)
 
   {
-    unsigned int numberOfBackslashes;
+    size_t numberOfBackslashes;
 
   /* copyQuotedPart */
     *destChar++ = '"';
@@ -93,9 +93,9 @@ static char *copyQuotedPart (char *sourceChar, char *destChar)
 int main (int argc, char *argv[])
 
   {
-    unsigned int fileNameLength;
+    size_t fileNameLength;
     char *fileName;
-    unsigned int parametersLength = 0;
+    size_t parametersLength = 0;
     char *parameters;
     char *destChar;
     int idx;
