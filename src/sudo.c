@@ -41,10 +41,10 @@
 int main (int argc, char *argv[])
 
   {
-    const char *param;
+    const char *sourceChar;
     int length = 0;
     char *parameters;
-    char *dest;
+    char *destChar;
     int idx;
     int returnValue;
     int mainResult = 0;
@@ -55,41 +55,41 @@ int main (int argc, char *argv[])
     } else {
       /* Estimate the total length of the quoted parameters. */
       for (idx = 2; idx < argc; idx++) {
-        param = argv[idx];
+        sourceChar = argv[idx];
         length += 3; /* a leading space + 2 surrounding quotes */
-        while (*param != '\0') {
-          if (*param == '"') {
+        while (*sourceChar != '\0') {
+          if (*sourceChar == '"') {
             length++; /* Backslash escape embedded quotes. */
           } /* if */
           length++;
-          param++;
+          sourceChar++;
         } /* while */
       } /* for */
       if (length > 0) {
-        length--; /* Remove the leading space of the first param */
+        length--; /* Remove the leading space of the first parameter. */
       } /* if */
       parameters = (char *) malloc(length + 1);
       if (parameters == NULL) {
         mainResult = -1;
       } else {
-        dest = parameters;
+        destChar = parameters;
         if (argc > 2) {
           for (idx = 2; idx < argc; idx++) {
-            param = argv[idx];
+            sourceChar = argv[idx];
             if (idx > 2) {
-              *dest++ = ' ';
+              *destChar++ = ' ';
             } /* if */
-            *dest++ = '"';
-            while (*param) {
-              if (*param == '"') {
-                *dest++ = '\\';
+            *destChar++ = '"';
+            while (*sourceChar != '\0') {
+              if (*sourceChar == '"') {
+                *destChar++ = '\\';
               } /* if */
-              *dest++ = *param++;
+              *destChar++ = *sourceChar++;
             } /* while */
-            *dest++ = '"';
+            *destChar++ = '"';
           } /* for */
         } /* if */
-        *dest = '\0';
+        *destChar = '\0';
         printf("%s %s\n", argv[1], parameters);
         /* The result type of ShellExecuteA() is an HINSTANCE for   */
         /* backward compatibility with 16-bit Windows applications. */
