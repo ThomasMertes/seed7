@@ -45,6 +45,7 @@ int main (int argc, char *argv[])
     int length = 0;
     char *parameters;
     char *destChar;
+    unsigned int numberOfBackslashes;
     int idx;
     int returnValue;
     int mainResult = 0;
@@ -58,8 +59,9 @@ int main (int argc, char *argv[])
         sourceChar = argv[idx];
         length += 3; /* a leading space + 2 surrounding quotes */
         while (*sourceChar != '\0') {
-          if (*sourceChar == '"') {
-            length++; /* Backslash escape embedded quotes. */
+          if (*sourceChar == '\\' || *sourceChar == '"') {
+            /* Escape embedded quotes and backslashes. */
+            length++;
           } /* if */
           length++;
           sourceChar++;
@@ -81,10 +83,26 @@ int main (int argc, char *argv[])
             } /* if */
             *destChar++ = '"';
             while (*sourceChar != '\0') {
-              if (*sourceChar == '"') {
-                *destChar++ = '\\';
+              if (*sourceChar == '\\') {
+                sourceChar++;
+                numberOfBackslashes = 1;
+                while (*sourceChar == '\\') {
+                  sourceChar++;
+                  numberOfBackslashes++;
+                } /* while */
+                if (*sourceChar == '"' || *sourceChar == '\0') {
+                  numberOfBackslashes <<= 1;
+                } /* if */
+                do {
+                  *destChar++ = '\\';
+                  numberOfBackslashes--;
+                } while (numberOfBackslashes != 0);
+              } else {
+                if (*sourceChar == '"') {
+                  *destChar++ = '\\';
+                } /* if */
+                *destChar++ = *sourceChar++;
               } /* if */
-              *destChar++ = *sourceChar++;
             } /* while */
             *destChar++ = '"';
           } /* for */
