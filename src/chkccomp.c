@@ -4821,7 +4821,7 @@ static void determineAddVectoredExceptionHandler (FILE *versionFile)
 
   { /* determineAddVectoredExceptionHandler */
     fprintf(versionFile, "#define HAS_VECTORED_EXCEPTION_HANDLER %d\n",
-            compileAndLinkOk("#define _WIN32_WINNT 0x500\n"
+            compileAndLinkOk("#define _WIN32_WINNT 0x501\n"
                              "#include <windows.h>\n#include <stdio.h>\n"
                              "#include <setjmp.h>\n"
                              "jmp_buf jump_buffer;\n"
@@ -4830,9 +4830,12 @@ static void determineAddVectoredExceptionHandler (FILE *versionFile)
                              "void stackOverflow (unsigned int param) {\n"
                              "  stackOverflow(param + 1); }\n"
                              "int main (int argc, char *argv[]) {\n"
+                             "  int okay;\n"
                              "  int jmpret;\n"
-                             "  AddVectoredExceptionHandler(1, stackOverflowHandler);\n"
-                             "  if ((jmpret = setjmp(jump_buffer)) == 0 ) {\n"
+                             "  okay = AddVectoredExceptionHandler(1, stackOverflowHandler) != NULL;\n"
+                             "  if (!okay) {\n"
+                             "    printf(\"0\\n\");\n"
+                             "  } else if ((jmpret = setjmp(jump_buffer)) == 0) {\n"
                              "    stackOverflow(1);\n"
                              "    printf(\"0\\n\");\n"
                              "  } else {\n"
