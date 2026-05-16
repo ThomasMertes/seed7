@@ -32,11 +32,19 @@
 #include "shellapi.h"
 
 
+/**
+ *  Execute a command as administrator.
+ *  This program can be used to install Seed7 with 'sudo make install'.
+ *  It has been created only for this purpose.
+ *  Using this program for other purposes is not suggested.
+ */
 int main (int argc, char *argv[])
 
   {
+    const char *param;
     int length = 0;
     char *parameters;
+    char *dest;
     int idx;
     int returnValue;
     int mainResult = 0;
@@ -45,24 +53,43 @@ int main (int argc, char *argv[])
     if (argc < 2) {
       printf("usage: sudo command [parameters]\n");
     } else {
+      /* Estimate the total length of the quoted parameters. */
       for (idx = 2; idx < argc; idx++) {
-        length += strlen(argv[idx]) + 1;
+        param = argv[idx];
+        length += 3; /* a leading space + 2 surrounding quotes */
+        while (*param != '\0') {
+          if (*param == '"') {
+            length++; /* Backslash escape embedded quotes. */
+          } /* if */
+          length++;
+          param++;
+        } /* while */
       } /* for */
       if (length > 0) {
-        length--;
+        length--; /* Remove the leading space of the first param */
       } /* if */
       parameters = (char *) malloc(length + 1);
       if (parameters == NULL) {
         mainResult = -1;
       } else {
-        parameters[0] = '\0';
+        dest = parameters;
         if (argc > 2) {
-          strcat(parameters, argv[2]);
-          for (idx = 3; idx < argc; idx++) {
-            strcat(parameters, " ");
-            strcat(parameters, argv[idx]);
+          for (idx = 2; idx < argc; idx++) {
+            param = argv[idx];
+            if (idx > 2) {
+              *dest++ = ' ';
+            } /* if */
+            *dest++ = '"';
+            while (*param) {
+              if (*param == '"') {
+                *dest++ = '\\';
+              } /* if */
+              *dest++ = *param++;
+            } /* while */
+            *dest++ = '"';
           } /* for */
         } /* if */
+        *dest = '\0';
         printf("%s %s\n", argv[1], parameters);
         /* The result type of ShellExecuteA() is an HINSTANCE for   */
         /* backward compatibility with 16-bit Windows applications. */
