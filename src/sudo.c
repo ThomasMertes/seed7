@@ -128,12 +128,16 @@ int main (int argc, char *argv[])
         /* backward compatibility with 16-bit Windows applications. */
         /* It is not a true HINSTANCE, however. It can be cast only */
         /* to an int and compared to either 32 or an error code.    */
-        returnValue = (int) ShellExecuteA(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
+        returnValue = (int) ShellExecuteA(NULL, "runas", argv[1],
+                                          argc == 2 ? NULL : parameters,
+                                          NULL, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
           /* The function ShellExecuteA() failed. */
           /* Try to execute the program without administrator privileges. */
-          returnValue = (int) ShellExecuteA(NULL, NULL, argv[1], parameters, NULL, SW_HIDE);
+          returnValue = (int) ShellExecuteA(NULL, NULL, argv[1],
+                                            argc == 2 ? NULL : parameters,
+                                            NULL, SW_HIDE);
           /* printf("returnValue: %d\n", returnValue); */
           if (returnValue <= 32) {
             mainResult = -1;
