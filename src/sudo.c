@@ -40,7 +40,7 @@ static size_t estimateQuotedLength (char *sourceChar)
   /* estimateQuotedLength */
     while (*sourceChar != '\0') {
       if (*sourceChar == '\\' || *sourceChar == '"') {
-        /* Escape embedded quotes and possible also backslashes. */
+        /* Escape embedded quotes and possibly also backslashes. */
         length++;
       } /* if */
       length++;
@@ -113,6 +113,7 @@ int main (int argc, char *argv[])
       } /* if */
       parameters = (char *) malloc(parametersLength + 1);
       if (parameters == NULL) {
+        printf("sudo: out of memory\n");
         mainResult = -1;
       } else {
         destChar = parameters;
