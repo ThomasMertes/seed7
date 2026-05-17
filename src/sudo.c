@@ -36,6 +36,7 @@ static size_t estimateQuotedLength (char *sourceChar)
 
   {
     size_t length = 3; /* a leading space + 2 surrounding quotes */
+                       /* The caller might add a leading space. */
 
   /* estimateQuotedLength */
     while (*sourceChar != '\0') {
@@ -98,6 +99,7 @@ int main (int argc, char *argv[])
     char *destChar;
     int idx;
     size_t cwdBufferSize;
+    size_t actualSize;
     char *cwd = NULL;
     int returnValue;
     int mainResult = 0;
@@ -122,7 +124,8 @@ int main (int argc, char *argv[])
       } else if ((cwd = (char *) malloc(cwdBufferSize)) == NULL) {
         printf("sudo: out of memory\n");
         mainResult = -1;
-      } else if (GetCurrentDirectoryA(cwdBufferSize, cwd) == 0) {
+      } else if ((actualSize = GetCurrentDirectoryA(cwdBufferSize, cwd)) == 0 ||
+                  actualSize >= cwdBufferSize) {
         printf("sudo: cannot determine current working directory\n");
         mainResult = -1;
       } else {
