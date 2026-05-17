@@ -1243,6 +1243,7 @@ const func integer: doOneCommand (inout string: command,
       # writeln("doOneCommand: " <& commandName);
       case commandName of
         when {""}:
+          # An empty command name is treated as error.
           commandOutput := "";
           returnCode := -1;
         when {"rm"}:
