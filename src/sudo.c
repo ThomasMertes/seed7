@@ -97,6 +97,8 @@ int main (int argc, char *argv[])
     char *parameters;
     char *destChar;
     int idx;
+    size_t cwdBufferSize;
+    char *cwd = NULL;
     int returnValue;
     int mainResult = 0;
 
@@ -111,9 +113,17 @@ int main (int argc, char *argv[])
       if (parametersLength > 0) {
         parametersLength--; /* Remove the leading space of the first parameter. */
       } /* if */
-      parameters = (char *) malloc(parametersLength + 1);
-      if (parameters == NULL) {
+      if ((parameters = (char *) malloc(parametersLength + 1)) == NULL) {
         printf("sudo: out of memory\n");
+        mainResult = -1;
+      } else if ((cwdBufferSize = (size_t) GetCurrentDirectoryA(0, NULL)) == 0) {
+        printf("sudo: cannot determine current working directory\n");
+        mainResult = -1;
+      } else if ((cwd = (char *) malloc(cwdBufferSize)) == NULL) {
+        printf("sudo: out of memory\n");
+        mainResult = -1;
+      } else if (GetCurrentDirectoryA(cwdBufferSize, cwd) == 0) {
+        printf("sudo: cannot determine current working directory\n");
         mainResult = -1;
       } else {
         destChar = parameters;
@@ -131,21 +141,22 @@ int main (int argc, char *argv[])
         /* to an int and compared to either 32 or an error code.    */
         returnValue = (int) ShellExecuteA(NULL, "runas", argv[1],
                                           argc == 2 ? NULL : parameters,
-                                          NULL, SW_HIDE);
+                                          cwd, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
           /* The function ShellExecuteA() failed. */
           /* Try to execute the program without administrator privileges. */
           returnValue = (int) ShellExecuteA(NULL, NULL, argv[1],
                                             argc == 2 ? NULL : parameters,
-                                            NULL, SW_HIDE);
+                                            cwd, SW_HIDE);
           /* printf("returnValue: %d\n", returnValue); */
           if (returnValue <= 32) {
             mainResult = -1;
           } /* if */
         } /* if */
-        free(parameters);
       } /* if */
+      free(parameters);
+      free(cwd);
     } /* if */
     return mainResult;
   } /* main */
