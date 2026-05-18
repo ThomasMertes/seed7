@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sudo.c        Execute command as administrator under Windows.   */
-/*  Copyright (C) 2014  Thomas Mertes                               */
+/*  Copyright (C) 2014, 2016, 2018, 2026  Thomas Mertes             */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Sudo                                                    */
 /*  File: seed7/src/sudo.c                                          */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2016, 2018, 2026  Thomas Mertes                  */
 /*  Content: Execute command as administrator under Windows.        */
 /*                                                                  */
 /********************************************************************/

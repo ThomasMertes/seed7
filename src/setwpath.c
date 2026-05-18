@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  setwpath.c   Set the search path (PATH variable) under Windows. */
-/*  Copyright (C) 2014, 2017 - 2019  Thomas Mertes                  */
+/*  Copyright (C) 2014, 2017 - 2019, 2026  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Setwpath                                                */
 /*  File: seed7/src/setwpath.c                                      */
-/*  Changes: 2014, 2017 - 2019  Thomas Mertes                       */
+/*  Changes: 2014, 2017 - 2019, 2026  Thomas Mertes                 */
 /*  Content: Set the search path (PATH variable) under Windows.     */
 /*                                                                  */
 /********************************************************************/
