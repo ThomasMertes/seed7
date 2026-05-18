@@ -112,6 +112,8 @@ static int set_path (int add_to_path, wchar_t *directory, HKEY key, int read_onl
         if (RegQueryValueExW(key, DESTINATION, NULL, &value_type, (LPBYTE) value_data,
                              &size_of_value) != ERROR_SUCCESS) {
           printf(" *** Unable to query the registry value.\n");
+        } else if (value_type != REG_SZ && value_type != REG_EXPAND_SZ) {
+          printf(" *** Registry value has unexpected type.\n");
         } else {
           value_len = wcslen(value_data);
           /* printf("value_type: %lu\n", value_type);
@@ -248,15 +250,17 @@ int main (int argc, char *argv[])
     wchar_t directory[BUFFER_LEN];
     int win_success;
     int usr_success;
+    int mainResult = 0;
 
   /* main */
     if (argc != 3) {
       printf(" *** Wrong number of parameters.\n");
       printf("Usage: setwpath [add | remove] directory\n");
+    } else if (chdir(argv[2]) != 0 ||
+               os_getcwd(directory, BUFFER_LEN) == NULL) {
+      printf(" *** Unable to access directory '%s'.\n", argv[2]);
+      mainResult = 1;
     } else {
-      /* printf("dir: %s\n", argv[2]); */
-      chdir(argv[2]);
-      os_getcwd(directory, BUFFER_LEN);
       if (strcmp(argv[1], "add") == 0) {
         win_success = set_win_path(1, directory);
         if (win_success == ALREADY_OKAY) {
@@ -280,6 +284,7 @@ int main (int argc, char *argv[])
           } else {
             printf(" *** You need administrator rights to change the search path "
                    "(PATH variable).\n");
+            mainResult = 1;
           } /* if */
         } /* if */
       } else if (strcmp(argv[1], "remove") == 0) {
@@ -296,10 +301,12 @@ int main (int argc, char *argv[])
         } else {
           printf(" *** You need administrator rights to change the search path "
                  "(PATH variable).\n");
+          mainResult = 1;
         } /* if */
       } else {
         printf(" *** Neither 'add' nor 'remove' was specified.\n");
+        mainResult = 1;
       } /* if */
     } /* if */
-    return 0;
+    return mainResult;
   } /* main */
