@@ -117,17 +117,17 @@ int main (int argc, char *argv[])
       } /* if */
       if ((parameters = (char *) malloc(parametersLength + 1)) == NULL) {
         printf("sudo: out of memory\n");
-        mainResult = -1;
+        mainResult = 1;
       } else if ((cwdBufferSize = (size_t) GetCurrentDirectoryA(0, NULL)) == 0) {
         printf("sudo: cannot determine current working directory\n");
-        mainResult = -1;
+        mainResult = 1;
       } else if ((cwd = (char *) malloc(cwdBufferSize)) == NULL) {
         printf("sudo: out of memory\n");
-        mainResult = -1;
+        mainResult = 1;
       } else if ((actualSize = GetCurrentDirectoryA(cwdBufferSize, cwd)) == 0 ||
                   actualSize >= cwdBufferSize) {
         printf("sudo: cannot determine current working directory\n");
-        mainResult = -1;
+        mainResult = 1;
       } else {
         destChar = parameters;
         for (idx = 2; idx < argc; idx++) {
@@ -154,7 +154,7 @@ int main (int argc, char *argv[])
                                             cwd, SW_HIDE);
           /* printf("returnValue: %d\n", returnValue); */
           if (returnValue <= 32) {
-            mainResult = -1;
+            mainResult = 1;
           } /* if */
         } /* if */
       } /* if */
