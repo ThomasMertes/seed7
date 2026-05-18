@@ -256,6 +256,7 @@ int main (int argc, char *argv[])
     if (argc != 3) {
       printf(" *** Wrong number of parameters.\n");
       printf("Usage: setwpath [add | remove] directory\n");
+      mainResult = 1;
     } else if (chdir(argv[2]) != 0 ||
                os_getcwd(directory, BUFFER_LEN) == NULL) {
       printf(" *** Unable to access directory '%s'.\n", argv[2]);
