@@ -31,6 +31,9 @@
 #include "windows.h"
 #include "shellapi.h"
 
+/* To support older compilers SIZE_MAX is not used. */
+#define SIZE_T_MAXIMUM ((size_t) -1)
+
 
 static size_t estimateQuotedLength (char *sourceChar)
 
@@ -42,9 +45,13 @@ static size_t estimateQuotedLength (char *sourceChar)
     while (*sourceChar != '\0') {
       if (*sourceChar == '\\' || *sourceChar == '"') {
         /* Escape embedded quotes and possibly also backslashes. */
+        if (length < SIZE_T_MAXIMUM) {
+          length++;
+        } /* if */
+      } /* if */
+      if (length < SIZE_T_MAXIMUM) {
         length++;
       } /* if */
-      length++;
       sourceChar++;
     } /* while */
     return length;
@@ -94,6 +101,7 @@ static char *copyQuotedPart (char *sourceChar, char *destChar)
 int main (int argc, char *argv[])
 
   {
+    size_t paramLength;
     size_t parametersLength = 0;
     char *parameters;
     char *destChar;
@@ -110,12 +118,18 @@ int main (int argc, char *argv[])
     } else {
       /* Estimate the total length of the quoted parameters. */
       for (idx = 2; idx < argc; idx++) {
-        parametersLength += estimateQuotedLength(argv[idx]);
+        paramLength = estimateQuotedLength(argv[idx]);
+        if (parametersLength <= SIZE_T_MAXIMUM - paramLength) {
+          parametersLength += paramLength;
+        } else {
+          parametersLength = SIZE_T_MAXIMUM;
+        } /* if */
       } /* for */
       if (parametersLength > 0) {
         parametersLength--; /* Remove the leading space of the first parameter. */
       } /* if */
-      if ((parameters = (char *) malloc(parametersLength + 1)) == NULL) {
+      if (parametersLength == SIZE_T_MAXIMUM ||
+          (parameters = (char *) malloc(parametersLength + 1)) == NULL) {
         printf("sudo: out of memory\n");
         mainResult = 1;
       } else if ((cwdBufferSize = (size_t) GetCurrentDirectoryA(0, NULL)) == 0) {
