@@ -338,8 +338,6 @@ objectType itf_create (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
-          CLEAR_TEMP_FLAG(new_value);
-          CLEAR_TEMP2_FLAG(new_value);
           if (IS_STRUCT_OWNER(source)) {
             /* Transfer the ownership to new_value. */
             CLEAR_STRUCT_OWNER_FLAG(source);
