@@ -1487,6 +1487,9 @@ boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectT
     obj_to->type_of = dest_type;
     temp_flag_obj_from = TEMP_OBJECT(obj_from);
     CLEAR_TEMP_FLAG(obj_from);
+    if (temp_flag_obj_from) {
+      SET_TEMP2_FLAG(obj_from);
+    } /* if */
     do_create(obj_to, obj_from, &err_info);
     SET_ANY_FLAG(obj_from, temp_flag_obj_from);
     return err_info == OKAY_NO_ERROR;
