@@ -872,6 +872,14 @@ static void appendListElement (striType *const msg, const const_objectType anyob
             appendValue(msg, anyobject->value.objValue);
           } /* if */
           break;
+        case STRUCTELEMOBJECT:
+          if (anyobject->value.objValue == NULL) {
+            appendCStri(msg, "*NULL_ELEM*");
+          } else {
+            appendCStri(msg, "elem ");
+            appendValue(msg, anyobject->value.objValue);
+          } /* if */
+          break;
         default:
           if (HAS_ENTITY(anyobject) &&
               GET_ENTITY(anyobject)->ident != NULL) {
