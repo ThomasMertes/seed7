@@ -49,9 +49,27 @@
 #include "rtl_err.h"
 
 
+typedef struct {
+    uintType usage_count;
+    fileType stdIn;
+    fileType stdOut;
+    fileType stdErr;
+    /* Up to here the structure is identical to struct processStruct */
+    intType pid;
+    intType exitValue;
+  } dos_processRecord, *dos_processType;
+
+typedef const dos_processRecord *const_dos_processType;
+
 #if DO_HEAP_STATISTIC
-size_t sizeof_processRecord = 0;
+size_t sizeof_processRecord = sizeof(dos_processRecord);
 #endif
+
+#define to_pid(process)          (((const_dos_processType) (process))->pid)
+#define to_exitValue(process)    (((const_dos_processType) (process))->exitValue)
+
+#define to_var_pid(process)          (((dos_processType) (process))->pid)
+#define to_var_exitValue(process)    (((dos_processType) (process))->exitValue)
 
 
 
@@ -87,10 +105,10 @@ intType pcsCmp (const const_processType process1, const const_processType proces
       } /* if */
     } else if (process2 == NULL) {
       signumValue = 1;
-    } else if ((memSizeType) process1 < (memSizeType) process2) {
+    } else if (to_pid(process1) < to_pid(process2)) {
       signumValue = -1;
     } else {
-      signumValue = (memSizeType) process1 > (memSizeType) process2;
+      signumValue = to_pid(process1) > to_pid(process2);
     } /* if */
     return signumValue;
   } /* pcsCmp */
@@ -105,7 +123,7 @@ boolType pcsEq (const const_processType process1, const const_processType proces
     } else if (process2 == NULL) {
       return FALSE;
     } else {
-      return (memSizeType) process1 == (memSizeType) process2;
+      return to_pid(process1) == to_pid(process2);
     } /* if */
   } /* pcsEq */
 
@@ -113,8 +131,25 @@ boolType pcsEq (const const_processType process1, const const_processType proces
 
 intType pcsExitValue (const const_processType process)
 
-  { /* pcsExitValue */
-    return 0;
+  {
+    intType exitValue;
+
+  /* pcsExitValue */
+    logFunction(printf("pcsExitValue(" FMT_D " (usage=" FMT_U "))\n",
+                       process != NULL ? to_pid(process) : (intType) 0,
+                       process != NULL ? process->usage_count : (uintType) 0););
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsExitValue: process == NULL\n"););
+      raise_error(FILE_ERROR);
+      exitValue = -1;
+    } else {
+      exitValue = to_exitValue(process);
+    } /* if */
+    logFunction(printf("pcsExitValue(" FMT_D " (usage=" FMT_U ")) --> " FMT_D "\n",
+                       process != NULL ? to_pid(process) : (intType) 0,
+                       process != NULL ? process->usage_count : (uintType) 0,
+                       exitValue););
+    return exitValue;
   } /* pcsExitValue */
 
 
@@ -122,14 +157,30 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType oldProcess)
 
   { /* pcsFree */
+    logFunction(printf("pcsFree(" FMT_U_MEM
+                       " (pid=" FMT_D ", usage=" FMT_U "))\n",
+                       (memSizeType) oldProcess,
+                       oldProcess != NULL ? to_pid(oldProcess)
+                                          : intType 0,
+                       oldProcess != NULL ? oldProcess->usage_count
+                                          : (uintType) 0););
+    FREE_RECORD(oldProcess, dos_processRecord, count.process);
   } /* pcsFree */
 
 
 
 intType pcsHashCode (const const_processType process)
 
-  { /* pcsHashCode */
-    return 0;
+  {
+    intType hashCode;
+
+  /* pcsHashCode */
+    if (process == NULL) {
+      hashCode = 0;
+    } else {
+      hashCode = to_pid(process);
+    } /* if */
+    return hashCode;
   } /* pcsHashCode */
 
 
@@ -197,10 +248,10 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     FILE *stdinFile;
     FILE *stdoutFile;
     FILE *stderrFile;
-    intType returnCode;
     errInfoType err_info = OKAY_NO_ERROR;
     size_t bytes_read;
     char buffer[4096];
+    dos_processType process;
 
   /* pcsStart */
     logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
@@ -272,9 +323,17 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       if (err_info == OKAY_NO_ERROR) {
         err_info = MEMORY_ERROR;
       } /* if */
+      process = NULL;
+    } else if (unlikely(!ALLOC_RECORD(process, dos_processRecord, count.process))) {
+      err_info = MEMORY_ERROR;
     } else {
-      returnCode = cmdShellExecute(command, parameters, redirectStdinName,
-                                   redirectStdoutName, redirectStderrName);
+      memset(process, 0, sizeof(dos_processRecord));
+      process->usage_count = 1;
+      process->pid = 1;
+      process->exitValue = cmdShellExecute(command, parameters,
+                                           redirectStdinName,
+                                           redirectStdoutName,
+                                           redirectStderrName);
       if (redirectStdin->cFile != NULL) {
         os_remove(osRedirectStdinName);
       } /* if */
@@ -324,6 +383,10 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         } /* if */
         os_remove(osRedirectStderrName);
       } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        FREE_RECORD(process, dos_processRecord, count.process);
+        process = NULL;
+      } /* if */
     } /* if */
     if (redirectStdinName != NULL) {
       FREE_STRI(redirectStdinName);
@@ -337,8 +400,14 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStart -> NULL\n"););
-    return NULL;
+    logFunction(printf("pcsStart --> " FMT_U_MEM
+                       " (pid=" FMT_D ", usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? process->pid
+                                       : (intType) 0,
+                       process != NULL ? process->usage_count
+                                       : (uintType) 0););
+    return (processType) process;
   } /* pcsStart */
 
 
@@ -361,8 +430,19 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
 
 striType pcsStr (const const_processType process)
 
-  { /* pcsStr */
-    return NULL;
+  {
+    striType result;
+
+  /* pcsStr */
+    if (process == NULL) {
+      result = CSTRI_LITERAL_TO_STRI("NULL");
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
+    } else {
+      result = intStr(to_pid(process));
+    } /* if */
+    return result;
   } /* pcsStr */
 
 
