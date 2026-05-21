@@ -575,6 +575,12 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                             "_open_osfhandle() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
+          } else if (unlikely(os_setmode(childStdinFileno, _O_BINARY) == -1 ||
+                              os_setmode(childStdoutFileno, _O_BINARY) == -1)) {
+            logError(printf("pcsPipe2(\"%s\", ...): "
+                            "setmode() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
           } else {
             memset(&startupInfo, 0, sizeof(startupInfo));
             /* memset(&processInformation, 0, sizeof(processInformation)); */
@@ -602,8 +608,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                                 childStdinFileno););
               logMessage(printf("pcsPipe2: childStdoutFileno=%d\n",
                                 childStdoutFileno););
-              os_setmode(childStdinFileno, _O_BINARY);
-              os_setmode(childStdoutFileno, _O_BINARY);
               initFileType(childStdinFile, FALSE, TRUE);
               childStdinFile->cFile = os_fdopen(childStdinFileno, "w");
               if (unlikely(childStdinFile->cFile == NULL)) {
@@ -926,6 +930,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                             "_open_osfhandle() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
+          } else if (unlikely(os_setmode(childStdinFileno, _O_BINARY) == -1 ||
+                              os_setmode(childStdoutFileno, _O_BINARY) == -1 ||
+                              os_setmode(childStderrFileno, _O_BINARY) == -1)) {
+            logError(printf("pcsStartPipe(\"%s\", ...): "
+                            "setmode() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
           } else {
             memset(&startupInfo, 0, sizeof(startupInfo));
             /* memset(&processInformation, 0, sizeof(processInformation)); */
@@ -956,9 +967,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                 childStdoutFileno););
               logMessage(printf("pcsStartPipe: childStderrFileno=%d\n",
                                 childStderrFileno););
-              os_setmode(childStdinFileno, _O_BINARY);
-              os_setmode(childStdoutFileno, _O_BINARY);
-              os_setmode(childStderrFileno, _O_BINARY);
               memset(process, 0, sizeof(win_processRecord));
               process->usage_count = 1;
               process->hProcess = processInformation.hProcess;
