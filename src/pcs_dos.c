@@ -126,7 +126,7 @@ void pcsFree (processType oldProcess)
 
 
 
-intType pcsHashCode (const const_processType aProcess)
+intType pcsHashCode (const const_processType process)
 
   { /* pcsHashCode */
     return 0;
@@ -134,7 +134,7 @@ intType pcsHashCode (const const_processType aProcess)
 
 
 
-boolType pcsIsAlive (const processType aProcess)
+boolType pcsIsAlive (const processType process)
 
   { /* pcsIsAlive */
     return FALSE;
@@ -142,7 +142,7 @@ boolType pcsIsAlive (const processType aProcess)
 
 
 
-void pcsKill (const processType aProcess)
+void pcsKill (const processType process)
 
   { /* pcsKill */
   } /* pcsKill */
