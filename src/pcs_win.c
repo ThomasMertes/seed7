@@ -553,14 +553,26 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                                   &childInputWrite, &saAttr, 0) == 0 ||
                        CreatePipe(&childOutputRead,
                                   &childOutputWrite, &saAttr, 0) == 0)) {
-            logError(printf("pcsPipe2(\"%s\", ...): CreatePipe() failed.\n",
+            logError(printf("pcsPipe2(\"%s\", ...): "
+                            "CreatePipe() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
           } else if (unlikely(SetHandleInformation(childInputWrite,
                                                    HANDLE_FLAG_INHERIT, 0) == 0 ||
                               SetHandleInformation(childOutputRead,
                                                    HANDLE_FLAG_INHERIT, 0) == 0)) {
-            logError(printf("pcsPipe2(\"%s\", ...): SetHandleInformation() failed.\n",
+            logError(printf("pcsPipe2(\"%s\", ...): "
+                            "SetHandleInformation() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
+          } else if (unlikely((childStdinFileno =
+                                   _open_osfhandle((intPtrType) (childInputWrite),
+                                                   _O_TEXT)) == -1 ||
+                              (childStdoutFileno =
+                                   _open_osfhandle((intPtrType) (childOutputRead),
+                                                   _O_TEXT)) == -1)) {
+            logError(printf("pcsPipe2(\"%s\", ...): "
+                            "_open_osfhandle() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
           } else {
@@ -586,8 +598,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                                &processInformation) != 0) {
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
-              childStdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
-              childStdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
               logMessage(printf("pcsPipe2: childStdinFileno=%d\n",
                                 childStdinFileno););
               logMessage(printf("pcsPipe2: childStdoutFileno=%d\n",
@@ -885,7 +895,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                   &childOutputWrite, &saAttr, 0) == 0 ||
                        CreatePipe(&childErrorRead,
                                   &childErrorWrite, &saAttr, 0) == 0)) {
-            logError(printf("pcsPipe2(\"%s\", ...): CreatePipe() failed.\n",
+            logError(printf("pcsStartPipe(\"%s\", ...): "
+                            "CreatePipe() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
           } else if (unlikely(SetHandleInformation(childInputWrite,
@@ -894,7 +905,21 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                                                    HANDLE_FLAG_INHERIT, 0) == 0 ||
                               SetHandleInformation(childErrorRead,
                                                    HANDLE_FLAG_INHERIT, 0) == 0)) {
-            logError(printf("pcsPipe2(\"%s\", ...): SetHandleInformation() failed.\n",
+            logError(printf("pcsStartPipe(\"%s\", ...): "
+                            "SetHandleInformation() failed.\n",
+                            striAsUnquotedCStri(command)););
+            err_info = FILE_ERROR;
+          } else if (unlikely((childStdinFileno =
+                                   _open_osfhandle((intPtrType) (childInputWrite),
+                                                   _O_TEXT)) == -1 ||
+                              (childStdoutFileno =
+                                   _open_osfhandle((intPtrType) (childOutputRead),
+                                                   _O_TEXT)) == -1 ||
+                              (childStderrFileno =
+                                   _open_osfhandle((intPtrType) (childErrorRead),
+                                                   _O_TEXT)) == -1)) {
+            logError(printf("pcsStartPipe(\"%s\", ...): "
+                            "_open_osfhandle() failed.\n",
                             striAsUnquotedCStri(command)););
             err_info = FILE_ERROR;
           } else {
@@ -921,9 +946,6 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               CloseHandle(childInputRead);
               CloseHandle(childOutputWrite);
               CloseHandle(childErrorWrite);
-              childStdinFileno = _open_osfhandle((intPtrType) (childInputWrite), _O_TEXT);
-              childStdoutFileno = _open_osfhandle((intPtrType) (childOutputRead), _O_TEXT);
-              childStderrFileno = _open_osfhandle((intPtrType) (childErrorRead), _O_TEXT);
               logMessage(printf("pcsStartPipe: childStdinFileno=%d\n",
                                 childStdinFileno););
               logMessage(printf("pcsStartPipe: childStdoutFileno=%d\n",
