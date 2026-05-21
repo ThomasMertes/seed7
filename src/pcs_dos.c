@@ -161,7 +161,7 @@ void pcsFree (processType oldProcess)
                        " (pid=" FMT_D ", usage=" FMT_U "))\n",
                        (memSizeType) oldProcess,
                        oldProcess != NULL ? to_pid(oldProcess)
-                                          : intType 0,
+                                          : (intType) 0,
                        oldProcess != NULL ? oldProcess->usage_count
                                           : (uintType) 0););
     FREE_RECORD(oldProcess, dos_processRecord, count.process);
