@@ -220,10 +220,16 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       redirectStdinName = cstri_to_stri("");
     } else {
       tempName(osRedirectStdinName);
-      redirectStdinName = cstri_to_stri(osRedirectStdinName);
       /* printf("redirectStdin\n"); */
       stdinFile = os_fopen(osRedirectStdinName, "w");
-      if (stdinFile != NULL) {
+      if (unlikely(stdinFile == NULL)) {
+        logError(printf("pcsStart: fopen(\"%s\", \"w\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        osRedirectStdinName,
+                        errno, strerror(errno)););
+        err_info = FILE_ERROR;
+        redirectStdinName = NULL;
+      } else {
         /* printf("opening ok\n"); */
         while (err_info == OKAY_NO_ERROR && (bytes_read =
                 fread(buffer, 1, 4096, redirectStdin->cFile)) != 0) {
@@ -241,6 +247,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
           } /* if */
         } /* while */
         fclose(stdinFile);
+        redirectStdinName = cstri_to_stri(osRedirectStdinName);
       } /* if */
     } /* if */
     if (redirectStdout->cFile == NULL) {
@@ -255,13 +262,16 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       tempName(osRedirectStderrName);
       redirectStderrName = cstri_to_stri(osRedirectStderrName);
     } /* if */
-    if (unlikely(redirectStdinName == NULL ||
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 redirectStdinName == NULL ||
                  redirectStdoutName == NULL ||
                  redirectStderrName == NULL)) {
       if (redirectStdin->cFile != NULL) {
         os_remove(osRedirectStdinName);
       } /* if */
-      err_info = MEMORY_ERROR;
+      if (err_info == OKAY_NO_ERROR) {
+        err_info = MEMORY_ERROR;
+      } /* if */
     } else {
       returnCode = cmdShellExecute(command, parameters, redirectStdinName,
                                    redirectStdoutName, redirectStderrName);
