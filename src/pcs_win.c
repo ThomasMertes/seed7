@@ -522,8 +522,8 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     HANDLE childInputWrite = INVALID_HANDLE_VALUE;
     HANDLE childOutputRead = INVALID_HANDLE_VALUE;
     HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
-    int childStdinFileno;
-    int childStdoutFileno;
+    int childStdinFileno = -1;
+    int childStdoutFileno = -1;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -654,10 +654,14 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       if (childInputRead != INVALID_HANDLE_VALUE) {
         CloseHandle(childInputRead);
       } /* if */
-      if (childInputWrite != INVALID_HANDLE_VALUE) {
+      if (childStdinFileno != -1) {
+        _close(childStdinFileno);
+      } else if (childInputWrite != INVALID_HANDLE_VALUE) {
         CloseHandle(childInputWrite);
       } /* if */
-      if (childOutputRead != INVALID_HANDLE_VALUE) {
+      if (childStdoutFileno != -1) {
+        _close(childStdoutFileno);
+      } else if (childOutputRead != INVALID_HANDLE_VALUE) {
         CloseHandle(childOutputRead);
       } /* if */
       if (childOutputWrite != INVALID_HANDLE_VALUE) {
@@ -862,9 +866,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     HANDLE childOutputWrite = INVALID_HANDLE_VALUE;
     HANDLE childErrorRead = INVALID_HANDLE_VALUE;
     HANDLE childErrorWrite = INVALID_HANDLE_VALUE;
-    int childStdinFileno;
-    int childStdoutFileno;
-    int childStderrFileno;
+    int childStdinFileno = -1;
+    int childStdoutFileno = -1;
+    int childStderrFileno = -1;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -1041,16 +1045,22 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       if (childInputRead != INVALID_HANDLE_VALUE) {
         CloseHandle(childInputRead);
       } /* if */
-      if (childInputWrite != INVALID_HANDLE_VALUE) {
+      if (childStdinFileno != -1) {
+        _close(childStdinFileno);
+      } else if (childInputWrite != INVALID_HANDLE_VALUE) {
         CloseHandle(childInputWrite);
       } /* if */
-      if (childOutputRead != INVALID_HANDLE_VALUE) {
+      if (childStdoutFileno != -1) {
+        _close(childStdoutFileno);
+      } else if (childOutputRead != INVALID_HANDLE_VALUE) {
         CloseHandle(childOutputRead);
       } /* if */
       if (childOutputWrite != INVALID_HANDLE_VALUE) {
         CloseHandle(childOutputWrite);
       } /* if */
-      if (childErrorRead != INVALID_HANDLE_VALUE) {
+      if (childStderrFileno != -1) {
+        _close(childStderrFileno);
+      } else if (childErrorRead != INVALID_HANDLE_VALUE) {
         CloseHandle(childErrorRead);
       } /* if */
       if (childErrorWrite != INVALID_HANDLE_VALUE) {
