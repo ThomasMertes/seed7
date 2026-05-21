@@ -382,6 +382,8 @@ intType pcsExitValue (const const_processType process)
  *  Free the memory referred by 'oldProcess'.
  *  After pcsFree is left 'oldProcess' refers to not existing memory.
  *  The memory where 'oldProcess' is stored can be freed afterwards.
+ *  @param oldProcess Process memory to be freed. All callers of
+ *                    pcsFree() ensure that oldProcess is never NULL.
  */
 void pcsFree (processType oldProcess)
 
