@@ -206,6 +206,8 @@ const proc: var (ref type: aType) : (ref expr: name) is default is func
     var aType: name is aType.value;
   end func;
 
+const type: typeof (ref void: aValue)                      is void;
+
 const func string: str (in type: aType)                    is action "TYP_STR";
 const func type: gentype                                   is action "TYP_GENTYPE";
 const func type: gensub (in type: baseType)                is action "TYP_GENSUB";
