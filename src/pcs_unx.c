@@ -506,8 +506,18 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       setCloseOnExec(childStdoutPipes[1]);
       pid = fork();
       if (pid == 0) {
-        dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
-        dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
+        /* Make the read end of childStdinPipes pipe as stdin */
+        if (unlikely(dup2(childStdinPipes[0], 0) == -1)) {
+          static const char msg[] = "pcsPipe: dup2(stdin) failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        } /* if */
+        /* Make the write end of childStdoutPipes as stdout */
+        if (unlikely(dup2(childStdoutPipes[1], 1) == -1)) {
+          static const char msg[] = "pcsPipe: dup2(stdout) failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        } /* if */
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
@@ -641,8 +651,18 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
           setCloseOnExec(slavefd);
           pid = fork();
           if (pid == 0) {
-            dup2(slavefd, 0); /* Make the read end of slavefd as stdin */
-            dup2(slavefd, 1); /* Make the write end of slavefd as stdout */
+            /* Make the read end of slavefd as stdin */
+            if (unlikely(dup2(slavefd, 0) == -1)) {
+              static const char msg[] = "pcsPty: dup2(stdin) failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            } /* if */
+            /* Make the write end of slavefd as stdout */
+            if (unlikely(dup2(slavefd, 1) == -1)) {
+              static const char msg[] = "pcsPty: dup2(stdout) failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            } /* if */
             close(masterfd); /* Not required for the child */
             close(slavefd);
             execv(argv[0], argv);
@@ -785,15 +805,27 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         pid = fork();
         if (pid == 0) {
           if (stdinFileNo != 0) {
-            dup2(stdinFileNo, 0);
+            if (unlikely(dup2(stdinFileNo, 0) == -1)) {
+              static const char msg[] = "pcsStart: dup2(stdin) failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            } /* if */
             close(stdinFileNo);
           } /* if */
           if (stdoutFileNo != 1) {
-            dup2(stdoutFileNo, 1);
+            if (unlikely(dup2(stdoutFileNo, 1) == -1)) {
+              static const char msg[] = "pcsStart: dup2(stdout) failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            } /* if */
             close(stdoutFileNo);
           } /* if */
           if (stderrFileNo != 2) {
-            dup2(stderrFileNo, 2);
+            if (unlikely(dup2(stderrFileNo, 2) == -1)) {
+              static const char msg[] = "pcsStart: dup2(stderr) failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            } /* if */
             close(stderrFileNo);
           } /* if */
           execv(argv[0], argv);
@@ -934,9 +966,24 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       setCloseOnExec(childStderrPipes[1]);
       pid = fork();
       if (pid == 0) {
-        dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
-        dup2(childStdoutPipes[1], 1);  /* Make the write end of childStdoutPipes as stdout */
-        dup2(childStderrPipes[1], 2);  /* Make the write end of childStderrPipes as stderr */
+        /* Make the read end of childStdinPipes pipe as stdin */
+        if (unlikely(dup2(childStdinPipes[0], 0) == -1)) {
+          static const char msg[] = "pcsStartPipe: dup2(stdin) failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        } /* if */
+        /* Make the write end of childStdoutPipes as stdout */
+        if (unlikely(dup2(childStdoutPipes[1], 1) == -1)) {
+          static const char msg[] = "pcsStartPipe: dup2(stdout) failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        } /* if */
+        /* Make the write end of childStderrPipes as stderr */
+        if (unlikely(dup2(childStderrPipes[1], 2) == -1)) {
+          static const char msg[] = "pcsStartPipe: dup2(stderr) failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        } /* if */
         close(childStdinPipes[0]); /* Not required for the child */
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
