@@ -307,5 +307,5 @@ enable_io(integer);
 enable_io(boolean);
 enable_io(bitset);
 enable_output(void);
-# enable_output(type);
+enable_output(type);
 # enable_output(ACTION);
