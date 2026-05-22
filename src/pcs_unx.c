@@ -570,6 +570,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     fileType childStdinFile;
     fileType childStdoutFile;
     int masterfd;
+    int stdoutfd;
     int slavefd;
     char *slavedevice;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -636,6 +637,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
           } else {
             close(slavefd); /* This is being used by the child */
             initFileType(childStdinFile, FALSE, TRUE);
+            initFileType(childStdoutFile, TRUE, FALSE);
             childStdinFile->cFile = os_fdopen(masterfd, "w");
             if (childStdinFile->cFile == NULL) {
               logError(printf("pcsPty: stdin "
@@ -643,17 +645,29 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
                               "errno=%d\nerror: %s\n",
                               masterfd, errno, strerror(errno)););
               FREE_RECORD(childStdinFile, fileRecord, count.files);
+              stdoutfd = masterfd;
+              childStdoutFile->cFile = os_fdopen(stdoutfd, "r");
             } else {
               filDestr(*childStdin);
               *childStdin = childStdinFile;
+              stdoutfd = dup(masterfd);
+              if (unlikely(stdoutfd == -1)) {
+                logError(printf("pcsPty: stdout dup(%d) failed:\n"
+                                "errno=%d\nerror: %s\n",
+                                masterfd, errno, strerror(errno)););
+                childStdoutFile->cFile = NULL;
+              } else {
+                childStdoutFile->cFile = os_fdopen(stdoutfd, "r");
+              } /* if */
             } /* if */
-            initFileType(childStdoutFile, TRUE, FALSE);
-            childStdoutFile->cFile = os_fdopen(masterfd, "r");
             if (childStdoutFile->cFile == NULL) {
               logError(printf("pcsPty: stdout "
-                              "os_fdopen(%d, \"w\") returned NULL\n"
+                              "os_fdopen(%d, \"r\") returned NULL\n"
                               "errno=%d\nerror: %s\n",
-                              masterfd, errno, strerror(errno)););
+                              stdoutfd, errno, strerror(errno)););
+              if (stdoutfd != -1) {
+                close(stdoutfd);
+              } /* if */
               FREE_RECORD(childStdoutFile, fileRecord, count.files);
             } else {
               filDestr(*childStdout);
