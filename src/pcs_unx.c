@@ -527,7 +527,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         if (childStdoutFile->cFile == NULL) {
           logError(printf("pcsPipe2: stdout "
-                          "os_fdopen(%d, \"w\") returned NULL\n"
+                          "os_fdopen(%d, \"r\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdoutPipes[0], errno, strerror(errno)););
           close(childStdoutPipes[0]);
@@ -962,8 +962,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         initFileType(childStdoutFile, TRUE, FALSE);
         childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         if (unlikely(childStdoutFile->cFile == NULL)) {
-          logError(printf("pcsStartPipe: stdin "
-                          "os_fdopen(%d, \"w\") returned NULL\n"
+          logError(printf("pcsStartPipe: stdout "
+                          "os_fdopen(%d, \"r\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdoutPipes[0], errno, strerror(errno)););
           close(childStdoutPipes[0]);
