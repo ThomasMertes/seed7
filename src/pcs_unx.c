@@ -517,6 +517,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                           "os_fdopen(%d, \"w\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdinPipes[1], errno, strerror(errno)););
+          close(childStdinPipes[1]);
           FREE_RECORD(childStdinFile, fileRecord, count.files);
         } else {
           filDestr(*childStdin);
@@ -529,6 +530,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
                           "os_fdopen(%d, \"w\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdoutPipes[0], errno, strerror(errno)););
+          close(childStdoutPipes[0]);
           FREE_RECORD(childStdoutFile, fileRecord, count.files);
         } else {
           filDestr(*childStdout);
@@ -644,9 +646,10 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
                               "os_fdopen(%d, \"w\") returned NULL\n"
                               "errno=%d\nerror: %s\n",
                               masterfd, errno, strerror(errno)););
+              close(masterfd);
               FREE_RECORD(childStdinFile, fileRecord, count.files);
-              stdoutfd = masterfd;
-              childStdoutFile->cFile = os_fdopen(stdoutfd, "r");
+              stdoutfd = -1;
+              childStdoutFile->cFile = NULL;
             } else {
               filDestr(*childStdin);
               *childStdin = childStdinFile;
@@ -945,6 +948,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                           "os_fdopen(%d, \"w\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdinPipes[1], errno, strerror(errno)););
+          close(childStdinPipes[1]);
           FREE_RECORD(childStdinFile, fileRecord, count.files);
           process->stdIn = NULL;
         } else {
@@ -962,6 +966,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                           "os_fdopen(%d, \"w\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStdoutPipes[0], errno, strerror(errno)););
+          close(childStdoutPipes[0]);
           FREE_RECORD(childStdoutFile, fileRecord, count.files);
           process->stdOut = NULL;
         } else {
@@ -979,6 +984,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                           "os_fdopen(%d, \"r\") returned NULL\n"
                           "errno=%d\nerror: %s\n",
                           childStderrPipes[0], errno, strerror(errno)););
+          close(childStderrPipes[0]);
           FREE_RECORD(childStderrFile, fileRecord, count.files);
           process->stdErr = NULL;
         } else {
