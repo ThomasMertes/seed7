@@ -508,13 +508,13 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       if (pid == 0) {
         /* Make the read end of childStdinPipes pipe as stdin */
         if (unlikely(dup2(childStdinPipes[0], 0) == -1)) {
-          static const char msg[] = "pcsPipe: dup2(stdin) failed\n";
+          static const char msg[] = "pcsPipe2: dup2(stdin) failed\n";
           (void) write(2, msg, sizeof(msg) - 1);
           _exit(127);
         } /* if */
         /* Make the write end of childStdoutPipes as stdout */
         if (unlikely(dup2(childStdoutPipes[1], 1) == -1)) {
-          static const char msg[] = "pcsPipe: dup2(stdout) failed\n";
+          static const char msg[] = "pcsPipe2: dup2(stdout) failed\n";
           (void) write(2, msg, sizeof(msg) - 1);
           _exit(127);
         } /* if */
@@ -523,9 +523,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         close(childStdoutPipes[0]);
         close(childStdoutPipes[1]);
         execv(argv[0], argv);
-        logError(printf("pcsPipe2: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
-                        argv[0], errno, strerror(errno)););
-        os_exit(1);
+        {
+          static const char msg[] = "pcsPipe2: execv() failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        }
       } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsPipe2: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
@@ -670,9 +672,11 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             close(masterfd); /* Not required for the child */
             close(slavefd);
             execv(argv[0], argv);
-            logError(printf("pcsPty: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
-                            argv[0], errno, strerror(errno)););
-            os_exit(1);
+            {
+              static const char msg[] = "pcsPty: execv() failed\n";
+              (void) write(2, msg, sizeof(msg) - 1);
+              _exit(127);
+            }
           } else if (unlikely(pid == (pid_t) -1)) {
             logError(printf("pcsPty: fork failed:\nerrno=%d\nerror: %s\n",
                             errno, strerror(errno)););
@@ -833,10 +837,11 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
             close(stderrFileNo);
           } /* if */
           execv(argv[0], argv);
-          logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          argv[0], errno, strerror(errno)););
-          os_exit(1);
+          {
+            static const char msg[] = "pcsStart: execv() failed\n";
+            (void) write(2, msg, sizeof(msg) - 1);
+            _exit(127);
+          }
         } else if (unlikely(pid == (pid_t) -1)) {
           logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
                           errno, strerror(errno)););
@@ -995,9 +1000,11 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         close(childStderrPipes[0]);
         close(childStderrPipes[1]);
         execv(argv[0], argv);
-        logError(printf("pcsStartPipe: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
-                        argv[0], errno, strerror(errno)););
-        os_exit(1);
+        {
+          static const char msg[] = "pcsStartPipe: execv() failed\n";
+          (void) write(2, msg, sizeof(msg) - 1);
+          _exit(127);
+        }
       } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsStartPipe: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
