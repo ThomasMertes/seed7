@@ -633,6 +633,9 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
                    unlockpt(masterfd) == -1 ||
                    (slavedevice = ptsname(masterfd)) == NULL)) {
         logError(printf("pcsPty: Cannot open pty.\n"););
+        if (masterfd != -1) {
+          close(masterfd);
+        } /* if */
         freeArgVector(argv);
         FREE_RECORD(childStdinFile, fileRecord, count.files);
         FREE_RECORD(childStdoutFile, fileRecord, count.files);
@@ -642,6 +645,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
         slavefd = open(slavedevice, O_RDWR|O_NOCTTY);
         if (unlikely(slavefd < 0)) {
           logError(printf("pcsPty: No slavefd\n"););
+          close(masterfd);
           freeArgVector(argv);
           FREE_RECORD(childStdinFile, fileRecord, count.files);
           FREE_RECORD(childStdoutFile, fileRecord, count.files);
