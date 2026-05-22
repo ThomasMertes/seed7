@@ -213,6 +213,22 @@ static os_striType *genArgVector (const const_striType command,
 
 
 
+static void setCloseOnExec (int fd)
+
+  {
+    int flags;
+
+  /* setCloseOnExec */
+    if (fd >= 0) {
+      flags = fcntl(fd, F_GETFD);
+      if (flags != -1) {
+        (void) fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+      } /* if */
+    } /* if */
+  } /* setCloseOnExec */
+
+
+
 /**
  *  Compare two processes.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -484,6 +500,10 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       close(childStdinPipes[1]);
       raise_error(FILE_ERROR);
     } else {
+      setCloseOnExec(childStdinPipes[0]);
+      setCloseOnExec(childStdinPipes[1]);
+      setCloseOnExec(childStdoutPipes[0]);
+      setCloseOnExec(childStdoutPipes[1]);
       pid = fork();
       if (pid == 0) {
         dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
@@ -617,6 +637,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
           FREE_RECORD(childStdoutFile, fileRecord, count.files);
           raise_error(FILE_ERROR);
         } else {
+          setCloseOnExec(masterfd);
+          setCloseOnExec(slavefd);
           pid = fork();
           if (pid == 0) {
             dup2(slavefd, 0); /* Make the read end of slavefd as stdin */
@@ -725,16 +747,19 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     childStderr = redirectStderr->cFile;
     if (childStdin == NULL) {
       stdinFileNo = open(NULL_DEVICE, O_RDONLY);
+      setCloseOnExec(stdinFileNo);
     } else {
       stdinFileNo = os_fileno(childStdin);
     } /* if */
     if (childStdout == NULL) {
       stdoutFileNo = open(NULL_DEVICE, O_WRONLY);
+      setCloseOnExec(stdoutFileNo);
     } else {
       stdoutFileNo = os_fileno(childStdout);
     } /* if */
     if (childStderr == NULL) {
       stderrFileNo = open(NULL_DEVICE, O_WRONLY);
+      setCloseOnExec(stderrFileNo);
     } else {
       stderrFileNo = os_fileno(childStderr);
     } /* if */
@@ -901,6 +926,12 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       raise_error(FILE_ERROR);
       process = NULL;
     } else {
+      setCloseOnExec(childStdinPipes[0]);
+      setCloseOnExec(childStdinPipes[1]);
+      setCloseOnExec(childStdoutPipes[0]);
+      setCloseOnExec(childStdoutPipes[1]);
+      setCloseOnExec(childStderrPipes[0]);
+      setCloseOnExec(childStderrPipes[1]);
       pid = fork();
       if (pid == 0) {
         dup2(childStdinPipes[0], 0); /* Make the read end of childStdinPipes pipe as stdin */
