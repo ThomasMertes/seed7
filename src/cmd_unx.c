@@ -1052,9 +1052,10 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
         raise_error(err_info);
       } else {
         if (unlikely(os_chown(os_path, (uid_t) -1, gid) != 0)) {
-          logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+          logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, "
+                          FMT_GID ") failed:\n"
                           "errno=%d\nerror: %s\n",
-                          os_path, (long) gid, errno, strerror(errno)););
+                          os_path, gid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
         } else {
@@ -1111,9 +1112,10 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
         gid = getGidFromGroup(group, &err_info);
         if (likely(gid != (gid_t) -1)) {
           if (unlikely(os_lchown(os_path, (uid_t) -1, gid) != 0)) {
-            logError(printf("cmdSetGroupOfSymlink: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+            logError(printf("cmdSetGroupOfSymlink: chown(\"" FMT_S_OS
+                            "\", -1, " FMT_GID ") failed:\n"
                             "errno=%d\nerror: %s\n",
-                            os_path, (long) gid, errno, strerror(errno)););
+                            os_path, gid, errno, strerror(errno)););
             err_info = FILE_ERROR;
           } /* if */
         } /* if */
@@ -1256,9 +1258,10 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
         raise_error(err_info);
       } else {
         if (unlikely(os_chown(os_path, uid, (gid_t) -1) != 0)) {
-          logError(printf("cmdSetOwner: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+          logError(printf("cmdSetOwner: chown(\"" FMT_S_OS "\", "
+                          FMT_UID ", -1) failed:\n"
                           "errno=%d\nerror: %s\n",
-                          os_path, (long) uid, errno, strerror(errno)););
+                          os_path, uid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
         } else {
@@ -1315,9 +1318,10 @@ void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType o
         uid = getUidFromUser(owner, &err_info);
         if (likely(uid != (uid_t) -1)) {
           if (unlikely(os_lchown(os_path, uid, (gid_t) -1) != 0)) {
-            logError(printf("cmdSetOwnerOfSymlink: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+            logError(printf("cmdSetOwnerOfSymlink: chown(\"" FMT_S_OS
+                            "\", " FMT_UID ", -1) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            os_path, (long) uid, errno, strerror(errno)););
+                            os_path, uid, errno, strerror(errno)););
             err_info = FILE_ERROR;
           } /* if */
         } /* if */
