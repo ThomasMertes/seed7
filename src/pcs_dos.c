@@ -486,6 +486,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                         "os_fopen(\"%s\", \"r\") returned NULL\n"
                         "errno=%d\nerror: %s\n",
                         osRedirectStdoutName, errno, strerror(errno)););
+        /* Assume that the file does not exist, because nothing  */
+        /* has been written to it. Use a NULL file and continue. */
         FREE_RECORD(childStdoutFile, fileRecord, count.files);
         process->stdOut = NULL;
       } else {
