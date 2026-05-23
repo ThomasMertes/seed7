@@ -71,7 +71,8 @@ static striType funcTypeName (typeType funcType, errInfoType *err_info)
         length += STRLEN("func ");
       } /* if */
       aType = aType->result_type;
-    } while (aType != NULL && aType->result_type != NULL);
+    } while (aType != NULL &&
+             aType->name == NULL && aType->result_type != NULL);
     if (aType == NULL) {
       resultTypeName = cstri_to_stri(" *NULL_TYPE* ");
     } else if (aType->name != NULL) {
@@ -104,7 +105,8 @@ static striType funcTypeName (typeType funcType, errInfoType *err_info)
           pos += funcStri->size;
         } /* if */
         aType = aType->result_type;
-      } while (aType != NULL && aType->result_type != NULL);
+      } while (aType != NULL &&
+               aType->name == NULL && aType->result_type != NULL);
       memcpy(&typeName->mem[pos], resultTypeName->mem,
              resultTypeName->size * sizeof(strElemType));
     } /* if */
