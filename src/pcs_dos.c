@@ -445,7 +445,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     striType redirectStdinName;
     striType redirectStdoutName;
     striType redirectStderrName;
-    fileType childStdoutFile;
+    fileType childStdoutFile = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
     dos_processType process;
 
@@ -510,7 +510,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       if (childStdoutFile != NULL) {
         FREE_RECORD(childStdoutFile, fileRecord, count.files);
       } /* if */
-      pcsFree((processType) process);
+      if (process != NULL) {
+        pcsFree((processType) process);
+      } /* if */
       raise_error(err_info);
       process = NULL;
     } /* if */
