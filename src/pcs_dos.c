@@ -37,6 +37,10 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "io.h"
+#if UNISTD_H_PRESENT
+#include "unistd.h"
+#endif
 #include "errno.h"
 
 #include "common.h"
@@ -293,7 +297,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                        redirectStdout != NULL ? safe_fileno(redirectStdout->cFile) : 0,
                        redirectStderr == NULL ? "NULL " : "",
                        redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
-    if (redirectStdin->cFile == NULL) {
+    if (redirectStdin->cFile == NULL ||
+        os_isatty(os_fileno(redirectStdin->cFile))) {
+      osRedirectStdinName[0] = '\0';
       redirectStdinName = cstri_to_stri("");
     } else {
       tempName(osRedirectStdinName);
@@ -343,7 +349,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                  redirectStdinName == NULL ||
                  redirectStdoutName == NULL ||
                  redirectStderrName == NULL)) {
-      if (redirectStdin->cFile != NULL) {
+      if (osRedirectStdinName[0] != '\0') {
         os_remove(osRedirectStdinName);
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -360,7 +366,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                                            redirectStdinName,
                                            redirectStdoutName,
                                            redirectStderrName);
-      if (redirectStdin->cFile != NULL) {
+      if (osRedirectStdinName[0] != '\0') {
         os_remove(osRedirectStdinName);
       } /* if */
       if (redirectStdout->cFile != NULL) {
