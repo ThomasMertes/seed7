@@ -271,13 +271,11 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
   {
     char osRedirectStdinName[12 + NULL_TERMINATION_LEN];
     char osRedirectStdoutName[12 + NULL_TERMINATION_LEN];
-    char osRedirectStderrName[12 + NULL_TERMINATION_LEN];
     striType redirectStdinName;
     striType redirectStdoutName;
     striType redirectStderrName;
     FILE *stdinFile;
     FILE *stdoutFile;
-    FILE *stderrFile;
     errInfoType err_info = OKAY_NO_ERROR;
     size_t bytes_read;
     char buffer[4096];
@@ -299,6 +297,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                        redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
     if (redirectStdin->cFile == NULL ||
         os_isatty(os_fileno(redirectStdin->cFile))) {
+      /* NULL files and TTYs are not redirected. */
       osRedirectStdinName[0] = '\0';
       redirectStdinName = cstri_to_stri("");
     } else {
@@ -339,12 +338,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       tempName(osRedirectStdoutName);
       redirectStdoutName = cstri_to_stri(osRedirectStdoutName);
     } /* if */
-    if (redirectStderr->cFile == NULL) {
-      redirectStderrName = cstri_to_stri("");
-    } else {
-      tempName(osRedirectStderrName);
-      redirectStderrName = cstri_to_stri(osRedirectStderrName);
-    } /* if */
+    /* A possible redirection of stderr is ignored.   */
+    /* DOS does not support the redirection with 2> . */
+    redirectStderrName = cstri_to_stri("");
     if (unlikely(err_info != OKAY_NO_ERROR ||
                  redirectStdinName == NULL ||
                  redirectStdoutName == NULL ||
@@ -391,29 +387,6 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
           fclose(stdoutFile);
         } /* if */
         os_remove(osRedirectStdoutName);
-      } /* if */
-      if (redirectStderr->cFile != NULL) {
-        /* printf("redirectStderr\n"); */
-        stderrFile = os_fopen(osRedirectStderrName, "r");
-        if (stderrFile != NULL) {
-          /* printf("opening ok\n"); */
-          while (err_info == OKAY_NO_ERROR && (bytes_read =
-                  fread(buffer, 1, 4096, stderrFile)) != 0) {
-          /* printf("read " FMT_U_MEM "\n", (memSizeType) bytes_read); */
-            if (fwrite(buffer, 1, bytes_read, redirectStderr->cFile) != bytes_read) {
-              logError(printf("pcsStart: copy_file(\"" FMT_S_OS "\", %d): "
-                              "fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
-                              "errno=%d\nerror: %s\n",
-                              osRedirectStderrName,
-                              safe_fileno(redirectStderr->cFile),
-                            (memSizeType) bytes_read,
-                              safe_fileno(redirectStderr->cFile), errno, strerror(errno)););
-              err_info = FILE_ERROR;
-            } /* if */
-          } /* while */
-          fclose(stderrFile);
-        } /* if */
-        os_remove(osRedirectStderrName);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         FREE_RECORD(process, dos_processRecord, count.process);
