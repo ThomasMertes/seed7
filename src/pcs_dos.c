@@ -46,6 +46,7 @@
 #include "striutl.h"
 #include "int_rtl.h"
 #include "cmd_rtl.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 
@@ -57,6 +58,7 @@ typedef struct {
     /* Up to here the structure is identical to struct processStruct */
     intType pid;
     intType exitValue;
+    char osStdoutName[12 + NULL_TERMINATION_LEN];
   } dos_processRecord, *dos_processType;
 
 typedef const dos_processRecord *const_dos_processType;
@@ -67,9 +69,11 @@ size_t sizeof_processRecord = sizeof(dos_processRecord);
 
 #define to_pid(process)          (((const_dos_processType) (process))->pid)
 #define to_exitValue(process)    (((const_dos_processType) (process))->exitValue)
+#define to_osStdoutName(process) (((const_dos_processType) (process))->osStdoutName)
 
 #define to_var_pid(process)          (((dos_processType) (process))->pid)
 #define to_var_exitValue(process)    (((dos_processType) (process))->exitValue)
+#define to_var_osStdoutName(process) (((dos_processType) (process))->osStdoutName)
 
 
 
@@ -171,6 +175,21 @@ void pcsFree (processType oldProcess)
                                           : (intType) 0,
                        oldProcess != NULL ? oldProcess->usage_count
                                           : (uintType) 0););
+    if (to_osStdoutName(oldProcess)[0] != '\0') {
+      os_remove(to_osStdoutName(oldProcess));
+    } /* if */
+    if (oldProcess->stdIn != NULL) {
+      filClose(oldProcess->stdIn);
+      filDestr(oldProcess->stdIn);
+    } /* if */
+    if (oldProcess->stdOut != NULL) {
+      filClose(oldProcess->stdOut);
+      filDestr(oldProcess->stdOut);
+    } /* if */
+    if (oldProcess->stdErr != NULL) {
+      filClose(oldProcess->stdErr);
+      filDestr(oldProcess->stdErr);
+    } /* if */
     FREE_RECORD(oldProcess, dos_processRecord, count.process);
   } /* pcsFree */
 
@@ -421,7 +440,16 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
 
 processType pcsStartPipe (const const_striType command, const const_rtlArrayType parameters)
 
-  { /* pcsStartPipe */
+  {
+    char osRedirectStdoutName[12 + NULL_TERMINATION_LEN];
+    striType redirectStdinName;
+    striType redirectStdoutName;
+    striType redirectStderrName;
+    fileType childStdoutFile;
+    errInfoType err_info = OKAY_NO_ERROR;
+    dos_processType process;
+
+  /* pcsStartPipe */
     logFunction(printf("pcsStartPipe(\"%s\"", striAsUnquotedCStri(command));
 #if ANY_LOG_ACTIVE
                 printParameters(parameters);
@@ -429,8 +457,71 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                 printf(", **not shown **");
 #endif
                 printf(")\n"););
-    logFunction(printf("pcsStartPipe -> 0\n"););
-    return NULL;
+    redirectStdinName = cstri_to_stri("");
+    tempName(osRedirectStdoutName);
+    redirectStdoutName = cstri_to_stri(osRedirectStdoutName);
+    redirectStderrName = cstri_to_stri("");
+    if (unlikely(redirectStdinName == NULL ||
+                 redirectStdoutName == NULL ||
+                 redirectStderrName == NULL ||
+                 !ALLOC_RECORD(childStdoutFile, fileRecord, count.files))) {
+      err_info = MEMORY_ERROR;
+      process = NULL;
+    } else if (unlikely(!ALLOC_RECORD(process, dos_processRecord, count.process))) {
+      err_info = MEMORY_ERROR;
+    } else {
+      memset(process, 0, sizeof(dos_processRecord));
+      process->usage_count = 1;
+      process->pid = 1;
+      process->exitValue = cmdShellExecute(command, parameters,
+                                           redirectStdinName,
+                                           redirectStdoutName,
+                                           redirectStderrName);
+      memcpy(process->osStdoutName, osRedirectStdoutName,
+             sizeof(osRedirectStdoutName));
+      initFileType(childStdoutFile, TRUE, FALSE);
+      childStdoutFile->cFile = os_fopen(osRedirectStdoutName, "r");
+      if (unlikely(childStdoutFile->cFile == NULL)) {
+        logError(printf("pcsStartPipe: stdout "
+                        "os_fopen(\"%s\", \"r\") returned NULL\n"
+                        "errno=%d\nerror: %s\n",
+                        osRedirectStdoutName, errno, strerror(errno)););
+        FREE_RECORD(childStdoutFile, fileRecord, count.files);
+        process->stdOut = NULL;
+      } else {
+        logMessage(printf("pcsStartPipe: childStdoutFile=%s%d\n",
+                          childStdoutFile->cFile == NULL ?
+                             "NULL " : "",
+                          childStdoutFile->cFile != NULL ?
+                              safe_fileno(childStdoutFile->cFile) : 0););
+        process->stdOut = childStdoutFile;
+      } /* if */
+    } /* if */
+    if (redirectStdinName != NULL) {
+      FREE_STRI(redirectStdinName);
+    } /* if */
+    if (redirectStdoutName != NULL) {
+      FREE_STRI(redirectStdoutName);
+    } /* if */
+    if (redirectStderrName != NULL) {
+      FREE_STRI(redirectStderrName);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (childStdoutFile != NULL) {
+        FREE_RECORD(childStdoutFile, fileRecord, count.files);
+      } /* if */
+      pcsFree((processType) process);
+      raise_error(err_info);
+      process = NULL;
+    } /* if */
+    logFunction(printf("pcsStartPipe --> " FMT_U_MEM
+                       " (pid=" FMT_D ", usage=" FMT_U ")\n",
+                       (memSizeType) process,
+                       process != NULL ? process->pid
+                                       : (intType) 0,
+                       process != NULL ? process->usage_count
+                                       : (uintType) 0););
+    return (processType) process;
   } /* pcsStartPipe */
 
 
