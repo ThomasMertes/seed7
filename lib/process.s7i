@@ -394,13 +394,19 @@ const func string: commandPath (in string: command) is func
   result
     var string: cmdPath is "";
   local
+    var string: executableName is "";
     var string: path is "";
     var string: filePath is "";
     var boolean: searching is TRUE;
   begin
-    if pos(command, '/') = 0 then
+    if endsWith(command, ccConf.EXECUTABLE_FILE_EXTENSION) then
+      executableName := command;
+    else
+      executableName := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+    end if;
+    if pos(executableName, '/') = 0 then
       for path range getSearchPath do
-        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        filePath := path & "/" & executableName;
         if searching and fileType(filePath) = FILE_REGULAR and
             getFileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
           searching := FALSE;
@@ -408,14 +414,14 @@ const func string: commandPath (in string: command) is func
         end if;
       end for;
     else
-      if startsWith(command, "/") then
-        cmdPath := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+      if startsWith(executableName, "/") then
+        cmdPath := executableName;
       else
         cmdPath := getcwd;
         if cmdPath = "/" then
-          cmdPath &:= command & ccConf.EXECUTABLE_FILE_EXTENSION;
+          cmdPath &:= executableName;
         else
-          cmdPath &:= "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+          cmdPath &:= "/" & executableName;
         end if;
       end if;
       if fileType(cmdPath) <> FILE_REGULAR or
@@ -435,26 +441,32 @@ const func string: commandDir (in string: command) is func
   result
     var string: cmdDir is "";
   local
+    var string: executableName is "";
     var string: path is "";
     var string: filePath is "";
     var boolean: searching is TRUE;
     var integer: lastSlashPos is 0;
   begin
-    if pos(command, '/') = 0 then
+    if endsWith(command, ccConf.EXECUTABLE_FILE_EXTENSION) then
+      executableName := command;
+    else
+      executableName := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+    end if;
+    if pos(executableName, '/') = 0 then
       for path range getSearchPath do
-        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        filePath := path & "/" & executableName;
         if searching and fileType(filePath) = FILE_REGULAR and
             getFileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
           searching := FALSE;
           cmdDir := path;
         end if;
       end for;
-    elsif startsWith(command, "/") then
-      lastSlashPos := rpos(command, '/');
+    elsif startsWith(executableName, "/") then
+      lastSlashPos := rpos(executableName, '/');
       if lastSlashPos = 1 then
         cmdDir := "/";
       else
-        cmdDir := command[.. pred(lastSlashPos)];
+        cmdDir := executableName[.. pred(lastSlashPos)];
       end if;
     else
       cmdDir := getcwd;
