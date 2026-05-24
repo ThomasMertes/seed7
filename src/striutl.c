@@ -3711,8 +3711,9 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
     } else {
       for (inPos = 0, outPos = 0; inPos < stri->size; inPos++, outPos++) {
         switch (stri->mem[inPos]) {
-          case '\t': case '\f': case ' ':  case '*':  case ',':
-          case ';':  case '=':  case '~':  case 160:
+          case '\t': case '\f': case ' ':  case '\'': case '*':
+          case ',':  case ';':  case '=':  case '?':  case '~':
+          case 160:
             if (!quotation_mode) {
               quotation_mode = TRUE;
               result->mem[outPos] = '"';
@@ -3730,8 +3731,9 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
               /* variable name is followed by double quote (")   */
               /* before the exclamation mark (!) is added.       */
               switch (stri->mem[inPos - 1]) {
-                case '\t': case '\f': case ' ':  case '*':  case ',':
-                case ';':  case '=':  case '~':  case 160:
+                case '\t': case '\f': case ' ':  case '\'': case '*':
+                case ',':  case ';':  case '=':  case '?':  case '~':
+                case 160:
                 case '&':  case '<':  case '>':  case '^':  case '|':
                 case '\"': case '\\':
                   if (quotation_mode) {
@@ -3739,6 +3741,24 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  break;
+                case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+                case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+                case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+                case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+                case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+                case 'Z':
+                case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+                case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+                case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+                case 'p':  case 'q':  case 'r':  case 's':  case 't':
+                case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+                case 'z':
+                case '0':  case '1':  case '2':  case '3':  case '4':
+                case '5':  case '6':  case '7':  case '8':  case '9':
+                  quotation_mode = !quotation_mode;
+                  result->mem[outPos] = '"';
+                  outPos++;
                   break;
                 default:
                   if (!quotation_mode) {
@@ -3749,13 +3769,15 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                   break;
               } /* switch */
               exclamation_mode = FALSE;
-            } else if (inPos + 1 < stri->size) {
+            } /* if */
+            if (inPos + 1 < stri->size) {
               /* Assure that the exclamation mark (!) is         */
               /* followed by a double quote (") before a name    */
               /* which might specify an environment variable.    */
               switch (stri->mem[inPos + 1]) {
-                case '\t': case '\f': case ' ':  case '*':  case ',':
-                case ';':  case '=':  case '~':  case 160:
+                case '\t': case '\f': case ' ':  case '\'': case '*':
+                case ',':  case ';':  case '=':  case '?':  case '~':
+                case 160:
                 case '&':  case '<':  case '>':  case '^':  case '|':
                 case '\"': case '\\':
                   exclamation_mode = TRUE;
@@ -3764,8 +3786,30 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  result->mem[outPos] = '!';
                   break;
                 case '!':
+                  result->mem[outPos] = '!';
+                  break;
+                case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+                case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+                case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+                case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+                case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+                case 'Z':
+                case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+                case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+                case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+                case 'p':  case 'q':  case 'r':  case 's':  case 't':
+                case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+                case 'z':
+                case '0':  case '1':  case '2':  case '3':  case '4':
+                case '5':  case '6':  case '7':  case '8':  case '9':
+                  exclamation_mode = TRUE;
+                  quotation_mode = !quotation_mode;
+                  result->mem[outPos] = '!';
+                  outPos++;
+                  result->mem[outPos] = '"';
                   break;
                 default:
                   exclamation_mode = TRUE;
@@ -3774,10 +3818,12 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  result->mem[outPos] = '!';
                   break;
               } /* switch */
+            } else {
+              result->mem[outPos] = '!';
             } /* if */
-            result->mem[outPos] = '!';
             break;
           case '%':
             /* Assure that everything between two % markers is   */
@@ -3789,8 +3835,9 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
               /* variable name is followed by double quote (")   */
               /* before the percent sign (%) is added.           */
               switch (stri->mem[inPos - 1]) {
-                case '\t': case '\f': case ' ':  case '*':  case ',':
-                case ';':  case '=':  case '~':  case 160:
+                case '\t': case '\f': case ' ':  case '\'': case '*':
+                case ',':  case ';':  case '=':  case '?':  case '~':
+                case 160:
                 case '&':  case '<':  case '>':  case '^':  case '|':
                 case '\"': case '\\':
                   if (quotation_mode) {
@@ -3798,6 +3845,24 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  break;
+                case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+                case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+                case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+                case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+                case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+                case 'Z':
+                case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+                case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+                case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+                case 'p':  case 'q':  case 'r':  case 's':  case 't':
+                case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+                case 'z':
+                case '0':  case '1':  case '2':  case '3':  case '4':
+                case '5':  case '6':  case '7':  case '8':  case '9':
+                  quotation_mode = !quotation_mode;
+                  result->mem[outPos] = '"';
+                  outPos++;
                   break;
                 default:
                   if (!quotation_mode) {
@@ -3808,13 +3873,15 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                   break;
               } /* switch */
               percent_mode = FALSE;
-            } else if (inPos + 1 < stri->size) {
+            } /* if */
+            if (inPos + 1 < stri->size) {
               /* Assure that the percent sign (%) is followed by */
               /* a double quote (") before a name which might    */
               /* specify an environment variable.                */
               switch (stri->mem[inPos + 1]) {
-                case '\t': case '\f': case ' ':  case '*':  case ',':
-                case ';':  case '=':  case '~':  case 160:
+                case '\t': case '\f': case ' ':  case '\'': case '*':
+                case ',':  case ';':  case '=':  case '?':  case '~':
+                case 160:
                 case '&':  case '<':  case '>':  case '^':  case '|':
                 case '\"': case '\\':
                   percent_mode = TRUE;
@@ -3823,8 +3890,30 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  result->mem[outPos] = '%';
                   break;
                 case '%':
+                  result->mem[outPos] = '%';
+                  break;
+                case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+                case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+                case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+                case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+                case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+                case 'Z':
+                case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+                case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+                case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+                case 'p':  case 'q':  case 'r':  case 's':  case 't':
+                case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+                case 'z':
+                case '0':  case '1':  case '2':  case '3':  case '4':
+                case '5':  case '6':  case '7':  case '8':  case '9':
+                  percent_mode = TRUE;
+                  quotation_mode = !quotation_mode;
+                  result->mem[outPos] = '%';
+                  outPos++;
+                  result->mem[outPos] = '"';
                   break;
                 default:
                   percent_mode = TRUE;
@@ -3833,10 +3922,12 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                     result->mem[outPos] = '"';
                     outPos++;
                   } /* if */
+                  result->mem[outPos] = '%';
                   break;
               } /* switch */
+            } else {
+              result->mem[outPos] = '%';
             } /* if */
-            result->mem[outPos] = '%';
             break;
           case '&':  case '<':  case '>':  case '^':  case '|':
             if (!quotation_mode) {
@@ -3872,6 +3963,22 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
                             stri->mem[inPos]););
             *err_info = RANGE_ERROR;
             break;
+          case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+          case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+          case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+          case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+          case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+          case 'Z':
+          case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+          case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+          case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+          case 'p':  case 'q':  case 'r':  case 's':  case 't':
+          case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+          case 'z':
+          case '0':  case '1':  case '2':  case '3':  case '4':
+          case '5':  case '6':  case '7':  case '8':  case '9':
+            result->mem[outPos] = stri->mem[inPos];
+            break;
           default:
             if (quotation_mode) {
               quotation_mode = FALSE;
@@ -3899,7 +4006,7 @@ striType escapeParameter (const const_striType stri, errInfoType *err_info)
               countBackslash++;
             } /* while */
             if (inPos == outPos || result->mem[inPos] != '"') {
-              countBackslash /= 2;
+              countBackslash >>= 1;
               memmove(&result->mem[inPos - countBackslash],
                       &result->mem[inPos],
                       (outPos - inPos) * sizeof(strElemType));
