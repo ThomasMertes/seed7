@@ -332,7 +332,10 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         redirectStdinName = cstri_to_stri(osRedirectStdinName);
       } /* if */
     } /* if */
-    if (redirectStdout->cFile == NULL) {
+    if (redirectStdout->cFile == NULL ||
+        os_isatty(os_fileno(redirectStdout->cFile))) {
+      /* NULL files and TTYs are not redirected. */
+      osRedirectStdoutName[0] = '\0';
       redirectStdoutName = cstri_to_stri("");
     } else {
       tempName(osRedirectStdoutName);
@@ -365,7 +368,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       if (osRedirectStdinName[0] != '\0') {
         os_remove(osRedirectStdinName);
       } /* if */
-      if (redirectStdout->cFile != NULL) {
+      if (osRedirectStdoutName[0] != '\0') {
         /* printf("redirectStdout\n"); */
         stdoutFile = os_fopen(osRedirectStdoutName, "r");
         if (stdoutFile != NULL) {
@@ -379,7 +382,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                               "errno=%d\nerror: %s\n",
                               osRedirectStdoutName,
                               safe_fileno(redirectStdout->cFile),
-                            (memSizeType) bytes_read,
+                              (memSizeType) bytes_read,
                               safe_fileno(redirectStdout->cFile), errno, strerror(errno)););
               err_info = FILE_ERROR;
             } /* if */
