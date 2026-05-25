@@ -255,7 +255,8 @@ static void tempName (char *temp_name)
 
   /* tempName */
     random_value = uintRand();
-    /* There are 2821109907456 possible random file names */
+    /* There are 2821109907456 possible random file names.       */
+    /* The probability of a name collision is 1 : 2821109907456. */
     for (; pos < 8; pos++) {
       digit = (unsigned int) (random_value % 36);
       random_value /= 36;
