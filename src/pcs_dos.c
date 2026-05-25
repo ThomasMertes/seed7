@@ -347,7 +347,8 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR ||
                  redirectStdinName == NULL ||
                  redirectStdoutName == NULL ||
-                 redirectStderrName == NULL)) {
+                 redirectStderrName == NULL ||
+                 !ALLOC_RECORD(process, dos_processRecord, count.process))) {
       if (osRedirectStdinName[0] != '\0') {
         os_remove(osRedirectStdinName);
       } /* if */
@@ -355,8 +356,6 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         err_info = MEMORY_ERROR;
       } /* if */
       process = NULL;
-    } else if (unlikely(!ALLOC_RECORD(process, dos_processRecord, count.process))) {
-      err_info = MEMORY_ERROR;
     } else {
       memset(process, 0, sizeof(dos_processRecord));
       process->usage_count = 1;
