@@ -255,10 +255,11 @@ static void tempName (char *temp_name)
 
   /* tempName */
     random_value = uintRand();
+    /* There are 2821109907456 possible random file names */
     for (; pos < 8; pos++) {
       digit = (unsigned int) (random_value % 36);
       random_value /= 36;
-      temp_name[pos] = (os_charType) "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[digit];
+      temp_name[pos] = (os_charType) "0123456789abcdefghijklmnopqrstuvwxyz"[digit];
     } /* for */
     memcpy(&temp_name[pos], ".tmp", 5);
   } /* tempName */
