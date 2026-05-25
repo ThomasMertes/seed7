@@ -2265,6 +2265,8 @@ fileType filPopen (const const_striType command,
         raise_error(err_info);
         pipeOpened = NULL;
       } else {
+        logMessage(printf("filPopen: commandLine: \"%s\"\n",
+                          striAsUnquotedCStri(commandLine)););
         os_command = stri_to_os_stri(commandLine, &err_info);
         if (unlikely(os_command == NULL)) {
           logError(printf("filPopen: "
