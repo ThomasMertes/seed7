@@ -8280,10 +8280,10 @@ const func string: temp_name (in string: source) is func
     var string: tempName is "";
   begin
     if rpos(source, "/") = 0 then
-      tempName := "tmp_" & source;
+      tempName := ccConf.TEMP_FILE_PREFIX & source;
     else
       tempName := source[.. rpos(source, "/")] &
-          "tmp_" & source[succ(rpos(source, "/")) ..];
+          ccConf.TEMP_FILE_PREFIX & source[succ(rpos(source, "/")) ..];
     end if;
   end func;
 
@@ -8699,16 +8699,16 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         workDir := sourcePath[.. rpos(sourcePath, "/")];
         sourceFile := sourcePath[succ(rpos(sourcePath, "/")) ..];
       end if;
-      cSourceFile  := "tmp_" & sourceFile;
+      cSourceFile  := ccConf.TEMP_FILE_PREFIX & sourceFile;
       if config.generate_c_plus_plus then
         cSourceFile  &:= ".cpp";
       else
         cSourceFile  &:= ".c";
       end if;
-      cErrorFile     := "tmp_" & sourceFile & ".cerrs";
-      objectFile     := "tmp_" & sourceFile & ccConf.OBJECT_FILE_EXTENSION;
-      linkErrFile    := "tmp_" & sourceFile & ".lerrs";
-      tempExeFile    := "tmp_" & sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
+      cErrorFile     := ccConf.TEMP_FILE_PREFIX & sourceFile & ".cerrs";
+      objectFile     := ccConf.TEMP_FILE_PREFIX & sourceFile & ccConf.OBJECT_FILE_EXTENSION;
+      linkErrFile    := ccConf.TEMP_FILE_PREFIX & sourceFile & ".lerrs";
+      tempExeFile    := ccConf.TEMP_FILE_PREFIX & sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
       if sourceExtension = "" and ccConf.LINKED_PROGRAM_EXTENSION = "" then
         linkedProgram :=         sourceFile & "_exe";
       else
