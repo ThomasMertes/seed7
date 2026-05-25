@@ -317,17 +317,26 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                 fread(buffer, 1, 4096, redirectStdin->cFile)) != 0) {
           /* printf("read " FMT_U_MEM "\n", (memSizeType) bytes_read); */
           if (fwrite(buffer, 1, bytes_read, stdinFile) != bytes_read) {
-            logError(printf("pcsStart: copy_file(\"" FMT_S_OS "\", %d): "
+            logError(printf("pcsStart: copy_file(%d, \"" FMT_S_OS "\"): "
                             "fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
                             "errno=%d\nerror: %s\n",
+                            safe_fileno(redirectStdin->cFile),
                             osRedirectStdinName,
-                            safe_fileno(redirectStdin->cFile),
                             (memSizeType) bytes_read,
-                            safe_fileno(redirectStdin->cFile),
+                            safe_fileno(stdinFile),
                             errno, strerror(errno)););
             err_info = FILE_ERROR;
           } /* if */
         } /* while */
+        if (ferror(stdinFile) != 0) {
+          logError(printf("pcsStart: copy_file(%d, \"" FMT_S_OS "\"): "
+                          "fread(*, 1, 4096, %d) "
+                          "set the error indicator.\n",
+                          safe_fileno(redirectStdin->cFile),
+                          osRedirectStdinName,
+                          safe_fileno(redirectStdin->cFile)););
+          err_info = FILE_ERROR;
+        } /* if */
         fclose(stdinFile);
         redirectStdinName = cstri_to_stri(osRedirectStdinName);
       } /* if */
@@ -386,6 +395,15 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
               err_info = FILE_ERROR;
             } /* if */
           } /* while */
+          if (ferror(stdoutFile) != 0) {
+            logError(printf("pcsStart: copy_file(\"" FMT_S_OS "\", %d): "
+                            "fread(*, 1, 4096, %d) "
+                            "set the error indicator.\n",
+                            osRedirectStdoutName,
+                            safe_fileno(redirectStdout->cFile),
+                            safe_fileno(stdoutFile)););
+            err_info = FILE_ERROR;
+          } /* if */
           fclose(stdoutFile);
         } /* if */
         os_remove(osRedirectStdoutName);
