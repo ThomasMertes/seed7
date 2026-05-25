@@ -4486,6 +4486,8 @@ void cmdRemoveFile (const const_striType filePath)
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
     } else {
+      logMessage(printf("cmdRemoveFile(\"%s\"): os_path: \"" FMT_S_OS "\"\n",
+                        striAsUnquotedCStri(filePath), os_path););
 #if REMOVE_FAILS_FOR_EMPTY_DIRS
       if (os_lstat(os_path, &file_stat) != 0) {
         logError(printf("cmdRemoveFile: os_lstat(\"" FMT_S_OS "\") failed:\n"
