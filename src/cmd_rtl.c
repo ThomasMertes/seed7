@@ -100,6 +100,9 @@
 
 #define MAX_CSTRI_BUFFER_LEN 40
 
+#ifndef TEMP_FILE_PREFIX
+#define TEMP_FILE_PREFIX "tmp_"
+#endif
 #ifndef CALL_C_COMPILER_FROM_SHELL
 #define CALL_C_COMPILER_FROM_SHELL 0
 #endif
@@ -2749,6 +2752,8 @@ striType cmdConfigValue (const const_striType name)
       opt = EXECUTABLE_FILE_EXTENSION;
     } else if (strcmp(opt_name, "LINKED_PROGRAM_EXTENSION") == 0) {
       opt = LINKED_PROGRAM_EXTENSION;
+    } else if (strcmp(opt_name, "TEMP_FILE_PREFIX") == 0) {
+      opt = TEMP_FILE_PREFIX;
     } else if (strcmp(opt_name, "C_COMPILER") == 0) {
       opt = C_COMPILER;
     } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
@@ -3315,6 +3320,8 @@ intType cmdFileType (const const_striType filePath)
         type_of_file = FILE_ABSENT;
       }
     } else {
+      logMessage(printf("\ncmdFileType: os_path: \"" FMT_S_OS "\"\n",
+                        os_path););
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
       logMessage(printf("stat(\"" FMT_S_OS "\") returns: %d,\n"

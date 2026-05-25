@@ -204,6 +204,7 @@ base.h:
 	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > base.h
 	$(ECHO) "#define OBJECT_FILE_EXTENSION \".o\"" >> base.h
 	$(ECHO) "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> base.h
+	$(ECHO) "#define TEMP_FILE_PREFIX \"t_\"" >> base.h
 	$(ECHO) "#define C_COMPILER \"$(CC)\"" >> base.h
 	$(ECHO) "#define CC_OPT_VERSION_INFO \"--version\"" >> base.h
 	$(ECHO) "#define CC_FLAGS \"\"" >> base.h

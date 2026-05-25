@@ -197,6 +197,7 @@ base.h:
 	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ > base.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> base.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
+	echo #define TEMP_FILE_PREFIX "t_" >> base.h
 	echo #define C_COMPILER "$(CC)" >> base.h
 	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
 	echo #define CC_FLAGS "" >> base.h
