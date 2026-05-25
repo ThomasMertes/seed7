@@ -333,7 +333,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
             err_info = FILE_ERROR;
           } /* if */
         } /* while */
-        if (ferror(stdinFile) != 0) {
+        if (ferror(redirectStdin->cFile) != 0) {
           logError(printf("pcsStart: copy_file(%d, \"" FMT_S_OS "\"): "
                           "fread(*, 1, 4096, %d) "
                           "set the error indicator.\n",
