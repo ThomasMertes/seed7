@@ -95,8 +95,6 @@ extern int _chsize_s (int fd, int64Type size);
 extern int _chsize (int fd, long size);
 #endif
 
-#define assert_file_not_null(aFile)
-
 #define MAX_MODE_LEN               5
 #define BUFFER_SIZE             4096
 #define GETS_DEFAULT_SIZE    1048576

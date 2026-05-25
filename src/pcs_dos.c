@@ -296,6 +296,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                        redirectStdout != NULL ? safe_fileno(redirectStdout->cFile) : 0,
                        redirectStderr == NULL ? "NULL " : "",
                        redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
+    assert_file_not_null(redirectStdin);
+    assert_file_not_null(redirectStdout);
+    assert_file_not_null(redirectStderr);
     if (redirectStdin->cFile == NULL ||
         os_isatty(os_fileno(redirectStdin->cFile))) {
       /* NULL files and TTYs are not redirected. */

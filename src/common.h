@@ -655,6 +655,16 @@ boolType findTermDll (void);
 #define bitsetIndex(set,pos) (memSizeType) ((uintType) (pos) - (uintType) (set)->min_position)
 
 
+/* Functions always create non-NULL fileType values. NULL is */
+/* only used if an exception has been raised. In this case   */
+/* exception handling takes place and no function with a     */
+/* fileType parameter will be called. This way functions     */
+/* with a fileType parameter can assume that the fileType    */
+/* value is never NULL. The macro below is used to state     */
+/* that a fileType parameter is not NULL.                    */
+#define assert_file_not_null(aFile)
+
+
 typedef struct setStruct      *setType;
 typedef struct striStruct     *striType;
 typedef struct bstriStruct    *bstriType;

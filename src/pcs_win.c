@@ -770,6 +770,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                        redirectStdout != NULL ? safe_fileno(redirectStdout->cFile) : 0,
                        redirectStderr == NULL ? "NULL " : "",
                        redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
+    assert_file_not_null(redirectStdin);
+    assert_file_not_null(redirectStdout);
+    assert_file_not_null(redirectStderr);
     childStdin = redirectStdin->cFile;
     childStdout = redirectStdout->cFile;
     childStderr = redirectStderr->cFile;
