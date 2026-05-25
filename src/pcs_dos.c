@@ -350,9 +350,17 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       tempName(osRedirectStdoutName);
       redirectStdoutName = cstri_to_stri(osRedirectStdoutName);
     } /* if */
-    /* A possible redirection of stderr is ignored.   */
-    /* DOS does not support the redirection with 2> . */
-    redirectStderrName = cstri_to_stri("");
+    if (redirectStderr->cFile == NULL ||
+        os_isatty(os_fileno(redirectStderr->cFile))) {
+      /* NULL files and TTYs are not redirected. */
+      redirectStderrName = cstri_to_stri("");
+    } else {
+      /* DOS does not support the redirection with 2> . */
+      logError(printf("pcsStart: Cannot redirect stderr to %d.\n",
+                      safe_fileno(redirectStderr->cFile)););
+      err_info = FILE_ERROR;
+      redirectStderrName = NULL;
+    } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR ||
                  redirectStdinName == NULL ||
                  redirectStdoutName == NULL ||
