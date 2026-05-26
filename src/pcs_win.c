@@ -124,8 +124,8 @@ static void printParameters (const const_rtlArrayType parameters)
  *  is part of the parameter. N backslashes not followed by a quotation
  *  means just N backslashes.
  */
-static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destChar,
-    os_charType *beyondDest)
+static os_charType *copyQuotedPart (const os_charType *sourceChar,
+    os_charType *destChar, os_charType *beyondDest)
 
   {
     memSizeType numberOfBackslashes;
@@ -174,12 +174,12 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
 
 
 
-static os_charType *processArgument (os_striType argument, os_charType *destChar,
-    os_charType *beyondDest)
+static os_charType *processArgument (const const_os_striType argument,
+    os_charType *destChar, os_charType *beyondDest)
 
   {
     boolType quoteArgument = FALSE;
-    os_charType *sourceChar;
+    const os_charType *sourceChar;
 
   /* processArgument */
     for (sourceChar = argument; *sourceChar != '\0'; sourceChar++) {
