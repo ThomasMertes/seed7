@@ -63,7 +63,7 @@
 
 #ifdef C_PLUS_PLUS
 
-extern "C" int tgetent (char *, char *);
+extern "C" int tgetent (char *, const char *);
 extern "C" int tgetnum (char *);
 extern "C" int tgetflag (char *);
 extern "C" char *tgetstr(char *, char **);
@@ -72,7 +72,7 @@ extern "C" int tputs (char *, int, int (*) (char ch));
 
 #else
 
-int tgetent (char *, char *);
+int tgetent (char *, const char *);
 int tgetnum (char *);
 int tgetflag (char *);
 char *tgetstr(char *, char **);
@@ -101,7 +101,7 @@ char *capabilities = NULL;
 
 
 
-int my_tgetent (char *capbuf, char *terminal_name)
+int my_tgetent (char *capbuf, const char *terminal_name)
 
   {
     char *home_dir_path;
