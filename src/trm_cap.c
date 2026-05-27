@@ -64,20 +64,20 @@
 #ifdef C_PLUS_PLUS
 
 extern "C" int tgetent (char *, const char *);
-extern "C" int tgetnum (char *);
-extern "C" int tgetflag (char *);
-extern "C" char *tgetstr(char *, char **);
-extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char ch));
+extern "C" int tgetnum (const char *);
+extern "C" int tgetflag (const char *);
+extern "C" char *tgetstr(const char *, char **);
+extern "C" char *tgoto (const char *, int, int);
+extern "C" int tputs (const char *, int, int (*) (char ch));
 
 #else
 
 int tgetent (char *, const char *);
-int tgetnum (char *);
-int tgetflag (char *);
-char *tgetstr(char *, char **);
-char *tgoto (char *, int, int);
-int tputs (char *, int, int (*) (char ch));
+int tgetnum (const char *);
+int tgetflag (const char *);
+char *tgetstr(const char *, char **);
+char *tgoto (const char *, int, int);
+int tputs (const char *, int, int (*) (char ch));
 
 #endif
 
@@ -181,7 +181,7 @@ int my_tgetent (char *capbuf, const char *terminal_name)
 
 
 
-int my_tgetnum (char *code)
+int my_tgetnum (const char *code)
 
   {
     memSizeType pos = 1;
@@ -215,7 +215,7 @@ int my_tgetnum (char *code)
 
 
 
-int my_tgetflag (char *code)
+int my_tgetflag (const char *code)
 
   {
     memSizeType pos = 1;
@@ -249,7 +249,7 @@ int my_tgetflag (char *code)
 
 
 
-char *my_tgetstr (char *code, char **area)
+char *my_tgetstr (const char *code, char **area)
 
   {
     memSizeType pos = 1;
