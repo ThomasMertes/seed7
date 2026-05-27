@@ -35,7 +35,7 @@
 #define SIZE_T_MAXIMUM ((size_t) -1)
 
 
-static size_t estimateQuotedLength (char *sourceChar)
+static size_t estimateQuotedLength (const char *sourceChar)
 
   {
     size_t length = 3; /* optional space + 2 surrounding quotes */
@@ -58,7 +58,7 @@ static size_t estimateQuotedLength (char *sourceChar)
   } /* estimateQuotedLength */
 
 
-static char *copyQuotedPart (char *sourceChar, char *destChar)
+static char *copyQuotedPart (const char *sourceChar, char *destChar)
 
   {
     size_t numberOfBackslashes;
