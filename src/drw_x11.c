@@ -3070,6 +3070,7 @@ void drwText (const_winType actual_window, intType x, intType y,
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
         if (unlikely(*strelem >= 65536)) {
+          free(stri_buffer);
           raise_error(RANGE_ERROR);
           return;
         } /* if */
