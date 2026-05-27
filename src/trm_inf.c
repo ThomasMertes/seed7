@@ -435,7 +435,7 @@ int outch (int ch)
 
 
 
-void putcontrol (char *control)
+void putcontrol (const char *control)
 
   { /* putcontrol */
     if (control != NULL) {
