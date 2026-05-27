@@ -1400,6 +1400,7 @@ winType drwCapture (intType left, intType upper,
         pixmap = NULL;
       } else {
         if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
+          XDestroyImage(image);
           raise_error(MEMORY_ERROR);
         } else {
           memset(pixmap, 0, sizeof(x11_winRecord));
@@ -1416,9 +1417,9 @@ winType drwCapture (intType left, intType upper,
           pixmap->height = (unsigned int) height;
           XPutImage(mydisplay, pixmap->window, mygc, image, (int) left, (int) upper, 0, 0,
               (unsigned int) width, (unsigned int) height);
+          XDestroyImage(image);
         } /* if */
       } /* if */
-      XDestroyImage(image);
     } /* if */
     logFunction(printf("drwCapture --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
@@ -1453,8 +1454,16 @@ intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
                           (int) (x), (int) (y), 1, 1,
                           (unsigned long) -1, ZPixmap);
       } /* if */
-      pixel = (intType) XGetPixel(image, 0, 0);
-      XDestroyImage(image);
+      if (unlikely(image == NULL)) {
+        logError(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                        "XGetImage failed\n",
+                        (memSizeType) sourceWindow, x, y););
+        raise_error(GRAPHIC_ERROR);
+        pixel = 0;
+      } else {
+        pixel = (intType) XGetPixel(image, 0, 0);
+        XDestroyImage(image);
+      } /* if */
     } /* if */
     logFunction(printf("drwGetPixel --> " F_X(08) "\n", pixel););
     return pixel;
@@ -1503,7 +1512,7 @@ bstriType drwGetPixelData (const_winType sourceWindow)
         raise_error(GRAPHIC_ERROR);
         result = NULL;
       } else {
-        result_size = width * height * sizeof(int32Type);
+        result_size = (memSizeType) width * (memSizeType) height * sizeof(int32Type);
         if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
           XDestroyImage(image);
           raise_error(MEMORY_ERROR);
