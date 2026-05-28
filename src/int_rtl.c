@@ -1251,7 +1251,7 @@ intType ptrCmpGeneric (const genericType value1, const genericType value2)
 void ptrCpyGeneric (genericType *const dest, const genericType source)
 
   { /* ptrCpyGeneric */
-    ((rtlObjectType *) dest)->value.ptrValue =
+    ((rtlObjectType *const) dest)->value.ptrValue =
         ((const_rtlObjectType *) &source)->value.ptrValue;
   } /* ptrCpyGeneric */
 
