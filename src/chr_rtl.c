@@ -621,7 +621,7 @@ void chrCpyGeneric (genericType *const dest, const genericType source)
 
   { /* chrCpyGeneric */
     ((rtlObjectType *const) dest)->value.charValue =
-        ((const const_rtlObjectType *) &source)->value.charValue;
+        ((const_rtlObjectType *) &source)->value.charValue;
   } /* chrCpyGeneric */
 
 

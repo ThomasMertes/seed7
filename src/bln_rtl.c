@@ -53,5 +53,5 @@ void blnCpyGeneric (genericType *const dest, const genericType source)
 
   { /* blnCpyGeneric */
     ((rtlObjectType *const) dest)->value.boolValue =
-        ((const const_rtlObjectType *) &source)->value.boolValue;
+        ((const_rtlObjectType *) &source)->value.boolValue;
   } /* blnCpyGeneric */

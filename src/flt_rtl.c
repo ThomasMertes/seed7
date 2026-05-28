@@ -462,7 +462,7 @@ void fltCpyGeneric (genericType *const dest, const genericType source)
 
   { /* fltCpyGeneric */
     ((rtlObjectType *const) dest)->value.floatValue =
-        ((const const_rtlObjectType *) &source)->value.floatValue;
+        ((const_rtlObjectType *) &source)->value.floatValue;
   } /* fltCpyGeneric */
 
 
