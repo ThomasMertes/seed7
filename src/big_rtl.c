@@ -3668,7 +3668,7 @@ void bigCpy (bigIntType *const dest, const const_bigIntType source)
 void bigCpyGeneric (genericType *const dest, const genericType source)
 
   { /* bigCpyGeneric */
-    bigCpy(&((rtlObjectType *) dest)->value.bigIntValue,
+    bigCpy(&((rtlObjectType *const) dest)->value.bigIntValue,
            ((const_rtlObjectType *) &source)->value.bigIntValue);
   } /* bigCpyGeneric */
 

@@ -222,7 +222,7 @@ void pcsCpy (processType *const dest, const processType source)
 void pcsCpyGeneric (genericType *const dest, const genericType source)
 
   { /* pcsCpyGeneric */
-    pcsCpy(&((rtlObjectType *) dest)->value.processValue,
+    pcsCpy(&((rtlObjectType *const) dest)->value.processValue,
            ((const_rtlObjectType *) &source)->value.processValue);
   } /* pcsCpyGeneric */
 

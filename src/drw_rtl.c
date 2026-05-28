@@ -224,7 +224,7 @@ void drwCpy (winType *const dest, const winType source)
 void drwCpyGeneric (genericType *const dest, const genericType source)
 
   { /* drwCpyGeneric */
-    drwCpy(&((rtlObjectType *) dest)->value.winValue,
+    drwCpy(&((rtlObjectType *const) dest)->value.winValue,
            ((const_rtlObjectType *) &source)->value.winValue);
   } /* drwCpyGeneric */
 

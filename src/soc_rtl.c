@@ -1070,7 +1070,7 @@ void socCpy (socketType *const dest, const socketType source)
 void socCpyGeneric (genericType *const dest, const genericType source)
 
   { /* socCpyGeneric */
-    socCpy(&((rtlObjectType *) dest)->value.socketValue,
+    socCpy(&((rtlObjectType *const) dest)->value.socketValue,
            ((const_rtlObjectType *) &source)->value.socketValue);
   } /* socCpyGeneric */
 

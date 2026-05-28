@@ -1183,7 +1183,7 @@ void filCpy (fileType *const dest, const fileType source)
 void filCpyGeneric (genericType *const dest, const genericType source)
 
   { /* filCpyGeneric */
-    filCpy(&((rtlObjectType *) dest)->value.fileValue,
+    filCpy(&((rtlObjectType *const) dest)->value.fileValue,
            ((const_rtlObjectType *) &source)->value.fileValue);
   } /* filCpyGeneric */
 
