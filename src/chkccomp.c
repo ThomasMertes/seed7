@@ -1710,9 +1710,12 @@ static int isNullDevice (const char *nullDeviceName, int eofChar)
 static void initializeNullDevice (void)
 
   { /* initializeNullDevice */
+#if PATH_DELIMITER == '/'
     if (isNullDevice("/dev/null", EOF)) {
       nullDevice = "/dev/null";
-    } else if (isNullDevice("NUL:", EOF)) {
+    } else
+#endif
+    if (isNullDevice("NUL:", EOF)) {
       nullDevice = "NUL:";
     } else if (isNullDevice("NUL", EOF)) {
       nullDevice = "NUL";
@@ -1787,9 +1790,12 @@ static void determineNullDevice (FILE *versionFile)
     const char *nullDeviceName = NULL;
 
   /* determineNullDevice */
+#if PATH_DELIMITER == '/'
     if (checkIfNullDevice("/dev/null", "EOF")) {
       nullDeviceName = "/dev/null";
-    } else if (checkIfNullDevice("NUL:", "EOF")) {
+    } else
+#endif
+    if (checkIfNullDevice("NUL:", "EOF")) {
       nullDeviceName = "NUL:";
     } else if (checkIfNullDevice("NUL", "EOF")) {
       nullDeviceName = "NUL";
