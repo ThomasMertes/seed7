@@ -2329,11 +2329,15 @@ striType createCommandLine (const const_striType command,
                        *err_info););
     osPath = toOsPath(command, err_info);
     if (unlikely(osPath == NULL)) {
+      logError(printf("createCommandLine: toOsPath(\"%s\", %d) failed.\n",
+                      striAsUnquotedCStri(command), *err_info););
       commandLine = NULL;
     } else {
       escapedCommand = escapeCommand(osPath, err_info);
       FREE_STRI(osPath);
       if (unlikely(escapedCommand == NULL)) {
+        logError(printf("createCommandLine: escapeCommand(\"%s\", %d) failed.\n",
+                        striAsUnquotedCStri(osPath), *err_info););
         commandLine = NULL;
       } else if (unlikely(numberOfParameters >
                           MAX_MEMSIZETYPE / sizeof(striType))) {
@@ -2399,6 +2403,8 @@ striType createCommandLine (const const_striType command,
                             *err_info););
             commandLine = NULL;
           } else {
+            logMessage(printf("createCommandLine: commandLineSize: "
+                              FMT_U_MEM "\n", commandLineSize););
             if (unlikely(!ALLOC_STRI_CHECK_SIZE(commandLine,
                                                 commandLineSize))) {
               *err_info = MEMORY_ERROR;
