@@ -247,7 +247,7 @@ void bstCpy (bstriType *const dest, const const_bstriType source)
 void bstCpyGeneric (genericType *const dest, const genericType source)
 
   { /* bstCpyGeneric */
-    bstCpy(&((rtlObjectType *) dest)->value.bstriValue,
+    bstCpy(&((rtlObjectType *const) dest)->value.bstriValue,
            ((const_rtlObjectType *) &source)->value.bstriValue);
   } /* bstCpyGeneric */
 

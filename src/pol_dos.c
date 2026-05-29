@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -36,6 +39,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "heaputl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -85,6 +89,8 @@ void polClear (const pollType pollData)
 void polCpy (const pollType dest, const const_pollType source)
 
   {  /* polCpy */
+    logFunction(printf("polCpy(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) dest, (memSizeType) source););
   }  /* polCpy */
 
 
@@ -98,8 +104,18 @@ void polCpy (const pollType dest, const const_pollType source)
  */
 pollType polCreate (const const_pollType source)
 
-  { /* polCreate */
-    return NULL;
+  {
+    pollType result;
+
+  /* polCreate */
+    logFunction(printf("polCreate(" FMT_U_MEM ")\n",
+                       (memSizeType) source););
+    if (unlikely(!ALLOC_RECORD(result, pollRecord, count.polldata))) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    logFunction(printf("polCreate --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
+    return result;
   } /* polCreate */
 
 
@@ -112,6 +128,11 @@ pollType polCreate (const const_pollType source)
 void polDestr (const pollType oldPollData)
 
   { /* polDestr */
+    logFunction(printf("polDestr(" FMT_U_MEM ")\n",
+                       (memSizeType) oldPollData););
+    if (oldPollData != NULL) {
+      FREE_RECORD(oldPollData, pollRecord, count.polldata);
+    } /* if */
   } /* polDestr */
 
 
@@ -123,8 +144,16 @@ void polDestr (const pollType oldPollData)
  */
 pollType polEmpty (void)
 
-  { /* polEmpty */
-    return NULL;
+  {
+    pollType result;
+
+  /* polEmpty */
+    if (unlikely(!ALLOC_RECORD(result, pollRecord, count.polldata))) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    logFunction(printf("polEmpty --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
+    return result;
   } /* polEmpty */
 
 

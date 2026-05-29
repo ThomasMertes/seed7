@@ -125,6 +125,7 @@ const proc: main is func
     writeln("EXECUTABLE_FILE_EXTENSION:        " <& ccConf.EXECUTABLE_FILE_EXTENSION);
     writeln("LINKED_PROGRAM_EXTENSION:         " <& ccConf.LINKED_PROGRAM_EXTENSION);
     writeln("CC_ENVIRONMENT_INI:               " <& ccConf.CC_ENVIRONMENT_INI);
+    writeln("TEMP_FILE_PREFIX:                 " <& ccConf.TEMP_FILE_PREFIX);
     writeln("C_COMPILER:                       " <& ccConf.C_COMPILER);
     writeln("CPLUSPLUS_COMPILER:               " <& ccConf.CPLUSPLUS_COMPILER);
     writeln("CALL_C_COMPILER_FROM_SHELL:       " <& ccConf.CALL_C_COMPILER_FROM_SHELL);

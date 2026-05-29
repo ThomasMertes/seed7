@@ -426,7 +426,7 @@ void prgCpy (progType *const dest, const progType source)
 void prgCpyGeneric (genericType *const dest, const genericType source)
 
   { /* prgCpyGeneric */
-    prgCpy((progType *) &((rtlObjectType *) dest)->value.ptrValue,
+    prgCpy((progType *) &((rtlObjectType *const) dest)->value.ptrValue,
            (progType) ((const_rtlObjectType *) &source)->value.ptrValue);
   } /* prgCpyGeneric */
 

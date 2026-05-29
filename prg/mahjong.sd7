@@ -741,7 +741,7 @@ const proc: drawTile (inout PRIMITIVE_WINDOW: win, in integer: level,
 
 (**
  *  Draw a complete board of tiles and flush after each tile.
- *  This function us just used on the welcome screen.
+ *  This function is just used on the welcome screen.
  *  The order in which the tiles are drawn makes sure that
  *  the visibility is okay.
  *)

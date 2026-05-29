@@ -461,7 +461,7 @@ intType fltCmpGeneric (const genericType value1, const genericType value2)
 void fltCpyGeneric (genericType *const dest, const genericType source)
 
   { /* fltCpyGeneric */
-    ((rtlObjectType *) dest)->value.floatValue =
+    ((rtlObjectType *const) dest)->value.floatValue =
         ((const_rtlObjectType *) &source)->value.floatValue;
   } /* fltCpyGeneric */
 

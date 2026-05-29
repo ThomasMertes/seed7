@@ -95,8 +95,6 @@ extern int _chsize_s (int fd, int64Type size);
 extern int _chsize (int fd, long size);
 #endif
 
-#define assert_file_not_null(aFile)
-
 #define MAX_MODE_LEN               5
 #define BUFFER_SIZE             4096
 #define GETS_DEFAULT_SIZE    1048576
@@ -217,7 +215,7 @@ static os_off_t seekFileLength (cFileType aFile)
 
   /* seekFileLength */
     logFunction(printf("seekFileLength(%d)\n", safe_fileno(aFile)););
-#if FTELL_SUCCEEDS_FOR_PIPE
+#if FSEEK_SUCCEEDS_FOR_PIPE || FTELL_SUCCEEDS_FOR_PIPE
     {
       int file_no;
       os_fstat_struct stat_buf;
@@ -408,7 +406,7 @@ int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
     } /* if */
 #endif
 #endif
-#if FTELL_SUCCEEDS_FOR_PIPE
+#if FSEEK_SUCCEEDS_FOR_PIPE
     {
       int file_no;
       os_fstat_struct stat_buf;
@@ -923,7 +921,8 @@ bigIntType filBigLng (const const_fileType aFile)
     bigIntType length;
 
   /* filBigLng */
-    logFunction(printf("filBigLng(%s%d)\n",
+    logFunction(printf("filBigLng(" FMT_U_MEM " %s%d)\n",
+                       (memSizeType) aFile,
                        aFile == NULL ? "NULL " : "",
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0););
     assert_file_not_null(aFile);
@@ -932,6 +931,15 @@ bigIntType filBigLng (const const_fileType aFile)
       logError(printf("filBigLng: Attempt to get the length of a closed file.\n"););
       raise_error(FILE_ERROR);
       length = NULL;
+#if FSEEK_SUCCEEDS_FOR_PIPE || FTELL_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPopenPipe)) {
+      logError(printf("filBigLng(" FMT_U_MEM " %d): "
+                      "Attempt to get the length of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile)););
+      raise_error(FILE_ERROR);
+      length = NULL;
+#endif
     } else {
       /* os_fstat() is not used, because when writing to a */
       /* file the stat data is only updated after a flush. */
@@ -961,7 +969,8 @@ void filBigSeek (const const_fileType aFile,
     os_off_t file_position;
 
   /* filBigSeek */
-    logFunction(printf("filBigSeek(%s%d, %s)\n",
+    logFunction(printf("filBigSeek(" FMT_U_MEM " %s%d, %s)\n",
+                       (memSizeType) aFile,
                        aFile == NULL ? "NULL " : "",
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        bigHexCStri(position)););
@@ -983,6 +992,15 @@ void filBigSeek (const const_fileType aFile,
                         safe_fileno(cFile), file_position, file_position == 0 ?
                             " or conversion from bigInteger failed" : ""););
         raise_error(RANGE_ERROR);
+#if FSEEK_SUCCEEDS_FOR_PIPE
+      } else if (unlikely(aFile->isPopenPipe)) {
+        logError(printf("filBigSeek(" FMT_U_MEM " %d, %s): "
+                        "Attempt to set the current position of a pipe.\n",
+                        (memSizeType) aFile,
+                        safe_fileno(cFile),
+                        bigHexCStri(position)););
+        raise_error(FILE_ERROR);
+#endif
       } else if (unlikely(offsetSeek(cFile, file_position - 1, SEEK_SET) != 0)) {
         logError(printf("filBigSeek(%d, %s): "
                         "offsetSeek(%d, " FMT_D64 ", SEEK_SET) failed.\n",
@@ -1012,7 +1030,8 @@ bigIntType filBigTell (const const_fileType aFile)
     bigIntType position;
 
   /* filBigTell */
-    logFunction(printf("filBigTell(%s%d)\n",
+    logFunction(printf("filBigTell(" FMT_U_MEM " %s%d)\n",
+                       (memSizeType) aFile,
                        aFile == NULL ? "NULL " : "",
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0););
     assert_file_not_null(aFile);
@@ -1021,6 +1040,15 @@ bigIntType filBigTell (const const_fileType aFile)
       logError(printf("filBigTell: Attempt to get the current position of a closed file.\n"););
       raise_error(FILE_ERROR);
       position = NULL;
+#if FTELL_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPopenPipe)) {
+      logError(printf("filBigTell(" FMT_U_MEM " %d): "
+                      "Attempt to get the current position of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile)););
+      raise_error(FILE_ERROR);
+      position = NULL;
+#endif
     } else {
       current_file_position = offsetTell(cFile);
       if (unlikely(current_file_position < (os_off_t) 0)) {
@@ -1060,14 +1088,14 @@ void filClose (const fileType aFile)
                        aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        aFile != NULL ?
                            aFile->usage_count : (uintType) 0,
-                       aFile != NULL && aFile->isPipe ?
+                       aFile != NULL && aFile->isPopenPipe ?
                            ", isPipe" : ""););
     assert_file_not_null(aFile);
     if (unlikely(aFile->cFile == NULL)) {
       logError(printf("filClose: Called with a closed file.\n"););
       raise_error(FILE_ERROR);
 #if HAS_POPEN
-    } else if (aFile->isPipe) {
+    } else if (aFile->isPopenPipe) {
       if (unlikely(os_pclose(aFile->cFile) == -1)) {
         logError(printf("filClose: pclose(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
@@ -1078,8 +1106,8 @@ void filClose (const fileType aFile)
       } else {
         aFile->cFile = NULL;
       } /* if */
-    } else {
 #endif
+    } else {
 #if FCLOSE_FAILS_AFTER_PREVIOUS_ERROR
       clearerr(aFile->cFile);
 #endif
@@ -1095,14 +1123,12 @@ void filClose (const fileType aFile)
       } else {
         aFile->cFile = NULL;
       } /* if */
-#if HAS_POPEN
     } /* if */
-#endif
     logFunction(printf("filClose(" FMT_U_MEM " %d"
                        " (usage=" FMT_U "%s)) -->\n",
                        (memSizeType) aFile, safe_fileno(aFile->cFile),
                        aFile->usage_count,
-                       aFile->isPipe ? ", isPipe" : ""););
+                       aFile->isPopenPipe ? ", isPipe" : ""););
   } /* filClose */
 
 
@@ -1157,7 +1183,7 @@ void filCpy (fileType *const dest, const fileType source)
 void filCpyGeneric (genericType *const dest, const genericType source)
 
   { /* filCpyGeneric */
-    filCpy(&((rtlObjectType *) dest)->value.fileValue,
+    filCpy(&((rtlObjectType *const) dest)->value.fileValue,
            ((const_rtlObjectType *) &source)->value.fileValue);
   } /* filCpyGeneric */
 
@@ -1226,7 +1252,7 @@ void filDestr (const fileType oldFile)
                            safe_fileno(oldFile->cFile) : 0,
                        oldFile != NULL ?
                            oldFile->usage_count : (uintType) 0,
-                       oldFile != NULL && oldFile->isPipe ?
+                       oldFile != NULL && oldFile->isPopenPipe ?
                            ", isPipe" : ""););
     if (oldFile != NULL && oldFile->usage_count != 0) {
       oldFile->usage_count--;
@@ -1353,14 +1379,14 @@ void filFree (const fileType oldFile)
                            safe_fileno(oldFile->cFile) : 0,
                        oldFile != NULL ?
                            oldFile->usage_count : (uintType) 0,
-                       oldFile != NULL && oldFile->isPipe ?
+                       oldFile != NULL && oldFile->isPopenPipe ?
                            ", isPipe" : "",
                        oldFile != NULL && oldFile->cFile != NULL ?
                            ", doClose" : ""););
     assert_file_not_null(oldFile);
     if (oldFile->cFile != NULL) {
 #if HAS_POPEN
-      if (oldFile->isPipe) {
+      if (oldFile->isPopenPipe) {
         logMessage(printf("filFree: pclose(%d)\n",
                           safe_fileno(oldFile->cFile)););
         os_pclose(oldFile->cFile);
@@ -1897,6 +1923,15 @@ intType filLng (const const_fileType aFile)
       logError(printf("filLng: Attempt to get the length of a closed file.\n"););
       raise_error(FILE_ERROR);
       length = 0;
+#if FSEEK_SUCCEEDS_FOR_PIPE || FTELL_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPopenPipe)) {
+      logError(printf("filLng(" FMT_U_MEM " %d): "
+                      "Attempt to get the length of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile)););
+      raise_error(FILE_ERROR);
+      length = 0;
+#endif
     } else {
       /* os_fstat() is not used, because when writing to a */
       /* file the stat data is only updated after a flush. */
@@ -2228,6 +2263,8 @@ fileType filPopen (const const_striType command,
         raise_error(err_info);
         pipeOpened = NULL;
       } else {
+        logMessage(printf("filPopen: commandLine: \"%s\"\n",
+                          striAsUnquotedCStri(commandLine)););
         os_command = stri_to_os_stri(commandLine, &err_info);
         if (unlikely(os_command == NULL)) {
           logError(printf("filPopen: "
@@ -2261,7 +2298,7 @@ fileType filPopen (const const_striType command,
               pipeOpened = &nullFileRecord;
             } else {
               os_stri_free(os_command);
-              initPipeType(pipeOpened, readingAllowed, writingAllowed);
+              initPopenPipeType(pipeOpened, readingAllowed, writingAllowed);
               pipeOpened->cFile = cFile;
             } /* if */
           } /* if */
@@ -2283,7 +2320,7 @@ fileType filPopen (const const_striType command,
                            safe_fileno(pipeOpened->cFile) : 0,
                        pipeOpened != NULL ?
                            pipeOpened->usage_count : (uintType) 0,
-                       pipeOpened != NULL && pipeOpened->isPipe ?
+                       pipeOpened != NULL && pipeOpened->isPopenPipe ?
                            ", isPipe" : ""););
     return pipeOpened;
   } /* filPopen */
@@ -2345,6 +2382,14 @@ void filSeek (const const_fileType aFile, intType position)
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
+#endif
+#if FSEEK_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPopenPipe)) {
+      logError(printf("filSeek(" FMT_U_MEM " %d, " FMT_D "): "
+                      "Attempt to set the current position of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile), position););
+      raise_error(FILE_ERROR);
 #endif
     } else if (unlikely(offsetSeek(cFile, (os_off_t) (position - 1), SEEK_SET) != 0)) {
       logError(printf("filSeek(%d, " FMT_D "): "
@@ -2439,6 +2484,15 @@ intType filTell (const const_fileType aFile)
       logError(printf("filTell: Attempt to get the current position of a closed file.\n"););
       raise_error(FILE_ERROR);
       position = 0;
+#if FTELL_SUCCEEDS_FOR_PIPE
+    } else if (unlikely(aFile->isPopenPipe)) {
+      logError(printf("filTell(" FMT_U_MEM " %d): "
+                      "Attempt to get the current position of a pipe.\n",
+                      (memSizeType) aFile,
+                      safe_fileno(cFile)););
+      raise_error(FILE_ERROR);
+      position = 0;
+#endif
     } else {
       current_file_position = offsetTell(cFile);
       if (unlikely(current_file_position < (os_off_t) 0)) {

@@ -654,7 +654,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
               } /* if */
             } /* if */
           } else {
-            doubleValue = strtod((char *) decimal, NULL);
+            doubleValue = strtod((const char *) decimal, NULL);
             free(decimal);
             if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
                                              (int) pos,

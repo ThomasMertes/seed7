@@ -71,7 +71,7 @@ const func float: (in integer: factor1) * (in float: factor2) is
 
 
 (**
- *  Multiply a [[float]] by an [[integer] number.
+ *  Multiply a [[float]] by an [[integer]] number.
  *  @return the product of the two numbers.
  *)
 const func float: (in float: factor1) * (in integer: factor2) is
@@ -141,7 +141,7 @@ const func rational: (in integer: factor1) * (in rational: factor2) is
 
 
 (**
- *  Multiply a [[rational]] by an [[integer] number.
+ *  Multiply a [[rational]] by an [[integer]] number.
  *  @return the product of the two numbers.
  *)
 const func rational: (in rational: factor1) * (in integer: factor2) is
@@ -219,7 +219,7 @@ const func float: (in rational: factor1) * (in float: factor2) is
 
 
 (**
- *  Multiply a [[float]] by a [[rational] number.
+ *  Multiply a [[float]] by a [[rational]] number.
  *  @return the product of the two numbers.
  *)
 const func float: (in float: factor1) * (in rational: factor2) is

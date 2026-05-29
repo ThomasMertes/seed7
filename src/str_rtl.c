@@ -2733,7 +2733,7 @@ void strCopy (striType *const dest, const const_striType source)
 void strCpyGeneric (genericType *const dest, const genericType source)
 
   { /* strCpyGeneric */
-    strCopy(&((rtlObjectType *) dest)->value.striValue,
+    strCopy(&((rtlObjectType *const) dest)->value.striValue,
             ((const_rtlObjectType *) &source)->value.striValue);
   } /* strCpyGeneric */
 

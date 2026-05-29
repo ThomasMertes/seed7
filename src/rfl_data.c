@@ -186,7 +186,7 @@ void rflCpy (listType *const dest, const const_listType source)
 void rflCpyGeneric (genericType *const dest, const genericType source)
 
   { /* rflCpyGeneric */
-    rflCpy((listType *) &((rtlObjectType *) dest)->value.listValue,
+    rflCpy((listType *) &((rtlObjectType *const) dest)->value.listValue,
            (const_listType) ((const_rtlObjectType *) &source)->value.listValue);
   } /* rflCpyGeneric */
 

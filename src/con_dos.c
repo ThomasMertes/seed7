@@ -280,12 +280,48 @@ void conSetCursor (intType line, intType column)
     union REGS r;
 
   /* conSetCursor */
-    r.h.ah = (unsigned char) 2; /* cursor addressing function */
-    r.h.dh = (unsigned char) (line - 1);
-    r.h.dl = (unsigned char) (column - 1);
+    if (line <= 0 || column <= 0) {
+      raise_error(RANGE_ERROR);
+    } else if (line <= UINT8TYPE_MAX && column <= UINT8TYPE_MAX) {
+      r.h.ah = (unsigned char) 2; /* cursor addressing function */
+      r.h.dh = (unsigned char) (line - 1);
+      r.h.dl = (unsigned char) (column - 1);
+      r.h.bh = (unsigned char) 0; /* video page */
+      int86(0x10, &r, &r);
+    } /* if */
+  } /* conSetCursor */
+
+
+
+intType conColumn (void)
+
+  {
+    union REGS r;
+    intType column;
+
+  /* conColumn */
+    r.h.ah = (unsigned char) 3; /* get cursor position and shape */
     r.h.bh = (unsigned char) 0; /* video page */
     int86(0x10, &r, &r);
-  } /* conSetCursor */
+    column = (intType) r.h.dl + 1;
+    return column;
+  } /* conColumn */
+
+
+
+intType conLine (void)
+
+  {
+    union REGS r;
+    intType line;
+
+  /* conLine */
+    r.h.ah = (unsigned char) 3; /* get cursor position and shape */
+    r.h.bh = (unsigned char) 0; /* video page */
+    int86(0x10, &r, &r);
+    line = (intType) r.h.dh + 1;
+    return line;
+  } /* conLine */
 
 
 
@@ -327,14 +363,25 @@ void conClear (intType startlin, intType startcol,
     union REGS r;
 
   /* conClear */
-    r.h.ah = (unsigned char) 6; /* scroll up code */
-    r.h.al = (unsigned char) 0; /* clear screen code */
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) currentattribute; /* blank line colour */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (stoplin > UINT8TYPE_MAX) {
+        stoplin = UINT8TYPE_MAX;
+      } /* if */
+      if (stopcol > UINT8TYPE_MAX) {
+        stopcol = UINT8TYPE_MAX;
+      } /* if */
+      r.h.ah = (unsigned char) 6; /* scroll up code */
+      r.h.al = (unsigned char) 0; /* clear screen code */
+      r.h.ch = (unsigned char) (startlin - 1);
+      r.h.cl = (unsigned char) (startcol - 1);
+      r.h.dh = (unsigned char) (stoplin - 1);
+      r.h.dl = (unsigned char) (stopcol - 1);
+      r.h.bh = (unsigned char) currentattribute; /* blank line colour */
+      int86(0x10, &r, &r);
+    } /* if */
   } /* conClear */
 
 
@@ -353,14 +400,29 @@ void conUpScroll (intType startlin, intType startcol,
     union REGS r;
 
   /* conUpScroll */
-    r.h.ah = (unsigned char) 6; /* scroll up code */
-    r.h.al = (unsigned char) numLines;
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) 7; /* blank line is black */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (numLines > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > UINT8TYPE_MAX) {
+          stoplin = UINT8TYPE_MAX;
+        } /* if */
+        if (stopcol > UINT8TYPE_MAX) {
+          stopcol = UINT8TYPE_MAX;
+        } /* if */
+        r.h.ah = (unsigned char) 6; /* scroll up code */
+        r.h.al = (unsigned char) numLines;
+        r.h.ch = (unsigned char) (startlin - 1);
+        r.h.cl = (unsigned char) (startcol - 1);
+        r.h.dh = (unsigned char) (stoplin - 1);
+        r.h.dl = (unsigned char) (stopcol - 1);
+        r.h.bh = (unsigned char) 7; /* blank line is black */
+        int86(0x10, &r, &r);
+      } /* if */
+    } /* if */
   } /* conUpScroll */
 
 
@@ -379,14 +441,29 @@ void conDownScroll (intType startlin, intType startcol,
     union REGS r;
 
   /* conDownScroll */
-    r.h.ah = (unsigned char) 7; /* scroll down code */
-    r.h.al = (unsigned char) numLines;
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) 7; /* blank line is black */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (numLines > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > UINT8TYPE_MAX) {
+          stoplin = UINT8TYPE_MAX;
+        } /* if */
+        if (stopcol > UINT8TYPE_MAX) {
+          stopcol = UINT8TYPE_MAX;
+        } /* if */
+        r.h.ah = (unsigned char) 7; /* scroll down code */
+        r.h.al = (unsigned char) numLines;
+        r.h.ch = (unsigned char) (startlin - 1);
+        r.h.cl = (unsigned char) (startcol - 1);
+        r.h.dh = (unsigned char) (stoplin - 1);
+        r.h.dl = (unsigned char) (stopcol - 1);
+        r.h.bh = (unsigned char) 7; /* blank line is black */
+        int86(0x10, &r, &r);
+      } /* if */
+    } /* if */
   } /* conDownScroll */
 
 
@@ -402,14 +479,18 @@ void conLeftScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   {
-    int line;
-    int num_bytes;
+    intType line;
+    memSizeType num_bytes;
     char *destination;
     char *source;
 
   /* conLeftScroll */
-    if (numCols > 0) {
-      num_bytes = 2 * (stopcol - startcol - numCols + 1);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
+      num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol + numCols - 1];
       destination = (char *) &current_screen->
@@ -435,14 +516,18 @@ void conRightScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType numCols)
 
   {
-    int line;
-    int num_bytes;
+    intType line;
+    memSizeType num_bytes;
     char *destination;
     char *source;
 
   /* conRightScroll */
-    if (numCols > 0) {
-      num_bytes = 2 * (stopcol - startcol - numCols + 1);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
+      num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
       destination = (char *) &current_screen->
@@ -503,7 +588,7 @@ int conOpen (void)
     cursor_endline = r.h.cl;
     conCursor(FALSE);
     console_initialized = TRUE;
-    atexit(conShut);
+    os_atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

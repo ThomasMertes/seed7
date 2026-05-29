@@ -847,7 +847,7 @@ const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
       cell33 := currfield[line][column + 2];
       cell55 := currfield[line + 2][column];
 
-      # Consider each of the cells neighbors:
+      # Consider each of the cell's neighbors:
 
       # neighbor 1 at pred(line), column
       if currfield[pred(line)][column] then

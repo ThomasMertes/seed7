@@ -669,6 +669,12 @@ const type: ccConfigType is new struct
     var string: CC_ENVIRONMENT_INI            is "";
 
     (**
+     *  Prefix used by the compiler for temporary files.
+     *  In most cases this is "tmp_" but DOS uses "t_".
+     *)
+    var string: TEMP_FILE_PREFIX              is "";
+
+    (**
      *  Command to call the stand-alone C compiler and linker.
      *  Most IDEs provide also a stand-alone compiler/linker.
      *)
@@ -1040,6 +1046,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.EXECUTABLE_FILE_EXTENSION        := configValue("EXECUTABLE_FILE_EXTENSION");
     conf.LINKED_PROGRAM_EXTENSION         := configValue("LINKED_PROGRAM_EXTENSION");
     conf.CC_ENVIRONMENT_INI               := configValue("CC_ENVIRONMENT_INI");
+    conf.TEMP_FILE_PREFIX                 := configValue("TEMP_FILE_PREFIX");
     conf.C_COMPILER                       := configValue("C_COMPILER");
     conf.CPLUSPLUS_COMPILER               := configValue("CPLUSPLUS_COMPILER");
     conf.CALL_C_COMPILER_FROM_SHELL       := boolean(configValue("CALL_C_COMPILER_FROM_SHELL"));
@@ -1205,6 +1212,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"EXECUTABLE_FILE_EXTENSION"}:        conf.EXECUTABLE_FILE_EXTENSION        := value;
       when {"LINKED_PROGRAM_EXTENSION"}:         conf.LINKED_PROGRAM_EXTENSION         := value;
       when {"CC_ENVIRONMENT_INI"}:               conf.CC_ENVIRONMENT_INI               := value;
+      when {"TEMP_FILE_PREFIX"}:                 conf.TEMP_FILE_PREFIX                 := value;
       when {"C_COMPILER"}:                       conf.C_COMPILER                       := value;
       when {"CPLUSPLUS_COMPILER"}:               conf.CPLUSPLUS_COMPILER               := value;
       when {"CALL_C_COMPILER_FROM_SHELL"}:       conf.CALL_C_COMPILER_FROM_SHELL       := boolean(value);

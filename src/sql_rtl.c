@@ -1245,7 +1245,7 @@ void sqlCpyDb (databaseType *const dest, const databaseType source)
 void sqlCpyDbGeneric (genericType *const dest, const genericType source)
 
   { /* sqlCpyDbGeneric */
-    sqlCpyDb(&((rtlObjectType *) dest)->value.databaseValue,
+    sqlCpyDb(&((rtlObjectType *const) dest)->value.databaseValue,
              ((const_rtlObjectType *) &source)->value.databaseValue);
   } /* sqlCpyDbGeneric */
 
@@ -1305,7 +1305,7 @@ void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
 void sqlCpyStmtGeneric (genericType *const dest, const genericType source)
 
   { /* sqlCpyStmtGeneric */
-    sqlCpyStmt(&((rtlObjectType *) dest)->value.sqlStmtValue,
+    sqlCpyStmt(&((rtlObjectType *const) dest)->value.sqlStmtValue,
                ((const_rtlObjectType *) &source)->value.sqlStmtValue);
   } /* sqlCpyStmtGeneric */
 

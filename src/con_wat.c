@@ -96,37 +96,6 @@ static unsigned char cursor_startline;
 static unsigned char cursor_endline;
 
 
-#ifdef MAP_TO_ISO
-static char MAP[] = {
-/*   0 */ '\000','\001','\002','\003','\004','\005','\006','\007','\010','\011',
-/*  10 */ '\012','\013','\014','\015','\016','\017','\020','\021','\022','\023',
-/*  20 */ '\024','\025','\026','\027','\030','\031','\032','\033','\034','\035',
-/*  30 */ '\036','\037',' ',   '!',   '\"',  '#',   '$',   '%',   '&',   '\'',
-/*  40 */ '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',   '0',   '1',
-/*  50 */ '2',   '3',   '4',   '5',   '6',   '7',   '8',   '9',   ':',   ';',
-/*  60 */ '<',   '=',   '>',   '?',   '@',   'A',   'B',   'C',   'D',   'E',
-/*  70 */ 'F',   'G',   'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
-/*  80 */ 'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',   'X',   'Y',
-/*  90 */ 'Z',   '[',   '\\',  ']',   '^',   '_',   '`',   'a',   'b',   'c',
-/* 100 */ 'd',   'e',   'f',   'g',   'h',   'i',   'j',   'k',   'l',   'm',
-/* 110 */ 'n',   'o',   'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
-/* 120 */ 'x',   'y',   'z',   '{',   '|',   '}',   '~',   '#',   ' ',   ' ',
-/* 130 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
-/* 140 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
-/* 150 */ ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',   ' ',
-/* 160 */ ' ',   '\255','\233','\234','\17', '\235','|',   '\25', '\"',  '?',
-/* 170 */ '\246','\256','\252','-',   '?',   '?',   '\370','\361','\375','?',
-/* 180 */ '\'',  '\346','\24', '\371',',',   '?',   '\247','\257','\254','\253',
-/* 190 */ '?',   '\250','?',   '?',   '?',   '?',   '\216','\217','\222','\200',
-/* 200 */ '?',   '\220','?',   '?',   '?',   '?',   '?',   '?',   '?',   '\245',
-/* 210 */ '?',   '?',   '?',   '?',   '\231','?',   '?',   '?',   '?',   '?',
-/* 220 */ '\232','?',   '?',   '\341','\205','\240','\203','?',   '\204','\206',
-/* 230 */ '\221','\207','\212','\202','\210','\211','\215','\241','\214','\213',
-/* 240 */ '\353','\244','\225','\242','\223','?',   '\224','\366','?',   '\227',
-/* 250 */ '\243','\226','\201','?',   '?',   '\230'};
-#endif
-
-
 static charType map_key[] = {
 /*   0 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_NULCHAR,   K_UNDEF,
 /*   5 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
@@ -423,7 +392,7 @@ void conCursor (boolType on)
 
 
 /**
- *  Moves the system curser to the given place of the console.
+ *  Moves the system cursor to the given place of the console.
  *  If no system cursor exists this function can be replaced by
  *  a dummy function.
  */
@@ -671,7 +640,8 @@ void conLeftScroll (intType startlin, intType startcol,
     if (startlin <= 0 || startcol <= 0 ||
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
-    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
       num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol + numCols - 1];
@@ -707,7 +677,8 @@ void conRightScroll (intType startlin, intType startcol,
     if (startlin <= 0 || startcol <= 0 ||
         stoplin < startlin || stopcol < startcol) {
       raise_error(RANGE_ERROR);
-    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH &&
+               numCols > 0 && numCols <= stopcol - startcol) {
       num_bytes = 2 * (memSizeType) (stopcol - startcol - numCols + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];

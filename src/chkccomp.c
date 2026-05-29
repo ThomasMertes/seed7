@@ -1710,9 +1710,12 @@ static int isNullDevice (const char *nullDeviceName, int eofChar)
 static void initializeNullDevice (void)
 
   { /* initializeNullDevice */
+#if PATH_DELIMITER == '/'
     if (isNullDevice("/dev/null", EOF)) {
       nullDevice = "/dev/null";
-    } else if (isNullDevice("NUL:", EOF)) {
+    } else
+#endif
+    if (isNullDevice("NUL:", EOF)) {
       nullDevice = "NUL:";
     } else if (isNullDevice("NUL", EOF)) {
       nullDevice = "NUL";
@@ -1787,9 +1790,12 @@ static void determineNullDevice (FILE *versionFile)
     const char *nullDeviceName = NULL;
 
   /* determineNullDevice */
+#if PATH_DELIMITER == '/'
     if (checkIfNullDevice("/dev/null", "EOF")) {
       nullDeviceName = "/dev/null";
-    } else if (checkIfNullDevice("NUL:", "EOF")) {
+    } else
+#endif
+    if (checkIfNullDevice("NUL:", "EOF")) {
       nullDeviceName = "NUL:";
     } else if (checkIfNullDevice("NUL", "EOF")) {
       nullDeviceName = "NUL";
@@ -2047,6 +2053,15 @@ static void checkPopen (FILE *versionFile)
         if (assertCompAndLnk(buffer)) {
           fprintf(versionFile, "#define POPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
         } /* if */
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"r\");\n"
+                      "printf(\"%%d\\n\", fseek(aFile, 0,  SEEK_SET) == 0);\n"
+                      "return 0;}\n", popen);
+      if (assertCompAndLnk(buffer)) {
+        fprintf(versionFile, "#define FSEEK_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
       } /* if */
       sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
                       "{FILE *aFile; aFile=%s(\""
@@ -4812,7 +4827,7 @@ static void determineAddVectoredExceptionHandler (FILE *versionFile)
 
   { /* determineAddVectoredExceptionHandler */
     fprintf(versionFile, "#define HAS_VECTORED_EXCEPTION_HANDLER %d\n",
-            compileAndLinkOk("#define _WIN32_WINNT 0x500\n"
+            compileAndLinkOk("#define _WIN32_WINNT 0x501\n"
                              "#include <windows.h>\n#include <stdio.h>\n"
                              "#include <setjmp.h>\n"
                              "jmp_buf jump_buffer;\n"
@@ -4821,9 +4836,12 @@ static void determineAddVectoredExceptionHandler (FILE *versionFile)
                              "void stackOverflow (unsigned int param) {\n"
                              "  stackOverflow(param + 1); }\n"
                              "int main (int argc, char *argv[]) {\n"
+                             "  int okay;\n"
                              "  int jmpret;\n"
-                             "  AddVectoredExceptionHandler(1, stackOverflowHandler);\n"
-                             "  if ((jmpret = setjmp(jump_buffer)) == 0 ) {\n"
+                             "  okay = AddVectoredExceptionHandler(1, stackOverflowHandler) != NULL;\n"
+                             "  if (!okay) {\n"
+                             "    printf(\"0\\n\");\n"
+                             "  } else if ((jmpret = setjmp(jump_buffer)) == 0) {\n"
                              "    stackOverflow(1);\n"
                              "    printf(\"0\\n\");\n"
                              "  } else {\n"
@@ -6948,6 +6966,14 @@ static void determineOsFunctions (FILE *versionFile)
                          "    strchr(buffer, '\\\\') == NULL);\n"
                          "return 0;}\n") && doTest() == 1) {
       fprintf(versionFile, "#define OS_GETCWD_RETURNS_SLASH\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                "#include <string.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{char buffer[1024];\n"
+                                "printf(\"%d\\n\", getcwd(buffer, 1024) != NULL &&\n"
+                                "    strchr(buffer, '\\\\') == NULL);\n"
+                                "return 0;}\n") && doTest() == 1) {
+      fprintf(versionFile, "#define OS_GETCWD_RETURNS_SLASH\n");
     } /* if */
 #endif
     determineEnvironDefines(versionFile);
@@ -8438,6 +8464,23 @@ static void addDynamicLibsWithRpath (const char *scopeName, int baseDirExists,
 
 
 
+static void copyWithSlashes (char *dest, const char *source)
+
+  { /* copyWithSlashes */
+    while (*source != '\0') {
+      if (*source == '\\') {
+	*dest = '/';
+      } else {
+	*dest = *source;
+      } /* if */
+      source++;
+      dest++;
+    } /* while */
+    *dest = '\0';
+  } /* copyWithSlashes */
+
+
+
 static int visualDepthOf32BitsSupported (const char *x11IncludeCommand,
     const char *includeOption, const char *systemDrawLibs)
 
@@ -8997,6 +9040,7 @@ static void determineMySqlDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char aPath[PATH_SIZE];
     char includeOption[PATH_SIZE];
@@ -9018,8 +9062,9 @@ static void determineMySqlDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+        sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
         /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
@@ -9622,6 +9667,7 @@ static void determinePostgresDefines (FILE *versionFile,
     char filePath[PATH_SIZE + 1 + PATH_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE + 5 + PATH_SIZE];
     char serverIncludeOption[PATH_SIZE + 5 + PATH_SIZE];
@@ -9657,8 +9703,9 @@ static void determinePostgresDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbVersion) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/PostgreSQL/%s", programFiles, dbVersion[dirIndex]);
+        sprintf(dbHome, "%s/PostgreSQL/%s", programPath, dbVersion[dirIndex]);
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
         } /* if */
@@ -10212,6 +10259,7 @@ static void determineFireDefines (FILE *versionFile,
     int searchForLib = 1;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE];
     const char *fireInclude = NULL;
@@ -10232,8 +10280,9 @@ static void determineFireDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
+      copyWithSlashes(programPath, programFiles);
       for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+        sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
         /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
@@ -10570,6 +10619,7 @@ static void determineInformixDefines (FILE *versionFile,
     const char *informixDir = NULL;
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
+    char programPath[PATH_SIZE];
     char dbHome[PATH_SIZE];
     char includeOption[PATH_SIZE];
     char makeDefinition[PATH_SIZE + 4 + NAME_SIZE];
@@ -10603,8 +10653,9 @@ static void determineInformixDefines (FILE *versionFile,
         if (sizeof(char *) == 4 && programFilesX86 != NULL) {
           programFiles = programFilesX86;
         } /* if */
+        copyWithSlashes(programPath, programFiles);
         for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
-          sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+          sprintf(dbHome, "%s/%s", programPath, dbHomeSys[dirIndex]);
           /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
           if (fileIsDir(dbHome)) {
             dbHomeExists = 1;
@@ -11572,6 +11623,30 @@ int main (int argc, char **argv)
     versionFile = openVersionFile(versionFileName);
     makeDirDefinition = defineMakeDir();
     removeDirDefinition = defineRemoveDir();
+    if (assertCompAndLnk("#include <stdio.h>\n"
+                         "#define name1 \"LongFileA.txt\"\n"
+                         "#define name2 \"LongFileB.txt\"\n"
+                         "int main (int argc, char *argv[]) {\n"
+                         "  FILE *file1;\n"
+                         "  FILE *file2;\n"
+                         "  int ch = ' ';\n"
+                         "  if ((file1 = fopen(name1, \"w\")) != NULL) {\n"
+                         "    fputs(\"A\", file1);\n"
+                         "    fclose(file1);\n"
+                         "    if ((file2 = fopen(name2, \"w\")) != NULL) {\n"
+                         "      fputs(\"B\", file2);\n"
+                         "      fclose(file2);\n"
+                         "      if ((file1 = fopen(name1, \"r\")) != NULL) {\n"
+                         "        ch = fgetc(file1);\n"
+                         "        fclose(file1);\n"
+                         "  } } }\n"
+                         "  remove(name1);\n"
+                         "  remove(name2);\n"
+                         "  printf(\"%d\\n\", ch == 'A');\n"
+                         "  return 0;}\n")) {
+      fprintf(versionFile, "#define LONG_FILE_NAMES %d\n",
+              doTest() == 1);
+    } /* if */
     determineOsFunctions(versionFile);
     checkPopen(versionFile);
     checkSystemResult(versionFile);

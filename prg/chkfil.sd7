@@ -176,7 +176,8 @@ const proc: check_clib_file_assign is func
     var array clib_file: fileArr is 1 times clib_file.value;
   begin
     repeat
-      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      testFileName := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                      "_tmp_test_file";
     until fileType(testFileName) = FILE_ABSENT;
     aFile := openClibFile(testFileName, "w");
     write(aFile, testFileName);
@@ -225,7 +226,8 @@ const proc: check_file_assign is func
     var array file: fileArr is 1 times STD_NULL;
   begin
     repeat
-      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      testFileName := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                      "_tmp_test_file";
     until fileType(testFileName) = FILE_ABSENT;
     aFile := open(testFileName, "w");
     write(aFile, testFileName);
@@ -823,7 +825,8 @@ const proc: check_automatic_close is func
     var string: test is "";
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := open(test_file_name, "w");
@@ -983,7 +986,8 @@ const proc: check_use_after_close is func
     var file: aFile is STD_NULL;
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := open(test_file_name, "w");
@@ -1261,7 +1265,8 @@ const proc: check_automatic_close_utf8 is func
     var string: test is "";
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := openUtf8(test_file_name, "w");
@@ -1307,7 +1312,8 @@ const proc: check_use_after_close_utf8 is func
     var file: aFile is STD_NULL;
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := openUtf8(test_file_name, "w");

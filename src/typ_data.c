@@ -51,6 +51,79 @@
 
 
 
+static striType funcTypeName (typeType funcType, errInfoType *err_info)
+
+  {
+    typeType aType;
+    memSizeType length = 0;
+    memSizeType pos;
+    striType resultTypeName;
+    striType funcStri;
+    striType varfuncStri;
+    striType typeName;
+
+  /* funcTypeName */
+    aType = funcType;
+    do {
+      if (aType->is_varfunc_type) {
+        length += STRLEN("varfunc ");
+      } else {
+        length += STRLEN("func ");
+      } /* if */
+      aType = aType->result_type;
+    } while (aType != NULL &&
+             aType->name == NULL && aType->result_type != NULL);
+    if (aType == NULL) {
+      resultTypeName = cstri_to_stri(" *NULL_TYPE* ");
+    } else if (aType->name != NULL) {
+      resultTypeName = cstri8_to_stri(id_string2(aType->name), err_info);
+    } else {
+      resultTypeName = cstri_to_stri(" *ANONYM_TYPE* ");
+    } /* if */
+    funcStri = cstri_to_stri("func ");
+    varfuncStri = cstri_to_stri("varfunc ");
+    if (unlikely(resultTypeName == NULL ||
+                 funcStri == NULL || varfuncStri == NULL ||
+                 !ALLOC_STRI_CHECK_SIZE(typeName,
+                                        length + resultTypeName->size))) {
+      if (*err_info == OKAY_NO_ERROR) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+      typeName = NULL;
+    } else {
+      typeName->size = length + resultTypeName->size;
+      aType = funcType;
+      pos = 0;
+      do {
+        if (aType->is_varfunc_type) {
+          memcpy(&typeName->mem[pos], varfuncStri->mem,
+                 varfuncStri->size * sizeof(strElemType));
+          pos += varfuncStri->size;
+        } else {
+          memcpy(&typeName->mem[pos], funcStri->mem,
+                 funcStri->size * sizeof(strElemType));
+          pos += funcStri->size;
+        } /* if */
+        aType = aType->result_type;
+      } while (aType != NULL &&
+               aType->name == NULL && aType->result_type != NULL);
+      memcpy(&typeName->mem[pos], resultTypeName->mem,
+             resultTypeName->size * sizeof(strElemType));
+    } /* if */
+    if (resultTypeName != NULL) {
+      FREE_STRI(resultTypeName);
+    } /* if */
+    if (funcStri != NULL) {
+      FREE_STRI(funcStri);
+    } /* if */
+    if (varfuncStri != NULL) {
+      FREE_STRI(varfuncStri);
+    } /* if */
+    return typeName;
+  } /* funcTypeName */
+
+
+
 /**
  *  Compare two types.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -238,25 +311,36 @@ typeType typResult (typeType any_type)
 striType typStr (typeType type_arg)
 
   {
-    const_cstriType stri;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result;
+    striType typeName;
 
   /* typStr */
     logFunction(printf("typStr(" FMT_X_MEM ")\n", (memSizeType) type_arg););
-    if (unlikely(type_arg == NULL)) {
-      stri = "*NULL_TYPE*";
-    } else if (type_arg->name != NULL) {
-      stri = id_string2(type_arg->name);
+    if (type_arg != NULL) {
+      if (type_arg->name != NULL) {
+        typeName = cstri8_to_stri(id_string2(type_arg->name), &err_info);
+        if (unlikely(typeName == NULL)) {
+          raise_error(err_info);
+        } /* if */
+      } else if (type_arg->result_type != NULL) {
+        typeName = funcTypeName(type_arg, &err_info);
+        if (unlikely(typeName == NULL)) {
+          raise_error(err_info);
+        } /* if */
+      } else {
+        typeName = cstri_to_stri(" *ANONYM_TYPE* ");
+        if (unlikely(typeName == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
+      } /* if */
     } else {
-      stri = "*ANONYM_TYPE*";
+      typeName = cstri_to_stri(" *NULL_TYPE* ");
+      if (unlikely(typeName == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
-    result = cstri8_to_stri(stri, &err_info);
-    if (unlikely(result == NULL)) {
-      raise_error(err_info);
-    } /* if */
-    logFunction(printf("typStr --> \"%s\"\n", striAsUnquotedCStri(result)););
-    return result;
+    logFunction(printf("typStr --> \"%s\"\n", striAsUnquotedCStri(typeName)););
+    return typeName;
   } /* typStr */
 
 

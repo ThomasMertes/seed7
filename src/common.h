@@ -655,6 +655,16 @@ boolType findTermDll (void);
 #define bitsetIndex(set,pos) (memSizeType) ((uintType) (pos) - (uintType) (set)->min_position)
 
 
+/* Functions always create non-NULL fileType values. NULL is */
+/* only used if an exception has been raised. In this case   */
+/* exception handling takes place and no function with a     */
+/* fileType parameter will be called. This way functions     */
+/* with a fileType parameter can assume that the fileType    */
+/* value is never NULL. The macro below is used to state     */
+/* that a fileType parameter is not NULL.                    */
+#define assert_file_not_null(aFile)
+
+
 typedef struct setStruct      *setType;
 typedef struct striStruct     *striType;
 typedef struct bstriStruct    *bstriType;
@@ -732,7 +742,7 @@ typedef struct fileStruct {
     uintType usage_count;
     boolType readingAllowed;
     boolType writingAllowed;
-    boolType isPipe;
+    boolType isPopenPipe;
   } fileRecord;
 
 typedef struct socketStruct {
@@ -836,7 +846,7 @@ typedef mpz_srcptr  const_bigIntType;
 /* The logging infrastructure uses the following definitions:
      #define LOG_FUNCTIONS 0
      #define VERBOSE_EXCEPTIONS 0
-   These values must be definied at the beginning of a source file.
+   These values must be defined at the beginning of a source file.
    Possible values are:
      0 The logging is deactivated
      1 The logging is activated

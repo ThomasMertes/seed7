@@ -63,21 +63,21 @@
 
 #ifdef C_PLUS_PLUS
 
-extern "C" int tgetent (char *, char *);
-extern "C" int tgetnum (char *);
-extern "C" int tgetflag (char *);
-extern "C" char *tgetstr(char *, char **);
-extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char ch));
+extern "C" int tgetent (char *capbuf, const char *terminal_name);
+extern "C" int tgetnum (const char *id);
+extern "C" int tgetflag (const char *id);
+extern "C" char *tgetstr(const char *id, char **area);
+extern "C" char *tgoto (const char *cap, int col, int row);
+extern "C" int tputs (const char *str, int affcnt, int (*putc) (char ch));
 
 #else
 
-int tgetent (char *, char *);
-int tgetnum (char *);
-int tgetflag (char *);
-char *tgetstr(char *, char **);
-char *tgoto (char *, int, int);
-int tputs (char *, int, int (*) (char ch));
+int tgetent (char *capbuf, const char *terminal_name);
+int tgetnum (const char *id);
+int tgetflag (const char *id);
+char *tgetstr(const char *id, char **area);
+char *tgoto (const char *cap, int col, int row);
+int tputs (const char *str, int affcnt, int (*putc) (char ch));
 
 #endif
 
@@ -101,7 +101,7 @@ char *capabilities = NULL;
 
 
 
-int my_tgetent (char *capbuf, char *terminal_name)
+int my_tgetent (char *capbuf, const char *terminal_name)
 
   {
     char *home_dir_path;
@@ -181,7 +181,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
 
 
 
-int my_tgetnum (char *code)
+int my_tgetnum (const char *id)
 
   {
     memSizeType pos = 1;
@@ -191,12 +191,12 @@ int my_tgetnum (char *code)
 
   /* my_tgetnum */
     log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\")\n",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : ""););
-    if (likely(code != NULL)) {
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : ""););
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = '#';
@@ -208,14 +208,14 @@ int my_tgetnum (char *code)
       } /* if */
     } /* if */
     log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\") --> %d\n",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : "", cap_value););
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "", cap_value););
     return cap_value;
   } /* my_tgetnum */
 
 
 
-int my_tgetflag (char *code)
+int my_tgetflag (const char *id)
 
   {
     memSizeType pos = 1;
@@ -225,12 +225,12 @@ int my_tgetflag (char *code)
 
   /* my_tgetflag */
     log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\")\n",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : ""););
-    if (likely(code != NULL)) {
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : ""););
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = ':';
@@ -242,14 +242,14 @@ int my_tgetflag (char *code)
       } /* if */
     } /* if */
     log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\") --> %d\n",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : "", cap_value););
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "", cap_value););
     return cap_value;
   } /* my_tgetflag */
 
 
 
-char *my_tgetstr (char *code, char **area)
+char *my_tgetstr (const char *id, char **area)
 
   {
     memSizeType pos = 1;
@@ -262,17 +262,17 @@ char *my_tgetstr (char *code, char **area)
 
   /* my_tgetstr */
     log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ")\n",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : "",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "",
                          area == NULL ? "NULL " : "",
                          area != NULL && *area == NULL ?
                              "(NULL) " : "",
                          area == NULL ?
                              (memSizeType) 0 : (memSizeType) *area););
-    if (likely(code != NULL)) {
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = '=';
@@ -333,8 +333,8 @@ char *my_tgetstr (char *code, char **area)
       } /* if */
     } /* if */
     log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ") --> ",
-                         code == NULL ? "NULL " : "",
-                         code != NULL ? code : "",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "",
                          area == NULL ? "NULL " : "",
                          area != NULL && *area == NULL ?
                              "(NULL) " : "",
@@ -720,7 +720,7 @@ int outch (char ch)
 
 
 
-void putcontrol (char *control)
+void putcontrol (const char *control)
 
   { /* putcontrol */
     if (control != NULL) {

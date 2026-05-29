@@ -1642,6 +1642,7 @@ void trace1 (const_objectType traceobject)
       } else {
         switch (CATEGORY_OF_OBJ(traceobject)) {
           case REFOBJECT:
+          case STRUCTELEMOBJECT:
           case ENUMLITERALOBJECT:
           case CONSTENUMOBJECT:
           case VARENUMOBJECT:

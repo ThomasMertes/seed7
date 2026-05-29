@@ -450,7 +450,7 @@ void setCpy (setType *const dest, const const_setType source)
 void setCpyGeneric (genericType *const dest, const genericType source)
 
   { /* setCpyGeneric */
-    setCpy(&((rtlObjectType *) dest)->value.setValue,
+    setCpy(&((rtlObjectType *const) dest)->value.setValue,
            ((const_rtlObjectType *) &source)->value.setValue);
   } /* setCpyGeneric */
 
