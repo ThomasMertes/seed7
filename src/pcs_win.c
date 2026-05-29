@@ -251,7 +251,7 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
 #ifdef USE_MODULE_NAME_FOR_CREATE_PROCESS
       /* Pelles C cannot start the compiler (POCC.EXE) without this fix. */
       {
-        os_charType *lastPathDelimiter;
+        const os_charType *lastPathDelimiter;
 
         lastPathDelimiter = os_stri_strrchr(command_stri, OS_PATH_DELIMITER);
         if (lastPathDelimiter != NULL) {

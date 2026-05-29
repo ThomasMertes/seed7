@@ -888,7 +888,7 @@ static const wchar_t *followSymlinkRecursive (const wchar_t *osSymlinkPath,
 
   {
     USHORT substituteNameLength;
-    wchar_t *lastBackslashPos;
+    const wchar_t *lastBackslashPos;
     memSizeType directoryPathLength;
     wchar_t *destination;
     const wchar_t *result;
