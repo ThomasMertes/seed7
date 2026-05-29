@@ -2344,12 +2344,17 @@ striType createCommandLine (const const_striType command,
         *err_info = MEMORY_ERROR;
         commandLine = NULL;
       } else {
-        parameterArray = (striType *) malloc(sizeof(striType) *
-                                             numberOfParameters);
-        if (unlikely(parameterArray == NULL)) {
-          *err_info = MEMORY_ERROR;
-          commandLine = NULL;
+        if (numberOfParameters == 0) {
+          parameterArray = NULL;
         } else {
+          parameterArray = (striType *) malloc(sizeof(striType) *
+                                               numberOfParameters);
+          if (unlikely(parameterArray == NULL)) {
+            *err_info = MEMORY_ERROR;
+            commandLine = NULL;
+          } /* if */
+        } /* if */
+        if (likely(*err_info == OKAY_NO_ERROR)) {
           commandLineSize = escapedCommand->size;
           for (pos = 0; pos < numberOfParameters; pos++) {
             escapedParameter =
