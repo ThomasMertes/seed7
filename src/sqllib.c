@@ -39,6 +39,18 @@
 
 
 
+objectType sql_affected_rows (listType arguments)
+
+  {
+    intType number;
+
+  /* sql_affected_rows */
+    isit_sqlstmt(arg_1(arguments));
+    number = sqlAffectedRows(take_sqlstmt(arg_1(arguments)));
+    return bld_int_temp(number);
+  } /* sql_affected_rows */
+
+
 objectType sql_bind_bigint (listType arguments)
 
   { /* sql_bind_bigint */

@@ -99,6 +99,7 @@ typedef struct {
     boolType        executeSuccessful;
     boolType        fetchOkay;
     boolType        fetchFinished;
+    uintType        affected_rows;
   } preparedStmtRecordCli, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
@@ -329,6 +330,8 @@ typedef SQLRETURN (STDCALL *tp_SQLNumResultCols) (SQLHSTMT     statementHandle,
 typedef SQLRETURN (STDCALL *tp_SQLPrepareW) (SQLHSTMT   statementHandle,
                                              SQLWCHAR  *statementText,
                                              SQLINTEGER textLength);
+typedef SQLRETURN (STDCALL *tp_SQLRowCount) (SQLHSTMT     statementHandle,
+                                             SQLLEN       *rowCountPtr);
 typedef SQLRETURN (STDCALL *tp_SQLSetConnectAttrW) (SQLHDBC    connectionHandle,
                                                     SQLINTEGER attribute,
                                                     SQLPOINTER valuePtr,
@@ -369,6 +372,7 @@ static tp_SQLGetTypeInfoW    ptr_SQLGetTypeInfoW;
 static tp_SQLNumParams       ptr_SQLNumParams;
 static tp_SQLNumResultCols   ptr_SQLNumResultCols;
 static tp_SQLPrepareW        ptr_SQLPrepareW;
+static tp_SQLRowCount        ptr_SQLRowCount;
 static tp_SQLSetConnectAttrW ptr_SQLSetConnectAttrW;
 static tp_SQLSetDescFieldW   ptr_SQLSetDescFieldW;
 static tp_SQLSetEnvAttr      ptr_SQLSetEnvAttr;
@@ -399,6 +403,7 @@ static tp_SQLSetEnvAttr      ptr_SQLSetEnvAttr;
 #define SQLNumParams       ptr_SQLNumParams
 #define SQLNumResultCols   ptr_SQLNumResultCols
 #define SQLPrepareW        ptr_SQLPrepareW
+#define SQLRowCount        ptr_SQLRowCount
 #define SQLSetConnectAttrW ptr_SQLSetConnectAttrW
 #define SQLSetDescFieldW   ptr_SQLSetDescFieldW
 #define SQLSetEnvAttr      ptr_SQLSetEnvAttr
@@ -454,6 +459,7 @@ static boolType setupDll (const char *dllName)
             (SQLNumParams       = (tp_SQLNumParams )      dllFunc(dbDll, "SQLNumParams"))       == NULL ||
             (SQLNumResultCols   = (tp_SQLNumResultCols)   dllFunc(dbDll, "SQLNumResultCols"))   == NULL ||
             (SQLPrepareW        = (tp_SQLPrepareW)        dllFunc(dbDll, "SQLPrepareW"))        == NULL ||
+            (SQLRowCount        = (tp_SQLRowCount)        dllFunc(dbDll, "SQLRowCount"))        == NULL ||
             (SQLSetConnectAttrW = (tp_SQLSetConnectAttrW) dllFunc(dbDll, "SQLSetConnectAttrW")) == NULL ||
             (SQLSetDescFieldW   = (tp_SQLSetDescFieldW)   dllFunc(dbDll, "SQLSetDescFieldW"))   == NULL ||
             (SQLSetEnvAttr      = (tp_SQLSetEnvAttr)      dllFunc(dbDll, "SQLSetEnvAttr"))      == NULL) {
@@ -3333,6 +3339,22 @@ static errInfoType doFetch (preparedStmtType preparedStmt, fetchDataType boundFe
 
 
 
+static intType sqlAffectedRows (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+    intType value;
+
+  /* sqlAffectedRows */
+    logFunction(printf("sqlAffectedRows(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    preparedStmt = (preparedStmtType) sqlStatement;
+    value = preparedStmt->affected_rows;
+    logFunction(printf("sqlAffectedRows --> " FMT_D "\n", value););
+    return value;
+  } /* sqlAffectedRows */
+
+
 static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
 
@@ -5910,6 +5932,9 @@ static void sqlExecute (sqlStmtType sqlStatement)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
+    preparedStmtType preparedStmt;
+    SQLRETURN execute_result;
+    SQLLEN affected_rows;
 
   /* sqlExecute */
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
@@ -5917,6 +5942,23 @@ static void sqlExecute (sqlStmtType sqlStatement)
     err_info = doExecute(sqlStatement);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
+    } else {
+      preparedStmt = (preparedStmtType) sqlStatement;
+      execute_result = SQLRowCount(preparedStmt->ppStmt, &affected_rows);
+#ifdef ALLOW_EXECUTE_SUCCESS_WITH_INFO
+      if (execute_result == SQL_SUCCESS_WITH_INFO) {
+        execute_result = SQL_SUCCESS;
+      } /*if */
+#endif
+      if (execute_result != SQL_SUCCESS) {
+        setDbErrorMsg("sqlExecute", "SQLRowCount", SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlExecute: SQLRowCount execute_result: %d:\n%s\n",
+                        execute_result, dbError.message););
+        err_info = DATABASE_ERROR;
+        raise_error(err_info);
+      } else {
+        preparedStmt->affected_rows = affected_rows >= 0 ? affected_rows : 0;
+      }
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
   } /* sqlExecute */
@@ -6336,6 +6378,7 @@ static boolType setupFuncTable (void)
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
+        sqlFunc->sqlAffectedRows    = &sqlAffectedRows;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
         sqlFunc->sqlBindBool        = &sqlBindBool;

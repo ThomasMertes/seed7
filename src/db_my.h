@@ -146,6 +146,7 @@ typedef struct {
 #endif
 #endif
 
+my_ulonglong STDCALL mysql_affected_rows (MYSQL *mysql);
 my_bool STDCALL mysql_autocommit (MYSQL *mysql, my_bool mode);
 void STDCALL mysql_close (MYSQL *sock);
 my_bool STDCALL mysql_commit (MYSQL *mysql);

@@ -96,6 +96,7 @@ typedef struct {
     boolType       executeSuccessful;
     boolType       fetchOkay;
     boolType       fetchFinished;
+    uintType       affected_rows;
   } preparedStmtRecordMy, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
@@ -126,6 +127,7 @@ static sqlFuncType sqlFunc = NULL;
 #endif
 #endif
 
+typedef my_ulonglong (STDCALL *tp_mysql_affected_rows) (MYSQL *mysql);
 typedef my_bool (STDCALL *tp_mysql_autocommit) (MYSQL *mysql, my_bool mode);
 typedef void (STDCALL *tp_mysql_close) (MYSQL *sock);
 typedef my_bool (STDCALL *tp_mysql_commit) (MYSQL *mysql);
@@ -171,6 +173,7 @@ typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt,
 typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
 typedef int *(STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
 
+static tp_mysql_affected_rows        ptr_mysql_affected_rows;
 static tp_mysql_autocommit           ptr_mysql_autocommit;
 static tp_mysql_close                ptr_mysql_close;
 static tp_mysql_commit               ptr_mysql_commit;
@@ -198,6 +201,7 @@ static tp_mysql_stmt_prepare         ptr_mysql_stmt_prepare;
 static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 static tp_mysql_stmt_store_result    ptr_mysql_stmt_store_result;
 
+#define mysql_affected_rows        ptr_mysql_affected_rows
 #define mysql_autocommit           ptr_mysql_autocommit
 #define mysql_close                ptr_mysql_close
 #define mysql_commit               ptr_mysql_commit
@@ -237,7 +241,8 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((mysql_autocommit           = (tp_mysql_autocommit)           dllFunc(dbDll, "mysql_autocommit"))           == NULL ||
+        if ((mysql_affected_rows        = (tp_mysql_affected_rows)        dllFunc(dbDll, "mysql_affected_rows"))        == NULL ||
+            (mysql_autocommit           = (tp_mysql_autocommit)           dllFunc(dbDll, "mysql_autocommit"))           == NULL ||
             (mysql_close                = (tp_mysql_close)                dllFunc(dbDll, "mysql_close"))                == NULL ||
             (mysql_commit               = (tp_mysql_commit)               dllFunc(dbDll, "mysql_commit"))               == NULL ||
             (mysql_errno                = (tp_mysql_errno)                dllFunc(dbDll, "mysql_errno"))                == NULL ||
@@ -945,6 +950,22 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
     return length;
   } /* setBigRat */
 
+
+
+static intType sqlAffectedRows (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+    intType value;
+
+  /* sqlAffectedRows */
+    logFunction(printf("sqlAffectedRows(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    preparedStmt = (preparedStmtType) sqlStatement;
+    value = preparedStmt->affected_rows;
+    logFunction(printf("sqlAffectedRows --> " FMT_D "\n", value););
+    return value;
+  } /* sqlAffectedRows */
 
 
 static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
@@ -2447,6 +2468,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->executeSuccessful = FALSE;
         raise_error(DATABASE_ERROR);
       } else {
+        preparedStmt->affected_rows = mysql_affected_rows(preparedStmt->db->connection);
         preparedStmt->executeSuccessful = TRUE;
         preparedStmt->fetchFinished = FALSE;
       } /* if */
@@ -2872,6 +2894,7 @@ static boolType setupFuncTable (void)
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
+        sqlFunc->sqlAffectedRows    = &sqlAffectedRows;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
         sqlFunc->sqlBindBool        = &sqlBindBool;

@@ -126,6 +126,7 @@ typedef struct {
     int            num_tuples;
     int            fetch_index;
     boolType       increment_index;
+    uintType       affected_rows;
   } preparedStmtRecordPost, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
@@ -151,6 +152,7 @@ static sqlFuncType sqlFunc = NULL;
 #endif
 
 typedef void (CDECL *tp_PQclear) (PGresult *res);
+typedef char *(CDECL *tp_PQcmdTuples) (const PGresult *res);
 typedef PGresult *(CDECL *tp_PQdescribePrepared) (PGconn *conn, const char *stmt);
 typedef char *(CDECL *tp_PQerrorMessage) (const PGconn *conn);
 typedef PGresult *(CDECL *tp_PQexec) (PGconn *conn, const char *query);
@@ -186,6 +188,7 @@ typedef PGconn *(CDECL *tp_PQsetdbLogin) (const char *pghost, const char *pgport
 typedef ConnStatusType (CDECL *tp_PQstatus) (const PGconn *conn);
 
 static tp_PQclear              ptr_PQclear;
+static tp_PQcmdTuples          ptr_PQcmdTuples;
 static tp_PQdescribePrepared   ptr_PQdescribePrepared;
 static tp_PQerrorMessage       ptr_PQerrorMessage;
 static tp_PQexec               ptr_PQexec;
@@ -210,6 +213,7 @@ static tp_PQsetdbLogin         ptr_PQsetdbLogin;
 static tp_PQstatus             ptr_PQstatus;
 
 #define PQclear              ptr_PQclear
+#define PQcmdTuples          ptr_PQcmdTuples
 #define PQdescribePrepared   ptr_PQdescribePrepared
 #define PQerrorMessage       ptr_PQerrorMessage
 #define PQexec               ptr_PQexec
@@ -298,6 +302,7 @@ static boolType setupDll (const char *dllName)
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
         if ((PQclear              = (tp_PQclear)              dllFunc(dbDll, "PQclear"))              == NULL ||
+            (PQcmdTuples          = (tp_PQcmdTuples)          dllFunc(dbDll, "PQcmdTuples"))          == NULL ||
             (PQdescribePrepared   = (tp_PQdescribePrepared)   dllFunc(dbDll, "PQdescribePrepared"))   == NULL ||
             (PQerrorMessage       = (tp_PQerrorMessage)       dllFunc(dbDll, "PQerrorMessage"))       == NULL ||
             (PQexec               = (tp_PQexec)               dllFunc(dbDll, "PQexec"))               == NULL ||
@@ -1455,6 +1460,22 @@ static timeStampType getTimestamp1970 (timeStampType timestamp,
     return timestamp;
   } /* getTimestamp1970 */
 
+
+
+static intType sqlAffectedRows (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+    intType value;
+
+  /* sqlAffectedRows */
+    logFunction(printf("sqlAffectedRows(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    preparedStmt = (preparedStmtType) sqlStatement;
+    value = preparedStmt->affected_rows;
+    logFunction(printf("sqlAffectedRows --> " FMT_D "\n", value););
+    return value;
+  } /* sqlAffectedRows */
 
 
 static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
@@ -3277,6 +3298,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     preparedStmtType preparedStmt;
     errInfoType err_info = OKAY_NO_ERROR;
     int num_tuples;
+    char *affected_rows;
 
   /* sqlExecute */
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
@@ -3306,6 +3328,11 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
         if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
           preparedStmt->executeSuccessful = TRUE;
+          affected_rows = PQcmdTuples(preparedStmt->execute_result);
+          if (affected_rows && affected_rows[0] != '\0')
+            preparedStmt->affected_rows = strtoul(affected_rows, NULL, 10);
+          else
+            preparedStmt->affected_rows = 0;
 #if USE_IMPLICIT_COMMIT_MECHANISM
           if (preparedStmt->implicitCommit && !preparedStmt->db->autoCommit) {
             logMessage(printf("sqlExecute: Use implicitCommit mechanism.\n"););
@@ -3326,6 +3353,11 @@ static void sqlExecute (sqlStmtType sqlStatement)
             raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->num_tuples = num_tuples;
+            affected_rows = PQcmdTuples(preparedStmt->execute_result);
+            if (affected_rows && affected_rows[0] != '\0')
+              preparedStmt->affected_rows = strtoul(affected_rows, NULL, 10);
+            else
+              preparedStmt->affected_rows = 0;
             /* printf("Number of tubles: %d\n", preparedStmt->num_tuples);
               printf("Number of columns: %d\n", PQnfields(preparedStmt->execute_result));
               printf("Result_column_count: " FMT_U_MEM "\n", preparedStmt->result_column_count);
@@ -3665,6 +3697,7 @@ static boolType setupFuncTable (void)
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
+        sqlFunc->sqlAffectedRows    = &sqlAffectedRows;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
         sqlFunc->sqlBindBool        = &sqlBindBool;

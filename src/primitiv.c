@@ -945,6 +945,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SOC_WRITE",                    soc_write,                    },
 
 #if WITH_SQL
+    { "SQL_AFFECTED_ROWS",            sql_affected_rows,            },
     { "SQL_BIND_BIGINT",              sql_bind_bigint,              },
     { "SQL_BIND_BIGRAT",              sql_bind_bigrat,              },
     { "SQL_BIND_BOOL",                sql_bind_bool,                },
