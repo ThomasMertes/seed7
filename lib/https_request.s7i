@@ -149,7 +149,7 @@ const func httpResponse: https (DELETE, in string: location) is
   return https(DELETE, location, httpCreds.value);
 
 
-const func httpResponse: https (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
+const func httpResponse: https (POST, in string: location, in headerType: headers, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -157,14 +157,15 @@ const func httpResponse: https (POST, in string: location, in httpBody: body, in
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpsDefaultPort);
+    request.headers := headers;
     request.body := body;
     request.creds := creds;
     response := sendHttps(request, TRUE);
   end func;
 
 
-const func httpResponse: https (POST, in string: location, in httpBody: body) is
-  return https(POST, location, body, httpCreds.value);
+const func httpResponse: https (POST, in string: location, in headerType: headers, in string: body) is
+  return https(POST, location, headers, body, httpCreds.value);
 
 
 const func httpResponse: https (POST, in string: location, in string: plain, in httpCreds: creds) is func
@@ -175,8 +176,8 @@ const func httpResponse: https (POST, in string: location, in string: plain, in 
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpsDefaultPort);
-    request.body.contentType := "text/plain";
-    request.body.content := plain;
+    incl(request.headers, "content-type", "text/plain");
+    request.body := plain;
     request.creds := creds;
     response := sendHttps(request, TRUE);
   end func;
@@ -196,12 +197,12 @@ const func httpResponse: https (POST, in string: location, in hash [string] stri
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpsDefaultPort);
-    request.body.contentType := "application/x-www-form-urlencoded";
+    incl(request.headers, "content-type", "application/x-www-form-urlencoded");
     for value key name range fields do
-      request.body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+      request.body &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
     end for;
-    if endsWith(request.body.content, "&") then
-      request.body.content := request.body.content[.. length(request.body.content)-1];
+    if endsWith(request.body, "&") then
+      request.body := request.body[.. length(request.body)-1];
     end if;
     request.creds := creds;
     response := sendHttps(request, TRUE);
@@ -215,7 +216,7 @@ const func httpResponse: https (POST, in string: location, in hash [string] stri
 (**
  *  Send a custom request using the HTTPS protocol.
  *)
-const func httpResponse: https (in string: method, in string: location, in httpBody: body, in httpCreds: creds) is func
+const func httpResponse: https (in string: method, in string: location, in headerType: headers, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -223,11 +224,12 @@ const func httpResponse: https (in string: method, in string: location, in httpB
   begin
     request.method := method;
     request.location := getHttpLocation(location, httpsDefaultPort);
+    request.headers := headers;
     request.body := body;
     request.creds := creds;
     response := sendHttps(request, TRUE);
   end func;
 
 
-const func httpResponse: https (in string: method, in string: location, in httpBody: body) is
-  return https(method, location, body, httpCreds.value);
+const func httpResponse: https (in string: method, in string: location, in headerType: headers, in string: body) is
+  return https(method, location, headers, body, httpCreds.value);
