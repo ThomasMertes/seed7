@@ -814,6 +814,55 @@ const proc: check_file_seek is func
   end func;
 
 
+const proc: check_file_append is func
+  local
+    var boolean: okay is TRUE;
+    var string: test_file_name is "";
+    var file: aFile is STD_NULL;
+    var char: ch is ' ';
+    var string: expected is "";
+    var string: test is "";
+  begin
+    repeat
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
+    until fileType(test_file_name) = FILE_ABSENT;
+
+    for ch range ' ' to '~' do
+      aFile := open(test_file_name, "a");
+      if aFile <> STD_NULL then
+        write(aFile, ch);
+        close(aFile);
+      end if;
+      expected &:= ch;
+    end for;
+
+    aFile := open(test_file_name, "r");
+    if aFile <> STD_NULL then
+      test := gets(aFile, integer.last);
+      if test <> expected then
+        writeln("The file does not contain the expected string.");
+        writeln("Expected length: " <& length(expected));
+        writeln("Length found:    " <& length(test));
+        writeln("Expected: " <& literal(expected));
+        writeln("Found:    " <& literal(test));
+        okay := FALSE;
+      end if;
+      close(aFile);
+    else
+      writeln("Cannot open " <& test_file_name);
+      okay := FALSE;
+    end if;
+
+    removeFile(test_file_name);
+
+    if not okay then
+      writeln(" ***** Appending to a file does not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_automatic_close is func
   local
     var boolean: okay is TRUE;
@@ -1481,6 +1530,7 @@ const proc: main is func
     check_file_open;
     check_file_io;
     check_file_seek;
+    check_file_append;
     check_automatic_close;
     check_use_after_close;
     check_utf8_file_open;
