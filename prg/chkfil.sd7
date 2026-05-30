@@ -170,7 +170,7 @@ const func string: genTempClibFile (in string: nameSuffix) is func
 (*
  *  Test the case where a function changes its parameter.
  *  Assume the function is called with:
- *   aFile := changeParameter(aFile, testFileName);
+ *   aFile := changeParameter(aFile, testFileNameB, testFileNameC);
  *  This triggers two changes of 'aFile'. One change is in
  *  changeParameter() and another change is done by the assignment.
  *  In this case the change of 'aFile' in changeParameter() is
@@ -254,7 +254,7 @@ const func string: genTempFile (in string: nameSuffix) is func
 (*
  *  Test the case where a function changes its parameter.
  *  Assume the function is called with:
- *   aFile := changeParameter(aFile, testFileName);
+ *   aFile := changeParameter(aFile, testFileNameB, testFileNameC);
  *  This triggers two changes of 'aFile'. One change is in
  *  changeParameter() and another change is done by the assignment.
  *  In this case the change of 'aFile' in changeParameter() is
