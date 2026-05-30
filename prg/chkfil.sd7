@@ -162,9 +162,9 @@ const func clib_file: changeParameter (inout clib_file: aFile,
   result
     var clib_file: fileResult is clib_file.value;
   begin
-    fileResult := openClibFile(testFileName, "r+");
+    fileResult := openClibFile(testFileName, "r");
     # To check the implementation this must change the address of 'aFile':
-    aFile := openClibFile(testFileName, "r+");
+    aFile := openClibFile(testFileName, "r");
   end func;
 
 
@@ -183,11 +183,11 @@ const proc: check_clib_file_assign is func
     write(aFile, testFileName);
     close(aFile);
 
-    aFile := openClibFile(testFileName, "r+");
+    aFile := openClibFile(testFileName, "r");
     aFile := changeParameter(aFile, testFileName);
     aFile := aFile;
     close(aFile);
-    fileArr[1] := openClibFile(testFileName, "r+");
+    fileArr[1] := openClibFile(testFileName, "r");
     fileArr[1] := changeParameter(fileArr[1], testFileName);
     fileArr[1] := fileArr[1];
     close(fileArr[1]);
