@@ -212,9 +212,9 @@ const func file: changeParameter (inout file: aFile,
   result
     var file: fileResult is STD_NULL;
   begin
-    fileResult := open(testFileName, "r+");
+    fileResult := open(testFileName, "r");
     # To check the implementation this must change the address of 'aFile':
-    aFile := open(testFileName, "r+");
+    aFile := open(testFileName, "r");
   end func;
 
 
@@ -233,11 +233,11 @@ const proc: check_file_assign is func
     write(aFile, testFileName);
     close(aFile);
 
-    aFile := open(testFileName, "r+");
+    aFile := open(testFileName, "r");
     aFile := changeParameter(aFile, testFileName);
     aFile := aFile;
     close(aFile);
-    fileArr[1] := open(testFileName, "r+");
+    fileArr[1] := open(testFileName, "r");
     fileArr[1] := changeParameter(fileArr[1], testFileName);
     fileArr[1] := fileArr[1];
     close(fileArr[1]);
