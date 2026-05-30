@@ -1989,8 +1989,9 @@ static cFileType cFileOpen (const const_striType path,
     cFileType result;
 
   /* cFileOpen */
-    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", *)\n",
-                       striAsUnquotedCStri(path), os_mode););
+    logFunction(printf("cFileOpen(\"%s\", \"" FMT_S_OS "\", %d)\n",
+                       striAsUnquotedCStri(path), os_mode,
+                       *err_info););
     os_path = cp_to_os_path(path, &path_info, err_info);
     logMessage(printf("cFileOpen: os_path \"" FMT_S_OS "\" %d %d\n",
                       os_path, path_info, *err_info););
