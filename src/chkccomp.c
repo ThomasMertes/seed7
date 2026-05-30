@@ -6999,6 +6999,17 @@ static void determineOsFunctions (FILE *versionFile)
       fprintf(versionFile, "#define funlockfile(aFile)\n");
       fprintf(versionFile, "#define getc_unlocked(aFile) getc(aFile)\n");
     } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *fileA, *fileB;\n"
+                         "fileA = fopen(\"ctstfile.txt\", \"w\");\n"
+                         "fileB = fopen(\"ctstfile.txt\", \"r+\");\n"
+                         "printf(\"%d\\n\", fileA != NULL && fileB != NULL);\n"
+                         "if (fileA != NULL) { fclose(fileA); }\n"
+                         "if (fileB != NULL) { fclose(fileB); }\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define PARALLEL_FOPEN_POSSIBLE %d\n", doTest() == 1);
+    } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
