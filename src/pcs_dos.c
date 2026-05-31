@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  pcs_dos.c     Process functions using the dos capabilities.     */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018, 2021, 2025  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

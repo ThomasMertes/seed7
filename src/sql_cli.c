@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_cli.c     Database access functions for ODBC/CLI interface. */
-/*  Copyright (C) 1989 - 2022  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2026  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

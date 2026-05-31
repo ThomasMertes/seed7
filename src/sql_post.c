@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_post.c    Database access functions for PostgreSQL.         */
-/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2017 - 2022  Thomas Mertes           */
+/*                2024 - 2026  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
