@@ -2788,6 +2788,43 @@ static SQLSMALLINT assignToIntervalStruct (SQL_INTERVAL_STRUCT *interval,
       } /* if */
       interval->intval.day_second.fraction *= INTERVAL_FRACTION_FACTOR;
     } /* if */
+    logFunction(printf("assignToIntervalStruct(");
+                if (interval->interval_type == SQL_IS_YEAR ||
+                    interval->interval_type == SQL_IS_MONTH ||
+                    interval->interval_type == SQL_IS_YEAR_TO_MONTH) {
+                  printf("interval(type: %d, sign: %d, " FMT_U "-" F_U(02) ")",
+                         interval->interval_type,
+                         interval->interval_sign,
+                         (uintType) interval->intval.year_month.year,
+                         (uintType) interval->intval.year_month.month);
+                } else if (interval->interval_type == SQL_IS_DAY ||
+                           interval->interval_type == SQL_IS_HOUR ||
+                           interval->interval_type == SQL_IS_MINUTE ||
+                           interval->interval_type == SQL_IS_SECOND ||
+                           interval->interval_type == SQL_IS_DAY_TO_HOUR ||
+                           interval->interval_type == SQL_IS_DAY_TO_MINUTE ||
+                           interval->interval_type == SQL_IS_DAY_TO_SECOND ||
+                           interval->interval_type == SQL_IS_HOUR_TO_MINUTE ||
+                           interval->interval_type == SQL_IS_HOUR_TO_SECOND ||
+                           interval->interval_type == SQL_IS_MINUTE_TO_SECOND) {
+                  printf("interval(type: %d, sign: %d, " FMT_U " "
+                         F_U(02) ":" F_U(02) ":" F_U(02) " " FMT_U ")",
+                         interval->interval_type,
+                         interval->interval_sign,
+                         (uintType) interval->intval.day_second.day,
+                         (uintType) interval->intval.day_second.hour,
+                         (uintType) interval->intval.day_second.minute,
+                         (uintType) interval->intval.day_second.second,
+                         (uintType) interval->intval.day_second.fraction);
+                } else {
+                  printf("P" FMT_D "Y" FMT_D "M" FMT_D "DT"
+                       FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S",
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second));
+                }
+                printf(") --> %s\n",
+                       nameOfCType(c_type)););
     return c_type;
   } /* assignToIntervalStruct */
 
