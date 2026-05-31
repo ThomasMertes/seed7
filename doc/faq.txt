@@ -867,8 +867,9 @@ Syntax highlighting is available for several editors:
  - For Emacs, the seed7-mode major mode (at https://github.com/pierre-rouleau/seed7-mode)
    provides syntax highlighting, automatic indentation, specialized navigation
    and several other features.
- - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
-   this file to '/usr/share/nano' (you might need superuser privileges to do that).
+ - For the Nano editor there is seed7/doc/seed7.nanorc and nano-syntax-highlighting/seed7.nanorc.
+   You can copy this file to '/usr/share/nano' (you might need superuser privileges to do that).
+   Arch-user can install package nano-syntax-highlighting or nano-syntax-highlighting-git.
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
    click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
