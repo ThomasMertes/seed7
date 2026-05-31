@@ -3743,16 +3743,21 @@ static boolType getLocale (dbType database, errInfoType *err_info)
             logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
             setlocale(LC_ALL, databaseLocale);
             lc = localeconv();
-            if (lc->frac_digits == CHAR_MAX) {
-              /* In the "C" locale frac_digits == CHAR_MAX. */
+            if (lc->frac_digits == UCHAR_MAX ||
+                lc->frac_digits == SCHAR_MAX) {
+              /* In the "C" locale frac_digits == CHAR_MAX.       */
+              /* Unfortunately some libraries don't follow this   */
+              /* specification. To be on the safe side the        */
+              /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
               database->moneyDenominator = 100;
               logMessage(printf("getLocale: Money precision of %d not defined, "
                                 "using a denominator of " FMT_D64 "\n",
                                 lc->frac_digits, database->moneyDenominator););
             } else if (unlikely(lc->frac_digits < 0 ||
                                 lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
-              logError(printf("getLocale: frac_digits %d negative or too big.\n",
-                              lc->frac_digits););
+              logError(printf("getLocale: frac_digits %d negative or too big.\n"
+                              "Database locale: \"%s\"\n",
+                              lc->frac_digits, databaseLocale););
               *err_info = NUMERIC_ERROR;
             } else {
               database->moneyDenominator = intPow(10, lc->frac_digits);
