@@ -1521,7 +1521,7 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-void arrPush (rtlArrayType *const arr_variable, const genericType element)
+void arrPush (rtlArrayType *const arr_variable, const rtlValueUnion element)
 
   {
     rtlArrayType arr_to;
@@ -1539,7 +1539,7 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
                            (*arr_variable)->min_position : (intType) 1,
                        arr_variable != NULL && *arr_variable != NULL ?
                            (*arr_variable)->max_position : (intType) 0,
-                       element););
+                       element.genericValue););
     arr_to = *arr_variable;
     arr_to_size = arraySize(arr_to);
     if (unlikely(arr_to_size > MAX_RTL_ARR_LEN - 1 ||
@@ -1553,7 +1553,7 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
         *arr_variable = arr_to;
         arr_to->max_position ++;
-        arr_to->arr[arr_to_size].value.genericValue = element;
+        arr_to->arr[arr_to_size].value = element;
       } /* if */
     } /* if */
     logFunction(printf("arrPush --> " FMT_U_MEM " (array["

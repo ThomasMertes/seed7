@@ -56,7 +56,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element);
 void arrInsertArray (rtlArrayType *arr_to, intType position, rtlArrayType elements);
 void arrInsertArrayTemp (rtlArrayType *arr_to, intType position, rtlArrayType elements);
 rtlArrayType arrMalloc (intType minPosition, intType maxPosition);
-void arrPush (rtlArrayType *const arr_variable, const genericType element);
+void arrPush (rtlArrayType *const arr_variable, const rtlValueUnion element);
 rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType stop);
 rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop);
 rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newSize);
