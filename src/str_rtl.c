@@ -1526,7 +1526,9 @@ void strAppend (striType *const destination, const_striType extension)
 
   {
     memSizeType new_size;
+#if WITH_STRI_CAPACITY
     memSizeType newCapacity;
+#endif
     striType stri_dest;
     striType new_stri;
     memSizeType extension_size;
@@ -1544,7 +1546,7 @@ void strAppend (striType *const destination, const_striType extension)
     if (unlikely(new_size > MAX_STRI_LEN)) {
       raise_error(MEMORY_ERROR);
     } else {
- #if WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (new_size > stri_dest->capacity) {
         if (2 * stri_dest->capacity >= new_size) {
           newCapacity = 2 * stri_dest->capacity;
@@ -1600,7 +1602,9 @@ void strAppendN (striType *const destination,
     memSizeType size_limit;
     memSizeType pos;
     memSizeType new_size;
+#if WITH_STRI_CAPACITY
     memSizeType newCapacity;
+#endif
     striType new_stri;
     strElemType *dest;
     memSizeType elem_size;
