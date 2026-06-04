@@ -8838,8 +8838,16 @@ const func boolean: check_string_substr_assign_1 is func
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (2)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_substr_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := "" [ intExpr(            1) len             0 ]; ok &:= stri = "";
     stri := "" [ intExpr(            1) len             1 ]; ok &:= stri = "";
     stri := "" [ intExpr(            1) len             2 ]; ok &:= stri = "";
@@ -9065,7 +9073,7 @@ const func boolean: check_string_substr_assign_1 is func
   end func;
 
 
-const func boolean: check_string_substr_assign_2 is func
+const func boolean: check_string_substr_assign_3 is func
   result
     var boolean: okay is TRUE;
   local
@@ -9294,8 +9302,16 @@ const func boolean: check_string_substr_assign_2 is func
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_substr_assign_4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := striExpr("") [ intExpr(            1) len             0 ]; ok &:= stri = "";
     stri := striExpr("") [ intExpr(            1) len             1 ]; ok &:= stri = "";
     stri := striExpr("") [ intExpr(            1) len             2 ]; ok &:= stri = "";
@@ -9521,7 +9537,7 @@ const func boolean: check_string_substr_assign_2 is func
   end func;
 
 
-const func boolean: check_string_substr_assign_3 is func
+const func boolean: check_string_substr_assign_5 is func
   result
     var boolean: okay is TRUE;
   local
@@ -9670,8 +9686,16 @@ const func boolean: check_string_substr_assign_3 is func
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correctly. (10)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_substr_assign_6 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           0)) ]; ok &:= stri = "";
     stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           1)) ]; ok &:= stri = "";
     stri := "" [ succ(abs(intExpr(                  0))) len abs(intExpr(           2)) ]; ok &:= stri = "";
@@ -9817,7 +9841,7 @@ const func boolean: check_string_substr_assign_3 is func
   end func;
 
 
-const func boolean: check_string_substr_assign_4 is func
+const func boolean: check_string_substr_assign_7 is func
   result
     var boolean: okay is TRUE;
   local
@@ -11000,6 +11024,18 @@ const proc: check_string_substr is func
     end if;
 
     if not check_string_substr_assign_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_5 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_6 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_7 then
       okay := FALSE;
     end if;
 
@@ -25909,8 +25945,17 @@ const func boolean: check_string_assign_at_with_string_2 is func
       writeln(" ***** stri @:= [n] aString; does not work correctly. (6)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_assign_at_with_string_3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+    var integer: index is 0;
+  begin
     stri := "";     stri @:= [1] stri;          ok &:= stri = "";
     stri := "a";    stri @:= [1] stri;          ok &:= stri = "a";
     stri := "ab";   stri @:= [1] stri[1 len 1]; ok &:= stri = "ab";
@@ -26036,7 +26081,7 @@ const func boolean: check_string_assign_at_with_string_2 is func
   end func;
 
 
-const func boolean: check_string_assign_at_with_string_3 is func
+const func boolean: check_string_assign_at_with_string_4 is func
   result
     var boolean: okay is TRUE;
   local
@@ -26126,7 +26171,7 @@ const func boolean: check_string_assign_at_with_string_3 is func
   end func;
 
 
-const func boolean: check_string_assign_at_with_string_4 is func
+const func boolean: check_string_assign_at_with_string_5 is func
   result
     var boolean: okay is TRUE;
   local
@@ -26581,6 +26626,10 @@ const proc: check_string_assign_at is func
     end if;
 
     if not check_string_assign_at_with_string_4 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_assign_at_with_string_5 then
       okay := FALSE;
     end if;
 
