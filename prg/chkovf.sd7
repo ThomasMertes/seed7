@@ -5869,12 +5869,12 @@ const proc: check_lShift is func
   end func;
 
 
-const proc: check_lShift_assign is func
-  local
+const func boolean: check_lShift_assign_1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
     num :=            INT64_MIN; ok &:= raisesOverflowError(num <<:=  1);
     num := -4611686018427387905; ok &:= raisesOverflowError(num <<:=  1);
@@ -6032,6 +6032,60 @@ const proc: check_lShift_assign is func
     end if;
 
     ok := TRUE;
+    num := -16111; ok &:= raisesOverflowError(num <<:= -999);
+    num := -16111; ok &:= raisesOverflowError(num <<:=  -63);
+    num := -16111; ok &:= raisesOverflowError(num <<:=   -1);
+    num := -16111; ok &:= raisesOverflowError(num <<:=   64);
+    num := -16111; ok &:= raisesOverflowError(num <<:=  999);
+    num :=     -1; ok &:= raisesOverflowError(num <<:= -999);
+    num :=     -1; ok &:= raisesOverflowError(num <<:=  -63);
+    num :=     -1; ok &:= raisesOverflowError(num <<:=   -1);
+    num :=     -1; ok &:= raisesOverflowError(num <<:=   64);
+    num :=     -1; ok &:= raisesOverflowError(num <<:=  999);
+    num :=      0; ok &:= raisesOverflowError(num <<:= -999);
+    num :=      0; ok &:= raisesOverflowError(num <<:=  -63);
+    num :=      0; ok &:= raisesOverflowError(num <<:=   -1);
+    num :=      0; ok &:= raisesOverflowError(num <<:=   64);
+    num :=      0; ok &:= raisesOverflowError(num <<:=  999);
+    num :=  16111; ok &:= raisesOverflowError(num <<:= -999);
+    num :=  16111; ok &:= raisesOverflowError(num <<:=  -63);
+    num :=  16111; ok &:= raisesOverflowError(num <<:=   -1);
+    num :=  16111; ok &:= raisesOverflowError(num <<:=   64);
+    num :=  16111; ok &:= raisesOverflowError(num <<:=  999);
+    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(-999));
+    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr( -63));
+    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
+    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(  64));
+    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr( 999));
+    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(-999));
+    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr( -63));
+    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
+    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(  64));
+    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr( 999));
+    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(-999));
+    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr( -63));
+    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
+    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(  64));
+    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr( 999));
+    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(-999));
+    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr( -63));
+    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
+    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(  64));
+    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr( 999));
+    if not ok then
+      writeln(" ***** Left shift assignment with illegal shift count does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_lShift_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] :=            INT64_MIN; ok &:= raisesOverflowError(arr[1] <<:=  1);
     arr[1] := -4611686018427387905; ok &:= raisesOverflowError(arr[1] <<:=  1);
     arr[1] := -4611686018427387904; ok &:= raisesOverflowError(arr[1] <<:=  2);
@@ -6188,46 +6242,6 @@ const proc: check_lShift_assign is func
     end if;
 
     ok := TRUE;
-    num := -16111; ok &:= raisesOverflowError(num <<:= -999);
-    num := -16111; ok &:= raisesOverflowError(num <<:=  -63);
-    num := -16111; ok &:= raisesOverflowError(num <<:=   -1);
-    num := -16111; ok &:= raisesOverflowError(num <<:=   64);
-    num := -16111; ok &:= raisesOverflowError(num <<:=  999);
-    num :=     -1; ok &:= raisesOverflowError(num <<:= -999);
-    num :=     -1; ok &:= raisesOverflowError(num <<:=  -63);
-    num :=     -1; ok &:= raisesOverflowError(num <<:=   -1);
-    num :=     -1; ok &:= raisesOverflowError(num <<:=   64);
-    num :=     -1; ok &:= raisesOverflowError(num <<:=  999);
-    num :=      0; ok &:= raisesOverflowError(num <<:= -999);
-    num :=      0; ok &:= raisesOverflowError(num <<:=  -63);
-    num :=      0; ok &:= raisesOverflowError(num <<:=   -1);
-    num :=      0; ok &:= raisesOverflowError(num <<:=   64);
-    num :=      0; ok &:= raisesOverflowError(num <<:=  999);
-    num :=  16111; ok &:= raisesOverflowError(num <<:= -999);
-    num :=  16111; ok &:= raisesOverflowError(num <<:=  -63);
-    num :=  16111; ok &:= raisesOverflowError(num <<:=   -1);
-    num :=  16111; ok &:= raisesOverflowError(num <<:=   64);
-    num :=  16111; ok &:= raisesOverflowError(num <<:=  999);
-    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(-999));
-    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr( -63));
-    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
-    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr(  64));
-    num := -16111; ok &:= raisesOverflowError(num <<:= intExpr( 999));
-    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(-999));
-    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr( -63));
-    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
-    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr(  64));
-    num :=     -1; ok &:= raisesOverflowError(num <<:= intExpr( 999));
-    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(-999));
-    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr( -63));
-    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
-    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr(  64));
-    num :=      0; ok &:= raisesOverflowError(num <<:= intExpr( 999));
-    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(-999));
-    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr( -63));
-    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(  -1));
-    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr(  64));
-    num :=  16111; ok &:= raisesOverflowError(num <<:= intExpr( 999));
     arr[1] := -16111; ok &:= raisesOverflowError(arr[1] <<:= -999);
     arr[1] := -16111; ok &:= raisesOverflowError(arr[1] <<:=  -63);
     arr[1] := -16111; ok &:= raisesOverflowError(arr[1] <<:=   -1);
@@ -6269,7 +6283,21 @@ const proc: check_lShift_assign is func
     arr[1] :=  16111; ok &:= raisesOverflowError(arr[1] <<:= intExpr(  64));
     arr[1] :=  16111; ok &:= raisesOverflowError(arr[1] <<:= intExpr( 999));
     if not ok then
-      writeln(" ***** Left shift assignment with illegal shift count does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Left shift assignment with illegal shift count does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_lShift_assign is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_lShift_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_lShift_assign_2 then
       okay := FALSE;
     end if;
 
