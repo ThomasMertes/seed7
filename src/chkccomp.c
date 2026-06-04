@@ -89,6 +89,12 @@
  *  LINKER: (optional)
  *      Defined if C_COMPILER does just invoke the stand-alone C compiler.
  *      In that case LINKER contains the command to call the stand-alone linker.
+ *  DEFAULT_STACK_SIZE: (optional)
+ *      Default stack size for the interpreter and for compiled executables.
+ *      This value is used, if the Seed7 compiler is invoked without -S.
+ *      If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
+ *      as argument for the stack size. Additionally DEFAULT_STACK_SIZE
+ *      is used as argument for setupStack().</td></tr>
  *  SYSTEM_LIBS: (optional)
  *      Contains system libraries for the stand-alone linker.
  *  SYSTEM_MATH_LIBS: (optional)
