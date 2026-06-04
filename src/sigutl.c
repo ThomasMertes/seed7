@@ -38,8 +38,10 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 #include "signal.h"
 #include "sys/types.h"
+#include "errno.h"
 
 #include "common.h"
 #include "os_decls.h"
@@ -393,19 +395,39 @@ void setupSignalHandlers (boolType handleSignals,
         } else {
           sigAct.sa_handler = handleTermSignal;
         } /* if */
-        okay = okay && sigaction(signalNum, &sigAct, NULL) == 0;
+        if (sigaction(signalNum, &sigAct, NULL) != 0) {
+          logError(printf("sigaction(%d, *, NULL) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          signalNum, errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } /* for */
 #if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
       if (overflowSigError) {
         sigAct.sa_handler = handleOverflowError;
-        okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+        if (sigaction(SIGTRAP, &sigAct, NULL) != 0) {
+          logError(printf("sigaction(SIGTRAP, *, NULL) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } else if (traceSignals) {
         sigAct.sa_handler = handleTracedSignals;
-        okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+        if (sigaction(SIGTRAP, &sigAct, NULL) != 0) {
+          logError(printf("sigaction(SIGTRAP, *, NULL) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } /* if */
 #endif
       sigAct.sa_handler = handleTermSignal;
-      okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
+      if (sigaction(SIGTERM,  &sigAct, NULL) != 0) {
+        logError(printf("sigaction(SIGTERM, *, NULL) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        okay = FALSE;
+      } /* if */
       if (traceSignals) {
         sigAct.sa_flags = SA_ONSTACK | SA_SIGINFO;
         sigAct.sa_sigaction = sigactionTracedSegvSignal;
@@ -418,11 +440,21 @@ void setupSignalHandlers (boolType handleSignals,
         sigAct.sa_handler = SIG_DFL;
 #endif
       } /* if */
-      okay = okay && sigaction(SIGSEGV, &sigAct, NULL) == 0;
+      if (sigaction(SIGSEGV, &sigAct, NULL) != 0) {
+        logError(printf("sigaction(SIGSEGV, *, NULL) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        okay = FALSE;
+      } /* if */
 #ifdef SIGPIPE
       sigAct.sa_flags = SA_RESTART;
       sigAct.sa_handler = SIG_IGN;
-      okay = okay && sigaction(SIGPIPE, &sigAct, NULL) == 0;
+      if (sigaction(SIGPIPE, &sigAct, NULL) != 0) {
+        logError(printf("sigaction(SIGPIPE, *, NULL) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        okay = FALSE;
+      } /* if */
 #endif
     } /* if */
     okay = okay && setupSegmentationViolationHandler();
@@ -510,22 +542,47 @@ void setupSignalHandlers (boolType handleSignals,
         } else {
           sigHandler = handleTermSignal;
         } /* if */
-        okay = okay && signal(signalNum, sigHandler) != SIG_ERR;
+        if (signal(signalNum, sigHandler) == SIG_ERR) {
+          logError(printf("signal(%d, *) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          signalNum, errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } /* for */
 #if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
       if (overflowSigError) {
-        okay = okay && signal(SIGTRAP, handleOverflowError) != SIG_ERR;
+        if (signal(SIGTRAP, handleOverflowError) == SIG_ERR) {
+          logError(printf("signal(SIGTRAP, *) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } else if (traceSignals) {
-        okay = okay && signal(SIGTRAP, handleTracedSignals) != SIG_ERR;
+        if (signal(SIGTRAP, handleTracedSignals) == SIG_ERR) {
+          logError(printf("signal(SIGTRAP, *) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
+          okay = FALSE;
+        } /* if */
       } /* if */
 #endif
-      okay = okay && signal(SIGTERM, handleTermSignal) != SIG_ERR;
+      if (signal(SIGTERM, handleTermSignal) == SIG_ERR) {
+        logError(printf("signal(SIGTERM, *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        okay = FALSE;
+      } /* if */
       if (traceSignals) {
         sigHandler = handleTracedSegvSignal;
       } else {
         sigHandler = SIG_DFL;
       } /* if */
-      okay = okay && signal(SIGSEGV, sigHandler) != SIG_ERR;
+      if (signal(SIGSEGV, sigHandler) == SIG_ERR) {
+        logError(printf("signal(SIGSEGV, *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+        okay = FALSE;
+      } /* if */
 #ifdef SIGPIPE
       signal(SIGPIPE, SIG_IGN);
 #endif
