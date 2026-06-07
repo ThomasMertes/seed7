@@ -121,7 +121,7 @@ void socConnect (const const_socketType aSocket,
 void socCpy (socketType *const dest, const socketType source)
 
   { /* socCpy */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+    logError(printf("socCpy: No socket support.\n"););
     raise_error(FILE_ERROR);
   } /* socCpy */
 
@@ -139,7 +139,7 @@ void socCpyGeneric (genericType *const dest, const genericType source)
 socketType socCreate (const socketType source)
 
   { /* socCreate */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+    logError(printf("socCreate: No socket support.\n"););
     raise_error(FILE_ERROR);
     return NULL;
   } /* socCreate */
