@@ -91,6 +91,9 @@ static genericType incrUsageCount (const genericType pollFile)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("incrUsageCount --> ");
+                trace1(fileObject);
+                printf("\n"););
     return (genericType) (memSizeType) fileObject;
   } /* incrUsageCount */
 
@@ -148,7 +151,8 @@ objectType pol_add_check (listType arguments)
                        (memSizeType) arg_1(arguments));
                 trace1(arg_2(arguments));
                 printf(", " FMT_D ", ", take_int(arg_3(arguments)));
-                trace1(arg_4(arguments)););
+                trace1(arg_4(arguments));
+                printf(")\n"););
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -392,6 +396,11 @@ objectType pol_poll (listType arguments)
 objectType pol_remove_check (listType arguments)
 
   { /* pol_remove_check */
+    logFunction(printf("pol_remove_check(" FMT_U_MEM ", ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_2(arguments));
+                printf(", " FMT_D ")\n",
+                       take_int(arg_3(arguments))););
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
