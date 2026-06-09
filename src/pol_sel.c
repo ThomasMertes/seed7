@@ -417,6 +417,8 @@ static void addCheck (testType *test, const socketNumberType aSocket,
       } /* if */
       test->size++;
       test->files[pos].fd = (os_socketType) aSocket;
+      logMessage(printf("addCheck: incrUsageCount(" FMT_U_GEN ")\n",
+                         fileObj););
       test->files[pos].file = fileObjectOps.incrUsageCount(fileObj);
 #if USE_PREPARED_FD_SET
       FD_SET((os_socketType) aSocket, to_inFdset(test));
@@ -442,6 +444,8 @@ static void removeCheck (testType *test, const socketNumberType aSocket)
         (genericType) (usocketType) aSocket, (genericType) test->size,
         (intType) aSocket, (compareType) &genericCmp);
     if (pos != test->size) {
+      logMessage(printf("removeCheck: decrUsageCount(" FMT_U_GEN ")\n",
+                        test->files[pos].file););
       fileObjectOps.decrUsageCount(test->files[pos].file);
       if (pos + 1 <= test->iterPos) {
         test->iterPos--;
@@ -762,6 +766,8 @@ void polClear (const pollType pollData)
     FD_ZERO(to_write_outFdset(pollData));
     /* Clear readTest */
     for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+      logMessage(printf("polClear: decrUsageCount(" FMT_U_GEN ")\n",
+                        conv(pollData)->readTest.files[pos].file););
       fileObjectOps.decrUsageCount(conv(pollData)->readTest.files[pos].file);
     } /* for */
     var_conv(pollData)->readTest.size = 0;
@@ -771,6 +777,8 @@ void polClear (const pollType pollData)
     var_conv(pollData)->readTest.indexHash = hshEmpty();
     /* Clear writeTest */
     for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      logMessage(printf("polClear: decrUsageCount(" FMT_U_GEN ")\n",
+                        conv(pollData)->writeTest.files[pos].file););
       fileObjectOps.decrUsageCount(conv(pollData)->writeTest.files[pos].file);
     } /* for */
     var_conv(pollData)->writeTest.size = 0;
@@ -903,18 +911,26 @@ void polCpy (const pollType dest, const const_pollType source)
         pollData->numOfEvents = conv(source)->numOfEvents;
         for (pos = 0; pos < conv(source)->readTest.size; pos++) {
           newReadFiles[pos].fd = conv(source)->readTest.files[pos].fd;
+          logMessage(printf("polCpy: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->readTest.files[pos].file););
           newReadFiles[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->readTest.files[pos].file);
         } /* for */
         for (pos = 0; pos < conv(source)->writeTest.size; pos++) {
           newWriteFiles[pos].fd = conv(source)->writeTest.files[pos].fd;
+          logMessage(printf("polCpy: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->writeTest.files[pos].file););
           newWriteFiles[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->writeTest.files[pos].file);
         } /* for */
         for (pos = 0; pos < oldReadFilesSize; pos++) {
+          logMessage(printf("polCpy: decrUsageCount(" FMT_U_GEN ")\n",
+                            oldReadFiles[pos].file););
           fileObjectOps.decrUsageCount(oldReadFiles[pos].file);
         } /* for */
         for (pos = 0; pos < oldWriteFilesSize; pos++) {
+          logMessage(printf("polCpy: decrUsageCount(" FMT_U_GEN ")\n",
+                            oldWriteFiles[pos].file););
           fileObjectOps.decrUsageCount(oldWriteFiles[pos].file);
         } /* for */
         FREE_TABLE(oldReadFiles, fdAndFileType, oldReadFilesCapacity);
@@ -987,6 +1003,8 @@ pollType polCreate (const const_pollType source)
         result->readTest.iterPos = conv(source)->readTest.iterPos;
         for (pos = 0; pos < conv(source)->readTest.size; pos++) {
           result->readTest.files[pos].fd = conv(source)->readTest.files[pos].fd;
+          logMessage(printf("polCreate: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->readTest.files[pos].file););
           result->readTest.files[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->readTest.files[pos].file);
         } /* for */
@@ -1005,6 +1023,8 @@ pollType polCreate (const const_pollType source)
         result->writeTest.iterPos = conv(source)->writeTest.iterPos;
         for (pos = 0; pos < conv(source)->writeTest.size; pos++) {
           result->writeTest.files[pos].fd = conv(source)->writeTest.files[pos].fd;
+          logMessage(printf("polCreate: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->writeTest.files[pos].file););
           result->writeTest.files[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->writeTest.files[pos].file);
         } /* for */
@@ -1036,6 +1056,8 @@ void polDestr (const pollType oldPollData)
     if (oldPollData != NULL) {
       /* Free readTest */
       for (pos = 0; pos < conv(oldPollData)->readTest.size; pos++) {
+        logMessage(printf("polDestr: decrUsageCount(" FMT_U_GEN ")\n",
+                          conv(oldPollData)->readTest.files[pos].file););
         fileObjectOps.decrUsageCount(conv(oldPollData)->readTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->readTest.capacity;
@@ -1050,6 +1072,8 @@ void polDestr (const pollType oldPollData)
                (destrFuncType) &genericDestr);
       /* Free writeTest */
       for (pos = 0; pos < conv(oldPollData)->writeTest.size; pos++) {
+        logMessage(printf("polDestr: decrUsageCount(" FMT_U_GEN ")\n",
+                          conv(oldPollData)->writeTest.files[pos].file););
         fileObjectOps.decrUsageCount(conv(oldPollData)->writeTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->writeTest.capacity;
