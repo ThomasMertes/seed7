@@ -867,7 +867,7 @@ intType refNum (const const_objectType aReference)
       raise_error(RANGE_ERROR);
       objectNumber = 0;
     } else {
-      objectNumber = (intType) hshIdxEnterDefault(
+      objectNumber = (intType) hshIdxEnterGeneric(
           (const rtlHashType) aReference->type_of->owningProg->objectNumberMap,
           (genericType) (memSizeType) aReference,
           (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,

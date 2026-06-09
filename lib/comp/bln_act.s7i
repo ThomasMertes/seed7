@@ -49,7 +49,7 @@ const ACTION: BLN_XOR_ASSIGN is action "BLN_XOR_ASSIGN";
 const proc: bln_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "void        blnCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        blnCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "boolType    blnValue (const const_objRefType);");
   end func;
 

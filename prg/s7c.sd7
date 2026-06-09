@@ -120,110 +120,110 @@ const proc: count_declarations (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: process_generic_hashCode_declaration (in reference: function,
+const proc: process_value_hashCode_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_hashCode_declared then
-      c_expr.expr &:= "static intType generic_hashCode_";
+    if object_type not in typeData.value_hashCode_declared then
+      c_expr.expr &:= "static intType value_hashCode_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType a)\n";
+      c_expr.expr &:= " (const rtlValueUnion a)\n";
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "return o_";
       create_name(function, c_expr.expr);
-      c_expr.expr &:= "(((const_rtlObjectType *) &a)->value.";
+      c_expr.expr &:= "(a.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_hashCode_declared @:= [object_type] TRUE;
+      typeData.value_hashCode_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_cpy_declaration (in type: object_type,
+const proc: process_value_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_cpy_declared then
+    if object_type not in typeData.value_cpy_declared then
       process_cpy_declaration(object_type, c_expr);
-      c_expr.expr &:= "static void generic_cpy_";
+      c_expr.expr &:= "static void value_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (genericType *a, const genericType b)\n";
+      c_expr.expr &:= " (rtlValueUnion *const a, const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       process_cpy_call(object_type,
-          "((const_rtlObjectType *) a)->value." & raw_type_value(object_type),
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "a->" & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_cpy_declared @:= [object_type] TRUE;
+      typeData.value_cpy_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_create_declaration (in type: object_type,
+const proc: process_value_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_create_declared then
+    if object_type not in typeData.value_create_declared then
       process_create_declaration(object_type, c_expr);
-      c_expr.expr &:= "static genericType generic_create_";
+      c_expr.expr &:= "static rtlValueUnion value_create_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
-      c_expr.expr &:= "rtlObjectType result;\n";
-      c_expr.expr &:= "result.value.";
+      c_expr.expr &:= "rtlValueUnion result;\n";
+      c_expr.expr &:= "result.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= "=";
       process_create_call(object_type,
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= ";\n";
-      c_expr.expr &:= "return result.value.genericValue;\n";
+      c_expr.expr &:= "return result;\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_create_declared @:= [object_type] TRUE;
+      typeData.value_create_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_destr_declaration (in type: object_type,
+const proc: process_value_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_destr_declared then
+    if object_type not in typeData.value_destr_declared then
       process_destr_declaration(object_type, c_expr);
-      c_expr.expr &:= "static void generic_destr_";
+      c_expr.expr &:= "static void value_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       process_destr_call(object_type,
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= "}\n\n";
-      typeData.generic_destr_declared @:= [object_type] TRUE;
+      typeData.value_destr_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_cmp_declaration (in reference: function,
+const proc: process_value_cmp_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_cmp_declared then
+    if object_type not in typeData.value_cmp_declared then
       process_cpy_declaration(object_type, c_expr);
-      c_expr.expr &:= "static intType generic_cmp_";
+      c_expr.expr &:= "static intType value_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType a, const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion a, const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "return o_";
       create_name(function, c_expr.expr);
-      c_expr.expr &:= "(((const_rtlObjectType *) &a)->value.";
+      c_expr.expr &:= "(a.";
       c_expr.expr &:= raw_type_value(object_type);
-      c_expr.expr &:= ", ((const_rtlObjectType *) &b)->value.";
+      c_expr.expr &:= ", b.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_cmp_declared @:= [object_type] TRUE;
+      typeData.value_cmp_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -3151,146 +3151,146 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     current_action := getValue(function, ACTION);
     action_name := str(current_action);
     case action_name of
-      when {"ACE_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
-      when {"ACE_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"ACE_CREATE"}:      c_expr.expr &:= "&genericCreate";
+      when {"ACE_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"ACE_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"ACE_CREATE"}:      c_expr.expr &:= "&valueCreate";
       when {"ACE_HASHCODE"}:    c_expr.expr &:= "&aceHashCode";
       when {"ARR_CPY"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_cpy_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_cpy_";
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
         c_expr.expr &:= str(typeNumber(object_type));
       when {"ARR_CREATE"}:
         object_type := getType(formalParams(function)[1]);
         typeData.typeCategory @:= [object_type] ARRAYOBJECT;
-        process_generic_create_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_create_";
+        process_value_create_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_create_";
         c_expr.expr &:= str(typeNumber(object_type));
       when {"ARR_DESTR"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_destr_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_destr_";
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
         c_expr.expr &:= str(typeNumber(object_type));
-      when {"BIG_CMP"}:         c_expr.expr &:= "&bigCmpGeneric";
-      when {"BIG_CPY"}:         c_expr.expr &:= "&bigCpyGeneric";
-      when {"BIG_CREATE"}:      c_expr.expr &:= "&bigCreateGeneric";
-      when {"BIG_DESTR"}:       c_expr.expr &:= "&bigDestrGeneric";
-      when {"BIG_HASHCODE"}:    c_expr.expr &:= "&bigHashCodeGeneric";
-      when {"BIN_CMP"}:         c_expr.expr &:= "&uintCmpGeneric";
-      when {"BLN_ORD"}:         c_expr.expr &:= "&genericHashCode";
-      when {"BLN_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"BLN_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"BST_CMP"}:         c_expr.expr &:= "&bstCmpGeneric";
-      when {"BST_CPY"}:         c_expr.expr &:= "&bstCpyGeneric";
-      when {"BST_CREATE"}:      c_expr.expr &:= "&bstCreateGeneric";
-      when {"BST_DESTR"}:       c_expr.expr &:= "&bstDestrGeneric";
-      when {"BST_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeGeneric";
-      when {"CHR_CMP"}:         c_expr.expr &:= "&chrCmpGeneric";
-      when {"CHR_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"CHR_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"CHR_HASHCODE"}:    c_expr.expr &:= "&genericHashCode";
-      when {"DRW_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
-      when {"DRW_CPY"}:         c_expr.expr &:= "&drwCpyGeneric";
-      when {"DRW_CREATE"}:      c_expr.expr &:= "&drwCreateGeneric";
-      when {"DRW_DESTR"}:       c_expr.expr &:= "&drwDestrGeneric";
-      when {"DRW_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
-      when {"ENU_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"ENU_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"FIL_CPY"}:         c_expr.expr &:= "&filCpyGeneric";
-      when {"FIL_CREATE"}:      c_expr.expr &:= "&filCreateGeneric";
-      when {"FIL_DESTR"}:       c_expr.expr &:= "&filDestrGeneric";
-      when {"FLT_CMP"}:         c_expr.expr &:= "&fltCmpGeneric";
-      when {"FLT_CPY"}:         c_expr.expr &:= "&fltCpyGeneric";
-      when {"FLT_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"FLT_HASHCODE"}:    c_expr.expr &:= "&genericHashCode";
-      when {"GEN_DESTR"}:       c_expr.expr &:= "&genericDestr";
-      when {"INT_CMP"}:         c_expr.expr &:= "&intCmpGeneric";
-      when {"INT_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"INT_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"INT_HASHCODE"}:    c_expr.expr &:= "&genericHashCode";
-      when {"ITF_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
+      when {"BIG_CMP"}:         c_expr.expr &:= "&bigCmpValue";
+      when {"BIG_CPY"}:         c_expr.expr &:= "&bigCpyValue";
+      when {"BIG_CREATE"}:      c_expr.expr &:= "&bigCreateValue";
+      when {"BIG_DESTR"}:       c_expr.expr &:= "&bigDestrValue";
+      when {"BIG_HASHCODE"}:    c_expr.expr &:= "&bigHashCodeValue";
+      when {"BIN_CMP"}:         c_expr.expr &:= "&uintCmpValue";
+      when {"BLN_ORD"}:         c_expr.expr &:= "&valueHashCode";
+      when {"BLN_CPY"}:         c_expr.expr &:= "&blnCpyValue";
+      when {"BLN_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"BST_CMP"}:         c_expr.expr &:= "&bstCmpValue";
+      when {"BST_CPY"}:         c_expr.expr &:= "&bstCpyValue";
+      when {"BST_CREATE"}:      c_expr.expr &:= "&bstCreateValue";
+      when {"BST_DESTR"}:       c_expr.expr &:= "&bstDestrValue";
+      when {"BST_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeValue";
+      when {"CHR_CMP"}:         c_expr.expr &:= "&chrCmpValue";
+      when {"CHR_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"CHR_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"CHR_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"DRW_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"DRW_CPY"}:         c_expr.expr &:= "&drwCpyValue";
+      when {"DRW_CREATE"}:      c_expr.expr &:= "&drwCreateValue";
+      when {"DRW_DESTR"}:       c_expr.expr &:= "&drwDestrValue";
+      when {"DRW_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"ENU_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"ENU_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"FIL_CPY"}:         c_expr.expr &:= "&filCpyValue";
+      when {"FIL_CREATE"}:      c_expr.expr &:= "&filCreateValue";
+      when {"FIL_DESTR"}:       c_expr.expr &:= "&filDestrValue";
+      when {"FLT_CMP"}:         c_expr.expr &:= "&fltCmpValue";
+      when {"FLT_CPY"}:         c_expr.expr &:= "&fltCpyValue";
+      when {"FLT_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"FLT_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"GEN_DESTR"}:       c_expr.expr &:= "&valueDestr";
+      when {"INT_CMP"}:         c_expr.expr &:= "&intCmpValue";
+      when {"INT_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"INT_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"INT_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"ITF_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
       when {"ITF_CPY"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_cpy_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_cpy_";
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
         c_expr.expr &:= str(typeNumber(object_type));
-      when {"ITF_CREATE"}:      c_expr.expr &:= "&itfCreateGeneric";
+      when {"ITF_CREATE"}:      c_expr.expr &:= "&itfCreateValue";
       when {"ITF_DESTR"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_destr_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_destr_";
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
         c_expr.expr &:= str(typeNumber(object_type));
-      when {"ITF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
-      when {"PCS_CMP"}:         c_expr.expr &:= "&pcsCmpGeneric";
-      when {"PCS_CPY"}:         c_expr.expr &:= "&pcsCpyGeneric";
-      when {"PCS_CREATE"}:      c_expr.expr &:= "&pcsCreateGeneric";
-      when {"PCS_DESTR"}:       c_expr.expr &:= "&pcsDestrGeneric";
-      when {"PCS_HASHCODE"}:    c_expr.expr &:= "&pcsHashCodeGeneric";
-      when {"PLT_CMP"}:         c_expr.expr &:= "&bstCmpGeneric";
-      when {"PLT_CPY"}:         c_expr.expr &:= "&bstCpyGeneric";
-      when {"PLT_CREATE"}:      c_expr.expr &:= "&bstCreateGeneric";
-      when {"PLT_DESTR"}:       c_expr.expr &:= "&bstDestrGeneric";
-      when {"PLT_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeGeneric";
+      when {"ITF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"PCS_CMP"}:         c_expr.expr &:= "&pcsCmpValue";
+      when {"PCS_CPY"}:         c_expr.expr &:= "&pcsCpyValue";
+      when {"PCS_CREATE"}:      c_expr.expr &:= "&pcsCreateValue";
+      when {"PCS_DESTR"}:       c_expr.expr &:= "&pcsDestrValue";
+      when {"PCS_HASHCODE"}:    c_expr.expr &:= "&pcsHashCodeValue";
+      when {"PLT_CMP"}:         c_expr.expr &:= "&bstCmpValue";
+      when {"PLT_CPY"}:         c_expr.expr &:= "&bstCpyValue";
+      when {"PLT_CREATE"}:      c_expr.expr &:= "&bstCreateValue";
+      when {"PLT_DESTR"}:       c_expr.expr &:= "&bstDestrValue";
+      when {"PLT_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeValue";
       when {"PRC_NOOP"}:        c_expr.expr &:= "&prcNoop";
-      when {"PRG_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
-      when {"PRG_CPY"}:         c_expr.expr &:= "&prgCpyGeneric";
-      when {"PRG_CREATE"}:      c_expr.expr &:= "&prgCreateGeneric";
-      when {"PRG_DESTR"}:       c_expr.expr &:= "&prgDestrGeneric";
-      when {"PRG_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
-      when {"REF_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
-      when {"REF_CPY"}:         c_expr.expr &:= "&ptrCpyGeneric";
-      when {"REF_CREATE"}:      c_expr.expr &:= "&ptrCreateGeneric";
-      when {"REF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
-      when {"RFL_CMP"}:         c_expr.expr &:= "&rflCmpGeneric";
-      when {"RFL_CPY"}:         c_expr.expr &:= "&rflCpyGeneric";
-      when {"RFL_CREATE"}:      c_expr.expr &:= "&rflCreateGeneric";
-      when {"RFL_DESTR"}:       c_expr.expr &:= "&rflDestrGeneric";
+      when {"PRG_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"PRG_CPY"}:         c_expr.expr &:= "&prgCpyValue";
+      when {"PRG_CREATE"}:      c_expr.expr &:= "&prgCreateValue";
+      when {"PRG_DESTR"}:       c_expr.expr &:= "&prgDestrValue";
+      when {"PRG_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"REF_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"REF_CPY"}:         c_expr.expr &:= "&ptrCpyValue";
+      when {"REF_CREATE"}:      c_expr.expr &:= "&ptrCreateValue";
+      when {"REF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"RFL_CMP"}:         c_expr.expr &:= "&rflCmpValue";
+      when {"RFL_CPY"}:         c_expr.expr &:= "&rflCpyValue";
+      when {"RFL_CREATE"}:      c_expr.expr &:= "&rflCreateValue";
+      when {"RFL_DESTR"}:       c_expr.expr &:= "&rflDestrValue";
       when {"SCT_CPY"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_cpy_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_cpy_";
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
         c_expr.expr &:= str(typeNumber(object_type));
       when {"SCT_CREATE"}:
         object_type := getType(formalParams(function)[1]);
         typeData.typeCategory @:= [object_type] STRUCTOBJECT;
-        process_generic_create_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_create_";
+        process_value_create_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_create_";
         c_expr.expr &:= str(typeNumber(object_type));
       when {"SCT_DESTR"}:
         object_type := getType(formalParams(function)[1]);
-        process_generic_destr_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&generic_destr_";
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
         c_expr.expr &:= str(typeNumber(object_type));
-      when {"SEL_CMP"}:         c_expr.expr &:= "&ptrCmpGeneric";
-      when {"SEL_CPY"}:         c_expr.expr &:= "&genericCpy";
-      when {"SEL_CREATE"}:      c_expr.expr &:= "&genericCreate";
-      when {"SEL_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
-      when {"SET_CMP"}:         c_expr.expr &:= "&setCmpGeneric";
-      when {"SET_CPY"}:         c_expr.expr &:= "&setCpyGeneric";
-      when {"SET_CREATE"}:      c_expr.expr &:= "&setCreateGeneric";
-      when {"SET_DESTR"}:       c_expr.expr &:= "&setDestrGeneric";
-      when {"SET_HASHCODE"}:    c_expr.expr &:= "&setHashCodeGeneric";
-      when {"SOC_CPY"}:         c_expr.expr &:= "&socCpyGeneric";
-      when {"SOC_CREATE"}:      c_expr.expr &:= "&socCreateGeneric";
-      when {"SOC_DESTR"}:       c_expr.expr &:= "&socDestrGeneric";
-      when {"SQL_CMP_DB"}:      c_expr.expr &:= "&ptrCmpGeneric";
-      when {"SQL_CPY_DB"}:      c_expr.expr &:= "&sqlCpyDbGeneric";
-      when {"SQL_CREATE_DB"}:   c_expr.expr &:= "&sqlCreateDbGeneric";
-      when {"SQL_DESTR_DB"}:    c_expr.expr &:= "&sqlDestrDbGeneric";
-      when {"SQL_CMP_STMT"}:    c_expr.expr &:= "&ptrCmpGeneric";
-      when {"SQL_CPY_STMT"}:    c_expr.expr &:= "&sqlCpyStmtGeneric";
-      when {"SQL_CREATE_STMT"}: c_expr.expr &:= "&sqlCreateStmtGeneric";
-      when {"SQL_DESTR_STMT"}:  c_expr.expr &:= "&sqlDestrStmtGeneric";
-      when {"STR_CMP"}:         c_expr.expr &:= "&strCmpGeneric";
-      when {"STR_CPY"}:         c_expr.expr &:= "&strCpyGeneric";
-      when {"STR_CREATE"}:      c_expr.expr &:= "&strCreateGeneric";
-      when {"STR_DESTR"}:       c_expr.expr &:= "&strDestrGeneric";
-      when {"STR_HASHCODE"}:    c_expr.expr &:= "&strHashCodeGeneric";
-      when {"TYP_CMP"}:         c_expr.expr &:= "&typCmpGeneric";
-      when {"TYP_CPY"}:         c_expr.expr &:= "&ptrCpyGeneric";
-      when {"TYP_CREATE"}:      c_expr.expr &:= "&ptrCreateGeneric";
-      when {"TYP_DESTR"}:       c_expr.expr &:= "&genericDestr";
-      when {"TYP_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeGeneric";
+      when {"SEL_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"SEL_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"SEL_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"SEL_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"SET_CMP"}:         c_expr.expr &:= "&setCmpValue";
+      when {"SET_CPY"}:         c_expr.expr &:= "&setCpyValue";
+      when {"SET_CREATE"}:      c_expr.expr &:= "&setCreateValue";
+      when {"SET_DESTR"}:       c_expr.expr &:= "&setDestrValue";
+      when {"SET_HASHCODE"}:    c_expr.expr &:= "&setHashCodeValue";
+      when {"SOC_CPY"}:         c_expr.expr &:= "&socCpyValue";
+      when {"SOC_CREATE"}:      c_expr.expr &:= "&socCreateValue";
+      when {"SOC_DESTR"}:       c_expr.expr &:= "&socDestrValue";
+      when {"SQL_CMP_DB"}:      c_expr.expr &:= "&ptrCmpValue";
+      when {"SQL_CPY_DB"}:      c_expr.expr &:= "&sqlCpyDbValue";
+      when {"SQL_CREATE_DB"}:   c_expr.expr &:= "&sqlCreateDbValue";
+      when {"SQL_DESTR_DB"}:    c_expr.expr &:= "&sqlDestrDbValue";
+      when {"SQL_CMP_STMT"}:    c_expr.expr &:= "&ptrCmpValue";
+      when {"SQL_CPY_STMT"}:    c_expr.expr &:= "&sqlCpyStmtValue";
+      when {"SQL_CREATE_STMT"}: c_expr.expr &:= "&sqlCreateStmtValue";
+      when {"SQL_DESTR_STMT"}:  c_expr.expr &:= "&sqlDestrStmtValue";
+      when {"STR_CMP"}:         c_expr.expr &:= "&strCmpValue";
+      when {"STR_CPY"}:         c_expr.expr &:= "&strCpyValue";
+      when {"STR_CREATE"}:      c_expr.expr &:= "&strCreateValue";
+      when {"STR_DESTR"}:       c_expr.expr &:= "&strDestrValue";
+      when {"STR_HASHCODE"}:    c_expr.expr &:= "&strHashCodeValue";
+      when {"TYP_CMP"}:         c_expr.expr &:= "&typCmpValue";
+      when {"TYP_CPY"}:         c_expr.expr &:= "&ptrCpyValue";
+      when {"TYP_CREATE"}:      c_expr.expr &:= "&ptrCreateValue";
+      when {"TYP_DESTR"}:       c_expr.expr &:= "&valueDestr";
+      when {"TYP_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
       otherwise:
         c_expr.expr &:= "NULL /* ACTOBJECT { ";
         c_expr.expr &:= action_name;
@@ -3312,40 +3312,40 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
         str(formal_params[2]) = "hashCode" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_hashCode_declaration(function, object_type, global_c_expr);
-      c_expr.expr &:= "&generic_hashCode_";
+      process_value_hashCode_declaration(function, object_type, global_c_expr);
+      c_expr.expr &:= "&value_hashCode_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = ":=" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
+      process_value_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = "::=" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_create_";
+      process_value_create_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_create_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 2 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = "destroy" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_destr_";
+      process_value_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[3]) = SYMBOLOBJECT and
         str(formal_params[3]) = "compare" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_cmp_declaration(function, object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cmp_";
+      process_value_cmp_declaration(function, object_type, global_c_expr);
+      c_expr.expr &:= "&value_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     end if;
@@ -4312,9 +4312,9 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.expr &:= str(numOfElementNameTable);
     c_switch.expr &:= "], name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ".value.genericValue, ustriHashCode(name_";
+    c_switch.expr &:= ".value, ustriHashCode(name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ".value.ustriValue), (compareType)(&ustriCmpGeneric))) {\n";
+    c_switch.expr &:= ".value.ustriValue), (compareFuncType)(&ustriCmpValue)).intValue) {\n";
     elements := structSymbols(prog);
     for structSymbol range elements do
       backupParam := formal_params[paramNum];
@@ -5867,11 +5867,11 @@ const proc: write_file_head is func
                     \  uint64Type bits;\n\
                     \  double aDouble;\n\
                     \} double2BitsUnion;");
-    writeln(c_prog, "typedef intType (*hashCodeFuncType) (genericType);");
-    writeln(c_prog, "typedef intType (*compareType) (genericType, genericType);");
-    writeln(c_prog, "typedef genericType (*createFuncType) (genericType);");
-    writeln(c_prog, "typedef void (*destrFuncType) (genericType);");
-    writeln(c_prog, "typedef void (*copyFuncType) (genericType *, genericType);");
+    writeln(c_prog, "typedef intType (*hashCodeFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef intType (*compareFuncType) (rtlValueUnion, rtlValueUnion);");
+    writeln(c_prog, "typedef rtlValueUnion (*createFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef void (*destrFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef void (*copyFuncType) (rtlValueUnion *, rtlValueUnion);");
     writeln(c_prog, "#define bitset_shift " <& log2(ccConf.INTTYPE_SIZE));
     writeln(c_prog, "#define bitset_mask  ((1 << bitset_shift) - 1)");
     if ccConf.RSHIFT_DOES_SIGN_EXTEND then
@@ -5998,8 +5998,8 @@ const proc: write_file_head is func
     writeln(c_prog, "extern int exception_number;");
     writeln(c_prog, "extern const char *error_file;");
     writeln(c_prog, "extern int error_line;");
-    writeln(c_prog, "intType ustriCmpGeneric (const genericType value1, const genericType value2);");
-    writeln(c_prog, "genericType ustriCreateGeneric (const genericType source);");
+    writeln(c_prog, "intType ustriCmpValue (const rtlValueUnion value1, const rtlValueUnion value2);");
+    writeln(c_prog, "rtlValueUnion ustriCreateValue (const rtlValueUnion source);");
     writeln(c_prog, "intType ustriHashCode (const const_ustriType stri);");
     if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
@@ -6098,16 +6098,17 @@ const proc: write_prototypes is func
     writeln(c_prog, "static void        prcNoop (void) {}");
     writeln(c_prog, "static void        init_values (void);");
     writeln(c_prog, "static void        init_globals (void);");
+    writeln(c_prog, "static void        close_all_globals (void);");
     declareExtern("void        initPollOperations (const createFuncType, const destrFuncType);");
-    declareExtern("void        genericCpy (genericType *const, const genericType);");
-    declareExtern("genericType genericCreate (genericType);");
-    declareExtern("void        genericDestr (genericType);");
-    declareExtern("intType     genericHashCode (genericType);");
+    declareExtern("void        valueCpy (rtlValueUnion *const, const rtlValueUnion);");
+    declareExtern("rtlValueUnion valueCreate (rtlValueUnion);");
+    declareExtern("void        valueDestr (rtlValueUnion);");
+    declareExtern("intType     valueHashCode (rtlValueUnion);");
     declareExtern("intType     ptrCmp (const void *const, const void *const);");
-    declareExtern("intType     ptrCmpGeneric (const genericType, const genericType);");
-    declareExtern("void        ptrCpyGeneric (genericType *const, const genericType);");
-    declareExtern("genericType ptrCreateGeneric (const genericType);");
-    declareExtern("intType     ptrHashCodeGeneric (const genericType);");
+    declareExtern("intType     ptrCmpValue (const rtlValueUnion, const rtlValueUnion);");
+    declareExtern("void        ptrCpyValue (rtlValueUnion *const, const rtlValueUnion);");
+    declareExtern("rtlValueUnion ptrCreateValue (const rtlValueUnion);");
+    declareExtern("intType     ptrHashCodeValue (const rtlValueUnion);");
     writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
     declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
     declareExtern("void        triggerSigfpe (void);");
@@ -6142,11 +6143,11 @@ const proc: initPollOperations (inout expr_type: c_expr) is func
 
   begin
     if typeData.fileInterfaceType <> void then
-      c_expr.expr &:= "initPollOperations((createFuncType)(&itfCreate), ";
-      process_destr_declaration(typeData.fileInterfaceType, global_c_expr);
-      c_expr.expr &:= "(destrFuncType)(&destr_";
+      c_expr.expr &:= "initPollOperations((createFuncType)(&itfCreateValue), ";
+      process_value_destr_declaration(typeData.fileInterfaceType, global_c_expr);
+      c_expr.expr &:= "&value_destr_";
       c_expr.expr &:= str(typeNumber(typeData.fileInterfaceType));
-      c_expr.expr &:= "));\n";
+      c_expr.expr &:= ");\n";
     end if;
   end func;
 
@@ -7700,9 +7701,9 @@ const proc: init_hash_constants (in reference: const_object, inout expr_type: c_
         end if;
         c_expr.expr &:= "hshIncl(hsh[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= "], hash_key.value.genericValue, hash_data.value.genericValue, ";
+        c_expr.expr &:= "], hash_key.value, hash_data.value, ";
         c_expr.expr &:= hashcode_expr.expr;
-        c_expr.expr &:= ", (compareType)(";
+        c_expr.expr &:= ", (compareFuncType)(";
         object_address(keyCompareObj(getType(const_object)), c_expr);
         c_expr.expr &:= "), (createFuncType)(";
         object_address(keyCreateObj(getType(const_object)), c_expr);
@@ -7791,6 +7792,9 @@ const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWh
         c_expr.expr &:= "hash_key";
         init_const_value(key_element, c_expr);
         c_expr.expr &:= ";\n";
+        c_expr.expr &:= "hash_data.value.intValue=";
+        c_expr.expr &:= str(numOfWhenPart);
+        c_expr.expr &:= ";\n";
         hashcode_expr := expr_type.value;
         setVar(key_element, FALSE);
         process_hashcode(key_element, hashcode_expr);
@@ -7801,15 +7805,13 @@ const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWh
         end if;
         c_expr.expr &:= "hshIncl(caseLabels[";
         c_expr.expr &:= str(numOfCaseStmt);
-        c_expr.expr &:= "], hash_key.value.genericValue, ";
-        c_expr.expr &:= str(numOfWhenPart);
-        c_expr.expr &:= ", ";
+        c_expr.expr &:= "], hash_key.value, hash_data.value, ";
         c_expr.expr &:= hashcode_expr.expr;
-        c_expr.expr &:= ", (compareType)(";
+        c_expr.expr &:= ", (compareFuncType)(";
         object_address(keyCompareObj(getType(whenLabels)), c_expr);
         c_expr.expr &:= "), (createFuncType)(";
         object_address(keyCreateObj(getType(whenLabels)), c_expr);
-        c_expr.expr &:= "), (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+        c_expr.expr &:= "), (createFuncType)(&valueCreate), (copyFuncType)(&valueCpy));\n";
         if hashcode_expr.temp_decls <> "" then
           c_expr.expr &:= hashcode_expr.temp_frees;
           c_expr.expr &:= "}\n";
@@ -7843,6 +7845,7 @@ const proc: initCaseLabels (inout expr_type: c_expr) is func
     c_expr.expr &:= "void initCaseLabelsOfSwitch () {\n";
     if length(case_table) <> 0 then
       c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "rtlObjectType hash_data;\n";
       c_expr.expr &:= "caseLabels = (hashType *)(malloc(";
       c_expr.expr &:= str(length(case_table));
       c_expr.expr &:= " * sizeof(hashType)));\n";
@@ -7865,17 +7868,18 @@ const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
     c_expr.expr &:= str(numOfElementNameTable);
     c_expr.expr &:= "]=hshEmpty();\n";
     for labelNumber key name range nameToLabelNumber do
-      c_expr.expr &:= "hash_key.value.ustriValue=(ustriType)";
+      c_expr.expr &:= "hash_key.ustriValue=(ustriType)";
       c_expr.expr &:= c_literal(name);
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= "hash_data.intValue=";
+      c_expr.expr &:= str(labelNumber);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "hshIncl(elementNameLabels[";
       c_expr.expr &:= str(numOfElementNameTable);
-      c_expr.expr &:= "], hash_key.value.genericValue, ";
-      c_expr.expr &:= str(labelNumber);
-      c_expr.expr &:= ", ";
+      c_expr.expr &:= "], hash_key, hash_data, ";
       c_expr.expr &:= str(hashCode(name));
-      c_expr.expr &:= ", (compareType)(&ustriCmpGeneric), (createFuncType)(&ustriCreateGeneric)";
-      c_expr.expr &:= ", (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+      c_expr.expr &:= ", (compareFuncType)(&ustriCmpValue), (createFuncType)(&ustriCreateValue)";
+      c_expr.expr &:= ", (createFuncType)(&valueCreate), (copyFuncType)(&valueCpy));\n";
     end for;
   end func;
 
@@ -7887,7 +7891,8 @@ const proc: initElementNameLabels (inout expr_type: c_expr) is func
   begin
     c_expr.expr &:= "void initElementNameLabelsOfSwitch () {\n";
     if length(elementNameTable) <> 0 then
-      c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "rtlValueUnion hash_key;\n";
+      c_expr.expr &:= "rtlValueUnion hash_data;\n";
       c_expr.expr &:= "elementNameLabels = (hashType *)(malloc(";
       c_expr.expr &:= str(length(elementNameTable));
       c_expr.expr &:= " * sizeof(hashType)));\n";

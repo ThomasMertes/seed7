@@ -72,8 +72,8 @@ void freeGenericHash (rtlHashType genericHash)
   { /* freeGenericHash */
     logFunction(printf("freeGenericHash(" FMT_X_MEM ")\n",
                        (memSizeType) genericHash););
-    hshDestr(genericHash, (destrFuncType) &genericDestr,
-             (destrFuncType) &genericDestr);
+    hshDestr(genericHash, (destrFuncType) &valueDestr,
+             (destrFuncType) &valueDestr);
     logFunction(printf("freeGenericHash -->\n"););
   } /* freeGenericHash */
 
@@ -86,15 +86,15 @@ static memSizeType free_helem (const const_rtlHashElemType old_helem,
     memSizeType freed = 1;
 
   /* free_helem */
-    key_destr_func(old_helem->key.value.genericValue);
-    data_destr_func(old_helem->data.value.genericValue);
+    key_destr_func(old_helem->key.value);
+    data_destr_func(old_helem->data.value);
     if (old_helem->next_less != NULL) {
       freed += free_helem(old_helem->next_less, key_destr_func,
-                         data_destr_func);
+                          data_destr_func);
     } /* if */
     if (old_helem->next_greater != NULL) {
       freed += free_helem(old_helem->next_greater, key_destr_func,
-                         data_destr_func);
+                          data_destr_func);
     } /* if */
     FREE_RECORD(old_helem, rtlHashElemRecord, count.rtl_helem);
     return freed;
@@ -125,7 +125,8 @@ static void free_hash (const const_rtlHashType old_hash,
           do {
             number--;
           } while (table[number] == NULL);
-          to_free -= free_helem(table[number], key_destr_func, data_destr_func);
+          to_free -= free_helem(table[number],
+                                key_destr_func, data_destr_func);
         } while (to_free != 0);
       } /* if */
       FREE_RTL_HASH(old_hash, old_hash->table_size);
@@ -135,7 +136,31 @@ static void free_hash (const const_rtlHashType old_hash,
 
 
 
-static rtlHashElemType new_helem (genericType key, genericType data,
+static rtlHashElemType new_helem_generic (genericType key, genericType data,
+    errInfoType *err_info)
+
+  {
+    rtlHashElemType helem;
+
+  /* new_helem_generic */
+    /* printf("new_helem_generic(" FMT_U_GEN ", " FMT_U_GEN ")\n", key, data); */
+    if (unlikely(!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      helem->key.value.genericValue = key;
+      helem->data.value.genericValue = data;
+      helem->next_less = NULL;
+      helem->next_greater = NULL;
+      /* printf("new_helem_generic(" FMT_U_GEN ", " FMT_U_GEN ")\n",
+          helem->key.value.genericValue,
+          helem->data.value.genericValue); */
+    } /* if */
+    return helem;
+  } /* new_helem_generic */
+
+
+
+static rtlHashElemType new_helem (rtlValueUnion key, rtlValueUnion data,
     const createFuncType key_create_func, const createFuncType data_create_func,
     errInfoType *err_info)
 
@@ -147,8 +172,8 @@ static rtlHashElemType new_helem (genericType key, genericType data,
     if (unlikely(!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem))) {
       *err_info = MEMORY_ERROR;
     } else {
-      helem->key.value.genericValue = key_create_func(key);
-      helem->data.value.genericValue = data_create_func(data);
+      helem->key.value = key_create_func(key);
+      helem->data.value = data_create_func(data);
       helem->next_less = NULL;
       helem->next_greater = NULL;
       /* printf("new_helem(" FMT_U_GEN ", " FMT_U_GEN ")\n",
@@ -192,10 +217,10 @@ static rtlHashElemType create_helem (const const_rtlHashElemType source_helem,
     if (unlikely(!ALLOC_RECORD(dest_helem, rtlHashElemRecord, count.rtl_helem))) {
       *err_info = MEMORY_ERROR;
     } else {
-      dest_helem->key.value.genericValue =
-          key_create_func(source_helem->key.value.genericValue);
-      dest_helem->data.value.genericValue =
-          data_create_func(source_helem->data.value.genericValue);
+      dest_helem->key.value =
+          key_create_func(source_helem->key.value);
+      dest_helem->data.value =
+          data_create_func(source_helem->data.value);
       if (source_helem->next_less != NULL) {
         dest_helem->next_less = create_helem(source_helem->next_less,
             key_create_func, data_create_func, err_info);
@@ -293,8 +318,8 @@ static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType sour
         free_helem(*dest_helem, key_destr_func, data_destr_func);
       } /* if */
       if (*source_helem != NULL) {
-        *dest_helem = create_helem(*source_helem, key_create_func, data_create_func,
-                                   err_info);
+        *dest_helem = create_helem(*source_helem, key_create_func,
+                                   data_create_func, err_info);
       } else {
         *dest_helem = NULL;
       } /* if */
@@ -314,8 +339,8 @@ static memSizeType keys_helem (const rtlArrayType key_array,
   { /* keys_helem */
     do {
       arr_pos--;
-      key_array->arr[arr_pos].value.genericValue =
-          key_create_func(curr_helem->key.value.genericValue);
+      key_array->arr[arr_pos].value =
+          key_create_func(curr_helem->key.value);
       if (curr_helem->next_less != NULL) {
         arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
                              key_create_func);
@@ -369,8 +394,8 @@ static memSizeType values_helem (const rtlArrayType value_array,
   { /* values_helem */
     do {
       arr_pos--;
-      value_array->arr[arr_pos].value.genericValue =
-          value_create_func(curr_helem->data.value.genericValue);
+      value_array->arr[arr_pos].value =
+          value_create_func(curr_helem->data.value);
       if (curr_helem->next_less != NULL) {
         arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
                                value_create_func);
@@ -508,9 +533,11 @@ static void dump_hash (const const_rtlHashType curr_hash)
  *  @return TRUE if 'data' has been added correctly, or
  *          FALSE if an error occurred.
  */
-boolType hashAdd (const rtlHashType aHashMap, const genericType aKey,
-    const genericType data, intType hashcode, compareType cmp_func,
-    const createFuncType key_create_func, const createFuncType data_create_func)
+boolType hashAdd (const rtlHashType aHashMap, const rtlValueUnion aKey,
+    const rtlValueUnion data, intType hashcode,
+    compareFuncType cmp_func,
+    const createFuncType key_create_func,
+    const createFuncType data_create_func)
 
   {
     rtlHashElemType hashelem;
@@ -523,19 +550,19 @@ boolType hashAdd (const rtlHashType aHashMap, const genericType aKey,
                        (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
-      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
-          key_create_func, data_create_func, &err_info);
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(
+          aKey, data, key_create_func, data_create_func, &err_info);
       /*
       hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
       printf("aKey=%llX\n", (unsigned long long) aKey);
       printf("new hashelem: aKey=%llX, data=%llX\n",
           hashelem->key.value.intValue, hashelem->data.value.intValue);
-      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value.genericValue, aKey));
+      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value, aKey));
       */
       aHashMap->size++;
     } else {
       do {
-        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+        cmp = cmp_func(hashelem->key.value, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             hashelem->next_less = new_helem(aKey, data,
@@ -617,16 +644,15 @@ rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
  *  @return TRUE if 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
-boolType hshContains (const const_rtlHashType aHashMap, const genericType aKey,
-    intType hashcode, compareType cmp_func)
+boolType hshContainsGeneric (const const_rtlHashType aHashMap, const genericType aKey,
+    intType hashcode)
 
   {
     const_rtlHashElemType hashelem;
-    intType cmp;
     boolType result = FALSE;
 
-  /* hshContains */
-    logFunction(printf("hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+  /* hshContainsGeneric */
+    logFunction(printf("hshContainsGeneric(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
@@ -639,7 +665,45 @@ printf("%lX\n", (long unsigned) hashelem->key.value.genericValue);
 printf("%llX\n", aKey);
 printf("%lX\n", (long unsigned) aKey);
 */
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      if (hashelem->key.value.genericValue < aKey) {
+        hashelem = hashelem->next_less;
+      } else if (unlikely(hashelem->key.value.genericValue == aKey)) {
+        result = TRUE;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    logFunction(printf("hshContainsGeneric(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") --> %d\n",
+                       (memSizeType) aHashMap, aKey, hashcode, result););
+    return result;
+  } /* hshContainsGeneric */
+
+
+
+boolType hshContains (const const_rtlHashType aHashMap, const rtlValueUnion aKey,
+    intType hashcode, compareFuncType cmp_func)
+
+  {
+    const_rtlHashElemType hashelem;
+    intType cmp;
+    boolType result = FALSE;
+
+  /* hshContains */
+    logFunction(printf("hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode););
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+/*
+printf("sizeof(hashelem->key.value.genericValue)=%lu\n",
+    sizeof(hashelem->key.value.genericValue));
+printf("sizeof(aKey)=%lu\n", sizeof(aKey));
+printf("%llX\n", hashelem->key.value.genericValue);
+printf("%lX\n", (long unsigned) hashelem->key.value.genericValue);
+printf("%llX\n", aKey);
+printf("%lX\n", (long unsigned) aKey);
+*/
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -650,7 +714,7 @@ printf("%lX\n", (long unsigned) aKey);
       } /* if */
     } /* while */
     logFunction(printf("hshContains(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") --> %d\n",
-                       (memSizeType) aHashMap, aKey, hashcode, result););
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode, result););
     return result;
   } /* hshContains */
 
@@ -730,8 +794,8 @@ rtlHashType hshCreate (const const_rtlHashType source,
  *  After hshDestr is left 'old_hash' refers to not existing memory.
  *  The memory where 'old_hash' is stored can be freed afterwards.
  */
-void hshDestr (const const_rtlHashType old_hash, const destrFuncType key_destr_func,
-    const destrFuncType data_destr_func)
+void hshDestr (const const_rtlHashType old_hash,
+    const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
   { /* hshDestr */
     logFunction(printf("hshDestr(" FMT_X_MEM ")\n", (memSizeType) old_hash););
@@ -767,8 +831,61 @@ rtlHashType hshEmpty (void)
 /**
  *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
  */
-void hshExcl (const rtlHashType aHashMap, const genericType aKey,
-    intType hashcode, compareType cmp_func, const destrFuncType key_destr_func,
+void hshExclGeneric (const rtlHashType aHashMap, const genericType aKey,
+    intType hashcode)
+
+  {
+    rtlHashElemType *delete_pos;
+    rtlHashElemType hashelem;
+    rtlHashElemType greater_hashelems;
+    rtlHashElemType old_hashelem;
+
+  /* hshExclGeneric */
+    logFunction(printf("hshExclGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U ") size=" FMT_U_MEM "\n",
+                       (memSizeType) aHashMap, aKey, hashcode, aHashMap->size););
+    delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      if (hashelem->key.value.genericValue < aKey) {
+        delete_pos = &hashelem->next_less;
+        hashelem = hashelem->next_less;
+      } else if (unlikely(hashelem->key.value.genericValue == aKey)) {
+        old_hashelem = hashelem;
+        if (hashelem->next_less == NULL) {
+          *delete_pos = hashelem->next_greater;
+        } else if (hashelem->next_greater == NULL) {
+          *delete_pos = hashelem->next_less;
+        } else {
+          *delete_pos = hashelem->next_less;
+          greater_hashelems = hashelem->next_greater;
+          hashelem = hashelem->next_less;
+          while (hashelem->next_greater != NULL) {
+            hashelem = hashelem->next_greater;
+          } /* while */
+          hashelem->next_greater = greater_hashelems;
+        } /* if */
+        FREE_RECORD(old_hashelem, rtlHashElemRecord, count.rtl_helem);
+        aHashMap->size--;
+        hashelem = NULL;
+      } else {
+        delete_pos = &hashelem->next_greater;
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    logFunction(printf("hshExclGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U ") size=" FMT_U_MEM " -->\n",
+                       (memSizeType) aHashMap, aKey, hashcode, aHashMap->size););
+  } /* hshExclGeneric */
+
+
+
+/**
+ *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
+ */
+void hshExcl (const rtlHashType aHashMap, const rtlValueUnion aKey,
+    intType hashcode, compareFuncType cmp_func,
+    const destrFuncType key_destr_func,
     const destrFuncType data_destr_func)
 
   {
@@ -781,11 +898,12 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
   /* hshExcl */
     logFunction(printf("hshExcl(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U ") size=" FMT_U_MEM "\n",
-                       (memSizeType) aHashMap, aKey, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       hashcode, aHashMap->size););
     delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         delete_pos = &hashelem->next_less;
         hashelem = hashelem->next_less;
@@ -816,13 +934,14 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
     } /* while */
     logFunction(printf("hshExcl(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U ") size=" FMT_U_MEM " -->\n",
-                       (memSizeType) aHashMap, aKey, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       hashcode, aHashMap->size););
   } /* hshExcl */
 
 
 
 rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
-    const hashCodeFuncType key_hash_code_func, compareType cmp_func,
+    const hashCodeFuncType key_hash_code_func, compareFuncType cmp_func,
     const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
   {
@@ -846,15 +965,15 @@ rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
         currentKeyValue->next_less = NULL;
         currentKeyValue->next_greater = NULL;
         hashCode = (unsigned int) key_hash_code_func(
-            currentKeyValue->key.value.genericValue);
+            currentKeyValue->key.value);
         hashElem = aHashMap->table[hashCode & aHashMap->mask];
         if (hashElem == NULL) {
           aHashMap->table[hashCode & aHashMap->mask] = currentKeyValue;
           aHashMap->size++;
         } else {
           do {
-            cmp = cmp_func(hashElem->key.value.genericValue,
-                           currentKeyValue->key.value.genericValue);
+            cmp = cmp_func(hashElem->key.value,
+                           currentKeyValue->key.value);
             if (cmp < 0) {
               if (hashElem->next_less == NULL) {
                 hashElem->next_less = currentKeyValue;
@@ -865,8 +984,8 @@ rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
               } /* if */
             } else if (cmp == 0) {
               logError(printf("hshGenHash: A key is used twice.\n"););
-              key_destr_func(currentKeyValue->key.value.genericValue);
-              data_destr_func(currentKeyValue->data.value.genericValue);
+              key_destr_func(currentKeyValue->key.value);
+              data_destr_func(currentKeyValue->data.value);
               FREE_RECORD(currentKeyValue, rtlHashElemRecord, count.rtl_helem);
               err_info = RANGE_ERROR;
               hashElem = NULL;
@@ -893,21 +1012,21 @@ rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
 
 
 
-rtlHashElemType hshGenKeyValue (const genericType aKey, const genericType aValue)
+rtlHashElemType hshGenKeyValue (const rtlValueUnion aKey, const rtlValueUnion aValue)
 
   {
     rtlHashElemType keyValue;
 
   /* hshGenKeyValue */
-    logFunction(printf("hshGenKeyValue(" FMT_X_MEM ", " FMT_X_MEM ")\n",
-                       (memSizeType) aKey, (memSizeType) aValue););
+    logFunction(printf("hshGenKeyValue(" FMT_X_GEN ", " FMT_X_GEN ")\n",
+                       aKey.genericValue, aValue.genericValue););
     if (unlikely(!ALLOC_RECORD(keyValue, rtlHashElemRecord, count.rtl_helem))) {
       raise_error(MEMORY_ERROR);
     } else {
       keyValue->next_less = NULL;
       keyValue->next_greater = NULL;
-      keyValue->key.value.genericValue = aKey;
-      keyValue->data.value.genericValue = aValue;
+      keyValue->key.value = aKey;
+      keyValue->data.value = aValue;
     } /* if */
     logFunction(printf("hshGenKeyValue --> " FMT_X_MEM ")\n",
                        (memSizeType) keyValue););
@@ -922,21 +1041,22 @@ rtlHashElemType hshGenKeyValue (const genericType aKey, const genericType aValue
  *  @exception INDEX_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
-    intType hashcode, compareType cmp_func)
+rtlValueUnion hshIdx (const const_rtlHashType aHashMap,
+    const rtlValueUnion aKey, intType hashcode,
+    compareFuncType cmp_func)
 
   {
     rtlHashElemType hashelem;
     rtlHashElemType result_hashelem = NULL;
     intType cmp;
-    genericType result;
+    rtlValueUnion result;
 
   /* hshIdx */
     logFunction(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
-                       (memSizeType) aHashMap, aKey, hashcode););
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -949,18 +1069,16 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
     if (unlikely(result_hashelem == NULL)) {
       logError(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
-                      (memSizeType) aHashMap, aKey, hashcode););
+                      (memSizeType) aHashMap, aKey.genericValue, hashcode););
       raise_error(INDEX_ERROR);
-      result = 0;
+      result.genericValue = 0;
     } else {
-      result = result_hashelem->data.value.genericValue;
+      result = result_hashelem->data.value;
     } /* if */
     logFunction(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", "
-                       FMT_U ") --> " FMT_X_GEN " (" FMT_X_GEN ")\n",
-                       (memSizeType) aHashMap, aKey, hashcode, result,
-                       (result != 0 ?
-                           ((const_rtlObjectType *) &result)->value.genericValue :
-                           (genericType) 0)););
+                       FMT_U ") --> " FMT_U_GEN "\n",
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       hashcode, result.genericValue););
     return result;
   } /* hshIdx */
 
@@ -973,7 +1091,7 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
  *             with the key 'aKey'.
  */
 rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
-    const genericType aKey, intType hashcode, compareType cmp_func)
+    const rtlValueUnion aKey, intType hashcode, compareFuncType cmp_func)
 
   {
     rtlHashElemType hashelem;
@@ -983,10 +1101,10 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
 
   /* hshIdxAddr */
     logFunction(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
-                       (memSizeType) aHashMap, aKey, hashcode););
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -999,7 +1117,7 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
     if (unlikely(result_hashelem == NULL)) {
       logError(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
-                      (memSizeType) aHashMap, aKey, hashcode););
+                      (memSizeType) aHashMap, aKey.genericValue, hashcode););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else {
@@ -1021,7 +1139,7 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
  *          NULL if 'aHashMap' does not have an element with the key 'aKey'.
  */
 rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
-    const genericType aKey, intType hashcode, compareType cmp_func)
+    const rtlValueUnion aKey, intType hashcode, compareFuncType cmp_func)
 
   {
     rtlHashElemType hashelem;
@@ -1034,7 +1152,7 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
                        (memSizeType) aHashMap, aKey, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -1059,6 +1177,46 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 
 
 
+void hshSetGeneric (const const_rtlHashType aHashMap,
+    const genericType aKey, intType hashcode,
+    const genericType newValue)
+
+  {
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem = NULL;
+
+  /* hshSetGeneric */
+    logFunction(printf("hshSetGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U ", " FMT_U_GEN ")\n",
+                       (memSizeType) aHashMap, aKey,
+                       hashcode, newValue););
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      if (hashelem->key.value.genericValue < aKey) {
+        hashelem = hashelem->next_less;
+      } else if (unlikely(hashelem->key.value.genericValue == aKey)) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    if (unlikely(result_hashelem == NULL)) {
+      logError(printf("hshSetGeneric(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
+                      "Hashmap does not have an element with the key.\n",
+                      (memSizeType) aHashMap, aKey, hashcode););
+      raise_error(INDEX_ERROR);
+    } else {
+      result_hashelem->data.value.genericValue = newValue;
+    } /* if */
+    logFunction(printf("hshSetGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U ", " FMT_U_GEN ") --> \n",
+                       (memSizeType) aHashMap, aKey,
+                       hashcode, newValue););
+  } /* hshSetGeneric */
+
+
+
 /**
  *  Search for 'aKey' in 'aHashMap'.
  *  If 'aKey' is element of 'aHashMap' the corresponding value is returned.
@@ -1067,7 +1225,7 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
  *  @return the value stored for 'aKey' in 'aHashMap', or
  *          'defaultData', if 'aKey' is not a member of 'aHashMap'.
  */
-genericType hshIdxEnterDefault (const rtlHashType aHashMap,
+genericType hshIdxEnterGeneric (const rtlHashType aHashMap,
     const genericType aKey, const genericType defaultData, intType hashcode)
 
   {
@@ -1076,24 +1234,21 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
     errInfoType err_info = OKAY_NO_ERROR;
     genericType result;
 
-  /* hshIdxEnterDefault */
-    logFunction(printf("hshIdxEnterDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+  /* hshIdxEnterGeneric */
+    logFunction(printf("hshIdxEnterGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, defaultData, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
-      result_hashelem = new_helem(aKey, defaultData,
-          (createFuncType) &genericCreate,
-          (createFuncType) &genericCreate, &err_info);
+      result_hashelem = new_helem_generic(aKey, defaultData, &err_info);
       aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = result_hashelem;
       aHashMap->size++;
     } else {
       do {
         if (hashelem->key.value.genericValue < aKey) {
           if (hashelem->next_less == NULL) {
-            result_hashelem = new_helem(aKey, defaultData,
-                (createFuncType) &genericCreate,
-                (createFuncType) &genericCreate, &err_info);
+            result_hashelem = new_helem_generic(aKey, defaultData,
+                                                &err_info);
             hashelem->next_less = result_hashelem;
             aHashMap->size++;
             hashelem = NULL;
@@ -1105,9 +1260,8 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
-            result_hashelem = new_helem(aKey, defaultData,
-                (createFuncType) &genericCreate,
-                (createFuncType) &genericCreate, &err_info);
+            result_hashelem = new_helem_generic(aKey, defaultData,
+                                                &err_info);
             hashelem->next_greater = result_hashelem;
             aHashMap->size++;
             hashelem = NULL;
@@ -1124,12 +1278,12 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
     } else {
       result = result_hashelem->data.value.genericValue;
     } /* if */
-    logFunction(printf("hshIdxEnterDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+    logFunction(printf("hshIdxEnterGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") --> " FMT_U_GEN "\n",
                        (memSizeType) aHashMap, aKey, defaultData,
                        hashcode, result););
     return result;
-  } /* hshIdxEnterDefault */
+  } /* hshIdxEnterGeneric */
 
 
 
@@ -1140,25 +1294,24 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
  *  @return the value stored for 'aKey' in 'aHashMap', or
  *          'defaultData', if 'aKey' is not a member of 'aHashMap'.
  */
-genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericType aKey,
-    const genericType defaultData, intType hashcode, compareType cmp_func)
+genericType hshIdxWithDefaultGeneric (const const_rtlHashType aHashMap,
+    const genericType aKey, const genericType defaultData,
+    intType hashcode)
 
   {
     rtlHashElemType hashelem;
     rtlHashElemType result_hashelem = NULL;
-    intType cmp;
     genericType result;
 
-  /* hshIdxWithDefault */
-    logFunction(printf("hshIdxWithDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+  /* hshIdxWithDefaultGeneric */
+    logFunction(printf("hshIdxWithDefaultGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ")\n",
                        (memSizeType) aHashMap, aKey, defaultData, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
-      if (cmp < 0) {
+      if (hashelem->key.value.genericValue < aKey) {
         hashelem = hashelem->next_less;
-      } else if (unlikely(cmp == 0)) {
+      } else if (unlikely(hashelem->key.value.genericValue == aKey)) {
         result_hashelem = hashelem;
         hashelem = NULL;
       } else {
@@ -1170,10 +1323,51 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
     } else {
       result = defaultData;
     } /* if */
-    logFunction(printf("hshIdxWithDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+    logFunction(printf("hshIdxWithDefaultGeneric(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") --> " FMT_U_GEN "\n",
                        (memSizeType) aHashMap, aKey, defaultData,
                        hashcode, result););
+    return result;
+  } /* hshIdxWithDefaultGeneric */
+
+
+
+rtlValueUnion hshIdxWithDefault (const const_rtlHashType aHashMap,
+    const rtlValueUnion aKey, const rtlValueUnion defaultData,
+    intType hashcode, compareFuncType cmp_func)
+
+  {
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem = NULL;
+    intType cmp;
+    rtlValueUnion result;
+
+  /* hshIdxWithDefault */
+    logFunction(printf("hshIdxWithDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U_GEN ", " FMT_U ")\n",
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       defaultData.genericValue, hashcode););
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      cmp = cmp_func(hashelem->key.value, aKey);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (unlikely(cmp == 0)) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      result = result_hashelem->data.value;
+    } else {
+      result = defaultData;
+    } /* if */
+    logFunction(printf("hshIdxWithDefault(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U_GEN ", " FMT_U ") --> " FMT_U_GEN "\n",
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       defaultData.genericValue, hashcode, result););
     return result;
   } /* hshIdxWithDefault */
 
@@ -1186,27 +1380,28 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
  *  @return the value stored for 'aKey' in 'aHashMap', or
  *          0, if 'aKey' is not a member of 'aHashMap'.
  */
-genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType aKey,
-    intType hashcode, compareType cmp_func)
+rtlValueUnion hshIdxDefault0 (const const_rtlHashType aHashMap,
+    const rtlValueUnion aKey, intType hashcode, compareFuncType cmp_func)
 
   {
     rtlHashElemType hashelem;
     intType cmp;
-    genericType result;
+    rtlValueUnion result;
 
   /* hshIdxDefault0 */
     logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
-                       (memSizeType) aHashMap, aKey, hashcode););
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      cmp = cmp_func(hashelem->key.value, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
-        result = hashelem->data.value.genericValue;
+        result = hashelem->data.value;
         logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", "
                            FMT_U ") --> " FMT_U_GEN "\n",
-                           (memSizeType) aHashMap, aKey, hashcode, result););
+                           (memSizeType) aHashMap, aKey.genericValue,
+                           hashcode, result.genericValue););
         return result;
       } else {
         hashelem = hashelem->next_greater;
@@ -1214,8 +1409,9 @@ genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType 
     } /* while */
     logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U ") --> 0\n",
-                       (memSizeType) aHashMap, aKey, hashcode););
-    return 0;
+                       (memSizeType) aHashMap, aKey.genericValue, hashcode););
+    result.genericValue = 0;
+    return result;
   } /* hshIdxDefault0 */
 
 
@@ -1226,8 +1422,8 @@ genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType 
  *  it is overwritten with 'data'.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
-void hshIncl (const rtlHashType aHashMap, const genericType aKey,
-    const genericType data, intType hashcode, compareType cmp_func,
+void hshIncl (const rtlHashType aHashMap, const rtlValueUnion aKey,
+    const rtlValueUnion data, intType hashcode, compareFuncType cmp_func,
     const createFuncType key_create_func, const createFuncType data_create_func,
     const copyFuncType data_copy_func)
 
@@ -1239,11 +1435,12 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
   /* hshIncl */
     logFunction(printf("hshIncl(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
-                       (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       data.genericValue, hashcode, aHashMap->size););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
-      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
-          key_create_func, data_create_func, &err_info);
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(
+          aKey, data, key_create_func, data_create_func, &err_info);
       /*
       hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
       printf("aKey=%llX\n", (unsigned long long) aKey);
@@ -1254,7 +1451,7 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
       aHashMap->size++;
     } else {
       do {
-        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+        cmp = cmp_func(hashelem->key.value, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             hashelem->next_less = new_helem(aKey, data,
@@ -1265,7 +1462,7 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
             hashelem = hashelem->next_less;
           } /* if */
         } else if (unlikely(cmp == 0)) {
-          data_copy_func(&hashelem->data.value.genericValue, data);
+          data_copy_func(&hashelem->data.value, data);
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
@@ -1285,7 +1482,8 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
     } /* if */
     logFunction(printf("hshIncl(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM " -->\n",
-                       (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       data.genericValue, hashcode, aHashMap->size););
   } /* hshIncl */
 
 
@@ -1353,29 +1551,30 @@ const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
  *          the new data value if no old element existed.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
-genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
-    const genericType data, intType hashcode, compareType cmp_func,
+rtlValueUnion hshUpdate (const rtlHashType aHashMap, const rtlValueUnion aKey,
+    const rtlValueUnion data, intType hashcode, compareFuncType cmp_func,
     const createFuncType key_create_func, const createFuncType data_create_func)
 
   {
     rtlHashElemType hashelem;
     intType cmp;
     errInfoType err_info = OKAY_NO_ERROR;
-    genericType result;
+    rtlValueUnion result;
 
   /* hshUpdate */
     logFunction(printf("hshUpdate(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM "\n",
-                       (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       data.genericValue, hashcode, aHashMap->size););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
-      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
-          key_create_func, data_create_func, &err_info);
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(
+          aKey, data, key_create_func, data_create_func, &err_info);
       aHashMap->size++;
       result = data;
     } else {
       do {
-        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+        cmp = cmp_func(hashelem->key.value, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             hashelem->next_less = new_helem(aKey, data,
@@ -1387,8 +1586,8 @@ genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
             hashelem = hashelem->next_less;
           } /* if */
         } else if (unlikely(cmp == 0)) {
-          result = hashelem->data.value.genericValue;
-          hashelem->data.value.genericValue = data;
+          result = hashelem->data.value;
+          hashelem->data.value = data;
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
@@ -1409,7 +1608,8 @@ genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
     } /* if */
     logFunction(printf("hshUpdate(" FMT_X_MEM ", " FMT_U_GEN ", "
                        FMT_U_GEN ", " FMT_U ") size=" FMT_U_MEM " -->\n",
-                       (memSizeType) aHashMap, aKey, data, hashcode, aHashMap->size););
+                       (memSizeType) aHashMap, aKey.genericValue,
+                       data.genericValue, hashcode, aHashMap->size););
     return result;
   } /* hshUpdate */
 

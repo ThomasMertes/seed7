@@ -60,16 +60,16 @@ const proc: arr_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "void        arrAppend (arrayType *const, const arrayType);");
     declareExtern(c_prog, "arrayType   arrArrlit2 (intType, arrayType);");
-    declareExtern(c_prog, "arrayType   arrBaselit (const genericType);");
-    declareExtern(c_prog, "arrayType   arrBaselit2 (intType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrBaselit (const rtlValueUnion);");
+    declareExtern(c_prog, "arrayType   arrBaselit2 (intType, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrCat (arrayType, const arrayType);");
-    declareExtern(c_prog, "arrayType   arrExtend (arrayType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrExtend (arrayType, const rtlValueUnion);");
     declareExtern(c_prog, "void        arrFree (arrayType);");
-    declareExtern(c_prog, "arrayType   arrGen (const genericType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrGen (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrHead (const const_arrayType, intType);");
     declareExtern(c_prog, "arrayType   arrHeadTemp (arrayType *, intType);");
-    declareExtern(c_prog, "genericType arrIdxTemp (arrayType *, intType);");
-    declareExtern(c_prog, "void        arrInsert (arrayType *, intType, genericType);");
+    declareExtern(c_prog, "rtlValueUnion arrIdxTemp (arrayType *, intType);");
+    declareExtern(c_prog, "void        arrInsert (arrayType *, intType, rtlValueUnion);");
     declareExtern(c_prog, "void        arrInsertArray (arrayType *, intType, arrayType);");
     declareExtern(c_prog, "void        arrInsertArrayTemp (arrayType *, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrMalloc (intType, intType);");
@@ -77,15 +77,16 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrRange (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "arrayType   arrRangeTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrRealloc (arrayType, memSizeType, memSizeType);");
-    declareExtern(c_prog, "genericType arrRemove (arrayType *, intType);");
+    declareExtern(c_prog, "rtlValueUnion arrRemove (arrayType *, intType);");
     declareExtern(c_prog, "arrayType   arrRemoveArray (arrayType *, intType, intType);");
-    declareExtern(c_prog, "arrayType   arrSort (arrayType, compareType);");
-    declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, compareType);");
+    declareExtern(c_prog, "arrayType   arrSort (arrayType, compareFuncType);");
+    declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, compareFuncType);");
     declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");
     declareExtern(c_prog, "arrayType   arrTailTemp (arrayType *, intType);");
-    declareExtern(c_prog, "arrayType   arrTimes (intType, intType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrTimes (intType, intType, const rtlValueUnion);");
+    declareExtern(c_prog, "arrayType   arrTimes0 (intType, intType);");
   end func;
 
 
@@ -201,9 +202,9 @@ const proc: process (ARR_BASELIT, in reference: function,
       typeData.array_element @:= [resultType(getType(function))] getType(params[3]);
     end if;
     prepare_typed_result(resultType(getType(function)), c_expr);
-    c_expr.result_expr := "arrBaselit((genericType)(";
-    getGenericTemporaryToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= "))";
+    c_expr.result_expr := "arrBaselit(";
+    getRtlValueTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -217,9 +218,9 @@ const proc: process (ARR_BASELIT2, in reference: function,
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit2(";
     getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ", (genericType)(";
-    getGenericTemporaryToResultExpr(params[4], c_expr);
-    c_expr.result_expr &:= "))";
+    c_expr.result_expr &:= ", ";
+    getRtlValueTemporaryToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -543,11 +544,11 @@ const proc: two_dimensional_times_optimization (in reference: dest,
     statement.expr &:= resultName;
     statement.expr &:= "->arr[";
     statement.expr &:= maxIdx1Name;
-    statement.expr &:= "].value.arrayValue=arrTimes(";
+    statement.expr &:= "].value.arrayValue=arrTimes0(";
     statement.expr &:= integerLiteral(minIdx2);
     statement.expr &:= ", ";
     statement.expr &:= maxIdx2Name;
-    statement.expr &:= ", 0);\n";
+    statement.expr &:= ");\n";
     statement.expr &:= "}\n";
     doLocalDeclsOfStatement(statement, c_expr);
   end func;
@@ -660,9 +661,9 @@ const proc: process (ARR_EXTEND, in reference: function,
     prepare_typed_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "arrExtend(";
     getTemporaryToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", (genericType)(";
-    getGenericTemporaryToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= "))";
+    c_expr.result_expr &:= ", ";
+    getRtlValueTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -671,11 +672,11 @@ const proc: process (ARR_GEN, in reference: function,
 
   begin
     prepare_typed_result(resultType(getType(function)), c_expr);
-    c_expr.result_expr := "arrGen((genericType)(";
-    getGenericTemporaryToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= "), (genericType)(";
-    getGenericTemporaryToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= "))";
+    c_expr.result_expr := "arrGen(";
+    getRtlValueTemporaryToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getRtlValueTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -877,7 +878,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.result_expr &:= c_param.result_finish;
         c_expr.result_expr &:= ", ";
         c_expr.result_expr &:= result_name;
-        c_expr.result_expr &:= ".value.genericValue=arrIdxTemp(&(";
+        c_expr.result_expr &:= ".value=arrIdxTemp(&(";
         c_expr.result_expr &:= c_param.result_name;
         c_expr.result_expr &:= "), ";
         c_expr.result_expr &:= integerLiteral(index);
@@ -892,7 +893,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= c_param.result_finish;
         c_expr.expr &:= ", ";
         c_expr.expr &:= result_name;
-        c_expr.expr &:= ".value.genericValue=arrIdxTemp(&(";
+        c_expr.expr &:= ".value=arrIdxTemp(&(";
         c_expr.expr &:= c_param.result_name;
         c_expr.expr &:= "), ";
         c_expr.expr &:= integerLiteral(index);
@@ -1150,7 +1151,7 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.result_expr &:= c_param.result_finish;
           c_expr.result_expr &:= ", ";
           c_expr.result_expr &:= result_name;
-          c_expr.result_expr &:= ".value.genericValue=arrIdxTemp(&(";
+          c_expr.result_expr &:= ".value=arrIdxTemp(&(";
           c_expr.result_expr &:= c_param.result_name;
           c_expr.result_expr &:= "), ";
           getAnyParamToResultExpr(params[3], c_expr);
@@ -1165,7 +1166,7 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.expr &:= c_param.result_finish;
           c_expr.expr &:= ", ";
           c_expr.expr &:= result_name;
-          c_expr.expr &:= ".value.genericValue=arrIdxTemp(&(";
+          c_expr.expr &:= ".value=arrIdxTemp(&(";
           c_expr.expr &:= c_param.result_name;
           c_expr.expr &:= "), ";
           process_expr(params[3], c_expr);
@@ -1320,9 +1321,9 @@ const proc: process (ARR_INSERT, in reference: function,
         statement.expr &:= array_name;
         statement.expr &:= "), ";
         statement.expr &:= position_name;
-        statement.expr &:= ", (genericType)(";
-        getCreatedValueAsGeneric(params[3], statement);
-        statement.expr &:= "));\n";
+        statement.expr &:= ", ";
+        getCreatedRtlValue(params[3], statement);
+        statement.expr &:= ");\n";
         statement.expr &:= "}\n";
         doLocalDeclsOfStatement(statement, c_expr);
       else
@@ -1331,9 +1332,9 @@ const proc: process (ARR_INSERT, in reference: function,
         process_expr(params[1], c_expr);
         c_expr.expr &:= "), ";
         process_expr(params[2], c_expr);
-        c_expr.expr &:= ", (genericType)(";
-        getCreatedValueAsGeneric(params[3], c_expr);
-        c_expr.expr &:= "));\n";
+        c_expr.expr &:= ", ";
+        getCreatedRtlValue(params[3], c_expr);
+        c_expr.expr &:= ");\n";
       end if;
     else
       setDiagnosticLine(c_expr);
@@ -1342,7 +1343,7 @@ const proc: process (ARR_INSERT, in reference: function,
       c_expr.expr &:= "), ";
       process_expr(params[2], c_expr);
       c_expr.expr &:= ", ";
-      getGenericValue(params[3], c_expr);
+      getCreatedRtlValue(params[3], c_expr);
       c_expr.expr &:= ");\n";
     end if;
   end func;
@@ -1597,27 +1598,24 @@ const proc: process (ARR_REMOVE, in reference: function,
   local
     var type: proc_type is void;
     var type: result_type is void;
-    var string: temp_name is "";
   begin
     proc_type := getType(function);
     result_type := resultType(proc_type);
     if valueIsAtHeap(result_type) then
       prepare_typed_result(result_type, c_expr);
-      temp_name := beginCastGenericToResultExpr(result_type, c_expr);
       c_expr.result_expr &:= "arrRemove(&(";
       getStdParamToResultExpr(params[1], c_expr);
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[2], c_expr);
-      c_expr.result_expr &:= ")";
-      endCastGenericToResultExpr(result_type, temp_name, c_expr);
+      c_expr.result_expr &:= ").";
+      c_expr.result_expr &:= raw_type_value(result_type);
     else
-      temp_name := beginCastGeneric(result_type, c_expr);
       c_expr.expr &:= "arrRemove(&(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= "), ";
       process_expr(params[2], c_expr);
-      c_expr.expr &:= ")";
-      endCastGeneric(result_type, temp_name, c_expr);
+      c_expr.expr &:= ").";
+      c_expr.expr &:= raw_type_value(result_type);
     end if;
   end func;
 
@@ -1648,7 +1646,7 @@ const proc: process (ARR_SORT, in reference: function,
     prepare_typed_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "arrSort(";
     getTemporaryToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", (compareType)(";
+    c_expr.result_expr &:= ", (compareFuncType)(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
@@ -1662,7 +1660,7 @@ const proc: process (ARR_SORT_REVERSE, in reference: function,
     prepare_typed_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "arrSortReverse(";
     getTemporaryToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", (compareType)(";
+    c_expr.result_expr &:= ", (compareFuncType)(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
@@ -1821,9 +1819,9 @@ const proc: two_dimensional_times_optimization (in type: result_type,
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= "->arr[";
     c_expr.result_expr &:= factor1Name;
-    c_expr.result_expr &:= "].value.arrayValue=arrTimes(1, ";
+    c_expr.result_expr &:= "].value.arrayValue=arrTimes0(1, ";
     c_expr.result_expr &:= factor2Name;
-    c_expr.result_expr &:= ", 0);\n";
+    c_expr.result_expr &:= ");\n";
     c_expr.result_expr &:= "}\n";
     c_expr.result_expr &:= resultName;
     c_expr.result_expr &:= ";})";
@@ -1860,7 +1858,7 @@ const proc: process (ARR_TIMES, in reference: function,
         c_expr.result_expr := "arrTimes(1, ";
         getStdParamToResultExpr(params[1], c_expr);
         c_expr.result_expr &:= ", ";
-        getGenericValueToResultExpr(params[3], c_expr);
+        getRtlValueToResultExpr(params[3], c_expr);
         c_expr.result_expr &:= ")";
       else
         declare_times_prototype(result_type, element_type, global_c_expr);

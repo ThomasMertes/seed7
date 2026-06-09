@@ -32,10 +32,6 @@
 fileType pcsChildStdErr (const const_processType process);
 fileType pcsChildStdIn (const const_processType process);
 fileType pcsChildStdOut (const const_processType process);
-intType pcsCmpGeneric (const genericType value1, const genericType value2);
 void pcsCpy (processType *const dest, const processType source);
-void pcsCpyGeneric (genericType *const dest, const genericType source);
 processType pcsCreate (const processType source);
-genericType pcsCreateGeneric (const genericType from_value);
 void pcsDestr (const processType old_process);
-void pcsDestrGeneric (const genericType old_value);

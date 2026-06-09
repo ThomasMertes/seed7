@@ -29,4 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void blnCpyGeneric (genericType *const dest, const genericType source);
+void blnCpyValue (rtlValueUnion *const dest, const rtlValueUnion source);

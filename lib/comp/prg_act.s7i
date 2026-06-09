@@ -55,11 +55,11 @@ const proc: prg_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "progType    prgBStriParse (const bstriType, const const_setType, const const_arrayType, fileType);");
     declareExtern(c_prog, "void        prgCpy (progType *const, const progType);");
-    declareExtern(c_prog, "void        prgCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        prgCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "progType    prgCreate (const progType);");
-    declareExtern(c_prog, "genericType prgCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion prgCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        prgDestr (progType);");
-    declareExtern(c_prog, "void        prgDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        prgDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "intType     prgErrorCount (const const_progType);");
     declareExtern(c_prog, "objRefType  prgEval (progType, objRefType);");
     declareExtern(c_prog, "objRefType  prgEvalWithArgs (progType, objRefType, listType);");

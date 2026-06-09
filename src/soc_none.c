@@ -127,12 +127,12 @@ void socCpy (socketType *const dest, const socketType source)
 
 
 
-void socCpyGeneric (genericType *const dest, const genericType source)
+void socCpyValue (rtlValueUnion *const dest, const rtlValueUnion source)
 
-  { /* socCpyGeneric */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+  { /* socCpyValue */
+    logError(printf("socCpyValue: No socket support.\n"););
     raise_error(FILE_ERROR);
-  } /* socCpyGeneric */
+  } /* socCpyValue */
 
 
 
@@ -146,13 +146,13 @@ socketType socCreate (const socketType source)
 
 
 
-genericType socCreateGeneric (const genericType from_value)
+rtlValueUnion socCreateValue (const rtlValueUnion source)
 
-  { /* socCreateGeneric */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+  { /* socCreateValue */
+    logError(printf("socCreateValue: No socket support.\n"););
     raise_error(FILE_ERROR);
     return 0;
-  } /* socCreateGeneric */
+  } /* socCreateValue */
 
 
 
@@ -163,10 +163,10 @@ void socDestr (const socketType oldSocket)
 
 
 
-void socDestrGeneric (const genericType old_value)
+void socDestrValue (const rtlValueUnion old_value)
 
-  { /* socDestrGeneric */
-  } /* socDestrGeneric */
+  { /* socDestrValue */
+  } /* socDestrValue */
 
 
 

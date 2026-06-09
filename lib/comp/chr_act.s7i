@@ -55,8 +55,8 @@ const proc: chr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    chrCLiteral (charType);");
     declareExtern(c_prog, "striType    chrCLiteralToBuffer (charType, striType);");
     declareExtern(c_prog, "intType     chrCmp (charType, charType);");
-    declareExtern(c_prog, "intType     chrCmpGeneric (const genericType, const genericType);");
-    declareExtern(c_prog, "void        chrCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "intType     chrCmpValue (const rtlValueUnion, const rtlValueUnion);");
+    declareExtern(c_prog, "void        chrCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "boolType    chrIsLetter (charType);");
     declareExtern(c_prog, "charType    chrLow (charType);");
     declareExtern(c_prog, "striType    chrStr (charType);");
