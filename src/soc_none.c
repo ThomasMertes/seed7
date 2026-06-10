@@ -148,10 +148,13 @@ socketType socCreate (const socketType source)
 
 rtlValueUnion socCreateValue (const rtlValueUnion source)
 
-  { /* socCreateValue */
-    logError(printf("socCreateValue: No socket support.\n"););
-    raise_error(FILE_ERROR);
-    return 0;
+  {
+    rtlValueUnion result;
+
+  /* socCreateValue */
+    INIT_VALUE_PTR(result);
+    result.socketValue = NULL;
+    return result;
   } /* socCreateValue */
 
 
