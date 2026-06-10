@@ -108,7 +108,7 @@ static void printArgv (const int argc, const cstriType *const argv)
  *         'rtlValueUnion' and compares them.
  */
 static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
-    compareFuncType cmp_func)
+    const compareFuncType cmp_func)
 
   {
     rtlValueUnion compare_elem;
@@ -172,7 +172,7 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
  *         'rtlValueUnion' and compares them.
  */
 static void rtl_qsort_array_reverse (rtlObjectType *begin_sort, rtlObjectType *end_sort,
-    compareFuncType cmp_func)
+    const compareFuncType cmp_func)
 
   {
     rtlValueUnion compare_elem;
@@ -1973,7 +1973,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
 
 
 
-rtlArrayType arrSort (rtlArrayType arr1, compareFuncType cmp_func)
+rtlArrayType arrSort (rtlArrayType arr1, const compareFuncType cmp_func)
 
   { /* arrSort */
     logFunction(printf("arrSort(" FMT_U_MEM " (array[" FMT_D " .. "
@@ -1988,7 +1988,7 @@ rtlArrayType arrSort (rtlArrayType arr1, compareFuncType cmp_func)
 
 
 
-rtlArrayType arrSortReverse (rtlArrayType arr1, compareFuncType cmp_func)
+rtlArrayType arrSortReverse (rtlArrayType arr1, const compareFuncType cmp_func)
 
   { /* arrSortReverse */
     logFunction(printf("arrSortReverse(" FMT_U_MEM " (array[" FMT_D

@@ -79,8 +79,8 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrRealloc (arrayType, memSizeType, memSizeType);");
     declareExtern(c_prog, "rtlValueUnion arrRemove (arrayType *, intType);");
     declareExtern(c_prog, "arrayType   arrRemoveArray (arrayType *, intType, intType);");
-    declareExtern(c_prog, "arrayType   arrSort (arrayType, compareFuncType);");
-    declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, compareFuncType);");
+    declareExtern(c_prog, "arrayType   arrSort (arrayType, const compareFuncType);");
+    declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, const compareFuncType);");
     declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");

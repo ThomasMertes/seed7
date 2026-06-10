@@ -32,7 +32,7 @@
 void freeGenericHash (rtlHashType genericHash);
 boolType hashAdd (const rtlHashType aHashMap, const rtlValueUnion aKey,
                   const rtlValueUnion data, intType hashcode,
-                  compareFuncType cmp_func,
+                  const compareFuncType cmp_func,
                   const createFuncType key_create_func,
                   const createFuncType data_create_func);
 rtlHashElemType hshConcatKeyValue (rtlHashElemType element1,
@@ -41,7 +41,7 @@ boolType hshContainsGeneric (const const_rtlHashType aHashMap,
                              const genericType aKey, intType hashcode);
 boolType hshContains (const const_rtlHashType aHashMap,
                       const rtlValueUnion aKey, intType hashcode,
-                      compareFuncType cmp_func);
+                      const compareFuncType cmp_func);
 void hshCpy (rtlHashType *const dest, const const_rtlHashType source,
              const createFuncType key_create_func,
              const destrFuncType key_destr_func,
@@ -59,24 +59,24 @@ rtlHashType hshEmpty (void);
 void hshExclGeneric (const rtlHashType hash1, const genericType key,
                      intType hashcode);
 void hshExcl (const rtlHashType aHashMap, const rtlValueUnion aKey,
-              intType hashcode, compareFuncType cmp_func,
+              intType hashcode, const compareFuncType cmp_func,
               const destrFuncType key_destr_func,
               const destrFuncType data_destr_func);
 rtlHashType hshGenHash (rtlHashElemType keyValuePairs,
                         const hashCodeFuncType key_hash_code_func,
-                        compareFuncType cmp_func,
+                        const compareFuncType cmp_func,
                         const destrFuncType key_destr_func,
                         const destrFuncType data_destr_func);
 rtlHashElemType hshGenKeyValue (const rtlValueUnion aKey, const rtlValueUnion aValue);
 rtlValueUnion hshIdx (const const_rtlHashType aHashMap,
                       const rtlValueUnion aKey, intType hashcode,
-                      compareFuncType cmp_func);
+                      const compareFuncType cmp_func);
 rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
                            const rtlValueUnion aKey, intType hashcode,
-                           compareFuncType cmp_func);
+                           const compareFuncType cmp_func);
 rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
                             const rtlValueUnion aKey, intType hashcode,
-                            compareFuncType cmp_func);
+                            const compareFuncType cmp_func);
 void hshSetGeneric (const const_rtlHashType aHashMap,
                     const genericType aKey, intType hashcode,
                     const genericType newValue);
@@ -92,14 +92,14 @@ rtlValueUnion hshIdxWithDefault (const const_rtlHashType aHashMap,
                                  const rtlValueUnion aKey,
                                  const rtlValueUnion defaultData,
                                  intType hashcode,
-                                 compareFuncType cmp_func);
+                                 const compareFuncType cmp_func);
 rtlValueUnion hshIdxDefault0 (const const_rtlHashType aHashMap,
                               const rtlValueUnion aKey,
                               intType hashcode,
-                              compareFuncType cmp_func);
+                              const compareFuncType cmp_func);
 void hshIncl (const rtlHashType aHashMap, const rtlValueUnion aKey,
               const rtlValueUnion data, intType hashcode,
-              compareFuncType cmp_func,
+              const compareFuncType cmp_func,
               const createFuncType key_create_func,
               const createFuncType data_create_func,
               const copyFuncType data_copy_func);
@@ -109,7 +109,7 @@ rtlArrayType hshKeys (const const_rtlHashType aHashMap,
 const_rtlHashElemType hshRand (const const_rtlHashType aHashMap);
 rtlValueUnion hshUpdate (const rtlHashType aHashMap, const rtlValueUnion aKey,
                          const rtlValueUnion data, intType hashcode,
-                         compareFuncType cmp_func,
+                         const compareFuncType cmp_func,
                          const createFuncType key_create_func,
                          const createFuncType data_create_func);
 rtlArrayType hshValues (const const_rtlHashType aHashMap,
