@@ -43,6 +43,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "listutl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -356,3 +357,31 @@ const_actEntryType getActEntry (actType actionSearched)
     logFunction(printf("getActEntry --> %s\n", entryFound->name););
     return entryFound;
   } /* getActEntry */
+
+
+
+boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
+
+  {
+    boolType okay = TRUE;
+
+  /* actionCreateOkay */
+    if (HAS_PROPERTY(dest)) {
+      if (unlikely(list_length(dest->descriptor.property->params) <
+                   actEntry->numParams)) {
+        logError(printf("act_create/prc_create: action \"%s\": "
+                        "Params found: " FMT_U_MEM ", needed: %u\n",
+                        actEntry->name,
+                        list_length(dest->descriptor.property->params),
+                        actEntry->numParams););
+        okay = FALSE;
+      } /* if */
+    } else if (unlikely(actEntry->numParams != 0)) {
+      logError(printf("act_create/prc_create: action \"%s\": "
+                      "Params found: 0, needed: %u\n",
+                      actEntry->name,
+                      actEntry->numParams););
+      okay = FALSE;
+    } /* if */
+    return okay;
+  } /* actionCreateOkay */
