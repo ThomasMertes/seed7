@@ -148,6 +148,9 @@ typedef objectType (*actType) (listType);
 typedef struct {
     const_cstriType name;
     actType action;
+    objectCategory resultCategory;
+    unsigned int numParams;
+    const objectCategory *const paramCategories;
   } actEntryRecord;
 
 typedef actEntryRecord *actEntryType;
