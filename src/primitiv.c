@@ -75,7 +75,7 @@ static const objectCategory p_no_args[]              = {SYMBOLOBJECT};
 static const objectCategory p_ace[]                  = {ACTENTRYOBJECT};
 static const objectCategory p_ace_ace[]              = {ACTENTRYOBJECT, ACTENTRYOBJECT};
 static const objectCategory p_ace_op_ace[]           = {ACTENTRYOBJECT, SYMBOLOBJECT, ACTENTRYOBJECT};
-static const objectCategory p_act_op_act[]           = {ACTOBJECT, SYMBOLOBJECT, ACTOBJECT};
+static const objectCategory p_act_op_ace[]           = {ACTOBJECT, SYMBOLOBJECT, ACTENTRYOBJECT};
 static const objectCategory p_any[]                  = {ILLEGALOBJECT};
 static const objectCategory p_op_any[]               = {SYMBOLOBJECT, ILLEGALOBJECT};
 static const objectCategory p_op_any_op_any[]        = {SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, ILLEGALOBJECT};
@@ -360,7 +360,7 @@ static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMB
 #define par_ace                  argCountAndArgs(p_ace)
 #define par_ace_ace              argCountAndArgs(p_ace_ace)
 #define par_ace_op_ace           argCountAndArgs(p_ace_op_ace)
-#define par_act_op_act           argCountAndArgs(p_act_op_act)
+#define par_act_op_ace           argCountAndArgs(p_act_op_ace)
 #define par_any                  argCountAndArgs(p_any)
 #define par_op_any               argCountAndArgs(p_op_any)
 #define par_op_any_op_any        argCountAndArgs(p_op_any_op_any)
@@ -654,7 +654,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ACE_STR",                      ace_str,                      STRIOBJECT,        par_ace},
     { "ACE_VALUE",                    ace_value,                    ACTENTRYOBJECT,    par_ref},
 
-    { "ACT_CREATE",                   act_create,                   VOIDOBJECT,        par_act_op_act},
+    { "ACT_CREATE",                   act_create,                   VOIDOBJECT,        par_act_op_ace},
 
     { "ARR_APPEND",                   arr_append,                   VOIDOBJECT,        par_arr_op_arr},
     { "ARR_ARRLIT",                   arr_arrlit,                   ARRAYOBJECT,       par_op_op_arr},
@@ -1552,7 +1552,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SQL_ERR_LIB_FUNC",             sql_err_lib_func,             STRIOBJECT,        par_no_args},
     { "SQL_ERR_MESSAGE",              sql_err_message,              STRIOBJECT,        par_no_args},
     { "SQL_EXECUTE",                  sql_execute,                  VOIDOBJECT,        par_sqs},
-    { "SQL_FETCH",                    sql_fetch,                    VOIDOBJECT,        par_sqs},
+    { "SQL_FETCH",                    sql_fetch,                    BOOLOBJECT,        par_sqs},
     { "SQL_GET_AUTO_COMMIT",          sql_get_auto_commit,          BOOLOBJECT,        par_dbs},
     { "SQL_IS_NULL",                  sql_is_null,                  BOOLOBJECT,        par_sqs_int},
     { "SQL_NE_DB",                    sql_ne_db,                    BOOLOBJECT,        par_dbs_op_dbs},
