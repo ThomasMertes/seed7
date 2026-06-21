@@ -183,8 +183,6 @@ static const objectCategory p_itf[]                  = {INTERFACEOBJECT};
 static const objectCategory p_itf_itf[]              = {INTERFACEOBJECT, INTERFACEOBJECT};
 static const objectCategory p_itf_op_itf[]           = {INTERFACEOBJECT, SYMBOLOBJECT, INTERFACEOBJECT};
 static const objectCategory p_itf_op_sct[]           = {INTERFACEOBJECT, SYMBOLOBJECT, STRUCTOBJECT};
-static const objectCategory p_op_lst[]               = {SYMBOLOBJECT, LISTOBJECT};
-static const objectCategory p_op_op_lst[]            = {SYMBOLOBJECT, SYMBOLOBJECT, LISTOBJECT};
 static const objectCategory p_pcs[]                  = {PROCESSOBJECT};
 static const objectCategory p_pcs_pcs[]              = {PROCESSOBJECT, PROCESSOBJECT};
 static const objectCategory p_pcs_op_pcs[]           = {PROCESSOBJECT, SYMBOLOBJECT, PROCESSOBJECT};
@@ -198,15 +196,15 @@ static const objectCategory p_pol_soc[]              = {POLLOBJECT, SOCKETOBJECT
 static const objectCategory p_pol_soc_int[]          = {POLLOBJECT, SOCKETOBJECT, INTOBJECT};
 static const objectCategory p_pol_soc_int_itf[]      = {POLLOBJECT, SOCKETOBJECT, INTOBJECT, INTERFACEOBJECT};
 static const objectCategory p_pol_op_pol[]           = {POLLOBJECT, SYMBOLOBJECT, POLLOBJECT};
-static const objectCategory p_prc[]                  = {MATCHOBJECT};
+static const objectCategory p_prc[]                  = {BLOCKOBJECT};
 static const objectCategory p_prc_op_prc[]           = {BLOCKOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_prc[]               = {SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_prc_op_prc[]        = {SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_prc_op_bln[]        = {SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, BOOLOBJECT};
 static const objectCategory p_op_prc_op_op_op_prc[]  = {SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_any_op_prc[]        = {SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
-static const objectCategory p_op_op_prc[]            = {SYMBOLOBJECT, SYMBOLOBJECT, MATCHOBJECT};
-static const objectCategory p_op_op_prc_op_lst[]     = {SYMBOLOBJECT, SYMBOLOBJECT, VOIDOBJECT, SYMBOLOBJECT, LISTOBJECT};
+static const objectCategory p_op_op_exp[]            = {SYMBOLOBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_op_prc_op_exp[]     = {SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, EXPROBJECT};
 static const objectCategory p_prg[]                  = {PROGOBJECT};
 static const objectCategory p_prg_prg[]              = {PROGOBJECT, PROGOBJECT};
 static const objectCategory p_prg_arr_set_str[]      = {PROGOBJECT, ARRAYOBJECT, SETOBJECT, STRIOBJECT};
@@ -298,9 +296,9 @@ static const objectCategory p_str_op_int_op_int[]    = {STRIOBJECT, SYMBOLOBJECT
 static const objectCategory p_str_op_op_int[]        = {STRIOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT};
 static const objectCategory p_typ[]                  = {TYPEOBJECT};
 static const objectCategory p_typ_typ[]              = {TYPEOBJECT, TYPEOBJECT};
-static const objectCategory p_typ_op_lst[]           = {TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT};
+static const objectCategory p_typ_op_any[]           = {TYPEOBJECT, SYMBOLOBJECT, ILLEGALOBJECT};
 static const objectCategory p_typ_op_typ[]           = {TYPEOBJECT, SYMBOLOBJECT, TYPEOBJECT};
-static const objectCategory p_typ_op_op_lst[]        = {TYPEOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, LISTOBJECT};
+static const objectCategory p_typ_op_op_any[]        = {TYPEOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, ILLEGALOBJECT};
 static const objectCategory p_str_op_op_int_op_str[] = {STRIOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, STRIOBJECT};
 static const objectCategory p_str_op_op_int_op_chr[] = {STRIOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, CHAROBJECT};
 static const objectCategory p_op_str[]               = {SYMBOLOBJECT, STRIOBJECT};
@@ -310,11 +308,11 @@ static const objectCategory p_op_5_str[]             = {SYMBOLOBJECT, STRIOBJECT
 static const objectCategory p_op_chr_op_str_op_prc[] = {SYMBOLOBJECT, CHAROBJECT, SYMBOLOBJECT, STRIOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_typ[]               = {SYMBOLOBJECT, TYPEOBJECT};
 static const objectCategory p_op_typ_op[]            = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT};
-static const objectCategory p_op_typ_op_lst[]        = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT};
-static const objectCategory p_op_typ_op_lst_op_lst[] = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, LISTOBJECT};
-static const objectCategory p_op_typ_op_lst_op_op[]  = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, SYMBOLOBJECT};
+static const objectCategory p_op_typ_op_exp[]        = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_typ_op_exp_op_exp[] = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_typ_op_exp_op_op[]  = {SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT, SYMBOLOBJECT, SYMBOLOBJECT};
 static const objectCategory p_op_op_typ_op[]         = {SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT};
-static const objectCategory p_op_op_typ_op_lst[]     = {SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT};
+static const objectCategory p_op_op_typ_op_exp[]     = {SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT};
 static const objectCategory p_voi_op_voi[]           = {VOIDOBJECT, SYMBOLOBJECT, VOIDOBJECT};
 static const objectCategory p_win[]                  = {WINOBJECT};
 static const objectCategory p_win_win[]              = {WINOBJECT, WINOBJECT};
@@ -349,8 +347,8 @@ static const objectCategory p_prg_int_int_str_int_int_str_str[] = {PROGOBJECT, I
 static const objectCategory p_op_int_op_int_op_int_op_prc[] = {SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_win_3_int_flt_flt_int_int[] = {WINOBJECT, INTOBJECT, INTOBJECT, INTOBJECT, FLOATOBJECT, FLOATOBJECT, INTOBJECT, INTOBJECT};
 static const objectCategory p_op_int_op_int_op_int_op_int_op_prc[] = {SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
-static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst[] = {SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, LISTOBJECT};
-static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, LISTOBJECT, SYMBOLOBJECT, VOIDOBJECT};
+static const objectCategory p_op_op_op_typ_op_exp_op_any_op_exp[] = {SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT, SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, TYPEOBJECT, SYMBOLOBJECT, EXPROBJECT, SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, EXPROBJECT};
 
 
 #define argCountAndArgs(categoryList) sizeof(categoryList) / sizeof(objectCategory), categoryList
@@ -468,8 +466,6 @@ static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMB
 #define par_itf_itf              argCountAndArgs(p_itf_itf)
 #define par_itf_op_itf           argCountAndArgs(p_itf_op_itf)
 #define par_itf_op_sct           argCountAndArgs(p_itf_op_sct)
-#define par_op_lst               argCountAndArgs(p_op_lst)
-#define par_op_op_lst            argCountAndArgs(p_op_op_lst)
 #define par_pcs                  argCountAndArgs(p_pcs)
 #define par_pcs_pcs              argCountAndArgs(p_pcs_pcs)
 #define par_pcs_op_pcs           argCountAndArgs(p_pcs_op_pcs)
@@ -490,8 +486,8 @@ static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMB
 #define par_op_prc_op_bln        argCountAndArgs(p_op_prc_op_bln)
 #define par_op_prc_op_op_op_prc  argCountAndArgs(p_op_prc_op_op_op_prc)
 #define par_op_any_op_prc        argCountAndArgs(p_op_any_op_prc)
-#define par_op_op_prc            argCountAndArgs(p_op_op_prc)
-#define par_op_op_prc_op_lst     argCountAndArgs(p_op_op_prc_op_lst)
+#define par_op_op_exp            argCountAndArgs(p_op_op_exp)
+#define par_op_op_prc_op_exp     argCountAndArgs(p_op_op_prc_op_exp)
 #define par_prg                  argCountAndArgs(p_prg)
 #define par_prg_prg              argCountAndArgs(p_prg_prg)
 #define par_prg_arr_set_str      argCountAndArgs(p_prg_arr_set_str)
@@ -590,16 +586,16 @@ static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMB
 #define par_op_chr_op_str_op_prc argCountAndArgs(p_op_chr_op_str_op_prc)
 #define par_typ                  argCountAndArgs(p_typ)
 #define par_typ_typ              argCountAndArgs(p_typ_typ)
-#define par_typ_op_lst           argCountAndArgs(p_typ_op_lst)
+#define par_typ_op_any           argCountAndArgs(p_typ_op_any)
 #define par_typ_op_typ           argCountAndArgs(p_typ_op_typ)
-#define par_typ_op_op_lst        argCountAndArgs(p_typ_op_op_lst)
+#define par_typ_op_op_any        argCountAndArgs(p_typ_op_op_any)
 #define par_op_typ               argCountAndArgs(p_op_typ)
 #define par_op_typ_op            argCountAndArgs(p_op_typ_op)
-#define par_op_typ_op_lst        argCountAndArgs(p_op_typ_op_lst)
-#define par_op_typ_op_lst_op_lst argCountAndArgs(p_op_typ_op_lst_op_lst)
-#define par_op_typ_op_lst_op_op  argCountAndArgs(p_op_typ_op_lst_op_op)
+#define par_op_typ_op_exp        argCountAndArgs(p_op_typ_op_exp)
+#define par_op_typ_op_exp_op_exp argCountAndArgs(p_op_typ_op_exp_op_exp)
+#define par_op_typ_op_exp_op_op  argCountAndArgs(p_op_typ_op_exp_op_op)
 #define par_op_op_typ_op         argCountAndArgs(p_op_op_typ_op)
-#define par_op_op_typ_op_lst     argCountAndArgs(p_op_op_typ_op_lst)
+#define par_op_op_typ_op_exp     argCountAndArgs(p_op_op_typ_op_exp)
 #define par_voi_op_voi           argCountAndArgs(p_voi_op_voi)
 #define par_win                  argCountAndArgs(p_win)
 #define par_win_win              argCountAndArgs(p_win_win)
@@ -634,8 +630,8 @@ static const objectCategory p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc[] = {SYMB
 #define par_op_int_op_int_op_int_op_prc               argCountAndArgs(p_op_int_op_int_op_int_op_prc)
 #define par_win_3_int_flt_flt_int_int                 argCountAndArgs(p_win_3_int_flt_flt_int_int)
 #define par_op_int_op_int_op_int_op_int_op_prc        argCountAndArgs(p_op_int_op_int_op_int_op_int_op_prc)
-#define par_op_op_op_typ_op_lst_op_lst_op_lst         argCountAndArgs(p_op_op_op_typ_op_lst_op_lst_op_lst)
-#define par_op_op_op_typ_op_lst_op_lst_op_lst_op_prc  argCountAndArgs(p_op_op_op_typ_op_lst_op_lst_op_lst_op_prc)
+#define par_op_op_op_typ_op_exp_op_any_op_exp         argCountAndArgs(p_op_op_op_typ_op_exp_op_any_op_exp)
+#define par_op_op_op_typ_op_exp_op_any_op_prc_op_exp  argCountAndArgs(p_op_op_op_typ_op_exp_op_any_op_prc_op_exp)
 
 
 static const actEntryRecord actEntryTable[] = {
@@ -893,27 +889,27 @@ static const actEntryRecord actEntryTable[] = {
     { "CON_WRITE",                    con_write,                    VOIDOBJECT,        par_op_str},
 
     { "DCL_ATTR",                     dcl_attr,                     FORMPARAMOBJECT,   par_op_typ},
-    { "DCL_CONST",                    dcl_const,                    VOIDOBJECT,        par_op_typ_op_lst_op_lst},
+    { "DCL_CONST",                    dcl_const,                    VOIDOBJECT,        par_op_typ_op_exp_op_exp},
     { "DCL_ELEMENTS",                 dcl_elements,                 REFLISTOBJECT,     par_blo},
-    { "DCL_FWD",                      dcl_fwd,                      VOIDOBJECT,        par_op_typ_op_lst_op_op},
-    { "DCL_FWDVAR",                   dcl_fwdvar,                   VOIDOBJECT,        par_op_typ_op_lst_op_op},
+    { "DCL_FWD",                      dcl_fwd,                      VOIDOBJECT,        par_op_typ_op_exp_op_op},
+    { "DCL_FWDVAR",                   dcl_fwdvar,                   VOIDOBJECT,        par_op_typ_op_exp_op_op},
     { "DCL_GETFUNC",                  dcl_getfunc,                  REFOBJECT,         par_op_any},
     { "DCL_GETOBJ",                   dcl_getobj,                   REFOBJECT,         par_op_any},
     { "DCL_GLOBAL",                   dcl_global,                   VOIDOBJECT,        par_op_prc},
     { "DCL_IN1",                      dcl_in1,                      FORMPARAMOBJECT,   par_op_typ_op},
     { "DCL_IN1VAR",                   dcl_in1var,                   FORMPARAMOBJECT,   par_op_op_typ_op},
-    { "DCL_IN2",                      dcl_in2,                      FORMPARAMOBJECT,   par_op_typ_op_lst},
-    { "DCL_IN2VAR",                   dcl_in2var,                   FORMPARAMOBJECT,   par_op_op_typ_op_lst},
+    { "DCL_IN2",                      dcl_in2,                      FORMPARAMOBJECT,   par_op_typ_op_exp},
+    { "DCL_IN2VAR",                   dcl_in2var,                   FORMPARAMOBJECT,   par_op_op_typ_op_exp},
     { "DCL_INOUT1",                   dcl_inout1,                   FORMPARAMOBJECT,   par_op_typ_op},
-    { "DCL_INOUT2",                   dcl_inout2,                   FORMPARAMOBJECT,   par_op_typ_op_lst},
+    { "DCL_INOUT2",                   dcl_inout2,                   FORMPARAMOBJECT,   par_op_typ_op_exp},
     { "DCL_PARAM_ATTR",               dcl_param_attr,               FORMPARAMOBJECT,   par_op_prm},
     { "DCL_REF1",                     dcl_ref1,                     FORMPARAMOBJECT,   par_op_typ_op},
-    { "DCL_REF2",                     dcl_ref2,                     FORMPARAMOBJECT,   par_op_typ_op_lst},
+    { "DCL_REF2",                     dcl_ref2,                     FORMPARAMOBJECT,   par_op_typ_op_exp},
     { "DCL_SYMB",                     dcl_symb,                     FORMPARAMOBJECT,   par_op_any},
-    { "DCL_SYNTAX",                   dcl_syntax,                   VOIDOBJECT,        par_op_typ_op_lst_op_lst},
+    { "DCL_SYNTAX",                   dcl_syntax,                   VOIDOBJECT,        par_op_typ_op_exp_op_exp},
     { "DCL_VAL1",                     dcl_val1,                     FORMPARAMOBJECT,   par_op_typ_op},
-    { "DCL_VAL2",                     dcl_val2,                     FORMPARAMOBJECT,   par_op_typ_op_lst},
-    { "DCL_VAR",                      dcl_var,                      VOIDOBJECT,        par_op_typ_op_lst_op_lst},
+    { "DCL_VAL2",                     dcl_val2,                     FORMPARAMOBJECT,   par_op_typ_op_exp},
+    { "DCL_VAR",                      dcl_var,                      VOIDOBJECT,        par_op_typ_op_exp_op_exp},
 
 #if WITH_DRAW
     { "DRW_BORDER",                   drw_border,                   ARRAYOBJECT,       par_win},
@@ -1266,7 +1262,7 @@ static const actEntryRecord actEntryTable[] = {
     { "POL_VALUE",                    pol_value,                    POLLOBJECT,        par_ref},
 
     { "PRC_ARGS",                     prc_args,                     ARRAYOBJECT,       par_no_args},
-    { "PRC_BEGIN",                    prc_begin,                    BLOCKOBJECT,       par_op_op_prc},
+    { "PRC_BEGIN",                    prc_begin,                    BLOCKOBJECT,       par_op_op_exp},
     { "PRC_BEGIN_NOOP",               prc_begin_noop,               BLOCKOBJECT,       par_no_args},
     { "PRC_BLOCK",                    prc_block,                    VOIDOBJECT,        par_op_prc_op_prc},
     { "PRC_BLOCK_CATCH_ALL",          prc_block_catch_all,          VOIDOBJECT,        par_op_prc_op_op_op_prc},
@@ -1292,17 +1288,17 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_IF_NOOP",                  prc_if_noop,                  VOIDOBJECT,        par_op_bln_op_prc},
     { "PRC_INCLUDE",                  prc_include,                  VOIDOBJECT,        par_op_str},
     { "PRC_LINE",                     prc_line,                     INTOBJECT,         par_no_args},
-    { "PRC_LOCAL",                    prc_local,                    BLOCKOBJECT,       par_op_op_prc_op_lst},
+    { "PRC_LOCAL",                    prc_local,                    BLOCKOBJECT,       par_op_op_prc_op_exp},
     { "PRC_NOOP",                     prc_noop,                     VOIDOBJECT,        par_no_args},
     { "PRC_RAISE",                    prc_raise,                    VOIDOBJECT,        par_op_enu},
     { "PRC_REPEAT",                   prc_repeat,                   VOIDOBJECT,        par_op_prc_op_bln},
     { "PRC_REPEAT_NOOP",              prc_repeat_noop,              VOIDOBJECT,        par_op_op_bln},
-    { "PRC_RES_BEGIN",                prc_res_begin,                BLOCKOBJECT,       par_op_op_op_typ_op_lst_op_lst_op_lst},
-    { "PRC_RES_LOCAL",                prc_res_local,                BLOCKOBJECT,       par_op_op_op_typ_op_lst_op_lst_op_lst_op_prc},
-    { "PRC_RETURN",                   prc_return,                   BLOCKOBJECT,       par_op_lst},
-    { "PRC_RETURN2",                  prc_return2,                  BLOCKOBJECT,       par_typ_op_lst},
-    { "PRC_RETURN_VAR",               prc_return_var,               BLOCKOBJECT,       par_op_op_lst},
-    { "PRC_RETURN_VAR2",              prc_return_var2,              BLOCKOBJECT,       par_typ_op_op_lst},
+    { "PRC_RES_BEGIN",                prc_res_begin,                BLOCKOBJECT,       par_op_op_op_typ_op_exp_op_any_op_exp},
+    { "PRC_RES_LOCAL",                prc_res_local,                BLOCKOBJECT,       par_op_op_op_typ_op_exp_op_any_op_prc_op_exp},
+    { "PRC_RETURN",                   prc_return,                   BLOCKOBJECT,       par_op_any},
+    { "PRC_RETURN2",                  prc_return2,                  BLOCKOBJECT,       par_typ_op_any},
+    { "PRC_RETURN_VAR",               prc_return_var,               BLOCKOBJECT,       par_op_op_any},
+    { "PRC_RETURN_VAR2",              prc_return_var2,              BLOCKOBJECT,       par_typ_op_op_any},
     { "PRC_SEMICOLON",                prc_semicolon,                VOIDOBJECT,        par_voi_op_voi},
     { "PRC_SETTRACE",                 prc_settrace,                 VOIDOBJECT,        par_str},
     { "PRC_TRACE",                    prc_trace,                    VOIDOBJECT,        par_no_check},
