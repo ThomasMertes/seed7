@@ -375,7 +375,7 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
       if (unlikely(list_length(dest->descriptor.property->params) <
                    actEntry->numParams)) {
         logError(printf("act_create/prc_create: action \"%s\": "
-                        "Params found: " FMT_U_MEM ", needed: %u\n",
+                        "Params found: " FMT_U_MEM ", expected: %u\n",
                         actEntry->name,
                         list_length(dest->descriptor.property->params),
                         actEntry->numParams););
@@ -383,7 +383,7 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
       } /* if */
     } else if (unlikely(actEntry->numParams != 0)) {
       logError(printf("act_create/prc_create: action \"%s\": "
-                      "Params found: 0, needed: %u\n",
+                      "Params found: 0, expected: %u\n",
                       actEntry->name,
                       actEntry->numParams););
       okay = FALSE;
@@ -402,11 +402,11 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
       } else if (actEntry->resultCategory != ILLEGALOBJECT) {
         if (destType->value_category != actEntry->resultCategory) {
           logError(printf("act_create/prc_create: action \"%s\": "
-                          "Result category found: %d, expected %d\n",
-                          actEntry->name, destType->value_category,
-                          actEntry->resultCategory);
+                          "Result category found: %d (",
+                          actEntry->name, destType->value_category);
                    printtype(destType);
-                   printf("\n"););
+                   printf("), expected: %d\n",
+                          actEntry->resultCategory););
           okay = FALSE;
         } /* if */
       } /* if */
@@ -466,45 +466,46 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
             } else if (actEntry->paramCategories[index] == INTERFACEOBJECT) {
               if (paramType->value_category != INTERFACEOBJECT &&
                   paramType->value_category != STRUCTOBJECT) {
-                logError(printf("act_create/prc_create: action \"%s\" %d ",
-                                actEntry->name, index);
-                         printtype(dest->type_of);
-                         printf(" ");
-                         trace1(dest);
-                         printf("\n"););
+                logError(printf("act_create/prc_create: action \"%s\": "
+	                        "parameter %d: category found: %d (",
+                                actEntry->name, index + 1,
+	                        paramType->value_category);
+                         printtype(paramType);
+                         printf(") expected INTERFACEOBJECT or STRUCTOBJECT\n"););
                 okay = FALSE;
               } /* if */
             } else if (actEntry->paramCategories[index] == BLOCKOBJECT) {
               if (currParam->obj->type_of->value_category != ILLEGALOBJECT &&
                   currParam->obj->type_of->value_category != BLOCKOBJECT) {
-                logError(printf("act_create/prc_create: action \"%s\" %d ",
-                                actEntry->name, index);
-                         printtype(dest->type_of);
-                         printf(" ");
-                         trace1(dest);
-                         printf("\n"););
+                logError(printf("act_create/prc_create: action \"%s\": "
+	                        "parameter %d: category found: %d (",
+                                actEntry->name, index + 1,
+	                        currParam->obj->type_of->value_category);
+                         printtype(currParam->obj->type_of);
+                         printf(") expected ILLEGALOBJECT or BLOCKOBJECT\n"););
                 okay = FALSE;
               } /* if */
             } else if (actEntry->paramCategories[index] == ACTOBJECT) {
               if (currParam->obj->type_of->value_category != ILLEGALOBJECT) {
-                logError(printf("act_create/prc_create: action \"%s\" %d ",
-                                actEntry->name, index);
-                         printtype(dest->type_of);
-                         printf(" ");
-                         trace1(dest);
-                         printf("\n"););
+                logError(printf("act_create/prc_create: action \"%s\": "
+	                        "parameter %d: category found: %d (",
+                                actEntry->name, index + 1,
+	                        currParam->obj->type_of->value_category);
+                         printtype(currParam->obj->type_of);
+                         printf(") expected ILLEGALOBJECT\n"););
                 okay = FALSE;
               } /* if */
             } else if (actEntry->paramCategories[index] != ILLEGALOBJECT &&
                        actEntry->paramCategories[index] != SYMBOLOBJECT &&
                        actEntry->paramCategories[index] != ENUMOBJECT) {
               if (paramType->value_category != actEntry->paramCategories[index]) {
-                logError(printf("act_create/prc_create: action \"%s\" %d ",
-                                actEntry->name, index);
-                         printtype(dest->type_of);
-                         printf(" ");
-                         trace1(dest);
-                         printf("\n"););
+                logError(printf("act_create/prc_create: action \"%s\": "
+	                        "parameter %d: category found: %d (",
+                                actEntry->name, index + 1,
+	                        paramType->value_category);
+                         printtype(paramType);
+                         printf(") expected %d\n",
+                                actEntry->paramCategories[index]););
                 okay = FALSE;
               } /* if */
             } /* if */
