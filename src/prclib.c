@@ -956,7 +956,7 @@ objectType prc_create (listType arguments)
     } else if (CATEGORY_OF_OBJ(source) == ACTENTRYOBJECT) {
       actEntry = source->value.actEntryValue;
       if (unlikely(!actionCreateOkay(dest, actEntry))) {
-        return raise_exception(SYS_RNG_EXCEPTION);
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
         SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
         dest->value.actValue = actEntry->action;
@@ -964,7 +964,7 @@ objectType prc_create (listType arguments)
     } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
       actEntry = getActEntry(take_action(source));
       if (unlikely(!actionCreateOkay(dest, actEntry))) {
-        return raise_exception(SYS_RNG_EXCEPTION);
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } else {
         SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
         dest->value.actValue = take_action(source);

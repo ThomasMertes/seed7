@@ -392,7 +392,7 @@ objectType act_create (listType arguments)
     isit_actentry(source);
     actEntry = take_actentry(source);
     if (unlikely(!actionCreateOkay(dest, actEntry))) {
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
     } else {
       disconnect_param_entities(dest);
       SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
