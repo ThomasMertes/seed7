@@ -643,6 +643,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
     var integer: arraySize is 0;
     var reference: repeatedElement is NIL;
     var string: variableName is "";
+    var string: elementName is "";
     var string: param_value is "";
   begin
     arraySize := arrayLength(arrayValue);
@@ -731,12 +732,21 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= ");\n";
       else
+        incr(c_declaration.temp_num);
+        elementName := "element" <& c_declaration.temp_num;
+        c_declaration.temp_decls &:= ";\n";
+        c_declaration.temp_decls &:= "rtlValueUnion ";
+        c_declaration.temp_decls &:= elementName;
         c_declaration.temp_assigns &:= "arrTimes(";
         c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
         c_declaration.temp_assigns &:= ", ";
         c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
-        c_declaration.temp_assigns &:= ", (genericType)(";
+        c_declaration.temp_assigns &:= ", (";
+        c_declaration.temp_assigns &:= elementName;
+        c_declaration.temp_assigns &:= ".intValue=";
         c_declaration.temp_assigns &:= integerLiteral(getValue(repeatedElement, integer));
+        c_declaration.temp_assigns &:= ",";
+        c_declaration.temp_assigns &:= elementName;
         c_declaration.temp_assigns &:= "));\n";
       end if;
     else
