@@ -365,6 +365,9 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
 
   {
     typeType destType;
+    listType currParam;
+    int index;
+    typeType paramType;
     boolType okay = TRUE;
 
   /* actionCreateOkay */
@@ -408,5 +411,108 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
         } /* if */
       } /* if */
     } /* if */
+    if (okay) {
+      if (dest->descriptor.property->params != NULL) {
+        currParam = dest->descriptor.property->params;
+        for (index = 0; index < actEntry->numParams; index++) {
+          paramType = currParam->obj->type_of;
+          if (paramType != NULL) {
+            if (paramType->value_category == ILLEGALOBJECT &&
+                actEntry->paramCategories[index] == BLOCKOBJECT) {
+              logMessage(printf("act_create/prc_create: action \"%s\" %d %d ",
+                                actEntry->name, index, actEntry->paramCategories[index]);
+                         printtype(paramType);
+                         printf("\n"););
+              paramType->value_category = actEntry->paramCategories[index];
+            } /* if */
+            if (paramType->result_type != NULL) {
+              paramType = paramType->result_type;
+            } /* if */
+            if (paramType->value_category == ILLEGALOBJECT && (
+                actEntry->paramCategories[index] == TYPEOBJECT ||
+                actEntry->paramCategories[index] == INTOBJECT ||
+                actEntry->paramCategories[index] == BIGINTOBJECT ||
+                actEntry->paramCategories[index] == CHAROBJECT ||
+                actEntry->paramCategories[index] == STRIOBJECT ||
+                actEntry->paramCategories[index] == BSTRIOBJECT ||
+                actEntry->paramCategories[index] == ARRAYOBJECT ||
+                actEntry->paramCategories[index] == HASHOBJECT ||
+                actEntry->paramCategories[index] == HASHELEMOBJECT ||
+                actEntry->paramCategories[index] == STRUCTOBJECT ||
+                actEntry->paramCategories[index] == STRUCTELEMOBJECT ||
+                actEntry->paramCategories[index] == INTERFACEOBJECT ||
+                actEntry->paramCategories[index] == SETOBJECT ||
+                actEntry->paramCategories[index] == FILEOBJECT ||
+                actEntry->paramCategories[index] == SOCKETOBJECT ||
+                actEntry->paramCategories[index] == POLLOBJECT ||
+                actEntry->paramCategories[index] == FLOATOBJECT ||
+                actEntry->paramCategories[index] == WINOBJECT ||
+                actEntry->paramCategories[index] == POINTLISTOBJECT ||
+                actEntry->paramCategories[index] == PROCESSOBJECT ||
+                actEntry->paramCategories[index] == REFOBJECT ||
+                actEntry->paramCategories[index] == REFLISTOBJECT ||
+                actEntry->paramCategories[index] == EXPROBJECT ||
+                actEntry->paramCategories[index] == ACTENTRYOBJECT ||
+                actEntry->paramCategories[index] == DATABASEOBJECT ||
+                actEntry->paramCategories[index] == SQLSTMTOBJECT ||
+                actEntry->paramCategories[index] == PROGOBJECT ||
+                actEntry->paramCategories[index] == BOOLOBJECT ||
+                actEntry->paramCategories[index] == VOIDOBJECT)) {
+              logMessage(printf("act_create/prc_create: action \"%s\" %d %d ",
+                                actEntry->name, index, actEntry->paramCategories[index]);
+                         printtype(paramType);
+                         printf("\n"););
+              paramType->value_category = actEntry->paramCategories[index];
+            } else if (actEntry->paramCategories[index] == INTERFACEOBJECT) {
+              if (paramType->value_category != INTERFACEOBJECT &&
+                  paramType->value_category != STRUCTOBJECT) {
+                logError(printf("act_create/prc_create: action \"%s\" %d ",
+                                actEntry->name, index);
+                         printtype(dest->type_of);
+                         printf(" ");
+                         trace1(dest);
+                         printf("\n"););
+                okay = FALSE;
+              } /* if */
+            } else if (actEntry->paramCategories[index] == BLOCKOBJECT) {
+              if (currParam->obj->type_of->value_category != ILLEGALOBJECT &&
+                  currParam->obj->type_of->value_category != BLOCKOBJECT) {
+                logError(printf("act_create/prc_create: action \"%s\" %d ",
+                                actEntry->name, index);
+                         printtype(dest->type_of);
+                         printf(" ");
+                         trace1(dest);
+                         printf("\n"););
+                okay = FALSE;
+              } /* if */
+            } else if (actEntry->paramCategories[index] == ACTOBJECT) {
+              if (currParam->obj->type_of->value_category != ILLEGALOBJECT) {
+                logError(printf("act_create/prc_create: action \"%s\" %d ",
+                                actEntry->name, index);
+                         printtype(dest->type_of);
+                         printf(" ");
+                         trace1(dest);
+                         printf("\n"););
+                okay = FALSE;
+              } /* if */
+            } else if (actEntry->paramCategories[index] != ILLEGALOBJECT &&
+                       actEntry->paramCategories[index] != SYMBOLOBJECT &&
+                       actEntry->paramCategories[index] != ENUMOBJECT) {
+              if (paramType->value_category != actEntry->paramCategories[index]) {
+                logError(printf("act_create/prc_create: action \"%s\" %d ",
+                                actEntry->name, index);
+                         printtype(dest->type_of);
+                         printf(" ");
+                         trace1(dest);
+                         printf("\n"););
+                okay = FALSE;
+              } /* if */
+            } /* if */
+          } /* if */
+          currParam = currParam->next;
+        } /* for */
+      } /* if */
+    } /* if */
+    logFunction(printf("actionCreateOkay --> %d\n", okay););
     return okay;
   } /* actionCreateOkay */
