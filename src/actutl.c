@@ -44,6 +44,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "listutl.h"
+#include "traceutl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -363,6 +364,7 @@ const_actEntryType getActEntry (actType actionSearched)
 boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
 
   {
+    typeType destType;
     boolType okay = TRUE;
 
   /* actionCreateOkay */
@@ -382,6 +384,29 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
                       actEntry->name,
                       actEntry->numParams););
       okay = FALSE;
+    } /* if */
+    if (okay) {
+      destType = dest->type_of;
+      if (destType->result_type != NULL) {
+        destType = destType->result_type;
+      } /* if */
+      if (destType->value_category == ILLEGALOBJECT) {
+        logMessage(printf("act_create/prc_create: action \"%s\" %d ",
+                          actEntry->name, actEntry->resultCategory);
+                   printtype(destType);
+                   printf("\n"););
+        destType->value_category = actEntry->resultCategory;
+      } else if (actEntry->resultCategory != ILLEGALOBJECT) {
+        if (destType->value_category != actEntry->resultCategory) {
+          logError(printf("act_create/prc_create: action \"%s\": "
+                          "Result category found: %d, expected %d\n",
+                          actEntry->name, destType->value_category,
+                          actEntry->resultCategory);
+                   printtype(destType);
+                   printf("\n"););
+          okay = FALSE;
+        } /* if */
+      } /* if */
     } /* if */
     return okay;
   } /* actionCreateOkay */
