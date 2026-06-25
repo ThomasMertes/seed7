@@ -62,7 +62,7 @@ var reference: currentProfiledFunction is NIL;
 const proc: prc_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "rtlValueUnion hshIdxDefault0 (const const_hashType, const rtlValueUnion, intType, compareFuncType);");
     declareExtern(c_prog, "void        heapStatistic (void);");
     declareExtern(c_prog, "void        prcGetRunError (intType *, striType *, intType *);");
     if ccConf.HAS_VECTORED_EXCEPTION_HANDLER then
@@ -1035,13 +1035,13 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
     statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
-    getGenericValue(caseExprType, variableName, statement);
+    getRtlValue(caseExprType, variableName, statement);
     statement.expr &:= ", ";
     process_hashcode(caseExprType, variableName,
                      params[2], statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);
-    statement.expr &:= ")) {\n";
+    statement.expr &:= ").intValue) {\n";
     process_when(numOfCaseStmt, 1, params[4], statement);
     setDiagnosticLine(statement);
     statement.expr &:= "}\n";
@@ -1071,13 +1071,13 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
-    getGenericValue(caseExprType, variableName, statement);
+    getRtlValue(caseExprType, variableName, statement);
     statement.expr &:= ", ";
     process_hashcode(caseExprType, variableName,
                      params[2], statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);
-    statement.expr &:= ")) {\n";
+    statement.expr &:= ").intValue) {\n";
     process_when(numOfCaseStmt, 1, params[4], statement);
     statement.expr &:= diagnosticLine(params[7]);
     statement.expr &:= "default:\n";

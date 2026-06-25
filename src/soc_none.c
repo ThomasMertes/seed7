@@ -121,38 +121,41 @@ void socConnect (const const_socketType aSocket,
 void socCpy (socketType *const dest, const socketType source)
 
   { /* socCpy */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+    logError(printf("socCpy: No socket support.\n"););
     raise_error(FILE_ERROR);
   } /* socCpy */
 
 
 
-void socCpyGeneric (genericType *const dest, const genericType source)
+void socCpyValue (rtlValueUnion *const dest, const rtlValueUnion source)
 
-  { /* socCpyGeneric */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+  { /* socCpyValue */
+    logError(printf("socCpyValue: No socket support.\n"););
     raise_error(FILE_ERROR);
-  } /* socCpyGeneric */
+  } /* socCpyValue */
 
 
 
 socketType socCreate (const socketType source)
 
   { /* socCreate */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
+    logError(printf("socCreate: No socket support.\n"););
     raise_error(FILE_ERROR);
     return NULL;
   } /* socCreate */
 
 
 
-genericType socCreateGeneric (const genericType from_value)
+rtlValueUnion socCreateValue (const rtlValueUnion source)
 
-  { /* socCreateGeneric */
-    logError(printf("socGetLocalAddr: No socket support.\n"););
-    raise_error(FILE_ERROR);
-    return 0;
-  } /* socCreateGeneric */
+  {
+    rtlValueUnion result;
+
+  /* socCreateValue */
+    INIT_VALUE_PTR(result);
+    result.socketValue = NULL;
+    return result;
+  } /* socCreateValue */
 
 
 
@@ -163,10 +166,10 @@ void socDestr (const socketType oldSocket)
 
 
 
-void socDestrGeneric (const genericType old_value)
+void socDestrValue (const rtlValueUnion old_value)
 
-  { /* socDestrGeneric */
-  } /* socDestrGeneric */
+  { /* socDestrValue */
+  } /* socDestrValue */
 
 
 

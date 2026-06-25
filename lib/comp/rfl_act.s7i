@@ -52,13 +52,13 @@ const proc: rfl_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "void        rflAppend (listType *const, const listType);");
     declareExtern(c_prog, "listType    rflCat (listType, const listType);");
-    declareExtern(c_prog, "intType     rflCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     rflCmpValue (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "void        rflCpy (listType *const, const const_listType);");
-    declareExtern(c_prog, "void        rflCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        rflCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "listType    rflCreate (const const_listType);");
-    declareExtern(c_prog, "genericType rflCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion rflCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        rflDestr (const listType);");
-    declareExtern(c_prog, "void        rflDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        rflDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "boolType    rflElem (const const_objRefType, const_listType);");
     declareExtern(c_prog, "void        rflElemcpy (listType, intType, objRefType);");
     declareExtern(c_prog, "boolType    rflEq (const_listType, const_listType);");

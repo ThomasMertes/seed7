@@ -1990,12 +1990,16 @@ const func boolean: testFixArrayIndex is func
   local
     var fixArrayType: anArray is fixArrayType.value;
     var fixArrayType: anArrayB is fixArrayType.value;
+    var fixArrayType: anArrayX is fixArrayType times 1234567890;
     var fixArrayType2: anArray2 is fixArrayType2.value;
     var fixArrayType3: anArray3 is fixArrayType3.value;
   begin
     anArray[1]  :=  1;
     anArray[12] := 12;
     anArray[64] := 64;
+    anArrayX[1]  :=  1;
+    anArrayX[12] := 12;
+    anArrayX[64] := 64;
     anArray2[0]  :=  0;
     anArray2[5]  :=  5;
     anArray2[15] := 15;
@@ -2004,6 +2008,13 @@ const func boolean: testFixArrayIndex is func
     if  anArray[ 1] <>  1 or
         anArray[12] <> 12 or
         anArray[64] <> 64 or
+        anArrayX[ 1] <>          1 or
+        anArrayX[ 2] <> 1234567890 or
+        anArrayX[11] <> 1234567890 or
+        anArrayX[12] <>         12 or
+        anArrayX[13] <> 1234567890 or
+        anArrayX[63] <> 1234567890 or
+        anArrayX[64] <>         64 or
         anArray2[ 0] <>  0 or
         anArray2[ 5] <>  5 or
         anArray2[15] <> 15 or

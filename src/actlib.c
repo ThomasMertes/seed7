@@ -391,10 +391,14 @@ objectType act_create (listType arguments)
                 printf(")\n"););
     isit_actentry(source);
     actEntry = take_actentry(source);
-    disconnect_param_entities(dest);
-    SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-    dest->value.actValue = actEntry->action;
-    return SYS_EMPTY_OBJECT;
+    if (unlikely(!actionCreateOkay(dest, actEntry))) {
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } else {
+      disconnect_param_entities(dest);
+      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+      dest->value.actValue = actEntry->action;
+      return SYS_EMPTY_OBJECT;
+    } /* if */
   } /* act_create */
 
 

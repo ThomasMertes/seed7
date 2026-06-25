@@ -105,14 +105,14 @@ static void printArgv (const int argc, const cstriType *const argv)
  *  @param begin_sort Pointer to first element to be sorted.
  *  @param end_sort Pointer to the last element to be sorted.
  *  @param cmp_func Pointer to a compare function that gets two values as
- *         'genericType' and compares them.
+ *         'rtlValueUnion' and compares them.
  */
 static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
-    compareType cmp_func)
+    const compareFuncType cmp_func)
 
   {
-    genericType compare_elem;
-    genericType help_element;
+    rtlValueUnion compare_elem;
+    rtlValueUnion help_element;
     rtlObjectType *middle_elem;
     rtlObjectType *less_elem;
     rtlObjectType *greater_elem;
@@ -122,39 +122,39 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
     if (end_sort - begin_sort < QSORT_LIMIT) {
       /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        compare_elem = middle_elem->value.genericValue;
+        compare_elem = middle_elem->value;
         less_elem = begin_sort - 1;
         do {
           less_elem++;
-          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(less_elem->value, compare_elem);
         } while (cmp < 0);
         memmove(&less_elem[1], less_elem, (memSizeType)
                 (middle_elem - less_elem) * sizeof(rtlObjectType));
-        less_elem->value.genericValue = compare_elem;
+        less_elem->value = compare_elem;
       } /* for */
     } else {
       middle_elem = &begin_sort[((memSizeType)(end_sort - begin_sort)) >> 1];
-      compare_elem = middle_elem->value.genericValue;
-      middle_elem->value.genericValue = end_sort->value.genericValue;
-      end_sort->value.genericValue = compare_elem;
+      compare_elem = middle_elem->value;
+      middle_elem->value = end_sort->value;
+      end_sort->value = compare_elem;
       less_elem = begin_sort - 1;
       greater_elem = end_sort;
       do {
         do {
           less_elem++;
-          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(less_elem->value, compare_elem);
         } while (cmp < 0);
         do {
           greater_elem--;
-          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(greater_elem->value, compare_elem);
         } while (cmp > 0 && greater_elem != begin_sort);
-        help_element = less_elem->value.genericValue;
-        less_elem->value.genericValue = greater_elem->value.genericValue;
-        greater_elem->value.genericValue = help_element;
+        help_element = less_elem->value;
+        less_elem->value = greater_elem->value;
+        greater_elem->value = help_element;
       } while (greater_elem > less_elem);
-      greater_elem->value.genericValue = less_elem->value.genericValue;
-      less_elem->value.genericValue = compare_elem;
-      end_sort->value.genericValue = help_element;
+      greater_elem->value = less_elem->value;
+      less_elem->value = compare_elem;
+      end_sort->value = help_element;
       rtl_qsort_array(begin_sort, less_elem - 1, cmp_func);
       rtl_qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -169,14 +169,14 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
  *  @param begin_sort Pointer to first element to be sorted.
  *  @param end_sort Pointer to the last element to be sorted.
  *  @param cmp_func Pointer to a compare function that gets two values as
- *         'genericType' and compares them.
+ *         'rtlValueUnion' and compares them.
  */
 static void rtl_qsort_array_reverse (rtlObjectType *begin_sort, rtlObjectType *end_sort,
-    compareType cmp_func)
+    const compareFuncType cmp_func)
 
   {
-    genericType compare_elem;
-    genericType help_element;
+    rtlValueUnion compare_elem;
+    rtlValueUnion help_element;
     rtlObjectType *middle_elem;
     rtlObjectType *less_elem;
     rtlObjectType *greater_elem;
@@ -186,39 +186,39 @@ static void rtl_qsort_array_reverse (rtlObjectType *begin_sort, rtlObjectType *e
     if (end_sort - begin_sort < QSORT_LIMIT) {
       /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        compare_elem = middle_elem->value.genericValue;
+        compare_elem = middle_elem->value;
         greater_elem = begin_sort - 1;
         do {
           greater_elem++;
-          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(greater_elem->value, compare_elem);
         } while (cmp > 0);
         memmove(&greater_elem[1], greater_elem, (memSizeType)
                 (middle_elem - greater_elem) * sizeof(rtlObjectType));
-        greater_elem->value.genericValue = compare_elem;
+        greater_elem->value = compare_elem;
       } /* for */
     } else {
       middle_elem = &begin_sort[((memSizeType)(end_sort - begin_sort)) >> 1];
-      compare_elem = middle_elem->value.genericValue;
-      middle_elem->value.genericValue = end_sort->value.genericValue;
-      end_sort->value.genericValue = compare_elem;
+      compare_elem = middle_elem->value;
+      middle_elem->value = end_sort->value;
+      end_sort->value = compare_elem;
       greater_elem = begin_sort - 1;
       less_elem = end_sort;
       do {
         do {
           greater_elem++;
-          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(greater_elem->value, compare_elem);
         } while (cmp > 0);
         do {
           less_elem--;
-          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
+          cmp = cmp_func(less_elem->value, compare_elem);
         } while (cmp < 0 && less_elem != begin_sort);
-        help_element = greater_elem->value.genericValue;
-        greater_elem->value.genericValue = less_elem->value.genericValue;
-        less_elem->value.genericValue = help_element;
+        help_element = greater_elem->value;
+        greater_elem->value = less_elem->value;
+        less_elem->value = help_element;
       } while (less_elem > greater_elem);
-      less_elem->value.genericValue = greater_elem->value.genericValue;
-      greater_elem->value.genericValue = compare_elem;
-      end_sort->value.genericValue = help_element;
+      less_elem->value = greater_elem->value;
+      greater_elem->value = compare_elem;
+      end_sort->value = help_element;
       rtl_qsort_array_reverse(begin_sort, greater_elem - 1, cmp_func);
       rtl_qsort_array_reverse(greater_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -653,53 +653,53 @@ void freeRtlStriArray (rtlArrayType work_array, intType used_max_position)
  *  @param element Generic value to be filled into 'dest'.
  *  @param len Specifies how often 'element' is filled into 'dest'.
  */
-static void memsetGeneric (register rtlObjectType *const dest,
-    register const genericType element, memSizeType len)
+static void memsetValue (register rtlObjectType *const dest,
+    register const rtlValueUnion element, memSizeType len)
 
   {
     register memSizeType pos;
 
-  /* memsetGeneric */
+  /* memsetValue */
     if (len != 0) {
       pos = (len + 31) & ~(memSizeType) 31;
       switch (len & 31) {
         do {
-          case  0: dest[pos -  1].value.genericValue = element;
-          case 31: dest[pos -  2].value.genericValue = element;
-          case 30: dest[pos -  3].value.genericValue = element;
-          case 29: dest[pos -  4].value.genericValue = element;
-          case 28: dest[pos -  5].value.genericValue = element;
-          case 27: dest[pos -  6].value.genericValue = element;
-          case 26: dest[pos -  7].value.genericValue = element;
-          case 25: dest[pos -  8].value.genericValue = element;
-          case 24: dest[pos -  9].value.genericValue = element;
-          case 23: dest[pos - 10].value.genericValue = element;
-          case 22: dest[pos - 11].value.genericValue = element;
-          case 21: dest[pos - 12].value.genericValue = element;
-          case 20: dest[pos - 13].value.genericValue = element;
-          case 19: dest[pos - 14].value.genericValue = element;
-          case 18: dest[pos - 15].value.genericValue = element;
-          case 17: dest[pos - 16].value.genericValue = element;
-          case 16: dest[pos - 17].value.genericValue = element;
-          case 15: dest[pos - 18].value.genericValue = element;
-          case 14: dest[pos - 19].value.genericValue = element;
-          case 13: dest[pos - 20].value.genericValue = element;
-          case 12: dest[pos - 21].value.genericValue = element;
-          case 11: dest[pos - 22].value.genericValue = element;
-          case 10: dest[pos - 23].value.genericValue = element;
-          case  9: dest[pos - 24].value.genericValue = element;
-          case  8: dest[pos - 25].value.genericValue = element;
-          case  7: dest[pos - 26].value.genericValue = element;
-          case  6: dest[pos - 27].value.genericValue = element;
-          case  5: dest[pos - 28].value.genericValue = element;
-          case  4: dest[pos - 29].value.genericValue = element;
-          case  3: dest[pos - 30].value.genericValue = element;
-          case  2: dest[pos - 31].value.genericValue = element;
-          case  1: dest[pos - 32].value.genericValue = element;
+          case  0: dest[pos -  1].value = element;
+          case 31: dest[pos -  2].value = element;
+          case 30: dest[pos -  3].value = element;
+          case 29: dest[pos -  4].value = element;
+          case 28: dest[pos -  5].value = element;
+          case 27: dest[pos -  6].value = element;
+          case 26: dest[pos -  7].value = element;
+          case 25: dest[pos -  8].value = element;
+          case 24: dest[pos -  9].value = element;
+          case 23: dest[pos - 10].value = element;
+          case 22: dest[pos - 11].value = element;
+          case 21: dest[pos - 12].value = element;
+          case 20: dest[pos - 13].value = element;
+          case 19: dest[pos - 14].value = element;
+          case 18: dest[pos - 15].value = element;
+          case 17: dest[pos - 16].value = element;
+          case 16: dest[pos - 17].value = element;
+          case 15: dest[pos - 18].value = element;
+          case 14: dest[pos - 19].value = element;
+          case 13: dest[pos - 20].value = element;
+          case 12: dest[pos - 21].value = element;
+          case 11: dest[pos - 22].value = element;
+          case 10: dest[pos - 23].value = element;
+          case  9: dest[pos - 24].value = element;
+          case  8: dest[pos - 25].value = element;
+          case  7: dest[pos - 26].value = element;
+          case  6: dest[pos - 27].value = element;
+          case  5: dest[pos - 28].value = element;
+          case  4: dest[pos - 29].value = element;
+          case  3: dest[pos - 30].value = element;
+          case  2: dest[pos - 31].value = element;
+          case  1: dest[pos - 32].value = element;
         } while ((pos -= 32) != 0);
       } /* switch */
     } /* if */
-  } /* memsetGeneric */
+  } /* memsetValue */
 
 
 
@@ -801,21 +801,21 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
 
 
 
-rtlArrayType arrBaselit (const genericType element)
+rtlArrayType arrBaselit (const rtlValueUnion element)
 
   {
     memSizeType result_size;
     rtlArrayType result;
 
   /* arrBaselit */
-    logFunction(printf("arrBaselit(" FMT_U_GEN ")\n", element););
+    logFunction(printf("arrBaselit(" FMT_U_GEN ")\n", element.genericValue););
     result_size = 1;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = 1;
       result->max_position = 1;
-      result->arr[0].value.genericValue = element;
+      result->arr[0].value = element;
     } /* if */
     logFunction(printf("arrBaselit --> " FMT_U_MEM " (array[" FMT_D
                                        " .. " FMT_D "])\n",
@@ -829,7 +829,7 @@ rtlArrayType arrBaselit (const genericType element)
 
 
 
-rtlArrayType arrBaselit2 (intType start_position, const genericType element)
+rtlArrayType arrBaselit2 (intType start_position, const rtlValueUnion element)
 
   {
     memSizeType result_size;
@@ -837,14 +837,14 @@ rtlArrayType arrBaselit2 (intType start_position, const genericType element)
 
   /* arrBaselit2 */
     logFunction(printf("arrBaselit2(" FMT_D ", " FMT_U_GEN ")\n",
-                       start_position, element););
+                       start_position, element.genericValue););
     result_size = 1;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = start_position;
       result->max_position = start_position;
-      result->arr[0].value.genericValue = element;
+      result->arr[0].value = element;
     } /* if */
     logFunction(printf("arrBaselit2 --> " FMT_U_MEM " (array[" FMT_D
                                         " .. " FMT_D "])\n",
@@ -917,7 +917,7 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
+rtlArrayType arrExtend (rtlArrayType arr1, const rtlValueUnion element)
 
   {
     memSizeType arr1_size;
@@ -930,7 +930,7 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
                        (memSizeType) arr1,
                        arr1 != NULL ? arr1->min_position : (intType) 1,
                        arr1 != NULL ? arr1->max_position : (intType) 0,
-                       element););
+                       element.genericValue););
     arr1_size = arraySize(arr1);
     if (unlikely(arr1_size > MAX_RTL_ARR_LEN - 1 ||
                  arr1->max_position > (intType) (MAX_MEM_INDEX - 1))) {
@@ -943,7 +943,7 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
         result->max_position++;
-        result->arr[arr1_size].value.genericValue = element;
+        result->arr[arr1_size].value = element;
       } /* if */
     } /* if */
     logFunction(printf("arrExtend --> " FMT_U_MEM " (array[" FMT_D
@@ -992,7 +992,7 @@ void arrFree (rtlArrayType oldArray)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-rtlArrayType arrGen (const genericType element1, const genericType element2)
+rtlArrayType arrGen (const rtlValueUnion element1, const rtlValueUnion element2)
 
   {
     memSizeType result_size;
@@ -1000,15 +1000,15 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
 
   /* arrGen */
     logFunction(printf("arrGen(" FMT_U_GEN ", " FMT_U_GEN ")\n",
-                       element1, element2););
+                       element1.genericValue, element2.genericValue););
     result_size = 2;
     if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = 1;
       result->max_position = 2;
-      result->arr[0].value.genericValue = element1;
-      result->arr[1].value.genericValue = element2;
+      result->arr[0].value = element1;
+      result->arr[1].value = element2;
     } /* if */
     logFunction(printf("arrGen --> " FMT_U_MEM " (array[" FMT_D
                                    " .. " FMT_D "])\n",
@@ -1189,13 +1189,13 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
  *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
+rtlValueUnion arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
   {
     rtlArrayType arr1;
     memSizeType arr1_size;
     rtlArrayType resized_arr1;
-    genericType result;
+    rtlValueUnion result;
 
   /* arrIdxTemp */
     logFunction(printf("arrIdxTemp(%s" FMT_U_MEM " (array[" FMT_D
@@ -1216,13 +1216,13 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
       raise_error(INDEX_ERROR);
-      result = 0;
+      result.genericValue = 0;
     } else {
       arr1_size = arraySize(arr1);
-      result = arr1->arr[position - arr1->min_position].value.genericValue;
+      result = arr1->arr[position - arr1->min_position].value;
       if (position != arr1->max_position) {
-        arr1->arr[position - arr1->min_position].value.genericValue =
-            arr1->arr[arr1_size - 1].value.genericValue;
+        arr1->arr[position - arr1->min_position].value =
+            arr1->arr[arr1_size - 1].value;
       } /* if */
       if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - 1))) {
         raise_error(MEMORY_ERROR);
@@ -1232,7 +1232,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
         *arr_temp = resized_arr1;
       } /* if */
     } /* if */
-    logFunction(printf("arrIdxTemp --> " FMT_U_GEN "\n", result););
+    logFunction(printf("arrIdxTemp --> " FMT_U_GEN "\n", result.genericValue););
     return result;
   } /* arrIdxTemp */
 
@@ -1243,7 +1243,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
  *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than succ(maxIdx(arr))
  */
-void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
+void arrInsert (rtlArrayType *arr_to, intType position, rtlValueUnion element)
 
   {
     rtlArrayType arr1;
@@ -1263,7 +1263,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
                            (*arr_to)->min_position : (intType) 1,
                        arr_to != NULL && *arr_to != NULL ?
                            (*arr_to)->max_position : (intType) 0,
-                       position, element););
+                       position, element.genericValue););
     arr1 = *arr_to;
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position + 1)) {
@@ -1282,7 +1282,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
         memmove(&array_pointer[position - arr1->min_position + 1],
             &array_pointer[position - arr1->min_position],
             arraySize2(position, arr1->max_position) * sizeof(rtlObjectType));
-        array_pointer[position - arr1->min_position].value.genericValue = element;
+        array_pointer[position - arr1->min_position].value = element;
         arr1->max_position++;
         *arr_to = arr1;
       } /* if */
@@ -1521,7 +1521,7 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-void arrPush (rtlArrayType *const arr_variable, const genericType element)
+void arrPush (rtlArrayType *const arr_variable, const rtlValueUnion element)
 
   {
     rtlArrayType arr_to;
@@ -1539,7 +1539,7 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
                            (*arr_variable)->min_position : (intType) 1,
                        arr_variable != NULL && *arr_variable != NULL ?
                            (*arr_variable)->max_position : (intType) 0,
-                       element););
+                       element.genericValue););
     arr_to = *arr_variable;
     arr_to_size = arraySize(arr_to);
     if (unlikely(arr_to_size > MAX_RTL_ARR_LEN - 1 ||
@@ -1553,7 +1553,7 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
         *arr_variable = arr_to;
         arr_to->max_position ++;
-        arr_to->arr[arr_to_size].value.genericValue = element;
+        arr_to->arr[arr_to_size].value = element;
       } /* if */
     } /* if */
     logFunction(printf("arrPush --> " FMT_U_MEM " (array["
@@ -1806,14 +1806,14 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
  *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-genericType arrRemove (rtlArrayType *arr_to, intType position)
+rtlValueUnion arrRemove (rtlArrayType *arr_to, intType position)
 
   {
     rtlArrayType arr1;
     rtlArrayType resized_arr1;
     rtlObjectType *array_pointer;
     memSizeType arr1_size;
-    genericType result;
+    rtlValueUnion result;
 
   /* arrRemove */
     logFunction(printf("arrRemove(%s" FMT_U_MEM " (array[" FMT_D
@@ -1834,10 +1834,10 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
       raise_error(INDEX_ERROR);
-      result = 0;
+      result.genericValue = 0;
     } else {
       array_pointer = arr1->arr;
-      result = array_pointer[position - arr1->min_position].value.genericValue;
+      result = array_pointer[position - arr1->min_position].value;
       memmove(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
           (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
@@ -1850,9 +1850,9 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
         memmove(&array_pointer[position - arr1->min_position + 1],
             &array_pointer[position - arr1->min_position],
             (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
-        array_pointer[position - arr1->min_position].value.genericValue = result;
+        array_pointer[position - arr1->min_position].value = result;
         raise_error(MEMORY_ERROR);
-        result = 0;
+        result.genericValue = 0;
       } else {
         arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(arr1_size, arr1_size - 1);
@@ -1865,7 +1865,7 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
                                   FMT_U_GEN "\n",
                        (memSizeType) *arr_to,
                        (*arr_to)->min_position,
-                       (*arr_to)->max_position, position, result););
+                       (*arr_to)->max_position, position, result.genericValue););
     return result;
   } /* arrRemove */
 
@@ -1973,7 +1973,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
 
 
 
-rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
+rtlArrayType arrSort (rtlArrayType arr1, const compareFuncType cmp_func)
 
   { /* arrSort */
     logFunction(printf("arrSort(" FMT_U_MEM " (array[" FMT_D " .. "
@@ -1988,7 +1988,7 @@ rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 
 
 
-rtlArrayType arrSortReverse (rtlArrayType arr1, compareType cmp_func)
+rtlArrayType arrSortReverse (rtlArrayType arr1, const compareFuncType cmp_func)
 
   { /* arrSortReverse */
     logFunction(printf("arrSortReverse(" FMT_U_MEM " (array[" FMT_D
@@ -2357,7 +2357,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
  *             would have a negative number of elements.
  */
 rtlArrayType arrTimes (intType minPosition, intType maxPosition,
-    const genericType element)
+    const rtlValueUnion element)
 
   {
     memSizeType size;
@@ -2365,11 +2365,11 @@ rtlArrayType arrTimes (intType minPosition, intType maxPosition,
 
   /* arrTimes */
     logFunction(printf("arrTimes(" FMT_D ", " FMT_D ", " FMT_D_GEN ")\n",
-                       minPosition, maxPosition, element););
+                       minPosition, maxPosition, element.genericValue););
     result = arrMalloc(minPosition, maxPosition);
     if (result != NULL) {
       size = arraySize2(minPosition, maxPosition);
-      memsetGeneric(result->arr, element, size);
+      memsetValue(result->arr, element, size);
     } /* if */
     logFunction(printf("arrTimes --> " FMT_U_MEM " (array[" FMT_D
                                      " .. " FMT_D "])\n",
@@ -2380,3 +2380,31 @@ rtlArrayType arrTimes (intType minPosition, intType maxPosition,
                            result->max_position : (intType) 0););
     return result;
   } /* arrTimes */
+
+
+
+rtlArrayType arrTimes0 (intType minPosition, intType maxPosition)
+
+  {
+    rtlValueUnion element;
+    memSizeType size;
+    rtlArrayType result;
+
+  /* arrTimes0 */
+    logFunction(printf("arrTimes0(" FMT_D ", " FMT_D ")\n",
+                       minPosition, maxPosition););
+    element.intValue = 0;
+    result = arrMalloc(minPosition, maxPosition);
+    if (result != NULL) {
+      size = arraySize2(minPosition, maxPosition);
+      memsetValue(result->arr, element, size);
+    } /* if */
+    logFunction(printf("arrTimes0 --> " FMT_U_MEM " (array[" FMT_D
+                                     " .. " FMT_D "])\n",
+                       (memSizeType) result,
+                       result != NULL ?
+                           result->min_position : (intType) 1,
+                       result != NULL ?
+                           result->max_position : (intType) 0););
+    return result;
+  } /* arrTimes0 */

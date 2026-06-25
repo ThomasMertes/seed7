@@ -62,7 +62,7 @@ void initPollOperations (const createFuncType incrUsageCount,
 
 
 void polAddCheck (const pollType pollData, const socketType aSocket,
-    intType eventsToCheck, const genericType fileObj)
+    intType eventsToCheck, const rtlValueUnion fileObj)
 
   { /* polAddCheck */
   } /* polAddCheck */
@@ -262,7 +262,7 @@ void polIterFindings (const pollType pollData, intType pollMode)
  *  @return the next file from the 'pollData' iterator, or
  *          STD_NULL if no file from the 'pollData' iterator is available.
  */
-genericType polNextFile (const pollType pollData, const genericType nullFile)
+rtlValueUnion polNextFile (const pollType pollData, const rtlValueUnion nullFile)
 
   { /* polNextFile */
     return nullFile;

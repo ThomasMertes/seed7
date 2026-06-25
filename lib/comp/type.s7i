@@ -75,11 +75,11 @@ const type: typeDataStruct is new struct
 
   var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
 
-  var boolean_type_hash: generic_hashCode_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_hashCode_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_cpy_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_create_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_destr_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_cmp_declared is boolean_type_hash.EMPTY_HASH;
 
   var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
   var boolean_type_hash: literal_function_of_enum_used is boolean_type_hash.EMPTY_HASH;

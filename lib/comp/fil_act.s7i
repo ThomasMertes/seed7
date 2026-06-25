@@ -66,11 +66,11 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  filBigTell (const const_fileType);");
     declareExtern(c_prog, "void        filClose (const fileType);");
     declareExtern(c_prog, "void        filCpy (fileType *const, const fileType);");
-    declareExtern(c_prog, "void        filCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        filCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "fileType    filCreate (const fileType);");
-    declareExtern(c_prog, "genericType filCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion filCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        filDestr (const fileType);");
-    declareExtern(c_prog, "void        filDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        filDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "boolType    filEof (const const_fileType);");
     declareExtern(c_prog, "void        filFlush (const const_fileType);");
     declareExtern(c_prog, "charType    filGetcChkCtrlC (const const_fileType);");

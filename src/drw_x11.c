@@ -240,7 +240,7 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
     if (x11Window != NULL) {
       if (xPos < 0) {
         if (width > -(unsigned int) xPos) {
-          width += xPos;
+          width += (unsigned int) xPos;
         } else {
           width = 0;
         } /* if */
@@ -248,7 +248,7 @@ void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsig
       } /* if */
       if (yPos < 0) {
         if (height > -(unsigned int) yPos) {
-          height += yPos;
+          height += (unsigned int) yPos;
         } else {
           height = 0;
         } /* if */

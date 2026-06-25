@@ -36,6 +36,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #if HAS_GETRLIMIT
 /* In FreeBSD it is necessary to include <sys/types.h> before <sys/resource.h> */
 #include "sys/types.h"
@@ -43,6 +44,7 @@
 #endif
 #include "signal.h"
 #include "setjmp.h"
+#include "errno.h"
 
 #include "common.h"
 #include "os_decls.h"
@@ -144,10 +146,17 @@ void setupStack (memSizeType stackSize)
         } else {
           rlim.rlim_cur = rlim.rlim_max;
         } /* if */
-        setrlimit(RLIMIT_STACK, &rlim);
-        /* if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-          printf("new stack limit: %ld/%ld\n", (long) rlim.rlim_cur, (long) rlim.rlim_max);
-        } ** if */
+        if (setrlimit(RLIMIT_STACK, &rlim) != 0) {
+          logError(printf("setrlimit(RLIMIT_STACK, rlim_cur=" FMT_U_MEM ") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          (memSizeType) rlim.rlim_cur,
+                          errno, strerror(errno)););
+        } /* if */
+        logMessage(if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
+                     printf("new stack limit: " FMT_U_MEM " / " FMT_U_MEM "\n",
+                            (memSizeType) rlim.rlim_cur,
+                            (memSizeType) rlim.rlim_max);
+                   });
       } /* if */
     } /* if */
 #endif

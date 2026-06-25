@@ -97,8 +97,8 @@ const proc: flt_prototypes (inout file: c_prog) is func
       declareExtern(c_prog, "double exp10(double x);");
     end if;
     declareExtern(c_prog, "intType     fltCmp (floatType, floatType);");
-    declareExtern(c_prog, "intType     fltCmpGeneric (const genericType, const genericType);");
-    declareExtern(c_prog, "void        fltCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "intType     fltCmpValue (const rtlValueUnion, const rtlValueUnion);");
+    declareExtern(c_prog, "void        fltCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     if not ccConf.FREXP_FUNCTION_OKAY then
       declareExtern(c_prog, "floatType   fltDecompose (const floatType, intType *const);");
     end if;

@@ -80,6 +80,7 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
           } else {
             created_type->in_param_type = PARAM_UNDEFINED;
           } /* if */
+          created_type->value_category = ILLEGALOBJECT;
           created_type->interfaces = NULL;
           created_type->name = NULL;
           created_type->owningProg = owningProg;

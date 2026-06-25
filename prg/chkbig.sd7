@@ -13145,6 +13145,18 @@ const func boolean: chkAddAssignLiteral1 is func
     big1 := -2147483647_; big1 +:=  2147483647_; ok &:= big1 =           0_;
     big1 := -2147483647_; big1 +:=  2147483648_; ok &:= big1 =           1_;
     big1 := -2147483647_; big1 +:=  2147483649_; ok &:= big1 =           2_;
+    if not ok then
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkAddAssignLiteral2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=      -32770_; big1 +:= -2147483650_; ok &:= big1 = -2147516420_;
     big1 :=      -32770_; big1 +:= -2147483649_; ok &:= big1 = -2147516419_;
     big1 :=      -32770_; big1 +:= -2147483648_; ok &:= big1 = -2147516418_;
@@ -13271,12 +13283,12 @@ const func boolean: chkAddAssignLiteral1 is func
     big1 :=          -1_; big1 +:=  2147483648_; ok &:= big1 =  2147483647_;
     big1 :=          -1_; big1 +:=  2147483649_; ok &:= big1 =  2147483648_;
     if not ok then
-      writeln("Addition assignment of bigInteger with literal does not work correctly. (1)");
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkAddAssignLiteral2 is func
+const func boolean: chkAddAssignLiteral3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -13429,6 +13441,18 @@ const func boolean: chkAddAssignLiteral2 is func
     big1 :=       32769_; big1 +:=  2147483647_; ok &:= big1 =  2147516416_;
     big1 :=       32769_; big1 +:=  2147483648_; ok &:= big1 =  2147516417_;
     big1 :=       32769_; big1 +:=  2147483649_; ok &:= big1 =  2147516418_;
+    if not ok then
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkAddAssignLiteral4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=  2147483646_; big1 +:= -2147483650_; ok &:= big1 =          -4_;
     big1 :=  2147483646_; big1 +:= -2147483649_; ok &:= big1 =          -3_;
     big1 :=  2147483646_; big1 +:= -2147483648_; ok &:= big1 =          -2_;
@@ -13514,7 +13538,7 @@ const func boolean: chkAddAssignLiteral2 is func
     big1 :=  2147483649_; big1 +:=  2147483648_; ok &:= big1 =  4294967297_;
     big1 :=  2147483649_; big1 +:=  2147483649_; ok &:= big1 =  4294967298_;
     if not ok then
-      writeln("Addition assignment of bigInteger with literal does not work correctly. (2)");
+      writeln("Addition assignment of bigInteger with literal does not work correctly. (4)");
     end if;
   end func;
 
@@ -13609,6 +13633,18 @@ const func boolean: chkAddAssignExpression1 is func
     big1 := -2147483647_; big1 +:= bigintExpr( 2147483647_); ok &:= big1 =           0_;
     big1 := -2147483647_; big1 +:= bigintExpr( 2147483648_); ok &:= big1 =           1_;
     big1 := -2147483647_; big1 +:= bigintExpr( 2147483649_); ok &:= big1 =           2_;
+    if not ok then
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkAddAssignExpression2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=      -32770_; big1 +:= bigintExpr(-2147483650_); ok &:= big1 = -2147516420_;
     big1 :=      -32770_; big1 +:= bigintExpr(-2147483649_); ok &:= big1 = -2147516419_;
     big1 :=      -32770_; big1 +:= bigintExpr(-2147483648_); ok &:= big1 = -2147516418_;
@@ -13735,12 +13771,12 @@ const func boolean: chkAddAssignExpression1 is func
     big1 :=          -1_; big1 +:= bigintExpr( 2147483648_); ok &:= big1 =  2147483647_;
     big1 :=          -1_; big1 +:= bigintExpr( 2147483649_); ok &:= big1 =  2147483648_;
     if not ok then
-      writeln("Addition assignment of bigInteger with expression does not work correctly. (1)");
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkAddAssignExpression2 is func
+const func boolean: chkAddAssignExpression3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -13893,6 +13929,18 @@ const func boolean: chkAddAssignExpression2 is func
     big1 :=       32769_; big1 +:= bigintExpr( 2147483647_); ok &:= big1 =  2147516416_;
     big1 :=       32769_; big1 +:= bigintExpr( 2147483648_); ok &:= big1 =  2147516417_;
     big1 :=       32769_; big1 +:= bigintExpr( 2147483649_); ok &:= big1 =  2147516418_;
+    if not ok then
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkAddAssignExpression4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=  2147483646_; big1 +:= bigintExpr(-2147483650_); ok &:= big1 =          -4_;
     big1 :=  2147483646_; big1 +:= bigintExpr(-2147483649_); ok &:= big1 =          -3_;
     big1 :=  2147483646_; big1 +:= bigintExpr(-2147483648_); ok &:= big1 =          -2_;
@@ -13978,7 +14026,7 @@ const func boolean: chkAddAssignExpression2 is func
     big1 :=  2147483649_; big1 +:= bigintExpr( 2147483648_); ok &:= big1 =  4294967297_;
     big1 :=  2147483649_; big1 +:= bigintExpr( 2147483649_); ok &:= big1 =  4294967298_;
     if not ok then
-      writeln("Addition assignment of bigInteger with expression does not work correctly. (2)");
+      writeln("Addition assignment of bigInteger with expression does not work correctly. (4)");
     end if;
   end func;
 
@@ -14042,8 +14090,12 @@ const proc: chkAddAssign is func
   begin
     if  chkAddAssignLiteral1 and
         chkAddAssignLiteral2 and
+        chkAddAssignLiteral3 and
+        chkAddAssignLiteral4 and
         chkAddAssignExpression1 and
         chkAddAssignExpression2 and
+        chkAddAssignExpression3 and
+        chkAddAssignExpression4 and
         chkAddAssignWithItself then
       writeln("Addition assignment of bigInteger works correctly.");
     else
@@ -14566,6 +14618,18 @@ const func boolean: chkSubtractAssignLiteral1 is func
     big1 := -2147483647_; big1 -:=  2147483647_; ok &:= big1 = -4294967294_;
     big1 := -2147483647_; big1 -:=  2147483648_; ok &:= big1 = -4294967295_;
     big1 := -2147483647_; big1 -:=  2147483649_; ok &:= big1 = -4294967296_;
+    if not ok then
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkSubtractAssignLiteral2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 1_;
+  begin
     big1 :=      -32770_; big1 -:= -2147483650_; ok &:= big1 =  2147450880_;
     big1 :=      -32770_; big1 -:= -2147483649_; ok &:= big1 =  2147450879_;
     big1 :=      -32770_; big1 -:= -2147483648_; ok &:= big1 =  2147450878_;
@@ -14693,12 +14757,12 @@ const func boolean: chkSubtractAssignLiteral1 is func
     big1 :=          -1_; big1 -:=  2147483648_; ok &:= big1 = -2147483649_;
     big1 :=          -1_; big1 -:=  2147483649_; ok &:= big1 = -2147483650_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (1)");
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkSubtractAssignLiteral2 is func
+const func boolean: chkSubtractAssignLiteral3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -14851,6 +14915,18 @@ const func boolean: chkSubtractAssignLiteral2 is func
     big1 :=       32769_; big1 -:=  2147483647_; ok &:= big1 = -2147450878_;
     big1 :=       32769_; big1 -:=  2147483648_; ok &:= big1 = -2147450879_;
     big1 :=       32769_; big1 -:=  2147483649_; ok &:= big1 = -2147450880_;
+    if not ok then
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkSubtractAssignLiteral4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 1_;
+  begin
     big1 :=  2147483646_; big1 -:= -2147483650_; ok &:= big1 =  4294967296_;
     big1 :=  2147483646_; big1 -:= -2147483649_; ok &:= big1 =  4294967295_;
     big1 :=  2147483646_; big1 -:= -2147483648_; ok &:= big1 =  4294967294_;
@@ -14936,7 +15012,7 @@ const func boolean: chkSubtractAssignLiteral2 is func
     big1 :=  2147483649_; big1 -:=  2147483648_; ok &:= big1 =           1_;
     big1 :=  2147483649_; big1 -:=  2147483649_; ok &:= big1 =           0_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (2)");
+      writeln("Subtraction assignment of bigInteger with literal does not work correctly. (4)");
     end if;
   end func;
 
@@ -15031,6 +15107,18 @@ const func boolean: chkSubtractAssignExpression1 is func
     big1 := -2147483647_; big1 -:= bigintExpr( 2147483647_); ok &:= big1 = -4294967294_;
     big1 := -2147483647_; big1 -:= bigintExpr( 2147483648_); ok &:= big1 = -4294967295_;
     big1 := -2147483647_; big1 -:= bigintExpr( 2147483649_); ok &:= big1 = -4294967296_;
+    if not ok then
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkSubtractAssignExpression2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 1_;
+  begin
     big1 :=      -32770_; big1 -:= bigintExpr(-2147483650_); ok &:= big1 =  2147450880_;
     big1 :=      -32770_; big1 -:= bigintExpr(-2147483649_); ok &:= big1 =  2147450879_;
     big1 :=      -32770_; big1 -:= bigintExpr(-2147483648_); ok &:= big1 =  2147450878_;
@@ -15158,12 +15246,12 @@ const func boolean: chkSubtractAssignExpression1 is func
     big1 :=          -1_; big1 -:= bigintExpr( 2147483648_); ok &:= big1 = -2147483649_;
     big1 :=          -1_; big1 -:= bigintExpr( 2147483649_); ok &:= big1 = -2147483650_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (1)");
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkSubtractAssignExpression2 is func
+const func boolean: chkSubtractAssignExpression3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -15316,6 +15404,18 @@ const func boolean: chkSubtractAssignExpression2 is func
     big1 :=       32769_; big1 -:= bigintExpr( 2147483647_); ok &:= big1 = -2147450878_;
     big1 :=       32769_; big1 -:= bigintExpr( 2147483648_); ok &:= big1 = -2147450879_;
     big1 :=       32769_; big1 -:= bigintExpr( 2147483649_); ok &:= big1 = -2147450880_;
+    if not ok then
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkSubtractAssignExpression4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 1_;
+  begin
     big1 :=  2147483646_; big1 -:= bigintExpr(-2147483650_); ok &:= big1 =  4294967296_;
     big1 :=  2147483646_; big1 -:= bigintExpr(-2147483649_); ok &:= big1 =  4294967295_;
     big1 :=  2147483646_; big1 -:= bigintExpr(-2147483648_); ok &:= big1 =  4294967294_;
@@ -15401,7 +15501,7 @@ const func boolean: chkSubtractAssignExpression2 is func
     big1 :=  2147483649_; big1 -:= bigintExpr( 2147483648_); ok &:= big1 =           1_;
     big1 :=  2147483649_; big1 -:= bigintExpr( 2147483649_); ok &:= big1 =           0_;
     if not ok then
-      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (2)");
+      writeln("Subtraction assignment of bigInteger with expression does not work correctly. (4)");
     end if;
   end func;
 
@@ -15465,8 +15565,12 @@ const proc: chkSubtractAssign is func
   begin
     if  chkSubtractAssignLiteral1 and
         chkSubtractAssignLiteral2 and
+        chkSubtractAssignLiteral3 and
+        chkSubtractAssignLiteral4 and
         chkSubtractAssignExpression1 and
         chkSubtractAssignExpression2 and
+        chkSubtractAssignExpression3 and
+        chkSubtractAssignExpression4 and
         chkSubtractAssignWithItself then
       writeln("Subtraction assignment of bigInteger works correctly.");
     else
@@ -17423,6 +17527,18 @@ const func boolean: chkMultAssignLiteral1 is func
     big1 :=    -65534_; big1 *:=       65536_; ok &:= big1 = -4294836224_;
     big1 :=    -65534_; big1 *:=       65537_; ok &:= big1 = -4294901758_;
     big1 :=    -65534_; big1 *:=       65538_; ok &:= big1 = -4294967292_;
+    if not ok then
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkMultAssignLiteral2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=    -32770_; big1 *:=      -65538_; ok &:= big1 =  2147680260_;
     big1 :=    -32770_; big1 *:=      -65537_; ok &:= big1 =  2147647490_;
     big1 :=    -32770_; big1 *:=      -65536_; ok &:= big1 =  2147614720_;
@@ -17539,12 +17655,12 @@ const func boolean: chkMultAssignLiteral1 is func
     big1 :=        -1_; big1 *:=           1_; ok &:= big1 =          -1_;
     big1 :=        -1_; big1 *:=           2_; ok &:= big1 =          -2_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (1)");
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkMultAssignLiteral2 is func
+const func boolean: chkMultAssignLiteral3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -17673,6 +17789,18 @@ const func boolean: chkMultAssignLiteral2 is func
     big1 :=     32770_; big1 *:=       65536_; ok &:= big1 =  2147614720_;
     big1 :=     32770_; big1 *:=       65537_; ok &:= big1 =  2147647490_;
     big1 :=     32770_; big1 *:=       65538_; ok &:= big1 =  2147680260_;
+    if not ok then
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkMultAssignLiteral4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=     65534_; big1 *:=      -65538_; ok &:= big1 = -4294967292_;
     big1 :=     65534_; big1 *:=      -65537_; ok &:= big1 = -4294901758_;
     big1 :=     65534_; big1 *:=      -65536_; ok &:= big1 = -4294836224_;
@@ -17779,7 +17907,7 @@ const func boolean: chkMultAssignLiteral2 is func
     big1 :=     65538_; big1 *:=       65537_; ok &:= big1 =  4295163906_;
     big1 :=     65538_; big1 *:=       65538_; ok &:= big1 =  4295229444_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (2)");
+      writeln("Multiplication assignment of bigInteger with literals does not work correctly. (4)");
     end if;
   end func;
 
@@ -17895,6 +18023,18 @@ const func boolean: chkMultAssignExpression1 is func
     big1 :=    -65534_; big1 *:= bigintExpr(      65536_); ok &:= big1 = -4294836224_;
     big1 :=    -65534_; big1 *:= bigintExpr(      65537_); ok &:= big1 = -4294901758_;
     big1 :=    -65534_; big1 *:= bigintExpr(      65538_); ok &:= big1 = -4294967292_;
+    if not ok then
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (1)");
+    end if;
+  end func;
+
+
+const func boolean: chkMultAssignExpression2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=    -32770_; big1 *:= bigintExpr(     -65538_); ok &:= big1 =  2147680260_;
     big1 :=    -32770_; big1 *:= bigintExpr(     -65537_); ok &:= big1 =  2147647490_;
     big1 :=    -32770_; big1 *:= bigintExpr(     -65536_); ok &:= big1 =  2147614720_;
@@ -18011,12 +18151,12 @@ const func boolean: chkMultAssignExpression1 is func
     big1 :=        -1_; big1 *:= bigintExpr(          1_); ok &:= big1 =          -1_;
     big1 :=        -1_; big1 *:= bigintExpr(          2_); ok &:= big1 =          -2_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (1)");
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (2)");
     end if;
   end func;
 
 
-const func boolean: chkMultAssignExpression2 is func
+const func boolean: chkMultAssignExpression3 is func
   result
     var boolean: ok is TRUE;
   local
@@ -18145,6 +18285,18 @@ const func boolean: chkMultAssignExpression2 is func
     big1 :=     32770_; big1 *:= bigintExpr(      65536_); ok &:= big1 =  2147614720_;
     big1 :=     32770_; big1 *:= bigintExpr(      65537_); ok &:= big1 =  2147647490_;
     big1 :=     32770_; big1 *:= bigintExpr(      65538_); ok &:= big1 =  2147680260_;
+    if not ok then
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (3)");
+    end if;
+  end func;
+
+
+const func boolean: chkMultAssignExpression4 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bigInteger: big1 is 0_;
+  begin
     big1 :=     65534_; big1 *:= bigintExpr(     -65538_); ok &:= big1 = -4294967292_;
     big1 :=     65534_; big1 *:= bigintExpr(     -65537_); ok &:= big1 = -4294901758_;
     big1 :=     65534_; big1 *:= bigintExpr(     -65536_); ok &:= big1 = -4294836224_;
@@ -18251,7 +18403,7 @@ const func boolean: chkMultAssignExpression2 is func
     big1 :=     65538_; big1 *:= bigintExpr(      65537_); ok &:= big1 =  4295163906_;
     big1 :=     65538_; big1 *:= bigintExpr(      65538_); ok &:= big1 =  4295229444_;
     if not ok then
-      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (2)");
+      writeln("Multiplication assignment of bigInteger with expressions does not work correctly. (4)");
     end if;
   end func;
 
@@ -18449,8 +18601,12 @@ const proc: chkMultAssign is func
   begin
     okay := chkMultAssignLiteral1 and
             chkMultAssignLiteral2 and
+            chkMultAssignLiteral3 and
+            chkMultAssignLiteral4 and
             chkMultAssignExpression1 and
             chkMultAssignExpression2 and
+            chkMultAssignExpression3 and
+            chkMultAssignExpression4 and
             chkMultAssign1;
 
     big1 :=                65535_; big1 *:=               196607_; ok &:= big1 =                             12884639745_;

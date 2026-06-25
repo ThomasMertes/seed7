@@ -38,7 +38,7 @@ const proc: itf_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "interfaceType itfCreate (const interfaceType);");
-    declareExtern(c_prog, "genericType itfCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion itfCreateValue (const rtlValueUnion);");
   end func;
 
 

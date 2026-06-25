@@ -89,6 +89,12 @@
  *  LINKER: (optional)
  *      Defined if C_COMPILER does just invoke the stand-alone C compiler.
  *      In that case LINKER contains the command to call the stand-alone linker.
+ *  DEFAULT_STACK_SIZE: (optional)
+ *      Default stack size for the interpreter and for compiled executables.
+ *      This value is used, if the Seed7 compiler is invoked without -S.
+ *      If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
+ *      as argument for the stack size. Additionally DEFAULT_STACK_SIZE
+ *      is used as argument for setupStack().</td></tr>
  *  SYSTEM_LIBS: (optional)
  *      Contains system libraries for the stand-alone linker.
  *  SYSTEM_MATH_LIBS: (optional)
@@ -6998,6 +7004,17 @@ static void determineOsFunctions (FILE *versionFile)
       fprintf(versionFile, "#define flockfile(aFile)\n");
       fprintf(versionFile, "#define funlockfile(aFile)\n");
       fprintf(versionFile, "#define getc_unlocked(aFile) getc(aFile)\n");
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *fileA, *fileB;\n"
+                         "fileA = fopen(\"ctstfile.txt\", \"w\");\n"
+                         "fileB = fopen(\"ctstfile.txt\", \"r+\");\n"
+                         "printf(\"%d\\n\", fileA != NULL && fileB != NULL);\n"
+                         "if (fileA != NULL) { fclose(fileA); }\n"
+                         "if (fileB != NULL) { fclose(fileB); }\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define PARALLEL_FOPEN_POSSIBLE %d\n", doTest() == 1);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"

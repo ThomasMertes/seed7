@@ -40,6 +40,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "striutl.h"
 #include "heaputl.h"
 #include "rtl_err.h"
 
@@ -212,6 +213,7 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
 rtlArrayType drwBorder (const_winType actual_window)
 
   { /* drwBorder */
+    raise_error(GRAPHIC_ERROR);
     return NULL;
   } /* drwBorder */
 
@@ -411,8 +413,21 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
 rtlArrayType drwConvPointList (const const_bstriType pointList)
 
-  { /* drwConvPointList */
-    return NULL;
+  {
+    rtlArrayType xyArray;
+
+  /* drwConvPointList */
+    logFunction(printf("drwConvPointList(\"%s\")\n",
+                       bstriAsUnquotedCStri(pointList)););
+    if (unlikely(!ALLOC_RTL_ARRAY(xyArray, 0))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      xyArray->min_position = 1;
+      xyArray->max_position = 0;
+    } /* if */
+    logFunction(printf("drwConvPointList --> arr (size=" FMT_U_MEM ")\n",
+                       arraySize(xyArray)););
+    return xyArray;
   } /* drwConvPointList */
 
 

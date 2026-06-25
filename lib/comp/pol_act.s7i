@@ -41,7 +41,7 @@ const ACTION: POL_VALUE          is action "POL_VALUE";
 const proc: pol_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "void        polAddCheck (const pollType, const socketType, intType, const genericType);");
+    declareExtern(c_prog, "void        polAddCheck (const pollType, const socketType, intType, const rtlValueUnion);");
     declareExtern(c_prog, "void        polClear (const pollType);");
     declareExtern(c_prog, "void        polCpy (const pollType, const const_pollType);");
     declareExtern(c_prog, "pollType    polCreate (const const_pollType);");
@@ -52,7 +52,7 @@ const proc: pol_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "boolType    polHasNext (const pollType);");
     declareExtern(c_prog, "void        polIterChecks (const pollType, intType);");
     declareExtern(c_prog, "void        polIterFindings (const pollType, intType);");
-    declareExtern(c_prog, "genericType polNextFile (const pollType, const genericType);");
+    declareExtern(c_prog, "rtlValueUnion polNextFile (const pollType, const rtlValueUnion);");
     declareExtern(c_prog, "void        polPoll (const pollType);");
     declareExtern(c_prog, "void        polRemoveCheck (const pollType, const socketType, intType);");
     declareExtern(c_prog, "pollType    polValue (const const_objRefType);");
@@ -64,15 +64,25 @@ const proc: process (POL_ADD_CHECK, in reference: function,
 
   begin
     setDiagnosticLine(c_expr);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "rtlValueUnion fileObj;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "fileObj.";
+    c_expr.expr &:= raw_type_value(getType(params[4]));
+    c_expr.expr &:= "=";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "polAddCheck(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ", (genericType)(";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "));\n";
+    c_expr.expr &:= ", fileObj);\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
   end func;
 
 
@@ -191,12 +201,27 @@ const proc: process (POL_ITER_FINDINGS, in reference: function,
 const proc: process (POL_NEXT_FILE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: tempName is "";
   begin
+    incr(c_expr.temp_num);
+    tempName := "fileObj" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "rtlValueUnion ";
+    c_expr.temp_decls &:= tempName;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= tempName;
+    c_expr.expr &:= ".";
+    c_expr.expr &:= raw_type_value(getType(params[2]));
+    c_expr.expr &:= "=";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ",\n";
     c_expr.expr &:= "polNextFile(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (genericType)(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= tempName;
+    c_expr.expr &:= ").interfaceValue)";
   end func;
 
 

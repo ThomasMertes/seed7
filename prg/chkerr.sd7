@@ -2957,7 +2957,27 @@ const func boolean: checkDeclFailed is func
                     \const func string: example (FALSE) is \"hello\";",
                     DECL_FAILED, 2, 0,
                     "Declaration of \"FALSE example\" failed",
-                    "const func string: example (FALSE) is \"hello\";") then
+                    "const func string: example (FALSE) is \"hello\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: doIt (in integer: number) is action \"INT_ADD\";",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"doIt (val integer: number)\" failed",
+                    "const func integer: doIt (in integer: number) is action \"INT_ADD\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func string: - (in boolean: okay) is action \"FLT_NEGATE\";",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"- (val boolean: okay)\" failed",
+                    "const func string: - (in boolean: okay) is action \"FLT_NEGATE\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func string: (in integer: number) & (in string: stri) is action \"STR_CAT\";",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"(val integer: number) & (ref string: stri)\" failed",
+                    "const func string: (in integer: number) & (in string: stri) is action \"STR_CAT\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func string: (in string: stri) & (in integer: number) is action \"STR_CAT\";",
+                    DECL_FAILED, 2, 0,
+                    "Declaration of \"(ref string: stri) & (val integer: number)\" failed",
+                    "const func string: (in string: stri) & (in integer: number) is action \"STR_CAT\";") then
       okay := TRUE;
     else
       writeln(" *** DECL_FAILED not reported correctly.");

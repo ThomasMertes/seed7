@@ -145,11 +145,11 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   drwConvPointList (const const_bstriType);");
     declareExtern(c_prog, "void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwCpy (winType *const, const winType);");
-    declareExtern(c_prog, "void        drwCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        drwCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "winType     drwCreate (const winType);");
-    declareExtern(c_prog, "genericType drwCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion drwCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        drwDestr (const winType);");
-    declareExtern(c_prog, "void        drwDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "winType     drwEmpty (void);");
     declareExtern(c_prog, "void        drwFlush (void);");
     declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");

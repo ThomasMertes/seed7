@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_dos.c     File functions which call the Dos API.            */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018, 2025, 2026  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

@@ -15517,13 +15517,12 @@ const func boolean: check_mult_assign_negative_product is func
   end func;
 
 
-const func boolean: check_mult_assign_minimum_product is func
+const func boolean: check_mult_assign_minimum_product_1 is func
   result
     var boolean: okay is TRUE;
   local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
     num :=            INT64_MIN; num *:=                    1; ok &:= num = INT64_MIN;
     num := -4611686018427387904; num *:=                    2; ok &:= num = INT64_MIN;
@@ -15647,8 +15646,16 @@ const func boolean: check_mult_assign_minimum_product is func
       writeln(" ***** Multiplication assignment with minimum product does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_mult_assign_minimum_product_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] :=            INT64_MIN; arr[1] *:=                    1; ok &:= arr[1] = INT64_MIN;
     arr[1] := -4611686018427387904; arr[1] *:=                    2; ok &:= arr[1] = INT64_MIN;
     arr[1] := -2305843009213693952; arr[1] *:=                    4; ok &:= arr[1] = INT64_MIN;
@@ -15774,13 +15781,12 @@ const func boolean: check_mult_assign_minimum_product is func
   end func;
 
 
-const func boolean: check_mult_assign_minimum_plus_1_product is func
+const func boolean: check_mult_assign_minimum_plus_1_product_1 is func
   result
     var boolean: okay is TRUE;
   local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
     num := -9223372036854775807; num *:=                    1; ok &:= num = -9223372036854775807;
     num := -1317624576693539401; num *:=                    7; ok &:= num = -9223372036854775807;
@@ -15900,8 +15906,16 @@ const func boolean: check_mult_assign_minimum_plus_1_product is func
       writeln(" ***** Multiplication assignment with minimum+1 product does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_mult_assign_minimum_plus_1_product_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] := -9223372036854775807; arr[1] *:=                    1; ok &:= arr[1] = -9223372036854775807;
     arr[1] := -1317624576693539401; arr[1] *:=                    7; ok &:= arr[1] = -9223372036854775807;
     arr[1] :=  -188232082384791343; arr[1] *:=                   49; ok &:= arr[1] = -9223372036854775807;
@@ -16023,13 +16037,12 @@ const func boolean: check_mult_assign_minimum_plus_1_product is func
   end func;
 
 
-const func boolean: check_mult_assign_maximum_product is func
+const func boolean: check_mult_assign_maximum_product_1 is func
   result
     var boolean: okay is TRUE;
   local
     var boolean: ok is TRUE;
     var integer: num is 0;
-    var array integer: arr is [] (0);
   begin
     num := -9223372036854775807; num *:=                   -1; ok &:= num =  9223372036854775807;
     num := -1317624576693539401; num *:=                   -7; ok &:= num =  9223372036854775807;
@@ -16149,8 +16162,16 @@ const func boolean: check_mult_assign_maximum_product is func
       writeln(" ***** Multiplication assignment with maximum product does not work correctly. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_mult_assign_maximum_product_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var array integer: arr is [] (0);
+  begin
     arr[1] := -9223372036854775807; arr[1] *:=                   -1; ok &:= arr[1] =  9223372036854775807;
     arr[1] := -1317624576693539401; arr[1] *:=                   -7; ok &:= arr[1] =  9223372036854775807;
     arr[1] :=  -188232082384791343; arr[1] *:=                  -49; ok &:= arr[1] =  9223372036854775807;
@@ -16396,15 +16417,27 @@ const proc: check_mult_assign is func
       okay := FALSE;
     end if;
 
-    if not check_mult_assign_minimum_product then
+    if not check_mult_assign_minimum_product_1 then
       okay := FALSE;
     end if;
 
-    if not check_mult_assign_minimum_plus_1_product then
+    if not check_mult_assign_minimum_product_2 then
       okay := FALSE;
     end if;
 
-    if not check_mult_assign_maximum_product then
+    if not check_mult_assign_minimum_plus_1_product_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mult_assign_minimum_plus_1_product_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_mult_assign_maximum_product_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mult_assign_maximum_product_2 then
       okay := FALSE;
     end if;
 

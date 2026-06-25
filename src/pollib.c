@@ -53,23 +53,27 @@
 
 
 
-static genericType incrUsageCount (const genericType pollFile)
+static rtlValueUnion incrUsageCount (const rtlValueUnion pollFile)
 
   {
     objectType fileObject;
     structType fileStruct;
     objectType newFileObject;
+    rtlValueUnion result;
 
   /* incrUsageCount */
-    fileObject = (objectType) (memSizeType) pollFile;
+    fileObject = (objectType) pollFile.interfaceValue;
+    logFunction(printf("incrUsageCount(");
+                trace1(fileObject);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(fileObject) != STRUCTOBJECT) {
       category_required(STRUCTOBJECT, fileObject);
-      return 0;
+      fileObject = NULL;
     } else {
       fileStruct = take_struct(fileObject);
       if (fileStruct == NULL) {
         empty_value(fileObject);
-        return 0;
+        fileObject = NULL;
       } else {
         if (fileStruct->usage_count != 0) {
           fileStruct->usage_count++;
@@ -88,18 +92,28 @@ static genericType incrUsageCount (const genericType pollFile)
         } /* if */
       } /* if */
     } /* if */
-    return (genericType) (memSizeType) fileObject;
+    INIT_VALUE_PTR(result);
+    result.interfaceValue = (rtlInterfaceType) fileObject;
+    logFunction(printf("incrUsageCount --> ");
+                trace1(fileObject);
+                printf("\n"););
+    return result;
   } /* incrUsageCount */
 
 
 
-static void decrUsageCount (const genericType pollFile)
+static void decrUsageCount (const rtlValueUnion pollFile)
 
   {
+    objectType fileObject;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* decrUsageCount */
-    do_destroy((objectType) (memSizeType) pollFile, &err_info);
+    fileObject = (objectType) pollFile.interfaceValue;
+    logFunction(printf("decrUsageCount(");
+                trace1(fileObject);
+                printf(")\n"););
+    do_destroy(fileObject, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
@@ -135,16 +149,25 @@ static void initPollOps (void)
  */
 objectType pol_add_check (listType arguments)
 
-  { /* pol_add_check */
+  {
+    rtlValueUnion fileObj;
+
+  /* pol_add_check */
+    logFunction(printf("pol_add_check(" FMT_U_MEM ", ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_2(arguments));
+                printf(", " FMT_D ", ", take_int(arg_3(arguments)));
+                trace1(arg_4(arguments));
+                printf(")\n"););
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_interface(arg_4(arguments));
     isit_struct(take_interface(arg_4(arguments)));
+    fileObj.interfaceValue = (rtlInterfaceType) take_interface(arg_4(arguments));
     polAddCheck(take_poll(arg_1(arguments)),
                 take_socket(arg_2(arguments)),
-                take_int(arg_3(arguments)),
-                (genericType) (memSizeType) take_interface(arg_4(arguments)));
+                take_int(arg_3(arguments)), fileObj);
     return SYS_EMPTY_OBJECT;
   } /* pol_add_check */
 
@@ -328,25 +351,29 @@ objectType pol_iter_findings (listType arguments)
 objectType pol_next_file (listType arguments)
 
   {
+    rtlValueUnion nullFile;
+    rtlValueUnion nextFileValue;
     objectType nextFile;
 
   /* pol_next_file */
-    /* printf("pol_next_file ");
-    trace1(arg_2(arguments));
-    printf("\n"); */
+    logFunction(printf("pol_next_file(" FMT_U_MEM ", ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_2(arguments));
+                printf("\n"););
     isit_poll(arg_1(arguments));
     isit_interface(arg_2(arguments));
     isit_struct(take_interface(arg_2(arguments)));
-    nextFile = (objectType) (memSizeType)
-               polNextFile(take_poll(arg_1(arguments)),
-                           (genericType) (memSizeType) take_interface(arg_2(arguments)));
+    nullFile.interfaceValue = (rtlInterfaceType) take_interface(arg_2(arguments));
+    nextFileValue = polNextFile(take_poll(arg_1(arguments)),
+                                nullFile);
+    nextFile = (objectType) nextFileValue.interfaceValue;
     isit_struct(nextFile);
     if (nextFile->value.structValue->usage_count != 0) {
       nextFile->value.structValue->usage_count++;
     } /* if */
-    /* printf("pol_next_file ->");
-    trace1(nextFile);
-    printf("\n"); */
+    logFunction(printf("pol_next_file ->");
+                trace1(nextFile);
+                printf("\n"););
     return bld_interface_temp(nextFile);
   } /* pol_next_file */
 
@@ -378,6 +405,11 @@ objectType pol_poll (listType arguments)
 objectType pol_remove_check (listType arguments)
 
   { /* pol_remove_check */
+    logFunction(printf("pol_remove_check(" FMT_U_MEM ", ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_2(arguments));
+                printf(", " FMT_D ")\n",
+                       take_int(arg_3(arguments))););
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));

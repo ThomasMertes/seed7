@@ -66,6 +66,14 @@ static objectType toIntArray (rtlArrayType aRtlArray)
     objectType result;
 
   /* toIntArray */
+    logFunction(printf("toIntArray(");
+                if (aRtlArray == NULL) {
+                  printf("NULL)\n");
+                } else {
+                  printf("array[" FMT_D " .. " FMT_D "])\n",
+                         aRtlArray->min_position,
+                         aRtlArray->max_position);
+                });
     if (aRtlArray == NULL) {
       /* Assume that an exception was already raised */
       result = NULL;
@@ -87,6 +95,9 @@ static objectType toIntArray (rtlArrayType aRtlArray)
         result = bld_array_temp(anArray);
       } /* if */
     } /* if */
+    logFunction(printf("toIntArray --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* toIntArray */
 

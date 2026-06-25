@@ -402,13 +402,13 @@ int unsetenvForNodeJs (const char *name)
 
 
 #if CACHE_GID_TO_NAME || CACHE_UID_TO_NAME
-static void destrNameCacheEntry (genericType genericCacheEntry)
+static void destrNameCacheEntry (rtlValueUnion cacheValue)
 
   {
     nameCacheEntryType cacheEntry;
 
   /* destrNameCacheEntry */
-    cacheEntry = (nameCacheEntryType) (memSizeType) genericCacheEntry;
+    cacheEntry = (nameCacheEntryType) cacheValue.ptrValue;
     FREE_STRI(cacheEntry->name);
     FREE_RECORD(cacheEntry, nameCacheEntryRecord, count.name_cache);
   } /* destrNameCacheEntry */
@@ -418,20 +418,25 @@ static void destrNameCacheEntry (genericType genericCacheEntry)
 static striType getCachedNameFromId (rtlHashType nameCache, genericType id)
 
   {
+    rtlValueUnion idKey;
+    rtlValueUnion defaultData;
+    rtlValueUnion cacheValue;
     nameCacheEntryType cacheEntry;
     striType name;
 
   /* getCachedNameFromId */
+    idKey.genericValue = id;
+    defaultData.ptrValue = NULL;
     if (nameCache != NULL &&
-        (cacheEntry = (nameCacheEntryType) (memSizeType)
-            hshIdxWithDefault(nameCache, id,
-                              (genericType) (memSizeType) NULL,
-                              (intType) id,
-                              (compareType) &genericCmp)) != NULL) {
+        (cacheValue = hshIdxWithDefault(nameCache, idKey,
+                                        defaultData, (intType) id,
+                                        (compareFuncType) &valueCmp),
+                                        cacheValue.ptrValue != NULL)) {
+      cacheEntry = (nameCacheEntryType) cacheValue.ptrValue;
       if (cacheEntry->timestamp + 10000000 < timMicroSec()) {
-        hshExcl(nameCache, id, (intType) id,
-                (compareType) &genericCmp,
-                (destrFuncType) &genericDestr,
+        hshExcl(nameCache, idKey, (intType) id,
+                (compareFuncType) &valueCmp,
+                (destrFuncType) &valueDestr,
                 (destrFuncType) &destrNameCacheEntry);
         name = NULL;
       } else if (likely(ALLOC_STRI_SIZE_OK(name,
@@ -456,6 +461,8 @@ static rtlHashType addNameToCache (rtlHashType nameCache, genericType id, striTy
 
   {
     nameCacheEntryType cacheEntry;
+    rtlValueUnion idKey;
+    rtlValueUnion data;
 
   /* addNameToCache */
     logFunction(printf("addNameToCache(" FMT_X_MEM ", " FMT_U_GEN
@@ -477,12 +484,13 @@ static rtlHashType addNameToCache (rtlHashType nameCache, genericType id, striTy
           memcpy(cacheEntry->name->mem, name->mem,
                  name->size * sizeof(strElemType));
           cacheEntry->timestamp = timMicroSec();
-          if (unlikely(!hashAdd(nameCache, id,
-                                (genericType) cacheEntry,
+          idKey.genericValue = id;
+          data.ptrValue = (rtlPtrType) cacheEntry;
+          if (unlikely(!hashAdd(nameCache, idKey, data,
                                 (intType) id,
-                                (compareType) &genericCmp,
-                                (createFuncType) &genericCreate,
-                                (createFuncType) &genericCreate))) {
+                                (compareFuncType) &valueCmp,
+                                (createFuncType) &valueCreate,
+                                (createFuncType) &ptrCreateValue))) {
             FREE_STRI(cacheEntry->name);
             FREE_RECORD(cacheEntry, nameCacheEntryRecord,
                         count.name_cache);
@@ -505,11 +513,11 @@ void freeNameCache (void)
 
   { /* freeNameCache */
 #if CACHE_GID_TO_NAME
-    hshDestr(groupCache, (destrFuncType) &genericDestr,
+    hshDestr(groupCache, (destrFuncType) &valueDestr,
              (destrFuncType) &destrNameCacheEntry);
 #endif
 #if CACHE_UID_TO_NAME
-    hshDestr(userCache, (destrFuncType) &genericDestr,
+    hshDestr(userCache, (destrFuncType) &valueDestr,
              (destrFuncType) &destrNameCacheEntry);
 #endif
   } /* freeNameCache */

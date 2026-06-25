@@ -955,11 +955,20 @@ objectType prc_create (listType arguments)
       } /* if */
     } else if (CATEGORY_OF_OBJ(source) == ACTENTRYOBJECT) {
       actEntry = source->value.actEntryValue;
-      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-      dest->value.actValue = actEntry->action;
+      if (unlikely(!actionCreateOkay(dest, actEntry))) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } else {
+        SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+        dest->value.actValue = actEntry->action;
+      } /* if */
     } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
-      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-      dest->value.actValue = take_action(source);
+      actEntry = getActEntry(take_action(source));
+      if (unlikely(!actionCreateOkay(dest, actEntry))) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } else {
+        SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+        dest->value.actValue = take_action(source);
+      } /* if */
     } else if (CATEGORY_OF_OBJ(source) != MATCHOBJECT) {
       logError(printf("prc_create: source category %d neither "
                        "BLOCKOBJECT nor ACTENTRYOBJECT nor ACTOBJECT nor MATCHOBJECT.\n",
