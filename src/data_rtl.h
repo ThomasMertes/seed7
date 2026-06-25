@@ -29,11 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
-/* In classic C a function cannot return structs by value and */
-/* cannot have struct value parameters. Because of this the   */
-/* unsigned integer type genericType is used, instead of      */
-/* rtlObjectType. To work reliably it must be assured that    */
-/* sizeof(genericType) == sizeof(rtlObjectType)               */
+/* For the unsigned integer type genericType holds: */
+/* sizeof(genericType) == sizeof(rtlObjectType)     */
 
 #if INTTYPE_SIZE >= POINTER_SIZE
 #if INTTYPE_SIZE >= FLOATTYPE_SIZE
