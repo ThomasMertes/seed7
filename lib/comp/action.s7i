@@ -1738,6 +1738,9 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SOC_WORD_READ, function, params, c_expr);
       when {"SOC_WRITE"}:
         process(SOC_WRITE, function, params, c_expr);
+      when {"SQL_AFFECTED_ROWS"}:
+        programUses.databaseLibrary := TRUE;
+        process(SQL_AFFECTED_ROWS, function, params, c_expr);
       when {"SQL_BIND_BIGINT"}:
         programUses.databaseLibrary := TRUE;
         process(SQL_BIND_BIGINT, function, params, c_expr);

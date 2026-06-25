@@ -1508,6 +1508,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SOC_WRITE",                    soc_write,                    VOIDOBJECT,        par_soc_str},
 
 #if WITH_SQL
+    { "SQL_AFFECTED_ROWS",            sql_affected_rows,            INTOBJECT,         par_sqs_int},
     { "SQL_BIND_BIGINT",              sql_bind_bigint,              VOIDOBJECT,        par_sqs_int_big},
     { "SQL_BIND_BIGRAT",              sql_bind_bigrat,              VOIDOBJECT,        par_sqs_int_big_big},
     { "SQL_BIND_BOOL",                sql_bind_bool,                VOIDOBJECT,        par_sqs_int_bln},

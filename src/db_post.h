@@ -149,6 +149,7 @@ typedef enum {
 #endif
 
 extern void CDECL PQclear (PGresult *res);
+extern char *CDECL PQcmdTuples (const PGresult *res);
 extern PGresult *CDECL PQdescribePrepared (PGconn *conn, const char *stmt);
 extern char *CDECL PQerrorMessage (const PGconn *conn);
 extern PGresult *CDECL PQexec (PGconn *conn, const char *query);
