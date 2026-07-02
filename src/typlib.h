@@ -47,6 +47,7 @@ objectType typ_result             (listType arguments);
 objectType typ_set_in_param_ref   (listType arguments);
 objectType typ_set_in_param_value (listType arguments);
 objectType typ_str                (listType arguments);
+objectType typ_typeof             (listType arguments);
 objectType typ_value              (listType arguments);
 objectType typ_varconv            (listType arguments);
 objectType typ_varfunc            (listType arguments);

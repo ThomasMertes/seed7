@@ -1650,6 +1650,7 @@ static const actEntryRecord actEntryTable[] = {
     { "TYP_SET_IN_PARAM_REF",         typ_set_in_param_ref,         VOIDOBJECT,        par_typ},
     { "TYP_SET_IN_PARAM_VALUE",       typ_set_in_param_value,       VOIDOBJECT,        par_typ},
     { "TYP_STR",                      typ_str,                      STRIOBJECT,        par_typ},
+    { "TYP_TYPEOF",                   typ_typeof,                   TYPEOBJECT,        par_any},
     { "TYP_VALUE",                    typ_value,                    TYPEOBJECT,        par_ref},
     { "TYP_VARCONV",                  typ_varconv,                  ILLEGALOBJECT,     par_op_op_any},
     { "TYP_VARFUNC",                  typ_varfunc,                  TYPEOBJECT,        par_op_typ},

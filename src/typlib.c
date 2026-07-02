@@ -510,6 +510,23 @@ objectType typ_str (listType arguments)
 
 
 
+objectType typ_typeof (listType arguments)
+
+  {
+    objectType anObject;
+
+  /* typ_typeof */
+    anObject = arg_1(arguments);
+    logFunction(printf("typ_typeof(");
+                trace1(anObject);
+                printf(") --> ");
+                printtype(anObject->type_of);
+                printf("\n"););
+    return bld_type_temp(anObject->type_of);
+  } /* typ_typeof */
+
+
+
 /**
  *  Get 'type' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'type' value of the referenced object.
