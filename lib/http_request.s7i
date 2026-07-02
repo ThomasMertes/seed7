@@ -40,12 +40,73 @@ const integer: httpDefaultPort is 80;
 const integer: httpsDefaultPort is 443;
 
 
-const string: HTTP_OK                 is "200";
-const string: HTTP_MOVED_PERMANENTLY  is "301";
-const string: HTTP_FOUND              is "302";
-const string: HTTP_SEE_OTHER          is "303";
-const string: HTTP_TEMPORARY_REDIRECT is "307";
-const string: HTTP_UNAUTHORIZED       is "401";
+const string: HTTP_CONTINUE                        is "100";
+const string: HTTP_SWITCHING_PROTOCOLS             is "101";
+const string: HTTP_PROCESSING                      is "102";
+const string: HTTP_EARLY_HINTS                     is "103";
+
+const string: HTTP_OK                              is "200";
+const string: HTTP_CREATED                         is "201";
+const string: HTTP_ACCEPTED                        is "202";
+const string: HTTP_NON_AUTHORITATIVE_INFORMATION   is "203";
+const string: HTTP_NO_CONTENT                      is "204";
+const string: HTTP_RESET_CONTENT                   is "205";
+const string: HTTP_PARTIAL_CONTENT                 is "206";
+const string: HTTP_MULTI_STATUS                    is "207";
+const string: HTTP_ALREADY_REPORTED                is "208";
+const string: HTTP_IM_USED                         is "226";
+
+const string: HTTP_MULTIPLE_CHOICES                is "300";
+const string: HTTP_MOVED_PERMANENTLY               is "301";
+const string: HTTP_FOUND                           is "302";
+const string: HTTP_SEE_OTHER                       is "303";
+const string: HTTP_NOT_MODIFIED                    is "304";
+const string: HTTP_USE_PROXY                       is "305";
+const string: HTTP_SWITCH_PROXY                    is "306";
+const string: HTTP_TEMPORARY_REDIRECT              is "307";
+const string: HTTP_PERMANENT_REDIRECT              is "308";
+
+const string: HTTP_BAD_REQUEST                     is "400";
+const string: HTTP_UNAUTHORIZED                    is "401";
+const string: HTTP_PAYMENT_REQUIRED                is "402";
+const string: HTTP_FORBIDDEN                       is "403";
+const string: HTTP_NOT_FOUND                       is "404";
+const string: HTTP_METHOD_NOT_ALLOWED              is "405";
+const string: HTTP_NOT_ACCEPTABLE                  is "406";
+const string: HTTP_PROXY_AUTHENTICATION_REQUIRED   is "407";
+const string: HTTP_REQUEST_TIMEOUT                 is "408";
+const string: HTTP_CONFLICT                        is "409";
+const string: HTTP_GONE                            is "410";
+const string: HTTP_LENGTH_REQUIRED                 is "411";
+const string: HTTP_PRECONDITION_FAILED             is "412";
+const string: HTTP_CONTENT_TOO_LARGE               is "413";
+const string: HTTP_URI_TOO_LONG                    is "414";
+const string: HTTP_UNSUPPORTED_MEDIA_TYPE          is "415";
+const string: HTTP_RANGE_NOT_SATISFIABLE           is "416";
+const string: HTTP_EXPECTATION_FAILED              is "417";
+const string: HTTP_I_AM_A_TEAPOT                   is "418";
+const string: HTTP_MISDIRECTED_REQUEST             is "421";
+const string: HTTP_UNPROCESSABLE_CONTENT           is "422";
+const string: HTTP_LOCKED                          is "423";
+const string: HTTP_FAILED_DEPENDENCY               is "424";
+const string: HTTP_TOO_EARLY                       is "425";
+const string: HTTP_UPGRADE_REQUIRED                is "426";
+const string: HTTP_PRECONDITION_REQUIRED           is "428";
+const string: HTTP_TOO_MANY_REQUESTS               is "429";
+const string: HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE is "431";
+const string: HTTP_UNAVAILABLE_FOR_LEGAL_REASONS   is "451";
+
+const string: HTTP_INTERNAL_SERVER_ERROR           is "500";
+const string: HTTP_NOT_IMPLEMENTED                 is "501";
+const string: HTTP_BAD_GATEWAY                     is "502";
+const string: HTTP_SERVICE_UNAVAILABLE             is "503";
+const string: HTTP_GATEWAY_TIMEOUT                 is "504";
+const string: HTTP_VERSION_NOT_SUPPORTED           is "505";
+const string: HTTP_VARIANT_ALSO_NEGOTIATES         is "506";
+const string: HTTP_INSUFFICIENT_STORAGE            is "507";
+const string: HTTP_LOOP_DETECTED                   is "508";
+const string: HTTP_NOT_EXTENDED                    is "510";
+const string: HTTP_NETWORK_AUTHENTICATION_REQUIRED is "511";
 
 
 const type: httpLocation is new struct
