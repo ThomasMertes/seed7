@@ -188,6 +188,11 @@ const func type: base_type (in type: array_type) is func
   end func;
 
 
+const func boolean: isInlineParam (in reference: aParam) is forward;
+
+const func type: getInlineParamType (in reference: aParam) is forward;
+
+
 const func type: getExprResultType (in reference: aReference) is func
 
   result
@@ -196,12 +201,16 @@ const func type: getExprResultType (in reference: aReference) is func
     # write("getExprResultType: ");
     # TRACE_OBJ(aReference);
     # writeln;
-    resultType := getType(aReference);
-    if category(aReference) = CALLOBJECT then
-      while isFunc(resultType) or isVarfunc(resultType) do
-        # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
-        resultType := resultType(resultType);
-      end while;
+    if isInlineParam(aReference) then
+      resultType := getInlineParamType(aReference);
+    else
+      resultType := getType(aReference);
+      if category(aReference) = CALLOBJECT then
+        while isFunc(resultType) or isVarfunc(resultType) do
+          # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
+          resultType := resultType(resultType);
+        end while;
+      end if;
     end if;
     # writeln("getExprResultType --> " <& str(resultType));
   end func;
