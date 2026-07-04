@@ -310,6 +310,12 @@ static void handleTermSignal (int signalNum)
 static void sigactionTracedSegvSignal (int signalNum, siginfo_t *info, void *context)
 
   { /* sigactionTracedSegvSignal */
+    logMessage(printf("si_signo: %d\n", info->si_signo);
+               printf("si_errno: %d\n", info->si_errno);
+               printf("si_code: %d\n", info->si_code);
+               printf("si_pid: %ld\n", (long) info->si_pid);
+               printf("si_uid: %ld\n", (long) info->si_uid);
+               printf("si_addr: " FMT_U_MEM "\n", (memSizeType) info->si_addr););
 #if HAS_SIGALTSTACK
 #if DIALOG_IN_SIGNAL_HANDLER
     (void) signalDecision(signalNum, TRUE);
@@ -459,7 +465,7 @@ void setupSignalHandlers (boolType handleSignals,
     } /* if */
     okay = okay && setupSegmentationViolationHandler();
     if (!okay) {
-      printf("\n*** Activating signal handlers failed.\n");
+      logError(printf("\n*** Activating signal handlers failed.\n"););
     } /* if */
     logFunction(printf("setupSignalHandlers -->\n"););
   } /* setupSignalHandlers */
@@ -589,7 +595,7 @@ void setupSignalHandlers (boolType handleSignals,
     } /* if */
     okay = okay && setupSegmentationViolationHandler();
     if (!okay) {
-      printf("\n*** Activating signal handlers failed.\n");
+      logError(printf("\n*** Activating signal handlers failed.\n"););
     } /* if */
     logFunction(printf("setupSignalHandlers -->\n"););
   } /* setupSignalHandlers */
