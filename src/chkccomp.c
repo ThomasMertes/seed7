@@ -1971,6 +1971,16 @@ static void writeMacroDefs (FILE *versionFile)
       fputs("#define NORETURN\n", versionFile);
       strcat(macroDefs, "#define NORETURN\\n");
     } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
+                         "{if(argc >> 3 != 0){__builtin_unreachable();}\n"
+                         "puts(\"1\");\n"
+                         "return 0;}\n") && doTest() == 1) {
+      fputs("#define UNREACHABLE __builtin_unreachable();\n", versionFile);
+      strcat(macroDefs, "#define UNREACHABLE __builtin_unreachable();\\n");
+    } else {
+      fputs("#define UNREACHABLE\n", versionFile);
+      strcat(macroDefs, "#define UNREACHABLE\\n");
+    } /* if */
     fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", macroDefs);
   } /* writeMacroDefs */
 
@@ -8486,9 +8496,9 @@ static void copyWithSlashes (char *dest, const char *source)
   { /* copyWithSlashes */
     while (*source != '\0') {
       if (*source == '\\') {
-	*dest = '/';
+        *dest = '/';
       } else {
-	*dest = *source;
+        *dest = *source;
       } /* if */
       source++;
       dest++;
