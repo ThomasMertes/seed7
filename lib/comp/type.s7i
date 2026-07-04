@@ -201,12 +201,19 @@ const func type: getExprResultType (in reference: aReference) is func
     # write("getExprResultType: ");
     # TRACE_OBJ(aReference);
     # writeln;
-    resultType := getType(aReference);
-    if category(aReference) = CALLOBJECT then
+    if isInlineParam(aReference) then
+      resultType := getInlineParamType(aReference);
       while isFunc(resultType) or isVarfunc(resultType) do
-        # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
         resultType := resultType(resultType);
       end while;
+    else
+      resultType := getType(aReference);
+      if category(aReference) = CALLOBJECT then
+        while isFunc(resultType) or isVarfunc(resultType) do
+          # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
+          resultType := resultType(resultType);
+        end while;
+      end if;
     end if;
     # writeln("getExprResultType --> " <& str(resultType));
   end func;
