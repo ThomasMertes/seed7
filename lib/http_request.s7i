@@ -308,7 +308,8 @@ const proc: sendHttp (inout file: sock, in httpRequest: request) is func
     if request.creds.username <> "" then
       # Basic auth doesn't accept colons in the username.
       if pos(request.creds.username,':') = 0 then
-        plain &:= "Authorization: Basic " & toBase64(request.creds.username & ":" & request.creds.password) & "\r\n";
+        plain &:= "Authorization: Basic " &
+                  toBase64(request.creds.username & ":" & request.creds.password) & "\r\n";
       else
         raise RANGE_ERROR;
       end if;
