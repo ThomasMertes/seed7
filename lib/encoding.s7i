@@ -309,13 +309,13 @@ const func string: toQuotedPrintable (in string: byteStri) is func
               quoted &:= "=\n";
               counter := 1;
             end if;
-            quoted &:= "=" <& ord(byteStri[pred(index)]) RADIX 16 lpad0 2;
+            quoted &:= "=" <& ord(ch) RADIX 16 lpad0 2;
             counter +:= 3;
             startPos := index;
           end if;
         end if;
         counter := 1;
-      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\9;') then
+      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\t') then
         quoted &:= byteStri[startPos .. pred(index)];
         if counter >= 74 then
           quoted &:= "=\n";
