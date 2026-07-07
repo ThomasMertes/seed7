@@ -124,6 +124,10 @@ const type: tlsParameters is new struct
     var integer:              writeSequenceNumber      is 0;
     var boolean:              writeEncryptedRecords    is FALSE;
     var string:               handshake_messages       is "";
+    var boolean:              secure_renegotiation     is FALSE;
+    var string:               renegotiated_connection  is "";
+    var string:               client_verify_data       is "";
+    var string:               server_verify_data       is "";
   end struct;
 
 const char: NO_MESSAGE         is EOF;
@@ -733,6 +737,17 @@ const proc: processSignatureAlgorithmsExtension (inout tlsParameters: parameters
   end func;
 
 
+const proc: processRenegotiationInfo (inout tlsParameters: parameters,
+    in string: extensionData) is func
+  local
+    var integer: length is 0;
+  begin
+    parameters.secure_renegotiation := TRUE;
+    length := ord(extensionData[1]);
+    parameters.renegotiated_connection := extensionData[2 len length];
+  end func;
+
+
 const proc: processClientExtensions (inout tlsParameters: parameters, in string: extensions) is func
   local
     var integer: pos is 1;
@@ -752,6 +767,8 @@ const proc: processClientExtensions (inout tlsParameters: parameters, in string:
           processEllipticCurvesExtension(parameters, data);
         when {SIGNATURE_ALGORITHMS}:
           processSignatureAlgorithmsExtension(parameters, data);
+        when {RENEGOTIATION_INFO}:
+          processRenegotiationInfo(parameters, data);
       end case;
     end while;
   end func;
@@ -1066,7 +1083,13 @@ const proc: processFinished (inout tlsParameters: parameters, inout tlsParseStat
       end if;
     end if;
     # writeln("computed_verify_data: " <& hex(computed_verify_data));
-    if verify_data <> computed_verify_data then
+    if verify_data = computed_verify_data then
+      if parameters.isClient then
+        parameters.server_verify_data := verify_data;
+      else
+        parameters.client_verify_data := verify_data;
+      end if;
+    else
       writeln(" ***** Handshake not verified");
       raise RANGE_ERROR;
     end if;
@@ -1238,6 +1261,30 @@ const func string: genClientHello (inout tlsParameters: parameters, in string: s
   end func;
 
 
+const func string: renegotiationInfo (in string: renegotiatedConnection) is
+  return bytes(length(renegotiatedConnection), UNSIGNED, BE, 1) &
+         renegotiatedConnection;
+
+
+const func string: genServerExtensions (in tlsParameters: parameters) is func
+  result
+    var string: extensionBytes is "";
+  begin
+    if parameters.secure_renegotiation then
+      if parameters.renegotiated_connection = "" then
+        extensionBytes &:= genExtension(RENEGOTIATION_INFO, "\0;");
+      else
+        extensionBytes &:= genExtension(RENEGOTIATION_INFO,
+                                        renegotiationInfo(parameters.client_verify_data &
+                                                          parameters.server_verify_data));
+      end if;
+    end if;
+    if extensionBytes <> "" then
+      extensionBytes := bytes(length(extensionBytes), UNSIGNED, BE, 2) & extensionBytes;
+    end if;
+  end func;
+
+
 const func string: genServerHello (inout tlsParameters: parameters) is func
   result
     var string: serverHello is "";
@@ -1262,6 +1309,7 @@ const func string: genServerHello (inout tlsParameters: parameters) is func
                    parameters.session_id &     # SessionId
                    bytes(ord(parameters.cipher_suite), UNSIGNED, BE, 2) &
                    "\0;";                      # CompressionMethod: 0
+    serverHello &:= genServerExtensions(parameters);
     length := length(serverHello);
     serverHello @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
     serverHello @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
@@ -1494,6 +1542,11 @@ const func string: genFinished (inout tlsParameters: parameters) is func
                                             md5(parameters.handshake_messages) &
                                             sha1(parameters.handshake_messages), 12);
       end if;
+    end if;
+    if parameters.isClient then
+      parameters.client_verify_data := verify_data;
+    else
+      parameters.server_verify_data := verify_data;
     end if;
     # writeln("verify_data: " <& hex(verify_data));
     finished &:= verify_data;
