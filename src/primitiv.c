@@ -1262,6 +1262,7 @@ static const actEntryRecord actEntryTable[] = {
     { "POL_VALUE",                    pol_value,                    POLLOBJECT,        par_ref},
 
     { "PRC_ARGS",                     prc_args,                     ARRAYOBJECT,       par_no_args},
+    { "PRC_ASSERT",                   prc_assert,                   VOIDOBJECT,        par_op_bln},
     { "PRC_BEGIN",                    prc_begin,                    BLOCKOBJECT,       par_op_op_exp},
     { "PRC_BEGIN_NOOP",               prc_begin_noop,               BLOCKOBJECT,       par_no_args},
     { "PRC_BLOCK",                    prc_block,                    VOIDOBJECT,        par_op_prc_op_prc},
