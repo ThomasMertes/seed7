@@ -126,6 +126,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (inout func aType: dest) := (ref func aType: source)          is action "PRC_CPY";
     const proc: (inout varfunc aType: dest) := (ref varfunc aType: source)    is action "PRC_CPY";
     const type: typeof (ref aType: aValue)                                    is aType;
+    const func type: typeof (ref func aType: aValue)                          is action "TYP_TYPEOF";
     const creator: (ref func func aType: dest) ::= (ref ACTION: source)       is action "ACT_CREATE";
     const creator: (ref func varfunc aType: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
     const creator: (ref func func aType: dest) ::= (ref func func aType: source)        is action "PRC_CREATE";
@@ -207,6 +208,7 @@ const proc: var (ref type: aType) : (ref expr: name) is default is func
   end func;
 
 const type: typeof (ref void: aValue)                      is void;
+const type: typeof (ref proc: aValue)                      is proc;
 
 const func string: str (in type: aType)                    is action "TYP_STR";
 const func type: gentype                                   is action "TYP_GENTYPE";
@@ -379,6 +381,8 @@ const func integer: compare (in ACTION: anAction1, in ACTION: anAction2) is acti
 const func integer: hashCode (in ACTION: anAction)                       is action "ACE_HASHCODE";
 
 DECLARE_TERNARY(ACTION);
+
+const proc: assert (in boolean: condition) is action "PRC_ASSERT";
 
 
 (* type *)
@@ -911,13 +915,6 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
         var interfaceType: allocated is aType.value;
       local
         var aType: newStuct is aType.value;
-      begin
-        allocated := toInterface(newStuct);
-      end func;
-
-    const func interfaceType: create (in aType: newStuct) is func
-      result
-        var interfaceType: allocated is aType.value;
       begin
         allocated := toInterface(newStuct);
       end func;

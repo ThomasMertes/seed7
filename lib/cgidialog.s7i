@@ -219,7 +219,7 @@ const func image: image (in PRIMITIVE_WINDOW: pixmap) is func
     if pixmap = PRIMITIVE_WINDOW.value then
       anImage.src := "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
     else
-      anImage.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+      anImage.src := "data:image/bmp;base64," & toBase64Mime(str(pixmap, BMP));
     end if;
   end func;
 
@@ -598,7 +598,7 @@ const func resetButton: resetButton (in PRIMITIVE_WINDOW: pixmap) is func
     var resetButton: aResetButton is resetButton.value;
   begin
     aResetButton.name := genDialogElementName;
-    aResetButton.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+    aResetButton.src := "data:image/bmp;base64," & toBase64Mime(str(pixmap, BMP));
   end func;
 
 (**
@@ -675,7 +675,7 @@ const func submitButton: submitButton (in PRIMITIVE_WINDOW: pixmap) is func
     var submitButton: aSubmitButton is submitButton.value;
   begin
     aSubmitButton.name := genDialogElementName;
-    aSubmitButton.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+    aSubmitButton.src := "data:image/bmp;base64," & toBase64Mime(str(pixmap, BMP));
   end func;
 
 (**

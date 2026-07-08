@@ -73,7 +73,7 @@ const func pemObject: pemObject (in string: pemType, in string: content) is func
  *)
 const func string: str (in pemObject: pemObj) is
   return PEM_HEADER_START & pemObj.pemType & PEM_HEADER_END & "\n" &
-         toBase64(pemObj.content) & "\n" &
+         toBase64Pem(pemObj.content) & "\n" &
          PEM_FOOTER_START & pemObj.pemType & PEM_HEADER_END & "\n";
 
 

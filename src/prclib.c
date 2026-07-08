@@ -206,6 +206,22 @@ objectType prc_args (listType arguments)
 
 
 
+objectType prc_assert (listType arguments)
+
+  {
+    objectType condition;
+
+  /* prc_assert */
+    isit_bool(arg_2(arguments));
+    condition = take_bool(arg_2(arguments));
+    if (condition != SYS_TRUE_OBJECT) {
+      return raise_exception(SYS_ASSERTION_EXCEPTION);
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_assert */
+
+
+
 objectType prc_begin (listType arguments)
 
   {

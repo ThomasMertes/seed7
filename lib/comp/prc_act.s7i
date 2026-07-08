@@ -25,6 +25,7 @@
 
 
 const ACTION: PRC_ARGS             is action "PRC_ARGS";
+const ACTION: PRC_ASSERT           is action "PRC_ASSERT";
 const ACTION: PRC_BLOCK            is action "PRC_BLOCK";
 const ACTION: PRC_BLOCK_CATCH_ALL  is action "PRC_BLOCK";
 const ACTION: PRC_BLOCK_OTHERWISE  is action "PRC_BLOCK";
@@ -1439,6 +1440,58 @@ const proc: process (PRC_ARGS, in reference: function, in ref_list: params,
     c_expr.expr &:= "(";
     c_expr.expr &:= type_name(resultType(getType(function)));
     c_expr.expr &:= ")(arg_v)";
+  end func;
+
+
+const proc: process (PRC_ASSERT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      if getValue(evaluatedParam, boolean) then
+        c_expr.expr &:= "/* Assertion always TRUE */\n";
+      else
+        setDiagnosticLine(c_expr);
+        warning(DOES_RAISE, "ASSERTION_ERROR", c_expr);
+        c_expr.expr &:= "raiseError(ASSERTION_ERROR);\n";
+      end if;
+    else
+      process_expr(params[2], c_condition);
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        appendWithDiagnostic(c_condition.temp_decls, c_expr);
+        appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (unlikely(!(";
+      c_expr.expr &:= c_condition.expr;
+      if endsWith(c_expr.expr, "\n") then
+        setDiagnosticLine(c_expr);
+      end if;
+      c_expr.expr &:= "))) {\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "raiseError(ASSERTION_ERROR);\n}\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= " else {\n";
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+        c_expr.expr &:= "}}\n";
+      end if;
+    end if;
   end func;
 
 

@@ -1354,6 +1354,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(POL_VALUE, function, params, c_expr);
       when {"PRC_ARGS"}:
         process(PRC_ARGS, function, params, c_expr);
+      when {"PRC_ASSERT"}:
+        process(PRC_ASSERT, function, params, c_expr);
       when {"PRC_BLOCK"}:
         process(PRC_BLOCK, function, params, c_expr);
       when {"PRC_BLOCK_CATCH_ALL"}:
