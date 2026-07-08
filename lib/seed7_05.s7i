@@ -382,6 +382,8 @@ const func integer: hashCode (in ACTION: anAction)                       is acti
 
 DECLARE_TERNARY(ACTION);
 
+const proc: assert (in boolean: condition) is action "PRC_ASSERT";
+
 
 (* type *)
 

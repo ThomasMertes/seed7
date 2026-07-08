@@ -226,6 +226,7 @@ $ syntax expr: .block.().exception.end.block                     is  -> 25;
 
 $ syntax expr: .global.().end.global                             is  -> 25;
 
+$ syntax expr: .assert.()                                        is  -> 25;
 $ syntax expr: .raise.()                                         is  -> 25;
 
 $ syntax expr: .func.()      is <-  30;
