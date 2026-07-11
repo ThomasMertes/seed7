@@ -426,6 +426,15 @@ Is there an example where val and ref parameters have different behavior?
 <li><a class="link" href="#faq_call_by_name"><b>
 What is call-by-name?
 </b></a></li>
+<li><a class="link" href="#faq_return_reference_to_struct_element"><b>
+Can a function return a reference to an element of a struct?
+</b></a></li>
+<li><a class="link" href="#faq_parameter_referencing_struct_element"><b>
+Can a parameter reference an element of a struct?
+</b></a></li>
+<li><a class="link" href="#faq_variables_referring_same_object"><b>
+Can several variables refer to the same object?
+</b></a></li>
 <li><a class="link" href="#faq_functions_declared_with_const"><b>
 Why are functions declared with const?
 </b></a></li>
@@ -925,12 +934,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-09-30 the number of lines is:
+than 400000 lines of Seed7. For version 2026-07-11 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">187859</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 14277</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">278686</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">201436</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">196327</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 14606</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">286789</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">205550</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1265,6 +1274,7 @@ chkbig ........... okay
 chkbool ........... okay
 chkenum ........... okay
 chktime ........... okay
+chkdecl ........... okay
 chkscan ........... okay
 chkjson ........... okay
 chktoml ........... okay
@@ -1444,9 +1454,11 @@ syntax on
 <li>For Emacs, the <a class="link" href="https://github.com/pierre-rouleau/seed7-mode">seed7-mode major mode</a>
    provides syntax highlighting, automatic indentation, specialized navigation
    and several other features.</li>
-<li>For the Nano editor there is <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7.nanorc">seed7/doc/seed7.nanorc</a> and <a class="link" href="https://github.com/galenguyer/nano-syntax-highlighting/blob/359cc2b641a55579cef347451b064061fbc00aaf/seed7.nanorc">nano-syntax-highlighting/seed7.nanorc</a>.
-   You can copy this file to <nobr><span class="lib">/usr/share/nano</span></nobr> (you might need superuser privileges to do that).
-   Arch-user can install package <a class="link" href="https://archlinux.org/packages/extra/any/nano-syntax-highlighting/">nano-syntax-highlighting</a> or <a class="link" href="https://aur.archlinux.org/packages/nano-syntax-highlighting-git">nano-syntax-highlighting-git</a>.</li>
+<li>For the Nano editor there is <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7.nanorc">seed7/doc/seed7.nanorc</a> and
+   <a class="link" href="https://github.com/galenguyer/nano-syntax-highlighting/blob/359cc2b641a55579cef347451b064061fbc00aaf/seed7.nanorc">nano-syntax-highlighting/seed7.nanorc</a>. You can copy this file to
+   <nobr><span class="lib">/usr/share/nano</span></nobr> (you might need superuser privileges to do that).
+   Arch-user can install package <a class="link" href="https://archlinux.org/packages/extra/any/nano-syntax-highlighting/">nano-syntax-highlighting</a> or
+   <a class="link" href="https://aur.archlinux.org/packages/nano-syntax-highlighting-git">nano-syntax-highlighting-git</a>.</li>
 <li>For Notepad++ there is <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7udl.xml">seed7/doc/seed7udl.xml</a>. Start Notepad++ and
    go to <span class="stri">Language <b>&rArr;</b> User Defined Language <b>&rArr;</b> Define your language...</span>,
    click on <span class="stri">Import...</span>, select the <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7udl.xml">seed7/doc/seed7udl.xml</a> file and press <span class="stri">Open</span>.
@@ -1476,7 +1488,7 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <tt><span class="keywd">include</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd">is</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">len</span></tt> <tt><span class="keywd">local</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd">param</span></tt> <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">ref</span></tt>
 <tt><span class="keywd_no_ul">repeat</span></tt> <tt><a class="keywd_no_ul" href="#faq_result_variable">result</a></tt> <tt><a class="keywd_no_ul" href="#faq_no_return_statement">return</a></tt> <tt><span class="keywd_no_ul">set</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">val</span></tt>
 <tt><span class="keywd_no_ul">var</span></tt> <tt><span class="keywd">varfunc</span></tt> <tt><span class="keywd_no_ul">when</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
-<li>Keywords which introduce statements are: <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd">include</span></tt>
+<li>Keywords which introduce statements are: <tt><span class="keywd">assert</span></tt> <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd">include</span></tt>
 <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
 <li>Keywords which are used in the middle of statements are: <tt><span class="keywd_no_ul">catch</span></tt> <tt><span class="keywd">do</span></tt> <tt><span class="keywd_no_ul">downto</span></tt>
 <tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">when</span></tt></li>
@@ -1503,7 +1515,7 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <li>Predefined constants are: <tt><span class="var_no_ul">E</span></tt> <span class="var_no_ul">empty</span> <tt><span class="var_no_ul">EOF</span></tt> <tt><span class="var_no_ul">FALSE</span></tt> <tt><span class="var_no_ul">Infinity</span></tt> <tt><span class="var_no_ul">NaN</span></tt> <tt><span class="var_no_ul">NIL</span></tt> <tt><span class="var_no_ul">PI</span></tt> <tt><span class="var_no_ul">TRUE</span></tt></li>
 <li>Predefined variables are: <tt><span class="var_no_ul">CONSOLE_KEYBOARD</span></tt> <tt><span class="var_no_ul">GRAPH_KEYBOARD</span></tt> <tt><span class="var_no_ul">IN</span></tt> <tt><span class="var_no_ul">KEYBOARD</span></tt> <tt><span class="var_no_ul">OUT</span></tt>
 <tt><span class="var_no_ul">STD_CONSOLE</span></tt> <tt><span class="var_no_ul">STD_ERR</span></tt> <tt><span class="var_no_ul">STD_IN</span></tt> <tt><span class="var_no_ul">STD_NULL</span></tt> <tt><span class="var_no_ul">STD_OUT</span></tt></li>
-<li>Predefined exceptions are: <tt><span class="exception">DATABASE_ERROR</span></tt> <tt><span class="exception">FILE_ERROR</span></tt> <tt><span class="exception">GRAPHIC_ERROR</span></tt>
+<li>Predefined exceptions are: <tt><span class="exception">ASSERTION_ERROR</span></tt> <tt><span class="exception">DATABASE_ERROR</span></tt> <tt><span class="exception">FILE_ERROR</span></tt> <tt><span class="exception">GRAPHIC_ERROR</span></tt>
 <tt><span class="exception">ILLEGAL_ACTION</span></tt> <tt><span class="exception">INDEX_ERROR</span></tt> <tt><span class="exception">MEMORY_ERROR</span></tt> <tt><span class="exception">NUMERIC_ERROR</span></tt> <tt><span class="exception">OVERFLOW_ERROR</span></tt>
 <tt><span class="exception">RANGE_ERROR</span></tt></li>
 <li>The syntax of <span class="link">literals</span> and <span class="link">comments</span> is described with the <span class="link">Backus Naur Form</span>.
@@ -3180,6 +3192,88 @@ Depending on the condition <tt>'a <span class="op">&gt;=</span> 0'</tt> only one
 is assigned to <tt>'result'</tt>.
 </p></div>
 
+<div><br /><a name="faq_return_reference_to_struct_element"><h3>Can a function return a reference to an element of a struct?
+</h3></a><hr />
+<p>
+No, because this would open possibilities for memory corruption. E.g.:
+</p><pre class="indent">
+<span class="keywd_no_ul">var</span> <span class="type">pointer</span> <span class="type">float</span>: floatPtr <span class="keywd">is</span> NULL;
+...
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: assignFloatPtr <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">local</span>
+    <span class="keywd_no_ul">var</span> <span class="type">complex</span>: aComplex <span class="keywd">is</span> <span class="type_no_ul">complex</span>.value;
+  <span class="keywd">begin</span>
+    floatPtr <span class="op">:=</span> functionWhichReturnsAReferenceToAnElement(aComplex);
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+...
+assignFloatPtr;
+</pre><p>
+Inside <tt>assignFloatPtr</tt> a reference to an element of the local struct
+variable <tt>aComplex</tt> is assigned to <tt>floatPtr</tt>. When <tt>assignFloatPtr</tt>
+is left the local variable <tt>aComplex</tt> is freed. Now <tt>floatPtr</tt> refers
+to freed memory.
+</p><p>
+All containers (<tt><span class="type">struct</span></tt>, <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt>, etc.) own their elements. When
+a container variable leaves its scope all memory of the container
+is freed. If at that time a reference (pointer) into the container
+would exist it would now refer to freed memory.
+</p></div>
+
+<div><br /><a name="faq_parameter_referencing_struct_element"><h3>Can a parameter reference an element of a struct?
+</h3></a><hr />
+<p>
+Yes, parameters defined with <tt><span class="keywd">ref</span></tt> and <tt><span class="keywd">inout</span></tt> can refer to an element
+of a struct (or other container). E.g.:
+</p><pre class="indent">
+<span class="keywd_no_ul">const</span> <span class="type">proc</span>: timesTwo (<span class="keywd">inout</span> <span class="type">float</span>: number) <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="keywd">func</span>
+  <span class="keywd">begin</span>
+    number <span class="op_no_ul">*:=</span> 2;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+...
+<span class="keywd_no_ul">var</span> <span class="type">complex</span>: aComplex <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="type_no_ul">complex</span>.value;
+...
+timesTwo(aComplex.re);
+</pre><p>
+When <tt>timesTwo</tt> is called the <tt><span class="keywd">inout</span></tt> parameter <tt>number</tt> refers to
+the struct element <tt>re</tt>. The function <tt>timesTwo</tt> borrows the element
+<tt>re</tt>. This way it can multiply <tt>re</tt> (referred via <tt>number</tt>) by two.
+When the borrowing ends the struct <tt>aComplex</tt> can be freed. It is
+guaranteed that <tt>aComplex</tt> will not be freed before the function
+<tt>timesTwo</tt> is left. A reference (pointer) to freed memory cannot
+happen.
+</p></div>
+
+<div><br /><a name="faq_variables_referring_same_object"><h3>Can several variables refer to the same object?
+</h3></a><hr />
+<p>
+Yes, this can be done with <a class="link" href="#faq_object_oriented">object orientation</a>. This way several
+interface variables may refer to the same object. E.g.:
+</p><pre class="indent">
+<span class="keywd_no_ul">var</span> <span class="type">file</span>: file1 <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="var_no_ul">STD_NULL</span>;
+<span class="keywd_no_ul">var</span> <span class="type">file</span>: file2 <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> <span class="var_no_ul">STD_NULL</span>;
+...
+file1 <span class="op_no_ul">:=</span> <span class="func">open</span>("descr.txt", "r");
+file2 <span class="op_no_ul">:=</span> file1;
+</pre><p>
+The interface type <tt><span class="type">file</span></tt> is used to define the interface variables
+<tt>file1</tt> and <tt>file2</tt>. After the assignments <tt>file1</tt> and <tt>file2</tt>
+refer to the same object:
+</p><pre class="box">
+  +-----------------+   +-----------------+
+  | var file: file1 |   | var file: file2 |
+  +-----------------+   +-----------------+
+                 |         |
+                 |         |
+                 V         V
+             +-----------------+
+             |  external_file  |
+             |     object      |
+             +-----------------+
+</pre><p>
+The objects use a reference count and are freed automatically when
+the reference count reaches zero.
+</p></div>
+
 <div><br /><a name="faq_functions_declared_with_const"><h3>Why are functions declared with const?
 </h3></a><hr />
 <p>
@@ -3951,7 +4045,15 @@ areas. All computations of memory sizes are protected against
 <p>
 Yes, Seed7 has exceptions which are similar to Ada exceptions. In <span class="link">chapter 16.3
 (Exceptions)</span> of the manual you will find a detailed description of the Seed7
-exceptions. The use of exceptions also improves readability. E.g.:
+exceptions. Generally there are two ways to handle errors:
+<ul>
+<li>Error codes should be returned and checked if the circumstances of the error are known. (e.g. <span class="link">opening a file</span> or <span class="link">network connection</span>). If the programmer foresees that something can fail an error code is the right approach.</li>
+<li>Exceptions should be used if errors can happen at numerous places (e.g. <span class="link">array indexing out of bounds</span>, <span class="link">integer overflow</span>, <span class="link">integer division by zero</span>, the program runs <span class="link">out of memory</span>). Exceptions cover the case where the programmer did not expect that something fails.</li>
+</ul><p>
+Exceptions complement return codes. They provide a safety net for all cases
+where unplanned errors occur.
+</p><p>
+The use of exceptions can improve readability. E.g.:
 </p><pre class="indent">
 doA();
 doB();

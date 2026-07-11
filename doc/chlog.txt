@@ -1,3 +1,731 @@
+20260711:
+- In encoding.s7i Base64Url encoding and decoding has been added.
+  Many thanks to Zykaris for providing the functions toBase64Url()
+  and fromBase64Url(). As suggested by Zykaris the functions
+  toBase64Mime() and toBase64Pem() have been added as well.
+- In sql_post.c support for the money type has been added. Many
+  thanks to Zyokatsu for sending a pull request.
+- In sql_post.c the implicitCommit mechanism has been deactivated.
+  Thanks to Zykaris for pointing out problems with the implicit
+  commit mechanism. Thanks to Johannes Gritsch for his advice that
+  the implicit commit mechanism should not be used.
+- In sqllib.c the function sqlSetAutoCommit() has been fixed to use
+  argument 2 instead of non-existent argument 3. Many thanks to
+  Zyokatsu for pointing out a problem with setAutoCommit().
+- In osfiles.s7i the function makeParentDirs() has been improved to
+  allow symbolic links to directories. Many thanks to Zykaris for
+  pointing out that makeParentDirs() didn't follow symbolic links.
+- Code has been moved from gethttp.s7i to the new library
+  http_request.s7i. Basic and Bearer Authentication has been added
+  and GET and POST have been unified. HTTP/S post functionality has
+  been added as well. Many thanks to Zykaris for the pull request.
+- In http_request.s7i constants for HTTP status codes have been
+  added. Many thanks to Barankegnu for providing the change.
+- A coercing of http request properties to lowercase has been added
+  (header names are case insensitive). Expect-Header support has
+  been added as well. Many thanks to Zykaris for providing these
+  changes.
+- In scanfile.s7i and scanstri.s7i the function
+  getXmlTagHeadOrContent() has been improved to return <? as symbol.
+  Many thanks to Zykaris for pointing out that <? was not processed
+  correctly.
+- In tls.s7i the function negotiateSecurityParameters() has been
+  improved to send an empty Certificate as answer to a
+  CertificateRequest. Many thanks to Zykaris for pointing out that
+  openssl complained about an "Unexpected Message".
+- In tls.s7i support for secure renegotiation has been added. Many
+  thanks to Zykaris for pointing out that curl complained about a
+  "handshake failure".
+- In the FAQ explanations about references to struct elements and
+  about variables refering to the same object have been added. The
+  answer about exceptions has been improved.
+- The operating system DOS is supported (with DJGPP) again. The
+  tests have been done with Dosemu and Dosbox.
+- Interpreter and compiler have been refactored. Now the type ACTION
+  uses the category ACTENTRYOBJECT instead of ACTOBJECT. An
+  ACTENTRYOBJECT value points to an actEntryRecord (ACTOBJECT values
+  are function pointers). New primitive actions for ACTENTRYOBJECT
+  have been introduced. They have names starting with ACE_. Now
+  expressions like action "INT_ADD" return an ACTENTRYOBJECT instead
+  of an ACTOBJECT. Now an actEntryRecord contains more information.
+  The category of the result, the number of parameters and the
+  category of the parameters have been added to actEntryRecord.
+- ACTION functions for conversion, comparison and hash code have
+  been added to seed7_05.s7i.
+- EXCEPTION in-parameters and the str() function for EXCEPTIONs have
+  been added to seed7_05.s7i.
+- In seed7_05.s7i the definition of typeof() has been changed so that
+  the argument is never executed.
+- In syntax.s7i the priority of the action operator has been
+  changed.
+- The exception ASSERTION_ERROR and assert statements have been
+  introduced. Tests for assert statements have been added to
+  chkprc.sd7.
+- Interpreter and compiler have been improved to support functions
+  which return functions.
+- Hash- and array-functions for compiled programs have been improved
+  to use rtlValueUnion instead of genericType. This avoids casts
+  from pointers to integers and back to pointers.
+- Support for writing types has been added.
+- In the library float.s7i function literal() has been improved to
+  use the scientific notation if it is shorter.
+- The library cli_cmds.s7i (used by make7) has been improved:
+  - The output redirection of commands has been improved to work
+    correctly if the command is directly followed by >> or > .
+  - Support for the commands "echo:", "echo/" and "echo\" has been
+    added.
+  - The commands "echo.", "echo:", "echo/" and "echo\" have been
+    improved to support parameters.
+  - The function oneShellCommand() has been addeed. If possible
+    it executes external commands without shell. If no executable is
+    found shell() and popen() are called with an array of
+    parameters.
+  - The function getCommandParameter() has been improved to work
+    correctly if the given parameters are empty.
+  - The functions getCommandParameter() and getDosCommandParameter()
+    have been improved to escape a double quote if it is preceeded
+    by an odd number of backslashes.
+- The library tar.s7i has been improved to assure that up to a size
+  of 8 gigabytes the ustar and pax file size are identical.
+- The library zip.s7i has been improved to support ZIP files with
+  the legacy signature PK00 as magic number.
+- The new library asn1oid.s7i has been added. Definitions of ASN.1
+  object identifiers have been moved from x509cert.s7i to
+  asn1oid.s7i. The type algorithmIdentifierType and related
+  functions have been moved from x509cert.s7i to asn1oid.s7i as
+  well.
+- The new library signature.s7i has been added. The type
+  rsaSignatureType and related functions have been moved from
+  x509cert.s7i and tls.s7i to signature.s7i.
+- In x509cert.s7i the validity of stdCertificate has been extended
+  to the end of 2029.
+- In charsets.s7i the function conv2unicodeByName() has been
+  refactored to use a case-statement.
+- The new library bin16.s7i has been added. This library supports
+  IEEE 754 16-bit half-precision floats.
+- The new library pcx.s7i has been added. This library supports
+  the PCX image file format. PCX magic numbers have been added to
+  magic.s7i and support for PCX has been added to imagefile.s7i.
+- The picture viewer pv7.sd7 has been improved to support PCX and
+  a list of image parameters.
+- In bin32.s7i and bin64.s7i conversions from bin32 and bin64 to
+  char have been added.
+- In lzw.s7i the performance of the LZW decompression has been
+  improved by 0.9%.
+- The bmp.s7i library has been improved:
+  - Support for the Huffman 1D compressed BMP format has been added.
+  - Support for top-to-bottom bitmaps with 8 bits per pixel has been
+    added.
+  - Functions for line-wise processing of pixels have been added.
+  - The pixel data of a BMP with 1, 2 and 4 bits per pixel is read
+    with one gets().
+  - An in-parameter is used for bmpHeader parameters in places where
+    it does not change.
+  - The calculation of colorEntrySize has been improved.
+- The libraries tga.s7i and pcx.s7i have been improved to use the
+  in-var-parameter byteIndex instead of the in-parameter
+  byteIndexStart.
+- The jpeg.s7i library has been improved:
+  - The function showHeader(), which shows the header struct, has
+    been added.
+  - In getSymbol() the condition to recognize negative numbers has
+    been changed.
+- The tiff.s7i library has been improved:
+  - Support for tiled images has been added. This includes images
+    with bitsPerSample mod 8 <> 0.
+  - The processing of images has been improved to work linewise.
+  - The processing of JPEG data has been improved.
+  - Support for old style JPEG data has been added.
+  - The strip and tile processing has been improved.
+  - Support for the photometric interpretations CMYK and CMYKA
+    has been added.
+  - The TIFF compression 50013 (PIXTIFF DEFLATE) has been added as
+    synonym of DEFLATE.
+  - Support for fillOrder = 2 in combination with the pack-bits
+    decompression has been added.
+  - Definitions of many tags have been added.
+  - In tagValueAsString() and tagValueAsArray() a possible garbage
+    in higher or lower bits of a TIFF_FIELD_SHORT field is ignored.
+  - Unused tile data is removed if bitsPerPixel >= 8 holds.
+  - Support for 4 samples per pixel, if samples are not divisible by
+    8, has been added.
+  - The differencing predictor has been improved to work with 16-bit
+    samples.
+  - A float predictor has been added.
+  - Support for the float sample format has been added.
+  - Support for floating point RGBA TIFF has been added.
+  - Support for the photometric interpretation YCbCr with a
+    vertical sub-sampling of 1 or 2 has been added.
+  - Support for for the following planar TIFF images has been
+    improved:
+    - Planar images with CMYK photometric interpretation.
+    - Tiled planar images.
+    - Grayscale planar images.
+    - Planar images with bitsPerSample mod 8 <> 0.
+  - The function showHeader() has been improved.
+- The ccittfax.s7i library has been improved:
+  - The function skipToStart() has been added.
+  - The function skipEol() has been changed to search for a one bit.
+  - The end-of-line bit patterns of white and black have been
+    changed.
+  - The functions getWhiteBits() and getBlackBits() have been
+    changed to avoid that the end-of-line code (-1) is added.
+- In graph.s7i the functions compare() and hashCode() for pixel
+  values have been added.
+- In encoding.s7i the performance of toUuencoded(), toBase64() and
+  toBase64Url() has been improved by around 25%.
+- In encoding.s7i the performance of toAscii85(), fromUuencoded(),
+  fromBase64Url() and fromBase64() has been improved by around 10%.
+- In bytedata.s7i the performance of hex2Bytes() has been improved
+  by 2.4%
+- The libraries http_request.s7i and https_request.s7i have been
+  improved:
+  - The conversion to integer has been improved to work without
+    exceptions and handlers.
+  - Unused getHttp() and getHttps() functions have been removed.
+  - openHttp() and openHttps() functions with location and request
+    parameters have been refactored.
+  - The functions http(GET, ...) and https(GET, ...) have been
+    introduced.
+- The library http_response.s7i has been renamed to
+  http_srv_resp.s7i.
+- In httpserv.s7i the type httpRequest to has been renamed to
+  httpServerRequest.
+- In httpserv.s7i the function getHttpRequest() has been improved to
+  check if the remaining buffer contains the rest of the content.
+- In html_ent.s7i support for hex encoded HTML entities has been
+  added to decodeHtmlEntities().
+- In smtp.s7i in openSmtp() the STARTTLS command is considered if it
+  is part of the response content.
+- The pointer types ptr and varptr have been removed from libraries
+  and manual.
+- In objutl.c the function dump_temp_value() has been improved to
+  call set_fail_flag(FALSE) only if necessary. This improves the
+  Seed7 interpreter by 1% (measured with gcc and valgrind when pv7
+  is reading a PCX image).
+- In boolean.s7i support for the following boolean assignments has
+  been added: &:=  |:=  ><:=
+- Tests for the new boolean assignments &:=  |:=  ><:= and for the
+  ternary operator ( ? : ) have been added to chkbool.sd7.
+- The test suite has been improved to use the boolean &:=
+  assignment.
+- The deprecated functions keypressed() and busy_getc() have been
+  removed from keybd.s7i.
+- In process.s7i the function commandPath() has been improved to
+  append EXECUTABLE_FILE_EXTENSION only if it is not already
+  present.
+- In shell.s7i the functions popen() and popen8() have been
+  refactored to be based on the new function popenClibFile(), which
+  uses a parameter array instead of a parameter string.
+- In shell.s7i the functions shell() and shellCmd() have been
+  refactored to be based on the action CMD_SHELL_EXECUTE, which uses
+  a parameter array instead of a parameter string.
+- The deprecated function cmd_sh() has been removed from shell.s7i.
+- The library bitdata.s7i has been improved:
+  - The function reverseByteBits() has been added.
+  - The operator &:= for LSB and MSB out bit streams has been added.
+  - In msbOutBitStream and its functions the variable bitSize has
+    been renamed to bitPos.
+  - The deprecated types lsbBitStream and msbBitStream as well as
+    the deprecated functions openLsbBitStream() and
+    openMsbBitStream() have been removed.
+  - The deprecated functions putBitLsb(), putBitsLsb(), putBitMsb()
+    and putBitsMsb() with a string or file as parameter have been
+    removed.
+  - The deprecated functions getBitLsb(), getBitsLsb(), getBitMsb()
+    and getBitsMsb() with a file as parameter have been removed.
+- In iobuffer.s7i the support for the undocumented function setbuf()
+  has been removed.
+- In null_file.s7i the = and <> comparisons have been removed.
+- In category.s7i, data.h and datautl.c the categories
+  ACTENTRYOBJECT, BOOLOBJECT, ENUMOBJECT and VOIDOBJECT have been
+  added. The category FILEDESOBJECT has been removed.
+- In sql_base.s7i support for the function dbCategory() has been
+  added.
+- In db_prop.s7i properties of Firebird databases have been added.
+- In ref_list.s7i definitions of the following for-loops have been
+  added:
+  - For-loops over the elements and keys (indices) of a ref_list.
+  - For-loops over the keys (indices) of a ref_list.
+- The test program chkdecl.sd7, which checks declarations, has been
+  added.
+- The test program chkarr.sd7 has been improved:
+  - Tests for fixed size arrays have been added.
+  - Tests for 'array bitset', 'array file' and 'array bstring' have
+    been added.
+  - Tests for getting an element from a temporary array have been
+    added.
+  - Index tests for empty base arrays have been added.
+  - Tests for 'ARRAY [ START .. STOP ]' with index out of range have
+    been activated.
+- In chkarr.sd7, chkbig.sd7, chkbin.sd7, chkenum.sd7, chkflt.sd7,
+  chkint.sd7, chkjson.sd7, chkset.sd7, chkstr.sd7 and chktime.sd7
+  definitions of raisesRangeError() have been refactored to use a
+  template.
+- In chkarr.sd7, chkbig.sd7, chkchr.sd7, chkint.sd7, chkovf.sd7,
+  chkset.sd7 and chkstr.sd7 check functions have been split into
+  parts.
+- In chkarr.sd7 and chkidx.sd7 definitions of raisesIndexError()
+  have been refactored to use a template.
+- In chkint.sd7 and chkbig.sd7 definitions of raisesNumericError()
+  have been refactored to use a template.
+- In chkint.sd7 and chkovf.sd7 tests for integer left shift by a sum
+  have been added.
+- In chkint.sd7 tests for the >>:= and <<:= operators have been
+  refactored.
+- In chkbin.sd7 tests for the conversion to and from IEEE 16-bit
+  half precision floats have been added.
+- In chkbin.sd7 tests for the radix and RADIX operators have been
+  added.
+- In chkstr.sd7 tests for string append and prepend have been added.
+- In chkstr.sd7 tests for string assignment have been added.
+- In chkbst.sd7 tests for index access have been added.
+- In chkhsh.sd7 tests for hash index with default have been added.
+- In chkfil.sd7 the tests for file assignment have been improved.
+  They use three different files and they avoid that a file is
+  opened multiple times for writing.
+- In chkfil.sd7 a check, if appending to a file works correctly, has
+  been added.
+- In chkfil.sd7 a test if _GENERATE_EMPTY_CLIB_FILE returns
+  CLIB_NULL_FILE has been added.
+- In chkprc.sd7 tests for case statements with bitset, rational,
+  type, bstring, boolean and enumeration values have been added.
+- The program chkdb.sd7 has been improved:
+  - Tests for LATIN-1 charactes in fields have been added.
+  - Tests for float and double fields have been added.
+  - Date tests for 1858-11-17, 1999-12-31 and 2000-1-1 have been
+    added.
+  - The functions testChar1AsciiControlField(),
+    testChar1Latin1C1ControlField(),
+    testPositiveYearMonthDurationField() and
+    testNegativeYearMonthDurationField() have been added.
+- In chkflt.sd7 tests for the str(FLOAT) function, for the cubic
+  root function and for the ternary operator with -0.0 have been
+  added.
+- In chkerr.sd7 checks if a wrong usage of an action triggers a
+  DECL_FAILED error have been added.
+- In chkexc.sd7 tests for the exception ord function and conv
+  operator have been added.
+- The program chk_all.sd7 has been improved to support the option
+  minimal_tests (this tests the compiler just with the highest
+  optimization).
+- The Seed7 compiler (s7c.sd7) has been improved:
+  - In comp/type.s7i the function getExprResultType() has been
+    improved. Now array for-each-loops work with inheritance.
+    Many thanks to Zykaris for pointing out a difference between
+    interpreted and compiled programs.
+  - Support for case statements with struct values has been added.
+  - The code generation for case statements with hash sets in when
+    parts has been refactored
+  - Support for global database and sqlStatement variables in
+    compiled programs has been added.
+  - The processing of function parameters has been improved.
+  - The optimization of the integer mod operator has been improved.
+  - The optimization for the integer power operator has been
+    improved.
+  - An optimization for stri @:= [n] aString mult i; has been added.
+    Tests for stri @:= [n] aString mult i; have been added to
+    chkidx.sd7 and chkstr.sd7.
+  - An integer overflow in the array index computation is avoided.
+  - In bin_act.s7i in calls of several functions a cast of the
+    argument to uintType has been added.
+  - Assignments which prepend a char use strPrependChar() to
+    optimize.
+  - String constants are appended with strAppendNoOverlap().
+  - It is determined if source and destination of a string append
+    operation might overlap. If no overlap is possible
+    strAppendNoOverlap() is used.
+  - NULL is avoided in str- and bstr-tables (the address sanitizer
+    complains if memcpy() or memcmp() is called with NULL).
+  - In sct_act.s7i in process (SCT_SELECT, ...) getting an element
+    from a temporary struct has been improved.
+  - In prc_act.s7i calls of resetExceptionCheck() have been added
+    to the generated code.
+  - The support for the type ACTION (category ACTENTRYOBJECT) has
+    been improved.
+  - In arr_act.s7i the index check has been improved to work for an
+    empty base array.
+  - String literals without slices are written directly to c_prog.
+  - The management of temporary files has been improved.
+  - A usage of alloc(...) has been replaced by
+    alloc(REFPARAMOBJECT, ...).
+- Support for the configuration values TEMP_FILE_PREFIX and
+  HAS_VECTORED_EXCEPTION_HANDLER has been added to cc_conf.s7i,
+  confval.sd7, cmd_rtl.c and chkccomp.c.
+- Interpreter and compiler have been refactored to use catch_stack
+  in the interpreter and in compiled programs. This allows raising
+  a MEMORY_ERROR in case of a stack overflow. The catch_stack has
+  been changed to grow geometrically. The catch_stack is freed in
+  closeStack().
+- The files segv_win.c and segv_drv.h have been added. They contain
+  the stack overflow handler for Windows. The function
+  setupSegmentationViolationHandler() registers an error handler.
+  In case of a stack overflow the handler calls no_memory() which
+  does a longjmp(). At the place where setjmp() receives the longjmp
+  the function resetExceptionCheck() is called to restore the guard
+  pages.
+- Under Linux/BSD/Unix an alternate signal stack is used. A stack
+  overflow triggers a SIGSEGV. The SIGSEGV handler calls no_memory()
+  which does a longjmp(). The targets of the longjmp are maintained
+  with catch_stack.
+- In sigutl.c the functions handleTracedSegvSignal(),
+  sigactionTracedSegvSignal() and sigactionSegvSignal() have been
+  added. The function handleSegvSignal() has been removed.
+- In runerr.c and s7c.sd7 definitions of the global variables
+  error_file and error_line have been added. They are set in the
+  functions no_memory(), raise_error2() and interprRaiseError().
+  They are retrieved with the functions prc_get_run_error() and
+  prcGetRunError().
+- In numlit.c the float literal parsing has been improved to avoid
+  calls of strlen().
+- In msg_stri.c in appendListLimited() writing expressions has been
+  improved. The function appendListElement() has been added as well.
+  Tests in chkerr.sd7 have been improved to check for the new
+  error messages.
+- In runerr.c writing the place of an uncaught exception has been
+  improved.
+- In runerr.c the function write_curr_position() has been improved
+  to write expressions with appendListLimited()
+- In runerr.h the global variable fail_expr_stri, which stores
+  fail_expression as string, has been introduced. The function
+  write_fail_expression() has been removed from runerr.c.
+- In exec.c the function evaluate() has been improved to support
+  TYPEOBJECT.
+- In exec.c the function exec_call() has been improved to support
+  ACTENTRYOBJECT.
+- The types emptyStriType, emptyBStriType, emptyArrayType and
+  emptyStructType have been introduced to avoid address sanitizer
+  warnings.
+- In heaputl.h the macros ALLOC_EMPTY_STRI() and ALLOC_EMPTY_BSTRI()
+  have been introduced.
+- The macro SET_SLICE_EMPTY() has been introduced in interpreter and
+  compiler.
+- The macros ALLOC_EMPTY_STRI(), ALLOC_EMPTY_BSTRI() and
+  SET_SLICE_EMPTY() assure that the mem element is a legal pointer
+  (which is never used because the size is zero). This avoids
+  complaints of the address sanitizer.
+- In bst_rtl.h the macro bstringHashCode() has been introduced.
+- In str_rtl.h the macro ustringHashCode() has been introduced.
+- The file str_rtl.c has been improved:
+  - Variants of strAppend() and strAppendN(), which don't
+    use realloc(), have been added. This improves the performance of
+    strAppend() by 22% and the performance of strAppendN() by 7%.
+  - The functions strConcatChar() and strConcatCharTemp() now
+    consider that incrementing a string size cannot overflow.
+  - The functions strAppend(), strAppendTemp(), strAppendNoOverlap()
+    and strConcat() now consider that adding two string sizes cannot
+    overflow.
+  - The function strAppendNoOverlap() has been added.
+  - The function strPrependChar() has been added.
+  - The function ustriHash() has been renamed to ustriHashCode().
+  - The restrict keyword is used in the functions
+    strAppendNoOverlap(), strAppendTemp() and strConcatTemp().
+- In trm_cap.c a check for code != NULL has been added to the
+  functions my_tgetnum(), my_tgetflag() and my_tgetstr().
+- In pol_sel.c the function polClear() has been fixed to decrement
+  the usage counts from the write list instead of the read list.
+- The program chkccomp.c has been improved:
+  - It defines the macros register, PID_T_SIZE, PID_T_SIGNED,
+    HAS_BUILTIN_POPCOUNT, builtin_popcount64, HAS_SIGALTSTACK,
+    SIGNAL_STACK_ENABLED, SIGNAL_STACK_SIZE, OS_GETCWD_RETURNS_SLASH
+    HAS_VECTORED_EXCEPTION_HANDLER, FSEEK_SUCCEEDS_FOR_PIPE and
+    UNREACHABLE.
+  - It checks if the same file can be opened for writing twice.
+  - It considers /dev/null only as null device if PATH_DELIMITER is
+    slash (/).
+  - It checks if a memcpy() of zero bytes to an illegal heap address
+    is okay.
+  - It complains if the size of float or double is not in {2, 4, 8}.
+  - Define restrict as __restrict__ if using restrict directly
+    fails and using __restrict__ is possible.
+  - The functions determineSigaltstack(),
+    determineAddVectoredExceptionHandler(),
+    listDynamicLibsInBaseDir() and determineSizeofSQLWCHAR() have
+    been added.
+  - The recognition of databases has been improved.
+  - Checks for partial linking and sizeof(SQLWCHAR) have been
+    improved to work with C++.
+  - It writes the values DB2_CC_OPTION, INFORMIX_CC_OPTION and
+    SQL_SERVER_CC_OPTION to the file macros. This values are used by
+    the makefiles.
+  - A determination of read_buffer_empty() for Windows on ARM has
+    been added.
+- The program sudo.c has been improved to protect against
+  shell-injection and remote code execution.
+- The program wrdepend.c has been improved to avoid a NULL-pointer
+  dereference.
+- The program setwpath.c has been improved to check value_type and
+  function results.
+- The functions setenv7(), create_console(), resizeCatchStackOkay(),
+  resize_catch_stack(), genArgVector(), my_tgetent() and
+  fix_capability() have been improved to check for unsigned integer
+  overflow when the size for malloc() is computed.
+- In heaputl.c in the functions growStri() and shrinkStri()
+  assignments to capacity have been removed (they are already done
+  in HEAP_REALLOC_STRI).
+- Stack functions have been moved from heaputl.c and heaputl.h to
+  stackutl.c and stackutl.h.
+- In stackutl.c the function setupStack() has been improved to handle
+  the case that malloc() fails.
+- The macro NORETURN has been added to the functions no_memory() and
+  fatal_memory_error().
+- The file con_inf.c has been refactored to maintain console height
+  and width as unsigned int.
+- In cmd_unx.c the functions getGroupFromGid() and getUserFromUid()
+  have been improved to use a cache for mapping GIDs and UIDs to a
+  name.
+- In cmd_unx.c the functions getGidFromGroup() and getUidFromUser()
+  have been fixed to prevent double free of os_group and os_user in
+  case of a FILE_ERROR.
+- In kbd_inf.c the function read_f_key() has been improved to
+  prevent writing past the end of last_partial_match.
+- In kbdInputReady() (kbd_inf.c) and gkbInputReady() (gkb_win.c) the
+  variable result has been renamed to inputReady.
+- In cmd_win.c the function CommandLineToArgvW() has been improved
+  to allocate memory for the trailing NULL element at w_argv[w_argc]
+  even if commandLine contains one character or zero characters.
+- In setlib.c the unused function set_idx() has been removed.
+- In setlib.c the function set_incl() has been improved to avoid
+  MEMORY_ERROR if the old set is empty.
+- In dcllib.c in the functions dcl_in1() and dcl_in2() a default
+  switch case has been added. This will never be executed but
+  hopefully it makes source code analyzers happy.
+- In arrlib.c calls of memcpy() have been replaced with struct
+  assignments.
+- In sctlib.c the function sct_select() has been changed such that
+  the struct of a TEMP_DYNAMIC_OBJECT is not freed.
+- In prclib.c the functions prc_cpy() and prc_create() have been
+  improved to support a MATCHOBJECT source with parameters.
+- In match.c tests have been added to assure that the object type of
+  an attribute is not NULL.
+- In tim_rtl.c the function dateIsOkay() has been added. This
+  function checks if a date is in the allowed range.
+- The function bigFromDecimalBuffer() has been added to big_gmp.c
+  and big_rtl.c. All calls of getDecimalBigInt() have been replaced
+  by calls of bigFromDecimalBuffer(). In numutl.c the function
+  getDecimalBigInt() has been removed.
+- In numutl.c the function getDecimalBigRational() has been
+  refactored.
+- In fil_rtl.c the function filClose() has been improved to handle
+  pipes as well.
+- In fil_rtl.c the function filPopen() has been improved to use
+  createCommandLine() and to check the mode before creating
+  commandLine. Now memory is allocated before popen() is called.
+- The file soc_rtl.c has been improved:
+  - In socLineRead() a check that bytes_received is identical to
+    bytes_requested has been added.
+  - In socAccept() a leak of file descriptors has been closed.
+  - In socLineRead() an incorrect FREE_STRI2 size has been fixed.
+  - The management of sockets has been improved to automatically
+    close a socket, when the last variable that refers to the socket
+    leaves its scope (no variable refers to the socket any more).
+- The functions appendRealValue() (in msg_stri.c),
+  print_real_value() (in traceutl.c) and process(REF_TRACE) (in
+  ref_act.s7i) have been changed to work for the new SOCKETOBJECT.
+- The file pcs_unx.c has been improved:
+  - An _exit(127) has been added after every call of execv().
+  - Checks have been added to all calls of dup2(). If dup2() fails
+    a message is written and _exit(127) is called.
+  - In pcsPipe2(), pcsPty() and pcsStartPipe() possible file
+    descriptor leaks in error paths have been closed.
+  - The function pcsPty() has been fixed to free the file
+    childStdout before assigning to it.
+  - The function pcsPty() has been improved to avoid a leak of file
+    descriptors.
+  - The function pcsPty() has been improved to avoid that masterfd
+    is used twice in os_fdopen() calls.
+  - The function setCloseOnExec() has been introduced. The function
+    is used for file descriptors created by process functions. This
+    way parent file descriptors will not be leaked into future
+    processes.
+- The file pcs_win.c has been improved:
+  - The function pcsStart() has been improved to open a NULL_DEVICE
+    with fopen().
+  - The functions pcsPipe2() and pcsStartPipe() have been improved
+    to use binary files for pipes.
+  - The functions pcsPipe2() and pcsStartPipe() have been improved
+    to call _open_osfhandle() before starting the process. The
+    result of _open_osfhandle() is checked for errors as well.
+  - The functions pcsPipe2() and pcsStartPipe() have been improved
+    to check if setmode() fails.
+  - The functions pcsPipe2() and pcsStartPipe() have been improved
+    to call fdopen() before starting the process.
+  - The functions pcsPipe2() and pcsStartPipe() have been improved
+    to use one of fclose(), _close() or CloseHandle() to close a
+    file.
+  - Code has been moved to the new function processArgument().
+  - The function prepareCommandLine() has been improved to assure
+    that a double quote in os_command_stri is escaped.
+- The file pcs_dos.c has been improved:
+  - Implementations of pcsStart() and pcsStartPipe() for DOS have
+    been added.
+  - The type dos_processType has been introduced.
+- The file cmd_rtl.c has been improved:
+  - The functions createCommandLine(), cmdShellCommandLine() and
+    cmdShellExecute() have been added.
+  - In cmdEnvironment() a memory leak has been closed.
+  - Code from cmdToOsPath() has been moved to the new function
+    toOsPath().
+- Comments which explain that ALLOC_CSTRI() considers the '\0'
+  termination have been added to several files.
+- Comments which explain that no check or no initialization is
+  necessary have been added to several files.
+- The functions freePreparedStmt() have been improved to assure that
+  db is not NULL before accessing db->usage_count.
+- In sql_rtl.c the function sqlBindTime() has been improved to check
+  for allowed dates with dateIsOkay().
+- The sql_cli.c database driver has been improved:
+  - The functions wstri16AsUnquotedCStri(),
+    wstri32AsUnquotedCStri(), determineIfBackslashEscapes(),
+    determineDbCategory(), doPrepare() and doExecute() have been
+    added.
+  - The function processStatementStri() has been improved to use
+    backticks to quote identifiers if a MySQL database is used.
+  - The function sqlBindFloat() has been improved to use SQL_C_FLOAT
+    if possible.
+  - The functions sqlBindBigInt(), sqlBindBigRat(), sqlBindBool(),
+    sqlBindBStri(), sqlBindDuration(), sqlBindFloat() sqlBindInt()
+    and sqlBindTime() have been improved to accept bindings to
+    SQL_WLONGVARCHAR fields.
+  - The function sqlColumnBigInt() has been improved to consider
+    decimal digit strings as bigInteger.
+  - The function setDbErrorMsg() has been improved to avoid a buffer
+    overflow if sizeof(SQLWCHAR) from the header files differs from
+    the value used by the library.
+  - An initialization of the parameters of SQLGetDiagRecW() has been
+    added.
+- In sql_lite.c the function sqlPrepare() has been improved to
+  allocate the prepared statement data after all sqlite3_...()
+  functions succeeded.
+- In sql_my.c the function determineIfBackslashEscapes() has been
+  refactored to return a boolType result.
+- In sql_my.c the function processStatementStri() has been improved
+  to add a backtick in case the double quote is the last character.
+- In sql_post.c the function sqlOpenPost() has been improved to try
+  internet sockets with "localhost" if host is "" and
+  PQsetdbLogin(NULL, ...) failed.
+- The sql_fire.c database driver has been improved:
+  - The declaration of isc_start_transaction() has been changed to
+    use CDECL instead of STDCALL.
+  - In the bind functions calls of isc_dsql_free_statement() have
+    been removed.
+  - The binding and fetching of duration values has been improved.
+  - Support for rollback and autoCommit has been added.
+  - In sqlColumnTime() getting a SQL_TYPE_TIME column has been
+    fixed.
+  - The function setDbErrorMsg() has been improved to avoid a buffer
+    overflow.
+- In sql_db2.c, sql_ifx.c, sql_odbc.c and sql_srv.c an
+  initialization of the parameters of prepareSqlConnection() has
+  been added.
+- The file sql_log.c, which logs SQL ODBC/CLI interface functions,
+  has been added.
+- Logging of SQL ODBC/CLI interface functions has been added to
+  sql_cli.c, sql_db2.c, sql_ifx.c, sql_odbc.c and sql_srv.c.
+- The dependencies sql_cli.c and sql_log.c have been added to
+  makefiles.
+- The target "minimal_test" has been added to the makefiles.
+- In the makefiles the partial linking commands have been improved.
+- In drw_win.c the function drwSetPos() has been improved to raise
+  RANGE_ERROR if it is called with a pixmap.
+- In drw_x11.c a memory leak in case RANGE_ERROR is raised, has been
+  fixed in drwText(). Calls of XDestroyImage() have been fixed as
+  well.
+- In drw_x11.c the function redraw() has been improved to allow
+  XExposeEvent with negative x or y.
+- In drw_dos.c the function generateEmptyWindow() has been added and
+  the function drwGenPointList() has been improved.
+- The file ref_data.c has been improved:
+  - The functions refAllocList() and refAllocRef() have been added.
+  - The functions refAlloc() and refAllocVar() have been removed.
+  - The function refSetCategory() has been improved to raise
+    RANGE_ERROR for illegal category conversions.
+  - Checks for NULL pointers have been added to refArrMinIdx(),
+    refArrMaxIdx(), refArrToList(), refBody(), refHshDataToList(),
+    refHshKeysToList(), refHshLength(), refLocalConsts(),
+    refLocalVars(), refResini(), refResult(), refSctToList(),
+    bigValue(), drwValue(), filValue(), polValue() and typValue().
+    A NULL pointer raises RANGE_ERROR.
+- In actutl.c the function searchAction() has been improved to
+  support the value ACT_ILLEGAL.
+- In actutl.c the function actionCreateOkay() has been added. This
+  function:
+  - Checks if the result of a primitive action fits to the
+    declaration.
+  - Checks if the number of parameters of a primitive action fits
+    to the declaration.
+  - Checks if the parameters of a primitive action fit to the
+    declaration.
+- In striutl.c the functions cp_to_command() and escape_command()
+  have been removed.
+- In striutl.c the functions escapeCommand() and escapeParameter()
+  have been added. These functions are used in cmd_rtl.c by
+  createCommandLine(). The code of escapeParameter() has been taken
+  from cmdShellEscape() in cmd_rtl.c and has been heavvily improved.
+  Among other things It is assured that environment variable values
+  cannot be inserted in a shell parameter.
+- The files read_me.txt and read_me.htm have been updated.
+- Spelling corrections have been made in several files.
+- In traceutl.c the function trace_nodes() has been refactored.
+- In big_gmp.c, cmd_unx.c, sql_post.c, sql_tds.c, traceutl.c,
+  trm_cap.c and trm_inf.c functions have been refactored to work
+  without strcpy() and strcat().
+- In typ_data.c the function funcTypeName() has been added and the
+  function typStr() has been improved.
+- In biglib.c, bstlib.c, drwlib.c, fillib.c, pollib.c, prglib.c,
+  setlib.c, strlib.c and typlib.c the getValue() functions have been
+  improved to raise RANGE_ERROR for non-legal values.
+- In itflib.c the unused function itf_new() has been removed.
+- In itflib.c itf_create() has been changed to forbid FORWARDOBJECT
+  and DECLAREDOBJECT as source.
+- The files lstlib.c and lstlib.h have been removed. Occurances of
+  lstlib in the makefiles have been removed as well. The function
+  bld_list_temp() has been removed from objutl.c and objutl.h.
+- Support for the actions CMD_SHELL, FIL_PCLOSE, FIL_SETBUF,
+  HSH_REFIDX, PRC_DECLS, REF_ALLOC, REF_ALLOC_VAR, REF_PROG,
+  REF_SCAN, REF_SELECT, REF_CONTENT, REF_MKREF, REF_CAST, REF_ADDR,
+  REF_DEREF, SCT_ALLOC, SCT_REFIDX, TYP_ISDECLARED and TYP_ISFORWARD
+  has been removed from interpreter and compiler. Support for the
+  LST_... actions has been removed as well.
+- Support for the actions ACE_CMP, ACE_CPY, ACE_CREATE,
+  ACE_HASHCODE, BLN_AND_ASSIGN, BLN_OR_ASSIGN, BLN_XOR_ASSIGN,
+  CMD_SHELL_COMMAND_LINE, CMD_SHELL_EXECUTE, ENU_ICONV3_EXCEPT,
+  ENU_ORD_EXCEPT, PRC_ASSERT, PRC_GET_RUN_ERROR, REF_ALLOC_LIST,
+  REF_ALLOC_REF, RFL_FOR_VAR_KEY, SQL_DB_CATEGORY and TYP_TYPEOF has
+  been added to interpreter and compiler.
+- The actions ACT_EQ, ACT_GEN, ACT_ICONV1, ACT_ICONV3, ACT_NE,
+  ACT_ORD, ACT_STR and ACT_VALUE have been replaced by the actions
+  ACE_EQ, ACE_GEN, ACE_ICONV1, ACE_ICONV3, ACE_NE, ACE_ORD, ACE_STR
+  and ACE_VALUE.
+- The actions, CHR_CLIT, CON_H_SCL, CON_V_SCL, DRW_RGBCOL, ENU_LIT,
+  FIL_LIT, STR_CLIT and STR_LIT have been renamed to CHR_C_LITERAL,
+  CON_H_SCROLL, CON_V_SCROLL,  DRW_RGB_COLOR, ENU_LITERAL,
+  FIL_LITERAL, STR_C_LITERAL and STR_LITERAL respectively.
+- Commented out printf() statements have been removed in cmd_rtl.c,
+  dcllib.c, dir_win.c and syvarutl.c.
+- Logging functions have been improved in actlib.c, actutl.c,
+  analyze.c, arrlib.c, arr_rtl.c, big_gmp.c, big_rtl.c, bstlib.c,
+  bst_rtl.c, cmdlib.c, cmd_rtl.c, cmd_unx.c, cmd_win.c, con_emc.c,
+  con_wat.c, con_win.c, dcllib.c, dir_dos.c, dir_win.c, drwlib.c,
+  drw_x11.c, executl.c, fillib.c, fil_dos.c, fil_emc.c, fil_rtl.c,
+  fil_unx.c, fil_win.c, infile.c, kbd_inf.c, kbd_poll.c, pcs_dos.c,
+  pcs_unx.c, pcs_win.c, pollib.c, pol_sel.c, pol_unx.c prclib.c,
+  prglib.c, prg_comp.c, reflib.c, ref_data.c, rfllib.c, sctlib.c,
+  sigutl.c, soc_none.c, soc_rtl.c, sqllib.c, sql_cli.c, sql_db2.c,
+  sql_fire.c, sql_ifx.c, sql_lite.c, sql_my.c, sql_odbc.c,
+  sql_post.c, sql_srv.c, sql_tds.c, stackutl.c, striutl.c, strlib.c,
+  str_rtl.c, trm_cap.c, typlib.c and chkdb.sd7.
+- Documentation comments have been added or improved in chkfil.sd7,
+  bin32.s7i, bitdata.s7i, boolean.s7i, char.s7i, clib_file.s7i,
+  cli_cmds.s7i, external_file.s7i, hash.s7i, httpserv.s7i,
+  http_request.s7i, imagefile.s7i, osfiles.s7i, pkcs1.s7i,
+  process.s7i, progs.s7i, shell.s7i, string.s7i, actlib.c,
+  act_comp.c, actutl.c, blnlib.c, bln_rtl.h, big_gmp.c, big_rtl.c,
+  chclsutl.c, chkccomp.c, chrlib.c, cmd_rtl.c, con_wat.c,
+  data_rtl.h, fillib.c, fil_rtl_c, hshlib.c, pcs_dos.c, pcs_rtl.c,
+  pcs_unx.c, pcs_win.c, prclib.c, ref_data.c, reflib.c, rfllib.c,
+  sigutl.c, sql_rtl.c, striutl.h and str_rtl.c.
+
 20250930:
 - The LTO-related warnings during the build of Seed7 have been
   eliminated. Many thanks to "apocelipes" for changing the makefiles
@@ -67,7 +795,7 @@
 - The pv7.sd7 example program has been improved to display an image
   if the file extension does not fit but the image magic does fit.
 - The Seed7 compiler (s7c) has been improved:
-  - The handling of dynamic types has been fixed to work correclty
+  - The handling of dynamic types has been fixed to work correctly
     if a derived type does not use type_implements_interface().
   - The initialization of array and hash constants has been improved
     to avoid that a sanitizer complains about uninitialized data.
@@ -296,7 +1024,7 @@
   doubleToFormatE() has been fixed to consider that negative
   numbers have the maximum length.
 - The functions continue_question() (in runerr.c) and
-  continue_question() (in sigutl.c) have been refactored.
+  signalDecision() (in sigutl.c) have been refactored.
 - In kbd_inf.c, kbd_poll.c, msg_stri.c, runerr.c, sigutl.c,
   soc_rtl.c, sql_post.c, gkb_x11.c, sql_lite.c and traceutl.c
   literals in the code have been replaced by #define constants.
@@ -2132,7 +2860,7 @@
   previous error has been improved.
 - The program chkccomp.c has been improved to define reparse point
   macros and the macro INVALID_FILE_ATTRIBUTES if necessary.
-- Support for the option LINK_TIME has been added to chkcccomp.c and
+- Support for the option LINK_TIME has been added to chkccomp.c and
   to makefile, mk_clang.mak, mk_freebsd.mk, mk_icc.mak,
   mk_linux.mak, mk_osx.mak, mk_osxcl.mak and mk_tcc_l.mak.
 - The command "make strip" has been improved in the makefiles to
@@ -4284,7 +5012,8 @@
     determineInformixDefines() have been added.
   - Now the macros ODBC_SIZEOF_SQLWCHAR, DB2_SIZEOF_SQLWCHAR and
     INFORMIX_SIZEOF_SQLWCHAR, SQL_SERVER_SIZEOF_SQLWCHAR are
-    written into version.h.
+    written into version.h. The database drivers define the macro
+    SIZEOF_SQLWCHAR with their ..._SIZEOF_SQLWCHAR value.
   - Macros to support Informix databases are written into version.h.
 - In sql_base.c the error message concerning the searching for
   dynamic libraries has been improved.

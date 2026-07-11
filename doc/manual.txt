@@ -102,15 +102,16 @@ CONTENTS
   5.32    structElement
   5.33    program
   5.34    parseError
-  5.35    func
-  5.36    varfunc
-  5.37    void
-  5.38    proc
-  5.39    creator
-  5.40    destroyer
-  5.41    type
-  5.42    object
-  5.43    expr
+  5.35    runError
+  5.36    func
+  5.37    varfunc
+  5.38    void
+  5.39    proc
+  5.40    creator
+  5.41    destroyer
+  5.42    type
+  5.43    object
+  5.44    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -256,23 +257,22 @@ CONTENTS
   15.17   Actions for the type integer
   15.18   Actions for interface types
   15.19   Actions to support the text (console) screen keyboard
-  15.20   Actions for the list type
-  15.21   Actions for the type process
-  15.22   Actions for the type pointList
-  15.23   Actions for the type pollData
-  15.24   Actions for proc operations and statements
-  15.25   Actions for the type program
-  15.26   Actions for the type reference
-  15.27   Actions for the type ref_list
-  15.28   Actions for struct types
-  15.29   Actions for the type structElement
-  15.30   Actions for set types
-  15.31   Actions for the type PRIMITIVE_SOCKET
-  15.32   Actions for the types database and sqlStatement
-  15.33   Actions for the type string
-  15.34   Actions for the type time
-  15.35   Actions for the type type
-  15.36   Actions for the type utf8File
+  15.20   Actions for the type process
+  15.21   Actions for the type pointList
+  15.22   Actions for the type pollData
+  15.23   Actions for proc operations and statements
+  15.24   Actions for the type program
+  15.25   Actions for the type reference
+  15.26   Actions for the type ref_list
+  15.27   Actions for struct types
+  15.28   Actions for the type structElement
+  15.29   Actions for set types
+  15.30   Actions for the type PRIMITIVE_SOCKET
+  15.31   Actions for the types database and sqlStatement
+  15.32   Actions for the type string
+  15.33   Actions for the type time
+  15.34   Actions for the type type
+  15.35   Actions for the type utf8File
   16.   FOREIGN FUNCTION INTERFACE
   16.1    C types used by the implementation
   16.2    System variables
@@ -288,6 +288,7 @@ CONTENTS
   17.2    Compilation errors
   17.3    Exceptions
   17.3.1  MEMORY_ERROR
+  17.3.1  ASSERTION_ERROR
   17.3.2  NUMERIC_ERROR
   17.3.3  OVERFLOW_ERROR
   17.3.4  INDEX_ERROR
@@ -2255,8 +2256,6 @@ to 'newFile'.
     const proc: (inout bstring: dest) := (in bstring: source)              is action "BST_CPY";
     const proc: (inout reference: dest) := (in reference: source)          is action "REF_CPY";
     const proc: (inout ref_list: dest) := (in ref_list: source)            is action "RFL_CPY";
-    const proc: (inout ptrType: dest) := (in ptrType: source)              is action "REF_CPY";
-    const proc: (inout varptrType: dest) := (in varptrType: source)        is action "REF_CPY";
     const proc: (inout arrayType: dest) := (in arrayType: source)          is action "ARR_CPY";
     const proc: (inout bitset: dest) := (in bitset: source)                is action "SET_CPY";
     const proc: (inout structType: dest) := (in structType: source)        is action "SCT_CPY";
@@ -3334,7 +3333,7 @@ to 'newFile'.
                     1 ** B => 1 for B >= 0,
                     A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
                     A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
-                    A ** -1 => EXCEPTION NUMERIC_ERROR )
+                    A ** (-1) => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( A << B is okay for B >= 0 and B <= 63,
                     A << B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
@@ -3699,7 +3698,7 @@ to 'newFile'.
                     1_ ** B => 1_ for B >= 0,
                     A ** B => -(-A) ** B for A <= 0_ and B >= 0 and odd(B),
                     A ** B => (-A) ** B for A <= 0_ and B >= 0 and not odd(B),
-                    A ** -1 => EXCEPTION NUMERIC_ERROR )
+                    A ** (-1) => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( Type of argument B: integer,
                     A << B => A * 2_ ** B  for B >= 0,
@@ -7423,7 +7422,22 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.35 func
+5.35 runError
+
+    The type 'runError' describes run-time error details.
+  It contains information about the exception, file and line.
+
+    Elements:
+      var EXCEPTION: error is MEMORY_ERROR;
+      var string: fileName is "";
+      var integer: lineNumber is 0;
+    Functions:
+      getRunError  Get the error details of the last exception
+    Statements:
+      ignore(A) Ignore value
+
+
+5.36 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -7512,7 +7526,7 @@ to 'newFile'.
   parameter is TRUE.
 
 
-5.36 varfunc
+5.37 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -7545,7 +7559,7 @@ to 'newFile'.
   and structs can be used in the usual way.
 
 
-5.37 void
+5.38 void
 
     The type 'void' describes the empty type.
 
@@ -7555,7 +7569,7 @@ to 'newFile'.
       void.value  Default value of void (empty)
 
 
-5.38 proc
+5.39 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -7592,7 +7606,7 @@ to 'newFile'.
                     Type of result: proc )
 
 
-5.39 creator
+5.40 creator
 
     The type 'creator' describes create operators. Create operators ( ::= )
   are used for initializations. They are similar to assignment statements
@@ -7628,7 +7642,7 @@ to 'newFile'.
         number ::= 1;
 
 
-5.40 destroyer
+5.41 destroyer
 
     The type 'destroyer' describes destroy operations. Destroy operations are
   used to free data. They are not called explicitly. Destroy operations are
@@ -7657,7 +7671,7 @@ to 'newFile'.
         destroy(number);
 
 
-5.41 type
+5.42 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -7763,7 +7777,7 @@ to 'newFile'.
       ignore(A) Ignore value
 
 
-5.42 object
+5.43 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -7776,7 +7790,7 @@ to 'newFile'.
       TRACE_OBJ(A)  Write internal information
 
 
-5.43 expr
+5.44 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -12638,7 +12652,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
   The function 'makeLink' creates a symbolic link at 'symlinkPath'
   that contains the string referred by 'targetPath'.
-  The function does not follow symbolic links.
 
     const proc: makeLink (in string: symlinkPath, in string: targetPath) is ...
 
@@ -12990,7 +13003,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 12.4.5 makeDir
 
   The function 'makeDir' creates a new directory.
-  The function does not follow symbolic links.
 
     const proc: makeDir (in string: dirPath) is ...
 
@@ -14205,7 +14217,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   in *lib.c files. The following list contains the action
   prefix, the file containing the functions and a description:
 
-    ACT_  actlib.c  'ACTION' operations
+    ACE_  actlib.c  'ACTION' operations
     ARR_  arrlib.c  'array' operations
     BIG_  biglib.c  'bigInteger' operations
     BIN_  binlib.c  'bin32' and 'bin64' operations
@@ -14224,7 +14236,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     INT_  intlib.c  'integer' operations
     ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
-    LST_  lstlib.c  List operations
     PCS_  pcslib.c  'process' operations
     PTL_  drwlib.c  pointList operations
     POL_  pollib.c  'pollData' operations
@@ -14404,16 +14415,19 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         actlib.c function   act_comp.c function
     ACT_ILLEGAL         act_illegal
-    ACT_CPY             act_cpy             =
+    ACE_CMP             ace_cmp             ptrCmp
+    ACE_CPY             ace_cpy             = or genericCpy
+    ACE_CREATE          ace_create          = or genericCreate
+    ACE_EQ              ace_eq              ==
+    ACE_GEN             ace_gen             aceGen
+    ACE_HASHCODE        ace_hashcode        aceHashcode
+    ACE_ICONV1          ace_iconv1          aceIConv
+    ACE_ICONV3          ace_iconv3          aceIConv
+    ACE_NE              ace_ne              !=
+    ACE_ORD             ace_ord             aceOrd
+    ACE_STR             ace_str             aceStr
+    ACE_VALUE           ace_value           aceValue
     ACT_CREATE          act_create
-    ACT_EQ              act_eq              ==
-    ACT_GEN             act_gen
-    ACT_ICONV1          act_iconv1          actIConv
-    ACT_ICONV3          act_iconv3          actIConv
-    ACT_NE              act_ne              !=
-    ACT_ORD             act_ord             actOrd
-    ACT_STR             act_str             actStr
-    ACT_VALUE           act_value           actValue
 
 
 15.2 Actions for array types
@@ -14543,7 +14557,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         blnlib.c function   bln_rtl.c function
     BLN_AND             bln_and             &&
-    BLN_CPY             bln_cpy             blnCpy
+    BLN_AND_ASSIGN      bln_and_assign      &=
+    BLN_CPY             bln_cpy             = or genericCpy
     BLN_CREATE          bln_create          = or genericCreate
     BLN_EQ              bln_eq              ==
     BLN_GE              bln_ge              >=
@@ -14556,10 +14571,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     BLN_NOT             bln_not             !
     BLN_OR              bln_or              ||
     BLN_ORD             bln_ord             (intType)
+    BLN_OR_ASSIGN       bln_or_assign       |=
     BLN_PRED            bln_pred            -1
     BLN_SUCC            bln_succ            +1
     BLN_TERNARY         bln_ternary         ((cond)?(thenExpr):(elseExpr))
     BLN_VALUE           bln_value           blnValue
+    BLN_XOR_ASSIGN      bln_xor_assign      ^=
 
 
 15.6 Actions for byte strings
@@ -14585,10 +14602,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 15.7 Actions for the type char
 
     Action name         chrlib.c function   chr_rtl.c function
-    CHR_CLIT            chr_clit            chrCLit
     CHR_CMP             chr_cmp             chrCmp
-    CHR_CPY             chr_cpy             chrCpy
+    CHR_CPY             chr_cpy             = or genericCpy
     CHR_CREATE          chr_create          = or genericCreate
+    CHR_C_LITERAL       chr_c_literal       chrCLiteral
     CHR_DECR            chr_decr            --
     CHR_EQ              chr_eq              ==
     CHR_GE              chr_ge              >=
@@ -14649,7 +14666,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CMD_REMOVE_TREE     cmd_remove_tree     cmdRemoveTree
     CMD_SETENV          cmd_setenv          cmdSetenv
     CMD_SET_ATIME       cmd_set_atime       cmdSetATime
-    CMD_SET_FILEMODE    cmd_set_filemode    cmdSetFileMode
+    CMD_SET_FILE_MODE   cmd_set_file_mode   cmdSetFileMode
     CMD_SET_GROUP       cmd_set_group       cmdSetGroup
     CMD_SET_GROUP_OF_SYMLINK cmd_set_group_of_symlink cmdSetGroupOfSymlink
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
@@ -14671,11 +14688,11 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CON_CURSOR          con_cursor          conCursor
     CON_FLUSH           con_flush           conFlush
     CON_HEIGHT          con_height          conHeight
-    CON_H_SCL           con_h_scl           conHScroll
+    CON_H_SCROLL        con_h_scroll        conHScroll
     CON_LINE            con_line            conLine
     CON_OPEN            con_open            conOpen
     CON_SETPOS          con_setpos          conSetpos
-    CON_V_SCL           con_v_scl           conVScroll
+    CON_V_SCROLL        con_v_scroll        conVScroll
     CON_WIDTH           con_width           conWidth
     CON_WRITE           con_write           conWrite
 
@@ -14713,7 +14730,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_BORDER          drw_border          drwBorder
     DRW_CAPTURE         drw_capture         drwCapture
     DRW_CLEAR           drw_clear           drwClear
-    DRW_CMP             drw_cmp             ptrCmp / ptrCmpGeneric
+    DRW_CMP             drw_cmp             ptrCmp or ptrCmpGeneric
     DRW_CONV_POINT_LIST drw_conv_point_list drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
     DRW_CPY             drw_cpy             drwCpy
@@ -14753,14 +14770,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_PRECT           drw_prect           drwPRect
     DRW_PUT             drw_put             drwPut
     DRW_PUT_SCALED      drw_put_scaled      drwPutScaled
-    DRW_RGBCOL          drw_rgbcol          drwRgbColor
+    DRW_RGB_COLOR       drw_rgb_color       drwRgbColor
     DRW_SCREEN_HEIGHT   drw_screen_height   drwScreenHeight
     DRW_SCREEN_WIDTH    drw_screen_width    drwScreenWidth
-    DRW_SET_CLOSE_ACTION drw_set_close_action drwSetCloseAction
     DRW_SET_CONTENT     drw_set_content     drwSetContent
     DRW_SET_CURSOR_VISIBLE drw_set_cursor_visible drwSetCursorVisible
     DRW_SET_POINTER_POS drw_set_pointer_pos drwSetPointerPos
     DRW_SET_POS         drw_set_pos         drwSetPos
+    DRW_SET_SIZE        drw_set_size        drwSetSize
     DRW_SET_TRANSPARENT_COLOR drw_set_transparent_color drwSetTransparentColor
     DRW_SET_WINDOW_NAME drw_set_window_name drwSetWindowName
     DRW_TEXT            drw_text            drwText
@@ -14776,14 +14793,16 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         enulib.c function
     ENU_CONV            enu_conv            (noop)
-    ENU_CPY             enu_cpy             =
+    ENU_CPY             enu_cpy             = or genericCpy
     ENU_CREATE          enu_create          = or genericCreate
     ENU_EQ              enu_eq              ==
     ENU_GENLIT          enu_genlit
     ENU_ICONV2          enu_iconv2          (noop)
-    ENU_LIT             enu_lit
+    ENU_ICONV3_EXCEPT   enu_iconv3_except   (noop)
+    ENU_LITERAL         enu_literal
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
+    ENU_ORD_EXCEPT      enu_ord_except      (noop)
     ENU_VALUE           enu_value           enuValue
 
 
@@ -14793,27 +14812,27 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FIL_BIG_LNG         fil_big_lng         filBigLng
     FIL_BIG_SEEK        fil_big_seek        filBigSeek
     FIL_BIG_TELL        fil_big_tell        filBigTell
-    FIL_CLOSE           fil_close           fclose
-    FIL_CPY             fil_cpy             fltCpy
-    FIL_CREATE          fil_create          fltCreate
+    FIL_CLOSE           fil_close           filClose
+    FIL_CPY             fil_cpy             filCpy
+    FIL_CREATE          fil_create          filCreate
     FIL_DESTR           fil_destr           filDestr
-    FIL_EMPTY           fil_empty
-    FIL_EOF             fil_eof             feof
+    FIL_EMPTY           fil_empty           &nullFileRecord
+    FIL_EOF             fil_eof             filEof
     FIL_EQ              fil_eq              ==
-    FIL_ERR             fil_err             stderr
-    FIL_FLUSH           fil_flush           fflush
-    FIL_GETC            fil_getc            fgetc
+    FIL_ERR             fil_err             &stderrFileRecord
+    FIL_FLUSH           fil_flush           filFlush
+    FIL_GETC            fil_getc            filGetc
     FIL_GETS            fil_gets            filGets
     FIL_HAS_NEXT        fil_has_next        filHasNext
-    FIL_IN              fil_in              stdin
+    FIL_IN              fil_in              &stdinFileRecord
     FIL_INPUT_READY     fil_input_ready     filInputReady
     FIL_LINE_READ       fil_line_read       filLineRead
-    FIL_LIT             fil_lit             filLit
+    FIL_LITERAL         fil_literal         filLiteral
     FIL_LNG             fil_lng             filLng
     FIL_NE              fil_ne              !=
     FIL_OPEN            fil_open            filOpen
     FIL_OPEN_NULL_DEVICE fil_open_null_device filOpenNullDevice
-    FIL_OUT             fil_out             stdout
+    FIL_OUT             fil_out             &stdoutFileRecord
     FIL_PCLOSE          fil_pclose          filPclose
     FIL_PIPE            fil_pipe            filPipe
     FIL_POPEN           fil_popen           filPopen
@@ -14845,7 +14864,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_CMP             flt_cmp             fltCmp
     FLT_COS             flt_cos             cos
     FLT_COSH            flt_cosh            cosh
-    FLT_CPY             flt_cpy             fltCpy
+    FLT_CPY             flt_cpy             = or fltCpyGeneric
     FLT_CREATE          flt_create          = or genericCreate
     FLT_DECOMPOSE       flt_decompose       frexp
     FLT_DGTS            flt_dgts            fltDgts
@@ -14919,9 +14938,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Action name         hshlib.c function   hsh_rtl.c function
     HSH_CONCAT_KEY_VALUE hsh_concat_key_value hshConcatKeyValue
     HSH_CONTAINS        hsh_contains        hshContains
-    HSH_CPY             hsh_cpy             hshCpy
-    HSH_CREATE          hsh_create          hshCreate
-    HSH_DESTR           hsh_destr           hshDestr
+    HSH_CPY             hsh_cpy             hshCpy or cpy_ ...
+    HSH_CREATE          hsh_create          create_ ...
+    HSH_DESTR           hsh_destr           destr_ ...
     HSH_EMPTY           hsh_empty           hshEmpty
     HSH_EXCL            hsh_excl            hshExcl
     HSH_FOR             hsh_for             for
@@ -14935,7 +14954,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     HSH_KEYS            hsh_keys            hshKeys
     HSH_LNG             hsh_lng             a->size
     HSH_RAND_KEY        hsh_rand_key        hshRand
-    HSH_REFIDX          hsh_refidx
     HSH_UPDATE          hsh_update          hshUpdate
     HSH_VALUES          hsh_values          hshValues
 
@@ -14957,7 +14975,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     INT_BYTES_LE_SIGNED int_bytes_le_signed intBytesLe
     INT_BYTES_LE_UNSIGNED int_bytes_le_unsigned intBytesLe
     INT_CMP             int_cmp             intCmp
-    INT_CPY             int_cpy             intCpy
+    INT_CPY             int_cpy             = or genericCpy
     INT_CREATE          int_create          = or genericCreate
     INT_DECR            int_decr            --
     INT_DIV             int_div             /
@@ -15011,13 +15029,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 15.18 Actions for interface types
 
     Action name         itflib.c function
-    ITF_CMP             itf_cmp             ptrCmp / ptrCmpGeneric
+    ITF_CMP             itf_cmp             ptrCmp or ptrCmpGeneric
     ITF_CONV2           itf_conv2           (noop)
-    ITF_CPY             itf_cpy             =
+    ITF_CPY             itf_cpy             = or generic_cpy_ ...
     ITF_CPY2            itf_cpy2            =
-    ITF_CREATE          itf_create
+    ITF_CREATE          itf_create          itfCreate
     ITF_CREATE2         itf_create2
-    ITF_DESTR           itf_destr           itfDestr
+    ITF_DESTR           itf_destr           destr_ ...
     ITF_EQ              itf_eq              ==
     ITF_HASHCODE        itf_hashcode        (intType)(((memSizeType)a)>>6)
     ITF_NE              itf_ne              !=
@@ -15036,24 +15054,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     KBD_WORD_READ       kbd_word_read       kbdWordRead
 
 
-15.20 Actions for the list type
-
-    Action name         lstlib.c function
-    LST_CAT             lst_cat
-    LST_CPY             lst_cpy
-    LST_CREATE          lst_create
-    LST_DESTR           lst_destr
-    LST_EMPTY           lst_empty
-    LST_EXCL            lst_excl
-    LST_HEAD            lst_head
-    LST_IDX             lst_idx
-    LST_INCL            lst_incl
-    LST_LNG             lst_lng
-    LST_RANGE           lst_range
-    LST_TAIL            lst_tail
-
-
-15.21 Actions for the type process
+15.20 Actions for the type process
 
     Action name         pcslib.c function   pcs_rtl.c function
     PCS_CHILD_STDERR    pcs_child_stderr    pcsChildStdErr
@@ -15079,7 +15080,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PCS_WAIT_FOR        pcs_wait_for        pcsWaitFor
 
 
-15.22 Actions for the type pointList
+15.21 Actions for the type pointList
 
     Action name         drwlib.c function   bst_rtl.c function
     PLT_BSTRING         plt_bstring         (noop)
@@ -15095,7 +15096,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PLT_VALUE           plt_value           pltValue
 
 
-15.23 Actions for the type pollData
+15.22 Actions for the type pollData
 
     Action name         pollib.c function   pol_unx.c/pol_sel.c function
     POL_ADD_CHECK       pol_add_check       polAddCheck
@@ -15115,7 +15116,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     POL_VALUE           pol_value           polValue
 
 
-15.24 Actions for proc operations and statements
+15.23 Actions for proc operations and statements
 
     Action name         prclib.c function
     PRC_ARGS            prc_args            arg_v
@@ -15130,7 +15131,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRC_CASE_HASHSET_DEF prc_case_hashset_def switch (hshIdxDefault0(...)
     PRC_CPY             prc_cpy
     PRC_CREATE          prc_create
-    PRC_DECLS           prc_decls
     PRC_DESTR           prc_destr
     PRC_DYNAMIC         prc_dynamic
     PRC_EXIT            prc_exit            exit
@@ -15138,6 +15138,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRC_FOR_DOWNTO_STEP prc_for_downto_step for
     PRC_FOR_TO          prc_for_to          for
     PRC_FOR_TO_STEP     prc_for_to_step     for
+    PRC_GET_RUN_ERROR   prc_get_run_error   prcGetRunError
     PRC_HEAPSTAT        prc_heapstat
     PRC_HSIZE           prc_hsize           heapsize
     PRC_IF              prc_if              if
@@ -15163,14 +15164,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRC_WHILE_NOOP      prc_while_noop      while (cond) {}
 
 
-15.25 Actions for the type program
+15.24 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
     PRG_BSTRI_PARSE     prg_bstri_parse     prgBStriParse
-    PRG_CMP             prg_cmp             ptrCmp / ptrCmpGeneric
+    PRG_CMP             prg_cmp             ptrCmp or ptrCmpGeneric
     PRG_CPY             prg_cpy             prgCpy
-    PRG_CREATE          prg_create
-    PRG_DESTR           prg_destr
+    PRG_CREATE          prg_create          prgCreate;
+    PRG_DESTR           prg_destr           prgDestr
     PRG_EMPTY           prg_empty
     PRG_EQ              prg_eq              ==
     PRG_ERROR_COUNT     prg_error_count     prgErrorCount
@@ -15195,28 +15196,24 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     PRG_VALUE           prg_value           prgValue
 
 
-15.26 Actions for the type reference
+15.25 Actions for the type reference
 
     Action name         reflib.c function   ref_data.c function
-    REF_ADDR            ref_addr            &
-    REF_ALLOC           ref_alloc           refAlloc
     REF_ALLOC_INT       ref_alloc_int       refAllocInt
+    REF_ALLOC_LIST      ref_alloc_list      refAllocList
+    REF_ALLOC_REF       ref_alloc_ref       refAllocRef
     REF_ALLOC_STRI      ref_alloc_stri      refAllocStri
-    REF_ALLOC_VAR       ref_alloc_var       refAllocVar
     REF_APPEND_PARAMS   ref_append_params   refAppendParams
     REF_ARRMAXIDX       ref_arrmaxidx       refArrmaxidx
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
     REF_BODY            ref_body            refBody
-    REF_CAST            ref_cast
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
     REF_CAT_STR         ref_cat_str         refCatStr
-    REF_CMP             ref_cmp             ptrCmp / ptrCmpGeneric
-    REF_CONTENT         ref_content
-    REF_CPY             ref_cpy             =
+    REF_CMP             ref_cmp             ptrCmp or ptrCmpGeneric
+    REF_CPY             ref_cpy             = or ptrCpyGeneric
     REF_CREATE          ref_create          = or ptrCreateGeneric
-    REF_DEREF           ref_deref
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
     REF_GETREF          ref_getref          refGetRef
@@ -15231,18 +15228,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_LINE            ref_line            refLine
     REF_LOCAL_CONSTS    ref_local_consts    refLocalConsts
     REF_LOCAL_VARS      ref_local_vars      refLocalVars
-    REF_MKREF           ref_mkref
     REF_NE              ref_ne              !=
     REF_NIL             ref_nil
     REF_NUM             ref_num             refNum
     REF_PARAMS          ref_params          refParams
     REF_PATH            ref_path            refPath
-    REF_PROG            ref_prog
     REF_RESINI          ref_resini          refResini
     REF_RESULT          ref_result          refResult
-    REF_SCAN            ref_scan
     REF_SCTTOLIST       ref_scttolist       refScttolist
-    REF_SELECT          ref_select          a->stru[b]
     REF_SETCATEGORY     ref_setcategory     refSetCategory
     REF_SETPARAMS       ref_setparams       refSetParams
     REF_SETTYPE         ref_settype         refSetType
@@ -15254,7 +15247,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_VALUE           ref_value           refValue
 
 
-15.27 Actions for the type ref_list
+15.26 Actions for the type ref_list
 
     Action name         rfllib.c function   rfl_data.c function
     RFL_APPEND          rfl_append          rflAppend
@@ -15286,10 +15279,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     RFL_VALUE           rfl_value           rflValue
 
 
-15.28 Actions for struct types
+15.27 Actions for struct types
 
     Action name         sctlib.c function
-    SCT_ALLOC           sct_alloc
     SCT_CAT             sct_cat
     SCT_CONV            sct_conv
     SCT_CPY             sct_cpy             cpy_ ...
@@ -15298,17 +15290,16 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SCT_EMPTY           sct_empty
     SCT_INCL            sct_incl
     SCT_LNG             sct_lng
-    SCT_REFIDX          sct_refidx
     SCT_SELECT          sct_select          a->stru[b]
 
 
-15.29 Actions for the type structElement
+15.28 Actions for the type structElement
 
     Action name         sctlib.c function
-    SEL_CMP             sel_cmp             ptrCmp / ptrCmpGeneric
+    SEL_CMP             sel_cmp             ptrCmp or ptrCmpGeneric
     SEL_CONV1           sel_conv1
-    SEL_CPY             sel_cpy             =
-    SEL_CREATE          sel_create          =
+    SEL_CPY             sel_cpy             = or genericCpy
+    SEL_CREATE          sel_create          = or genericCreate
     SEL_EQ              sel_eq              ==
     SEL_HASHCODE        sel_hashcode        (intType)(((memSizeType)a)>>6)
     SEL_NAME            sel_name            refStr
@@ -15317,7 +15308,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SEL_TYPE            sel_type            refType
 
 
-15.30 Actions for set types
+15.29 Actions for set types
 
     Action name         setlib.c function   set_rtl.c function
     SET_ARRLIT          set_arrlit          setArrlit
@@ -15360,7 +15351,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SET_VALUE           set_value           setValue
 
 
-15.31 Actions for the type PRIMITIVE_SOCKET
+15.30 Actions for the type PRIMITIVE_SOCKET
 
     Action name         strlib.c function   str_rtl.c function
     SOC_ACCEPT          soc_accept          socAccept
@@ -15370,8 +15361,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SOC_BIND            soc_bind            socBind
     SOC_CLOSE           soc_close           socClose
     SOC_CONNECT         soc_connect         socConnect
-    SOC_CPY             soc_cpy             =
-    SOC_CREATE          soc_create
+    SOC_CPY             soc_cpy             socCpy
+    SOC_CREATE          soc_create          socCreate
+    SOC_DESTR           soc_destr           socDestr
     SOC_EMPTY           soc_empty
     SOC_EQ              soc_eq              ==
     SOC_GETC            soc_getc            socGetc
@@ -15394,11 +15386,12 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SOC_SENDTO          soc_sendto          socSendto
     SOC_SET_OPT_BOOL    soc_set_opt_bool    socSetOptBool
     SOC_SOCKET          soc_socket          socSocket
+    SOC_VALUE           soc_value           socValue
     SOC_WORD_READ       soc_word_read       socWordRead
     SOC_WRITE           soc_write           socWrite
 
 
-15.32 Actions for the types database and sqlStatement
+15.31 Actions for the types database and sqlStatement
 
     Action name         sqllib.c function   sql_rtl.c function
     SQL_BIND_BIGINT     sql_bind_bigint     sqlBindBigInt
@@ -15412,8 +15405,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_BIND_STRI       sql_bind_stri       sqlBindStri
     SQL_BIND_TIME       sql_bind_time       sqlBindTime
     SQL_CLOSE           sql_close           sqlClose
-    SQL_CMP_DB          sql_cmp_db          ptrCmp / ptrCmpGeneric
-    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp / ptrCmpGeneric
+    SQL_CMP_DB          sql_cmp_db          ptrCmp or ptrCmpGeneric
+    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp or ptrCmpGeneric
     SQL_COLUMN_BIGINT   sql_column_bigint   sqlColumnBigInt
     SQL_COLUMN_BIGRAT   sql_column_bigrat   sqlColumnBigRat
     SQL_COLUMN_BOOL     sql_column_bool     sqlColumnBool
@@ -15428,6 +15421,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_CPY_STMT        sql_cpy_stmt        sqlCpyStmt
     SQL_CREATE_DB       sql_create_db       sqlCreateDb
     SQL_CREATE_STMT     sql_create_stmt     sqlCreateStmt
+    SQL_DB_CATEGORY     sql_db_category     sqlDbCategory
     SQL_DESTR_DB        sql_destr_db        sqlDestrDb
     SQL_DESTR_STMT      sql_destr_stmt      sqlDestrStmt
     SQL_DRIVER          sql_driver          sqlDriver
@@ -15462,7 +15456,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_STMT_COLUMN_NAME  sql_stmt_column_name  sqlStmtColumnName
 
 
-15.33 Actions for the type string
+15.32 Actions for the type string
 
     Action name         strlib.c function   str_rtl.c function
     STR_APPEND          str_append          strAppend
@@ -15470,10 +15464,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_CHIPOS          str_chipos          strChIpos
     STR_CHPOS           str_chpos           strChPos
     STR_CHSPLIT         str_chsplit         strChSplit
-    STR_CLIT            str_clit            strCLit
     STR_CMP             str_cmp             strCompare
     STR_CPY             str_cpy             strCopy
     STR_CREATE          str_create          strCreate
+    STR_C_LITERAL       str_c_literal       strCLiteral
     STR_DESTR           str_destr           strDestr
     STR_ELEMCPY         str_elemcpy         a->mem[b-1]=c
     STR_EQ              str_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(strElemType))==0
@@ -15488,7 +15482,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_IDX             str_idx             a->mem[b-1]
     STR_IPOS            str_ipos            strIpos
     STR_LE              str_le              strLe
-    STR_LIT             str_lit             strLit
+    STR_LITERAL         str_literal         strLiteral
     STR_LNG             str_lng             a->size
     STR_LOW             str_low             strLow, strLowTemp
     STR_LPAD            str_lpad            strLpad
@@ -15519,7 +15513,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     STR_VALUE           str_value           strValue
 
 
-15.34 Actions for the type time
+15.33 Actions for the type time
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
     TIM_AWAIT           tim_await           timAwait
@@ -15528,22 +15522,21 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
 
 
-15.35 Actions for the type type
+15.34 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
     TYP_ADDINTERFACE    typ_addinterface
     TYP_CMP             typ_cmp             typCmp
-    TYP_CPY             typ_cpy             typCpy
-    TYP_CREATE          typ_create          typCreate
-    TYP_DESTR           typ_destr           typDestr
+    TYP_CPY             typ_cpy             = or ptrCpyGeneric
+    TYP_CREATE          typ_create          = or ptrCreateGeneric
+    TYP_DESTR           typ_destr           genericDestr
     TYP_EQ              typ_eq              ==
     TYP_FUNC            typ_func            typFunc
     TYP_GENSUB          typ_gensub
     TYP_GENTYPE         typ_gentype
     TYP_HASHCODE        typ_hashcode        (intType)(((memSizeType)a)>>6)
-    TYP_ISDECLARED      typ_isdeclared
+    TYP_INTERFACES      typ_interfaces      typInterfaces
     TYP_ISDERIVED       typ_isderived       typIsDerived
-    TYP_ISFORWARD       typ_isforward
     TYP_ISFUNC          typ_isfunc          typIsFunc
     TYP_ISVARFUNC       typ_isvarfunc       typIsVarfunc
     TYP_MATCHOBJ        typ_matchobj        typMatchobj
@@ -15559,7 +15552,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 
-15.36 Actions for the type utf8File
+15.35 Actions for the type utf8File
 
     Action name         ut8lib.c function   ut8_rtl.c function
     UT8_GETC            ut8_getc            ut8Getc
@@ -17078,7 +17071,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Additionally the interpreter kernel may raise this exception also.
 
 
-17.3.2 NUMERIC_ERROR
+17.3.2 ASSERTION_ERROR
+
+  The exception ASSERTION_ERROR is raised if the condition of
+  an assert statement is FALSE.
+
+
+17.3.3 NUMERIC_ERROR
 
   The exception NUMERIC_ERROR is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
@@ -17108,7 +17107,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
        positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.
 
 
-17.3.3 OVERFLOW_ERROR
+17.3.4 OVERFLOW_ERROR
 
   An integer overflow occurs if a calculation produces a result that
   cannot be stored in an 'integer' variable. This happens if the result
@@ -17184,7 +17183,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   result.
 
 
-17.3.4 INDEX_ERROR
+17.3.5 INDEX_ERROR
 
   An INDEX_ERROR occurs if an index is used to access an 'array', 'string',
   'bstring' or 'ref_list' element beyond the elements that actually exist.
@@ -17210,7 +17209,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   (see chapter 17.6 Suppressing exception checks).
 
 
-17.3.5 RANGE_ERROR
+17.3.6 RANGE_ERROR
 
   Many functions define a range of valid arguments and raise RANGE_ERROR
   if this range is violated.
@@ -17251,7 +17250,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         write, writeln, gets, length, truncate, seek, tell, skip.
 
 
-17.3.6 FILE_ERROR
+17.3.7 FILE_ERROR
 
   A FILE_ERROR occurs if an illegal operation with a file is done.
 
@@ -17263,7 +17262,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 
-17.3.7 DATABASE_ERROR
+17.3.8 DATABASE_ERROR
 
   The exception DATABASE_ERROR may be raised by database
   functions. If a DATABASE_ERROR is caught it is possible
@@ -17281,14 +17280,14 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   be used to specify the place of the connector library.
 
 
-17.3.8 GRAPHIC_ERROR
+17.3.9 GRAPHIC_ERROR
 
   The exception GRAPHIC_ERROR may be raised by graphic drivers.
   If an underlying graphic library function reports an error a
   GRAPHIC_ERROR is raised.
 
 
-17.3.9 ILLEGAL_ACTION
+17.3.10 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
