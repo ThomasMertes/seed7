@@ -467,9 +467,9 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
               if (paramType->value_category != INTERFACEOBJECT &&
                   paramType->value_category != STRUCTOBJECT) {
                 logError(printf("act_create/prc_create: action \"%s\": "
-	                        "parameter %d: category found: %d (",
+                                "parameter %d: category found: %d (",
                                 actEntry->name, index + 1,
-	                        paramType->value_category);
+                                paramType->value_category);
                          printtype(paramType);
                          printf(") expected INTERFACEOBJECT or STRUCTOBJECT\n"););
                 okay = FALSE;
@@ -478,9 +478,9 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
               if (currParam->obj->type_of->value_category != ILLEGALOBJECT &&
                   currParam->obj->type_of->value_category != BLOCKOBJECT) {
                 logError(printf("act_create/prc_create: action \"%s\": "
-	                        "parameter %d: category found: %d (",
+                                "parameter %d: category found: %d (",
                                 actEntry->name, index + 1,
-	                        currParam->obj->type_of->value_category);
+                                currParam->obj->type_of->value_category);
                          printtype(currParam->obj->type_of);
                          printf(") expected ILLEGALOBJECT or BLOCKOBJECT\n"););
                 okay = FALSE;
@@ -488,9 +488,9 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
             } else if (actEntry->paramCategories[index] == ACTOBJECT) {
               if (currParam->obj->type_of->value_category != ILLEGALOBJECT) {
                 logError(printf("act_create/prc_create: action \"%s\": "
-	                        "parameter %d: category found: %d (",
+                                "parameter %d: category found: %d (",
                                 actEntry->name, index + 1,
-	                        currParam->obj->type_of->value_category);
+                                currParam->obj->type_of->value_category);
                          printtype(currParam->obj->type_of);
                          printf(") expected ILLEGALOBJECT\n"););
                 okay = FALSE;
@@ -500,9 +500,9 @@ boolType actionCreateOkay (objectType dest, const_actEntryType actEntry)
                        actEntry->paramCategories[index] != ENUMOBJECT) {
               if (paramType->value_category != actEntry->paramCategories[index]) {
                 logError(printf("act_create/prc_create: action \"%s\": "
-	                        "parameter %d: category found: %d (",
+                                "parameter %d: category found: %d (",
                                 actEntry->name, index + 1,
-	                        paramType->value_category);
+                                paramType->value_category);
                          printtype(paramType);
                          printf(") expected %d\n",
                                 actEntry->paramCategories[index]););
