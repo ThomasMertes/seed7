@@ -154,7 +154,7 @@ const char: DECRYPTION_FAILED   is '\21;';
 const char: HANDSHAKE_FAILURE   is '\40;';
 const char: BAD_CERTIFICATE     is '\42;';
 const char: ILLEGAL_PARAMETER   is '\47;';
-const char: PROCOCOL_VERSION    is '\70;';
+const char: PROTOCOL_VERSION    is '\70;';
 const char: NO_RENEGOTIATION    is '\100;';
 
 # Extensions:
@@ -834,7 +834,7 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
         state.pos +:= extensionBytes;
       end if;
     else
-      state.alert := PROCOCOL_VERSION;
+      state.alert := PROTOCOL_VERSION;
     end if;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -875,7 +875,7 @@ const proc: processServerHello (inout tlsParameters: parameters, inout tlsParseS
         state.pos +:= 2 + extensionBytes;
       end if;
     else
-      state.alert := PROCOCOL_VERSION;
+      state.alert := PROTOCOL_VERSION;
     end if;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
