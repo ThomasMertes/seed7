@@ -37,7 +37,7 @@
   thanks to Zykaris for pointing out that curl complained about a
   "handshake failure".
 - In the FAQ explanations about references to struct elements and
-  about variables refering to the same object have been added. The
+  about variables referring to the same object have been added. The
   answer about exceptions has been improved.
 - The operating system DOS is supported (with DJGPP) again. The
   tests have been done with Dosemu and Dosbox.
@@ -76,14 +76,14 @@
     added.
   - The commands "echo.", "echo:", "echo/" and "echo\" have been
     improved to support parameters.
-  - The function oneShellCommand() has been addeed. If possible
+  - The function oneShellCommand() has been added. If possible
     it executes external commands without shell. If no executable is
     found shell() and popen() are called with an array of
     parameters.
   - The function getCommandParameter() has been improved to work
     correctly if the given parameters are empty.
   - The functions getCommandParameter() and getDosCommandParameter()
-    have been improved to escape a double quote if it is preceeded
+    have been improved to escape a double quote if it is preceded
     by an odd number of backslashes.
 - The library tar.s7i has been improved to assure that up to a size
   of 8 gigabytes the ustar and pax file size are identical.
@@ -291,7 +291,7 @@
 - In chkprc.sd7 tests for case statements with bitset, rational,
   type, bstring, boolean and enumeration values have been added.
 - The program chkdb.sd7 has been improved:
-  - Tests for LATIN-1 charactes in fields have been added.
+  - Tests for LATIN-1 characters in fields have been added.
   - Tests for float and double fields have been added.
   - Date tests for 1858-11-17, 1999-12-31 and 2000-1-1 have been
     added.
