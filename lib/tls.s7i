@@ -317,7 +317,7 @@ const func integer: getEllipticCurveNumber (in ellipticCurve: curve) is func
       curveNumber := SECP256R1;
     elsif curve.name = "secp384r1" then
       curveNumber := SECP384R1;
-    elsif curve.name = "secp512r1" then
+    elsif curve.name = "secp521r1" then
       curveNumber := SECP521R1;
     end if;
   end func;
