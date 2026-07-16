@@ -101,7 +101,7 @@ striType kbdGets (intType length)
  *  When the function is left terminationChar contains '\n' or EOF.
  *  @return the line read.
  */
-striType kbdLineRead (charType *terminationChar)
+striType kbdLineRead (charType *const terminationChar)
 
   {
     register charType ch;
@@ -166,7 +166,7 @@ striType kbdLineRead (charType *terminationChar)
  *  '\t', '\n' or EOF.
  *  @return the word read.
  */
-striType kbdWordRead (charType *terminationChar)
+striType kbdWordRead (charType *const terminationChar)
 
   {
     register charType ch;

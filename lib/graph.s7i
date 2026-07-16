@@ -218,7 +218,7 @@ const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
  *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
  *)
 const func pixel: rgbPixel (ref integer: red,
-    ref integer: green, ref integer: blue)          is action "DRW_RGBCOL";
+    ref integer: green, ref integer: blue)          is action "DRW_RGB_COLOR";
 
 
 const proc: DRAW_PIXEL_TO_RGB (

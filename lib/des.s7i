@@ -396,7 +396,7 @@ const func string: processDesBlock (in desSubKeyType: subKey, in string: inData)
  *  Encode a string with the DES (Data Encryption Standard) block cipher.
  *  @return the encoded string.
  *)
-const func string: encode (inout desState: state, in string: plaintext) is func
+const func string: encode (inout desState: state, in string: plainText) is func
   result
     var string: encoded is "";
   local
@@ -405,10 +405,10 @@ const func string: encode (inout desState: state, in string: plaintext) is func
     var string: dataBlock is "";
     var string: cipherBlock is "";
   begin
-    for index range 1 to length(plaintext) step blockSize(DES) do
+    for index range 1 to length(plainText) step blockSize(DES) do
       dataBlock := "";
       for subIndex range 1 to blockSize(DES) do
-        dataBlock &:= char(ord(bin32(plaintext[pred(index + subIndex)]) ><
+        dataBlock &:= char(ord(bin32(plainText[pred(index + subIndex)]) ><
                                bin32(state.cipherBlock[subIndex])));
       end for;
       cipherBlock := processDesBlock(state.encryptionSubKey, dataBlock);
@@ -424,19 +424,18 @@ const func string: encode (inout desState: state, in string: plaintext) is func
  *)
 const func string: decode (inout desState: state, in string: encoded) is func
   result
-    var string: plaintext is "";
+    var string: plainText is "";
   local
     var integer: index is 0;
     var integer: subIndex is 0;
     var string: cipherBlock is "";
     var string: dataBlock is "";
-    var string: plainBlock is "";
   begin
     for index range 1 to length(encoded) step blockSize(DES) do
       cipherBlock := encoded[index fixLen blockSize(DES)];
       dataBlock := processDesBlock(state.decryptionSubKey, cipherBlock);
       for subIndex range 1 to blockSize(DES) do
-        plaintext &:= char(ord(bin32(dataBlock[subIndex]) ><
+        plainText &:= char(ord(bin32(dataBlock[subIndex]) ><
                                bin32(state.cipherBlock[subIndex])));
       end for;
       state.cipherBlock := cipherBlock;

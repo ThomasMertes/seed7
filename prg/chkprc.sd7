@@ -99,6 +99,74 @@ const func type: typeExpr (in type: aValue) is
   return aValue;
 
 
+const proc: check_assert is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    number := 0;
+
+    assert TRUE;
+    assert not FALSE;
+    assert true_var;
+    assert not false_var;
+    assert striExpr("") = "";
+    assert striExpr("a") <> "b";
+
+    block
+      assert FALSE;
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    block
+      assert not TRUE;
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    block
+      assert false_var;
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    block
+      assert not true_var;
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    block
+      assert striExpr("") <> "";
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    block
+      assert striExpr("a") = "b";
+    exception
+      catch ASSERTION_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number = 6 then
+      writeln("Assertions work correctly.");
+    else
+      writeln(" ***** Assertions do not work correctly.");
+      PRINT(str(number));
+      PRINT(str(ord(okay)));
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_if is func
   local
     var boolean: okay is TRUE;
@@ -10082,6 +10150,7 @@ const proc: main is func
 
   begin
     writeln;
+    check_assert;
     check_if;
     check_while;
     check_repeat;

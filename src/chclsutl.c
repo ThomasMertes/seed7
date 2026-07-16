@@ -25,7 +25,7 @@
 /*                                                                  */
 /*  The function init_chclass initializes several arrays to obtain  */
 /*  the type of a character very quickly. The is.. macros from      */
-/*  the c-library give not exact the results we need here. Our      */
+/*  the c-library do not give exactly the results we need here. Our */
 /*  functions are also defined for EOF and need no bit operation    */
 /*  with a mask. Our arrays contain direct boolean values, so only  */
 /*  one array access is necessary and this brings speed. No joke:   */

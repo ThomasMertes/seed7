@@ -79,6 +79,7 @@
 
 #undef EXTERN
 #define EXTERN
+#define DO_INIT
 #include "soc_rtl.h"
 
 
@@ -105,6 +106,8 @@ static boolType initialized = FALSE;
 #endif
 
 #endif
+
+#define assert_socket_not_null(aSocket)
 
 #define BUFFER_SIZE                4096
 #define GETS_DEFAULT_SIZE       1048576
@@ -369,6 +372,151 @@ static void showAddrinfo (struct addrinfo *addrinfo_list)
 
 
 
+static void socketClose (socketNumberType aSocket)
+
+  {
+    int close_result;
+
+  /* socketClose */
+    logFunction(printf("socketClose(%d)\n", aSocket););
+    shutdown((os_socketType) aSocket, SHUT_RDWR);
+#if SOCKET_LIB == UNIX_SOCKETS
+    close_result = close((os_socketType) aSocket);
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+    close_result = closesocket((os_socketType) aSocket);
+#endif
+    if (unlikely(close_result != 0)) {
+      logError(printf("socketClose: close(%d) failed:\n"
+                      "%s=%d\nerror: %s\n",
+                      aSocket, ERROR_INFORMATION););
+      raise_error(FILE_ERROR);
+    } /* if */
+  } /* socketClose */
+
+
+
+#if HAS_POLL
+static boolType socketInputReady (socketNumberType inSocket, intType seconds,
+    intType micro_seconds)
+
+  {
+    struct pollfd pollFd[1];
+    int timeout;
+    int poll_result;
+    unsigned char next_char;
+    memSizeType bytes_received;
+    boolType inputReady;
+
+  /* socketInputReady */
+    logFunction(printf("socketInputReady(%d, " FMT_D ", " FMT_D ")\n",
+                       inSocket, seconds, micro_seconds););
+    if (unlikely(seconds < 0 || seconds >= INT_MAX / 1000 ||
+                 micro_seconds < 0 || micro_seconds >= 1000000)) {
+      logError(printf("socketInputReady(%d, " FMT_D ", " FMT_D"): "
+                      "seconds or micro_seconds not in allowed range.\n",
+                      inSocket, seconds, micro_seconds););
+      raise_error(RANGE_ERROR);
+      inputReady = FALSE;
+    } else {
+      pollFd[0].fd = (int) inSocket;
+      pollFd[0].events = POLLIN;
+      timeout = (int) seconds * 1000 + (int) (micro_seconds / 1000);
+      poll_result = os_poll(pollFd, 1, timeout);
+      if (unlikely(poll_result < 0)) {
+        logError(printf("socketInputReady(%d, " FMT_D ", " FMT_D "): "
+                        "os_poll([%d, POLLIN], 1, %d) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, seconds, micro_seconds,
+                        inSocket, timeout,
+                        ERROR_INFORMATION););
+        raise_error(FILE_ERROR);
+        inputReady = FALSE;
+      } else {
+        inputReady = poll_result == 1 && (pollFd[0].revents & POLLIN);
+        if (inputReady) {
+          /* Verify that it is really possible to read at least one character */
+          bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                              cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          if (bytes_received != 1) {
+            logMessage(printf("socketInputReady: bytes_received=" FMT_U_MEM "\n",
+                              bytes_received););
+            inputReady = FALSE;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("socketInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
+                       inSocket, seconds, micro_seconds, inputReady););
+    return inputReady;
+  } /* socketInputReady */
+
+#else
+
+
+
+static boolType socketInputReady (socketNumberType inSocket, intType seconds,
+    intType micro_seconds)
+
+  {
+    int nfds;
+    fd_set readfds;
+    struct timeval timeout;
+    int select_result;
+    unsigned char next_char;
+    memSizeType bytes_received;
+    boolType inputReady;
+
+  /* socketInputReady */
+    logFunction(printf("socketInputReady(%d, " FMT_D ", " FMT_D ")\n",
+                       inSocket, seconds, micro_seconds););
+    if (unlikely(seconds < 0 || seconds >= LONG_MAX ||
+                 micro_seconds < 0 || micro_seconds >= 1000000)) {
+      logError(printf("socketInputReady(%d, " FMT_D ", " FMT_D"): "
+                      "seconds or micro_seconds not in allowed range.\n",
+                      inSocket, seconds, micro_seconds););
+      raise_error(RANGE_ERROR);
+      inputReady = FALSE;
+    } else {
+      FD_ZERO(&readfds);
+      FD_SET((os_socketType) inSocket, &readfds);
+      nfds = (int) inSocket + 1;
+      timeout.tv_sec = (long int) seconds;
+      timeout.tv_usec = (long int) micro_seconds;
+      /* printf("select(%d, %d)\n", nfds, inSocket); */
+      select_result = select(nfds, &readfds, NULL, NULL, &timeout);
+      /* printf("select_result: %d\n", select_result); */
+      if (unlikely(select_result < 0)) {
+        logError(printf("socketInputReady(%d, " FMT_D ", " FMT_D "): "
+                        "select(%d, [%d], NULL, NULL, [" FMT_D ", " FMT_D "]) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, seconds, micro_seconds,
+                        nfds, inSocket, seconds, micro_seconds,
+                        ERROR_INFORMATION););
+        raise_error(FILE_ERROR);
+        inputReady = FALSE;
+      } else {
+        inputReady = FD_ISSET((os_socketType) inSocket, &readfds);
+        if (inputReady) {
+          /* Verify that it is really possible to read at least one character */
+          bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                              cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          if (bytes_received != 1) {
+            logMessage(printf("socketInputReady: bytes_received=" FMT_U_MEM "\n",
+                              bytes_received););
+            inputReady = FALSE;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("socketInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
+                       inSocket, seconds, micro_seconds, inputReady););
+    return inputReady;
+  } /* socketInputReady */
+
+#endif
+
+
+
 /**
  *  Read a string, if we do not know how many bytes are available.
  *  This function reads data into a list of buffers. This is done
@@ -376,8 +524,8 @@ static void showAddrinfo (struct addrinfo *addrinfo_list)
  *  Afterwards the string is allocated, the data is copied from the
  *  buffers and the list of buffers is freed.
  */
-static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_missing,
-    errInfoType *err_info)
+static striType receive_and_alloc_stri (socketNumberType inSocket,
+    memSizeType chars_missing, errInfoType *err_info)
 
   {
     struct bufferStruct buffer;
@@ -422,7 +570,7 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
         } else {
           currBuffer = currBuffer->next;
           currBuffer->next = NULL;
-          input_ready = socInputReady(inSocket, 0, 0);
+          input_ready = socketInputReady(inSocket, 0, 0);
         } /* if */
       } /* if */
     } /* while */
@@ -488,61 +636,123 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
-socketType socAccept (socketType listenerSocket, bstriType *address)
+socketType socAccept (const const_socketType listenerSocket,
+    bstriType *const address)
 
   {
+    memSizeType actual_address_size;
     memSizeType old_address_size;
     bstriType resized_address;
+    socketNumberType listenerSockNum;
     sockLenType addrlen;
-    os_socketType result;
+    os_socketType acceptedSockNum;
+    socketType acceptedSocket;
 
   /* socAccept */
     logFunction(printf("socAccept(%d, \"%s\")\n",
-                       listenerSocket, socAddressCStri(*address)););
-    old_address_size = (*address)->size;
-    REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
-    if (unlikely(resized_address == NULL)) {
+                       listenerSocket != NULL ?
+                           listenerSocket->socketNumber : -2,
+                       socAddressCStri(*address)););
+    assert_socket_not_null(listenerSocket);
+    if (unlikely(listenerSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socAccept(%d, \"%s\"): "
+                      "Attempt to write to closed socket.\n",
+                      listenerSocket->socketNumber,
+                      socAddressCStri(*address)););
+      raise_error(FILE_ERROR);
+      acceptedSocket = NULL;
+    } else if (unlikely(!ALLOC_RECORD(acceptedSocket, socketRecord, count.sockets))) {
       raise_error(MEMORY_ERROR);
-      result = (os_socketType) -1;
     } else {
-      *address = resized_address;
-      COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
-      addrlen = MAX_ADDRESS_SIZE;
-      result = (os_socketType) accept((os_socketType) listenerSocket,
-                                      (struct sockaddr *) (*address)->mem, &addrlen);
-      if (unlikely(result == INVALID_SOCKET ||
-                   ADDRLEN_NEGATIVE(addrlen) ||
-                   addrlen > MAX_ADDRESS_SIZE)) {
-        /* printf("socAccept(%d) %s=%d %s\n", listenerSocket, ERROR_INFORMATION); */
-        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
-        if (resized_address == NULL) {
-          (*address)->size = MAX_ADDRESS_SIZE;
-        } else {
-          *address = resized_address;
-          COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
-        } /* if */
-        logError(printf("socAccept: accept(%d, \"%s\") failed:\n"
-                        "%s=%d\nerror: %s\n",
-                        listenerSocket, socAddressCStri(*address),
-                        ERROR_INFORMATION););
-        raise_error(FILE_ERROR);
-      } else {
-        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE,
-                              (memSizeType) addrlen);
+      old_address_size = (*address)->size;
+      actual_address_size = old_address_size;
+      if (old_address_size < MAX_ADDRESS_SIZE) {
+        REALLOC_BSTRI_SIZE_OK(resized_address, *address,
+                              old_address_size, MAX_ADDRESS_SIZE);
         if (unlikely(resized_address == NULL)) {
-          (*address)->size = MAX_ADDRESS_SIZE;
+          FREE_RECORD(acceptedSocket, socketRecord, count.sockets);
           raise_error(MEMORY_ERROR);
-          result = (os_socketType) -1;
+          acceptedSocket = NULL;
         } else {
           *address = resized_address;
-          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
-          (*address)->size = (memSizeType) addrlen;
+          COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
+          actual_address_size = MAX_ADDRESS_SIZE;
+        } /* if */
+      } /* if */
+      if (actual_address_size >= MAX_ADDRESS_SIZE) {
+        listenerSockNum = listenerSocket->socketNumber;
+        addrlen = MAX_ADDRESS_SIZE;
+        acceptedSockNum = accept((os_socketType) listenerSockNum,
+                                 (struct sockaddr *) (*address)->mem,
+                                 &addrlen);
+        if (unlikely(acceptedSockNum == INVALID_SOCKET ||
+                     ADDRLEN_NEGATIVE(addrlen) ||
+                     addrlen > MAX_ADDRESS_SIZE)) {
+          logError(printf("socAccept: accept(%d, \"%s\") failed:\n"
+                          "%s=%d\nerror: %s\n",
+                          listenerSockNum, socAddressCStri(*address),
+                          ERROR_INFORMATION););
+          if (acceptedSockNum != INVALID_SOCKET) {
+            /* The acceptedSockNum is okay but something is wrong */
+            /* with the returned addrlen. Since (*address)->mem   */
+            /* might have changed we set it to the empty bstring. */
+            emptyBStriType emptyBStri;
+
+            FREE_BSTRI(*address, actual_address_size);
+            /* Return empty address */
+            if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              emptyBStri->size = 0;
+            } /* if */
+            *address = (bstriType) emptyBStri;
+            socketClose((socketNumberType) acceptedSockNum);
+          } else if (actual_address_size > old_address_size) {
+            /* The size of *address had been increased and      */
+            /* afterwards the function accept() failed. In this */
+            /* case we restore the previous size of *address.   */
+            REALLOC_BSTRI_SIZE_OK(resized_address, *address,
+                                  MAX_ADDRESS_SIZE, old_address_size);
+            if (resized_address == NULL) {
+              (*address)->size = MAX_ADDRESS_SIZE;
+            } else {
+              *address = resized_address;
+              COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
+            } /* if */
+          } /* if */
+          FREE_RECORD(acceptedSocket, socketRecord, count.sockets);
+          raise_error(FILE_ERROR);
+          acceptedSocket = NULL;
+        } else {
+          REALLOC_BSTRI_SIZE_OK(resized_address, *address,
+                                actual_address_size,
+                                (memSizeType) addrlen);
+          if (unlikely(resized_address == NULL)) {
+            (*address)->size = actual_address_size;
+            /* Avoid leak of file descriptors. */
+            socketClose((socketNumberType) acceptedSockNum);
+            FREE_RECORD(acceptedSocket, socketRecord, count.sockets);
+            raise_error(MEMORY_ERROR);
+            acceptedSocket = NULL;
+          } else {
+            *address = resized_address;
+            COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+            (*address)->size = (memSizeType) addrlen;
+            acceptedSocket->socketNumber = (socketNumberType) acceptedSockNum;
+            acceptedSocket->usage_count = 1;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("socAccept(%d, \"%s\") --> %d\n",
-                       listenerSocket, socAddressCStri(*address), result););
-    return (socketType) result;
+    logFunction(printf("socAccept(%d, \"%s\") --> %s%d (usage=" FMT_U ")\n",
+                       listenerSocket->socketNumber,
+                       socAddressCStri(*address),
+                       acceptedSocket == NULL ? "NULL " : "",
+                       acceptedSocket != NULL ?
+                           acceptedSocket->socketNumber : -2,
+                       acceptedSocket != NULL ?
+                           acceptedSocket->usage_count : (uintType) 0););
+    return acceptedSocket;
   } /* socAccept */
 
 
@@ -720,17 +930,28 @@ striType socAddrService (const const_bstriType address)
  *  @param address An internet listener socket address.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socBind (socketType listenerSocket, const_bstriType address)
+void socBind (const const_socketType listenerSocket,
+    const const_bstriType address)
 
   { /* socBind */
     logFunction(printf("socBind(%d, \"%s\")\n",
-                       listenerSocket, socAddressCStri(address)););
-    if (unlikely(bind((os_socketType) listenerSocket,
+                       listenerSocket != NULL ?
+                           listenerSocket->socketNumber : -2,
+                       socAddressCStri(address)););
+    assert_socket_not_null(listenerSocket);
+    if (unlikely(listenerSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socBind(%d, \"%s\"): "
+                      "Attempt to bind a closed socket.\n",
+                      listenerSocket->socketNumber,
+                      socAddressCStri(address)););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(bind((os_socketType) listenerSocket->socketNumber,
                       (const struct sockaddr *) address->mem,
                       (sockLenType) address->size) != 0)) {
       logError(printf("socBind: bind(%d, \"%s\") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      listenerSocket, socAddressCStri(address),
+                      listenerSocket->socketNumber,
+                      socAddressCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -741,25 +962,28 @@ void socBind (socketType listenerSocket, const_bstriType address)
  *  Close the socket 'aSocket'.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socClose (socketType aSocket)
+void socClose (const socketType aSocket)
 
-  {
-    int close_result;
-
-  /* socClose */
-    logFunction(printf("socClose(%d)\n", aSocket););
-    shutdown((os_socketType) aSocket, SHUT_RDWR);
-#if SOCKET_LIB == UNIX_SOCKETS
-    close_result = close((os_socketType) aSocket);
-#elif SOCKET_LIB == WINSOCK_SOCKETS
-    close_result = closesocket((os_socketType) aSocket);
-#endif
-    if (unlikely(close_result != 0)) {
-      logError(printf("socClose: close(%d) failed:\n"
-                      "%s=%d\nerror: %s\n",
-                      aSocket, ERROR_INFORMATION););
+  { /* socClose */
+    logFunction(printf("socClose(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) aSocket,
+                       aSocket == NULL ? "NULL " : "",
+                       aSocket != NULL ? aSocket->socketNumber : -2,
+                       aSocket != NULL ? aSocket->usage_count : (uintType) 0););
+    assert_socket_not_null(aSocket);
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socClose(" FMT_U_MEM " %d (usage=" FMT_U ")): "
+                      "Attempt to close a closed socket.\n",
+                      (memSizeType) aSocket, aSocket->socketNumber,
+                      aSocket->usage_count););
       raise_error(FILE_ERROR);
+    } else {
+      socketClose(aSocket->socketNumber);
+      aSocket->socketNumber = EMPTY_SOCKET;
     } /* if */
+    logFunction(printf("socClose(" FMT_U_MEM " %d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) aSocket, aSocket->socketNumber,
+                       aSocket->usage_count););
   } /* socClose */
 
 
@@ -768,17 +992,27 @@ void socClose (socketType aSocket)
  *  Connect 'aSocket' to the given 'address'.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socConnect (socketType aSocket, const_bstriType address)
+void socConnect (const const_socketType aSocket,
+    const const_bstriType address)
 
   { /* socConnect */
     logFunction(printf("socConnect(%d, \"%s\")\n",
-                       aSocket, socAddressCStri(address)););
-    if (unlikely(connect((os_socketType) aSocket,
+                       aSocket != NULL ?
+                           aSocket->socketNumber : -2,
+                       socAddressCStri(address)););
+    assert_socket_not_null(aSocket);
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socConnect(%d, \"%s\"): "
+                      "Attempt to connect to a closed socket.\n",
+                      aSocket->socketNumber,
+                      socAddressCStri(address)););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(connect((os_socketType) aSocket->socketNumber,
                          (const struct sockaddr *) address->mem,
                          (sockLenType) address->size) != 0)) {
       logError(printf("socConnect: connect(%d, \"%s\") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      aSocket, socAddressCStri(address),
+                      aSocket->socketNumber, socAddressCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -787,10 +1021,163 @@ void socConnect (socketType aSocket, const_bstriType address)
 
 
 /**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ */
+void socCpy (socketType *const dest, const socketType source)
+
+  { /* socCpy */
+    logFunction(printf("socCpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) *dest,
+                       *dest == NULL ? "NULL " : "",
+                       *dest != NULL ? (*dest)->socketNumber : -2,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? source->socketNumber : -2,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
+    } /* if */
+    if (*dest != NULL && (*dest)->usage_count != 0) {
+      (*dest)->usage_count--;
+      if ((*dest)->usage_count == 0) {
+        socFree(*dest);
+      } /* if */
+    } /* if */
+    *dest = source;
+    logFunction(printf("socCpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *dest,
+                       *dest == NULL ? "NULL " : "",
+                       *dest != NULL ? (*dest)->socketNumber : -2,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? source->socketNumber : -2,
+                       source != NULL ? source->usage_count : (uintType) 0););
+  } /* socCpy */
+
+
+
+/**
+ *  Take the socketValue from the parameters and call socCpy().
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function.
+ */
+void socCpyValue (rtlValueUnion *const dest, const rtlValueUnion source)
+
+  { /* socCpyValue */
+    socCpy(&dest->socketValue, source.socketValue);
+  } /* socCpyValue */
+
+
+
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+socketType socCreate (const socketType source)
+
+  { /* socCreate */
+    logFunction(printf("socCreate(" FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? source->socketNumber : -2,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
+    } /* if */
+    logFunction(printf("socCreate --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? source->socketNumber : -2,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    return source;
+  } /* socCreate */
+
+
+
+/**
+ *  Create socketValue function to be used via function pointers.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function.
+ */
+rtlValueUnion socCreateValue (const rtlValueUnion source)
+
+  {
+    rtlValueUnion result;
+
+  /* socCreateValue */
+    INIT_VALUE_PTR(result);
+    result.socketValue = socCreate(source.socketValue);
+    return result;
+  } /* socCreateValue */
+
+
+
+/**
+ *  Maintain a usage count and free an unused socket 'oldSocket'.
+ *  After a socket is freed 'oldSocket' refers to not existing memory.
+ *  The memory where 'oldSocket' is stored can be freed after socDestr.
+ */
+void socDestr (const socketType oldSocket)
+
+  { /* socDestr */
+    logFunction(printf("socDestr(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldSocket,
+                       oldSocket == NULL ? "NULL " : "",
+                       oldSocket != NULL ? oldSocket->socketNumber : -2,
+                       oldSocket != NULL ? oldSocket->usage_count : (uintType) 0););
+    if (oldSocket != NULL && oldSocket->usage_count != 0) {
+      oldSocket->usage_count--;
+      if (oldSocket->usage_count == 0) {
+        socFree(oldSocket);
+      } /* if */
+    } /* if */
+  } /* socDestr */
+
+
+
+/**
+ *  Take the socketValue from the parameter and call socDestr().
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function.
+ */
+void socDestrValue (const rtlValueUnion old_value)
+
+  { /* socDestrValue */
+    socDestr(old_value.socketValue);
+  } /* socDestrValue */
+
+
+
+void socFree (const socketType oldSocket)
+
+  { /* socFree */
+    logFunction(printf("socFree(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldSocket,
+                       oldSocket == NULL ? "NULL " : "",
+                       oldSocket != NULL ? oldSocket->socketNumber : -2,
+                       oldSocket != NULL ? oldSocket->usage_count : (uintType) 0););
+    assert_socket_not_null(oldSocket);
+    if (oldSocket->socketNumber != EMPTY_SOCKET) {
+      socketClose(oldSocket->socketNumber);
+    } /* if */
+    FREE_RECORD(oldSocket, socketRecord, count.sockets);
+  } /* socFree */
+
+
+
+/**
  *  Read a character from 'inSocket'.
  *  @return the character read.
  */
-charType socGetc (socketType inSocket, charType *const eofIndicator)
+charType socGetc (const const_socketType inSocket,
+    charType *const eofIndicator)
 
   {
     unsigned char ch;
@@ -799,26 +1186,33 @@ charType socGetc (socketType inSocket, charType *const eofIndicator)
 
   /* socGetc */
     logFunction(printf("socGetc(%d, '\\" FMT_U32 ";')\n",
-                       inSocket, *eofIndicator););
-    bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                        cast_send_recv_data(&ch), 1, 0);
-    logMessage(printf("socGetc: bytes_received=" FMT_U_MEM "\n",
-                      bytes_received););
-    if (bytes_received != 1) {
-      if (unlikely(inSocket == (socketType) -1)) {
-        logError(printf("socGetc(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
-                        inSocket, *eofIndicator););
-        raise_error(FILE_ERROR);
-        result = (charType) EOF;
-      } else {
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       *eofIndicator););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socGetc(%d, '\\" FMT_U32 ";'): "
+                      "Attempt to read from a closed socket.\n",
+                      inSocket->socketNumber,
+                      *eofIndicator););
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else {
+      bytes_received = (memSizeType) recv((os_socketType) inSocket->socketNumber,
+                                          cast_send_recv_data(&ch), 1, 0);
+      logMessage(printf("socGetc: bytes_received=" FMT_U_MEM "\n",
+                        bytes_received););
+      if (bytes_received != 1) {
         *eofIndicator = (charType) EOF;
         result = (charType) EOF;
+      } else {
+        result = (charType) ch;
       } /* if */
-    } else {
-      result = (charType) ch;
     } /* if */
-    logFunction(printf("socGetc (%d, '\\" FMT_U32 ";') --> '\\" FMT_U32 ";'\n",
-                       inSocket, *eofIndicator, result););
+    logFunction(printf("socGetc (%d, '\\" FMT_U32 ";') "
+                       "--> '\\" FMT_U32 ";'\n",
+                       inSocket->socketNumber, *eofIndicator,
+                       result););
     return result;
   } /* socGetc */
 
@@ -830,7 +1224,8 @@ charType socGetc (socketType inSocket, charType *const eofIndicator)
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType socGets (socketType inSocket, intType length, charType *const eofIndicator)
+striType socGets (const const_socketType inSocket, intType length,
+    charType *const eofIndicator)
 
   {
     memSizeType chars_requested;
@@ -841,17 +1236,21 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
 
   /* socGets */
     logFunction(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";')\n",
-                       inSocket, length, *eofIndicator););
-    if (unlikely(inSocket == (socketType) -1)) {
-        logError(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";'): "
-                        "Invalid socket.\n",
-                        inSocket, length, *eofIndicator););
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       length, *eofIndicator););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";'): "
+                      "Attempt to read from a closed socket.\n",
+                      inSocket->socketNumber,
+                      length, *eofIndicator););
       raise_error(FILE_ERROR);
       result = NULL;
     } else if (unlikely(length <= 0)) {
       if (unlikely(length != 0)) {
         logError(printf("socGets(%d, " FMT_D ", *): Negative length.\n",
-                        inSocket, length););
+                        inSocket->socketNumber, length););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -873,7 +1272,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
       if (chars_requested <= BUFFER_SIZE) {
         ucharType buffer[BUFFER_SIZE];
 
-        result_size = (memSizeType) recv((os_socketType) inSocket,
+        result_size = (memSizeType) recv((os_socketType) inSocket->socketNumber,
                                          cast_send_recv_data(buffer),
                                          cast_buffer_len(chars_requested), 0);
         logMessage(printf("socGets: result_size=" FMT_U_MEM "\n",
@@ -882,14 +1281,14 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
           logError(printf("socGets: "
                           "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
                           "%s=%d\nerror: %s\n",
-                          inSocket, chars_requested,
+                          inSocket->socketNumber, chars_requested,
                           ERROR_INFORMATION););
           result_size = 0;
         } /* if */
         if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
           logError(printf("socGets(%d, " FMT_D ", *): "
                           "Out of memory when allocating result.\n",
-                          inSocket, length););
+                          inSocket->socketNumber, length););
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -902,7 +1301,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
       } else {
         if (chars_requested > GETS_DEFAULT_SIZE) {
           /* Read a string, if we do not know how many bytes are available. */
-          result = receive_and_alloc_stri(inSocket, chars_requested, &err_info);
+          result = receive_and_alloc_stri(inSocket->socketNumber,
+                                          chars_requested, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             raise_error(err_info);
           } else if (result->size == 0) {
@@ -912,11 +1312,11 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, chars_requested))) {
             logError(printf("socGets(%d, " FMT_D ", *): "
                             "Out of memory when allocating result.\n",
-                            inSocket, length););
+                            inSocket->socketNumber, length););
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
-            result_size = (memSizeType) recv((os_socketType) inSocket,
+            result_size = (memSizeType) recv((os_socketType) inSocket->socketNumber,
                                              cast_send_recv_data(result->mem),
                                              cast_buffer_len(chars_requested), 0);
             logMessage(printf("socGets: result_size=" FMT_U_MEM "\n",
@@ -925,7 +1325,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
               logError(printf("socGets: "
                               "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
                               "%s=%d\nerror: %s\n",
-                              inSocket, chars_requested,
+                              inSocket->socketNumber, chars_requested,
                               ERROR_INFORMATION););
               result_size = 0;
             } /* if */
@@ -940,7 +1340,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
                 FREE_STRI2(result, chars_requested);
                 logError(printf("socGets(%d, " FMT_D ", *): "
                                 "Out of memory when allocating result.\n",
-                                inSocket, length););
+                                inSocket->socketNumber, length););
                 raise_error(MEMORY_ERROR);
                 result = NULL;
               } else {
@@ -952,7 +1352,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
       } /* if */
     } /* if */
     logFunction(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";') --> \"%s\"\n",
-                       inSocket, length, *eofIndicator, striAsUnquotedCStri(result)););
+                       inSocket->socketNumber, length, *eofIndicator,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* socGets */
 
@@ -983,12 +1384,12 @@ striType socGetHostname (void)
 
 
 /**
- *  Get the local address of the socket 'sock'.
- *  @return the address to which the socket 'sock' is bound.
+ *  Get the local address of the socket 'aSocket'.
+ *  @return the address to which the socket 'aSocket' is bound.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstriType socGetLocalAddr (socketType sock)
+bstriType socGetLocalAddr (const const_socketType aSocket)
 
   {
     sockLenType addrlen;
@@ -997,20 +1398,30 @@ bstriType socGetLocalAddr (socketType sock)
     bstriType address;
 
   /* socGetLocalAddr */
-    logFunction(printf("socGetLocalAddr(%d)\n", sock););
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
+    logFunction(printf("socGetLocalAddr(%d)\n",
+                       aSocket != NULL ?
+                           aSocket->socketNumber : -2););
+    assert_socket_not_null(aSocket);
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socGetLocalAddr(%d): "
+                      "Attempt to use a closed socket.\n",
+                      aSocket->socketNumber););
+      raise_error(FILE_ERROR);
+      address = NULL;
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
       raise_error(MEMORY_ERROR);
     } else {
       addrlen = MAX_ADDRESS_SIZE;
-      getsockname_result = getsockname((os_socketType) sock,
-                                       (struct sockaddr *) address->mem, &addrlen);
+      getsockname_result = getsockname((os_socketType) aSocket->socketNumber,
+                                       (struct sockaddr *) address->mem,
+                                       &addrlen);
       if (unlikely(getsockname_result != 0 ||
                    ADDRLEN_NEGATIVE(addrlen) ||
                    addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetLocalAddr: getsockname(%d, ...) failed:\n"
                         "%s=%d\nerror: %s\n",
-                        sock, ERROR_INFORMATION););
+                        aSocket->socketNumber, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         address = NULL;
       } else {
@@ -1028,19 +1439,20 @@ bstriType socGetLocalAddr (socketType sock)
       } /* if */
     } /* if */
     logFunction(printf("socGetLocalAddr(%d) --> \"%s\"\n",
-                       sock, socAddressCStri(address)););
+                       aSocket->socketNumber,
+                       socAddressCStri(address)););
     return address;
   } /* socGetLocalAddr */
 
 
 
 /**
- *  Get the address of the peer to which the socket 'sock' is connected.
- *  @return the address of the peer connected to the socket 'sock'.
+ *  Get the address of the peer to which the socket 'aSocket' is connected.
+ *  @return the address of the peer connected to the socket 'aSocket'.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstriType socGetPeerAddr (socketType sock)
+bstriType socGetPeerAddr (const const_socketType aSocket)
 
   {
     sockLenType addrlen;
@@ -1049,20 +1461,30 @@ bstriType socGetPeerAddr (socketType sock)
     bstriType address;
 
   /* socGetPeerAddr */
-    logFunction(printf("socGetPeerAddr(%d)\n", sock););
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
+    logFunction(printf("socGetPeerAddr(%d)\n",
+                       aSocket != NULL ?
+                           aSocket->socketNumber : -2););
+    assert_socket_not_null(aSocket);
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socGetPeerAddr(%d): "
+                      "Attempt to use a closed socket.\n",
+                      aSocket->socketNumber););
+      raise_error(FILE_ERROR);
+      address = NULL;
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
       raise_error(MEMORY_ERROR);
     } else {
       addrlen = MAX_ADDRESS_SIZE;
-      getpeername_result = getpeername((os_socketType) sock,
-                                       (struct sockaddr *) address->mem, &addrlen);
+      getpeername_result = getpeername((os_socketType) aSocket->socketNumber,
+                                       (struct sockaddr *) address->mem,
+                                       &addrlen);
       if (unlikely(getpeername_result != 0 ||
                    ADDRLEN_NEGATIVE(addrlen) ||
                    addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetPeerAddr: getpeername(%d, ...) failed:\n"
                         "%s=%d\nerror: %s\n",
-                        sock, ERROR_INFORMATION););
+                        aSocket->socketNumber, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         address = NULL;
       } else {
@@ -1080,7 +1502,7 @@ bstriType socGetPeerAddr (socketType sock)
       } /* if */
     } /* if */
     logFunction(printf("socGetPeerAddr(%d) --> \"%s\"\n",
-                       sock, socAddressCStri(address)););
+                       aSocket->socketNumber, socAddressCStri(address)););
     return address;
   } /* socGetPeerAddr */
 
@@ -1093,7 +1515,7 @@ bstriType socGetPeerAddr (socketType sock)
  *  it may block.
  *  @return FALSE if socGetc would return EOF, TRUE otherwise.
  */
-boolType socHasNext (socketType inSocket)
+boolType socHasNext (const const_socketType inSocket)
 
   {
     unsigned char next_char;
@@ -1101,22 +1523,29 @@ boolType socHasNext (socketType inSocket)
     boolType hasNext;
 
   /* socHasNext */
-    logFunction(printf("socHasNext(%d)\n", inSocket););
-    bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                        cast_send_recv_data(&next_char), 1, MSG_PEEK);
-    if (bytes_received != 1) {
-      logMessage(printf("socHasNext: bytes_received=" FMT_U_MEM "\n",
-                        bytes_received););
-      if (unlikely(inSocket == (socketType) -1)) {
-        logError(printf("socHasNext(%d): Invalid socket.\n", inSocket););
-        raise_error(FILE_ERROR);
-      } /* if */
+    logFunction(printf("socHasNext(%d)\n",
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socHasNext(%d)\n", inSocket->socketNumber););
+      raise_error(FILE_ERROR);
       hasNext = FALSE;
     } else {
-      logMessage(printf("socHasNext: next_char=%d\n", next_char););
-      hasNext = TRUE;
+      bytes_received = (memSizeType) recv((os_socketType) inSocket->socketNumber,
+                                          cast_send_recv_data(&next_char),
+                                          1, MSG_PEEK);
+      if (bytes_received != 1) {
+        logMessage(printf("socHasNext: bytes_received=" FMT_U_MEM "\n",
+                          bytes_received););
+        hasNext = FALSE;
+      } else {
+        logMessage(printf("socHasNext: next_char=%d\n", next_char););
+        hasNext = TRUE;
+      } /* if */
     } /* if */
-    logFunction(printf("socHasNext(%d) --> %d\n", inSocket, hasNext););
+    logFunction(printf("socHasNext(%d) --> %d\n",
+                       inSocket->socketNumber, hasNext););
     return hasNext;
   } /* socHasNext */
 
@@ -1250,20 +1679,23 @@ bstriType socInetAddr (const const_striType hostName, intType port)
 #else
         host_ent = gethostbyname(os_hostName);
         if (host_ent == NULL && h_errno == TRY_AGAIN) {
-          /*
-          printf("***** h_errno=%d\n", h_errno);
-          printf("***** os_hostName=\"%s\"\n", os_hostName);
-          printf("***** port=" FMT_D "\n", port);
-          printf("***** hostName=%s\n", striAsUnquotedCStri(hostName));
-          */
+          logMessage(printf("socInetAddr(\"%s\"): gethostbyname(\"%s\") "
+                            "failed with TRY_AGAIN.\n",
+                            striAsUnquotedCStri(hostName),
+                            os_hostName););
           host_ent = gethostbyname(os_hostName);
         } /* if */
         if (unlikely(host_ent == NULL)) {
           emptyBStriType emptyBStri;
 
-          /* printf("***** gethostbyname(\"%s\"): h_errno=%d\n", os_hostName, h_errno);
-             printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
-                 HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
+          logMessage(printf("socInetAddr: gethostbyname(\"%s\") failed: "
+                            "h_errno=%d %s\n",
+                            os_hostName, h_errno,
+                            h_errno == HOST_NOT_FOUND ? "HOST_NOT_FOUND" :
+                            h_errno == TRY_AGAIN ? "TRY_AGAIN" :
+                            h_errno == NO_RECOVERY ? "NO_RECOVERY" :
+                            h_errno == NO_DATA ? "NO_DATA" :
+                            "**UNKNOWN**"););
           free_cstri8(os_hostName, hostName);
           /* Return empty address */
           if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
@@ -1273,15 +1705,22 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           } /* if */
           result = (bstriType) emptyBStri;
         } else {
-          /*
-          printf("Host name:      %s\n", host_ent->h_name);
-          printf("Port:           " FMT_D "\n", port);
-          printf("Address type:   %d\n", host_ent->h_addrtype);
-          printf("Address type:   %d\n", AF_INET);
-          printf("Address length: %d\n", host_ent->h_length);
-          printf("Address length: %d\n", sizeof(struct sockaddr_in));
-          printf("IP Address:     %s\n", inet_ntoa(*((struct in_addr *)host_ent->h_addr)));
-          */
+          logMessage(printf("socInetAddr: gethostbyname(\"%s\") returned:\n"
+                            "Host name:      %s\n"
+                            "Address type:   %d %s\n"
+                            "Address length: %d\n",
+                            os_hostName, host_ent->h_name,
+                            host_ent->h_addrtype,
+                            host_ent->h_addrtype == AF_INET ? "AF_INET" :
+                            host_ent->h_addrtype == AF_INET6 ? "AF_INET6" :
+                            "**UNKNOWN**",
+                            host_ent->h_length);
+                     if (host_ent->h_addrtype == AF_INET &&
+                         host_ent->h_length ==
+                             sizeof(inet_address->sin_addr.s_addr)) {
+                       printf("IP Address:     %s\n", inet_ntoa(
+                              *((struct in_addr *) host_ent->h_addr)));
+                     });
           free_cstri8(os_hostName, hostName);
           if (host_ent->h_addrtype == AF_INET &&
               host_ent->h_length == sizeof(inet_address->sin_addr.s_addr)) {
@@ -1295,21 +1734,26 @@ bstriType socInetAddr (const const_striType hostName, intType port)
               memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr,
                      (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
-              /* {
-                uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
-                printf("ip4_address=%d.%d.%d.%d\n",
-                    (ip4_address >> 24  & 255,
-                    (ip4_address >> 16) & 255,
-                    (ip4_address >>  8) & 255,
-                     ip4_address        & 255);
-              } */
+              logMessage({
+                           uint32Type ip4_address =
+                               ntohl(inet_address->sin_addr.s_addr);
+                           printf("socInetAddr: ip4_address=%d.%d.%d.%d\n",
+                                  (ip4_address >> 24) & 255,
+                                  (ip4_address >> 16) & 255,
+                                  (ip4_address >>  8) & 255,
+                                   ip4_address        & 255);
+                         });
             } /* if */
           } else {
             emptyBStriType emptyBStri;
 
-            /* printf("socInetAddr: addrtype=%d\n", host_ent->h_addrtype); */
-            /* raise_error(FILE_ERROR);
-               result = NULL; */
+            logMessage(printf("socInetAddr: gethostbyname(\"%s\") "
+                              "returned addrtype=%d %s\n",
+                              os_hostName,
+                              host_ent->h_addrtype,
+                              host_ent->h_addrtype == AF_INET ? "AF_INET" :
+                              host_ent->h_addrtype == AF_INET6 ? "AF_INET6" :
+                              "**UNKNOWN**"););
             /* Return empty address */
             if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
               raise_error(MEMORY_ERROR);
@@ -1516,135 +1960,34 @@ bstriType socInetServAddr (intType port)
 
 
 
-#if HAS_POLL
-boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
+boolType socInputReady (const const_socketType inSocket,
+    intType seconds, intType micro_seconds)
 
   {
-    struct pollfd pollFd[1];
-    int timeout;
-    int poll_result;
-    unsigned char next_char;
-    memSizeType bytes_received;
     boolType inputReady;
 
   /* socInputReady */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
-                       sock, seconds, micro_seconds););
-    if (unlikely(sock == (socketType) -1)) {
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       seconds, micro_seconds););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
       logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
-                      "Invalid socket.\n",
-                      sock, seconds, micro_seconds););
+                      "Attempt to use a closed socket.\n",
+                      inSocket->socketNumber,
+                      seconds, micro_seconds););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
-    } else if (unlikely(seconds < 0 || seconds >= INT_MAX / 1000 ||
-                 micro_seconds < 0 || micro_seconds >= 1000000)) {
-      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
-                      "seconds or micro_seconds not in allowed range.\n",
-                      sock, seconds, micro_seconds););
-      raise_error(RANGE_ERROR);
-      inputReady = FALSE;
     } else {
-      pollFd[0].fd = (int) sock;
-      pollFd[0].events = POLLIN;
-      timeout = (int) seconds * 1000 + (int) (micro_seconds / 1000);
-      poll_result = os_poll(pollFd, 1, timeout);
-      if (unlikely(poll_result < 0)) {
-        logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
-                        "os_poll([%d, POLLIN], 1, %d) failed:\n"
-                        "%s=%d\nerror: %s\n",
-                        sock, seconds, micro_seconds,
-                        sock, timeout,
-                        ERROR_INFORMATION););
-        raise_error(FILE_ERROR);
-        inputReady = FALSE;
-      } else {
-        inputReady = poll_result == 1 && (pollFd[0].revents & POLLIN);
-        if (inputReady) {
-          /* Verify that it is really possible to read at least one character */
-          bytes_received = (memSizeType) recv((os_socketType) sock,
-                                              cast_send_recv_data(&next_char), 1, MSG_PEEK);
-          if (bytes_received != 1) {
-            logMessage(printf("socInputReady: bytes_received=" FMT_U_MEM "\n",
-                              bytes_received););
-            inputReady = FALSE;
-          } /* if */
-        } /* if */
-      } /* if */
+      inputReady = socketInputReady(inSocket->socketNumber,
+                                    seconds, micro_seconds);
     } /* if */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
-                       sock, seconds, micro_seconds, inputReady););
+                       inSocket->socketNumber, seconds,
+                       micro_seconds, inputReady););
     return inputReady;
   } /* socInputReady */
-
-#else
-
-
-
-boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
-
-  {
-    int nfds;
-    fd_set readfds;
-    struct timeval timeout;
-    int select_result;
-    unsigned char next_char;
-    memSizeType bytes_received;
-    boolType inputReady;
-
-  /* socInputReady */
-    logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
-                       sock, seconds, micro_seconds););
-    if (unlikely(sock == (socketType) -1)) {
-      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
-                      "Invalid socket.\n",
-                      sock, seconds, micro_seconds););
-      raise_error(FILE_ERROR);
-      inputReady = FALSE;
-    } else if (unlikely(seconds < 0 || seconds >= LONG_MAX ||
-                 micro_seconds < 0 || micro_seconds >= 1000000)) {
-      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
-                      "seconds or micro_seconds not in allowed range.\n",
-                      sock, seconds, micro_seconds););
-      raise_error(RANGE_ERROR);
-      inputReady = FALSE;
-    } else {
-      FD_ZERO(&readfds);
-      FD_SET((os_socketType) sock, &readfds);
-      nfds = (int) sock + 1;
-      timeout.tv_sec = (long int) seconds;
-      timeout.tv_usec = (long int) micro_seconds;
-      /* printf("select(%d, %d)\n", nfds, sock); */
-      select_result = select(nfds, &readfds, NULL, NULL, &timeout);
-      /* printf("select_result: %d\n", select_result); */
-      if (unlikely(select_result < 0)) {
-        logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
-                        "select(%d, [%d], NULL, NULL, [" FMT_D ", " FMT_D "]) failed:\n"
-                        "%s=%d\nerror: %s\n",
-                        sock, seconds, micro_seconds,
-                        nfds, sock, seconds, micro_seconds,
-                        ERROR_INFORMATION););
-        raise_error(FILE_ERROR);
-        inputReady = FALSE;
-      } else {
-        inputReady = FD_ISSET((os_socketType) sock, &readfds);
-        if (inputReady) {
-          /* Verify that it is really possible to read at least one character */
-          bytes_received = (memSizeType) recv((os_socketType) sock,
-                                              cast_send_recv_data(&next_char), 1, MSG_PEEK);
-          if (bytes_received != 1) {
-            logMessage(printf("socInputReady: bytes_received=" FMT_U_MEM "\n",
-                              bytes_received););
-            inputReady = FALSE;
-          } /* if */
-        } /* if */
-      } /* if */
-    } /* if */
-    logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ") --> %d\n",
-                       sock, seconds, micro_seconds, inputReady););
-    return inputReady;
-  } /* socInputReady */
-
-#endif
 
 
 
@@ -1660,9 +2003,11 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType socLineRead (socketType inSocket, charType *const terminationChar)
+striType socLineRead (const const_socketType inSocket,
+    charType *const terminationChar)
 
   {
+    os_socketType inSocketNumber;
     memSizeType bytes_received;
     memSizeType bytes_requested;
     memSizeType result_size;
@@ -1675,14 +2020,19 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
 
   /* socLineRead */
     logFunction(printf("socLineRead(%d, '\\" FMT_U32 ";')\n",
-                       inSocket, *terminationChar););
-    if (unlikely(inSocket == (socketType) -1)) {
-      logError(printf("socLineRead(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
-                      inSocket, *terminationChar););
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       *terminationChar););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socLineRead(%d, '\\" FMT_U32 ";'): "
+                      "Attempt to read from closed socket.\n",
+                      inSocket->socketNumber, *terminationChar););
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      bytes_received = (memSizeType) recv((os_socketType) inSocket,
+      inSocketNumber = (os_socketType) inSocket->socketNumber;
+      bytes_received = (memSizeType) recv(inSocketNumber,
                                           cast_send_recv_data(buffer),
                                           cast_buffer_len(BUFFER_START_SIZE),
                                           MSG_PEEK);
@@ -1692,7 +2042,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
         logError(printf("socLineRead: "
                         "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
                         "%s=%d\nerror: %s\n",
-                        inSocket, (memSizeType) BUFFER_START_SIZE,
+                        inSocketNumber, (memSizeType) BUFFER_START_SIZE,
                         ERROR_INFORMATION););
         bytes_received = 0;
       } /* if */
@@ -1711,21 +2061,31 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
         if (nlPos != NULL) {
           bytes_requested = (memSizeType) (nlPos - buffer) + 1;
           /* This should overwrite the buffer with identical data up to '\n'. */
-          bytes_received = (memSizeType) recv((os_socketType) inSocket,
+          bytes_received = (memSizeType) recv(inSocketNumber,
                                               cast_send_recv_data(buffer),
                                               cast_buffer_len(bytes_requested), 0);
           /* bytes_received should always be identical to bytes_requested. */
-          result_size = bytes_requested - 1;
-          if (nlPos != buffer && nlPos[-1] == '\r') {
-            result_size--;
-          } /* if */
-          if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
-            raise_error(MEMORY_ERROR);
+          if (unlikely(bytes_received != bytes_requested)) {
+            logError(printf("socLineRead: "
+                            "recv(%d, *, " FMT_U_MEM ") failed:\n"
+                            "%s=%d\nerror: %s\n",
+                            inSocketNumber, bytes_requested,
+                            ERROR_INFORMATION););
+            raise_error(FILE_ERROR);
             result = NULL;
           } else {
-            memcpy_to_strelem(result->mem, buffer, result_size);
-            result->size = result_size;
-            *terminationChar = '\n';
+            result_size = bytes_requested - 1;
+            if (nlPos != buffer && nlPos[-1] == '\r') {
+              result_size--;
+            } /* if */
+            if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
+              raise_error(MEMORY_ERROR);
+              result = NULL;
+            } else {
+              memcpy_to_strelem(result->mem, buffer, result_size);
+              result->size = result_size;
+              *terminationChar = '\n';
+            } /* if */
           } /* if */
         } else {
           result_size = bytes_received;
@@ -1735,95 +2095,126 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
           do {
             bytes_requested = bytes_received;
             /* This should overwrite the buffer with identical data. */
-            bytes_received = (memSizeType) recv((os_socketType) inSocket,
+            bytes_received = (memSizeType) recv(inSocketNumber,
                                                 cast_send_recv_data(buffer),
                                                 cast_buffer_len(bytes_requested), 0);
             /* bytes_received should always be identical to bytes_requested. */
-            result_size += BUFFER_DELTA_SIZE;
-            /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
-                (unsigned long) result, old_result_size, result_size); */
-            REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
-            /* printf("B result=%08lx, resized_result=%08lx\n",
-                (unsigned long) result, (unsigned long) resized_result); */
-            if (unlikely(resized_result == NULL)) {
+            if (unlikely(bytes_received != bytes_requested)) {
+              logError(printf("socLineRead: "
+                              "recv(%d, *, " FMT_U_MEM ") failed:\n"
+                              "%s=%d\nerror: %s\n",
+                              inSocketNumber, bytes_requested,
+                              ERROR_INFORMATION););
               if (result != NULL) {
                 FREE_STRI2(result, old_result_size);
               } /* if */
-              raise_error(MEMORY_ERROR);
+              raise_error(FILE_ERROR);
               result = NULL;
             } else {
-              result = resized_result;
-              old_result_size = result_size;
-              /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
-              memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
-              result_pos += bytes_requested;
-              bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                                  cast_send_recv_data(buffer),
-                                                  cast_buffer_len(BUFFER_DELTA_SIZE),
-                                                  MSG_PEEK);
-              if (unlikely(bytes_received == (memSizeType) -1)) {
-                logError(printf("socLineRead: "
-                                "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
-                                "%s=%d\nerror: %s\n",
-                                inSocket, (memSizeType) BUFFER_DELTA_SIZE,
-                                ERROR_INFORMATION););
-                bytes_received = 0;
-              } /* if */
-              if (bytes_received == 0) {
-                REALLOC_STRI_CHECK_SIZE2(resized_result, result, result_size, result_pos);
-                if (unlikely(resized_result == NULL)) {
-                  FREE_STRI2(result, result_size);
-                  raise_error(MEMORY_ERROR);
-                  result = NULL;
-                } else {
-                  result = resized_result;
-                  result->size = result_pos;
-                  *terminationChar = (charType) EOF;
+              result_size += BUFFER_DELTA_SIZE;
+              /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
+                  (unsigned long) result, old_result_size, result_size); */
+              REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
+              /* printf("B result=%08lx, resized_result=%08lx\n",
+                  (unsigned long) result, (unsigned long) resized_result); */
+              if (unlikely(resized_result == NULL)) {
+                if (result != NULL) {
+                  FREE_STRI2(result, old_result_size);
                 } /* if */
+                raise_error(MEMORY_ERROR);
+                result = NULL;
               } else {
-                nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
+                result = resized_result;
+                old_result_size = result_size;
+                /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
+                memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
+                result_pos += bytes_requested;
+                bytes_received = (memSizeType) recv(inSocketNumber,
+                                                    cast_send_recv_data(buffer),
+                                                    cast_buffer_len(BUFFER_DELTA_SIZE),
+                                                    MSG_PEEK);
+                if (unlikely(bytes_received == (memSizeType) -1)) {
+                  logError(printf("socLineRead: "
+                                  "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
+                                  "%s=%d\nerror: %s\n",
+                                  inSocketNumber, (memSizeType) BUFFER_DELTA_SIZE,
+                                  ERROR_INFORMATION););
+                  bytes_received = 0;
+                } /* if */
+                if (bytes_received == 0) {
+                  REALLOC_STRI_CHECK_SIZE2(resized_result, result, result_size, result_pos);
+                  if (unlikely(resized_result == NULL)) {
+                    FREE_STRI2(result, result_size);
+                    raise_error(MEMORY_ERROR);
+                    result = NULL;
+                  } else {
+                    result = resized_result;
+                    result->size = result_pos;
+                    *terminationChar = (charType) EOF;
+                  } /* if */
+                } else {
+                  nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
+                } /* if */
               } /* if */
             } /* if */
           } while (result != NULL && bytes_received != 0 && nlPos == NULL);
           if (result != NULL && nlPos != NULL) {
             bytes_requested = (memSizeType) (nlPos - buffer) + 1;
             /* This should overwrite the buffer with identical data up to '\n'. */
-            bytes_received = (memSizeType) recv((os_socketType) inSocket,
+            bytes_received = (memSizeType) recv(inSocketNumber,
                                                 cast_send_recv_data(buffer),
                                                 cast_buffer_len(bytes_requested), 0);
             /* bytes_received should always be identical to bytes_requested. */
-            bytes_requested--;
-            if (nlPos == buffer) {
-              if (result->mem[result_pos - 1] == '\r') {
-                result_pos--;
-              } /* if */
-            } else if (nlPos[-1] == '\r') {
-              bytes_requested--;
-            } /* if */
-            old_result_size = result_size;
-            result_size = result_pos + bytes_requested;
-            /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
-                (unsigned long) result, old_result_size, result_size); */
-            REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
-            /* printf("D result=%08lx, resized_result=%08lx\n",
-                (unsigned long) result, (unsigned long) resized_result); */
-            if (unlikely(resized_result == NULL)) {
+            if (unlikely(bytes_received != bytes_requested)) {
+              logError(printf("socLineRead: "
+                              "recv(%d, *, " FMT_U_MEM ") failed:\n"
+                              "%s=%d\nerror: %s\n",
+                              inSocketNumber, bytes_requested,
+                              ERROR_INFORMATION););
               FREE_STRI2(result, old_result_size);
-              raise_error(MEMORY_ERROR);
+              raise_error(FILE_ERROR);
               result = NULL;
             } else {
-              result = resized_result;
-              /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
-              memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
-              result->size = result_size;
-              *terminationChar = '\n';
+              bytes_requested--;
+              if (nlPos == buffer) {
+                /* The first character of the read buffer is a newline. */
+                /* Note that this place can only be reached after at    */
+                /* least one character has been successfully read.      */
+                /* Because of that result_pos >= 1 holds.               */
+                if (result->mem[result_pos - 1] == '\r') {
+                  /* If the last character in result->mem is a carriage */
+                  /* return it is removed by decrementing result_pos.   */
+                  result_pos--;
+                } /* if */
+              } else if (nlPos[-1] == '\r') {
+                bytes_requested--;
+              } /* if */
+              old_result_size = result_size;
+              result_size = result_pos + bytes_requested;
+              /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
+                  (unsigned long) result, old_result_size, result_size); */
+              REALLOC_STRI_CHECK_SIZE2(resized_result, result, old_result_size, result_size);
+              /* printf("D result=%08lx, resized_result=%08lx\n",
+                  (unsigned long) result, (unsigned long) resized_result); */
+              if (unlikely(resized_result == NULL)) {
+                FREE_STRI2(result, old_result_size);
+                raise_error(MEMORY_ERROR);
+                result = NULL;
+              } else {
+                result = resized_result;
+                /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
+                memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
+                result->size = result_size;
+                *terminationChar = '\n';
+              } /* if */
             } /* if */
           } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("socLineRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       inSocket, *terminationChar, striAsUnquotedCStri(result)););
+                       inSocket->socketNumber, *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* socLineRead */
 
@@ -1835,27 +2226,52 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
  *  the queue of pending connections for 'listenerSocket' may grow.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socListen (socketType listenerSocket, intType backlog)
+void socListen (const const_socketType listenerSocket, intType backlog)
 
   { /* socListen */
-    logFunction(printf("socListen(%d, " FMT_D ")\n", listenerSocket, backlog););
-    if (!inIntRange(backlog)) {
+    logFunction(printf("socListen(%d, " FMT_D ")\n",
+                       listenerSocket != NULL ?
+                           listenerSocket->socketNumber : -2,
+                       backlog););
+    assert_socket_not_null(listenerSocket);
+    if (unlikely(listenerSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socListen(%d, " FMT_D "): "
+                      "Attempt to listen at a closed socket.\n",
+                      listenerSocket->socketNumber, backlog););
+      raise_error(FILE_ERROR);
+    } else if (!inIntRange(backlog)) {
       logError(printf("socListen(%d, " FMT_D "): "
                       "backlog not in allowed range.\n",
-                      listenerSocket, backlog););
+                      listenerSocket->socketNumber, backlog););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(listen((os_socketType) listenerSocket,
+    } else if (unlikely(listen((os_socketType) listenerSocket->socketNumber,
                                (int) backlog) != 0)) {
       logError(printf("socListen: listen(%d, " FMT_D ") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      listenerSocket, backlog, ERROR_INFORMATION););
+                      listenerSocket->socketNumber, backlog,
+                      ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
   } /* socListen */
 
 
 
-intType socRecv (socketType sock, striType *stri, intType length, intType flags)
+intType socOrd (const const_socketType aSocket)
+
+  { /* socOrd */
+    logFunction(printf("socOrd(%d) --> %s" FMT_D "\n",
+                       aSocket != NULL ? aSocket->socketNumber : -2,
+                       aSocket == NULL ? "*NULL* " : "",
+                       (intType) (aSocket != NULL ?
+                                  aSocket->socketNumber : -2)););
+    assert_socket_not_null(aSocket);
+    return (intType) aSocket->socketNumber;
+  } /* socOrd */
+
+
+
+intType socRecv (const const_socketType inSocket, striType *const stri,
+    intType length, intType flags)
 
   {
     striType resized_stri;
@@ -1865,17 +2281,20 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
   /* socRecv */
     logFunction(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X ")\n",
-                       sock, length, flags););
-    if (unlikely(sock == (socketType) -1)) {
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       length, flags););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
       logError(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X "): "
-                      "Invalid socket.\n",
-                      sock, length, flags););
+                      "Attempt to receive from a closed socket.\n",
+                      inSocket->socketNumber, length, flags););
       raise_error(FILE_ERROR);
       return 0;
     } else if (unlikely(length < 0 || !inIntRange(flags))) {
       logError(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X "): "
                       "length or flags not in allowed range.\n",
-                      sock, length, flags););
+                      inSocket->socketNumber, length, flags););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1894,7 +2313,7 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
         *stri = resized_stri;
         old_stri_size = bytes_requested;
       } /* if */
-      new_stri_size = (memSizeType) recv((os_socketType) sock,
+      new_stri_size = (memSizeType) recv((os_socketType) inSocket->socketNumber,
                                          cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), (int) flags);
       if (likely(new_stri_size != (memSizeType) -1)) {
@@ -1915,8 +2334,8 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
 
 
-intType socRecvfrom (socketType sock, striType *stri, intType length, intType flags,
-    bstriType *address)
+intType socRecvfrom (const const_socketType inSocket, striType *const stri,
+    intType length, intType flags, bstriType *const address)
 
   {
     striType resized_stri;
@@ -1928,17 +2347,20 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
 
   /* socRecvfrom */
     logFunction(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X ")\n",
-                       sock, length, flags););
-    if (unlikely(sock == (socketType) -1)) {
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       length, flags););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
       logError(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X "): "
-                      "Invalid socket.\n",
-                      sock, length, flags););
+                      "Attempt to receive from a closed socket.\n",
+                      inSocket->socketNumber, length, flags););
       raise_error(FILE_ERROR);
       return 0;
     } else if (unlikely(length < 0 || !inIntRange(flags))) {
       logError(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X "): "
                       "length or flags not in allowed range.\n",
-                      sock, length, flags););
+                      inSocket->socketNumber, length, flags););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1969,7 +2391,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
         *address = resized_address;
         COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
         addrlen = MAX_ADDRESS_SIZE;
-        stri_size = (memSizeType) recvfrom((os_socketType) sock,
+        stri_size = (memSizeType) recvfrom((os_socketType) inSocket->socketNumber,
                                            cast_send_recv_data((*stri)->mem),
                                            cast_buffer_len(bytes_requested), (int) flags,
                                            (struct sockaddr *) (*address)->mem, &addrlen);
@@ -1985,7 +2407,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           } /* if */
           logError(printf("socRecvfrom: recvfrom(%d, ...) failed:\n"
                           "%s=%d\nerror: %s\n",
-                          sock, ERROR_INFORMATION););
+                          inSocket->socketNumber, ERROR_INFORMATION););
           raise_error(FILE_ERROR);
         } else {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE,
@@ -2019,7 +2441,8 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
 
 
 
-intType socSend (socketType sock, const const_striType stri, intType flags)
+intType socSend (const const_socketType outSocket,
+    const const_striType stri, intType flags)
 
   {
     bstriType buf;
@@ -2029,17 +2452,22 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
 
   /* socSend */
     logFunction(printf("socSend(%d, \"%s\", 0x" FMT_X ")\n",
-                       sock, striAsUnquotedCStri(stri), flags););
-    if (unlikely(sock == (socketType) -1)) {
+                       outSocket != NULL ?
+                           outSocket->socketNumber : -2,
+                       striAsUnquotedCStri(stri), flags););
+    assert_socket_not_null(outSocket);
+    if (unlikely(outSocket->socketNumber == EMPTY_SOCKET)) {
       logError(printf("socSend(%d, \"%s\", 0x" FMT_X "): "
-                      "Invalid socket.\n",
-                      sock, striAsUnquotedCStri(stri), flags););
+                      "Attempt to send to a closed socket.\n",
+                      outSocket->socketNumber, striAsUnquotedCStri(stri),
+                      flags););
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(!inIntRange(flags))) {
       logError(printf("socSend(%d, \"%s\", 0x" FMT_X "): "
                       "flags not in allowed range.\n",
-                      sock, striAsUnquotedCStri(stri), flags););
+                      outSocket->socketNumber, striAsUnquotedCStri(stri),
+                      flags););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -2051,7 +2479,7 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
         raise_error(err_info);
         result = 0;
       } else {
-        bytes_sent = (memSizeType) send((os_socketType) sock,
+        bytes_sent = (memSizeType) send((os_socketType) outSocket->socketNumber,
                                         cast_send_recv_data(buf->mem),
                                         cast_buffer_len(buf->size), (int) flags);
         FREE_BSTRI(buf, buf->size);
@@ -2069,8 +2497,8 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
 
 
 
-intType socSendto (socketType sock, const const_striType stri, intType flags,
-    const_bstriType address)
+intType socSendto (const const_socketType outSocket,
+    const const_striType stri, intType flags, const_bstriType address)
 
   {
     bstriType buf;
@@ -2080,20 +2508,23 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
 
   /* socSendto */
     logFunction(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\")\n",
-                       sock, striAsUnquotedCStri(stri), flags,
+                       outSocket != NULL ?
+                           outSocket->socketNumber : -2,
+                       striAsUnquotedCStri(stri), flags,
                        socAddressCStri(address)););
-    if (unlikely(sock == (socketType) -1)) {
+    assert_socket_not_null(outSocket);
+    if (unlikely(outSocket->socketNumber == EMPTY_SOCKET)) {
       logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
-                      "Invalid socket.\n",
-                      sock, striAsUnquotedCStri(stri), flags,
-                      socAddressCStri(address)););
+                      "Attempt to send to a closed socket.\n",
+                      outSocket->socketNumber, striAsUnquotedCStri(stri),
+                      flags, socAddressCStri(address)););
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(!inIntRange(flags))) {
       logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
                       "flags not in allowed range.\n",
-                      sock, striAsUnquotedCStri(stri), flags,
-                      socAddressCStri(address)););
+                      outSocket->socketNumber, striAsUnquotedCStri(stri),
+                      flags, socAddressCStri(address)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -2105,7 +2536,7 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
         raise_error(err_info);
         result = 0;
       } else {
-        bytes_sent = (memSizeType) sendto((os_socketType) sock,
+        bytes_sent = (memSizeType) sendto((os_socketType) outSocket->socketNumber,
                                           cast_send_recv_data(buf->mem),
                                           cast_buffer_len(buf->size), (int) flags,
                                           (const struct sockaddr *) address->mem,
@@ -2125,36 +2556,51 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
 
 
 
-void socSetOptBool (socketType sock, intType optname, boolType optval)
+void socSetOptBool (const const_socketType aSocket, intType optname,
+    boolType optval)
 
   { /* socSetOptBool */
     logFunction(printf("socSetOptBool(%d, " FMT_D ", %s)\n",
-                       sock, optname, optval ? "TRUE" : "FALSE"););
-    switch (castIntTypeForSwitch(optname)) {
-      case SOC_OPT_NONE:
-        break;
-      case SOC_OPT_REUSEADDR: {
-          int so_reuseaddr = optval;
-          if (unlikely(setsockopt((os_socketType) sock,
-                                  SOL_SOCKET, SO_REUSEADDR,
-                                  (const char *) &so_reuseaddr,
-                                  sizeof(so_reuseaddr)) != 0)) {
-            logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
-                            "setsockopt(%d, ...) failed:\n"
-                            "%s=%d\nerror: %s\n",
-                            sock, optname, optval ? "TRUE" : "FALSE",
-                            sock, ERROR_INFORMATION););
-            raise_error(FILE_ERROR);
-          } /* if */
-        }
-        break;
-      default:
-        logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
-                        "Unsupported option.\n",
-                        sock, optname, optval ? "TRUE" : "FALSE"););
-        raise_error(RANGE_ERROR);
-        break;
-    } /* switch */
+                       aSocket != NULL ?
+                           aSocket->socketNumber : -2,
+                       optname, optval ? "TRUE" : "FALSE"););
+    assert_socket_not_null(aSocket);
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
+                      "Attempt to set an option of a closed socket.\n",
+                      aSocket->socketNumber,
+                      optname, optval ? "TRUE" : "FALSE"););
+      raise_error(FILE_ERROR);
+    } else {
+      switch (castIntTypeForSwitch(optname)) {
+        case SOC_OPT_NONE:
+          break;
+        case SOC_OPT_REUSEADDR: {
+            int so_reuseaddr = optval;
+            if (unlikely(setsockopt((os_socketType) aSocket->socketNumber,
+                                    SOL_SOCKET, SO_REUSEADDR,
+                                    (const char *) &so_reuseaddr,
+                                    sizeof(so_reuseaddr)) != 0)) {
+              logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
+                              "setsockopt(%d, ...) failed:\n"
+                              "%s=%d\nerror: %s\n",
+                              aSocket->socketNumber, optname,
+                              optval ? "TRUE" : "FALSE",
+                              aSocket->socketNumber,
+                              ERROR_INFORMATION););
+              raise_error(FILE_ERROR);
+            } /* if */
+          }
+          break;
+        default:
+          logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
+                          "Unsupported option.\n",
+                          aSocket->socketNumber, optname,
+                          optval ? "TRUE" : "FALSE"););
+          raise_error(RANGE_ERROR);
+          break;
+      } /* switch */
+    } /* if */
   } /* socSetOptBool */
 
 
@@ -2162,32 +2608,44 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
 socketType socSocket (intType domain, intType type, intType protocol)
 
   {
-    os_socketType result;
+    os_socketType socketNumber;
+    socketType newSocket;
 
   /* socSocket */
     logFunction(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ")\n",
                        domain, type, protocol););
-    if (unlikely(!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol))) {
+    if (unlikely(!inIntRange(domain) || !inIntRange(type) ||
+                 !inIntRange(protocol))) {
       logError(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D "): "
                       "domain, type or protocol not in allowed range.\n",
                       domain, type, protocol););
       raise_error(RANGE_ERROR);
-      result = 0;
+      newSocket = NULL;
+    } else if (unlikely(!ALLOC_RECORD(newSocket, socketRecord, count.sockets))) {
+      raise_error(MEMORY_ERROR);
     } else {
       check_initialization((socketType) -1);
-      result = (os_socketType) socket((int) domain, (int) type, (int) protocol);
-#if SOCKET_LIB == WINSOCK_SOCKETS && !TWOS_COMPLEMENT_INTTYPE
-      /* In this case INVALID_SOCKET != (socketType) -1 holds and    */
-      /* (socketType) -1 must be returned instead of INVALID_SOCKET. */
-      /* Probably a computer, which needs this, does not exist.      */
-      if (unlikely(result == INVALID_SOCKET)) {
-        result = (os_socketType) -1;
+      socketNumber = (os_socketType) socket((int) domain, (int) type,
+                                            (int) protocol);
+      if (unlikely(socketNumber == INVALID_SOCKET)) {
+        logError(printf("socSocket: socket(" FMT_D ", " FMT_D ", " FMT_D ") failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        domain, type, protocol,
+                        ERROR_INFORMATION););
+        FREE_RECORD(newSocket, socketRecord, count.sockets);
+        newSocket = &emptySocketRecord;
+      } else {
+        newSocket->socketNumber = (socketNumberType) socketNumber;
+        newSocket->usage_count = 1;
       } /* if */
-#endif
     } /* if */
-    logFunction(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ") --> %d\n",
-                       domain, type, protocol, result););
-    return (socketType) result;
+    logFunction(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ") "
+                       "--> %s%d (usage=" FMT_U ")\n",
+                       domain, type, protocol,
+                       newSocket == NULL ? "NULL " : "",
+                       newSocket != NULL ? newSocket->socketNumber : -2,
+                       newSocket != NULL ? newSocket->usage_count : (uintType) 0););
+    return newSocket;
   } /* socSocket */
 
 
@@ -2203,7 +2661,8 @@ socketType socSocket (intType domain, intType type, intType protocol)
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType socWordRead (socketType inSocket, charType *const terminationChar)
+striType socWordRead (const const_socketType inSocket,
+    charType *const terminationChar)
 
   {
     unsigned char ch;
@@ -2217,10 +2676,14 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
 
   /* socWordRead */
     logFunction(printf("socWordRead(%d, '\\" FMT_U32 ";')\n",
-                       inSocket, *terminationChar););
-    if (unlikely(inSocket == (socketType) -1)) {
-      logError(printf("socWordRead(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
-                      inSocket, *terminationChar););
+                       inSocket != NULL ?
+                           inSocket->socketNumber : -2,
+                       *terminationChar););
+    assert_socket_not_null(inSocket);
+    if (unlikely(inSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("socWordRead(%d, '\\" FMT_U32 ";'): "
+                      "Attempt to read from closed socket.\n",
+                      inSocket->socketNumber, *terminationChar););
       raise_error(FILE_ERROR);
       result = NULL;
     } else if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
@@ -2229,7 +2692,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
       memory = result->mem;
       position = 0;
       do {
-        bytes_received = (memSizeType) recv((os_socketType) inSocket,
+        bytes_received = (memSizeType) recv((os_socketType) inSocket->socketNumber,
                                             cast_send_recv_data(&ch), 1, 0);
       } while (bytes_received == 1 && (ch == ' ' || ch == '\t'));
       while (bytes_received == 1 &&
@@ -2247,7 +2710,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
           memlength = newmemlength;
         } /* if */
         memory[position++] = (strElemType) ch;
-        bytes_received = (memSizeType) recv((os_socketType) inSocket,
+        bytes_received = (memSizeType) recv((os_socketType) inSocket->socketNumber,
                                             cast_send_recv_data(&ch), 1, 0);
       } /* while */
       if (bytes_received == 1 && ch == '\n' &&
@@ -2270,7 +2733,8 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
       } /* if */
     } /* if */
     logFunction(printf("socWordRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       inSocket, *terminationChar, striAsUnquotedCStri(result)););
+                       inSocket->socketNumber, *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* socWordRead */
 
@@ -2283,7 +2747,8 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  */
-void socWrite (socketType outSocket, const const_striType stri)
+void socWrite (const const_socketType outSocket,
+    const const_striType stri)
 
   {
     ucharType buffer[BUFFER_SIZE];
@@ -2296,10 +2761,15 @@ void socWrite (socketType outSocket, const const_striType stri)
 
   /* socWrite */
     logFunction(printf("socWrite(%d, \"%s\")\n",
-                       outSocket, striAsUnquotedCStri(stri)););
-    if (unlikely(outSocket == (socketType) -1)) {
-        logError(printf("socWrite(%d, \"%s\"): Invalid socket.\n",
-                        outSocket, striAsUnquotedCStri(stri)););
+                       outSocket != NULL ?
+                           outSocket->socketNumber : -2,
+                       striAsUnquotedCStri(stri)););
+    assert_socket_not_null(outSocket);
+    if (unlikely(outSocket->socketNumber == EMPTY_SOCKET)) {
+        logError(printf("socWrite(%d, \"%s\"): "
+                        "Attempt to write to closed socket.\n",
+                        outSocket->socketNumber,
+                        striAsUnquotedCStri(stri)););
       err_info = FILE_ERROR;
       buf = NULL;
       bytes_to_send = 0;
@@ -2307,7 +2777,8 @@ void socWrite (socketType outSocket, const const_striType stri)
       if (unlikely(memcpy_from_strelem(buffer, stri->mem, stri->size))) {
         logError(printf("socWrite(%d, \"%s\"): "
                         "At least one character does not fit into a byte.\n",
-                        outSocket, striAsUnquotedCStri(stri)););
+                        outSocket->socketNumber,
+                        striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;
         buf = NULL;
         bytes_to_send = 0;
@@ -2321,7 +2792,8 @@ void socWrite (socketType outSocket, const const_striType stri)
         logError(printf("socWrite(%d, \"%s\"): "
                         "Failed to create a temporary bstring.\n"
                         "err_info=%d\n",
-                        outSocket, striAsUnquotedCStri(stri), err_info););
+                        outSocket->socketNumber,
+                        striAsUnquotedCStri(stri), err_info););
         buf = NULL;
         bytes_to_send = 0;
       } else {
@@ -2330,7 +2802,7 @@ void socWrite (socketType outSocket, const const_striType stri)
       } /* if */
     } /* if */
     while (bytes_to_send != 0 && err_info == OKAY_NO_ERROR) {
-      bytes_sent = (memSizeType) send((os_socketType) outSocket,
+      bytes_sent = (memSizeType) send((os_socketType) outSocket->socketNumber,
                                       cast_send_recv_data(&buf[totally_sent]),
                                       cast_buffer_len(bytes_to_send), 0);
       if (bytes_sent == (memSizeType) -1) {
@@ -2338,8 +2810,8 @@ void socWrite (socketType outSocket, const const_striType stri)
                         "send(%d, data, " FMT_U_MEM ") failed:\n"
                         "%s=%d\nerror: %s\n"
                         "bytes sent successfully: " FMT_U_MEM "\n",
-                        outSocket, striAsUnquotedCStri(stri),
-                        stri->size, outSocket, bytes_to_send,
+                        outSocket->socketNumber, striAsUnquotedCStri(stri),
+                        stri->size, outSocket->socketNumber, bytes_to_send,
                         ERROR_INFORMATION, totally_sent););
         err_info = FILE_ERROR;
       } else {

@@ -49,6 +49,22 @@ const func boolean: allowedInFieldName (in dbCategory: databaseKind, in char: ch
     return ch not in forbiddenInFieldName(databaseKind);
 
 
+const func boolean: ddlStatementsNeedCommit (in dbCategory: databaseKind) is func
+  result
+    var boolean: ddlStatementsNeedCommit is FALSE;
+  begin
+    case databaseKind of
+      when {DB_MYSQL}:      ddlStatementsNeedCommit := FALSE;
+      when {DB_SQLITE}:     ddlStatementsNeedCommit := FALSE;
+      when {DB_POSTGRESQL}: ddlStatementsNeedCommit := TRUE;
+      when {DB_OCI}:        ddlStatementsNeedCommit := FALSE;
+      when {DB_FIRE}:       ddlStatementsNeedCommit := FALSE;
+      when {DB_SQL_SERVER}: ddlStatementsNeedCommit := FALSE;
+      when {DB_DB2}:        ddlStatementsNeedCommit := FALSE;
+    end case;
+  end func;
+
+
 const func boolean: transactionLocks (in dbCategory: databaseKind) is func
   result
     var boolean: transactionLocks is FALSE;

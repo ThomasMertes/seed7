@@ -109,6 +109,17 @@ objectType exec1 (listType list)
         } /* if */
 #endif
         result = exec_call(object);
+#ifdef DEBUG_EXEC
+        printf("after executing\n");
+        trace1(object);
+        printf("\n");
+        trace1(list->obj);
+        printf("\n");
+        trace1(list->next->obj);
+        printf("\n");
+        trace1(list->next->next->obj);
+        printf("\n");
+#endif
       } else {
         result = NULL;
       } /* if */
@@ -116,17 +127,6 @@ objectType exec1 (listType list)
     } else {
       result = NULL;
     } /* if */
-#ifdef DEBUG_EXEC
-    printf("after executing\n");
-    trace1(object);
-    printf("\n");
-    trace1(list->obj);
-    printf("\n");
-    trace1(list->next->obj);
-    printf("\n");
-    trace1(list->next->next->obj);
-    printf("\n");
-#endif
     logFunction(printf("exec1 -->\n"););
     return result;
   } /* exec1 */

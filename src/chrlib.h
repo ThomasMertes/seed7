@@ -25,10 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType chr_clit      (listType arguments);
 objectType chr_cmp       (listType arguments);
 objectType chr_cpy       (listType arguments);
 objectType chr_create    (listType arguments);
+objectType chr_c_literal (listType arguments);
 objectType chr_decr      (listType arguments);
 objectType chr_eq        (listType arguments);
 objectType chr_ge        (listType arguments);

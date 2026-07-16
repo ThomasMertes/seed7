@@ -436,70 +436,80 @@ objectType rfl_expr (listType arguments)
 
 
 
+/**
+ *  For-loop where 'forVar/arg_2' loops over the elements of 'aRefList/arg_4'.
+ */
 objectType rfl_for (listType arguments)
 
   {
+    objectType forVar;
+    objectType aRefList;
     objectType statement;
-    objectType elementlist;
-    objectType for_variable;
-    listType helplist;
-    listType listelement;
+    listType helpList;
+    listType listElement;
     errInfoType err_info = OKAY_NO_ERROR;
     objectType result;
 
   /* rfl_for */
 /*  prot_list(take_list(arg_4(arguments))); */
-    for_variable = arg_2(arguments);
-    elementlist = arg_4(arguments);
+    forVar = arg_2(arguments);
+    aRefList = arg_4(arguments);
     statement = arg_6(arguments);
-    isit_reference (for_variable);
-    isit_reflist(elementlist);
-    helplist = copy_list(take_list(elementlist), &err_info);
+    isit_reference(forVar);
+    is_variable(forVar);
+    isit_reflist(aRefList);
+    helpList = copy_list(take_list(aRefList), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      listelement = helplist;
+      listElement = helpList;
       result = SYS_EMPTY_OBJECT;
-      while (listelement != NULL && result != NULL) {
-        for_variable->value.objValue = listelement->obj;
+      while (listElement != NULL && result != NULL) {
+        forVar->value.objValue = listElement->obj;
         result = evaluate(statement);
-        listelement = listelement->next;
+        listElement = listElement->next;
       } /* while */
-      free_list(helplist);
+      free_list(helpList);
       return result;
     } /* if */
   } /* rfl_for */
 
 
 
+/**
+ *  For-loop where 'forVar/arg_2' loops over the elements of 'aRefList/arg_4'.
+ *  Additionally a 'condition/arg_6' is checked before the statements in
+ *  the loop body are executed.
+ */
 objectType rfl_for_until (listType arguments)
 
   {
-    objectType for_variable;
-    objectType elementlist;
-    objectType statement;
+    objectType forVar;
+    objectType aRefList;
     objectType condition;
+    objectType statement;
     objectType cond_value;
     boolType cond;
-    listType helplist;
-    listType listelement;
+    listType helpList;
+    listType listElement;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_for_until */
 /*  prot_list(take_list(arg_4(arguments))); */
-    for_variable = arg_2(arguments);
-    elementlist = arg_4(arguments);
+    forVar = arg_2(arguments);
+    aRefList = arg_4(arguments);
     condition = arg_6(arguments);
     statement = arg_8(arguments);
-    isit_reference (for_variable);
-    isit_reflist(elementlist);
-    helplist = copy_list(take_list(elementlist), &err_info);
+    isit_reference(forVar);
+    is_variable(forVar);
+    isit_reflist(aRefList);
+    helpList = copy_list(take_list(aRefList), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      listelement = helplist;
-      if (listelement != NULL) {
-        for_variable->value.objValue = listelement->obj;
+      listElement = helpList;
+      if (listElement != NULL) {
+        forVar->value.objValue = listElement->obj;
         cond_value = evaluate(condition);
         if (!fail_flag) {
           isit_bool(cond_value);
@@ -507,12 +517,12 @@ objectType rfl_for_until (listType arguments)
           if (TEMP_OBJECT(cond_value)) {
             dump_any_temp(cond_value);
           } /* if */
-          while (cond && listelement != NULL && !fail_flag) {
+          while (cond && listElement != NULL && !fail_flag) {
             evaluate(statement);
             if (!fail_flag) {
-              listelement = listelement->next;
-              if (listelement != NULL) {
-                for_variable->value.objValue = listelement->obj;
+              listElement = listElement->next;
+              if (listElement != NULL) {
+                forVar->value.objValue = listElement->obj;
                 cond_value = evaluate(condition);
                 if (!fail_flag) {
                   isit_bool(cond_value);
@@ -526,10 +536,57 @@ objectType rfl_for_until (listType arguments)
           } /* while */
         } /* if */
       } /* if */
-      free_list(helplist);
+      free_list(helpList);
       return SYS_EMPTY_OBJECT;
     } /* if */
   } /* rfl_for_until */
+
+
+
+/**
+ *  For-loop which loops over the elements and keys (indices) of 'aRefList/arg_6'.
+ */
+objectType rfl_for_var_key (listType arguments)
+
+  {
+    objectType forVar;
+    objectType keyVar;
+    objectType aRefList;
+    objectType statement;
+    listType helpList;
+    listType listElement;
+    memSizeType pos;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* rfl_for_var_key */
+    forVar = arg_2(arguments);
+    keyVar = arg_4(arguments);
+    aRefList = arg_6(arguments);
+    statement = arg_8(arguments);
+    isit_reference(forVar);
+    is_variable(forVar);
+    isit_int(keyVar);
+    is_variable(keyVar);
+    isit_reflist(aRefList);
+    helpList = copy_list(take_list(aRefList), &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      listElement = helpList;
+      pos = 1;
+      result = SYS_EMPTY_OBJECT;
+      while (listElement != NULL && result != NULL) {
+        forVar->value.objValue = listElement->obj;
+        keyVar->value.intValue = (intType) (pos);
+        result = evaluate(statement);
+        listElement = listElement->next;
+        pos++;
+      } /* while */
+      free_list(helpList);
+      return result;
+    } /* if */
+  } /* rfl_for_var_key */
 
 
 

@@ -342,7 +342,7 @@ const func cipherState: setCipherKey (BLOWFISH, in string: cipherKey,
  *  Encode a string with the Blowfish block cipher.
  *  @return the encoded string.
  *)
-const func string: encode (inout blowfishState: state, in string: plaintext) is func
+const func string: encode (inout blowfishState: state, in string: plainText) is func
   result
     var string: encoded is "";
   local
@@ -350,9 +350,9 @@ const func string: encode (inout blowfishState: state, in string: plaintext) is 
     var integer: left is 0;
     var integer: right is 0;
   begin
-    for index range 1 to length(plaintext) step blockSize(BLOWFISH) do
-      left  := bytes2Int(plaintext[index     fixLen 4], UNSIGNED, BE);
-      right := bytes2Int(plaintext[index + 4 fixLen 4], UNSIGNED, BE);
+    for index range 1 to length(plainText) step blockSize(BLOWFISH) do
+      left  := bytes2Int(plainText[index     fixLen 4], UNSIGNED, BE);
+      right := bytes2Int(plainText[index + 4 fixLen 4], UNSIGNED, BE);
       encrypt(state, left, right);
       encoded &:= bytes(left,  UNSIGNED, BE, 4) &
                   bytes(right, UNSIGNED, BE, 4);
@@ -366,7 +366,7 @@ const func string: encode (inout blowfishState: state, in string: plaintext) is 
  *)
 const func string: decode (inout blowfishState: state, in string: encoded) is func
   result
-    var string: plaintext is "";
+    var string: plainText is "";
   local
     var integer: index is 0;
     var integer: left is 0;
@@ -376,7 +376,7 @@ const func string: decode (inout blowfishState: state, in string: encoded) is fu
       left  := bytes2Int(encoded[index     fixLen 4], UNSIGNED, BE);
       right := bytes2Int(encoded[index + 4 fixLen 4], UNSIGNED, BE);
       decrypt(state, left, right);
-      plaintext &:= bytes(left,  UNSIGNED, BE, 4) &
+      plainText &:= bytes(left,  UNSIGNED, BE, 4) &
                     bytes(right, UNSIGNED, BE, 4);
     end for;
   end func;

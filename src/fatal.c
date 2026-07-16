@@ -51,7 +51,7 @@
 
 
 
-void fatal_memory_error (const_cstriType source_file, int source_line)
+NORETURN void fatal_memory_error (const_cstriType source_file, int source_line)
 
   { /* fatal_memory_error */
     logFunction(printf("fatal_memory_error(\"%s\", %d)\n",

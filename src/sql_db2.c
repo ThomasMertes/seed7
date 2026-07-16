@@ -114,7 +114,7 @@ static boolType createConnectionString (connectDataType connectData)
     logFunction(printf("createConnectionString([hostname=\"%s\", port=" FMT_D,
                        sqlwstriAsUnquotedCStri(connectData->hostname),
                        connectData->port);
-		printf(", database=\"%s\"])\n",
+                printf(", database=\"%s\"])\n",
                        sqlwstriAsUnquotedCStri(connectData->database)););
 
     if (connectData->hostnameLength == 0) {

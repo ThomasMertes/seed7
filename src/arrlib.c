@@ -77,7 +77,7 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
     if (end_sort - begin_sort < QSORT_LIMIT) {
       /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
+        compare_elem = *middle_elem;
         less_elem = begin_sort - 1;
         do {
           less_elem++;
@@ -88,13 +88,13 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
         } while (cmp < 0);
         memmove(&less_elem[1], less_elem,
                 (memSizeType) (middle_elem - less_elem) * sizeof(objectRecord));
-        memcpy(less_elem, &compare_elem, sizeof(objectRecord));
+        *less_elem = compare_elem;
       } /* for */
     } else {
       middle_elem = &begin_sort[(memSizeType) (end_sort - begin_sort) >> 1];
-      memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
-      memcpy(middle_elem, end_sort, sizeof(objectRecord));
-      memcpy(end_sort, &compare_elem, sizeof(objectRecord));
+      compare_elem = *middle_elem;
+      *middle_elem = *end_sort;
+      *end_sort = compare_elem;
       less_elem = begin_sort - 1;
       greater_elem = end_sort;
       do {
@@ -112,13 +112,13 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp > 0 && greater_elem != begin_sort);
-        memcpy(&help_element, less_elem, sizeof(objectRecord));
-        memcpy(less_elem, greater_elem, sizeof(objectRecord));
-        memcpy(greater_elem, &help_element, sizeof(objectRecord));
+        help_element = *less_elem;
+        *less_elem = *greater_elem;
+        *greater_elem = help_element;
       } while (greater_elem > less_elem);
-      memcpy(greater_elem, less_elem, sizeof(objectRecord));
-      memcpy(less_elem, &compare_elem, sizeof(objectRecord));
-      memcpy(end_sort, &help_element, sizeof(objectRecord));
+      *greater_elem = *less_elem;
+      *less_elem = compare_elem;
+      *end_sort = help_element;
       qsort_array(begin_sort, less_elem - 1, cmp_func);
       qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -150,7 +150,7 @@ static void qsort_array_reverse (objectType begin_sort, objectType end_sort,
     if (end_sort - begin_sort < QSORT_LIMIT) {
       /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
+        compare_elem = *middle_elem;
         greater_elem = begin_sort - 1;
         do {
           greater_elem++;
@@ -161,13 +161,13 @@ static void qsort_array_reverse (objectType begin_sort, objectType end_sort,
         } while (cmp > 0);
         memmove(&greater_elem[1], greater_elem,
                 (memSizeType) (middle_elem - greater_elem) * sizeof(objectRecord));
-        memcpy(greater_elem, &compare_elem, sizeof(objectRecord));
+        *greater_elem = compare_elem;
       } /* for */
     } else {
       middle_elem = &begin_sort[(memSizeType) (end_sort - begin_sort) >> 1];
-      memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
-      memcpy(middle_elem, end_sort, sizeof(objectRecord));
-      memcpy(end_sort, &compare_elem, sizeof(objectRecord));
+      compare_elem = *middle_elem;
+      *middle_elem = *end_sort;
+      *end_sort = compare_elem;
       greater_elem = begin_sort - 1;
       less_elem = end_sort;
       do {
@@ -185,13 +185,13 @@ static void qsort_array_reverse (objectType begin_sort, objectType end_sort,
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0 && less_elem != begin_sort);
-        memcpy(&help_element, greater_elem, sizeof(objectRecord));
-        memcpy(greater_elem, less_elem, sizeof(objectRecord));
-        memcpy(less_elem, &help_element, sizeof(objectRecord));
+        help_element  = *greater_elem;
+        *greater_elem = *less_elem;
+        *less_elem = help_element;
       } while (less_elem > greater_elem);
-      memcpy(less_elem, greater_elem, sizeof(objectRecord));
-      memcpy(greater_elem, &compare_elem, sizeof(objectRecord));
-      memcpy(end_sort, &help_element, sizeof(objectRecord));
+      *less_elem = *greater_elem;
+      *greater_elem = compare_elem;
+      *end_sort = help_element;
       qsort_array_reverse(begin_sort, greater_elem - 1, cmp_func);
       qsort_array_reverse(greater_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -217,17 +217,20 @@ objectType arr_append (listType arguments)
     objectType array_exec_object;
 
   /* arr_append */
-    logFunction(printf("arr_append\n"););
     arr_variable = arg_1(arguments);
+    logFunction(printf("arr_append(" FMT_U_MEM " ",
+                       (memSizeType) arr_variable);
+                trace1(arr_variable);
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) arg_3(arguments));
+                trace1(arg_3(arguments));
+                printf(")\n"););
     isit_array(arr_variable);
     is_variable(arr_variable);
     arr_to = take_array(arr_variable);
     isit_array(arg_3(arguments));
     extension = take_array(arg_3(arguments));
     extension_size = arraySize(extension);
-    logFunction(printf("arr_append(arr1 (size=" FMT_U_MEM
-                       "), extension (size=" FMT_U_MEM "))\n",
-                       arraySize(arr_to), extension_size););
     if (extension_size != 0) {
       arr_to_size = arraySize(arr_to);
       if (unlikely(arr_to_size > MAX_ARR_LEN - extension_size ||
@@ -279,7 +282,10 @@ objectType arr_append (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("arr_append -->\n"););
+    logFunction(printf("arr_append(" FMT_U_MEM " ",
+                       (memSizeType) arr_variable);
+                trace1(arr_variable);
+                printf(") -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* arr_append */
 
@@ -409,6 +415,10 @@ objectType arr_baselit (listType arguments)
 
   /* arr_baselit */
     element = arg_3(arguments);
+    logFunction(printf("arr_baselit(" FMT_U_MEM " ",
+                       (memSizeType) element);
+                trace1(element);
+                printf(")\n"););
     result_size = 1;
     if (unlikely(!ALLOC_ARRAY(result, result_size))) {
       logError(printf("arr_baselit: ALLOC_ARRAY() failed.\n"););
@@ -458,6 +468,10 @@ objectType arr_baselit2 (listType arguments)
     isit_int(arg_2(arguments));
     start_position = take_int(arg_2(arguments));
     element = arg_4(arguments);
+    logFunction(printf("arr_baselit2(" FMT_D ", " FMT_U_MEM " ",
+                       start_position, (memSizeType) element);
+                trace1(element);
+                printf(")\n"););
     result_size = 1;
     if (unlikely(!ALLOC_ARRAY(result, result_size))) {
       logError(printf("arr_baselit2: ALLOC_ARRAY() failed.\n"););
@@ -511,15 +525,19 @@ objectType arr_cat (listType arguments)
     arrayType result;
 
   /* arr_cat */
+    logFunction(printf("arr_cat(" FMT_U_MEM " ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_1(arguments));
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) arg_3(arguments));
+                trace1(arg_3(arguments));
+                printf(")\n"););
     isit_array(arg_1(arguments));
     isit_array(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     arr2 = take_array(arg_3(arguments));
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
-    logFunction(printf("arr_cat(arr1 (size=" FMT_U_MEM
-                       "), arr2 (size=" FMT_U_MEM "))\n",
-                       arr1_size, arr2_size););
     if (unlikely(arr1_size > MAX_ARR_LEN - arr2_size ||
                  arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size))) {
       logError(printf("arr_cat: Result size bigger than MAX_ARR_LEN.\n"););
@@ -741,6 +759,10 @@ objectType arr_destr (listType arguments)
     arrayType old_arr;
 
   /* arr_destr */
+    logFunction(printf("arr_destr(" FMT_U_MEM " ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_1(arguments));
+                printf(")\n"););
     isit_array(arg_1(arguments));
     old_arr = take_array(arg_1(arguments));
     if (old_arr != NULL) {
@@ -791,7 +813,13 @@ objectType arr_extend (listType arguments)
     arrayType result;
 
   /* arr_extend */
-    logFunction(printf("arr_extend\n"););
+    logFunction(printf("arr_extend(" FMT_U_MEM " ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_1(arguments));
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) arg_3(arguments));
+                trace1(arg_3(arguments));
+                printf(")\n"););
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
     element = arg_3(arguments);
@@ -1023,11 +1051,14 @@ objectType arr_idx (listType arguments)
     objectType result;
 
   /* arr_idx */
-    logFunction(printf("arr_idx\n"););
     isit_array(arg_1(arguments));
     isit_int(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     position = take_int(arg_3(arguments));
+    logFunction(printf("arr_idx(" FMT_U_MEM " ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_1(arguments));
+                printf(", " FMT_D ")\n", position););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position)) {
       logError(printf("arr_idx(arr1, " FMT_D "): "
@@ -1064,7 +1095,7 @@ objectType arr_idx (listType arguments)
         result = &array_pointer[position - arr1->min_position];
       } /* if */
     } /* if */
-    logFunction(printf("arr_idx --> " F_U_MEM(08) " ", (memSizeType) result);
+    logFunction(printf("arr_idx --> " FMT_U_MEM " ", (memSizeType) result);
                 trace1(result);
                 printf("\n"););
     return result;
@@ -1353,7 +1384,13 @@ objectType arr_push (listType arguments)
     objectType array_exec_object;
 
   /* arr_push */
-    logFunction(printf("arr_push\n"););
+    logFunction(printf("arr_push(" FMT_U_MEM " ",
+                       (memSizeType) arg_1(arguments));
+                trace1(arg_1(arguments));
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) arg_3(arguments));
+                trace1(arg_3(arguments));
+                printf(")\n"););
     arr_variable = arg_1(arguments);
     isit_array(arr_variable);
     is_variable(arr_variable);
@@ -1567,7 +1604,7 @@ objectType arr_remove (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("arr_remove --> " F_U_MEM(08) " ", (memSizeType) result);
+    logFunction(printf("arr_remove --> " FMT_U_MEM " ", (memSizeType) result);
                 trace1(result);
                 printf("\n"););
     return result;

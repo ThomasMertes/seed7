@@ -1096,7 +1096,7 @@ const func string: decodeAesBlock (in array bin32: subKey, in integer: rounds, i
  *  Encode a string with the AES (Advanced Encryption Standard) block cipher.
  *  @return the encoded string.
  *)
-const func string: encode (inout aesState: state, in string: plaintext) is func
+const func string: encode (inout aesState: state, in string: plainText) is func
   result
     var string: encoded is "";
   local
@@ -1105,10 +1105,10 @@ const func string: encode (inout aesState: state, in string: plaintext) is func
     var string: dataBlock is "";
     var string: cipherBlock is "";
   begin
-    for index range 1 to length(plaintext) step blockSize(AES) do
+    for index range 1 to length(plainText) step blockSize(AES) do
       dataBlock := "";
       for subIndex range 1 to blockSize(AES) do
-        dataBlock &:= char(ord(bin32(plaintext[pred(index + subIndex)]) ><
+        dataBlock &:= char(ord(bin32(plainText[pred(index + subIndex)]) ><
                                bin32(state.cipherBlock[subIndex])));
       end for;
       cipherBlock := encodeAesBlock(state.encryptionSubKey, state.rounds, dataBlock);
@@ -1124,19 +1124,18 @@ const func string: encode (inout aesState: state, in string: plaintext) is func
  *)
 const func string: decode (inout aesState: state, in string: encoded) is func
   result
-    var string: plaintext is "";
+    var string: plainText is "";
   local
     var integer: index is 0;
     var integer: subIndex is 0;
     var string: cipherBlock is "";
     var string: dataBlock is "";
-    var string: plainBlock is "";
   begin
     for index range 1 to length(encoded) step blockSize(AES) do
       cipherBlock := encoded[index fixLen blockSize(AES)];
       dataBlock := decodeAesBlock(state.decryptionSubKey, state.rounds, cipherBlock);
       for subIndex range 1 to blockSize(AES) do
-        plaintext &:= char(ord(bin32(dataBlock[subIndex]) ><
+        plainText &:= char(ord(bin32(dataBlock[subIndex]) ><
                                bin32(state.cipherBlock[subIndex])));
       end for;
       state.cipherBlock := cipherBlock;

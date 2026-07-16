@@ -63,21 +63,21 @@
 
 #ifdef C_PLUS_PLUS
 
-extern "C" int tgetent (char *, char *);
-extern "C" int tgetnum (char *);
-extern "C" int tgetflag (char *);
-extern "C" char *tgetstr(char *, char **);
-extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char ch));
+extern "C" int tgetent (char *capbuf, const char *terminal_name);
+extern "C" int tgetnum (const char *id);
+extern "C" int tgetflag (const char *id);
+extern "C" char *tgetstr(const char *id, char **area);
+extern "C" char *tgoto (const char *cap, int col, int row);
+extern "C" int tputs (const char *str, int affcnt, int (*putc) (char ch));
 
 #else
 
-int tgetent (char *, char *);
-int tgetnum (char *);
-int tgetflag (char *);
-char *tgetstr(char *, char **);
-char *tgoto (char *, int, int);
-int tputs (char *, int, int (*) (char ch));
+int tgetent (char *capbuf, const char *terminal_name);
+int tgetnum (const char *id);
+int tgetflag (const char *id);
+char *tgetstr(const char *id, char **area);
+char *tgoto (const char *cap, int col, int row);
+int tputs (const char *str, int affcnt, int (*putc) (char ch));
 
 #endif
 
@@ -101,7 +101,7 @@ char *capabilities = NULL;
 
 
 
-int my_tgetent (char *capbuf, char *terminal_name)
+int my_tgetent (char *capbuf, const char *terminal_name)
 
   {
     char *home_dir_path;
@@ -139,14 +139,15 @@ int my_tgetent (char *capbuf, char *terminal_name)
     /* It allocates one byte more than file_name_len.          */
     if (file_name_len != 0 &&
         ALLOC_CSTRI(file_name, file_name_len)) {
-      strcpy(file_name, home_dir_path);
-      len = strlen(file_name);
+      memcpy(file_name, home_dir_path, home_dir_len);
+      len = home_dir_len;
       if (len > 0 && file_name[len - 1] != '/') {
         file_name[len] = '/';
         len++;
       } /* if */
-      strcpy(&file_name[len], ".term");
-      strcat(file_name, terminal_name);
+      memcpy(&file_name[len], ".term", 5);
+      len += 5;
+      memcpy(&file_name[len], terminal_name, terminal_name_len + 1);
       if ((term_descr_file = fopen(file_name, "r")) != NULL) {
         if (fseek(term_descr_file, 0L, SEEK_END) == 0) {
           end_pos = ftell(term_descr_file);
@@ -180,7 +181,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
 
 
 
-int my_tgetnum (char *code)
+int my_tgetnum (const char *id)
 
   {
     memSizeType pos = 1;
@@ -189,11 +190,13 @@ int my_tgetnum (char *code)
     int cap_value = -1;
 
   /* my_tgetnum */
-    log2Function(fprintf(stderr, "my_tgetnum(\"%s\")\n", code););
-    if (likely(code != NULL)) {
+    log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\")\n",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : ""););
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = '#';
@@ -204,14 +207,15 @@ int my_tgetnum (char *code)
         sscanf(found + pos, "%d", &cap_value);
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetnum(\"%s\") --> %d\n",
-                         code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetnum(%s\"%s\") --> %d\n",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "", cap_value););
     return cap_value;
   } /* my_tgetnum */
 
 
 
-int my_tgetflag (char *code)
+int my_tgetflag (const char *id)
 
   {
     memSizeType pos = 1;
@@ -220,11 +224,13 @@ int my_tgetflag (char *code)
     int cap_value = FALSE;
 
   /* my_tgetflag */
-    log2Function(fprintf(stderr, "my_tgetflag(\"%s\")\n", code););
-    if (likely(code != NULL)) {
+    log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\")\n",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : ""););
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = ':';
@@ -235,14 +241,15 @@ int my_tgetflag (char *code)
         cap_value = TRUE;
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetflag(\"%s\") --> %d\n",
-                         code, cap_value););
+    log2Function(fprintf(stderr, "my_tgetflag(%s\"%s\") --> %d\n",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "", cap_value););
     return cap_value;
   } /* my_tgetflag */
 
 
 
-char *my_tgetstr (char *code, char **area)
+char *my_tgetstr (const char *id, char **area)
 
   {
     memSizeType pos = 1;
@@ -254,17 +261,18 @@ char *my_tgetstr (char *code, char **area)
     char *cap_value = NULL;
 
   /* my_tgetstr */
-    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ")\n",
-                       code,
-                       area == NULL ? "NULL " : "",
-                       area != NULL && *area == NULL ?
-                           "(NULL) " : "",
-                       area == NULL ?
-                           (memSizeType) 0 : (memSizeType) *area););
-    if (likely(code != NULL)) {
+    log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ")\n",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "",
+                         area == NULL ? "NULL " : "",
+                         area != NULL && *area == NULL ?
+                             "(NULL) " : "",
+                         area == NULL ?
+                             (memSizeType) 0 : (memSizeType) *area););
+    if (likely(id != NULL)) {
       searched[0] = ':';
-      while (code[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
-        searched[pos] = code[pos - 1];
+      while (id[pos - 1] != '\0' && pos < sizeof(searched) - 2) {
+        searched[pos] = id[pos - 1];
         pos++;
       } /* while */
       searched[pos] = '=';
@@ -316,16 +324,17 @@ char *my_tgetstr (char *code, char **area)
             pos++;
           } /* while */
           if (pos < CAP_VALUE_BUFFER_SIZE) {
-            value[pos] = '\0';
             if (ALLOC_CSTRI(cap_value, pos)) {
-              strcpy(cap_value, value);
+              memcpy(cap_value, value, pos);
+              cap_value[pos] = '\0';
             } /* if */
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    log2Function(fprintf(stderr, "my_tgetstr(\"%s\", %s%s" FMT_U_MEM ") --> ",
-                         code,
+    log2Function(fprintf(stderr, "my_tgetstr(%s\"%s\", %s%s" FMT_U_MEM ") --> ",
+                         id == NULL ? "NULL " : "",
+                         id != NULL ? id : "",
                          area == NULL ? "NULL " : "",
                          area != NULL && *area == NULL ?
                              "(NULL) " : "",
@@ -711,7 +720,7 @@ int outch (char ch)
 
 
 
-void putcontrol (char *control)
+void putcontrol (const char *control)
 
   { /* putcontrol */
     if (control != NULL) {

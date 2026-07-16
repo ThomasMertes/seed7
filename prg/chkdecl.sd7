@@ -39,14 +39,14 @@ var   integer: J is 16;  # Global    YY
 # var          L                  XX YY
 const integer: M is 17;  # Global XX YY
 var   integer: N is 18;  # Global XX YY
-# const        O                        ZZ  
-# var          P                        ZZ  
-# const        Q                  XX    ZZ  
-# var          R                  XX    ZZ  
-# const        S                     YY ZZ  
-# var          T                     YY ZZ  
-# const        U                  XX YY ZZ  
-# var          V                  XX YY ZZ  
+# const        O                        ZZ
+# var          P                        ZZ
+# const        Q                  XX    ZZ
+# var          R                  XX    ZZ
+# const        S                     YY ZZ
+# var          T                     YY ZZ
+# const        U                  XX YY ZZ
+# var          V                  XX YY ZZ
 
 var   integer: var_64 is 64;
 var   integer: var_68 is 68;

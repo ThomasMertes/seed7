@@ -131,7 +131,7 @@ const proc: int_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     intBytesLe2Int (const const_striType);");
     declareExtern(c_prog, "intType     intBytesLe2UInt (const const_striType);");
     declareExtern(c_prog, "intType     intCmp (intType, intType);");
-    declareExtern(c_prog, "intType     intCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     intCmpValue (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "intType     intLog10 (intType);");
     declareExtern(c_prog, "intType     intLog2 (intType);");
     declareExtern(c_prog, "intType     intLowestSetBit (intType);");

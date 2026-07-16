@@ -75,11 +75,11 @@ const type: typeDataStruct is new struct
 
   var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
 
-  var boolean_type_hash: generic_hashCode_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
-  var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_hashCode_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_cpy_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_create_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_destr_declared is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: value_cmp_declared is boolean_type_hash.EMPTY_HASH;
 
   var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
   var boolean_type_hash: literal_function_of_enum_used is boolean_type_hash.EMPTY_HASH;
@@ -133,7 +133,6 @@ const func string: raw_type_name (in type: object_type) is func
         when {REFLISTOBJECT}:    typeName := "listType";
         when {TYPEOBJECT}:       typeName := "typeType";
         when {ACTENTRYOBJECT}:   typeName := "const_actEntryType";
-        when {ACTOBJECT}:        typeName := "actType";
         otherwise:
           typeName := "t_";
           typeName &:= str(typeNumber(object_type));
@@ -189,6 +188,11 @@ const func type: base_type (in type: array_type) is func
   end func;
 
 
+const func boolean: isInlineParam (in reference: aParam) is forward;
+
+const func type: getInlineParamType (in reference: aParam) is forward;
+
+
 const func type: getExprResultType (in reference: aReference) is func
 
   result
@@ -197,12 +201,19 @@ const func type: getExprResultType (in reference: aReference) is func
     # write("getExprResultType: ");
     # TRACE_OBJ(aReference);
     # writeln;
-    resultType := getType(aReference);
-    if category(aReference) = CALLOBJECT then
+    if isInlineParam(aReference) then
+      resultType := getInlineParamType(aReference);
       while isFunc(resultType) or isVarfunc(resultType) do
-        # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
         resultType := resultType(resultType);
       end while;
+    else
+      resultType := getType(aReference);
+      if category(aReference) = CALLOBJECT then
+        while isFunc(resultType) or isVarfunc(resultType) do
+          # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
+          resultType := resultType(resultType);
+        end while;
+      end if;
     end if;
     # writeln("getExprResultType --> " <& str(resultType));
   end func;
@@ -242,7 +253,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {REFLISTOBJECT}:    valueName := "listValue";
         when {TYPEOBJECT}:       valueName := "typeValue";
         when {ACTENTRYOBJECT}:   valueName := "actEntryValue";
-        when {ACTOBJECT}:        valueName := "actValue";
+        when {BLOCKOBJECT}:      valueName := "ptrValue";
         otherwise:               valueName := "genericValue";
        end case;
     else
@@ -265,10 +276,11 @@ const func boolean: valueIsAtHeap (in type: aType) is func
     var boolean: isAtHeap is FALSE;
   local
     const set of category: heapCategories is {
-        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, WINOBJECT,
-        POINTLISTOBJECT, PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT,
-        SQLSTMTOBJECT, SETOBJECT, ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT,
-        INTERFACEOBJECT, REFLISTOBJECT};
+        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT,
+        SOCKETOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT,
+        PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
+        ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT,
+        REFLISTOBJECT};
   begin
     if aType in typeData.typeCategory and
         typeData.typeCategory[aType] in heapCategories then

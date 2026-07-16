@@ -319,7 +319,7 @@ objectType itf_create (listType arguments)
   /* itf_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
-    /* isit_interface(source); allow FORWARDOBJECT */
+    isit_interface(source);
     SET_CATEGORY_OF_OBJ(dest, INTERFACEOBJECT);
     logFunction(printf("itf_create(");
                 trace1(source);
@@ -338,8 +338,6 @@ objectType itf_create (listType arguments)
           trace1(source);
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
-          CLEAR_TEMP_FLAG(new_value);
-          CLEAR_TEMP2_FLAG(new_value);
           if (IS_STRUCT_OWNER(source)) {
             /* Transfer the ownership to new_value. */
             CLEAR_STRUCT_OWNER_FLAG(source);
@@ -360,13 +358,12 @@ objectType itf_create (listType arguments)
       if (new_struct->usage_count != 0) {
         new_struct->usage_count++;
       } /* if */
-    } else if (CATEGORY_OF_OBJ(new_value) != DECLAREDOBJECT &&
-               CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
+      dest->value.objValue = new_value;
+      CLEAR_TEMP_FLAG(new_value);
+      CLEAR_TEMP2_FLAG(new_value);
+    } else {
       expected_category(INTERFACEOBJECT, source);
     } /* if */
-    dest->value.objValue = new_value;
-    CLEAR_TEMP_FLAG(new_value);
-    CLEAR_TEMP2_FLAG(new_value);
     logFunction(printf("itf_create --> ");
                 trace1(dest);
                 printf("\n"););

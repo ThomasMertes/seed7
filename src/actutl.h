@@ -41,3 +41,4 @@ const_actEntryType findActEntry (const const_striType actionName);
 actType getActIllegal (void);
 void freeActPtrTable (void);
 const_actEntryType getActEntry (actType actionSearched);
+boolType actionCreateOkay (objectType dest, const_actEntryType actEntry);

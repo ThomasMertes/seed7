@@ -239,6 +239,9 @@ objectType bld_type_temp (typeType temp_type);
 objectType bld_win_temp (winType temp_win);
 objectType bld_pointlist_temp (bstriType temp_pointlist);
 objectType bld_process_temp (processType temp_process);
+#if CLOSE_ALL_GLOBAL_OBJECTS
+void closeAllGlobalObjects (const const_progType aProgram);
+#endif
 void dump_temp_value (objectType object);
 void dump_any_temp (objectType object);
 void dump_list (listType list);

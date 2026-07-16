@@ -29,6 +29,12 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef DO_INIT
+socketRecord emptySocketRecord = {(socketNumberType) -1, 0};
+#else
+EXTERN socketRecord emptySocketRecord;
+#endif
+
 #define SOC_OPT_NONE      0
 #define SOC_OPT_REUSEADDR 1
 
@@ -42,32 +48,52 @@
 #if SOCKET_LIB == WINSOCK_SOCKETS
 const_cstriType wsaErrorMessage (void);
 #endif
-socketType socAccept (socketType listenerSocket, bstriType *address);
+socketType socAccept (const const_socketType listenerSocket,
+                      bstriType *const address);
 intType socAddrFamily (const const_bstriType address);
 striType socAddrNumeric (const const_bstriType address);
 striType socAddrService (const const_bstriType address);
-void socBind (socketType listenerSocket, const_bstriType address);
-void socClose (socketType aSocket);
-void socConnect (socketType aSocket, const_bstriType address);
-charType socGetc (socketType inSocket, charType *const eofIndicator);
-striType socGets (socketType inSocket, intType length, charType *const eofIndicator);
+void socBind (const const_socketType listenerSocket,
+              const const_bstriType address);
+void socClose (const socketType aSocket);
+void socConnect (const const_socketType aSocket,
+                 const const_bstriType address);
+void socCpy (socketType *const dest, const socketType source);
+socketType socCreate (const socketType source);
+void socDestr (const socketType oldSocket);
+void socFree (const socketType oldSocket);
+charType socGetc (const const_socketType inSocket,
+                  charType *const eofIndicator);
+striType socGets (const const_socketType inSocket, intType length,
+                  charType *const eofIndicator);
 striType socGetHostname (void);
-bstriType socGetLocalAddr (socketType sock);
-bstriType socGetPeerAddr (socketType sock);
-boolType socHasNext (socketType inSocket);
+bstriType socGetLocalAddr (const const_socketType aSocket);
+bstriType socGetPeerAddr (const const_socketType aSocket);
+boolType socHasNext (const const_socketType inSocket);
 bstriType socInetAddr (const const_striType hostName, intType port);
 bstriType socInetLocalAddr (intType port);
 bstriType socInetServAddr (intType port);
-boolType socInputReady (socketType sock, intType seconds, intType micro_seconds);
-striType socLineRead (socketType inSocket, charType *const terminationChar);
-void socListen (socketType listenerSocket, intType backlog);
-intType socRecv (socketType sock, striType *stri, intType length, intType flags);
-intType socRecvfrom (socketType sock, striType *stri, intType length, intType flags,
-    bstriType *address);
-intType socSend (socketType sock, const const_striType stri, intType flags);
-intType socSendto (socketType sock, const const_striType stri, intType flags,
-    const_bstriType address);
-void socSetOptBool (socketType sock, intType optname, boolType optval);
-socketType socSocket (intType domain, intType type, intType protocol);
-striType socWordRead (socketType inSocket, charType *const terminationChar);
-void socWrite (socketType outSocket, const const_striType stri);
+boolType socInputReady (const const_socketType inSocket, intType seconds,
+                        intType micro_seconds);
+striType socLineRead (const const_socketType inSocket,
+                      charType *const terminationChar);
+void socListen (const const_socketType listenerSocket,
+                intType backlog);
+intType socOrd (const const_socketType aSocket);
+intType socRecv (const const_socketType inSocket, striType *const stri,
+                 intType length, intType flags);
+intType socRecvfrom (const const_socketType inSocket,
+                     striType *const stri, intType length,
+                     intType flags, bstriType *const address);
+intType socSend (const const_socketType outSocket,
+                 const const_striType stri, intType flags);
+intType socSendto (const const_socketType outSocket,
+                   const const_striType stri, intType flags,
+                   const_bstriType address);
+void socSetOptBool (const const_socketType aSocket, intType optname,
+                    boolType optval);
+socketType socSocket (intType domain, intType type,
+                      intType protocol);
+striType socWordRead (const const_socketType inSocket,
+                      charType *const terminationChar);
+void socWrite (const const_socketType outSocket, const const_striType stri);

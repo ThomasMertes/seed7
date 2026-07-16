@@ -29,6 +29,17 @@
 /*                                                                  */
 /********************************************************************/
 
+/**
+ *  Macro to compute the hashcode of a bstring.
+ *  A corresponding macro is inlined by the compiler. If this macro
+ *  is changed the code in the compiler must be changed as well.
+ */
+#define bstringHashCode(bstri) (intType) ((bstri)->size == 0 ? 0 : \
+                                             ((memSizeType) (bstri)->mem[0] << 5 ^ \
+                                                            (bstri)->size << 3 ^ \
+                                                            (bstri)->mem[(bstri)->size - 1]))
+
+
 void bstAppend (bstriType *const destination, const_bstriType extension);
 bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2);
 intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2);

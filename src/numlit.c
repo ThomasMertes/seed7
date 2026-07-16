@@ -52,7 +52,7 @@
 
 
 
-static void readDecimal (register sySizeType position)
+static inline sySizeType readDecimal (register sySizeType position)
 
   {
     register int character;
@@ -68,6 +68,7 @@ static void readDecimal (register sySizeType position)
     symbol.name[position] = '\0';
     in_file.character = character;
     logFunction(printf("readDecimal -->\n"););
+    return position;
   } /* readDecimal */
 
 
@@ -303,22 +304,19 @@ static inline bigIntType readBigInteger (void)
 
 
 
-static inline floatType readFloat (void)
+static inline floatType readFloat (register sySizeType position)
 
   {
-    register sySizeType position;
     floatType result;
 
   /* readFloat */
     logFunction(printf("readFloat\n"););
-    position = strlen((cstriType) symbol.name);
     check_symb_length(position);
     symbol.name[position++] = (ucharType) in_file.character;
     in_file.character = next_character();
     if (char_class(in_file.character) == DIGITCHAR) {
-      readDecimal(position);
+      position = readDecimal(position);
       if (in_file.character == 'E' || in_file.character == 'e') {
-        position += strlen((cstriType) &symbol.name[position]);
         check_symb_length(position);
         symbol.name[position++] = (ucharType) in_file.character;
         in_file.character = next_character();
@@ -367,13 +365,14 @@ void lit_number (void)
 
   {
     uintType number;
+    sySizeType position;
 
   /* lit_number */
     logFunction(printf("lit_number\n"););
-    readDecimal(0);
+    position = readDecimal(0);
     if (in_file.character == '.') {
 #if WITH_FLOAT
-      symbol.floatValue = readFloat();
+      symbol.floatValue = readFloat(position);
 #endif
       symbol.sycategory = FLOATLITERAL;
     } else if (in_file.character == '_') {

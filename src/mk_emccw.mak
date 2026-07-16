@@ -49,7 +49,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o stackutl.o striutl.o
 DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o emc_utl.o fil_emc.o pcs_unx.o pol_unx.o \
        soc_none.o tim_emc.o
 OBJ = $(MOBJ)
@@ -75,7 +75,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c stackutl.c striutl.c
 DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c emc_utl.c fil_emc.c pcs_unx.c pol_unx.c \
        soc_none.c tim_emc.c
 SRC = $(MSRC)

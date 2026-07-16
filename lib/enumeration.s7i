@@ -32,7 +32,7 @@ const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
 (**
  *  Abstract data type, describing enumeration types.
  *  To define a new enumeration type the desired enumeration literals
- *  must be listed. Commas must seperate the enumeration literals.
+ *  must be listed. Commas must separate the enumeration literals.
  *   const type: enumType is new enum
  *       enum_literal1, enum_literal2
  *     end enum;
@@ -66,7 +66,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
      *  @return the enumeration literal.
      *  @exception MEMORY_ERROR Not enough memory to represent the result.
      *)
-    const func string: literal (in enumType: enumValue)              is action "ENU_LIT";
+    const func string: literal (in enumType: enumValue)              is action "ENU_LITERAL";
 
     const func enumType: getValue(in reference: aReference,
                                   attr enumType)                     is action "ENU_VALUE";

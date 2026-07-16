@@ -1000,13 +1000,16 @@ const proc: testAutoCommit (in database: testDb, in connectData: dbConnectData) 
 
 
 const proc: testWithoutAutoCommit (in database: testDb, inout testState: state,
-    in database: secondDbConnection) is func
+    in database: secondDbConnection, in connectData: dbConnectData) is func
   local
     var sqlStatement: secondStmt is sqlStatement.value;
   begin
     secondStmt := prepare(secondDbConnection, "CREATE TABLE " & state.tableName &
                                               " (" & state.fieldName & " CHAR(32))");
     execute(secondStmt);
+    if ddlStatementsNeedCommit(dbConnectData.databaseKind) then
+      commit(secondDbConnection);
+    end if;
 
     if not succeeds(
         state.statement := prepare(testDb, "SELECT * FROM " & state.tableName)) then
@@ -1095,6 +1098,9 @@ const proc: testWithoutAutoCommit (in database: testDb, inout testState: state,
 
     secondStmt := prepare(secondDbConnection, "DROP TABLE " & state.tableName);
     execute(secondStmt);
+    if ddlStatementsNeedCommit(dbConnectData.databaseKind) then
+      commit(secondDbConnection);
+    end if;
 
     if state.statement <> sqlStatement.value then
       if succeeds(execute(state.statement)) then
@@ -1152,7 +1158,7 @@ const proc: testTransactions (in database: testDb, in connectData: dbConnectData
             writeln(" *** AutoCommit is still on after switching it off.");
           end if;
         else
-          testWithoutAutoCommit(testDb, state, secondDbConnection);
+          testWithoutAutoCommit(testDb, state, secondDbConnection, dbConnectData);
         end if;
       exception
         catch RANGE_ERROR:

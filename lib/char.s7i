@@ -279,7 +279,7 @@ const proc: incr (inout char: ch)                             is action "CHR_INC
 const proc: decr (inout char: ch)                             is action "CHR_DECR";
 
 
-const func string: c_literal (in char: ch)                    is action "CHR_CLIT";
+const func string: c_literal (in char: ch)                    is action "CHR_C_LITERAL";
 
 
 (**

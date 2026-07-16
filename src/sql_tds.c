@@ -1520,7 +1520,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   {
     preparedStmtType preparedStmt;
     char timeLiteral[MAX_TIME_LITERAL_LENGTH + NULL_TERMINATION_LEN];
-    memSizeType idx;
+    int literalLength;
 
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
@@ -1548,28 +1548,32 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     } else {
       if ((hour == 0 && minute == 0 && second == 0 && micro_second == 0) &&
           (year != 0 || month != 1 || day != 1)) {
-        sprintf(timeLiteral, "'" F_D(04) "-" F_D(02) "-" F_D(02) "'",
+        sprintf(timeLiteral,
+                "'" F_D(04) "-" F_D(02) "-" F_D(02) "'",
                 year, month, day);
       } else {
         if (year == 0 && month == 1 && day == 1) {
-          sprintf(timeLiteral, "'" F_D(02) ":" F_D(02) ":" F_D(02),
-                  hour, minute, second);
+          literalLength = sprintf(timeLiteral,
+                                  "'" F_D(02) ":" F_D(02) ":" F_D(02),
+                                  hour, minute, second);
         } else {
-          sprintf(timeLiteral, "'" F_D(04) "-" F_D(02) "-" F_D(02)
-                               " " F_D(02) ":" F_D(02) ":" F_D(02),
-                  year, month, day, hour, minute, second);
+          literalLength = sprintf(timeLiteral,
+                                  "'" F_D(04) "-" F_D(02) "-" F_D(02)
+                                  " " F_D(02) ":" F_D(02) ":" F_D(02),
+                                  year, month, day,
+                                  hour, minute, second);
         } /* if */
         if (micro_second == 0) {
-          strcat(timeLiteral, "'");
+          timeLiteral[literalLength] = '\'';
+          timeLiteral[literalLength + 1] = '\0';
         } else {
-          sprintf(&timeLiteral[strlen(timeLiteral)], "." F_U(06),
-                  micro_second);
-          idx = strlen(timeLiteral);
+          literalLength += sprintf(&timeLiteral[literalLength],
+                                   "." F_U(06), micro_second);
           do {
-            idx--;
-          } while (timeLiteral[idx] == '0');
-          timeLiteral[idx + 1] = '\'';
-          timeLiteral[idx + 2] = '\0';
+            literalLength--;
+          } while (timeLiteral[literalLength] == '0');
+          timeLiteral[literalLength + 1] = '\'';
+          timeLiteral[literalLength + 2] = '\0';
         } /* if */
       } /* if */
       strDestr(preparedStmt->param_array[pos - 1].buffer);

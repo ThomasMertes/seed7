@@ -53,6 +53,34 @@
 
 
 /**
+ *  Compare two action entries.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
+objectType ace_cmp (listType arguments)
+
+  {
+    memSizeType ref1;
+    memSizeType ref2;
+    intType signumValue;
+
+  /* ace_cmp */
+    isit_actentry(arg_1(arguments));
+    isit_actentry(arg_2(arguments));
+    ref1 = (memSizeType) take_actentry(arg_1(arguments));
+    ref2 = (memSizeType) take_actentry(arg_2(arguments));
+    if (ref1 < ref2) {
+      signumValue = -1;
+    } else {
+      signumValue = ref1 > ref2;
+    } /* if */
+    return bld_int_temp(signumValue);
+  } /* ace_cmp */
+
+
+
+/**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.
  */
@@ -88,12 +116,38 @@ objectType ace_create (listType arguments)
     dest = arg_1(arguments);
     source = arg_3(arguments);
     isit_actentry(source);
-    logFunction(printf("ace_create(*, action \"%s\")\n",
-                       take_actentry(source)->name););
+    logFunction(printf("ace_create(*, action %s)\n",
+                       take_actentry(source) != NULL ?
+                           take_actentry(source)->name : "NULL"););
     SET_CATEGORY_OF_OBJ(dest, ACTENTRYOBJECT);
     dest->value.actEntryValue = take_actentry(source);
     return SYS_EMPTY_OBJECT;
   } /* ace_create */
+
+
+
+/**
+ *  Check if two action entries are equal.
+ *  @return TRUE if both actions are equal,
+ *          FALSE otherwise.
+ */
+objectType ace_eq (listType arguments)
+
+  {
+    const_actEntryType actEntry1;
+    const_actEntryType actEntry2;
+
+  /* ace_eq */
+    isit_actentry(arg_1(arguments));
+    isit_actentry(arg_3(arguments));
+    actEntry1 = take_actentry(arg_1(arguments));
+    actEntry2 = take_actentry(arg_3(arguments));
+    if (actEntry1 == actEntry2) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* ace_eq */
 
 
 
@@ -127,27 +181,26 @@ objectType ace_gen (listType arguments)
 
 
 /**
- *  Check if two action entries are equal.
- *  @return TRUE if both actions are equal,
- *          FALSE otherwise.
+ *  Compute the hash value of an action entry.
+ *  @return the hash value.
  */
-objectType ace_eq (listType arguments)
+objectType ace_hashcode (listType arguments)
 
   {
-    const_actEntryType actEntry1;
-    const_actEntryType actEntry2;
+    const_actEntryType actEntry;
+    intType hashCode;
 
-  /* ace_eq */
+  /* ace_hashcode */
     isit_actentry(arg_1(arguments));
-    isit_actentry(arg_3(arguments));
-    actEntry1 = take_actentry(arg_1(arguments));
-    actEntry2 = take_actentry(arg_3(arguments));
-    if (actEntry1 == actEntry2) {
-      return SYS_TRUE_OBJECT;
+    actEntry = take_actentry(arg_1(arguments));
+    if (unlikely(actEntry == NULL)) {
+      logError(printf("ace_hashcode: NULL action entry.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return SYS_FALSE_OBJECT;
+      hashCode = actEntry - actTable.table;
+      return bld_int_temp(hashCode);
     } /* if */
-  } /* ace_eq */
+  } /* ace_hashcode */
 
 
 
@@ -166,7 +219,7 @@ objectType ace_iconv1 (listType arguments)
     isit_int(arg_1(arguments));
     ordinal = take_int(arg_1(arguments));
     if (ordinal < 0 || (uintType) ordinal >= actTable.size) {
-      logError(printf("ace_iconv(" FMT_D "): No such action exists.\n",
+      logError(printf("ace_iconv1(" FMT_D "): No such action exists.\n",
                       ordinal););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -191,7 +244,7 @@ objectType ace_iconv3 (listType arguments)
     isit_int(arg_3(arguments));
     ordinal = take_int(arg_3(arguments));
     if (ordinal < 0 || (uintType) ordinal >= actTable.size) {
-      logError(printf("ace_iconv(" FMT_D "): No such action exists.\n",
+      logError(printf("ace_iconv3(" FMT_D "): No such action exists.\n",
                       ordinal););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -227,10 +280,11 @@ objectType ace_ne (listType arguments)
 
 
 /**
- *  Get the ordinal number of an action.
+ *  Get the ordinal number of an action entry.
  *  The action ACT_ILLEGAL has the ordinal number 0.
- *  @param anAction/arg_1 Action for which the ordinal number is determined.
- *  @return the ordinal number of the action.
+ *  @param actEntry/arg_1 Action entry for which the ordinal number is determined.
+ *  @return the ordinal number of actEntry/arg_1.
+ *  @exception RANGE_ERROR If actEntry/arg_1 is NULL.
  */
 objectType ace_ord (listType arguments)
 
@@ -253,11 +307,10 @@ objectType ace_ord (listType arguments)
 
 
 /**
- *  Convert an action to a string.
- *  If the action is not found in the table of legal actions
- *  the string "ACT_ILLEGAL" is returned.
- *  @param anAction/arg_1 Action which is converted to a string..
- *  @return the string result of the conversion.
+ *  Get the name of an action entry.
+ *  @param actEntry/arg_1 Action entry from which the name is retrieved.
+ *  @return the name of actEntry/arg_1.
+ *  @exception RANGE_ERROR If actEntry/arg_1 is NULL.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType ace_str (listType arguments)
@@ -288,7 +341,7 @@ objectType ace_str (listType arguments)
  *  Get 'ACTION' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'ACTION' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
- *             category(aReference) <> ACTOBJECT holds.
+ *             the category is neither ACTENTRYOBJECT nor ACTOBJECT.
  */
 objectType ace_value (listType arguments)
 
@@ -308,7 +361,7 @@ objectType ace_value (listType arguments)
     } else {
       logError(printf("ace_value(");
                trace1(obj_arg);
-               printf("): Category is not ACTOBJECT.\n"););
+               printf("): Category neither ACTENTRYOBJECT nor ACTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
   } /* ace_value */
@@ -338,10 +391,14 @@ objectType act_create (listType arguments)
                 printf(")\n"););
     isit_actentry(source);
     actEntry = take_actentry(source);
-    disconnect_param_entities(dest);
-    SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-    dest->value.actValue = actEntry->action;
-    return SYS_EMPTY_OBJECT;
+    if (unlikely(!actionCreateOkay(dest, actEntry))) {
+      return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+    } else {
+      disconnect_param_entities(dest);
+      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+      dest->value.actValue = actEntry->action;
+      return SYS_EMPTY_OBJECT;
+    } /* if */
   } /* act_create */
 
 

@@ -175,10 +175,11 @@ static inline striType new_string (void)
 #else
     if (unlikely(!ALLOC_STRI_SIZE_OK(stri_created, symbol.striValue->size))) {
       fatal_memory_error(SOURCE_POSITION(2058));
+    } else {
+      stri_created->size = symbol.striValue->size;
+      memcpy(stri_created->mem, symbol.striValue->mem,
+          (size_t) symbol.striValue->size * sizeof(strElemType));
     } /* if */
-    stri_created->size = symbol.striValue->size;
-    memcpy(stri_created->mem, symbol.striValue->mem,
-        (size_t) symbol.striValue->size * sizeof(strElemType));
 #endif
     logFunction(printf("new_string --> \"%s\"\n",
                        striAsUnquotedCStri(stri_created)););

@@ -128,12 +128,12 @@ objectType con_height (listType arguments)
 
 
 
-objectType con_h_scl (listType arguments)
+objectType con_h_scroll (listType arguments)
 
   {
     intType scroll_amount;
 
-  /* con_h_scl */
+  /* con_h_scroll */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
@@ -154,7 +154,7 @@ objectType con_h_scl (listType arguments)
           -scroll_amount);
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* con_h_scl */
+  } /* con_h_scroll */
 
 
 
@@ -196,12 +196,12 @@ objectType con_setpos (listType arguments)
 
 
 
-objectType con_v_scl (listType arguments)
+objectType con_v_scroll (listType arguments)
 
   {
     intType scroll_amount;
 
-  /* con_v_scl */
+  /* con_v_scroll */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
@@ -222,7 +222,7 @@ objectType con_v_scl (listType arguments)
           -scroll_amount);
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* con_v_scl */
+  } /* con_v_scroll */
 
 
 

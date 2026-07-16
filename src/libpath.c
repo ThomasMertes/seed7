@@ -53,9 +53,9 @@
 
 static rtlArrayType lib_path;
 
-intType strCmpGeneric (const genericType value1, const genericType value2);
-genericType strCreateGeneric (const genericType source);
-void strDestrGeneric (const genericType old_value);
+intType strCmpValue (const rtlValueUnion value1, const rtlValueUnion value2);
+rtlValueUnion strCreateValue (const rtlValueUnion source);
+void strDestrValue (const rtlValueUnion old_value);
 
 
 
@@ -79,7 +79,7 @@ void shutIncludeFileHash (const const_rtlHashType includeFileHash)
   { /* shutIncludeFileHash */
     logFunction(printf("shutIncludeFileHash(" FMT_U_MEM ")\n",
                        (memSizeType) includeFileHash););
-    hshDestr(includeFileHash, &strDestrGeneric, &genericDestr);
+    hshDestr(includeFileHash, &strDestrValue, &valueDestr);
     logFunction(printf("shutIncludeFileHash -->\n"););
   } /* shutIncludeFileHash */
 
@@ -89,7 +89,8 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
     const_striType includeFileName, errInfoType *err_info)
 
   {
-    striType absolutePath;
+    rtlValueUnion absolutePath;
+    rtlValueUnion oneValue;
     includeResultType includeResult = INCLUDE_FAILED;
 
   /* openIncludeFile */
@@ -97,31 +98,33 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
                        (memSizeType) includeFileHash,
                        striAsUnquotedCStri(includeFileName),
                        *err_info););
-    absolutePath = getAbsolutePath(includeFileName);
-    if (unlikely(absolutePath == NULL)) {
+    absolutePath.striValue = getAbsolutePath(includeFileName);
+    if (unlikely(absolutePath.striValue == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
-      if (hshContains(includeFileHash, (genericType) (memSizeType) absolutePath,
-                      strHashCode(absolutePath), &strCmpGeneric)) {
+      if (hshContains(includeFileHash, absolutePath,
+                      strHashCode(absolutePath.striValue),
+                      &strCmpValue)) {
         /* already included */
         logMessage(printf("already included: \"%s\"\n",
-                          striAsUnquotedCStri(absolutePath)););
+                          striAsUnquotedCStri(absolutePath.striValue)););
         includeResult = INCLUDE_ALREADY;
-        FREE_STRI(absolutePath);
-      } else if (openInfile(includeFileName, absolutePath,
+        FREE_STRI(absolutePath.striValue);
+      } else if (openInfile(includeFileName, absolutePath.striValue,
                             prog->fileCounter + 1, prog->fileList,
                             in_file.write_library_names,
                             in_file.write_line_numbers, err_info)) {
         prog->fileList = in_file.curr_infile;
         prog->fileCounter++;
+        oneValue.intValue = 1;
         /* add to list of include files */
-        hshIncl(includeFileHash, (genericType) (memSizeType) absolutePath,
-                (genericType) 1, strHashCode(absolutePath),
-                &strCmpGeneric, &strCreateGeneric,
-                &genericCreate, &genericCpy);
+        hshIncl(includeFileHash, absolutePath, oneValue,
+                strHashCode(absolutePath.striValue),
+                &strCmpValue, &strCreateValue,
+                &valueCreate, &valueCpy);
         includeResult = INCLUDE_SUCCESS;
       } else {
-        FREE_STRI(absolutePath);
+        FREE_STRI(absolutePath.striValue);
       } /* if */
     } /* if */
     logFunction(printf("openIncludeFile --> %d (err_info=%d)\n",

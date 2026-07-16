@@ -204,7 +204,7 @@ objectType enu_iconv3_except (listType arguments)
 
 
 
-objectType enu_lit (listType arguments)
+objectType enu_literal (listType arguments)
 
   {
     objectType enum_value;
@@ -213,8 +213,8 @@ objectType enu_lit (listType arguments)
     errInfoType err_info = OKAY_NO_ERROR;
     objectType literalName;
 
-  /* enu_lit */
-    logFunction(printf("enu_lit(");
+  /* enu_literal */
+    logFunction(printf("enu_literal(");
                 trace1(arg_1(arguments));
                 printf(")\n"););
     isit_enum(arg_1(arguments));
@@ -237,7 +237,7 @@ objectType enu_lit (listType arguments)
       literalName = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return literalName;
-  } /* enu_lit */
+  } /* enu_literal */
 
 
 

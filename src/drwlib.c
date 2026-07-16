@@ -66,6 +66,14 @@ static objectType toIntArray (rtlArrayType aRtlArray)
     objectType result;
 
   /* toIntArray */
+    logFunction(printf("toIntArray(");
+                if (aRtlArray == NULL) {
+                  printf("NULL)\n");
+                } else {
+                  printf("array[" FMT_D " .. " FMT_D "])\n",
+                         aRtlArray->min_position,
+                         aRtlArray->max_position);
+                });
     if (aRtlArray == NULL) {
       /* Assume that an exception was already raised */
       result = NULL;
@@ -87,6 +95,9 @@ static objectType toIntArray (rtlArrayType aRtlArray)
         result = bld_array_temp(anArray);
       } /* if */
     } /* if */
+    logFunction(printf("toIntArray --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* toIntArray */
 
@@ -1335,13 +1346,13 @@ objectType drw_put_scaled (listType arguments)
 
 
 
-objectType drw_rgbcol (listType arguments)
+objectType drw_rgb_color (listType arguments)
 
-  { /* drw_rgbcol */
+  { /* drw_rgb_color */
     return bld_int_temp(
         drwRgbColor(take_int(arg_1(arguments)), take_int(arg_2(arguments)),
                     take_int(arg_3(arguments))));
-  } /* drw_rgbcol */
+  } /* drw_rgb_color */
 
 
 
@@ -1382,7 +1393,7 @@ objectType drw_set_content (listType arguments)
  *  Set the visibility of the mouse cursor in aWindow/arg_1.
  *  @param aWindow/arg_1 Window for which the mouse cursor visibility is set.
  *  @param visible/arg_2 TRUE, if the mouse cursor should be visible, or
- *                       FALSE, if the mouse curser should be invisible.
+ *                       FALSE, if the mouse cursor should be invisible.
  */
 objectType drw_set_cursor_visible (listType arguments)
 

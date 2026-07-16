@@ -66,13 +66,14 @@ static tokenType new_sy_token (identType identifier)
 
   /* new_sy_token */
     logFunction(printf("new_sy_token\n"););
-    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
+    if (unlikely(!ALLOC_RECORD(created_token, tokenRecord, count.token))) {
       fatal_memory_error(SOURCE_POSITION(2101));
+    } else {
+      created_token->next = NULL;
+      created_token->alternative = NULL;
+      created_token->token_category = SY_TOKEN;
+      created_token->token_value.ident = identifier;
     } /* if */
-    created_token->next = NULL;
-    created_token->alternative = NULL;
-    created_token->token_category = SY_TOKEN;
-    created_token->token_value.ident = identifier;
     logFunction(printf("new_sy_token -->\n"););
     return created_token;
   } /* new_sy_token */
@@ -86,14 +87,15 @@ static tokenType new_expr_token (priorityType priority, typeType type_of)
 
   /* new_expr_token */
     logFunction(printf("new_expr_token\n"););
-    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
+    if (unlikely(!ALLOC_RECORD(created_token, tokenRecord, count.token))) {
       fatal_memory_error(SOURCE_POSITION(2102));
+    } else {
+      created_token->next = NULL;
+      created_token->alternative = NULL;
+      created_token->token_category = EXPR_TOKEN;
+      created_token->token_value.expr_par.priority = priority;
+      created_token->token_value.expr_par.type_of = type_of;
     } /* if */
-    created_token->next = NULL;
-    created_token->alternative = NULL;
-    created_token->token_category = EXPR_TOKEN;
-    created_token->token_value.expr_par.priority = priority;
-    created_token->token_value.expr_par.type_of = type_of;
     logFunction(printf("new_expr_token -->\n"););
     return created_token;
   } /* new_expr_token */
@@ -107,13 +109,14 @@ static tokenType new_syntax_description (void)
 
   /* new_syntax_description */
     logFunction(printf("new_syntax_description\n"););
-    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
+    if (unlikely(!ALLOC_RECORD(created_token, tokenRecord, count.token))) {
       fatal_memory_error(SOURCE_POSITION(2103));
+    } else {
+      created_token->next = NULL;
+      created_token->alternative = NULL;
+      created_token->token_category = UNDEF_SYNTAX;
+      created_token->token_value.type_of = NULL;
     } /* if */
-    created_token->next = NULL;
-    created_token->alternative = NULL;
-    created_token->token_category = UNDEF_SYNTAX;
-    created_token->token_value.type_of = NULL;
     logFunction(printf("new_syntax_description -->\n"););
     return created_token;
   } /* new_syntax_description */

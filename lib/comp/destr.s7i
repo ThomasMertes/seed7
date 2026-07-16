@@ -26,7 +26,7 @@
 
 const set of category: simpleValueType is {
     BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-    SOCKETOBJECT, REFOBJECT, STRUCTELEMOBJECT, TYPEOBJECT, ACTOBJECT,
+    REFOBJECT, STRUCTELEMOBJECT, TYPEOBJECT, ACTENTRYOBJECT,
     BLOCKOBJECT};
 
 const integer: ARRAY_FREELIST_LIMIT is 64;
@@ -473,9 +473,10 @@ const proc: declare_missing_destr_declarations (inout expr_type: c_expr) is func
 
 
 const set of category: destrNecessary is {
-    BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, SETOBJECT,
-    REFLISTOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT, PROGOBJECT,
-    DATABASEOBJECT, SQLSTMTOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT};
+    BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, SOCKETOBJECT,
+    SETOBJECT, REFLISTOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT,
+    PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, ARRAYOBJECT, HASHOBJECT,
+    STRUCTOBJECT};
 
 
 const proc: process_destr_call (in type: object_type,
@@ -489,6 +490,7 @@ const proc: process_destr_call (in type: object_type,
         when {STRIOBJECT}:      expr &:= "strDestr(" & param_b & ");\n";
         when {BSTRIOBJECT}:     expr &:= "bstDestr(" & param_b & ");\n";
         when {FILEOBJECT}:      expr &:= "filDestr(" & param_b & ");\n";
+        when {SOCKETOBJECT}:    expr &:= "socDestr(" & param_b & ");\n";
         when {SETOBJECT}:       expr &:= "setDestr(" & param_b & ");\n";
         when {POLLOBJECT}:      expr &:= "polDestr(" & param_b & ");\n";
         when {REFLISTOBJECT}:   expr &:= "rflDestr(" & param_b & ");\n";

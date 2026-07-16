@@ -64,7 +64,7 @@ const ACTION: DRW_PPOINT                    is action "DRW_PPOINT";
 const ACTION: DRW_PRECT                     is action "DRW_PRECT";
 const ACTION: DRW_PUT                       is action "DRW_PUT";
 const ACTION: DRW_PUT_SCALED                is action "DRW_PUT_SCALED";
-const ACTION: DRW_RGBCOL                    is action "DRW_RGBCOL";
+const ACTION: DRW_RGB_COLOR                 is action "DRW_RGB_COLOR";
 const ACTION: DRW_SCREEN_HEIGHT             is action "DRW_SCREEN_HEIGHT";
 const ACTION: DRW_SCREEN_WIDTH              is action "DRW_SCREEN_WIDTH";
 const ACTION: DRW_SET_CONTENT               is action "DRW_SET_CONTENT";
@@ -145,11 +145,11 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   drwConvPointList (const const_bstriType);");
     declareExtern(c_prog, "void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwCpy (winType *const, const winType);");
-    declareExtern(c_prog, "void        drwCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        drwCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "winType     drwCreate (const winType);");
-    declareExtern(c_prog, "genericType drwCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion drwCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        drwDestr (const winType);");
-    declareExtern(c_prog, "void        drwDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "winType     drwEmpty (void);");
     declareExtern(c_prog, "void        drwFlush (void);");
     declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
@@ -970,7 +970,7 @@ const proc: process (DRW_PUT_SCALED, in reference: function,
   end func;
 
 
-const proc: process (DRW_RGBCOL, in reference: function,
+const proc: process (DRW_RGB_COLOR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

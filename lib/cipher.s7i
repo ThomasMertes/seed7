@@ -92,7 +92,7 @@ const func string: getMac (in cipherState: state) is DYNAMIC;
  *  Encode a string with the ''state'' of the selected cipher algorithm.
  *  @return the encoded string.
  *)
-const func string: encode (inout cipherState: state, in string: plaintext) is DYNAMIC;
+const func string: encode (inout cipherState: state, in string: plainText) is DYNAMIC;
 
 
 (**
@@ -137,8 +137,8 @@ const proc: initAead (inout noCipherState: state, in string: recordTypeAndVersio
     in integer: sequenceNumber) is noop;
 
 
-const func string: encode (inout noCipherState: state, in string: plaintext) is
-  return plaintext;
+const func string: encode (inout noCipherState: state, in string: plainText) is
+  return plainText;
 
 
 const func string: decode (inout noCipherState: state, in string: encoded) is

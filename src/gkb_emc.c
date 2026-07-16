@@ -193,17 +193,17 @@ extern int maxWindowId;
 winType find_window (int windowId)
 
   {
+    rtlValueUnion windowKey;
     winType window;
 
   /* find_window */
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      window = (winType) (memSizeType)
-          hshIdxDefault0(window_hash,
-                         (genericType) (memSizeType) windowId,
-                         (intType) windowId,
-                         (compareType) &genericCmp);
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      window = hshIdxDefault0(window_hash, windowKey,
+                              (intType) ((memSizeType) sys_window) >> 6,
+                              (compareFuncType) &valueCmp).winValue;
     } /* if */
     logFunction0(printf("find_window(%d) --> " FMT_X_MEM "\n",
                        windowId, (memSizeType) window););
@@ -214,31 +214,42 @@ winType find_window (int windowId)
 
 void enter_window (winType curr_window, int windowId)
 
-  { /* enter_window */
+  {
+    rtlValueUnion windowKey;
+    rtlValueUnion windowData;
+
+  /* enter_window */
     logFunction(printf("enter_window(" FMT_X_MEM ", %d)\n",
                        (memSizeType) curr_window, windowId););
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    (void) hshIdxEnterDefault(window_hash,
-                              (genericType) (memSizeType) windowId,
-                              (genericType) (memSizeType) curr_window,
-                              (intType) windowId);
+    windowKey.genericValue = (genericType) (memSizeType) sys_window;
+    windowData.winValue = curr_window;
+    hshIncl(window_hash, windowKey, windowData,
+            (intType) ((memSizeType) sys_window) >> 6,
+            (compareFuncType) &valueCmp,
+            (createFuncType) &valueCreate,
+            (createFuncType) &ptrCreateValue,
+            (copyFuncType) &ptrCpyValue);
   } /* enter_window */
 
 
 
 void remove_window (int windowId)
 
-  { /* remove_window */
+  {
+    rtlValueUnion windowKey;
+
+  /* remove_window */
     logFunction(printf("remove_window(%d)\n", windowId););
     if (window_hash != NULL) {
-      hshExcl(window_hash,
-              (genericType) (memSizeType) windowId,
-              (intType) windowId,
-              (compareType) &genericCmp,
-              (destrFuncType) &genericDestr,
-              (destrFuncType) &genericDestr);
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      hshExcl(window_hash, windowKey,
+              (intType) ((memSizeType) sys_window) >> 6,
+              (compareFuncType) &valueCmp,
+              (destrFuncType) &valueDestr,
+              (destrFuncType) &valueDestr);
     } /* if */
   } /* remove_window */
 
@@ -803,7 +814,7 @@ EMSCRIPTEN_KEEPALIVE int decodeKeydownEvent (int codeId, boolType deadKey,
           key1 += 'a' - 'A';
         } /* if */
       } /* if */
-      (void) hshIdxEnterDefault(charPressed,
+      (void) hshIdxEnterGeneric(charPressed,
                                 (genericType) key1,
                                 (genericType) 1,
                                 (intType) key1);
@@ -863,12 +874,9 @@ EMSCRIPTEN_KEEPALIVE int decodeKeyupEvent (int codeId, int key1,
           key1 += 'a' - 'A';
         } /* if */
       } /* if */
-      hshExcl(charPressed,
-              (genericType) key1,
-              (intType) key1,
-              (compareType) &genericCmp,
-              (destrFuncType) &genericDestr,
-              (destrFuncType) &genericDestr);
+      hshExclGeneric(charPressed,
+                     (genericType) key1,
+                     (intType) key1);
     } else {
       releasedKey = mapCodeIdToKey(codeId, shiftKey, ctrlKey, altKey, FALSE);
       if (releasedKey != K_NONE) {
@@ -1916,10 +1924,9 @@ boolType gkbButtonPressed (charType button)
         buttonPressed = mouseKeyPressed[4];
         break;
       default:
-        buttonPressed = hshContains(charPressed,
-                                    (genericType) button,
-                                    (intType) button,
-                                    (compareType) &genericCmp);
+        buttonPressed = hshContainsGeneric(charPressed,
+                                           (genericType) button,
+                                           (intType) button);
         if (!buttonPressed) {
           switch (button) {
             case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
@@ -1964,22 +1971,19 @@ boolType gkbButtonPressed (charType button)
               break;
           } /* switch */
           if (ch1 != 0) {
-            buttonPressed = hshContains(charPressed,
-                                        (genericType) ch1,
-                                        (intType) ch1,
-                                        (compareType) &genericCmp);
+            buttonPressed = hshContainsGeneric(charPressed,
+                                               (genericType) ch1,
+                                               (intType) ch1);
           } /* if */
           if (!buttonPressed && ch2 != 0) {
-            buttonPressed = hshContains(charPressed,
-                                        (genericType) ch2,
-                                        (intType) ch2,
-                                        (compareType) &genericCmp);
+            buttonPressed = hshContainsGeneric(charPressed,
+                                               (genericType) ch2,
+                                               (intType) ch2);
           } /* if */
           if (!buttonPressed && ch3 != 0) {
-            buttonPressed = hshContains(charPressed,
-                                        (genericType) ch3,
-                                        (intType) ch3,
-                                        (compareType) &genericCmp);
+            buttonPressed = hshContainsGeneric(charPressed,
+                                               (genericType) ch3,
+                                               (intType) ch3);
           } /* if */
           if (!buttonPressed) {
             codeId = mapKeyToCodeId(button);

@@ -43,6 +43,7 @@
 #include "data.h"
 #include "data_rtl.h"
 #include "os_decls.h"
+#include "stackutl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
@@ -74,10 +75,6 @@
 #include "prclib.h"
 
 
-typedef longjmpPosition catch_type;
-extern catch_type *catch_stack;
-extern size_t catch_stack_pos;
-extern size_t max_catch_stack;
 extern objectType last_exception;
 
 
@@ -158,7 +155,11 @@ static objectType evaluate_local_decls (objectType local_decls,
       if (CATEGORY_OF_OBJ(local_decls) == MATCHOBJECT ||
           CATEGORY_OF_OBJ(local_decls) == CALLOBJECT) {
         semicol_params = local_decls->value.listValue;
-        if (list_length(semicol_params) == 4 &&
+        if (semicol_params != NULL &&
+            semicol_params->next != NULL &&
+            semicol_params->next->next != NULL &&
+            semicol_params->next->next->next != NULL &&
+            semicol_params->next->next->next->next == NULL &&
             CATEGORY_OF_OBJ(arg_1(semicol_params)) == ACTOBJECT &&
             take_action(arg_1(semicol_params)) == &prc_semicolon) {
           result = process_local_decl(arg_2(semicol_params),
@@ -202,6 +203,22 @@ objectType prc_args (listType arguments)
       return prog->arg_v;
     } /* if */
   } /* prc_args */
+
+
+
+objectType prc_assert (listType arguments)
+
+  {
+    objectType condition;
+
+  /* prc_assert */
+    isit_bool(arg_2(arguments));
+    condition = take_bool(arg_2(arguments));
+    if (condition != SYS_TRUE_OBJECT) {
+      return raise_exception(SYS_ASSERTION_EXCEPTION);
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_assert */
 
 
 
@@ -438,6 +455,7 @@ objectType prc_case (listType arguments)
     intType switch_value;
     objectType when_objects;
     objectType current_when;
+    listType current_when_list;
     objectType when_values;
     objectType when_set;
     setType set_value;
@@ -455,7 +473,8 @@ objectType prc_case (listType arguments)
     while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listValue);
+      current_when_list = current_when->value.listValue;
+      when_values = arg_3(current_when_list);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_not_null(when_set);
@@ -469,7 +488,7 @@ objectType prc_case (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
-          current_when->value.listValue->next->next->obj = when_values;
+          current_when_list->next->next->obj = when_values;
           incl_list(&prog->when_value_objects, when_values, &err_info);
           incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
@@ -482,13 +501,13 @@ objectType prc_case (listType arguments)
                           FMT_D " is in more then one \"when\" set.\n",
                           switch_value, switch_value););
           err_info = ACTION_ERROR;
-          err_arguments = current_when->value.listValue->next;
+          err_arguments = current_when_list->next;
         } else {
-          when_statement = arg_5(current_when->value.listValue);
+          when_statement = arg_5(current_when_list);
         } /* if */
       } /* if */
-      if (current_when->value.listValue->next->next->next->next->next != NULL) {
-        current_when = arg_6(current_when->value.listValue);
+      if (current_when_list->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when_list);
       } else {
         current_when = NULL;
       } /* if */
@@ -512,6 +531,7 @@ objectType prc_case_def (listType arguments)
     objectType when_objects;
     objectType default_statement;
     objectType current_when;
+    listType current_when_list;
     objectType when_values;
     objectType when_set;
     setType set_value;
@@ -529,7 +549,8 @@ objectType prc_case_def (listType arguments)
     while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listValue);
+      current_when_list = current_when->value.listValue;
+      when_values = arg_3(current_when_list);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_not_null(when_set);
@@ -543,7 +564,7 @@ objectType prc_case_def (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
-          current_when->value.listValue->next->next->obj = when_values;
+          current_when_list->next->next->obj = when_values;
           incl_list(&prog->when_value_objects, when_values, &err_info);
           incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
@@ -556,13 +577,13 @@ objectType prc_case_def (listType arguments)
                           FMT_D " is in more then one \"when\" set.\n",
                           switch_value, switch_value););
           err_info = ACTION_ERROR;
-          err_arguments = current_when->value.listValue->next;
+          err_arguments = current_when_list->next;
         } else {
-          when_statement = arg_5(current_when->value.listValue);
+          when_statement = arg_5(current_when_list);
         } /* if */
       } /* if */
-      if (current_when->value.listValue->next->next->next->next->next != NULL) {
-        current_when = arg_6(current_when->value.listValue);
+      if (current_when_list->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when_list);
       } else {
         current_when = NULL;
       } /* if */
@@ -587,6 +608,7 @@ objectType prc_case_hashset (listType arguments)
     objectType switch_object;
     objectType when_objects;
     objectType current_when;
+    listType current_when_list;
     objectType when_values;
     objectType when_set;
     hashType hashMap_value;
@@ -603,7 +625,8 @@ objectType prc_case_hashset (listType arguments)
     while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listValue);
+      current_when_list = current_when->value.listValue;
+      when_values = arg_3(current_when_list);
       if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
         when_set = exec_object(when_values);
         isit_not_null(when_set);
@@ -617,7 +640,7 @@ objectType prc_case_hashset (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
           when_values->value.hashValue = hashMap_value;
-          current_when->value.listValue->next->next->obj = when_values;
+          current_when_list->next->next->obj = when_values;
           incl_list(&prog->when_value_objects, when_values, &err_info);
           incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
@@ -627,13 +650,13 @@ objectType prc_case_hashset (listType arguments)
           logError(printf("prc_case_hashset: "
                           "Switch value in more then one \"when\" set.\n"););
           err_info = ACTION_ERROR;
-          err_arguments = current_when->value.listValue->next;
+          err_arguments = current_when_list->next;
         } else {
-          when_statement = arg_5(current_when->value.listValue);
+          when_statement = arg_5(current_when_list);
         } /* if */
       } /* if */
-      if (current_when->value.listValue->next->next->next->next->next != NULL) {
-        current_when = arg_6(current_when->value.listValue);
+      if (current_when_list->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when_list);
       } else {
         current_when = NULL;
       } /* if */
@@ -656,6 +679,7 @@ objectType prc_case_hashset_def (listType arguments)
     objectType when_objects;
     objectType default_statement;
     objectType current_when;
+    listType current_when_list;
     objectType when_values;
     objectType when_set;
     hashType hashMap_value;
@@ -672,7 +696,8 @@ objectType prc_case_hashset_def (listType arguments)
     while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listValue);
+      current_when_list = current_when->value.listValue;
+      when_values = arg_3(current_when_list);
       if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
         when_set = exec_object(when_values);
         isit_not_null(when_set);
@@ -686,7 +711,7 @@ objectType prc_case_hashset_def (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
           when_values->value.hashValue = hashMap_value;
-          current_when->value.listValue->next->next->obj = when_values;
+          current_when_list->next->next->obj = when_values;
           incl_list(&prog->when_value_objects, when_values, &err_info);
           incl_list(&prog->when_set_objects, when_set, &err_info);
         } /* if */
@@ -696,13 +721,13 @@ objectType prc_case_hashset_def (listType arguments)
           logError(printf("prc_case_hashset_def: "
                           "Switch value in more then one \"when\" set.\n"););
           err_info = ACTION_ERROR;
-          err_arguments = current_when->value.listValue->next;
+          err_arguments = current_when_list->next;
         } else {
-          when_statement = arg_5(current_when->value.listValue);
+          when_statement = arg_5(current_when_list);
         } /* if */
       } /* if */
-      if (current_when->value.listValue->next->next->next->next->next != NULL) {
-        current_when = arg_6(current_when->value.listValue);
+      if (current_when_list->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when_list);
       } else {
         current_when = NULL;
       } /* if */
@@ -730,8 +755,10 @@ objectType prc_cpy (listType arguments)
   {
     objectType dest;
     objectType source;
+    objectType block_body;
     blockType block_source;
     blockType old_block;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* prc_cpy */
     dest = arg_1(arguments);
@@ -774,8 +801,31 @@ objectType prc_cpy (listType arguments)
     is_variable(dest);
     if (CATEGORY_OF_OBJ(source) == MATCHOBJECT) {
       if (unlikely(source->value.listValue->next != NULL)) {
-        logError(printf("prc_cpy: Source with parameters.\n"););
-        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+        block_body = copy_expression(source, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          logError(printf("prc_cpy: No memory\n"););
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else if (unlikely((block_source =
+            new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
+          logError(printf("prc_cpy: No memory\n"););
+          free_expression(block_body);
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          if (CATEGORY_OF_OBJ(dest) == BLOCKOBJECT) {
+            old_block = take_block(dest);
+            if (old_block != NULL && old_block->usage_count != 0) {
+              old_block->usage_count--;
+              if (old_block->usage_count == 0) {
+                free_block(old_block);
+              } /* if */
+            } /* if */
+          } else if (CATEGORY_OF_OBJ(dest) == ACTOBJECT) {
+            SET_CATEGORY_OF_OBJ(dest, BLOCKOBJECT);
+          } else {
+            return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+          } /* if */
+          dest->value.blockValue = block_source;
+        } /* if */
       } else {
         source = source->value.listValue->obj;
       } /* if */
@@ -817,9 +867,9 @@ objectType prc_cpy (listType arguments)
         return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
       } /* if */
       dest->value.actValue = source->value.actValue;
-    } else {
+    } else if (CATEGORY_OF_OBJ(source) != MATCHOBJECT) {
       logError(printf("prc_cpy: source category %d neither "
-                       "BLOCKOBJECT nor ACTOBJECT.\n",
+                       "BLOCKOBJECT nor ACTOBJECT nor MATCHOBJECT.\n",
                        CATEGORY_OF_OBJ(source)););
       return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
     } /* if */
@@ -864,7 +914,9 @@ objectType prc_create (listType arguments)
   {
     objectType dest;
     objectType source;
-    blockType block_value;
+    objectType block_body;
+    blockType block_source;
+    errInfoType err_info = OKAY_NO_ERROR;
     const_actEntryType actEntry;
 
   /* prc_create */
@@ -887,27 +939,55 @@ objectType prc_create (listType arguments)
                 } else {
                   printf("category %u)\n", CATEGORY_OF_OBJ(source));
                 });
+    if (CATEGORY_OF_OBJ(source) == MATCHOBJECT) {
+      if (unlikely(source->value.listValue->next != NULL)) {
+        block_body = copy_expression(source, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          logError(printf("prc_cpy: No memory\n"););
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else if (unlikely((block_source =
+            new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
+          logError(printf("prc_cpy: No memory\n"););
+          free_expression(block_body);
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          SET_CATEGORY_OF_OBJ(dest, BLOCKOBJECT);
+          dest->value.blockValue = block_source;
+        } /* if */
+      } else {
+        source = source->value.listValue->obj;
+      } /* if */
+    } /* if */
     if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
       SET_CATEGORY_OF_OBJ(dest, BLOCKOBJECT);
-      block_value = take_block(source);
-      dest->value.blockValue = block_value;
+      block_source = take_block(source);
+      dest->value.blockValue = block_source;
       if (TEMP_OBJECT(source)) {
         source->value.blockValue = NULL;
       } else {
-        if (block_value != NULL && block_value->usage_count != 0) {
-          block_value->usage_count++;
+        if (block_source != NULL && block_source->usage_count != 0) {
+          block_source->usage_count++;
         } /* if */
       } /* if */
     } else if (CATEGORY_OF_OBJ(source) == ACTENTRYOBJECT) {
       actEntry = source->value.actEntryValue;
-      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-      dest->value.actValue = actEntry->action;
+      if (unlikely(!actionCreateOkay(dest, actEntry))) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } else {
+        SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+        dest->value.actValue = actEntry->action;
+      } /* if */
     } else if (CATEGORY_OF_OBJ(source) == ACTOBJECT) {
-      SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
-      dest->value.actValue = take_action(source);
-    } else {
+      actEntry = getActEntry(take_action(source));
+      if (unlikely(!actionCreateOkay(dest, actEntry))) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } else {
+        SET_CATEGORY_OF_OBJ(dest, ACTOBJECT);
+        dest->value.actValue = take_action(source);
+      } /* if */
+    } else if (CATEGORY_OF_OBJ(source) != MATCHOBJECT) {
       logError(printf("prc_create: source category %d neither "
-                       "BLOCKOBJECT nor ACTENTRYOBJECT nor ACTOBJECT.\n",
+                       "BLOCKOBJECT nor ACTENTRYOBJECT nor ACTOBJECT nor MATCHOBJECT.\n",
                        CATEGORY_OF_OBJ(source)););
       return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
     } /* if */

@@ -162,17 +162,17 @@ extern intType drwWidth (const_winType actual_window);
 winType find_window (HWND sys_window)
 
   {
+    rtlValueUnion windowKey;
     winType window;
 
   /* find_window */
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      window = (winType) (memSizeType)
-          hshIdxDefault0(window_hash,
-                         (genericType) (memSizeType) sys_window,
-                         (intType) ((memSizeType) sys_window) >> 6,
-                         (compareType) &genericCmp);
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      window = hshIdxDefault0(window_hash, windowKey,
+                              (intType) ((memSizeType) sys_window) >> 6,
+                              (compareFuncType) &valueCmp).winValue;
     } /* if */
     logFunction(printf("find_window(" FMT_X_MEM ") --> " FMT_X_MEM "\n",
                        (memSizeType) sys_window, (memSizeType) window););
@@ -183,33 +183,44 @@ winType find_window (HWND sys_window)
 
 void enter_window (winType curr_window, HWND sys_window)
 
-  { /* enter_window */
+  {
+    rtlValueUnion windowKey;
+    rtlValueUnion windowData;
+
+  /* enter_window */
     logFunction(printf("enter_window(" FMT_X_MEM ", " FMT_X_MEM ")\n",
                        (memSizeType) curr_window,
                        (memSizeType) sys_window););
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    (void) hshIdxEnterDefault(window_hash,
-                              (genericType) (memSizeType) sys_window,
-                              (genericType) (memSizeType) curr_window,
-                              (intType) ((memSizeType) sys_window) >> 6);
+    windowKey.genericValue = (genericType) (memSizeType) sys_window;
+    windowData.winValue = curr_window;
+    hshIncl(window_hash, windowKey, windowData,
+            (intType) ((memSizeType) sys_window) >> 6,
+            (compareFuncType) &valueCmp,
+            (createFuncType) &valueCreate,
+            (createFuncType) &ptrCreateValue,
+            (copyFuncType) &ptrCpyValue);
   } /* enter_window */
 
 
 
 void remove_window (HWND sys_window)
 
-  { /* remove_window */
+  {
+    rtlValueUnion windowKey;
+
+  /* remove_window */
     logFunction(printf("remove_window(" FMT_X_MEM ")\n",
                        (memSizeType) sys_window););
     if (window_hash != NULL) {
-      hshExcl(window_hash,
-              (genericType) (memSizeType) sys_window,
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      hshExcl(window_hash, windowKey,
               (intType) ((memSizeType) sys_window) >> 6,
-              (compareType) &genericCmp,
-              (destrFuncType) &genericDestr,
-              (destrFuncType) &genericDestr);
+              (compareFuncType) &valueCmp,
+              (destrFuncType) &valueDestr,
+              (destrFuncType) &valueDestr);
     } /* if */
   } /* remove_window */
 
@@ -1584,11 +1595,10 @@ boolType gkbInputReady (void)
     BOOL bRet;
     MSG msg;
     MSG mouseMoveMsg;
-    boolType result;
+    boolType inputReady = FALSE;
 
   /* gkbInputReady */
     logFunction(printf("gkbInputReady\n"););
-    result = FALSE;
     msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
     while (msg_present) {
       /* printf("gkbInputReady: message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
@@ -1625,7 +1635,7 @@ boolType gkbInputReady (void)
                   msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
                 } else if (deadKeyActive == msg.wParam) {
                   msg_present = 0;
-                  result = TRUE;
+                  inputReady = TRUE;
                 } else {
                   deadKeyActive = msg.wParam;
                   bRet = GetMessageW(&msg, NULL, 0, 0);
@@ -1634,7 +1644,7 @@ boolType gkbInputReady (void)
                   } /* if */
                   PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
                   msg_present = 0;
-                  result = TRUE;
+                  inputReady = TRUE;
                 } /* if */
               } else {
                 bRet = GetMessageW(&msg, NULL, 0, 0);
@@ -1646,11 +1656,11 @@ boolType gkbInputReady (void)
                 } /* if */
                 PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
                 msg_present = 0;
-                result = TRUE;
+                inputReady = TRUE;
               } /* if */
             } else {
               msg_present = 0;
-              result = TRUE;
+              inputReady = TRUE;
             } /* if */
           } /* if */
           break;
@@ -1662,7 +1672,7 @@ boolType gkbInputReady (void)
                             ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                             (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
           msg_present = 0;
-          result = TRUE;
+          inputReady = TRUE;
           break;
         case WM_MOUSEWHEEL:
           traceEvent(printf("gkbInputReady: WM_MOUSEWHEEL hwnd=" FMT_U_MEM
@@ -1679,7 +1689,7 @@ boolType gkbInputReady (void)
             if (point.x >= 0 && point.x < drwWidth(win) &&
                 point.y >= 0 && point.y < drwHeight(win)) {
               msg_present = 0;
-              result = TRUE;
+              inputReady = TRUE;
             } else {
               bRet = GetMessageW(&msg, NULL, 0, 0);
               if (bRet == 0 || bRet == -1) {
@@ -1709,7 +1719,7 @@ boolType gkbInputReady (void)
               os_exit(0);
             } else {
               msg_present = 0;
-              result = TRUE;
+              inputReady = TRUE;
             } /* if */
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
@@ -1743,7 +1753,7 @@ boolType gkbInputReady (void)
           if ((msg.wParam & 0xfff0) == SC_CLOSE && IsWindow(msg.hwnd)) {
             /* printf("SC_CLOSE\n"); */
             msg_present = 0;
-            result = TRUE;
+            inputReady = TRUE;
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
@@ -1837,14 +1847,14 @@ boolType gkbInputReady (void)
                             ", wParam=" FMT_X64 ", lParam=" FMT_X_MEM "\n",
                             (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
           msg_present = 0;
-          result = TRUE;
+          inputReady = TRUE;
           break;
         case WM_USER:
           traceEvent(printf("gkbInputReady: WM_USER hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
                             (memSizeType) msg.hwnd, msg.wParam, msg.lParam););
           msg_present = 0;
-          result = TRUE;
+          inputReady = TRUE;
           break;
         default:
           traceEvent(printf("gkbInputReady: message=%d, hwnd=" FMT_U_MEM
@@ -1862,8 +1872,8 @@ boolType gkbInputReady (void)
           break;
       } /* switch */
     } /* while */
-    logFunction(printf("gkbInputReady --> %d\n", result););
-    return result;
+    logFunction(printf("gkbInputReady --> %d\n", inputReady););
+    return inputReady;
   } /* gkbInputReady */
 
 

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_post.c    Database access functions for PostgreSQL.         */
-/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2017 - 2022  Thomas Mertes           */
+/*                2024 - 2026  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -101,6 +102,8 @@ typedef struct {
 #define STMT_NAME_PREFIX "prepstat_"
 #define STMT_NAME_BUFFER_SIZE STRLEN(STMT_NAME_PREFIX) + \
                               UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN
+
+#define USE_IMPLICIT_COMMIT_MECHANISM 0
 
 typedef struct {
     uintType       usage_count;
@@ -483,11 +486,20 @@ static errInfoType doExecSql (PGconn *connection, const char *query,
 
 
 
+/**
+ *  Determine if a SQL statement needs an implicit commit.
+ *  In PostgreSQL DDL statements like CREATE need a commit.
+ *  In other databases CREATE and other DDL statements are executed
+ *  without a need to be committed. The implicitCommit mechanism tries
+ *  to adjust the PostgreSQL behavior to what other databases do.
+ *  Instead of using a list of DDL statements it uses a list of
+ *  DML and TCS statements which need an explicit commit.
+ */
 static boolType implicitCommit (const_cstriType query)
 
   {
     const char *explicitCommit[] = {
-      /* DML */ "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE",
+      /* DML */ "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE", "WITH",
       /* TCS */ "COMMIT", "ROLLBACK", "SAVEPOINT", "BEGIN"};
     const_cstriType startPos;
     const_cstriType beyond;
@@ -504,12 +516,12 @@ static boolType implicitCommit (const_cstriType query)
       startPos++;
     } /* while */
     beyond = startPos;
-    while (isalpha(*beyond)) {
+    while (isalpha((unsigned char) *beyond)) {
       beyond++;
     } /* while */
     if ((memSizeType) (beyond - startPos) < sizeof(keyword)) {
       for (pos = startPos; pos != beyond; pos++) {
-        keyword[pos - startPos] = (char) toupper(*pos);
+        keyword[pos - startPos] = (char) toupper((unsigned char) *pos);
       } /* for */
       keyword[beyond - startPos] = '\0';
       for (idx = 0; idx < sizeof(explicitCommit) / sizeof(char *) &&
@@ -582,7 +594,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
   {
     preparedStmtType preparedStmt;
     memSizeType pos;
-    static PGresult *deallocate_result;
+    PGresult *deallocate_result;
 
   /* freePreparedStmt */
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
@@ -3295,13 +3307,16 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
         if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
           preparedStmt->executeSuccessful = TRUE;
+#if USE_IMPLICIT_COMMIT_MECHANISM
           if (preparedStmt->implicitCommit && !preparedStmt->db->autoCommit) {
+            logMessage(printf("sqlExecute: Use implicitCommit mechanism.\n"););
             err_info = doExecSql(preparedStmt->db->connection, "COMMIT", err_info);
             err_info = doExecSql(preparedStmt->db->connection, "BEGIN TRANSACTION", err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               raise_error(err_info);
             } /* if */
           } /* if */
+#endif
         } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
           num_tuples = PQntuples(preparedStmt->execute_result);
           if (unlikely(num_tuples < 0)) {
@@ -3693,6 +3708,7 @@ static boolType getLocale (dbType database, errInfoType *err_info)
   {
     PGresult *execResult;
     char *locale;
+    memSizeType localeLen;
     char *savedLocale;
     char *databaseLocale;
     struct lconv* lc;
@@ -3715,35 +3731,45 @@ static boolType getLocale (dbType database, errInfoType *err_info)
         *err_info = DATABASE_ERROR;
       } else {
         locale = setlocale(LC_ALL, NULL);
-        if (unlikely(locale == NULL ||
-                     !ALLOC_CSTRI(savedLocale, strlen(locale)))) {
+        if (unlikely(locale == NULL)) {
+          logError(printf("getLocale: setlocale(LC_ALL, NULL) failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
-          strcpy(savedLocale, locale);
-          databaseLocale = PQgetvalue(execResult, 0, 0);
-          logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
-          setlocale(LC_ALL, databaseLocale);
-          lc = localeconv();
-          if (lc->frac_digits == CHAR_MAX) {
-            /* In the "C" locale frac_digits == CHAR_MAX. */
-            database->moneyDenominator = 100;
-            logMessage(printf("getLocale: Money precision of %d not defined, "
-                              "using a denominator of " FMT_D64 "\n",
-                              lc->frac_digits, database->moneyDenominator););
-          } else if (unlikely(lc->frac_digits < 0 ||
-                              lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
-            logError(printf("getLocale: frac_digits %d negative or too big.\n",
-                            lc->frac_digits););
-            *err_info = NUMERIC_ERROR;
+          localeLen = strlen(locale);
+          if (unlikely(!ALLOC_CSTRI(savedLocale, localeLen))) {
+            *err_info = MEMORY_ERROR;
           } else {
-            database->moneyDenominator = intPow(10, lc->frac_digits);
-            /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
-            logMessage(printf("getLocale: Money precision of %d, "
-                              "resulting in a denominator of " FMT_D64 "\n",
-                              lc->frac_digits, database->moneyDenominator););
+            memcpy(savedLocale, locale, localeLen + 1);
+            databaseLocale = PQgetvalue(execResult, 0, 0);
+            logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
+            setlocale(LC_ALL, databaseLocale);
+            lc = localeconv();
+            if (lc->frac_digits == UCHAR_MAX ||
+                lc->frac_digits == SCHAR_MAX) {
+              /* In the "C" locale frac_digits == CHAR_MAX.       */
+              /* Unfortunately some libraries don't follow this   */
+              /* specification. To be on the safe side the        */
+              /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
+              database->moneyDenominator = 100;
+              logMessage(printf("getLocale: Money precision of %d not defined, "
+                                "using a denominator of " FMT_D64 "\n",
+                                lc->frac_digits, database->moneyDenominator););
+            } else if (unlikely(lc->frac_digits < 0 ||
+                                lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
+              logError(printf("getLocale: frac_digits %d negative or too big.\n"
+                              "Database locale: \"%s\"\n",
+                              lc->frac_digits, databaseLocale););
+              *err_info = NUMERIC_ERROR;
+            } else {
+              database->moneyDenominator = intPow(10, lc->frac_digits);
+              /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+              logMessage(printf("getLocale: Money precision of %d, "
+                                "resulting in a denominator of " FMT_D64 "\n",
+                                lc->frac_digits, database->moneyDenominator););
+            } /* if */
+            setlocale(LC_ALL, savedLocale); /* Restore previous locale value */
+            UNALLOC_CSTRI(savedLocale, localeLen);
           } /* if */
-          setlocale(LC_ALL, savedLocale); /* Restore previous locale value */
-          UNALLOC_CSTRI(savedLocale, strlen(savedLocale));
         } /* if */
       } /* if */
       PQclear(execResult);

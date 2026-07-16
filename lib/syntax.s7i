@@ -115,6 +115,7 @@ $ syntax expr: .(). - .()                    is  ->  7;
 $ syntax expr: .().times.()                  is <-   8;
 $ syntax expr: .().mult.()                   is  ->  8;
 $ syntax expr: .().find.()                   is  ->  8;
+$ syntax expr: .action.()                    is  ->  9;
 $ syntax expr: .(). & .()                    is  -> 10;
 $ syntax expr: .(). >< .()                   is  -> 11;
 $ syntax expr: .(). | .()                    is  -> 11;
@@ -225,6 +226,7 @@ $ syntax expr: .block.().exception.end.block                     is  -> 25;
 
 $ syntax expr: .global.().end.global                             is  -> 25;
 
+$ syntax expr: .assert.()                                        is  -> 25;
 $ syntax expr: .raise.()                                         is  -> 25;
 
 $ syntax expr: .func.()      is <-  30;
@@ -240,8 +242,6 @@ $ syntax expr: .return.()                                                       
 $ syntax expr: .return.var.()                                                      is <-  30;
 $ syntax expr: .().return.()                                                       is <-  30;
 $ syntax expr: .().return.var.()                                                   is <-  30;
-
-$ syntax expr: .action.()                      is  -> 30;
 
 $ syntax expr: . $ .()                         is  -> 35;
 

@@ -973,17 +973,17 @@ static charType mapKeysymToUnicode (KeySym keysym)
 winType find_window (Window sys_window)
 
   {
+    rtlValueUnion windowKey;
     winType window;
 
   /* find_window */
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      window = (winType) (memSizeType)
-          hshIdxDefault0(window_hash,
-                         (genericType) (memSizeType) sys_window,
-                         (intType) ((memSizeType) sys_window) >> 6,
-                         (compareType) &genericCmp);
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      window = hshIdxDefault0(window_hash, windowKey,
+                              (intType) ((memSizeType) sys_window) >> 6,
+                              (compareFuncType) &valueCmp).winValue;
     } /* if */
     logFunction(printf("find_window(" FMT_X_MEM ") --> " FMT_X_MEM "\n",
                        (memSizeType) sys_window, (memSizeType) window););
@@ -994,33 +994,44 @@ winType find_window (Window sys_window)
 
 void enter_window (winType curr_window, Window sys_window)
 
-  { /* enter_window */
+  {
+    rtlValueUnion windowKey;
+    rtlValueUnion windowData;
+
+  /* enter_window */
     logFunction(printf("enter_window(" FMT_X_MEM ", " FMT_X_MEM ")\n",
                        (memSizeType) curr_window,
                        (memSizeType) sys_window););
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    (void) hshIdxEnterDefault(window_hash,
-                              (genericType) (memSizeType) sys_window,
-                              (genericType) (memSizeType) curr_window,
-                              (intType) ((memSizeType) sys_window) >> 6);
+    windowKey.genericValue = (genericType) (memSizeType) sys_window;
+    windowData.winValue = curr_window;
+    hshIncl(window_hash, windowKey, windowData,
+            (intType) ((memSizeType) sys_window) >> 6,
+            (compareFuncType) &valueCmp,
+            (createFuncType) &valueCreate,
+            (createFuncType) &ptrCreateValue,
+            (copyFuncType) &ptrCpyValue);
   } /* enter_window */
 
 
 
 void remove_window (Window sys_window)
 
-  { /* remove_window */
+  {
+    rtlValueUnion windowKey;
+
+  /* remove_window */
     logFunction(printf("remove_window(" FMT_X_MEM ")\n",
                        (memSizeType) sys_window););
     if (window_hash != NULL) {
-      hshExcl(window_hash,
-              (genericType) (memSizeType) sys_window,
+      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      hshExcl(window_hash, windowKey,
               (intType) ((memSizeType) sys_window) >> 6,
-              (compareType) &genericCmp,
-              (destrFuncType) &genericDestr,
-              (destrFuncType) &genericDestr);
+              (compareFuncType) &valueCmp,
+              (destrFuncType) &valueDestr,
+              (destrFuncType) &valueDestr);
     } /* if */
   } /* remove_window */
 

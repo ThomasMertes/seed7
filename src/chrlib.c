@@ -50,16 +50,6 @@
 
 
 
-objectType chr_clit (listType arguments)
-
-  { /* chr_clit */
-    isit_char(arg_1(arguments));
-    return bld_stri_temp(
-        chrCLit(take_char(arg_1(arguments))));
-  } /* chr_clit */
-
-
-
 /**
  *  Compare two characters.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -122,6 +112,16 @@ objectType chr_create (listType arguments)
     arg_1(arguments)->value.charValue = take_char(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* chr_create */
+
+
+
+objectType chr_c_literal (listType arguments)
+
+  { /* chr_c_literal */
+    isit_char(arg_1(arguments));
+    return bld_stri_temp(
+        chrCLiteral(take_char(arg_1(arguments))));
+  } /* chr_c_literal */
 
 
 
@@ -240,7 +240,7 @@ objectType chr_iconv1 (listType arguments)
       logError(printf("chr_iconv1(" FMT_D "): "
                       "Number does not fit into a 32-bit char.\n",
                       number););
-      return raise_exception(SYS_RNG_EXCEPTION) ;
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_char_temp((charType) number);
     } /* if */
@@ -272,7 +272,7 @@ objectType chr_iconv3 (listType arguments)
       logError(printf("chr_iconv3(" FMT_D "): "
                       "Number does not fit into a 32-bit char.\n",
                       number););
-      return raise_exception(SYS_RNG_EXCEPTION) ;
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_char_temp((charType) number);
     } /* if */
@@ -369,7 +369,7 @@ objectType chr_low (listType arguments)
 
 /**
  *  Check if ch1 is less than ch2.
- *  @return TRUE if ch1 is less than than ch2,
+ *  @return TRUE if ch1 is less than ch2,
  *          FALSE otherwise.
  */
 objectType chr_lt (listType arguments)
@@ -490,6 +490,12 @@ objectType chr_up (listType arguments)
 
 
 
+/**
+ *  Get 'char' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'char' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
+ *             category(aReference) <> CHAROBJECT holds.
+ */
 objectType chr_value (listType arguments)
 
   {

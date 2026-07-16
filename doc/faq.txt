@@ -347,12 +347,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 400000 lines of Seed7. For version 2025-09-30 the number of lines is:
+than 400000 lines of Seed7. For version 2026-07-11 the number of lines is:
 
-  187859  C source files (*.c)
-   14277  C header files (*.h)
-  278686  Seed7 source files (*.sd7)
-  201436  Seed7 library/include files (*.s7i)
+  196327  C source files (*.c)
+   14606  C header files (*.h)
+  286789  Seed7 source files (*.sd7)
+  205550  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -687,6 +687,7 @@ information from the interpreter):
   chkbool ........... okay
   chkenum ........... okay
   chktime ........... okay
+  chkdecl ........... okay
   chkscan ........... okay
   chkjson ........... okay
   chktoml ........... okay
@@ -867,8 +868,11 @@ Syntax highlighting is available for several editors:
  - For Emacs, the seed7-mode major mode (at https://github.com/pierre-rouleau/seed7-mode)
    provides syntax highlighting, automatic indentation, specialized navigation
    and several other features.
- - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
-   this file to '/usr/share/nano' (you might need superuser privileges to do that).
+ - For the Nano editor there is seed7/doc/seed7.nanorc and
+   nano-syntax-highlighting/seed7.nanorc. You can copy this file to
+   '/usr/share/nano' (you might need superuser privileges to do that).
+   Arch-user can install package nano-syntax-highlighting or
+   nano-syntax-highlighting-git.
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
    click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
@@ -898,7 +902,7 @@ keywords. So the list of keywords defined in the standard libraries can be used.
    include inout is key len local new of otherwise param raise range ref
    repeat result return set step struct sub syntax system then to until val
    var varfunc when while
- - Keywords which introduce statements are: block case for global if include
+ - Keywords which introduce statements are: assert block case for global if include
    raise repeat syntax system while
  - Keywords which are used in the middle of statements are: catch do downto
    else elsif end exception key of otherwise range step then to until when
@@ -925,7 +929,7 @@ keywords. So the list of keywords defined in the standard libraries can be used.
  - Predefined constants are: E empty EOF FALSE Infinity NaN NIL PI TRUE
  - Predefined variables are: CONSOLE_KEYBOARD GRAPH_KEYBOARD IN KEYBOARD OUT
    STD_CONSOLE STD_ERR STD_IN STD_NULL STD_OUT
- - Predefined exceptions are: DATABASE_ERROR FILE_ERROR GRAPHIC_ERROR
+ - Predefined exceptions are: ASSERTION_ERROR DATABASE_ERROR FILE_ERROR GRAPHIC_ERROR
    ILLEGAL_ACTION INDEX_ERROR MEMORY_ERROR NUMERIC_ERROR OVERFLOW_ERROR
    RANGE_ERROR
  - The syntax of literals and comments is described with the Backus Naur Form.
@@ -2602,6 +2606,88 @@ Depending on the condition 'a >= 0' only one of the expressions 'sqrt(a)' and
 is assigned to 'result'.
 
 
+Can a function return a reference to an element of a struct?
+============================================================
+
+No, because this would open possibilities for memory corruption. E.g.:
+
+  var pointer float: floatPtr is NULL;
+  ...
+  const proc: assignFloatPtr is func
+    local
+      var complex: aComplex is complex.value;
+    begin
+      floatPtr := functionWhichReturnsAReferenceToAnElement(aComplex);
+    end func;
+  ...
+  assignFloatPtr;
+
+Inside 'assignFloatPtr' a reference to an element of the local struct
+variable 'aComplex' is assigned to 'floatPtr'. When 'assignFloatPtr'
+is left the local variable 'aComplex' is freed. Now 'floatPtr' refers
+to freed memory.
+
+All containers (struct, array, hash, etc.) own their elements. When
+a container variable leaves its scope all memory of the container
+is freed. If at that time a reference (pointer) into the container
+would exist it would now refer to freed memory.
+
+
+Can a parameter reference an element of a struct?
+=================================================
+
+Yes, parameters defined with 'ref' and 'inout' can refer to an element
+of a struct (or other container). E.g.:
+
+  const proc: timesTwo (inout float: number) is func
+    begin
+      number *:= 2;
+    end func;
+  ...
+  var complex: aComplex is complex.value;
+  ...
+  timesTwo(aComplex.re);
+
+When 'timesTwo' is called the 'inout' parameter 'number' refers to
+the struct element 're'. The function 'timesTwo' borrows the element
+'re'. This way it can multiply 're' (referred via 'number') by two.
+When the borrowing ends the struct 'aComplex' can be freed. It is
+guaranteed that 'aComplex' will not be freed before the function
+'timesTwo' is left. A reference (pointer) to freed memory cannot
+happen.
+
+
+Can several variables refer to the same object?
+===============================================
+
+Yes, this can be done with object orientation. This way several
+interface variables may refer to the same object. E.g.:
+
+  var file: file1 is STD_NULL;
+  var file: file2 is STD_NULL;
+  ...
+  file1 := open("descr.txt", "r");
+  file2 := file1;
+
+The interface type 'file' is used to define the interface variables
+'file1' and 'file2'. After the assignments 'file1' and 'file2'
+refer to the same object:
+
+  +-----------------+   +-----------------+
+  | var file: file1 |   | var file: file2 |
+  +-----------------+   +-----------------+
+                 |         |
+                 |         |
+                 V         V
+             +-----------------+
+             |  external_file  |
+             |     object      |
+             +-----------------+
+
+The objects use a reference count and are freed automatically when
+the reference count reaches zero.
+
+
 Why are functions declared with const?
 ======================================
 
@@ -3373,7 +3459,15 @@ Are there exceptions?
 
 Yes, Seed7 has exceptions which are similar to Ada exceptions. In chapter 16.3
 (Exceptions) of the manual you will find a detailed description of the Seed7
-exceptions. The use of exceptions also improves readability. E.g.:
+exceptions. Generally there are two ways to handle errors:
+
+ - Error codes should be returned and checked if the circumstances of the error are known. (e.g. opening a file or network connection). If the programmer foresees that something can fail an error code is the right approach.
+ - Exceptions should be used if errors can happen at numerous places (e.g. array indexing out of bounds, integer overflow, integer division by zero, the program runs out of memory). Exceptions cover the case where the programmer did not expect that something fails.
+
+Exceptions complement return codes. They provide a safety net for all cases
+where unplanned errors occur.
+
+The use of exceptions can improve readability. E.g.:
 
   doA();
   doB();

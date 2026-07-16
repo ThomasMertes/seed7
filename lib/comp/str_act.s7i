@@ -30,9 +30,9 @@ const ACTION: STR_CAT           is action "STR_CAT";
 const ACTION: STR_CHIPOS        is action "STR_CHIPOS";
 const ACTION: STR_CHPOS         is action "STR_CHPOS";
 const ACTION: STR_CHSPLIT       is action "STR_CHSPLIT";
-const ACTION: STR_CLIT          is action "STR_CLIT";
 const ACTION: STR_CMP           is action "STR_CMP";
 const ACTION: STR_CPY           is action "STR_CPY";
+const ACTION: STR_C_LITERAL     is action "STR_C_LITERAL";
 const ACTION: STR_ELEMCPY       is action "STR_ELEMCPY";
 const ACTION: STR_EQ            is action "STR_EQ";
 const ACTION: STR_FOR           is action "STR_FOR";
@@ -46,7 +46,7 @@ const ACTION: STR_HEAD          is action "STR_HEAD";
 const ACTION: STR_IDX           is action "STR_IDX";
 const ACTION: STR_IPOS          is action "STR_IPOS";
 const ACTION: STR_LE            is action "STR_LE";
-const ACTION: STR_LIT           is action "STR_LIT";
+const ACTION: STR_LITERAL       is action "STR_LITERAL";
 const ACTION: STR_LNG           is action "STR_LNG";
 const ACTION: STR_LOW           is action "STR_LOW";
 const ACTION: STR_LPAD          is action "STR_LPAD";
@@ -92,33 +92,33 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     strChPos (const const_striType, const charType);");
     declareExtern(c_prog, "striType    strChRepl (const const_striType, const charType, const const_striType);");
     declareExtern(c_prog, "arrayType   strChSplit (const const_striType, const charType);");
-    declareExtern(c_prog, "intType     strCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "striType    strCLiteral (const const_striType);");
+    declareExtern(c_prog, "intType     strCmpValue (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "intType     strCompare (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    strConcat (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    strConcatChar (const const_striType, const charType);");
     declareExtern(c_prog, "striType    strConcatCharTemp (striType, const charType);");
     declareExtern(c_prog, "striType    strConcatN (const const_striType[], memSizeType);");
     declareExtern(c_prog, "striType    strConcatTemp (striType, const const_striType);");
-    declareExtern(c_prog, "striType    strCLit (const const_striType);");
     declareExtern(c_prog, "void        strCopy (striType *const, const const_striType);");
-    declareExtern(c_prog, "void        strCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        strCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "striType    strCreate (const const_striType);");
-    declareExtern(c_prog, "genericType strCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion strCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        strDestr (const const_striType);");
-    declareExtern(c_prog, "void        strDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        strDestrValue (const rtlValueUnion);");
     declareExtern(c_prog, "striType    strEmpty(void);");
     declareExtern(c_prog, "striType    strFromUtf8 (const const_striType);");
     declareExtern(c_prog, "boolType    strGe (const const_striType, const const_striType);");
     declareExtern(c_prog, "boolType    strGt (const const_striType, const const_striType);");
     declareExtern(c_prog, "intType     strHashCode (const const_striType);");
-    declareExtern(c_prog, "intType     strHashCodeGeneric (const genericType);");
+    declareExtern(c_prog, "intType     strHashCodeValue (const rtlValueUnion);");
     declareExtern(c_prog, "striType    strHead (const_striType, intType);");
     declareExtern(c_prog, "void        strHeadSlice (const const_striType, const intType, striType);");
     declareExtern(c_prog, "striType    strHeadAssign (const striType, const intType);");
     declareExtern(c_prog, "striType    strHeadTemp (const striType, const intType);");
     declareExtern(c_prog, "intType     strIPos (const const_striType, const const_striType, const intType);");
     declareExtern(c_prog, "boolType    strLe (const const_striType, const const_striType);");
-    declareExtern(c_prog, "striType    strLit (const const_striType);");
+    declareExtern(c_prog, "striType    strLiteral (const const_striType);");
     declareExtern(c_prog, "striType    strLow (const const_striType);");
     declareExtern(c_prog, "striType    strLowTemp (const striType);");
     declareExtern(c_prog, "striType    strLpad (const const_striType, const intType);");
@@ -457,7 +457,7 @@ const func boolean: mightOverlap (in reference: dest, in reference: source) is f
   local
     const set of string: stringActions0 is
         {"BIG_RADIX", "BIG_radix", "BIG_STR", "BIN_RADIX", "BIN_radix",
-         "BIN_STR", "BST_STR", "ENU_LIT", "INT_RADIX", "INT_radix",
+         "BIN_STR", "BST_STR", "ENU_LITERAL", "INT_RADIX", "INT_radix",
          "INT_STR"};
     const set of string: stringActions1 is
         {"ARR_IDX", "SCT_SELECT", "STR_HEAD", "STR_RANGE",
@@ -905,17 +905,6 @@ const proc: process (STR_CHSPLIT, in reference: function,
   end func;
 
 
-const proc: process (STR_CLIT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "strCLit(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process (STR_CMP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1040,6 +1029,17 @@ const proc: process (STR_CPY, in reference: function,
       end if;
       doLocalDeclsOfStatement(statement, c_expr);
     end if;
+  end func;
+
+
+const proc: process (STR_C_LITERAL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "strCLiteral(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2629,12 +2629,12 @@ const proc: process (STR_LE, in reference: function,
   end func;
 
 
-const proc: process (STR_LIT, in reference: function,
+const proc: process (STR_LITERAL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr := "strLit(";
+    c_expr.result_expr := "strLiteral(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;

@@ -58,7 +58,7 @@ const proc: bin_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "uintType    uintBytesLe2UInt (const const_striType);");
     declareExtern(c_prog, "intType     uintCard (uintType);");
     declareExtern(c_prog, "intType     uintCmp (uintType, uintType);");
-    declareExtern(c_prog, "intType     uintCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     uintCmpValue (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "striType    uintNBytesBe (uintType, intType);");
     declareExtern(c_prog, "striType    uintNBytesLe (uintType, intType);");
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");

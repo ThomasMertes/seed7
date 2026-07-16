@@ -29,11 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
-/* In classic C a function cannot return structs by value and */
-/* cannot have struct value parameters. Because of this the   */
-/* unsigned integer type genericType is used, instead of      */
-/* rtlObjectType. To work reliably it must be assured that    */
-/* sizeof(genericType) == sizeof(rtlObjectType)               */
+/* For the unsigned integer type genericType holds: */
+/* sizeof(genericType) == sizeof(rtlObjectType)     */
 
 #if INTTYPE_SIZE >= POINTER_SIZE
 #if INTTYPE_SIZE >= FLOATTYPE_SIZE
@@ -62,10 +59,10 @@ typedef uint32Type genericType;
 #endif
 
 #if GENERIC_SIZE != POINTER_SIZE
-#define INIT_GENERIC_PTR(gen) (gen) = GENERIC_SUFFIX(0)
+#define INIT_VALUE_PTR(value) (value).genericValue = GENERIC_SUFFIX(0)
 #else
 /* Initialization is not necessary because it will be overwritten. */
-#define INIT_GENERIC_PTR(gen)
+#define INIT_VALUE_PTR(value)
 #endif
 
 #if GENERIC_SIZE != INTTYPE_SIZE
@@ -193,14 +190,18 @@ typedef struct rtlTimeStruct {
     rtlObjectType daylightSavingTime;
   } rtlTimeRecord;
 
-typedef intType (*hashCodeFuncType) (genericType);
-typedef intType (*compareType) (genericType, genericType);
-typedef genericType (*createFuncType) (genericType);
-typedef void (*destrFuncType) (genericType);
-typedef void (*copyFuncType) (genericType *, genericType);
+typedef intType (*hashCodeFuncType) (rtlValueUnion);
+typedef intType (*compareFuncType) (rtlValueUnion, rtlValueUnion);
+typedef rtlValueUnion (*createFuncType) (rtlValueUnion);
+typedef void (*destrFuncType) (rtlValueUnion);
+typedef void (*copyFuncType) (rtlValueUnion *, rtlValueUnion);
 
 
-intType genericCmp (const genericType value1, const genericType value2);
-void genericCpy (genericType *const dest, const genericType source);
-genericType genericCreate (genericType source);
-void genericDestr (genericType old_value);
+intType valueCmp (const rtlValueUnion value1, const rtlValueUnion value2);
+void valueCpy (rtlValueUnion *const dest, const rtlValueUnion source);
+rtlValueUnion valueCreate (rtlValueUnion source);
+void valueDestr (rtlValueUnion old_value);
+
+intType ptrCmpValue (const rtlValueUnion value1, const rtlValueUnion value2);
+void ptrCpyValue (rtlValueUnion *const dest, const rtlValueUnion source);
+rtlValueUnion ptrCreateValue (const rtlValueUnion from_value);

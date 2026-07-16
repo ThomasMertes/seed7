@@ -37,7 +37,7 @@
 const type: clib_file is newtype;
 
 
-IN_PARAM_IS_VALUE(clib_file);
+IN_PARAM_IS_REFERENCE(clib_file);
 
 const creator: (ref clib_file: dest) ::= (in clib_file: source)      is action "FIL_CREATE";
 const destroyer: destroy (ref clib_file: aValue)                     is action "FIL_DESTR";
@@ -79,7 +79,7 @@ const func clib_file: CLIB_ERROR  is action "FIL_ERR";
 
 
 (**
- *  Opens a clib_file with the specified ''path'' and ''mode''.
+ *  Open a clib_file with the specified ''path'' and ''mode''.
  *  There are text modes and binary modes:
  *  *Binary modes:
  *  ** "r"   Open file for reading.
@@ -100,7 +100,7 @@ const func clib_file: CLIB_ERROR  is action "FIL_ERR";
  *  @param path Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
- *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *  @return the file opened, or [[#CLIB_NULL_FILE|CLIB_NULL_FILE]]
  *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
@@ -297,4 +297,4 @@ const proc: seek (in clib_file: aFile, in integer: position)         is action "
 const func integer: tell (in clib_file: aFile)                       is action "FIL_TELL";
 
 
-const func string: literal (in clib_file: aFile)                     is action "FIL_LIT";
+const func string: literal (in clib_file: aFile)                     is action "FIL_LITERAL";

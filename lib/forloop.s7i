@@ -37,7 +37,7 @@
  *)
 const proc: for (inout integer: aVar) range (in integer: lowerLimit) to (in integer: upperLimit) do
               (in proc: statements)
-            end for is                                                      action "PRC_FOR_TO";
+            end for                                             is action "PRC_FOR_TO";
 
 
 (**
@@ -51,7 +51,7 @@ const proc: for (inout integer: aVar) range (in integer: lowerLimit) to (in inte
  *)
 const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in integer: lowerLimit) do
               (in proc: statements)
-            end for is                                                      action "PRC_FOR_DOWNTO";
+            end for                                             is action "PRC_FOR_DOWNTO";
 
 
 (**
@@ -66,7 +66,7 @@ const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in 
 const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in integer: upperLimit)
                 step (in integer: incr_step) do
               (in proc: statements)
-            end for is                                                      action "PRC_FOR_TO_STEP";
+            end for                                             is action "PRC_FOR_TO_STEP";
 
 
 (**
@@ -81,7 +81,7 @@ const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in 
 const proc: for (inout integer: variable) range (in integer: upperLimit) downto (in integer: lowerLimit)
                 step (in integer: decr_step) do
               (in proc: statements)
-            end for is                                                      action "PRC_FOR_DOWNTO_STEP";
+            end for                                             is action "PRC_FOR_DOWNTO_STEP";
 
 
 (**
@@ -309,7 +309,7 @@ const proc: for (in integer: numRepeats) do
  *)
 const proc: for (inout char: forVar) range (in string: stri) do
               (in proc: statements)
-            end for is                                                      action "STR_FOR";
+            end for                                             is action "STR_FOR";
 
 
 (**
@@ -317,7 +317,7 @@ const proc: for (inout char: forVar) range (in string: stri) do
  *)
 const proc: for key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
-            end for is                                                      action "STR_FOR_KEY";
+            end for                                             is action "STR_FOR_KEY";
 
 
 (**
@@ -325,7 +325,7 @@ const proc: for key (inout integer: keyVar) range (in string: stri) do
  *)
 const proc: for (inout char: forVar) key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
-            end for is                                                      action "STR_FOR_VAR_KEY";
+            end for                                             is action "STR_FOR_VAR_KEY";
 
 
 (**

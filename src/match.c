@@ -557,6 +557,60 @@ static objectType match_object3 (objectType object, const_objectType expr_object
 
 
 
+/**
+ *  Turn a MATCHOBJECT into a CALLOBJECT and precede it with a MATCHOBJECT.
+ *  This function is used if a function returns another function.
+ */
+static objectType match_object4 (objectType object, const_objectType expr_object)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* match_object4 */
+    logFunction(printf("match_object4(");
+                trace1(object);
+                printf(")\n"););
+    if (trace.match) {
+      printf("\nbegin match_object4 ");
+      trace1(object);
+      printf("\n");
+    } /* if */
+    switch (CATEGORY_OF_OBJ(object)) {
+      case MATCHOBJECT:
+        SET_CATEGORY_OF_OBJ(object, CALLOBJECT);
+        if (ALLOC_OBJECT(result)) {
+          result->type_of = object->type_of;
+          if (HAS_POSINFO(expr_object)) {
+            result->descriptor.posinfo = expr_object->descriptor.posinfo;
+            INIT_CATEGORY_OF_POSINFO(result, MATCHOBJECT);
+          } else {
+            result->descriptor.property = prog->property.literal;
+            INIT_CATEGORY_OF_OBJ(result, MATCHOBJECT);
+          } /* if */
+          result->value.listValue = NULL;
+          incl_list(&result->value.listValue, object, &err_info);
+        } /* if */
+        break;
+      default:
+        result = object;
+        break;
+    } /* switch */
+    if (trace.match) {
+      printf("end match_object4 ");
+      trace1(object);
+      printf(" ==> ");
+      trace1(result);
+      printf("\n");
+    } /* if */
+    logFunction(printf("match_object4 --> ");
+                trace1(result);
+                printf("\n"););
+    return result;
+  } /* match_object4 */
+
+
+
 static objectType match_subexpr_var (objectType expr_object,
     const_nodeType start_node, objectType type_match_obj,
     listType rest_of_expression, boolType check_access_right,
@@ -1040,6 +1094,24 @@ static objectType match_subexpr (objectType expr_object,
                   matched_object = match_subexpr_type(expr_object, start_node,
                       result_type, object_type->is_varfunc_type,
                       rest_of_expression, check_access_right, look_for_interfaces);
+                  if (matched_object == NULL && result_type->result_type != NULL) {
+                    if (trace.match) {
+                      printf("//T3x//");
+                      trace1(result_type->match_obj);
+                      fflush(stdout);
+                    } /* if */
+                    matched_object = match_subexpr_type(expr_object, start_node,
+                        result_type->result_type, result_type->is_varfunc_type,
+                        rest_of_expression, check_access_right, look_for_interfaces);
+                    if (trace.match) {
+                      printf("//T3y//");
+                      trace1(result_type->match_obj);
+                      fflush(stdout);
+                    } /* if */
+                    if (matched_object != NULL) {
+                      current_element = match_object4(current_element, expr_object);
+                    } /* if */
+                  } /* if */
                 } /* if */
                 object_type = object_type->meta;
               } while (object_type != NULL && matched_object == NULL);

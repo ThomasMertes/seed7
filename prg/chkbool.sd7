@@ -46,6 +46,21 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func boolean: raisesNumericError (in func integer: expression) is func
+  result
+    var boolean: raisesNumericError is FALSE;
+  local
+    var integer: exprResult is 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch NUMERIC_ERROR:
+        raisesNumericError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_not is func
   begin
     if TRUE then
@@ -3077,6 +3092,38 @@ const proc: check_ternary is func
             is_odd(intExpr(106)) or
         not is_odd(intExpr(107)) then
       writeln(" ***** The test function is_odd() does not work correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(        123  div         0  = 0 ? 345 : 456) or
+        not raisesNumericError(intExpr(123) div         0  = 0 ? 345 : 456) or
+        not raisesNumericError(        123  div intExpr(0) = 0 ? 345 : 456) or
+        not raisesNumericError(intExpr(123) div intExpr(0) = 0 ? 345 : 456) then
+      writeln(" ***** The ternary operator ? : does not handle exceptions correctly. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(         TRUE  ?         123  div         0  : 234) or
+        not raisesNumericError(         TRUE  ? intExpr(123) div         0  : 234) or
+        not raisesNumericError(         TRUE  ?         123  div intExpr(0) : 234) or
+        not raisesNumericError(         TRUE  ? intExpr(123) div intExpr(0) : 234) or
+        not raisesNumericError(boolExpr(TRUE) ?         123  div         0  : 234) or
+        not raisesNumericError(boolExpr(TRUE) ? intExpr(123) div         0  : 234) or
+        not raisesNumericError(boolExpr(TRUE) ?         123  div intExpr(0) : 234) or
+        not raisesNumericError(boolExpr(TRUE) ? intExpr(123) div intExpr(0) : 234) then
+      writeln(" ***** The ternary operator ? : does not handle exceptions correctly. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(         FALSE  ? 234 :         123  div         0 ) or
+        not raisesNumericError(         FALSE  ? 234 : intExpr(123) div         0 ) or
+        not raisesNumericError(         FALSE  ? 234 :         123  div intExpr(0)) or
+        not raisesNumericError(         FALSE  ? 234 : intExpr(123) div intExpr(0)) or
+        not raisesNumericError(boolExpr(FALSE) ? 234 :         123  div         0 ) or
+        not raisesNumericError(boolExpr(FALSE) ? 234 : intExpr(123) div         0 ) or
+        not raisesNumericError(boolExpr(FALSE) ? 234 :         123  div intExpr(0)) or
+        not raisesNumericError(boolExpr(FALSE) ? 234 : intExpr(123) div intExpr(0)) then
+      writeln(" ***** The ternary operator ? : does not handle exceptions correctly. (3)");
       okay := FALSE;
     end if;
 

@@ -356,7 +356,7 @@ DIR *opendir (const char *dirName)
             /* checked below.                                  */
             if (nameLen == PREFIX_LEN + 4 &&
                 fileNamePattern[PREFIX_LEN + 1] == ':' &&
-                isalpha(fileNamePattern[PREFIX_LEN])) {
+                isalpha((unsigned char) fileNamePattern[PREFIX_LEN])) {
               /* A volume path needs a trailing backslash. */
               fileNamePattern[nameLen - 1] = '\0';
             } else {

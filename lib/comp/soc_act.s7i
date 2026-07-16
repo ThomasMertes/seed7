@@ -32,6 +32,7 @@ const ACTION: SOC_BIND             is action "SOC_BIND";
 const ACTION: SOC_CLOSE            is action "SOC_CLOSE";
 const ACTION: SOC_CONNECT          is action "SOC_CONNECT";
 const ACTION: SOC_CPY              is action "SOC_CPY";
+const ACTION: SOC_EMPTY            is action "SOC_EMPTY";
 const ACTION: SOC_EQ               is action "SOC_EQ";
 const ACTION: SOC_GETC             is action "SOC_GETC";
 const ACTION: SOC_GETS             is action "SOC_GETS";
@@ -51,6 +52,7 @@ const ACTION: SOC_RECV             is action "SOC_RECV";
 const ACTION: SOC_SEND             is action "SOC_SEND";
 const ACTION: SOC_SET_OPT_BOOL     is action "SOC_SET_OPT_BOOL";
 const ACTION: SOC_SOCKET           is action "SOC_SOCKET";
+const ACTION: SOC_VALUE            is action "SOC_VALUE";
 const ACTION: SOC_WORD_READ        is action "SOC_WORD_READ";
 const ACTION: SOC_WRITE            is action "SOC_WRITE";
 
@@ -58,33 +60,41 @@ const ACTION: SOC_WRITE            is action "SOC_WRITE";
 const proc: soc_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "socketType  socAccept (socketType, bstriType *);");
+    declareExtern(c_prog, "socketType  socAccept (const const_socketType, bstriType *const);");
     declareExtern(c_prog, "intType     socAddrFamily (const const_bstriType);");
     declareExtern(c_prog, "striType    socAddrNumeric (const const_bstriType);");
     declareExtern(c_prog, "striType    socAddrService (const const_bstriType);");
-    declareExtern(c_prog, "void        socBind (socketType, const_bstriType);");
-    declareExtern(c_prog, "void        socClose (socketType);");
-    declareExtern(c_prog, "void        socConnect (socketType, const_bstriType);");
-    declareExtern(c_prog, "charType    socGetc (socketType, charType *);");
-    declareExtern(c_prog, "striType    socGets (socketType, intType, charType *);");
+    declareExtern(c_prog, "void        socBind (const const_socketType, const_bstriType);");
+    declareExtern(c_prog, "void        socClose (const socketType);");
+    declareExtern(c_prog, "void        socConnect (const const_socketType, const_bstriType);");
+    declareExtern(c_prog, "void        socCpy (socketType *const, const socketType);");
+    declareExtern(c_prog, "void        socCpyValue (rtlValueUnion *const, const rtlValueUnion);");
+    declareExtern(c_prog, "socketType  socCreate (const socketType);");
+    declareExtern(c_prog, "rtlValueUnion socCreateValue (const rtlValueUnion);");
+    declareExtern(c_prog, "void        socDestr (const socketType);");
+    declareExtern(c_prog, "void        socDestrValue (const rtlValueUnion);");
+    declareExtern(c_prog, "charType    socGetc (const const_socketType, charType *const);");
+    declareExtern(c_prog, "striType    socGets (const const_socketType, intType, charType *const);");
     declareExtern(c_prog, "striType    socGetHostname(void);");
-    declareExtern(c_prog, "bstriType   socGetLocalAddr (socketType);");
-    declareExtern(c_prog, "bstriType   socGetPeerAddr (socketType);");
-    declareExtern(c_prog, "boolType    socHasNext (socketType);");
+    declareExtern(c_prog, "bstriType   socGetLocalAddr (const const_socketType);");
+    declareExtern(c_prog, "bstriType   socGetPeerAddr (const const_socketType);");
+    declareExtern(c_prog, "boolType    socHasNext (const const_socketType);");
     declareExtern(c_prog, "bstriType   socInetAddr (const const_striType, intType);");
     declareExtern(c_prog, "bstriType   socInetLocalAddr (intType);");
     declareExtern(c_prog, "bstriType   socInetServAddr (intType);");
-    declareExtern(c_prog, "boolType    socInputReady (socketType, intType, intType);");
-    declareExtern(c_prog, "striType    socLineRead (socketType, charType *);");
-    declareExtern(c_prog, "void        socListen (socketType, intType);");
-    declareExtern(c_prog, "intType     socRecv (socketType, striType *, intType, intType);");
-    declareExtern(c_prog, "intType     socRecvfrom (socketType, striType *, intType, intType, bstriType *);");
-    declareExtern(c_prog, "intType     socSend (socketType, const_striType, intType);");
-    declareExtern(c_prog, "intType     socSendto (socketType, const_striType, intType, bstriType);");
-    declareExtern(c_prog, "void        socSetOptBool (socketType, intType, boolType);");
+    declareExtern(c_prog, "boolType    socInputReady (const const_socketType, intType, intType);");
+    declareExtern(c_prog, "striType    socLineRead (const const_socketType, charType *const);");
+    declareExtern(c_prog, "void        socListen (const const_socketType, intType);");
+    declareExtern(c_prog, "intType     socOrd (const const_socketType);");
+    declareExtern(c_prog, "intType     socRecv (const const_socketType, striType *const, intType, intType);");
+    declareExtern(c_prog, "intType     socRecvfrom (const const_socketType, striType *const, intType, intType, bstriType *const);");
+    declareExtern(c_prog, "intType     socSend (const const_socketType, const_striType, intType);");
+    declareExtern(c_prog, "intType     socSendto (const const_socketType, const_striType, intType, bstriType);");
+    declareExtern(c_prog, "void        socSetOptBool (const const_socketType, intType, boolType);");
     declareExtern(c_prog, "socketType  socSocket (intType, intType, intType);");
-    declareExtern(c_prog, "striType    socWordRead (socketType, charType *);");
-    declareExtern(c_prog, "void        socWrite (socketType, const const_striType);");
+    declareExtern(c_prog, "striType    socWordRead (const const_socketType, charType *const);");
+    declareExtern(c_prog, "void        socWrite (const const_socketType, const const_striType);");
+    declareExtern(c_prog, "socketType  socValue (const const_objRefType);");
   end func;
 
 
@@ -92,11 +102,12 @@ const proc: process (SOC_ACCEPT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "socAccept(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", &(";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    prepare_socket_result(c_expr);
+    c_expr.result_expr &:= "socAccept(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= "))";
   end func;
 
 
@@ -138,7 +149,7 @@ const proc: process (SOC_BIND, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "socBind(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -151,7 +162,7 @@ const proc: process (SOC_CLOSE, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "socClose(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -162,7 +173,7 @@ const proc: process (SOC_CONNECT, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "socConnect(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -174,12 +185,47 @@ const proc: process (SOC_CPY, in reference: function,
 
   local
     var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], statement);
-    statement.expr &:= "=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(params[1], c_param1, statement);
+    c_param3.demand := ASSIGN_RESULT;
+    prepareAnyParamTemporarys(params[3], c_param3, statement);
+    if c_param3.result_expr <> "" then
+      statement.temp_decls &:= "socketType new_socket;\n";
+      statement.expr &:= "new_socket=";
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
+      if isNormalVariable(params[1]) then
+        statement.expr &:= "socDestr(";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= ");\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=new_socket;\n";
+      else
+        statement.temp_decls &:= "socketType *socket_ptr=&(";
+        statement.temp_decls &:= c_param1.expr;
+        statement.temp_decls &:= ");\n";
+        statement.expr &:= "socDestr(*socket_ptr);\n";
+        statement.expr &:= "*socket_ptr=new_socket;\n";
+      end if;
+    else
+      statement.expr &:= "socCpy(&(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "), ";
+      statement.expr &:= c_param3.expr;
+      statement.expr &:= ");\n";
+    end if;
     doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (SOC_EMPTY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "&emptySocketRecord";
   end func;
 
 
@@ -188,9 +234,9 @@ const proc: process (SOC_EQ, in reference: function,
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") == (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -200,7 +246,7 @@ const proc: process (SOC_GETC, in reference: function,
 
   begin
     c_expr.expr &:= "socGetc(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "))";
@@ -213,7 +259,7 @@ const proc: process (SOC_GETS, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "socGets(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ", &(";
@@ -237,7 +283,7 @@ const proc: process (SOC_GET_LOCAL_ADDR, in reference: function,
   begin
     prepare_bstri_result(c_expr);
     c_expr.result_expr := "socGetLocalAddr(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -248,7 +294,7 @@ const proc: process (SOC_GET_PEER_ADDR, in reference: function,
   begin
     prepare_bstri_result(c_expr);
     c_expr.result_expr := "socGetPeerAddr(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -258,7 +304,7 @@ const proc: process (SOC_HAS_NEXT, in reference: function,
 
   begin
     c_expr.expr &:= "socHasNext(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -303,7 +349,7 @@ const proc: process (SOC_INPUT_READY, in reference: function,
 
   begin
     c_expr.expr &:= "socInputReady(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -318,7 +364,7 @@ const proc: process (SOC_LINE_READ, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "socLineRead(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
@@ -331,7 +377,7 @@ const proc: process (SOC_LISTEN, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "socListen(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -343,9 +389,9 @@ const proc: process (SOC_NE, in reference: function,
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") != (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -354,8 +400,8 @@ const proc: process (SOC_ORD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(intType)(";
-    process_expr(params[1], c_expr);
+    c_expr.expr &:= "socOrd(";
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -365,9 +411,9 @@ const proc: process (SOC_RECV, in reference: function,
 
   begin
     c_expr.expr &:= "socRecv(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
-    getAnyParamToExpr(params[2], c_expr);
+    process_expr(params[2], c_expr);
     c_expr.expr &:= "), ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
@@ -381,7 +427,7 @@ const proc: process (SOC_SEND, in reference: function,
 
   begin
     c_expr.expr &:= "socSend(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -395,7 +441,7 @@ const proc: process (SOC_SET_OPT_BOOL, in reference: function,
 
   begin
     c_expr.expr &:= "socSetOptBool(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -408,13 +454,25 @@ const proc: process (SOC_SOCKET, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "socSocket(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    prepare_socket_result(c_expr);
+    c_expr.result_expr &:= "socSocket(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_socket_result(c_expr);
+    c_expr.result_expr &:= "socValue(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -424,7 +482,7 @@ const proc: process (SOC_WORD_READ, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "socWordRead(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
@@ -437,7 +495,7 @@ const proc: process (SOC_WRITE, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "socWrite(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";

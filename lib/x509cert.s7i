@@ -215,7 +215,7 @@ const func string: getEllipticCurveOid (in ellipticCurve: curve) is func
       oid := SECP256R1_OID;
     elsif curve.name = "secp384r1" then
       oid := SECP384R1_OID;
-    elsif curve.name = "secp512r1" then
+    elsif curve.name = "secp521r1" then
       oid := SECP521R1_OID;
     end if;
   end func;

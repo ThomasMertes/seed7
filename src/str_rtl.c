@@ -147,14 +147,13 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
 
 
 
-intType ustriCmpGeneric (const genericType value1, const genericType value2)
+intType ustriCmpValue (const rtlValueUnion value1, const rtlValueUnion value2)
 
   {
     intType signumValue;
 
-  /* ustriCmpGeneric */
-    signumValue = strcmp(((const_rtlObjectType *) &value1)->value.cstriValue,
-                         ((const_rtlObjectType *) &value2)->value.cstriValue);
+  /* ustriCmpValue */
+    signumValue = strcmp(value1.cstriValue, value2.cstriValue);
 #if !STRCMP_RETURNS_SIGNUM
     if (signumValue < -1) {
       signumValue = -1;
@@ -163,62 +162,60 @@ intType ustriCmpGeneric (const genericType value1, const genericType value2)
     } /* if */
 #endif
     return signumValue;
-  } /* ustriCmpGeneric */
+  } /* ustriCmpValue */
 
 
 
-genericType ustriCreateGeneric (const genericType source)
+rtlValueUnion ustriCreateValue (const rtlValueUnion source)
 
   {
     ustriType ustri;
     memSizeType length;
-    rtlObjectType result;
+    rtlValueUnion result;
 
-  /* ustriCreateGeneric */
-    INIT_GENERIC_PTR(result.value.genericValue);
-    ustri = ((const_rtlObjectType *) &source)->value.ustriValue;
-    logFunction(printf("ustriCreateGeneric(\"%s\")\n",
+  /* ustriCreateValue */
+    INIT_VALUE_PTR(result);
+    ustri = source.ustriValue;
+    logFunction(printf("ustriCreateValue(\"%s\")\n",
                        ustri == NULL ? (ustriType) "\\ ** NULL_USTRI "
                                      : ustri););
     if (likely(ustri != NULL)) {
       length = strlen((cstriType) ustri);
-      if (unlikely(!ALLOC_USTRI(result.value.ustriValue, length))) {
+      if (unlikely(!ALLOC_USTRI(result.ustriValue, length))) {
         raise_error(MEMORY_ERROR);
       } else {
-        memcpy(result.value.ustriValue, ustri, length + NULL_TERMINATION_LEN);
+        memcpy(result.ustriValue, ustri, length + NULL_TERMINATION_LEN);
       } /* if */
     } else {
-      result.value.ustriValue = NULL;
+      result.ustriValue = NULL;
     } /* if */
-    logFunction(printf("ustriCreateGeneric --> " FMT_U "\n",
-                       result.value.genericValue););
-    return result.value.genericValue;
-  } /* ustriCreateGeneric */
+    logFunction(printf("ustriCreateValue --> " FMT_U "\n",
+                       result.genericValue););
+    return result;
+  } /* ustriCreateValue */
 
 
 
-intType ustriHash (const const_ustriType ustri)
+intType ustriHashCode (const const_ustriType ustri)
 
   {
     memSizeType length;
     intType hashCode;
 
-  /* ustriHash */
-    logFunction(printf("ustriHash(\"%s\")\n",
+  /* ustriHashCode */
+    logFunction(printf("ustriHashCode(\"%s\")",
                        ustri == NULL ? (ustriType) "\\ ** NULL_USTRI "
-                                     : ustri););
+                                     : ustri);
+                fflush(stdout););
     if (ustri == NULL || ustri[0] == '\0') {
       hashCode = 0;
     } else {
       length = strlen((const_cstriType) ustri);
-      hashCode = (intType) ((uintType) (ustri[0]) << 5 ^
-                            (uintType) (ustri[length >> 1]) << 3 ^
-                            (uintType) (ustri[length - 1]) << 1 ^
-                            length);
+      hashCode = ustringHashCode(ustri, length);
     } /* if */
-    logFunction(printf("ustriHash --> " FMT_D "\n", hashCode););
+    logFunctionResult(printf(FMT_D "\n", hashCode););
     return hashCode;
-  } /* ustriHash */
+  } /* ustriHashCode */
 
 
 
@@ -1165,7 +1162,8 @@ void strAppend (striType *const destination, const_striType extension)
       *destination = new_stri;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 
@@ -1338,7 +1336,8 @@ void strAppendN (striType *const destination,
       new_stri->size = new_size;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppendN */
 
 #else
@@ -1401,7 +1400,8 @@ void strAppend (striType *const destination, const_striType extension)
       *destination = new_stri;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 
@@ -1507,7 +1507,8 @@ void strAppendN (striType *const destination,
       new_stri->size = new_size;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppendN */
 
 #endif
@@ -1524,7 +1525,9 @@ void strAppend (striType *const destination, const_striType extension)
 
   {
     memSizeType new_size;
+#if WITH_STRI_CAPACITY
     memSizeType newCapacity;
+#endif
     striType stri_dest;
     striType new_stri;
     memSizeType extension_size;
@@ -1542,7 +1545,7 @@ void strAppend (striType *const destination, const_striType extension)
     if (unlikely(new_size > MAX_STRI_LEN)) {
       raise_error(MEMORY_ERROR);
     } else {
- #if WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (new_size > stri_dest->capacity) {
         if (2 * stri_dest->capacity >= new_size) {
           newCapacity = 2 * stri_dest->capacity;
@@ -1584,7 +1587,8 @@ void strAppend (striType *const destination, const_striType extension)
       } /* if */
 #endif
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
 
@@ -1597,7 +1601,9 @@ void strAppendN (striType *const destination,
     memSizeType size_limit;
     memSizeType pos;
     memSizeType new_size;
+#if WITH_STRI_CAPACITY
     memSizeType newCapacity;
+#endif
     striType new_stri;
     strElemType *dest;
     memSizeType elem_size;
@@ -1696,7 +1702,8 @@ void strAppendN (striType *const destination,
       *destination = new_stri;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppendN */
 
 #endif
@@ -1754,7 +1761,8 @@ void strAppendNoOverlap (striType *const restrict destination,
       *destination = new_stri;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppendNoOverlap */
 
 
@@ -1780,7 +1788,7 @@ void strAppendChMult (striType *const destination, const charType ch,
       } /* if */
     } else if (unlikely(stri_dest->size >
                         MAX_STRI_LEN - (memSizeType) factor)) {
-      /* number of bytes does not fit into memSizeType */
+      /* The number of bytes does not fit into memSizeType. */
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + (memSizeType) factor;
@@ -1836,7 +1844,7 @@ void strAppendZeroMult (striType *const destination, const intType factor)
       raise_error(RANGE_ERROR);
     } else if (unlikely(stri_dest->size >
                         MAX_STRI_LEN - (memSizeType) factor)) {
-      /* number of bytes does not fit into memSizeType */
+      /* The number of bytes does not fit into memSizeType. */
       raise_error(MEMORY_ERROR);
     } else if (factor != 0) {
       new_size = stri_dest->size + (memSizeType) factor;
@@ -1937,13 +1945,16 @@ void strAppendTemp (striType *const restrict destination,
       FREE_STRI(extension);
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strAppendTemp */
 
 
 
 /**
  *  Replace all occurrences of char 'searched' in 'mainStri' by 'replacement'.
+ *  This function is used by the compiler to do a string replace if
+ *  'searched' and 'replacement' are single characters.
  *  @return the result of the replacement.
  */
 striType strChChRepl (const const_striType mainStri,
@@ -1956,6 +1967,11 @@ striType strChChRepl (const const_striType mainStri,
     striType result;
 
   /* strChChRepl */
+    logFunction(printf("strChChRepl(\"%s\", '\\" FMT_U32 ";', '\\"
+                                    FMT_U32 ";')",
+                       striAsUnquotedCStri(mainStri),
+                       searched, replacement);
+                fflush(stdout););
     main_size = mainStri->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, main_size))) {
       raise_error(MEMORY_ERROR);
@@ -1969,6 +1985,7 @@ striType strChChRepl (const const_striType mainStri,
         result->mem[pos] = ch;
       } /* for */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strChChRepl */
 
@@ -2000,8 +2017,8 @@ intType strChIPos (const const_striType mainStri, const charType searched,
           mainStri->size - (memSizeType) startIndex);
       if (found_pos != NULL) {
         logFunction(printf("strChIPos --> " FMT_D "\n",
-                           ((intType) (found_pos - main_mem)) + 1););
-        return ((intType) (found_pos - main_mem)) + 1;
+                           (intType) (found_pos - main_mem) + 1););
+        return (intType) (found_pos - main_mem) + 1;
       } /* if */
     } else if (unlikely(fromIndex <= 0)) {
       logError(printf("strChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D "): "
@@ -2046,6 +2063,8 @@ striType strChMult (const charType ch, const intType factor)
         memset_to_strelem(result->mem, ch, (memSizeType) factor);
       } /* if */
     } /* if */
+    logFunction(printf("strChMult --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strChMult */
 
@@ -2064,18 +2083,19 @@ intType strChPos (const const_striType mainStri, const charType searched)
     const strElemType *found_pos;
 
   /* strChPos */
-    logFunction(printf("strChPos(\"%s\", '\\" FMT_U32 ";')\n",
-                       striAsUnquotedCStri(mainStri), searched););
+    logFunction(printf("strChPos(\"%s\", '\\" FMT_U32 ";')",
+                       striAsUnquotedCStri(mainStri), searched);
+                fflush(stdout););
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
       found_pos = memchr_strelem(main_mem, searched, mainStri->size);
       if (found_pos != NULL) {
-        logFunction(printf("strChPos --> " FMT_D "\n",
-                           ((intType) (found_pos - main_mem)) + 1););
-        return ((intType) (found_pos - main_mem)) + 1;
+        logFunctionResult(printf(FMT_D "\n",
+                                 (intType) (found_pos - main_mem) + 1););
+        return (intType) (found_pos - main_mem) + 1;
       } /* if */
     } /* if */
-    logFunction(printf("strChPos --> 0\n"););
+    logFunctionResult(printf("0\n"););
     return 0;
   } /* strChPos */
 
@@ -2083,6 +2103,8 @@ intType strChPos (const const_striType mainStri, const charType searched)
 
 /**
  *  Replace all occurrences of char 'searched' in 'mainStri' by 'replacement'.
+ *  This function is used by the compiler to do a string replace if
+ *  'searched' is a single character.
  *  @return the result of the replacement.
  */
 striType strChRepl (const const_striType mainStri,
@@ -2101,11 +2123,17 @@ striType strChRepl (const const_striType mainStri,
     striType result;
 
   /* strChRepl */
+    logFunction(printf("strChRepl(\"%s\", '\\" FMT_U32 ";', ",
+                       striAsUnquotedCStri(mainStri), searched);
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(replacement)););
     main_size = mainStri->size;
-    /* printf("main_size=" FMT_U_MEM ", replacement->size=" FMT_U_MEM "\n",
-        main_size, replacement->size); */
+    logMessage(printf("strChRepl: main_size=" FMT_U_MEM
+                      ", replacement->size=" FMT_U_MEM "\n",
+                      main_size, replacement->size););
     if (replacement->size > 1) {
       if (unlikely(main_size > MAX_STRI_LEN / replacement->size)) {
+        /* The computation of guessed_result_size would overflow. */
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -2152,6 +2180,8 @@ striType strChRepl (const const_striType mainStri,
         result->size = result_size;
       } /* if */
     } /* if */
+    logFunction(printf("strChRepl --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strChRepl */
 
@@ -2219,7 +2249,7 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
 
 
 
-striType strCLit (const const_striType stri)
+striType strCLiteral (const const_striType stri)
 
   {
     /* A string literal starts and ends with double quotes ("): */
@@ -2233,8 +2263,8 @@ striType strCLit (const const_striType stri)
     striType resized_literal;
     striType literal;
 
-  /* strCLit */
-    logFunction(printf("strCLit(\"%s\")\n", striAsUnquotedCStri(stri)););
+  /* strCLiteral */
+    logFunction(printf("strCLiteral(\"%s\")\n", striAsUnquotedCStri(stri)););
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
                  !ALLOC_STRI_SIZE_OK(literal, escSequenceMax * striSize + numOfQuotes))) {
@@ -2304,7 +2334,7 @@ striType strCLit (const const_striType stri)
           pos += 4;
         } else {
           FREE_STRI2(literal, escSequenceMax * striSize + numOfQuotes);
-          logError(printf("strCLit(\"%s\"): Character > '\\255;' found.\n",
+          logError(printf("strCLiteral(\"%s\"): Character > '\\255;' found.\n",
                           striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
           return NULL;
@@ -2323,8 +2353,10 @@ striType strCLit (const const_striType stri)
         literal = resized_literal;
       } /* if */
     } /* if */
+    logFunction(printf("strCLiteral --> \"%s\"\n",
+                       striAsUnquotedCStri(literal)););
     return literal;
-  } /* strCLit */
+  } /* strCLiteral */
 
 
 
@@ -2381,20 +2413,18 @@ intType strCompare (const const_striType stri1, const const_striType stri2)
 
 
 /**
- *  Reinterpret the generic parameters as striType and call strCompare.
+ *  Take the striValue from the parameters and call strCompare().
  *  Function pointers in C programs generated by the Seed7 compiler
- *  may point to this function. This assures correct behaviour even
- *  if sizeof(genericType) != sizeof(striType).
+ *  may point to this function.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-intType strCmpGeneric (const genericType value1, const genericType value2)
+intType strCmpValue (const rtlValueUnion value1, const rtlValueUnion value2)
 
-  { /* strCmpGeneric */
-    return strCompare(((const_rtlObjectType *) &value1)->value.striValue,
-                      ((const_rtlObjectType *) &value2)->value.striValue);
-  } /* strCmpGeneric */
+  { /* strCmpValue */
+    return strCompare(value1.striValue, value2.striValue);
+  } /* strCmpValue */
 
 
 
@@ -2479,7 +2509,7 @@ striType strConcatCharTemp (striType stri1, const charType aChar)
     /* Incrementing a string size cannot overflow. */
     result_size = stri1->size + 1;
     if (unlikely(result_size > MAX_STRI_LEN)) {
-      /* number of bytes does not fit into memSizeType */
+      /* The number of bytes does not fit into memSizeType. */
       FREE_STRI(stri1);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
@@ -2589,7 +2619,7 @@ striType strConcatTemp (striType restrict stri1,
                 printf("\"%s\")", striAsUnquotedCStri(stri2));
                 fflush(stdout););
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
-      /* number of bytes does not fit into memSizeType */
+      /* The number of bytes does not fit into memSizeType. */
       FREE_STRI(stri1);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
@@ -2696,17 +2726,15 @@ void strCopy (striType *const dest, const const_striType source)
 
 
 /**
- *  Reinterpret the generic parameters as striType and call strCopy.
+ *  Take the striValue from the parameters and call strCopy().
  *  Function pointers in C programs generated by the Seed7 compiler
- *  may point to this function. This assures correct behaviour even
- *  if sizeof(genericType) != sizeof(striType).
+ *  may point to this function.
  */
-void strCpyGeneric (genericType *const dest, const genericType source)
+void strCpyValue (rtlValueUnion *const dest, const rtlValueUnion source)
 
-  { /* strCpyGeneric */
-    strCopy(&((rtlObjectType *) dest)->value.striValue,
-            ((const_rtlObjectType *) &source)->value.striValue);
-  } /* strCpyGeneric */
+  { /* strCpyValue */
+    strCopy(&dest->striValue, source.striValue);
+  } /* strCpyValue */
 
 
 
@@ -2742,22 +2770,20 @@ striType strCreate (const const_striType source)
 
 
 /**
- *  Generic Create function to be used via function pointers.
+ *  Create striValue function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
- *  may point to this function. This assures correct behaviour even
- *  if sizeof(genericType) != sizeof(striType).
+ *  may point to this function.
  */
-genericType strCreateGeneric (const genericType source)
+rtlValueUnion strCreateValue (const rtlValueUnion source)
 
   {
-    rtlObjectType result;
+    rtlValueUnion result;
 
-  /* strCreateGeneric */
-    INIT_GENERIC_PTR(result.value.genericValue);
-    result.value.striValue =
-        strCreate(((const_rtlObjectType *) &source)->value.striValue);
-    return result.value.genericValue;
-  } /* strCreateGeneric */
+  /* strCreateValue */
+    INIT_VALUE_PTR(result);
+    result.striValue = strCreate(source.striValue);
+    return result;
+  } /* strCreateValue */
 
 
 
@@ -2778,16 +2804,15 @@ void strDestr (const const_striType old_string)
 
 
 /**
- *  Generic Destr function to be used via function pointers.
+ *  Take the striValue from the parameter and call strDestr().
  *  Function pointers in C programs generated by the Seed7 compiler
- *  may point to this function. This assures correct behaviour even
- *  if sizeof(genericType) != sizeof(striType).
+ *  may point to this function.
  */
-void strDestrGeneric (const genericType old_value)
+void strDestrValue (const rtlValueUnion old_value)
 
-  { /* strDestrGeneric */
-    strDestr(((const_rtlObjectType *) &old_value)->value.striValue);
-  } /* strDestrGeneric */
+  { /* strDestrValue */
+    strDestr(old_value.striValue);
+  } /* strDestrValue */
 
 
 
@@ -2812,7 +2837,8 @@ striType strEmpty (void)
     } else {
       result->size = 0;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri((striType) result)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri((striType) result)););
     return (striType) result;
   } /* strEmpty */
 
@@ -2922,16 +2948,15 @@ intType strHashCode (const const_striType stri)
 
 
 /**
- *  Generic hashCode function to be used via function pointers.
+ *  Take the striValue from the parameter and call strHashCode().
  *  Function pointers in C programs generated by the Seed7 compiler
- *  may point to this function. This assures correct behaviour even
- *  if sizeof(genericType) != sizeof(striType).
+ *  may point to this function.
  */
-intType strHashCodeGeneric (const genericType aValue)
+intType strHashCodeValue (const rtlValueUnion aValue)
 
-  { /* strHashCodeGeneric */
-    return strHashCode(((const_rtlObjectType *) &aValue)->value.striValue);
-  } /* strHashCodeGeneric */
+  { /* strHashCodeValue */
+    return strHashCode(aValue.striValue);
+  } /* strHashCodeValue */
 
 
 
@@ -2949,9 +2974,8 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
     memSizeType striSize;
 
   /* strHeadSlice */
-    logFunction(printf("strHeadSlice(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), stop);
-                fflush(stdout););
+    logFunction(printf("strHeadSlice(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), stop););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadSlice: Stop negative."););
       raise_error(INDEX_ERROR);
@@ -2965,7 +2989,8 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
         slice->size = (memSizeType) stop;
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunction(printf("strHeadSlice --> \"%s\"\n",
+                       striAsUnquotedCStri(slice)););
   } /* strHeadSlice */
 
 #endif
@@ -2987,9 +3012,8 @@ striType strHead (const const_striType stri, const intType stop)
     striType head;
 
   /* strHead */
-    logFunction(printf("strHead(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), stop);
-                fflush(stdout););
+    logFunction(printf("strHead(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), stop););
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       if (striSize <= (uintType) stop) {
@@ -3017,7 +3041,8 @@ striType strHead (const const_striType stri, const intType stop)
       } /* if */
       head = (striType) emptyStri;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
+    logFunction(printf("strHead --> \"%s\"\n",
+                       striAsUnquotedCStri(head)););
     return head;
   } /* strHead */
 
@@ -3041,9 +3066,8 @@ striType strHeadAssign (const striType stri, const intType stop)
     striType head;
 
   /* strHeadAssign */
-    logFunction(printf("strHeadAssign(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), stop);
-                fflush(stdout););
+    logFunction(printf("strHeadAssign(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), stop););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadAssign: Stop negative."););
       /* We keep stri intact to avoid a heap corruption. */
@@ -3057,7 +3081,8 @@ striType strHeadAssign (const striType stri, const intType stop)
       striSize = stri->size;
       if (stop >= 1 && striSize >= 1) {
         if (striSize <= (uintType) stop) {
-          logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
+          logFunctionResult(printf("\"%s\"\n",
+                                   striAsUnquotedCStri(stri)););
           return stri;
         } else {
           headSize = (memSizeType) stop;
@@ -3088,7 +3113,8 @@ striType strHeadAssign (const striType stri, const intType stop)
 #endif
       head->size = headSize;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
+    logFunction(printf("strHeadAssign --> \"%s\"\n",
+                       striAsUnquotedCStri(head)););
     return head;
   } /* strHeadAssign */
 
@@ -3111,9 +3137,8 @@ striType strHeadTemp (const striType stri, const intType stop)
     striType head;
 
   /* strHeadTemp */
-    logFunction(printf("strHeadTemp(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), stop);
-                fflush(stdout););
+    logFunction(printf("strHeadTemp(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), stop););
     if (unlikely(stop < 0)) {
       logError(printf("strHeadTemp: Stop negative."););
       FREE_STRI(stri);
@@ -3127,7 +3152,8 @@ striType strHeadTemp (const striType stri, const intType stop)
       striSize = stri->size;
       if (stop >= 1 && striSize >= 1) {
         if (striSize <= (uintType) stop) {
-          logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri)););
+          logFunctionResult(printf("\"%s\"\n",
+                                   striAsUnquotedCStri(stri)););
           return stri;
         } else {
           headSize = (memSizeType) stop;
@@ -3158,7 +3184,8 @@ striType strHeadTemp (const striType stri, const intType stop)
 #endif
       head->size = headSize;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(head)););
+    logFunction(printf("strHead --> \"%s\"\n",
+                       striAsUnquotedCStri(head)););
     return head;
   } /* strHeadTemp */
 
@@ -3327,7 +3354,7 @@ boolType strLe (const const_striType stri1, const const_striType stri2)
 
 
 
-striType strLit (const const_striType stri)
+striType strLiteral (const const_striType stri)
 
   {
     /* A string literal starts and ends with double quotes ("): */
@@ -3341,7 +3368,9 @@ striType strLit (const const_striType stri)
     striType resized_literal;
     striType literal;
 
-  /* strLit */
+  /* strLiteral */
+    logFunction(printf("strLiteral(\"%s\")", striAsUnquotedCStri(stri));
+                fflush(stdout););
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / ESC_SEQUENCE_MAX_LEN ||
                  !ALLOC_STRI_SIZE_OK(literal, ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes))) {
@@ -3412,8 +3441,10 @@ striType strLit (const const_striType stri)
         literal = resized_literal;
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(literal)););
     return literal;
-  } /* strLit */
+  } /* strLiteral */
 
 
 
@@ -3486,6 +3517,9 @@ striType strLpad (const const_striType stri, const intType padSize)
     striType result;
 
   /* strLpad */
+    logFunction(printf("strLpad(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), padSize);
+                fflush(stdout););
     striSize = stri->size;
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
@@ -3517,6 +3551,7 @@ striType strLpad (const const_striType stri, const intType padSize)
         memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpad */
 
@@ -3535,6 +3570,9 @@ striType strLpadTemp (const striType stri, const intType padSize)
     striType result;
 
   /* strLpadTemp */
+    logFunction(printf("strLpadTemp(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), padSize);
+                fflush(stdout););
     striSize = stri->size;
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
@@ -3563,6 +3601,7 @@ striType strLpadTemp (const striType stri, const intType padSize)
     } else {
       result = stri;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpadTemp */
 
@@ -3591,8 +3630,9 @@ striType strLpad0 (const const_striType stri, const intType padSize)
     striType result;
 
   /* strLpad0 */
-    logFunction(printf("strLpad0(\"%s\", " FMT_D ")\n",
-                       striAsUnquotedCStri(stri), padSize););
+    logFunction(printf("strLpad0(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), padSize);
+                fflush(stdout););
     striSize = stri->size;
     sourceElem = stri->mem;
     if (padSize >= (intType) striSize) {
@@ -3630,9 +3670,7 @@ striType strLpad0 (const const_striType stri, const intType padSize)
         memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       } /* if */
     } /* if */
-    logFunction(printf("strLpad0(\"%s\", " FMT_D ") --> ",
-                       striAsUnquotedCStri(stri), padSize);
-                printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpad0 */
 
@@ -3659,8 +3697,9 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     striType result;
 
   /* strLpad0Temp */
-    logFunction(printf("strLpad0Temp(\"%s\", " FMT_D ")\n",
-                       striAsUnquotedCStri(stri), padSize););
+    logFunction(printf("strLpad0Temp(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), padSize);
+                fflush(stdout););
     striSize = stri->size;
     sourceElem = stri->mem;
     if (padSize >= (intType) striSize) {
@@ -3700,9 +3739,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     } else {
       result = stri;
     } /* if */
-    logFunction(printf("strLpad0Temp(\"%s\", " FMT_D ") --> ",
-                       striAsUnquotedCStri(stri), padSize);
-                printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strLpad0Temp */
 
@@ -3738,6 +3775,9 @@ striType strLtrim (const const_striType stri)
     striType result;
 
   /* strLtrim */
+    logFunction(printf("strLtrim(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     striSize = stri->size;
     if (striSize >= 1) {
       while (start < striSize && stri->mem[start] <= ' ') {
@@ -3747,12 +3787,12 @@ striType strLtrim (const const_striType stri)
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = striSize;
       memcpy(result->mem, &stri->mem[start], striSize * sizeof(strElemType));
-      return result;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
   } /* strLtrim */
 
 
@@ -3823,6 +3863,8 @@ striType strMult (const const_striType stri, const intType factor)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("strMult --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strMult */
 
@@ -3977,7 +4019,7 @@ void strPrependChar (striType *const destination, const charType aChar)
     striType stri_new;
 
   /* strPrependChar */
-    logFunction(printf("strPrependChar(\"%s\", '\\" FMT_U32 ";')\n",
+    logFunction(printf("strPrependChar(\"%s\", '\\" FMT_U32 ";')",
                        striAsUnquotedCStri(*destination), aChar);
                 fflush(stdout););
     stri_dest = *destination;
@@ -4022,7 +4064,8 @@ void strPrependChar (striType *const destination, const charType aChar)
       *destination = stri_new;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strPrependChar */
 
 
@@ -4039,7 +4082,7 @@ void strPush (striType *const destination, const charType extension)
     striType stri_dest;
 
   /* strPush */
-    logFunction(printf("strPush(\"%s\", '\\" FMT_U32 ";')\n",
+    logFunction(printf("strPush(\"%s\", '\\" FMT_U32 ";')",
                        striAsUnquotedCStri(*destination), extension);
                 fflush(stdout););
     stri_dest = *destination;
@@ -4066,7 +4109,8 @@ void strPush (striType *const destination, const charType extension)
       *destination = stri_dest;
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+    logFunctionResult(printf("\"%s\"\n",
+                             striAsUnquotedCStri(*destination)););
   } /* strPush */
 
 
@@ -4086,9 +4130,8 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
     memSizeType striSize;
 
   /* strRangeSlice */
-    logFunction(printf("strRangeSlice(\"%s\", " FMT_D ", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start, stop);
-                fflush(stdout););
+    logFunction(printf("strRangeSlice(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, stop););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       logError(printf("strRangeSlice: Start negative or zero."););
@@ -4108,7 +4151,8 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
       SET_SLICE_CAPACITY(slice, 0);
       SET_SLICE_EMPTY(slice);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunction(printf("strRangeSlice --> \"%s\"\n",
+                       striAsUnquotedCStri(slice)););
   } /* strRangeSlice */
 
 #endif
@@ -4131,6 +4175,8 @@ striType strRange (const const_striType stri, intType start, intType stop)
     striType result;
 
   /* strRange */
+    logFunction(printf("strRange(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, stop););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       logError(printf("strRange: Start negative or zero."););
@@ -4169,6 +4215,8 @@ striType strRange (const const_striType stri, intType start, intType stop)
       } /* if */
       result = (striType) emptyStri;
     } /* if */
+    logFunction(printf("strRange --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strRange */
 
@@ -4205,8 +4253,8 @@ intType strRChIPos (const const_striType mainStri, const charType searched,
               (memSizeType) fromIndex);
           if (found_pos != NULL) {
             logFunction(printf("strRChIPos --> " FMT_D "\n",
-                               ((intType) (found_pos - main_mem)) + 1););
-            return ((intType) (found_pos - main_mem)) + 1;
+                               (intType) (found_pos - main_mem) + 1););
+            return (intType) (found_pos - main_mem) + 1;
           } /* if */
         } /* if */
       } /* if */
@@ -4230,19 +4278,20 @@ intType strRChPos (const const_striType mainStri, const charType searched)
     const strElemType *found_pos;
 
   /* strRChPos */
-    logFunction(printf("strRChPos(\"%s\", '\\" FMT_U32 ";')\n",
-                       striAsUnquotedCStri(mainStri), searched););
+    logFunction(printf("strRChPos(\"%s\", '\\" FMT_U32 ";')",
+                       striAsUnquotedCStri(mainStri), searched);
+                fflush(stdout););
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
       found_pos = rsearch_strelem(&main_mem[mainStri->size - 1], searched,
           mainStri->size);
       if (found_pos != NULL) {
-        logFunction(printf("strRChPos --> " FMT_D "\n",
-                           ((intType) (found_pos - main_mem)) + 1););
-        return ((intType) (found_pos - main_mem)) + 1;
+        logFunctionResult(printf(FMT_D "\n",
+                                 (intType) (found_pos - main_mem) + 1););
+        return (intType) (found_pos - main_mem) + 1;
       } /* if */
     } /* if */
-    logFunction(printf("strRChPos --> 0\n"););
+    logFunctionResult(printf("0\n"););
     return 0;
   } /* strRChPos */
 
@@ -4351,13 +4400,20 @@ striType strRepl (const const_striType mainStri,
     striType result;
 
   /* strRepl */
+    logFunction(printf("strRepl(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\", ", striAsUnquotedCStri(searched));
+                printf("\"%s\")", striAsUnquotedCStri(replacement));
+                fflush(stdout););
     main_size = mainStri->size;
     searched_size = searched->size;
-    /* printf("main_size=" FMT_U_MEM ", searched_size=" FMT_U_MEM
-        ", replacement->size=" FMT_U_MEM "\n",
-        main_size, searched_size, replacement->size); */
+    logMessage(printf("strRepl: main_size=" FMT_U_MEM
+                      ", searched_size=" FMT_U_MEM
+                      ", replacement->size=" FMT_U_MEM "\n",
+                      main_size, searched_size, replacement->size););
     if (searched_size != 0 && replacement->size > searched_size) {
       if (unlikely(main_size / searched_size + 1 > MAX_STRI_LEN / replacement->size)) {
+        /* The computation of guessed_result_size would overflow. */
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -4416,6 +4472,7 @@ striType strRepl (const const_striType mainStri,
         result->size = result_size;
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strRepl */
 
@@ -4571,6 +4628,9 @@ striType strRpad (const const_striType stri, const intType padSize)
     striType result;
 
   /* strRpad */
+    logFunction(printf("strRpad(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), padSize);
+                fflush(stdout););
     striSize = stri->size;
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
@@ -4597,6 +4657,7 @@ striType strRpad (const const_striType stri, const intType padSize)
       result->size = striSize;
       memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strRpad */
 
@@ -4732,18 +4793,21 @@ striType strRtrim (const const_striType stri)
     striType result;
 
   /* strRtrim */
+    logFunction(printf("strRtrim(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     striSize = stri->size;
     while (striSize > 0 && stri->mem[striSize - 1] <= ' ') {
       striSize--;
     } /* while */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = striSize;
       memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
-      return result;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
   } /* strRtrim */
 
 
@@ -4846,9 +4910,8 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
     memSizeType striSize;
 
   /* strSubstrSlice */
-    logFunction(printf("strSubstrSlice(\"%s\", " FMT_D ", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start, length);
-                fflush(stdout););
+    logFunction(printf("strSubstrSlice(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, length););
     if (unlikely(start < 1 || length < 0)) {
       logError(printf("strSubstrSlice: Start negative or zero or length negative."););
       raise_error(INDEX_ERROR);
@@ -4866,7 +4929,8 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
         SET_SLICE_EMPTY(slice);
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunction(printf("strSubstrSlice --> \"%s\"\n",
+                       striAsUnquotedCStri(slice)););
   } /* strSubstrSlice */
 
 #endif
@@ -4889,6 +4953,8 @@ striType strSubstr (const const_striType stri, intType start, intType length)
     striType result;
 
   /* strSubstr */
+    logFunction(printf("strSubstr(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, length););
     if (unlikely(start < 1 || length < 0)) {
       logError(printf("strSubstr: Start negative or zero or length negative."););
       raise_error(INDEX_ERROR);
@@ -4919,6 +4985,8 @@ striType strSubstr (const const_striType stri, intType start, intType length)
         result = (striType) emptyStri;
       } /* if */
     } /* if */
+    logFunction(printf("strSubstr --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strSubstr */
 
@@ -4940,9 +5008,8 @@ void strSubstrFixLenSlice (const const_striType stri, intType start, intType len
     memSizeType striSize;
 
   /* strSubstrFixLenSlice */
-    logFunction(printf("strSubstrFixLenSlice(\"%s\", " FMT_D ", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start, length);
-                fflush(stdout););
+    logFunction(printf("strSubstrFixLenSlice(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, length););
     striSize = stri->size;
     if (unlikely(start < 1 || length < 0 ||
                  (uintType) start > striSize ||
@@ -4956,7 +5023,8 @@ void strSubstrFixLenSlice (const const_striType stri, intType start, intType len
       slice->mem = &stri->mem[start - 1];
       slice->size = (memSizeType) length;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunction(printf("strSubstrFixLenSlice --> \"%s\"\n",
+                       striAsUnquotedCStri(slice)););
   } /* strSubstrFixLenSlice */
 
 #endif
@@ -4979,9 +5047,8 @@ striType strSubstrFixLen (const const_striType stri, intType start, intType leng
     striType result;
 
   /* strSubstrFixLen */
-    logFunction(printf("strSubstrFixLen(\"%s\", " FMT_D ", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start, length);
-                fflush(stdout););
+    logFunction(printf("strSubstrFixLen(\"%s\", " FMT_D ", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start, length););
     striSize = stri->size;
     if (unlikely(start < 1 || length < 0 ||
                  (uintType) start > striSize ||
@@ -4998,7 +5065,8 @@ striType strSubstrFixLen (const const_striType stri, intType start, intType leng
              (memSizeType) length * sizeof(strElemType));
       result->size = (memSizeType) length;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunction(printf("strSubstrFixLen --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strSubstrFixLen */
 
@@ -5018,9 +5086,8 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
     memSizeType striSize;
 
   /* strTailSlice */
-    logFunction(printf("strTailSlice(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start);
-                fflush(stdout););
+    logFunction(printf("strTailSlice(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       logError(printf("strTailSlice: Start negative or zero."););
@@ -5033,7 +5100,8 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
       SET_SLICE_CAPACITY(slice, 0);
       SET_SLICE_EMPTY(slice);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+    logFunctionResult(printf("strTailSlice --> \"%s\"\n",
+                             striAsUnquotedCStri(slice)););
   } /* strTailSlice */
 
 #endif
@@ -5055,6 +5123,8 @@ striType strTail (const const_striType stri, intType start)
     striType tail;
 
   /* strTail */
+    logFunction(printf("strTail(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start););
     striSize = stri->size;
     if (unlikely(start < 1)) {
       logError(printf("strTail: Start negative or zero."););
@@ -5085,6 +5155,8 @@ striType strTail (const const_striType stri, intType start)
       } /* if */
       tail = (striType) emptyStri;
     } /* if */
+    logFunction(printf("strTail --> \"%s\"\n",
+                       striAsUnquotedCStri(tail)););
     return tail;
   } /* strTail */
 
@@ -5109,9 +5181,8 @@ striType strTailAssign (const striType stri, intType start)
     striType tail;
 
   /* strTailAssign */
-    logFunction(printf("strTailAssign(\"%s\", " FMT_D ")",
-                       striAsUnquotedCStri(stri), start);
-                fflush(stdout););
+    logFunction(printf("strTailAssign(\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), start););
     if (start <= 1) {
       if (unlikely(start < 1)) {
         logError(printf("strTailAssign: Start negative or zero."););
@@ -5151,7 +5222,8 @@ striType strTailAssign (const striType stri, intType start)
 #endif
       tail->size = tailSize;
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(tail)););
+    logFunction(printf("strTailAssign --> \"%s\"\n",
+                       striAsUnquotedCStri(tail)););
     return tail;
   } /* strTailAssign */
 
@@ -5175,6 +5247,9 @@ striType strToUtf8 (const const_striType stri)
     striType result;
 
   /* strToUtf8 */
+    logFunction(printf("strToUtf8(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
     if (unlikely(stri->size > MAX_STRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
                  !ALLOC_STRI_SIZE_OK(result, max_utf8_size(stri->size)))) {
       raise_error(MEMORY_ERROR);
@@ -5228,6 +5303,7 @@ striType strToUtf8 (const const_striType stri)
         result->size = result_size;
       } /* if */
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strToUtf8 */
 
@@ -5246,6 +5322,10 @@ striType strTrim (const const_striType stri)
     striType result;
 
   /* strTrim */
+    logFunction(printf("strTrim(\"%s\")",
+                       striAsUnquotedCStri(stri));
+                fflush(stdout););
+    striSize = stri->size;
     striSize = stri->size;
     if (striSize >= 1) {
       while (start < striSize && stri->mem[start] <= ' ') {
@@ -5258,12 +5338,12 @@ striType strTrim (const const_striType stri)
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = striSize;
       memcpy(result->mem, &stri->mem[start], striSize * sizeof(strElemType));
-      return result;
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
   } /* strTrim */
 
 
@@ -5355,5 +5435,7 @@ striType strZero (const intType factor)
         memset(result->mem, 0, (memSizeType) factor * sizeof(strElemType));
       } /* if */
     } /* if */
+    logFunction(printf("strZero --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strZero */

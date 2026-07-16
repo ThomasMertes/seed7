@@ -46,14 +46,53 @@ const func string: toBase64 (in string: byteStri) is func
     var string: base64 is "";
   local
     const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    const integer: newlineDelta is 57;
+    var integer: index is 1;
+    var integer: destIndex is 1;
+    var integer: remainingChars is 0;
+    var integer: threeBytes is 0;
+  begin
+    base64 := "\0;" mult (length(byteStri) + 2) div 3 * 4;
+    for index range 1 to length(byteStri) - 2 step 3 do
+      threeBytes := bytes2Int(byteStri[index fixLen 3], UNSIGNED, BE);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      base64 @:= [destIndex + 3]   coding[succ( threeBytes        mod 64)];
+      destIndex +:= 4;
+    end for;
+    remainingChars := length(byteStri) rem 3;
+    if remainingChars <> 0 then
+      index := succ(length(byteStri) - remainingChars);
+      threeBytes := bytes2Int(byteStri[index ..], UNSIGNED, BE) *
+                    256 ** (3  - remainingChars);
+      base64 @:= [destIndex]       coding[succ( threeBytes >> 18)];
+      base64 @:= [succ(destIndex)] coding[succ((threeBytes >> 12) mod 64)];
+      base64 @:= [destIndex + 2]   coding[succ((threeBytes >>  6) mod 64)];
+      index := length(base64);
+      if remainingChars = 2 then
+        base64 @:= [index] '=';
+      elsif remainingChars = 1 then
+        base64 @:= [pred(index)] "==";
+      end if;
+    end if;
+  end func;
+
+
+const func string: toBase64 (in string: byteStri, in integer: lineLength) is func
+  result
+    var string: base64 is "";
+  local
+    const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var integer: newlineDelta is 0;
+    var integer: posToAddNewline is 0;
     var integer: base64Length is 0;
     var integer: index is 1;
     var integer: destIndex is 1;
     var integer: remainingChars is 0;
     var integer: threeBytes is 0;
-    var integer: posToAddNewline is succ(newlineDelta);
   begin
+    newlineDelta := lineLength div 4 * 3;
+    posToAddNewline := succ(newlineDelta);
     base64Length := (length(byteStri) + 2) div 3 * 4;
     base64Length +:= pred(length(byteStri)) div newlineDelta;  # Add space for newlines
     base64 := "\0;" mult base64Length;
@@ -93,7 +132,39 @@ const func string: toBase64 (in string: byteStri) is func
 
 
 (**
+ *  Encode a string with the Base64 encoding used by MIME.
+ *  The Base64 encoding of MIME uses a line length of 76.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '+' and '/'.
+ *  @return the Base64 encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase64Mime (in string: byteStri) is
+    return toBase64(byteStri, 76);
+
+
+(**
+ *  Encode a string with the Base64 encoding used by PEM.
+ *  The Base64 encoding of PEM uses a line length of 64.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '+' and '/'.
+ *  @return the Base64 encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase64Pem (in string: byteStri) is
+    return toBase64(byteStri, 64);
+
+
+(**
  *  Decode a Base64 encoded string.
+ *  The encodings of toBase64(), toBase64Mime() and toBase64Pem()
+ *  can be decoded with this function.
  *  @param base64 Base64 encoded string without leading or trailing
  *         whitespace characters.
  *  @return the decoded string.
@@ -309,13 +380,13 @@ const func string: toQuotedPrintable (in string: byteStri) is func
               quoted &:= "=\n";
               counter := 1;
             end if;
-            quoted &:= "=" <& ord(byteStri[pred(index)]) RADIX 16 lpad0 2;
+            quoted &:= "=" <& ord(ch) RADIX 16 lpad0 2;
             counter +:= 3;
             startPos := index;
           end if;
         end if;
         counter := 1;
-      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\9;') then
+      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\t') then
         quoted &:= byteStri[startPos .. pred(index)];
         if counter >= 74 then
           quoted &:= "=\n";

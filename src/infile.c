@@ -232,7 +232,15 @@ boolType openInfile (const_striType sourceFileName,
                        write_library_names, write_line_numbers,
                        *err_info););
     os_path = cp_to_os_path(sourceFileName, &path_info, err_info);
-    if (likely(os_path != NULL)) {
+    if (unlikely(os_path == NULL)) {
+      logError(printf("openInfile: "
+                      "cp_to_os_path(\"%s\", %d, %d) failed:\n",
+                      striAsUnquotedCStri(sourceFileName),
+                      path_info, *err_info););
+    } else {
+      logMessage(printf("openInfile: "
+                        "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                        os_path, os_mode_rb););
       in_fil = os_fopen(os_path, os_mode_rb);
       if (unlikely(in_fil == NULL)) {
         logError(printf("openInfile: "

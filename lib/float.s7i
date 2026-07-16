@@ -34,7 +34,7 @@ include "enable_io.s7i";
 (**
  *  Double precision floating point numbers.
  *)
-const type: float is          subtype object;
+const type: float          is subtype object;
 
 
 $ system "float" is float;

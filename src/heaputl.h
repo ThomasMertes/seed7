@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  heaputl.h     Functions for heap allocation and maintenance.    */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2008, 2010, 2011, 2013  Thomas Mertes      */
+/*                2015, 2019, 2022, 2025, 2026  Thomas Mertes       */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,11 +25,11 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/heaputl.h                                       */
-/*  Changes: 1992 - 1994, 2008, 2010, 2011  Thomas Mertes           */
+/*  Changes: 2008, 2010, 2011, 2013, 2015, 2019  Thomas Mertes      */
+/*           2022, 2025, 2026  Thomas Mertes                        */
 /*  Content: Functions for heap allocation and maintenance.         */
 /*                                                                  */
 /********************************************************************/
-
 
 #if DO_HEAP_STATISTIC
 typedef struct {
@@ -67,6 +68,7 @@ typedef struct {
     unsigned long block;
     unsigned long loclist;
     unsigned long infil;
+    unsigned long name_cache;
     unsigned long parseError;
     unsigned long prog;
     unsigned long polldata;
@@ -78,6 +80,7 @@ typedef struct {
     memSizeType fetch_data_bytes;
     unsigned long sql_func;
     unsigned long files;
+    unsigned long sockets;
     unsigned long win;
     memSizeType win_bytes;
     unsigned long process;
@@ -94,13 +97,14 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif
 
 extern size_t sizeof_pollRecord;
 extern size_t sizeof_processRecord;
+extern size_t sizeof_nameCacheEntryRecord;
 #endif
 
 #if DO_HEAP_STATISTIC || DO_HEAPSIZE_COMPUTATION || DO_HEAP_CHECK
@@ -618,14 +622,6 @@ EXTERN unsigned int sflist_allowed;
 #define COUNT3_TABLE(tp,nr1,nr2)    CNT3(CNT2_BYT(SIZ_TAB(tp, nr1)), CNT1_BYT(SIZ_TAB(tp, nr2)))
 
 
-void setupStack (memSizeType stackSize);
-boolType resizeCatchStackOkay (void);
-void resize_catch_stack (void);
-void no_memory (const_cstriType source_file, int source_line);
-#if CHECK_STACK
-boolType checkStack (boolType inLogMacro);
-memSizeType getMaxStackSize (void);
-#endif
 #if WITH_STRI_CAPACITY
 striType growStri (striType stri, memSizeType len);
 striType shrinkStri (striType stri, memSizeType len);
@@ -633,6 +629,7 @@ striType shrinkStri (striType stri, memSizeType len);
 #if DO_HEAP_CHECK
 void check_heap (long, const char *, unsigned int);
 #endif
+NORETURN void no_memory (const_cstriType source_file, int source_line);
 #if !DO_HEAP_STATISTIC
 void heapStatistic (void);
 #endif

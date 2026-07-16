@@ -175,6 +175,10 @@
 #define CC_OPT_OPTIMIZE_3 "-O3"
 #endif
 
+#ifndef REDIRECT_FILEDES_0
+#define REDIRECT_FILEDES_0 "<"
+#endif
+
 #ifndef REDIRECT_FILEDES_1
 #define REDIRECT_FILEDES_1 ">"
 #endif

@@ -90,7 +90,7 @@ typedef enum {
 
 typedef struct {
     os_socketType fd;
-    genericType file;
+    rtlValueUnion file;
   } fdAndFileType;
 
 typedef struct {
@@ -370,8 +370,8 @@ static boolType replaceFdSet (testType *test, memSizeType capacity)
 
 
 
-static void addCheck (testType *test, const socketType aSocket,
-    const genericType fileObj)
+static void addCheck (testType *test, const socketNumberType aSocket,
+    const rtlValueUnion fileObj)
 
   {
     memSizeType pos;
@@ -391,7 +391,7 @@ static void addCheck (testType *test, const socketType aSocket,
       return;
     } /* if */
 #endif
-    pos = (memSizeType) hshIdxEnterDefault(test->indexHash,
+    pos = (memSizeType) hshIdxEnterGeneric(test->indexHash,
         (genericType) (usocketType) aSocket, (genericType) test->size,
         (intType) aSocket);
     if (pos == test->size) {
@@ -417,6 +417,8 @@ static void addCheck (testType *test, const socketType aSocket,
       } /* if */
       test->size++;
       test->files[pos].fd = (os_socketType) aSocket;
+      logMessage(printf("addCheck: incrUsageCount(" FMT_U_GEN ")\n",
+                         fileObj.genericValue););
       test->files[pos].file = fileObjectOps.incrUsageCount(fileObj);
 #if USE_PREPARED_FD_SET
       FD_SET((os_socketType) aSocket, to_inFdset(test));
@@ -431,27 +433,29 @@ static void addCheck (testType *test, const socketType aSocket,
 
 
 
-static void removeCheck (testType *test, const socketType aSocket)
+static void removeCheck (testType *test, const socketNumberType aSocket)
 
   {
     memSizeType pos;
 
   /* removeCheck */
     /* printf("removeCheck(..., %u)\n", aSocket); */
-    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+    pos = (memSizeType) hshIdxWithDefaultGeneric(test->indexHash,
         (genericType) (usocketType) aSocket, (genericType) test->size,
-        (intType) aSocket, (compareType) &genericCmp);
+        (intType) aSocket);
     if (pos != test->size) {
+      logMessage(printf("removeCheck: decrUsageCount(" FMT_U_GEN ")\n",
+                        test->files[pos].file.genericValue););
       fileObjectOps.decrUsageCount(test->files[pos].file);
       if (pos + 1 <= test->iterPos) {
         test->iterPos--;
         if (pos < test->iterPos) {
           memcpy(&test->files[pos],
                  &test->files[test->iterPos], sizeof(fdAndFileType));
-          hshIdxAddr(test->indexHash,
-                     (genericType) (usocketType) test->files[pos].fd,
-                     (intType) (socketType) test->files[pos].fd,
-                     (compareType) &genericCmp)->value.genericValue = (genericType) pos;
+          hshSetGeneric(test->indexHash,
+                        (genericType) (usocketType) test->files[pos].fd,
+                        (intType) (socketNumberType) test->files[pos].fd,
+                        (genericType) pos);
           pos = test->iterPos;
         } /* if */
       } /* if */
@@ -459,14 +463,14 @@ static void removeCheck (testType *test, const socketType aSocket)
       if (pos < test->size) {
         memcpy(&test->files[pos],
                &test->files[test->size], sizeof(fdAndFileType));
-        hshIdxAddr(test->indexHash,
-                   (genericType) (usocketType) test->files[pos].fd,
-                   (intType) (socketType) test->files[pos].fd,
-                   (compareType) &genericCmp)->value.genericValue = (genericType) pos;
+        hshSetGeneric(test->indexHash,
+                      (genericType) (usocketType) test->files[pos].fd,
+                      (intType) (socketNumberType) test->files[pos].fd,
+                      (genericType) pos);
       } /* if */
-      hshExcl(test->indexHash, (genericType) (usocketType) aSocket,
-              (intType) aSocket, (compareType) &genericCmp,
-              (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
+      hshExclGeneric(test->indexHash,
+                     (genericType) (usocketType) aSocket,
+                     (intType) aSocket);
 #if USE_PREPARED_FD_SET
       FD_CLR((os_socketType) aSocket, to_inFdset(test));
 #endif
@@ -548,16 +552,16 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
 
 
 
-static boolType isChecked (const testType *test, const socketType aSocket)
+static boolType isChecked (const testType *test, const socketNumberType aSocket)
 
   {
     memSizeType pos;
     boolType result;
 
   /* isChecked */
-    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+    pos = (memSizeType) hshIdxWithDefaultGeneric(test->indexHash,
         (genericType) (usocketType) aSocket, (genericType) test->size,
-        (intType) aSocket, (compareType) &genericCmp);
+        (intType) aSocket);
     result = pos != test->size;
     /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
         aSocket, pos, test->files[pos].fd); */
@@ -566,16 +570,16 @@ static boolType isChecked (const testType *test, const socketType aSocket)
 
 
 
-static boolType isReady (const testType *test, const socketType aSocket)
+static boolType isReady (const testType *test, const socketNumberType aSocket)
 
   {
     memSizeType pos;
     boolType result;
 
   /* isReady */
-    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+    pos = (memSizeType) hshIdxWithDefaultGeneric(test->indexHash,
         (genericType) (usocketType) aSocket, (genericType) test->size,
-        (intType) aSocket, (compareType) &genericCmp);
+        (intType) aSocket);
     if (pos == test->size) {
       result = FALSE;
     } else {
@@ -622,12 +626,12 @@ static boolType hasNextFinding (testType *test, memSizeType iterEvents)
 
 
 
-static genericType nextCheck (testType *test,
-    const genericType nullFile)
+static rtlValueUnion nextCheck (testType *test,
+    const rtlValueUnion nullFile)
 
   {
     memSizeType pos;
-    genericType checkFile;
+    rtlValueUnion checkFile;
 
   /* nextCheck */
     pos = test->iterPos;
@@ -645,13 +649,13 @@ static genericType nextCheck (testType *test,
 
 
 
-static genericType nextFinding (testType *test,
-    memSizeType *iterEvents, const genericType nullFile)
+static rtlValueUnion nextFinding (testType *test,
+    memSizeType *iterEvents, const rtlValueUnion nullFile)
 
   {
     memSizeType pos;
     fd_set *fdSet;
-    genericType resultFile;
+    rtlValueUnion resultFile;
 
   /* nextFinding */
     if (*iterEvents == 0) {
@@ -699,24 +703,41 @@ static genericType nextFinding (testType *test,
  *  @exception FILE_ERROR A limit of the operating system was reached.
  */
 void polAddCheck (const pollType pollData, const socketType aSocket,
-    intType eventsToCheck, const genericType fileObj)
+    intType eventsToCheck, const rtlValueUnion fileObj)
 
   { /* polAddCheck */
-    switch (castIntTypeForSwitch(eventsToCheck)) {
-      case POLL_IN:
-        addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
-        break;
-      case POLL_OUT:
-        addCheck(&var_conv(pollData)->writeTest, aSocket, fileObj);
-        break;
-      case POLL_INOUT:
-        addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
-        addCheck(&var_conv(pollData)->writeTest, aSocket, fileObj);
-        break;
-      default:
-        raise_error(RANGE_ERROR);
-        break;
-    } /* switch */
+    logFunction(printf("polAddCheck(" FMT_U_MEM ", %d, " FMT_X ", "
+                       FMT_U_GEN ")\n",
+                       (memSizeType) pollData,
+                       aSocket != NULL ? aSocket->socketNumber : 0,
+                       eventsToCheck, fileObj.genericValue););
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("polAddCheck(" FMT_U_MEM ", %d, " FMT_X ", "
+                      FMT_U_GEN "): Attempt to use a closed socket.\n",
+                      (memSizeType) pollData, aSocket->socketNumber,
+                      eventsToCheck, fileObj.genericValue););
+      raise_error(FILE_ERROR);
+    } else {
+      switch (castIntTypeForSwitch(eventsToCheck)) {
+        case POLL_IN:
+          addCheck(&var_conv(pollData)->readTest,
+                   aSocket->socketNumber, fileObj);
+          break;
+        case POLL_OUT:
+          addCheck(&var_conv(pollData)->writeTest,
+                   aSocket->socketNumber, fileObj);
+          break;
+        case POLL_INOUT:
+          addCheck(&var_conv(pollData)->readTest,
+                   aSocket->socketNumber, fileObj);
+          addCheck(&var_conv(pollData)->writeTest,
+                   aSocket->socketNumber, fileObj);
+          break;
+        default:
+          raise_error(RANGE_ERROR);
+          break;
+      } /* switch */
+    } /* if */
   } /* polAddCheck */
 
 
@@ -745,21 +766,25 @@ void polClear (const pollType pollData)
     FD_ZERO(to_write_outFdset(pollData));
     /* Clear readTest */
     for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+      logMessage(printf("polClear: decrUsageCount(" FMT_U_GEN ")\n",
+                        conv(pollData)->readTest.files[pos].file.genericValue););
       fileObjectOps.decrUsageCount(conv(pollData)->readTest.files[pos].file);
     } /* for */
     var_conv(pollData)->readTest.size = 0;
     var_conv(pollData)->readTest.iterPos = 0;
-    hshDestr(conv(pollData)->readTest.indexHash, (destrFuncType) &genericDestr,
-             (destrFuncType) &genericDestr);
+    hshDestr(conv(pollData)->readTest.indexHash, (destrFuncType) &valueDestr,
+             (destrFuncType) &valueDestr);
     var_conv(pollData)->readTest.indexHash = hshEmpty();
     /* Clear writeTest */
     for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      logMessage(printf("polClear: decrUsageCount(" FMT_U_GEN ")\n",
+                        conv(pollData)->writeTest.files[pos].file.genericValue););
       fileObjectOps.decrUsageCount(conv(pollData)->writeTest.files[pos].file);
     } /* for */
     var_conv(pollData)->writeTest.size = 0;
     var_conv(pollData)->writeTest.iterPos = 0;
-    hshDestr(conv(pollData)->writeTest.indexHash, (destrFuncType) &genericDestr,
-             (destrFuncType) &genericDestr);
+    hshDestr(conv(pollData)->writeTest.indexHash, (destrFuncType) &valueDestr,
+             (destrFuncType) &valueDestr);
     var_conv(pollData)->writeTest.indexHash = hshEmpty();
     var_conv(pollData)->iteratorMode = ITER_EMPTY;
     var_conv(pollData)->iterEvents = 0;
@@ -796,11 +821,11 @@ void polCpy (const pollType dest, const const_pollType source)
                        (memSizeType) dest, (memSizeType) source););
     if (dest != source) {
       newReadIndexHash = hshCreate(conv(source)->readTest.indexHash,
-          (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
-          (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
+          (createFuncType) &valueCreate, (destrFuncType) &valueDestr,
+          (createFuncType) &valueCreate, (destrFuncType) &valueDestr);
       newWriteIndexHash = hshCreate(conv(source)->writeTest.indexHash,
-          (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
-          (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
+          (createFuncType) &valueCreate, (destrFuncType) &valueDestr,
+          (createFuncType) &valueCreate, (destrFuncType) &valueDestr);
       if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -863,8 +888,8 @@ void polCpy (const pollType dest, const const_pollType source)
         pollData->readTest.size = conv(source)->readTest.size;
         pollData->readTest.files = newReadFiles;
         pollData->readTest.iterPos = conv(source)->readTest.iterPos;
-        hshDestr(pollData->readTest.indexHash, (destrFuncType) &genericDestr,
-                 (destrFuncType) &genericDestr);
+        hshDestr(pollData->readTest.indexHash, (destrFuncType) &valueDestr,
+                 (destrFuncType) &valueDestr);
         pollData->readTest.indexHash = newReadIndexHash;
 #if USE_PREPARED_FD_SET
         copyFdSet(to_var_write_inFdset(pollData), to_write_inFdset(source),
@@ -878,26 +903,34 @@ void polCpy (const pollType dest, const const_pollType source)
         pollData->writeTest.size = conv(source)->writeTest.size;
         pollData->writeTest.files = newWriteFiles;
         pollData->writeTest.iterPos = conv(source)->writeTest.iterPos;
-        hshDestr(pollData->writeTest.indexHash, (destrFuncType) &genericDestr,
-                 (destrFuncType) &genericDestr);
+        hshDestr(pollData->writeTest.indexHash, (destrFuncType) &valueDestr,
+                 (destrFuncType) &valueDestr);
         pollData->writeTest.indexHash = newWriteIndexHash;
         pollData->iteratorMode = conv(source)->iteratorMode;
         pollData->iterEvents = conv(source)->iterEvents;
         pollData->numOfEvents = conv(source)->numOfEvents;
         for (pos = 0; pos < conv(source)->readTest.size; pos++) {
           newReadFiles[pos].fd = conv(source)->readTest.files[pos].fd;
+          logMessage(printf("polCpy: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->readTest.files[pos].file.genericValue););
           newReadFiles[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->readTest.files[pos].file);
         } /* for */
         for (pos = 0; pos < conv(source)->writeTest.size; pos++) {
           newWriteFiles[pos].fd = conv(source)->writeTest.files[pos].fd;
+          logMessage(printf("polCpy: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->writeTest.files[pos].file.genericValue););
           newWriteFiles[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->writeTest.files[pos].file);
         } /* for */
         for (pos = 0; pos < oldReadFilesSize; pos++) {
+          logMessage(printf("polCpy: decrUsageCount(" FMT_U_GEN ")\n",
+                            oldReadFiles[pos].file.genericValue););
           fileObjectOps.decrUsageCount(oldReadFiles[pos].file);
         } /* for */
         for (pos = 0; pos < oldWriteFilesSize; pos++) {
+          logMessage(printf("polCpy: decrUsageCount(" FMT_U_GEN ")\n",
+                            oldWriteFiles[pos].file.genericValue););
           fileObjectOps.decrUsageCount(oldWriteFiles[pos].file);
         } /* for */
         FREE_TABLE(oldReadFiles, fdAndFileType, oldReadFilesCapacity);
@@ -929,11 +962,11 @@ pollType polCreate (const const_pollType source)
     logFunction(printf("polCreate(" FMT_U_MEM ")\n",
                        (memSizeType) source););
     newReadIndexHash = hshCreate(conv(source)->readTest.indexHash,
-        (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
-        (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
+        (createFuncType) &valueCreate, (destrFuncType) &valueDestr,
+        (createFuncType) &valueCreate, (destrFuncType) &valueDestr);
     newWriteIndexHash = hshCreate(conv(source)->writeTest.indexHash,
-        (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
-        (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
+        (createFuncType) &valueCreate, (destrFuncType) &valueDestr,
+        (createFuncType) &valueCreate, (destrFuncType) &valueDestr);
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
                  !ALLOC_RECORD(result, select_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
@@ -970,6 +1003,8 @@ pollType polCreate (const const_pollType source)
         result->readTest.iterPos = conv(source)->readTest.iterPos;
         for (pos = 0; pos < conv(source)->readTest.size; pos++) {
           result->readTest.files[pos].fd = conv(source)->readTest.files[pos].fd;
+          logMessage(printf("polCreate: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->readTest.files[pos].file.genericValue););
           result->readTest.files[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->readTest.files[pos].file);
         } /* for */
@@ -988,6 +1023,8 @@ pollType polCreate (const const_pollType source)
         result->writeTest.iterPos = conv(source)->writeTest.iterPos;
         for (pos = 0; pos < conv(source)->writeTest.size; pos++) {
           result->writeTest.files[pos].fd = conv(source)->writeTest.files[pos].fd;
+          logMessage(printf("polCreate: incrUsageCount(" FMT_U_GEN ")\n",
+                            conv(source)->writeTest.files[pos].file.genericValue););
           result->writeTest.files[pos].file =
               fileObjectOps.incrUsageCount(conv(source)->writeTest.files[pos].file);
         } /* for */
@@ -1019,6 +1056,8 @@ void polDestr (const pollType oldPollData)
     if (oldPollData != NULL) {
       /* Free readTest */
       for (pos = 0; pos < conv(oldPollData)->readTest.size; pos++) {
+        logMessage(printf("polDestr: decrUsageCount(" FMT_U_GEN ")\n",
+                          conv(oldPollData)->readTest.files[pos].file.genericValue););
         fileObjectOps.decrUsageCount(conv(oldPollData)->readTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->readTest.capacity;
@@ -1029,10 +1068,12 @@ void polDestr (const pollType oldPollData)
       FREE_FDSET(conv(oldPollData)->readTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->readTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->readTest.indexHash, (destrFuncType) &genericDestr,
-               (destrFuncType) &genericDestr);
+      hshDestr(conv(oldPollData)->readTest.indexHash, (destrFuncType) &valueDestr,
+               (destrFuncType) &valueDestr);
       /* Free writeTest */
       for (pos = 0; pos < conv(oldPollData)->writeTest.size; pos++) {
+        logMessage(printf("polDestr: decrUsageCount(" FMT_U_GEN ")\n",
+                          conv(oldPollData)->writeTest.files[pos].file.genericValue););
         fileObjectOps.decrUsageCount(conv(oldPollData)->writeTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->writeTest.capacity;
@@ -1043,8 +1084,8 @@ void polDestr (const pollType oldPollData)
       FREE_FDSET(conv(oldPollData)->writeTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrFuncType) &genericDestr,
-               (destrFuncType) &genericDestr);
+      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrFuncType) &valueDestr,
+               (destrFuncType) &valueDestr);
       FREE_RECORD(var_conv(oldPollData), select_based_pollRecord, count.polldata);
     } /* if */
   } /* polDestr */
@@ -1139,16 +1180,31 @@ intType polGetCheck (const const_pollType pollData, const socketType aSocket)
     intType result;
 
   /* polGetCheck */
-    if (isChecked(&conv(pollData)->readTest, aSocket)) {
-      if (isChecked(&conv(pollData)->writeTest, aSocket)) {
-        result = POLL_INOUT;
-      } else {
-        result = POLL_IN;
-      } /* if */
-    } else if (isChecked(&conv(pollData)->writeTest, aSocket)) {
-      result = POLL_OUT;
+    logFunction(printf("polGetCheck(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) pollData,
+                       aSocket != NULL ?
+                           aSocket->socketNumber : 0););
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("polGetCheck(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) pollData,
+                       aSocket->socketNumber););
+      raise_error(FILE_ERROR);
+      result = 0;
     } else {
-      result = POLL_NOTHING;
+      if (isChecked(&conv(pollData)->readTest,
+                          aSocket->socketNumber)) {
+        if (isChecked(&conv(pollData)->writeTest,
+                      aSocket->socketNumber)) {
+          result = POLL_INOUT;
+        } else {
+          result = POLL_IN;
+        } /* if */
+      } else if (isChecked(&conv(pollData)->writeTest,
+                           aSocket->socketNumber)) {
+        result = POLL_OUT;
+      } else {
+        result = POLL_NOTHING;
+      } /* if */
     } /* if */
     return result;
   } /* polGetCheck */
@@ -1174,16 +1230,31 @@ intType polGetFinding (const const_pollType pollData, const socketType aSocket)
     intType result;
 
   /* polGetFinding */
-    if (isReady(&conv(pollData)->readTest, aSocket)) {
-      if (isReady(&conv(pollData)->writeTest, aSocket)) {
-        result = POLL_INOUT;
-      } else {
-        result = POLL_IN;
-      } /* if */
-    } else if (isReady(&conv(pollData)->writeTest, aSocket)) {
-      result = POLL_OUT;
+    logFunction(printf("polGetFinding(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) pollData,
+                       aSocket != NULL ?
+                           aSocket->socketNumber : 0););
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("polGetFinding(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) pollData,
+                       aSocket->socketNumber););
+      raise_error(FILE_ERROR);
+      result = 0;
     } else {
-      result = POLL_NOTHING;
+      if (isReady(&conv(pollData)->readTest,
+                  aSocket->socketNumber)) {
+        if (isReady(&conv(pollData)->writeTest,
+                    aSocket->socketNumber)) {
+          result = POLL_INOUT;
+        } else {
+          result = POLL_IN;
+        } /* if */
+      } else if (isReady(&conv(pollData)->writeTest,
+                         aSocket->socketNumber)) {
+        result = POLL_OUT;
+      } else {
+        result = POLL_NOTHING;
+      } /* if */
     } /* if */
     return result;
   } /* polGetFinding */
@@ -1315,10 +1386,10 @@ void polIterFindings (const pollType pollData, intType pollMode)
  *  @return the next file from the 'pollData' iterator, or
  *          STD_NULL if no file from the 'pollData' iterator is available.
  */
-genericType polNextFile (const pollType pollData, const genericType nullFile)
+rtlValueUnion polNextFile (const pollType pollData, const rtlValueUnion nullFile)
 
   {
-    genericType nextFile;
+    rtlValueUnion nextFile;
 
   /* polNextFile */
     switch (conv(pollData)->iteratorMode) {
@@ -1400,19 +1471,34 @@ void polPoll (const pollType pollData)
     intType eventsToCheck)
 
   { /* polRemoveCheck */
-    switch (castIntTypeForSwitch(eventsToCheck)) {
-      case POLL_IN:
-        removeCheck(&var_conv(pollData)->readTest, aSocket);
-        break;
-      case POLL_OUT:
-        removeCheck(&var_conv(pollData)->writeTest, aSocket);
-        break;
-      case POLL_INOUT:
-        removeCheck(&var_conv(pollData)->readTest, aSocket);
-        removeCheck(&var_conv(pollData)->writeTest, aSocket);
-        break;
-      default:
-        raise_error(RANGE_ERROR);
-        break;
-    } /* switch */
+    logFunction(printf("polRemoveCheck(" FMT_U_MEM ", %d, " FMT_X ")\n",
+                       (memSizeType) pollData,
+                       aSocket != NULL ? aSocket->socketNumber : 0,
+                       eventsToCheck););
+    if (unlikely(aSocket->socketNumber == EMPTY_SOCKET)) {
+      logError(printf("polRemoveCheck(" FMT_U_MEM ", %d, " FMT_X ")\n",
+                       (memSizeType) pollData, aSocket->socketNumber,
+                       eventsToCheck););
+      raise_error(FILE_ERROR);
+    } else {
+      switch (castIntTypeForSwitch(eventsToCheck)) {
+        case POLL_IN:
+          removeCheck(&var_conv(pollData)->readTest,
+                      aSocket->socketNumber);
+          break;
+        case POLL_OUT:
+          removeCheck(&var_conv(pollData)->writeTest,
+                      aSocket->socketNumber);
+          break;
+        case POLL_INOUT:
+          removeCheck(&var_conv(pollData)->readTest,
+                      aSocket->socketNumber);
+          removeCheck(&var_conv(pollData)->writeTest,
+                      aSocket->socketNumber);
+          break;
+        default:
+          raise_error(RANGE_ERROR);
+          break;
+      } /* switch */
+    } /* if */
   } /* polRemoveCheck */

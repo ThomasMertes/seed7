@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -35,6 +38,7 @@
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "soc_rtl.h"
 
@@ -153,13 +157,52 @@ objectType soc_cpy (listType arguments)
 
   {
     objectType dest;
+    objectType source;
+    socketType socketSource;
+    socketType oldSocket;
 
   /* soc_cpy */
     dest = arg_1(arguments);
+    source = arg_3(arguments);
     isit_socket(dest);
+    isit_socket(source);
     is_variable(dest);
-    isit_socket(arg_3(arguments));
-    dest->value.socketValue = take_socket(arg_3(arguments));
+    socketSource = take_socket(source);
+    oldSocket = take_socket(dest);
+    logFunction(printf("soc_cpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldSocket,
+                       oldSocket == NULL ? "NULL " : "",
+                       oldSocket != NULL ? oldSocket->socketNumber : -2,
+                       oldSocket != NULL ? oldSocket->usage_count : (uintType) 0,
+                       (memSizeType) socketSource,
+                       socketSource == NULL ? "NULL " : "",
+                       socketSource != NULL ? socketSource->socketNumber : -2,
+                       socketSource != NULL ? socketSource->usage_count : (uintType) 0););
+    if (TEMP_OBJECT(source)) {
+      source->value.socketValue = NULL;
+    } else {
+      if (socketSource != NULL && socketSource->usage_count != 0) {
+        socketSource->usage_count++;
+      } /* if */
+    } /* if */
+    if (oldSocket != NULL && oldSocket->usage_count != 0) {
+      oldSocket->usage_count--;
+      if (oldSocket->usage_count == 0) {
+        socFree(oldSocket);
+      } /* if */
+    } /* if */
+    dest->value.socketValue = socketSource;
+    logFunction(printf("soc_cpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) socketSource,
+                       socketSource == NULL ? "NULL " : "",
+                       socketSource != NULL ? socketSource->socketNumber : -2,
+                       socketSource != NULL ? socketSource->usage_count : (uintType) 0,
+                       (memSizeType) socketSource,
+                       socketSource == NULL ? "NULL " : "",
+                       socketSource != NULL ? socketSource->socketNumber : -2,
+                       socketSource != NULL ? socketSource->usage_count : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* soc_cpy */
 
@@ -173,19 +216,72 @@ objectType soc_cpy (listType arguments)
  */
 objectType soc_create (listType arguments)
 
-  { /* soc_create */
-    isit_socket(arg_3(arguments));
+  {
+    objectType source;
+    socketType socketSource;
+
+  /* soc_create */
+    source = arg_3(arguments);
+    isit_socket(source);
+    socketSource = take_socket(source);
+    logFunction(printf("soc_create(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) socketSource,
+                       socketSource == NULL ? "NULL " : "",
+                       socketSource != NULL ? socketSource->socketNumber : -2,
+                       socketSource != NULL ? socketSource->usage_count : (uintType) 0););
     SET_CATEGORY_OF_OBJ(arg_1(arguments), SOCKETOBJECT);
-    arg_1(arguments)->value.socketValue = take_socket(arg_3(arguments));
+    arg_1(arguments)->value.socketValue = socketSource;
+    if (TEMP_OBJECT(source)) {
+      source->value.socketValue = NULL;
+    } else {
+      if (socketSource != NULL && socketSource->usage_count != 0) {
+        socketSource->usage_count++;
+      } /* if */
+    } /* if */
+    logFunction(printf("soc_create --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) socketSource,
+                       socketSource == NULL ? "NULL " : "",
+                       socketSource != NULL ? socketSource->socketNumber : -2,
+                       socketSource != NULL ? socketSource->usage_count : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* soc_create */
+
+
+
+objectType soc_destr (listType arguments)
+
+  {
+    socketType oldSocket;
+
+  /* soc_destr */
+    isit_socket(arg_1(arguments));
+    oldSocket = take_socket(arg_1(arguments));
+    logFunction(printf("soc_destr(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldSocket,
+                       oldSocket == NULL ? "NULL " : "",
+                       oldSocket != NULL ? oldSocket->socketNumber : -2,
+                       oldSocket != NULL ? oldSocket->usage_count : (uintType) 0););
+    if (oldSocket != NULL && oldSocket->usage_count != 0) {
+      oldSocket->usage_count--;
+      if (oldSocket->usage_count == 0) {
+        socFree(oldSocket);
+      } /* if */
+      arg_1(arguments)->value.socketValue = NULL;
+    } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* soc_destr */
 
 
 
 objectType soc_empty (listType arguments)
 
   { /* soc_empty */
-    return bld_socket_temp((socketType) -1);
+    logFunction(printf("soc_empty --> " FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &emptySocketRecord,
+                       emptySocketRecord.socketNumber,
+                       emptySocketRecord.usage_count););
+    return bld_socket_temp(&emptySocketRecord);
   } /* soc_empty */
 
 
@@ -436,9 +532,18 @@ objectType soc_ne (listType arguments)
 
 objectType soc_ord (listType arguments)
 
-  { /* soc_ord */
+  {
+    socketType aSocket;
+
+  /* soc_ord */
     isit_socket(arg_1(arguments));
-    return bld_int_temp((intType) take_socket(arg_1(arguments)));
+    aSocket = take_socket(arg_1(arguments));
+    logFunction(printf("soc_ord(%d) --> %s" FMT_D "\n",
+                       aSocket != NULL ? aSocket->socketNumber : -2,
+                       aSocket == NULL ? "*NULL* " : "",
+                       (intType) (aSocket != NULL ?
+                                  aSocket->socketNumber : -2)););
+    return bld_int_temp((intType) aSocket->socketNumber);
   } /* soc_ord */
 
 
@@ -535,6 +640,38 @@ objectType soc_socket (listType arguments)
                   take_int(arg_2(arguments)),
                   take_int(arg_3(arguments))));
   } /* soc_socket */
+
+
+
+/**
+ *  Get 'PRIMITIVE_SOCKET' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'PRIMITIVE_SOCKET' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
+ *             category(aReference) <> SOCKETOBJECT holds.
+ */
+objectType soc_value (listType arguments)
+
+  {
+    objectType aReference;
+    socketType aSocket;
+
+  /* soc_value */
+    isit_reference(arg_1(arguments));
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != SOCKETOBJECT ||
+                 (aSocket = take_socket(aReference)) == NULL)) {
+      logError(printf("soc_value(");
+               trace1(aReference);
+               printf("): Not a legal SOCKETOBJECT.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      if (aSocket->usage_count != 0) {
+        aSocket->usage_count++;
+      } /* if */
+      return bld_socket_temp(aSocket);
+    } /* if */
+  } /* soc_value */
 
 
 

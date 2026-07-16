@@ -1476,11 +1476,20 @@ boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectT
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* arr_elem_initialisation */
+    logFunction(printf("arr_elem_initialisation(");
+                printtype(dest_type);
+                printf(", " FMT_U_MEM ", " FMT_U_MEM " ",
+                       (memSizeType) obj_to, (memSizeType) obj_from);
+                trace1(obj_from);
+                printf("\n"););
     obj_to->descriptor.property = NULL;
     INIT_VAR_EMBEDDED(obj_to, DECLAREDOBJECT);
     obj_to->type_of = dest_type;
     temp_flag_obj_from = TEMP_OBJECT(obj_from);
     CLEAR_TEMP_FLAG(obj_from);
+    if (temp_flag_obj_from) {
+      SET_TEMP2_FLAG(obj_from);
+    } /* if */
     do_create(obj_to, obj_from, &err_info);
     SET_ANY_FLAG(obj_from, temp_flag_obj_from);
     return err_info == OKAY_NO_ERROR;

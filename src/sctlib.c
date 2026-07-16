@@ -464,8 +464,7 @@ objectType sct_select (listType arguments)
                    printf("\n"););
         if (HAS_ENTITY(struct_pointer) &&
             GET_ENTITY(struct_pointer)->syobject == selector_syobject) {
-          if (TEMP_OBJECT(arg_1(arguments)) ||
-              TEMP_DYNAMIC_OBJECT(arg_1(arguments))) {
+          if (TEMP_OBJECT(arg_1(arguments))) {
             logMessage(printf("sct_select of TEMP_OBJECT\n");
                        printf("struct: ");
                        trace1(arg_1(arguments));

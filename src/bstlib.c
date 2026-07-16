@@ -360,19 +360,15 @@ objectType bst_eq (listType arguments)
 objectType bst_hashcode (listType arguments)
 
   {
-    bstriType bstri1;
-    intType result;
+    bstriType bstri;
 
   /* bst_hashcode */
+    logFunction(printf("bst_hashcode(");
+                trace1(arg_1(arguments));
+                printf(")\n"););
     isit_bstri(arg_1(arguments));
-    bstri1 = take_bstri(arg_1(arguments));
-    if (bstri1->size == 0) {
-      result = 0;
-    } else {
-      result = (intType) ((memSizeType) bstri1->mem[0] << 5 ^
-          bstri1->size << 3 ^ bstri1->mem[bstri1->size - 1]);
-    } /* if */
-    return bld_int_temp(result);
+    bstri = take_bstri(arg_1(arguments));
+    return bld_int_temp(bstringHashCode(bstri));
   } /* bst_hashcode */
 
 

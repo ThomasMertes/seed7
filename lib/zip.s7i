@@ -58,6 +58,8 @@ const string: ZIP_DATA_DESCRIPTOR_SIGNATURE              is "PK\7;\8;";
 const string: ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE   is "PK\6;\6;";
 const string: ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE is "PK\6;\7;";
 
+const string: ZIP_LEGACY_SIGNATURE                       is "PK00";
+
 const integer: ZIP_CENTRAL_HEADER_FIXED_SIZE             is 46;
 const integer: ZIP_LOCAL_HEADER_FIXED_SIZE               is 30;
 const integer: ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE   is 22;
@@ -1005,7 +1007,8 @@ const func fileSys: openZip (inout file: zipFile, in string: password) is func
       seek(zipFile, 1);
       magic := gets(zipFile, length(ZIP_LOCAL_HEADER_SIGNATURE));
       if magic = ZIP_LOCAL_HEADER_SIGNATURE or
-          magic = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+          magic = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE or
+          magic = ZIP_LEGACY_SIGNATURE then
         endOfCentralDir := readEndOfCentralDir(zipFile, endOfCentralDirPos);
         if endOfCentralDir.signature = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
           zip.zipFile := zipFile;

@@ -1926,103 +1926,98 @@ const proc: conv2unicode (inout string: stri, in string: codePage) is func
 
 
 (**
- *  Convert a [[string]] from a charset encoding to UTF-32.
+ *  Convert a [[string]] from ''charset'' encoding to UTF-32.
  *  When the function is called ''stri'' is assumed to be a [[string]]
- *  of bytes encoded with the specified charset. When the function
- *  is left ''stri'' contains an UTF-32 unicode [[string]]. The
- *  'charset' encoding is specified with an IANA/MIME charset name.
+ *  of bytes encoded with the specified ''charset''. When the function
+ *  is left ''stri'' contains an UTF-32 encoded unicode [[string]].
  *  This way the function can be used to convert encoded data for
- *  internet protocols such as NNTP.
- *  @exception RANGE_ERROR The charset unknown
+ *  internet protocols such as HTTP and NNTP.
+ *  @param stri The [[string]] that is converted.
+ *  @param charset Name of an IANA/MIME charset.
+ *  @exception RANGE_ERROR The ''charset'' is not supported or
+ *             the conversion failed.
  *)
 const proc: conv2unicodeByName (inout string: stri,
-    in var string: charset) is func
+    in string: charset) is func
   begin
-    charset := upper(charset);
-    if  charset = "UTF-8" or
-        charset = "UTF8" then
-      stri := fromUtf8(stri);
-    elsif charset = "ISO-8859-1" or
-          charset = "ISO_8859-1" or
-          charset = "ANSI_X3.4-1968" or
-          charset = "US-ASCII" or
-          charset = "ASCII" or
-          charset = "" then
-      noop;
-    elsif charset =     "ISO-8859-2" then
-      conv2unicode(stri, iso_8859_2);
-    elsif charset =     "ISO-8859-3" then
-      conv2unicode(stri, iso_8859_3);
-    elsif charset =     "ISO-8859-4" then
-      conv2unicode(stri, iso_8859_4);
-    elsif charset =     "ISO-8859-5" then
-      conv2unicode(stri, iso_8859_5);
-    elsif charset =     "ISO-8859-6" then
-      conv2unicode(stri, iso_8859_6);
-    elsif charset =     "ISO-8859-7" then
-      conv2unicode(stri, iso_8859_7);
-    elsif charset =     "ISO-8859-8" then
-      conv2unicode(stri, iso_8859_8);
-    elsif charset =     "ISO-8859-9" then
-      conv2unicode(stri, iso_8859_9);
-    elsif charset =     "ISO-8859-10" then
-      conv2unicode(stri, iso_8859_10);
-    elsif charset =     "ISO-8859-13" then
-      conv2unicode(stri, iso_8859_13);
-    elsif charset =     "ISO-8859-14" then
-      conv2unicode(stri, iso_8859_14);
-    elsif charset =     "ISO-8859-15" then
-      conv2unicode(stri, iso_8859_15);
-    elsif charset =     "ISO-8859-16" then
-      conv2unicode(stri, iso_8859_16);
-    elsif charset = "WINDOWS-1250" then
-      conv2unicode(stri,  cp_1250);
-    elsif charset = "WINDOWS-1251" then
-      conv2unicode(stri,  cp_1251);
-    elsif charset = "WINDOWS-1252" then
-      conv2unicode(stri,  cp_1252);
-    elsif charset = "WINDOWS-1253" then
-      conv2unicode(stri,  cp_1253);
-    elsif charset = "WINDOWS-1254" then
-      conv2unicode(stri,  cp_1254);
-    elsif charset = "WINDOWS-1255" then
-      conv2unicode(stri,  cp_1255);
-    elsif charset = "WINDOWS-1256" then
-      conv2unicode(stri,  cp_1256);
-    elsif charset = "WINDOWS-1257" then
-      conv2unicode(stri,  cp_1257);
-    elsif charset = "WINDOWS-1258" then
-      conv2unicode(stri,  cp_1258);
-    elsif charset =     "IBM437" or
-          charset =     "CP437" then
-      conv2unicode(stri, cp_437);
-    elsif charset =     "IBM850" or
-          charset =     "CP850" then
-      conv2unicode(stri, cp_850);
-    elsif charset =     "MACINTOSH" then
-      conv2unicode(stri, mac_os_roman);
-    elsif charset =     "KOI8-R" then
-      conv2unicode(stri, koi8_r);
-    elsif charset =     "KOI8-U" then
-      conv2unicode(stri, koi8_u);
-    elsif charset =     "TIS-620" then
-      conv2unicode(stri, tis_620);
-    elsif charset =     "ARMSCII-8" then
-      conv2unicode(stri, armscii_8);
-    elsif charset =     "GEOSTD8" then
-      conv2unicode(stri, geostd8);
-    elsif charset =     "VISCII" then
-      conv2unicode(stri, viscii);
-    elsif charset =     "NS_4551-1" then
-      conv2unicode(stri, ns_4551_1);
-    elsif charset =     "UTF-16BE" then
-      stri := fromUtf16Be(stri);
-    elsif charset =     "UTF-16LE" then
-      stri := fromUtf16Le(stri);
-    elsif charset =     "UTF-7" then
-      stri := fromUtf7(stri);
-    else
-      # writeln("Unknown charset: " <& literal(charset));
-      raise RANGE_ERROR;
-    end if;
+    case upper(charset) of
+      when {"UTF-8", "UTF8"}:
+        stri := fromUtf8(stri);
+      when {"ISO-8859-1", "ISO_8859-1", "ANSI_X3.4-1968",
+            "US-ASCII", "ASCII", ""}:
+        noop;
+      when {"ISO-8859-2"}:
+        conv2unicode(stri, iso_8859_2);
+      when {"ISO-8859-3"}:
+        conv2unicode(stri, iso_8859_3);
+      when {"ISO-8859-4"}:
+        conv2unicode(stri, iso_8859_4);
+      when {"ISO-8859-5"}:
+        conv2unicode(stri, iso_8859_5);
+      when {"ISO-8859-6"}:
+        conv2unicode(stri, iso_8859_6);
+      when {"ISO-8859-7"}:
+        conv2unicode(stri, iso_8859_7);
+      when {"ISO-8859-8"}:
+        conv2unicode(stri, iso_8859_8);
+      when {"ISO-8859-9"}:
+        conv2unicode(stri, iso_8859_9);
+      when {"ISO-8859-10"}:
+        conv2unicode(stri, iso_8859_10);
+      when {"ISO-8859-13"}:
+        conv2unicode(stri, iso_8859_13);
+      when {"ISO-8859-14"}:
+        conv2unicode(stri, iso_8859_14);
+      when {"ISO-8859-15"}:
+        conv2unicode(stri, iso_8859_15);
+      when {"ISO-8859-16"}:
+        conv2unicode(stri, iso_8859_16);
+      when {"WINDOWS-1250"}:
+        conv2unicode(stri, cp_1250);
+      when {"WINDOWS-1251"}:
+        conv2unicode(stri, cp_1251);
+      when {"WINDOWS-1252"}:
+        conv2unicode(stri, cp_1252);
+      when {"WINDOWS-1253"}:
+        conv2unicode(stri, cp_1253);
+      when {"WINDOWS-1254"}:
+        conv2unicode(stri, cp_1254);
+      when {"WINDOWS-1255"}:
+        conv2unicode(stri, cp_1255);
+      when {"WINDOWS-1256"}:
+        conv2unicode(stri, cp_1256);
+      when {"WINDOWS-1257"}:
+        conv2unicode(stri, cp_1257);
+      when {"WINDOWS-1258"}:
+        conv2unicode(stri, cp_1258);
+      when {"IBM437", "CP437"}:
+        conv2unicode(stri, cp_437);
+      when {"IBM850", "CP850"}:
+        conv2unicode(stri, cp_850);
+      when {"MACINTOSH"}:
+        conv2unicode(stri, mac_os_roman);
+      when {"KOI8-R"}:
+        conv2unicode(stri, koi8_r);
+      when {"KOI8-U"}:
+        conv2unicode(stri, koi8_u);
+      when {"TIS-620"}:
+        conv2unicode(stri, tis_620);
+      when {"ARMSCII-8"}:
+        conv2unicode(stri, armscii_8);
+      when {"GEOSTD8"}:
+        conv2unicode(stri, geostd8);
+      when {"VISCII"}:
+        conv2unicode(stri, viscii);
+      when {"NS_4551-1"}:
+        conv2unicode(stri, ns_4551_1);
+      when {"UTF-16BE"}:
+        stri := fromUtf16Be(stri);
+      when {"UTF-16LE"}:
+        stri := fromUtf16Le(stri);
+      when {"UTF-7"}:
+        stri := fromUtf7(stri);
+      otherwise:
+        # writeln("Unknown charset: " <& literal(charset));
+        raise RANGE_ERROR;
+    end case;
   end func;

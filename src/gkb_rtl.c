@@ -95,7 +95,7 @@ striType gkbGets (intType length)
  *  When the function is left terminationChar contains '\n' or EOF.
  *  @return the line read.
  */
-striType gkbLineRead (charType *terminationChar)
+striType gkbLineRead (charType *const terminationChar)
 
   {
     register charType ch;
@@ -157,7 +157,7 @@ striType gkbLineRead (charType *terminationChar)
  *  '\t', '\n' or EOF.
  *  @return the word read.
  */
-striType gkbWordRead (charType *terminationChar)
+striType gkbWordRead (charType *const terminationChar)
 
   {
     register charType ch;

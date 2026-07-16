@@ -565,12 +565,11 @@ objectType dcl_in1 (listType arguments)
     objectType created_object;
 
   /* dcl_in1 */
-    logFunction(printf("dcl_in1\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
-    /* printf("decl in1 ");
-       trace1(object_type->match_obj);
-       printf(":\n"); */
+    logFunction(printf("dcl_in1(");
+                printtype(object_type);
+                printf(")\n"););
     if (unlikely(object_type->in_param_type == PARAM_UNDEFINED)) {
       err_expr_type(KIND_OF_IN_PARAM_UNDEFINED, curr_exec_object, object_type);
       created_object = NULL;
@@ -616,22 +615,21 @@ objectType dcl_in2 (listType arguments)
     objectType created_object;
 
   /* dcl_in2 */
-    logFunction(printf("dcl_in2\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     decl_exec_object = curr_exec_object;
+    logFunction(printf("dcl_in2(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(")\n"););
     if (unlikely(object_type->in_param_type == PARAM_UNDEFINED)) {
       err_expr_type(KIND_OF_IN_PARAM_UNDEFINED, curr_exec_object, object_type);
       created_object = NULL;
     } else {
       grow_stack(&err_info);
       if (err_info == OKAY_NO_ERROR) {
-        /* printf("decl in2 ");
-           trace1(object_type->match_obj);
-           printf(": ");
-           trace1(name_expr);
-           printf(";\n"); */
         created_object = entername(prog->declaration_root, name_expr, &err_info);
         if (created_object != NULL && err_info == OKAY_NO_ERROR) {
           created_object->type_of = object_type;
@@ -677,12 +675,11 @@ objectType dcl_in1var (listType arguments)
     objectType created_object;
 
   /* dcl_in1var */
-    logFunction(printf("dcl_in1var\n"););
     isit_type(arg_3(arguments));
     object_type = take_type(arg_3(arguments));
-    /* printf("decl in1var ");
-       trace1(object_type->match_obj);
-       printf(":\n"); */
+    logFunction(printf("dcl_in1var(");
+                printtype(object_type);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       logFunction(printf("dcl_in1var --> MEMORY_ERROR\n"););
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -710,18 +707,17 @@ objectType dcl_in2var (listType arguments)
     objectType created_object;
 
   /* dcl_in2var */
-    logFunction(printf("dcl_in2var\n"););
     isit_type(arg_3(arguments));
     object_type = take_type(arg_3(arguments));
     name_expr = arg_5(arguments);
     decl_exec_object = curr_exec_object;
+    logFunction(printf("dcl_in2var(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      /* printf("decl in2var ");
-         trace1(object_type->match_obj);
-         printf(": ");
-         trace1(name_expr);
-         printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
@@ -750,12 +746,11 @@ objectType dcl_inout1 (listType arguments)
     objectType created_object;
 
   /* dcl_inout1 */
-    logFunction(printf("dcl_inout1\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
-    /* printf("decl inout1 ");
-       trace1(object_type->match_obj);
-       printf(":\n"); */
+    logFunction(printf("dcl_inout1(");
+                printtype(object_type);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       logFunction(printf("dcl_inout1 --> MEMORY_ERROR\n"););
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -783,18 +778,17 @@ objectType dcl_inout2 (listType arguments)
     objectType created_object;
 
   /* dcl_inout2 */
-    logFunction(printf("dcl_inout2\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     decl_exec_object = curr_exec_object;
+    logFunction(printf("dcl_inout2(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      /* printf("decl inout2 ");
-         trace1(object_type->match_obj);
-         printf(": ");
-         trace1(name_expr);
-         printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
@@ -825,16 +819,12 @@ objectType dcl_param_attr (listType arguments)
     objectType created_object;
 
   /* dcl_param_attr */
-    logFunction(printf("dcl_param_attr\n"););
     isit_param(arg_2(arguments));
     f_param_object = arg_2(arguments);
-    /* printf("decl param attr ");
-       trace1(f_param_object);
-       printf(":\n"); */
     param_object = take_param(f_param_object);
-    /* printf("decl param attr ");
-       trace1(param_object);
-       printf(":\n"); */
+    logFunction(printf("dcl_param_attr(");
+                trace1(param_object);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(param_object) == REFPARAMOBJECT && VAR_OBJECT(param_object)) {
       f_param_prototype = &param_object->type_of->inout_f_param_prototype;
     } else {
@@ -870,12 +860,11 @@ objectType dcl_ref1 (listType arguments)
     objectType created_object;
 
   /* dcl_ref1 */
-    logFunction(printf("dcl_ref1\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
-    /* printf("decl ref1 ");
-       trace1(object_type->match_obj);
-       printf(":\n"); */
+    logFunction(printf("dcl_ref1(");
+                printtype(object_type);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       logFunction(printf("dcl_ref1 --> MEMORY_ERROR\n"););
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -903,18 +892,17 @@ objectType dcl_ref2 (listType arguments)
     objectType created_object;
 
   /* dcl_ref2 */
-    logFunction(printf("dcl_ref2\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     decl_exec_object = curr_exec_object;
+    logFunction(printf("dcl_ref2(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      /* printf("decl ref2 ");
-         trace1(object_type->match_obj);
-         printf(": ");
-         trace1(name_expr);
-         printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
@@ -975,18 +963,17 @@ objectType dcl_syntax (listType arguments)
     tokenType token_list_end;
 
   /* dcl_syntax */
-    logFunction(printf("dcl_syntax\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     value_expr = arg_6(arguments);
-    /* printf("decl syntax ");
-       trace1(object_type->match_obj);
-       printf(": ");
-       trace1(name_expr);
-       printf(" is ");
-       trace1(value_expr);
-       printf("\n"); */
+    logFunction(printf("dcl_syntax(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(", ");
+                trace1(value_expr);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT) {
       assocPriority = take_reflist(value_expr);
       if (assocPriority == NULL) {
@@ -1066,12 +1053,11 @@ objectType dcl_val1 (listType arguments)
     objectType created_object;
 
   /* dcl_val1 */
-    logFunction(printf("dcl_val1\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
-    /* printf("decl val1 ");
-       trace1(object_type->match_obj);
-       printf(":\n"); */
+    logFunction(printf("dcl_val1(");
+                printtype(object_type);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       logFunction(printf("dcl_val1 --> MEMORY_ERROR\n"););
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -1099,18 +1085,17 @@ objectType dcl_val2 (listType arguments)
     objectType created_object;
 
   /* dcl_val2 */
-    logFunction(printf("dcl_val2\n"););
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     decl_exec_object = curr_exec_object;
+    logFunction(printf("dcl_val2(");
+                printtype(object_type);
+                printf(", ");
+                trace1(name_expr);
+                printf(")\n"););
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      /* printf("decl val2 ");
-         trace1(object_type->match_obj);
-         printf(": ");
-         trace1(name_expr);
-         printf(";\n"); */
       created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (created_object != NULL && err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;

@@ -430,16 +430,6 @@ objectType str_chsplit (listType arguments)
 
 
 
-objectType str_clit (listType arguments)
-
-  { /* str_clit */
-    isit_stri(arg_1(arguments));
-    return bld_stri_temp(
-        strCLit(take_stri(arg_1(arguments))));
-  } /* str_clit */
-
-
-
 /**
  *  Compare two strings.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -594,6 +584,16 @@ objectType str_create (listType arguments)
                              (memSizeType) take_stri(dest)););
     return SYS_EMPTY_OBJECT;
   } /* str_create */
+
+
+
+objectType str_c_literal (listType arguments)
+
+  { /* str_c_literal */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        strCLiteral(take_stri(arg_1(arguments))));
+  } /* str_c_literal */
 
 
 
@@ -1034,13 +1034,13 @@ objectType str_le (listType arguments)
 
 
 
-objectType str_lit (listType arguments)
+objectType str_literal (listType arguments)
 
-  { /* str_lit */
+  { /* str_literal */
     isit_stri(arg_1(arguments));
     return bld_stri_temp(
-        strLit(take_stri(arg_1(arguments))));
-  } /* str_lit */
+        strLiteral(take_stri(arg_1(arguments))));
+  } /* str_literal */
 
 
 

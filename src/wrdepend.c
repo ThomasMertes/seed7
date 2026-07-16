@@ -184,6 +184,7 @@ int main (int argc, char **argv)
       sprintf(command, "%s", c_compiler);
       checkForLevelH();
       curr_arg = argv[idx];
+      /* fprintf(stderr, "arg[%d]: \"%s\"\n", idx, curr_arg); */
       if (memcmp(curr_arg, "OPTION=", 7 * sizeof(char)) == 0 &&
           (curr_arg)[7] != '\0') {
         /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */

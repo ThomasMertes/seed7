@@ -147,10 +147,30 @@ const proc: check_clib_file is func
   end func;
 
 
+const func string: genTempClibFile (in string: nameSuffix) is func
+  result
+    var string: testFileName is "";
+  local
+    var clib_file: aFile is clib_file.value;
+  begin
+    repeat
+      testFileName := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                      nameSuffix;
+    until fileType(testFileName) = FILE_ABSENT;
+    aFile := openClibFile(testFileName, "w");
+    if aFile <> CLIB_NULL_FILE then
+      write(aFile, testFileName);
+      close(aFile);
+    else
+      testFileName := "";
+    end if;
+  end func;
+
+
 (*
  *  Test the case where a function changes its parameter.
  *  Assume the function is called with:
- *   aFile := changeParameter(aFile, testFileName);
+ *   aFile := changeParameter(aFile, testFileNameB, testFileNameC);
  *  This triggers two changes of 'aFile'. One change is in
  *  changeParameter() and another change is done by the assignment.
  *  In this case the change of 'aFile' in changeParameter() is
@@ -158,48 +178,83 @@ const proc: check_clib_file is func
  *  its new value from the result of changeParameter().
  *)
 const func clib_file: changeParameter (inout clib_file: aFile,
-    in string: testFileName) is func
+    in string: testFileNameB, in string: testFileNameC) is func
   result
     var clib_file: fileResult is clib_file.value;
   begin
-    fileResult := openClibFile(testFileName, "r+");
+    fileResult := openClibFile(testFileNameB, "r");
     # To check the implementation this must change the address of 'aFile':
-    aFile := openClibFile(testFileName, "r+");
+    aFile := openClibFile(testFileNameC, "r");
   end func;
 
 
 const proc: check_clib_file_assign is func
   local
     var boolean: okay is TRUE;
-    var string: testFileName is "";
+    var string: testFileNameA is "";
+    var string: testFileNameB is "";
+    var string: testFileNameC is "";
     var clib_file: aFile is clib_file.value;
     var array clib_file: fileArr is 1 times clib_file.value;
   begin
-    repeat
-      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
-    until fileType(testFileName) = FILE_ABSENT;
-    aFile := openClibFile(testFileName, "w");
-    write(aFile, testFileName);
-    close(aFile);
+    testFileNameA := genTempClibFile("_a_tmp_test_file");
+    testFileNameB := genTempClibFile("_b_tmp_test_file");
+    testFileNameC := genTempClibFile("_c_tmp_test_file");
+    if testFileNameA = "" or testFileNameB = "" or testFileNameC = "" then
+      writeln(" ***** Creating the test files failed.");
+      okay := FALSE;
+    end if;
 
-    aFile := openClibFile(testFileName, "r+");
-    aFile := changeParameter(aFile, testFileName);
+    aFile := openClibFile(testFileNameA, "r");
+    aFile := changeParameter(aFile, testFileNameB, testFileNameC);
+    if gets(aFile, integer.last) <> testFileNameB then
+      writeln(" ***** Overwriting a file parameter in function and in assignment fails. (1)");
+      okay := FALSE;
+    end if;
     aFile := aFile;
     close(aFile);
-    fileArr[1] := openClibFile(testFileName, "r+");
-    fileArr[1] := changeParameter(fileArr[1], testFileName);
+
+    fileArr[1] := openClibFile(testFileNameA, "r");
+    fileArr[1] := changeParameter(fileArr[1], testFileNameB, testFileNameC);
+    if gets(fileArr[1], integer.last) <> testFileNameB then
+      writeln(" ***** Overwriting a file parameter in function and in assignment fails. (2)");
+      okay := FALSE;
+    end if;
     fileArr[1] := fileArr[1];
     close(fileArr[1]);
+
     aFile := clib_file.value;
     fileArr[1] := clib_file.value;
-    removeFile(testFileName);
+    removeFile(testFileNameA);
+    removeFile(testFileNameB);
+    removeFile(testFileNameC);
+  end func;
+
+
+const func string: genTempFile (in string: nameSuffix) is func
+  result
+    var string: testFileName is "";
+  local
+    var file: aFile is STD_NULL;
+  begin
+    repeat
+      testFileName := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                      nameSuffix;
+    until fileType(testFileName) = FILE_ABSENT;
+    aFile := open(testFileName, "w");
+    if aFile <> STD_NULL then
+      write(aFile, testFileName);
+      close(aFile);
+    else
+      testFileName := "";
+    end if;
   end func;
 
 
 (*
  *  Test the case where a function changes its parameter.
  *  Assume the function is called with:
- *   aFile := changeParameter(aFile, testFileName);
+ *   aFile := changeParameter(aFile, testFileNameB, testFileNameC);
  *  This triggers two changes of 'aFile'. One change is in
  *  changeParameter() and another change is done by the assignment.
  *  In this case the change of 'aFile' in changeParameter() is
@@ -207,41 +262,56 @@ const proc: check_clib_file_assign is func
  *  its new value from the result of changeParameter().
  *)
 const func file: changeParameter (inout file: aFile,
-    in string: testFileName) is func
+    in string: testFileNameB, in string: testFileNameC) is func
   result
     var file: fileResult is STD_NULL;
   begin
-    fileResult := open(testFileName, "r+");
+    fileResult := open(testFileNameB, "r");
     # To check the implementation this must change the address of 'aFile':
-    aFile := open(testFileName, "r+");
+    aFile := open(testFileNameC, "r");
   end func;
 
 
 const proc: check_file_assign is func
   local
     var boolean: okay is TRUE;
-    var string: testFileName is "";
+    var string: testFileNameA is "";
+    var string: testFileNameB is "";
+    var string: testFileNameC is "";
     var file: aFile is STD_NULL;
     var array file: fileArr is 1 times STD_NULL;
   begin
-    repeat
-      testFileName := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
-    until fileType(testFileName) = FILE_ABSENT;
-    aFile := open(testFileName, "w");
-    write(aFile, testFileName);
-    close(aFile);
+    testFileNameA := genTempFile("_a_tmp_test_file");
+    testFileNameB := genTempFile("_b_tmp_test_file");
+    testFileNameC := genTempFile("_c_tmp_test_file");
+    if testFileNameA = "" or testFileNameB = "" or testFileNameC = "" then
+      writeln(" ***** Creating the test files failed.");
+      okay := FALSE;
+    end if;
 
-    aFile := open(testFileName, "r+");
-    aFile := changeParameter(aFile, testFileName);
+    aFile := open(testFileNameA, "r");
+    aFile := changeParameter(aFile, testFileNameB, testFileNameC);
+    if gets(aFile, integer.last) <> testFileNameB then
+      writeln(" ***** Overwriting a file parameter in function and in assignment fails. (1)");
+      okay := FALSE;
+    end if;
     aFile := aFile;
     close(aFile);
-    fileArr[1] := open(testFileName, "r+");
-    fileArr[1] := changeParameter(fileArr[1], testFileName);
+
+    fileArr[1] := open(testFileNameA, "r");
+    fileArr[1] := changeParameter(fileArr[1], testFileNameB, testFileNameC);
+    if gets(fileArr[1], integer.last) <> testFileNameB then
+      writeln(" ***** Overwriting a file parameter in function and in assignment fails. (2)");
+      okay := FALSE;
+    end if;
     fileArr[1] := fileArr[1];
     close(fileArr[1]);
+
     aFile := STD_NULL;
     fileArr[1] := STD_NULL;
-    removeFile(testFileName);
+    removeFile(testFileNameA);
+    removeFile(testFileNameB);
+    removeFile(testFileNameC);
   end func;
 
 
@@ -812,6 +882,55 @@ const proc: check_file_seek is func
   end func;
 
 
+const proc: check_file_append is func
+  local
+    var boolean: okay is TRUE;
+    var string: test_file_name is "";
+    var file: aFile is STD_NULL;
+    var char: ch is ' ';
+    var string: expected is "";
+    var string: test is "";
+  begin
+    repeat
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
+    until fileType(test_file_name) = FILE_ABSENT;
+
+    for ch range ' ' to '~' do
+      aFile := open(test_file_name, "a");
+      if aFile <> STD_NULL then
+        write(aFile, ch);
+        close(aFile);
+      end if;
+      expected &:= ch;
+    end for;
+
+    aFile := open(test_file_name, "r");
+    if aFile <> STD_NULL then
+      test := gets(aFile, integer.last);
+      if test <> expected then
+        writeln("The file does not contain the expected string.");
+        writeln("Expected length: " <& length(expected));
+        writeln("Length found:    " <& length(test));
+        writeln("Expected: " <& literal(expected));
+        writeln("Found:    " <& literal(test));
+        okay := FALSE;
+      end if;
+      close(aFile);
+    else
+      writeln("Cannot open " <& test_file_name);
+      okay := FALSE;
+    end if;
+
+    removeFile(test_file_name);
+
+    if not okay then
+      writeln(" ***** Appending to a file does not work correctly.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_automatic_close is func
   local
     var boolean: okay is TRUE;
@@ -823,7 +942,8 @@ const proc: check_automatic_close is func
     var string: test is "";
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := open(test_file_name, "w");
@@ -841,6 +961,8 @@ const proc: check_automatic_close is func
     test := gets(aFile, integer.last);
     if test <> expected then
       writeln("The file does not contain the expected string.");
+      writeln("Expected length: " <& length(expected));
+      writeln("Length found:    " <& length(test));
       writeln("Expected: " <& literal(expected));
       writeln("Found:    " <& literal(test));
       okay := FALSE;
@@ -900,10 +1022,6 @@ const func boolean: check_use_after_close1 (inout file: aFile) is func
     end if;
     if not raisesFileError(flush(aFile)) then
       writeln("Flush of a closed file succeeds.");
-      okay := FALSE;
-    end if;
-    if not raisesFileError(setbuf(aFile, IO_NO_BUFFERING, 0)) then
-      writeln("Setbuf of a closed file succeeds.");
       okay := FALSE;
     end if;
   end func;
@@ -977,10 +1095,6 @@ const func boolean: check_use_after_close2 (inout file: aFile) is func
       writeln("GetTerminatedString from a closed file succeeds.");
       okay := FALSE;
     end if;
-    if not raisesFileError(setbuf(aFile, IO_NO_BUFFERING, 0)) then
-      writeln("Setbuf of a closed file succeeds.");
-      okay := FALSE;
-    end if;
   end func;
 
 
@@ -991,7 +1105,8 @@ const proc: check_use_after_close is func
     var file: aFile is STD_NULL;
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := open(test_file_name, "w");
@@ -1269,7 +1384,8 @@ const proc: check_automatic_close_utf8 is func
     var string: test is "";
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := openUtf8(test_file_name, "w");
@@ -1315,7 +1431,8 @@ const proc: check_use_after_close_utf8 is func
     var file: aFile is STD_NULL;
   begin
     repeat
-      test_file_name := homeDir <& "/tmp_test_file_" <& rand(0, 999) lpad0 3;
+      test_file_name := homeDir <& "/" <& rand(0, 9999) lpad0 4 <&
+                        "_tmp_test_file";
     until fileType(test_file_name) = FILE_ABSENT;
 
     aFile := openUtf8(test_file_name, "w");
@@ -1483,6 +1600,7 @@ const proc: main is func
     check_file_open;
     check_file_io;
     check_file_seek;
+    check_file_append;
     check_automatic_close;
     check_use_after_close;
     check_utf8_file_open;

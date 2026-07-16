@@ -1421,6 +1421,10 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
             finished  := TRUE;
           end if;
         end if;
+      elsif pos <= leng and stri[pos] = '?' then
+        symbol := "<?";
+        stri := stri[succ(pos) ..];
+        finished  := TRUE;
       elsif pos <= leng and stri[pos] = '/' then
         incr(pos);
       end if;

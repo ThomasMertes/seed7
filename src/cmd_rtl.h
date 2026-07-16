@@ -54,6 +54,10 @@ void initEmulatedCwd (errInfoType *err_info);
 #endif
 striType doGetCwd (errInfoType *err_info);
 striType getAbsolutePath (const const_striType aPath);
+striType createCommandLine (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr,
+    errInfoType *err_info);
 bigIntType cmdBigFileSize (const const_striType filePath);
 void cmdChdir (const const_striType dirPath);
 void cmdCloneFile (const const_striType sourcePath, const const_striType destPath);
@@ -107,7 +111,12 @@ void cmdSetMTime (const const_striType filePath,
     intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone);
 void cmdSetSearchPath (const const_rtlArrayType searchPath);
-intType cmdShell (const const_striType command, const const_striType parameters);
+striType cmdShellCommandLine (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr);
 striType cmdShellEscape (const const_striType stri);
+intType cmdShellExecute (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr);
 striType cmdToOsPath (const const_striType standardPath);
 void cmdUnsetenv (const const_striType name);

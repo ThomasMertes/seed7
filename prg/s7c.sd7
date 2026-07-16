@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2025  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2026  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -120,110 +120,110 @@ const proc: count_declarations (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: process_generic_hashCode_declaration (in reference: function,
+const proc: process_value_hashCode_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_hashCode_declared then
-      c_expr.expr &:= "static intType generic_hashCode_";
+    if object_type not in typeData.value_hashCode_declared then
+      c_expr.expr &:= "static intType value_hashCode_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType a)\n";
+      c_expr.expr &:= " (const rtlValueUnion a)\n";
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "return o_";
       create_name(function, c_expr.expr);
-      c_expr.expr &:= "(((const_rtlObjectType *) &a)->value.";
+      c_expr.expr &:= "(a.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_hashCode_declared @:= [object_type] TRUE;
+      typeData.value_hashCode_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_cpy_declaration (in type: object_type,
+const proc: process_value_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_cpy_declared then
+    if object_type not in typeData.value_cpy_declared then
       process_cpy_declaration(object_type, c_expr);
-      c_expr.expr &:= "static void generic_cpy_";
+      c_expr.expr &:= "static void value_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (genericType *a, const genericType b)\n";
+      c_expr.expr &:= " (rtlValueUnion *const a, const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       process_cpy_call(object_type,
-          "((const_rtlObjectType *) a)->value." & raw_type_value(object_type),
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "a->" & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_cpy_declared @:= [object_type] TRUE;
+      typeData.value_cpy_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_create_declaration (in type: object_type,
+const proc: process_value_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_create_declared then
+    if object_type not in typeData.value_create_declared then
       process_create_declaration(object_type, c_expr);
-      c_expr.expr &:= "static genericType generic_create_";
+      c_expr.expr &:= "static rtlValueUnion value_create_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
-      c_expr.expr &:= "rtlObjectType result;\n";
-      c_expr.expr &:= "result.value.";
+      c_expr.expr &:= "rtlValueUnion result;\n";
+      c_expr.expr &:= "result.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= "=";
       process_create_call(object_type,
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= ";\n";
-      c_expr.expr &:= "return result.value.genericValue;\n";
+      c_expr.expr &:= "return result;\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_create_declared @:= [object_type] TRUE;
+      typeData.value_create_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_destr_declaration (in type: object_type,
+const proc: process_value_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_destr_declared then
+    if object_type not in typeData.value_destr_declared then
       process_destr_declaration(object_type, c_expr);
-      c_expr.expr &:= "static void generic_destr_";
+      c_expr.expr &:= "static void value_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       process_destr_call(object_type,
-          "((const_rtlObjectType *) &b)->value." & raw_type_value(object_type),
+          "b." & raw_type_value(object_type),
           c_expr.expr);
       c_expr.expr &:= "}\n\n";
-      typeData.generic_destr_declared @:= [object_type] TRUE;
+      typeData.value_destr_declared @:= [object_type] TRUE;
     end if;
   end func;
 
 
-const proc: process_generic_cmp_declaration (in reference: function,
+const proc: process_value_cmp_declaration (in reference: function,
     in type: object_type, inout expr_type: c_expr) is func
 
   begin
-    if object_type not in typeData.generic_cmp_declared then
+    if object_type not in typeData.value_cmp_declared then
       process_cpy_declaration(object_type, c_expr);
-      c_expr.expr &:= "static intType generic_cmp_";
+      c_expr.expr &:= "static intType value_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const genericType a, const genericType b)\n";
+      c_expr.expr &:= " (const rtlValueUnion a, const rtlValueUnion b)\n";
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "return o_";
       create_name(function, c_expr.expr);
-      c_expr.expr &:= "(((const_rtlObjectType *) &a)->value.";
+      c_expr.expr &:= "(a.";
       c_expr.expr &:= raw_type_value(object_type);
-      c_expr.expr &:= ", ((const_rtlObjectType *) &b)->value.";
+      c_expr.expr &:= ", b.";
       c_expr.expr &:= raw_type_value(object_type);
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
-      typeData.generic_cmp_declared @:= [object_type] TRUE;
+      typeData.value_cmp_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -507,21 +507,22 @@ const func boolean: containsFunctionCall (in reference: function,
     var integer: paramNum is 0;
   begin
     exprCategory := category(current_expression);
-    if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
-      params := getValue(current_expression, ref_list);
-      currentFunction := params[1];
-      if currentFunction = function then
-        containsCall := TRUE;
-      else
-        paramNum := 2;
-        while paramNum <= length(params) and not containsCall do
-          containsCall := containsFunctionCall(function, params[paramNum]);
-          incr(paramNum);
-        end while;
-      end if;
-    elsif exprCategory = BLOCKOBJECT then
-      containsCall := current_expression = function;
-    end if;
+    case exprCategory of
+      when {MATCHOBJECT, CALLOBJECT}:
+        params := getValue(current_expression, ref_list);
+        currentFunction := params[1];
+        if currentFunction = function then
+          containsCall := TRUE;
+        else
+          paramNum := 2;
+          while paramNum <= length(params) and not containsCall do
+            containsCall := containsFunctionCall(function, params[paramNum]);
+            incr(paramNum);
+          end while;
+        end if;
+      when {BLOCKOBJECT}:
+        containsCall := current_expression = function;
+    end case;
   end func;
 
 
@@ -572,6 +573,8 @@ const func boolean: identical_values (in reference: object1, in reference: objec
         isIdentical := getValue(object1, reference) = getValue(object2, reference);
       when {FILEOBJECT}:
         isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
+      when {SOCKETOBJECT}:
+        isIdentical := getValue(object1, PRIMITIVE_SOCKET) = getValue(object2, PRIMITIVE_SOCKET);
       when {POINTLISTOBJECT}:
         isIdentical := getValue(object1, pointList) = getValue(object2, pointList);
       when {CONSTENUMOBJECT, VARENUMOBJECT}:
@@ -640,6 +643,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
     var integer: arraySize is 0;
     var reference: repeatedElement is NIL;
     var string: variableName is "";
+    var string: elementName is "";
     var string: param_value is "";
   begin
     arraySize := arrayLength(arrayValue);
@@ -728,12 +732,21 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= ");\n";
       else
+        incr(c_declaration.temp_num);
+        elementName := "element" <& c_declaration.temp_num;
+        c_declaration.temp_decls &:= ";\n";
+        c_declaration.temp_decls &:= "rtlValueUnion ";
+        c_declaration.temp_decls &:= elementName;
         c_declaration.temp_assigns &:= "arrTimes(";
         c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
         c_declaration.temp_assigns &:= ", ";
         c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
-        c_declaration.temp_assigns &:= ", (genericType)(";
+        c_declaration.temp_assigns &:= ", (";
+        c_declaration.temp_assigns &:= elementName;
+        c_declaration.temp_assigns &:= ".intValue=";
         c_declaration.temp_assigns &:= integerLiteral(getValue(repeatedElement, integer));
+        c_declaration.temp_assigns &:= ",";
+        c_declaration.temp_assigns &:= elementName;
         c_declaration.temp_assigns &:= "));\n";
       end if;
     else
@@ -812,242 +825,251 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       param_name := "o_";
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = TYPEOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= typeLiteral(getValue(object_value, type));
-    elsif valueCategory = INTOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= integerLiteral(getValue(object_value, integer));
-    elsif valueCategory = BIGINTOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=";
-      process_big_create_call(getValue(object_value, bigInteger), c_declaration.temp_assigns);
-      c_declaration.temp_frees &:= "bigDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = CHAROBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= charLiteral(getValue(object_value, char));
-    elsif valueCategory = FLOATOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= floatLiteral(getValue(object_value, float));
-    elsif valueCategory = STRIOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=";
-      process_str_create_call(getValue(object_value, string), c_declaration.temp_assigns);
-      c_declaration.temp_frees &:= "strDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = BSTRIOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=bstCreate(";
-      c_declaration.temp_assigns &:= bstriLiteral(getValue(object_value, bstring));
-      c_declaration.temp_assigns &:= ");\n";
-      c_declaration.temp_frees &:= "bstDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = SETOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=setCreate(";
-      c_declaration.temp_assigns &:= bitsetLiteral(getValue(object_value, bitset));
-      c_declaration.temp_assigns &:= ");\n";
-      c_declaration.temp_frees &:= "setDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = REFOBJECT or
-          valueCategory = STRUCTELEMOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= referenceLiteral(getValue(object_value, reference));
-    elsif valueCategory = REFLISTOBJECT then
-      c_declaration.temp_decls &:= "=";
-      ref_list_value(getValue(object_value, ref_list), c_value);
-      c_declaration.temp_decls &:= c_value.expr;
-      c_declaration.temp_frees &:= "rflDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = FILEOBJECT then
-      c_declaration.temp_decls &:= "=&";
-      c_declaration.temp_decls &:= lower(literal(getValue(object_value, clib_file)));
-      c_declaration.temp_decls &:= "FileRecord";
-      c_declaration.temp_frees &:= "filDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = SOCKETOBJECT then
-      c_declaration.temp_decls &:= "=-1";
-    elsif valueCategory = POLLOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=polEmpty();\n";
-      c_declaration.temp_frees &:= "polDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = ARRAYOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=";
-      assignArrayValue(objectType, object_value, c_declaration);
-      process_destr_declaration(objectType, global_c_expr);
-      param_name := "o_";
-      create_name(current_object, param_name);
-      process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = STRUCTOBJECT then
-      if object_value not in constTable.other_const then
-        constTable.other_const @:= [object_value] length(constTable.other_const);
-      end if;
-      process_create_declaration(objectType, global_c_expr);
-      process_destr_declaration(objectType, global_c_expr);
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=";
-      param_value := "sct[";
-      param_value &:= str(constTable.other_const[object_value]);
-      param_value &:= "]";
-      process_create_call(objectType,
-          param_value, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= ";\n";
-      param_name := "o_";
-      create_name(current_object, param_name);
-      process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = HASHOBJECT then
-      if length(hashKeysToList(object_value)) = 0 then
-        process_destr_declaration(objectType, global_c_expr);
-        incr(count.optimizations);
-        c_declaration.temp_assigns &:= diagnosticLine(current_object);
-        c_declaration.temp_assigns &:= "o_";
-        create_name(current_object, c_declaration.temp_assigns);
-        c_declaration.temp_assigns &:= "=hshEmpty();\n";
-      else
-        if object_value not in constTable.other_const then
-          constTable.other_const @:= [object_value] length(constTable.other_const);
-        end if;
-        process_create_declaration(objectType, global_c_expr);
-        process_destr_declaration(objectType, global_c_expr);
-        c_declaration.temp_assigns &:= diagnosticLine(current_object);
-        c_declaration.temp_assigns &:= "o_";
-        create_name(current_object, c_declaration.temp_assigns);
-        c_declaration.temp_assigns &:= "=";
-        param_value := "hsh[";
-        param_value &:= str(constTable.other_const[object_value]);
-        param_value &:= "]";
-        process_create_call(objectType,
-            param_value, c_declaration.temp_assigns);
-        c_declaration.temp_assigns &:= ";\n";
-      end if;
-      param_name := "o_";
-      create_name(current_object, param_name);
-      process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = INTERFACEOBJECT then
-      if object_value not in constTable.other_const then
-        constTable.other_const @:= [object_value] length(constTable.other_const);
-      end if;
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=itf[";
-      c_declaration.temp_assigns &:= str(constTable.other_const[object_value]);
-      c_declaration.temp_assigns &:= "];\n";
-      process_destr_declaration(objectType, global_c_expr);
-      param_name := "o_";
-      create_name(current_object, param_name);
-      process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = WINOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=drwCreate(";
-      c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
-      c_declaration.temp_assigns &:= ");\n";
-      c_declaration.temp_frees &:= "drwDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = POINTLISTOBJECT then
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=bstCreate(";
-      c_declaration.temp_assigns &:= pointListLiteral(getValue(object_value, pointList));
-      c_declaration.temp_assigns &:= ");\n";
-      c_declaration.temp_frees &:= "bstDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = PROCESSOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-      c_declaration.temp_frees &:= "pcsDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = PROGOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-      c_declaration.temp_frees &:= "prgDestr(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = DATABASEOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-      c_declaration.temp_frees &:= "sqlDestrDb(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = SQLSTMTOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
-      c_declaration.temp_frees &:= "sqlDestrStmt(o_";
-      create_name(current_object, c_declaration.temp_frees);
-      c_declaration.temp_frees &:= ");\n";
-    elsif valueCategory = CONSTENUMOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= enum_value(getValue(object_value, reference));
-    elsif valueCategory = VARENUMOBJECT then
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= enum_value(getValue(object_value, reference));
-    elsif valueCategory = ENUMLITERALOBJECT then
-      c_declaration.temp_decls &:= "=o_";
-      create_name(object_value, c_declaration.temp_decls);
-    elsif valueCategory = CALLOBJECT then
-      param_name := "o_";
-      create_name(current_object, param_name);
-      c_value.temp_num := c_declaration.temp_num;
-      getTemporaryToResultExpr(object_value, c_value);
-      c_declaration.temp_num := c_value.temp_num;
-      c_expr.temp_decls   &:= c_value.temp_decls;
-      c_expr.temp_assigns &:= c_value.temp_assigns;
-      c_expr.temp_frees   &:= c_value.temp_frees;
-      c_expr.temp_to_null &:= c_value.temp_to_null;
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= param_name;
-      c_declaration.temp_assigns &:= "=(";
-      c_declaration.temp_assigns &:= type_name(objectType);
-      c_declaration.temp_assigns &:= ")(";
-      c_declaration.temp_assigns &:= c_value.result_expr;
-      c_declaration.temp_assigns &:= ");\n";
-      process_destr_declaration(objectType, global_c_expr);
-      process_destr_call(objectType, param_name, c_declaration.temp_frees);
-    elsif valueCategory = BLOCKOBJECT then
-      create_name(object_value, objNumber(object_value), param_name);
-      c_value.temp_num := c_declaration.temp_num;
-      processFuncValue(param_name, objectType, object_value, c_value);
-      c_declaration.temp_num := c_value.temp_num;
-      c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= c_value.expr;
-      c_expr.temp_decls   &:= c_value.temp_decls;
-      c_expr.temp_assigns &:= c_value.temp_assigns;
-      c_expr.temp_frees   &:= c_value.temp_frees;
-      c_expr.temp_to_null &:= c_value.temp_to_null;
-      function_declared @:= [object_value] TRUE;
-      function_var_declared @:= [current_object] TRUE;
-    elsif valueCategory = ACTOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
     else
-      c_declaration.temp_decls &:= "/* ";
-      c_declaration.temp_decls &:= str(valueCategory);
-      c_declaration.temp_decls &:= " */";
+      case valueCategory of
+        when {TYPEOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= typeLiteral(getValue(object_value, type));
+        when {INTOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= integerLiteral(getValue(object_value, integer));
+        when {BIGINTOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=";
+          process_big_create_call(getValue(object_value, bigInteger), c_declaration.temp_assigns);
+          c_declaration.temp_frees &:= "bigDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {CHAROBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= charLiteral(getValue(object_value, char));
+        when {FLOATOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= floatLiteral(getValue(object_value, float));
+        when {STRIOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=";
+          process_str_create_call(getValue(object_value, string), c_declaration.temp_assigns);
+          c_declaration.temp_frees &:= "strDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {BSTRIOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=bstCreate(";
+          c_declaration.temp_assigns &:= bstriLiteral(getValue(object_value, bstring));
+          c_declaration.temp_assigns &:= ");\n";
+          c_declaration.temp_frees &:= "bstDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {SETOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=setCreate(";
+          c_declaration.temp_assigns &:= bitsetLiteral(getValue(object_value, bitset));
+          c_declaration.temp_assigns &:= ");\n";
+          c_declaration.temp_frees &:= "setDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {REFOBJECT, STRUCTELEMOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= referenceLiteral(getValue(object_value, reference));
+        when {REFLISTOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          ref_list_value(getValue(object_value, ref_list), c_value);
+          c_declaration.temp_decls &:= c_value.expr;
+          c_declaration.temp_frees &:= "rflDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {FILEOBJECT}:
+          c_declaration.temp_decls &:= "=&";
+          c_declaration.temp_decls &:= lower(literal(getValue(object_value, clib_file)));
+          c_declaration.temp_decls &:= "FileRecord";
+          c_declaration.temp_frees &:= "filDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {SOCKETOBJECT}:
+          c_declaration.temp_decls &:= "=&emptySocketRecord";
+        when {POLLOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=polEmpty();\n";
+          c_declaration.temp_frees &:= "polDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {ARRAYOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=";
+          assignArrayValue(objectType, object_value, c_declaration);
+          process_destr_declaration(objectType, global_c_expr);
+          param_name := "o_";
+          create_name(current_object, param_name);
+          process_destr_call(objectType, param_name, c_declaration.temp_frees);
+        when {STRUCTOBJECT}:
+          if object_value not in constTable.other_const then
+            constTable.other_const @:= [object_value] length(constTable.other_const);
+          end if;
+          process_create_declaration(objectType, global_c_expr);
+          process_destr_declaration(objectType, global_c_expr);
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=";
+          param_value := "sct[";
+          param_value &:= str(constTable.other_const[object_value]);
+          param_value &:= "]";
+          process_create_call(objectType,
+              param_value, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= ";\n";
+          param_name := "o_";
+          create_name(current_object, param_name);
+          process_destr_call(objectType, param_name, c_declaration.temp_frees);
+        when {HASHOBJECT}:
+          if length(hashKeysToList(object_value)) = 0 then
+            process_destr_declaration(objectType, global_c_expr);
+            incr(count.optimizations);
+            c_declaration.temp_assigns &:= diagnosticLine(current_object);
+            c_declaration.temp_assigns &:= "o_";
+            create_name(current_object, c_declaration.temp_assigns);
+            c_declaration.temp_assigns &:= "=hshEmpty();\n";
+          else
+            if object_value not in constTable.other_const then
+              constTable.other_const @:= [object_value] length(constTable.other_const);
+            end if;
+            process_create_declaration(objectType, global_c_expr);
+            process_destr_declaration(objectType, global_c_expr);
+            c_declaration.temp_assigns &:= diagnosticLine(current_object);
+            c_declaration.temp_assigns &:= "o_";
+            create_name(current_object, c_declaration.temp_assigns);
+            c_declaration.temp_assigns &:= "=";
+            param_value := "hsh[";
+            param_value &:= str(constTable.other_const[object_value]);
+            param_value &:= "]";
+            process_create_call(objectType,
+                param_value, c_declaration.temp_assigns);
+            c_declaration.temp_assigns &:= ";\n";
+          end if;
+          param_name := "o_";
+          create_name(current_object, param_name);
+          process_destr_call(objectType, param_name, c_declaration.temp_frees);
+        when {INTERFACEOBJECT}:
+          if object_value not in constTable.other_const then
+            constTable.other_const @:= [object_value] length(constTable.other_const);
+          end if;
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=itf[";
+          c_declaration.temp_assigns &:= str(constTable.other_const[object_value]);
+          c_declaration.temp_assigns &:= "];\n";
+          process_destr_declaration(objectType, global_c_expr);
+          param_name := "o_";
+          create_name(current_object, param_name);
+          process_destr_call(objectType, param_name, c_declaration.temp_frees);
+        when {WINOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=drwCreate(";
+          c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
+          c_declaration.temp_assigns &:= ");\n";
+          c_declaration.temp_frees &:= "drwDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {POINTLISTOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=bstCreate(";
+          c_declaration.temp_assigns &:= pointListLiteral(getValue(object_value, pointList));
+          c_declaration.temp_assigns &:= ");\n";
+          c_declaration.temp_frees &:= "bstDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {PROCESSOBJECT}:
+          c_declaration.temp_decls &:= "=NULL";
+          c_declaration.temp_frees &:= "pcsDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {PROGOBJECT}:
+          c_declaration.temp_decls &:= "=NULL";
+          c_declaration.temp_frees &:= "prgDestr(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {DATABASEOBJECT}:
+          c_declaration.temp_decls &:= "=NULL";
+          c_declaration.temp_frees &:= "sqlDestrDb(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {SQLSTMTOBJECT}:
+          c_declaration.temp_decls &:= "=NULL";
+          c_declaration.temp_frees &:= "sqlDestrStmt(o_";
+          create_name(current_object, c_declaration.temp_frees);
+          c_declaration.temp_frees &:= ");\n";
+        when {CONSTENUMOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= enum_value(getValue(object_value, reference));
+        when {VARENUMOBJECT}:
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= enum_value(getValue(object_value, reference));
+        when {ENUMLITERALOBJECT}:
+          c_declaration.temp_decls &:= "=o_";
+          create_name(object_value, c_declaration.temp_decls);
+        when {CALLOBJECT}:
+          param_name := "o_";
+          create_name(current_object, param_name);
+          c_value.temp_num := c_declaration.temp_num;
+          getTemporaryToResultExpr(object_value, c_value);
+          c_declaration.temp_num := c_value.temp_num;
+          c_expr.temp_decls   &:= c_value.temp_decls;
+          c_expr.temp_assigns &:= c_value.temp_assigns;
+          c_expr.temp_frees   &:= c_value.temp_frees;
+          c_expr.temp_to_null &:= c_value.temp_to_null;
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= param_name;
+          c_declaration.temp_assigns &:= "=(";
+          c_declaration.temp_assigns &:= type_name(objectType);
+          c_declaration.temp_assigns &:= ")(";
+          c_declaration.temp_assigns &:= c_value.result_expr;
+          c_declaration.temp_assigns &:= ");\n";
+          process_destr_declaration(objectType, global_c_expr);
+          process_destr_call(objectType, param_name, c_declaration.temp_frees);
+        when {BLOCKOBJECT}:
+          create_name(object_value, objNumber(object_value), param_name);
+          c_value.temp_num := c_declaration.temp_num;
+          processFuncValue(param_name, objectType, object_value, c_value);
+          c_declaration.temp_num := c_value.temp_num;
+          c_declaration.temp_decls &:= "=";
+          c_declaration.temp_decls &:= c_value.expr;
+          c_expr.temp_decls   &:= c_value.temp_decls;
+          c_expr.temp_assigns &:= c_value.temp_assigns;
+          c_expr.temp_frees   &:= c_value.temp_frees;
+          c_expr.temp_to_null &:= c_value.temp_to_null;
+          function_declared @:= [object_value] TRUE;
+          function_var_declared @:= [current_object] TRUE;
+        when {ACTENTRYOBJECT}:
+          c_declaration.temp_assigns &:= diagnosticLine(current_object);
+          c_declaration.temp_assigns &:= "o_";
+          create_name(current_object, c_declaration.temp_assigns);
+          c_declaration.temp_assigns &:= "=aceIConv(";
+          c_declaration.temp_assigns &:= integerLiteral(ord(getValue(object_value, ACTION)));
+          c_declaration.temp_assigns &:= " /* ";
+          c_declaration.temp_assigns &:= str(getValue(object_value, ACTION));
+          c_declaration.temp_assigns &:= " */);\n";
+        otherwise:
+          c_declaration.temp_decls &:= "/* ";
+          c_declaration.temp_decls &:= str(valueCategory);
+          c_declaration.temp_decls &:= " */";
+      end case;
     end if;
     c_declaration.temp_decls &:= ";\n";
     c_expr.temp_num := c_declaration.temp_num;
@@ -1081,19 +1103,17 @@ const proc: determineDataForActualFuncParam (in reference: current_expression,
     var reference: aParam is NIL;
   begin
     paramCategory := category(current_expression);
-    if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT then
-      params := getValue(current_expression, ref_list);
-      for aParam range params do
-        determineDataForActualFuncParam(aParam, data_list);
-      end for;
-    elsif paramCategory = LOCALVOBJECT or
-          paramCategory = VALUEPARAMOBJECT or
-          paramCategory = REFPARAMOBJECT or
-          paramCategory = RESULTOBJECT then
-      if current_expression not in data_list then
-        data_list &:= make_list(current_expression);
-      end if;
-    end if;
+    case paramCategory of
+      when {MATCHOBJECT, CALLOBJECT}:
+        params := getValue(current_expression, ref_list);
+        for aParam range params do
+          determineDataForActualFuncParam(aParam, data_list);
+        end for;
+      when {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT}:
+        if current_expression not in data_list then
+          data_list &:= make_list(current_expression);
+        end if;
+    end case;
   end func;
 
 
@@ -1402,61 +1422,64 @@ const proc: call_params (in ref_list: formal_params,
             c_expr.expr &:= ", ";
           end if;
           if isPointerParam(formal_param) then
-            if category(actual_param) = REFPARAMOBJECT then
-              if actual_param in inlineParam and
-                  inlineParam[actual_param][1].paramNum <> 0 then
-                c_expr.expr &:= "par_";
-                c_expr.expr &:= str(inlineParam[actual_param][1].paramNum);
-                c_expr.expr &:= "_";
-              end if;
-              if actual_param in funcparam_reference then
-                c_expr.expr &:= funcparam_reference[actual_param];
-              else
-                c_expr.expr &:= "o_";
-                create_name(actual_param, c_expr.expr);
-              end if;
-            elsif category(actual_param) = MATCHOBJECT then
-              if getValue(actual_param, ref_list)[1] in function_var_declared then
-                c_expr.expr &:= "o_";
-                create_name(getValue(actual_param, ref_list)[1], c_expr.expr);
-              else
-                processFuncParam(formal_param, actual_param, c_expr);
-              end if;
-            elsif category(actual_param) = BLOCKOBJECT then
-              if actual_param in function_var_declared then
-                c_expr.expr &:= "o_";
-                create_name(actual_param, c_expr.expr);
-              else
-                processFuncParam(formal_param, actual_param, c_expr);
-              end if;
-            elsif category(actual_param) = LOCALVOBJECT and
-                actual_param in function_var_declared then
-              c_expr.expr &:= "o_";
-              create_name(actual_param, c_expr.expr);
-            elsif canTakeAddress(actual_param) then
-              c_expr.expr &:= "&(";
-              process_expr(actual_param, c_expr);
-              c_expr.expr &:= ")";
-            else
-              c_expr.expr &:= "/* ";
-              c_expr.expr &:= str(category(actual_param));
-              c_expr.expr &:= " */";
-              incr(c_expr.temp_num);
-              temp_num := c_expr.temp_num;
-              c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
-              c_expr.temp_decls &:= " tmp_";
-              c_expr.temp_decls &:= str(temp_num);
-              c_expr.temp_decls &:= ";\n";
-              c_expr.expr &:= "(tmp_";
-              c_expr.expr &:= str(temp_num);
-              c_expr.expr &:= "=(";
-              c_expr.expr &:= type_name(getExprResultType(actual_param));
-              c_expr.expr &:= ")(";
-              getAnyParamToExpr(actual_param, c_expr);
-              c_expr.expr &:= "), &tmp_";
-              c_expr.expr &:= str(temp_num);
-              c_expr.expr &:= ")";
-            end if;
+            case category(actual_param) of
+              when {REFPARAMOBJECT}:
+                if actual_param in inlineParam and
+                    inlineParam[actual_param][1].paramNum <> 0 then
+                  c_expr.expr &:= "par_";
+                  c_expr.expr &:= str(inlineParam[actual_param][1].paramNum);
+                  c_expr.expr &:= "_";
+                end if;
+                if actual_param in funcparam_reference then
+                  c_expr.expr &:= funcparam_reference[actual_param];
+                else
+                  c_expr.expr &:= "o_";
+                  create_name(actual_param, c_expr.expr);
+                end if;
+              when {MATCHOBJECT}:
+                if getValue(actual_param, ref_list)[1] in function_var_declared then
+                  c_expr.expr &:= "o_";
+                  create_name(getValue(actual_param, ref_list)[1], c_expr.expr);
+                else
+                  processFuncParam(formal_param, actual_param, c_expr);
+                end if;
+              when {BLOCKOBJECT}:
+                if actual_param in function_var_declared then
+                  c_expr.expr &:= "o_";
+                  create_name(actual_param, c_expr.expr);
+                else
+                  processFuncParam(formal_param, actual_param, c_expr);
+                end if;
+              otherwise:
+                if category(actual_param) = LOCALVOBJECT and
+                    actual_param in function_var_declared then
+                  c_expr.expr &:= "o_";
+                  create_name(actual_param, c_expr.expr);
+                elsif canTakeAddress(actual_param) then
+                  c_expr.expr &:= "&(";
+                  process_expr(actual_param, c_expr);
+                  c_expr.expr &:= ")";
+                else
+                  c_expr.expr &:= "/* ";
+                  c_expr.expr &:= str(category(actual_param));
+                  c_expr.expr &:= " */";
+                  incr(c_expr.temp_num);
+                  temp_num := c_expr.temp_num;
+                  c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
+                  c_expr.temp_decls &:= " tmp_";
+                  c_expr.temp_decls &:= str(temp_num);
+                  c_expr.temp_decls &:= ";\n";
+                  c_expr.expr &:= "(tmp_";
+                  c_expr.expr &:= str(temp_num);
+                  c_expr.expr &:= "=(";
+                  c_expr.expr &:= type_name(getExprResultType(actual_param));
+                  c_expr.expr &:= ")(";
+                  getAnyParamToExpr(actual_param, c_expr);
+                  c_expr.expr &:= "), &tmp_";
+                  c_expr.expr &:= str(temp_num);
+                  c_expr.expr &:= ")";
+                end if;
+            end case;
           else
             getAnyParamToExpr(actual_param, c_expr);
           end if;
@@ -1579,6 +1602,32 @@ const proc: process_func_call (in reference: function,
   end func;
 
 
+const proc: process_call (in reference: current_expression, inout expr_type: c_expr) is forward;
+
+
+const proc: process_indirect_func_call (in reference: function,
+    inout expr_type: c_expr) is func
+  begin
+    incr(c_expr.temp_num);
+    c_expr.temp_decls &:= type_name(resultType(getType(function)));
+    c_expr.temp_decls &:= " o_";
+    c_expr.temp_decls &:= str(c_expr.temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(o_";
+    c_expr.expr &:= str(c_expr.temp_num);
+    c_expr.expr &:= "=";
+    process_call(function, c_expr);
+    c_expr.expr &:= ",o_";
+    c_expr.expr &:= str(c_expr.temp_num);
+    c_expr.expr &:= "->func(o_";
+    c_expr.expr &:= str(c_expr.temp_num);
+    c_expr.expr &:= "))";
+    if resultType(getType(function)) = typeData.proctype then
+      c_expr.expr &:= ";\n";
+    end if;
+  end func;
+
+
 const proc: process_call (in reference: current_expression, inout expr_type: c_expr) is func
 
   local
@@ -1599,107 +1648,93 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     # c_expr.expr &:= " ";
     # c_expr.expr &:= str(function);
     # c_expr.expr &:= " */";
-    if functionCategory = ACTOBJECT then
-      process_action(function, params, c_expr);
-    elsif functionCategory = BLOCKOBJECT then
-      if function in functionInlineDepth and
-          functionInlineDepth[function] > maximumInlineDepth then
-        incl(failed_function_inlining, function);
-        if function not in prototype_declared and
-            function not in function_declared then
-          process_prototype_declaration(function, global_c_expr);
-          prototype_declared @:= [function] TRUE;
-        end if;
-        process_func_call(function, params, c_expr);
-      elsif function in inline_function or
-          (function not in prototype_declared and
-           isFunctionCallingSpecialAction(function)) then
-        process_inline(function, params, c_expr);
-      elsif function in function_with_dcl_actions then
-        write_object_declaration := FALSE;
-        calls_dcl_actions := TRUE;
-      else
-        if function not in prototype_declared then
-          process_prototype_declaration(function, global_c_expr);
-          prototype_declared @:= [function] TRUE;
-        end if;
-        process_func_call(function, params, c_expr);
-      end if;
-    elsif functionCategory = LOCALVOBJECT then
-      process_func_call(function, params, c_expr);
-    elsif functionCategory = CONSTENUMOBJECT then
-      (* process_constenumobject(function, params, c_expr); *)
-      process_expr(function, c_expr);
-    elsif functionCategory = REFPARAMOBJECT then
-      if isFunc(getType(function)) or
-          isVarfunc(getType(function)) then
-        if function in inlineParam then
-          process_inline_param(function, c_expr);
+    case functionCategory of
+      when {ACTOBJECT}:
+        process_action(function, params, c_expr);
+      when {BLOCKOBJECT}:
+        if function in functionInlineDepth and
+            functionInlineDepth[function] > maximumInlineDepth then
+          incl(failed_function_inlining, function);
+          if function not in prototype_declared and
+              function not in function_declared then
+            process_prototype_declaration(function, global_c_expr);
+            prototype_declared @:= [function] TRUE;
+          end if;
+          process_func_call(function, params, c_expr);
+        elsif function in inline_function or
+            (function not in prototype_declared and
+             isFunctionCallingSpecialAction(function)) then
+          process_inline(function, params, c_expr);
+        elsif function in function_with_dcl_actions then
+          write_object_declaration := FALSE;
+          calls_dcl_actions := TRUE;
         else
-          if getType(function) = typeData.proctype then
-            setDiagnosticLine(c_expr);
+          if function not in prototype_declared then
+            process_prototype_declaration(function, global_c_expr);
+            prototype_declared @:= [function] TRUE;
           end if;
-          c_expr.expr &:= "o_";
-          create_name(function, c_expr.expr);
-          c_expr.expr &:= "->func(o_";
-          create_name(function, c_expr.expr);
-          c_expr.expr &:= ")";
-          if getType(function) = typeData.proctype then
-            c_expr.expr &:= ";\n";
-          end if;
+          process_func_call(function, params, c_expr);
         end if;
-      else
+      when {LOCALVOBJECT}:
+        process_func_call(function, params, c_expr);
+      when {CONSTENUMOBJECT}:
+        (* process_constenumobject(function, params, c_expr); *)
         process_expr(function, c_expr);
-      end if;
-    elsif functionCategory = VALUEPARAMOBJECT or
-          functionCategory = INTOBJECT or
-          functionCategory = BIGINTOBJECT or
-          functionCategory = FLOATOBJECT or
-          functionCategory = CHAROBJECT or
-          functionCategory = STRIOBJECT or
-          functionCategory = BSTRIOBJECT or
-          functionCategory = ARRAYOBJECT or
-          functionCategory = HASHOBJECT or
-          functionCategory = SETOBJECT or
-          functionCategory = STRUCTOBJECT or
-          functionCategory = STRUCTELEMOBJECT or
-          functionCategory = INTERFACEOBJECT or
-          functionCategory = FILEOBJECT or
-          functionCategory = POLLOBJECT or
-          functionCategory = WINOBJECT or
-          functionCategory = POINTLISTOBJECT or
-          functionCategory = PROCESSOBJECT or
-          functionCategory = PROGOBJECT or
-          functionCategory = DATABASEOBJECT or
-          functionCategory = SQLSTMTOBJECT or
-          functionCategory = ENUMLITERALOBJECT or
-          functionCategory = TYPEOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = REFOBJECT or
-          functionCategory = REFLISTOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(function, c_expr.expr);
-    elsif functionCategory = FORWARDOBJECT then
-      error(FORWARD_CALLED, current_expression, function);
-    else
-      c_expr.expr &:= "/*[ ";
-      c_expr.expr &:= str(functionCategory);
-      c_expr.expr &:= " ]*/";
-      c_expr.expr &:= "o_";
-      create_name(function, c_expr.expr);
-      c_expr.expr &:= "(";
-      for obj range params do
-        if category(obj) <> SYMBOLOBJECT then
-          if first_element then
-            first_element := FALSE;
+      when {REFPARAMOBJECT}:
+        if isFunc(getType(function)) or
+            isVarfunc(getType(function)) then
+          if function in inlineParam then
+            process_inline_param(function, c_expr);
           else
-            c_expr.expr &:= ", ";
+            if getType(function) = typeData.proctype then
+              setDiagnosticLine(c_expr);
+            end if;
+            c_expr.expr &:= "o_";
+            create_name(function, c_expr.expr);
+            c_expr.expr &:= "->func(o_";
+            create_name(function, c_expr.expr);
+            c_expr.expr &:= ")";
+            if getType(function) = typeData.proctype then
+              c_expr.expr &:= ";\n";
+            end if;
           end if;
-          process_expr(obj, c_expr);
+        else
+          process_expr(function, c_expr);
         end if;
-      end for;
-      c_expr.expr &:= ")";
-    end if;
+      when {VALUEPARAMOBJECT, INTOBJECT, BIGINTOBJECT, FLOATOBJECT,
+            CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT,
+            HASHOBJECT, SETOBJECT, STRUCTOBJECT, STRUCTELEMOBJECT,
+            INTERFACEOBJECT, FILEOBJECT, SOCKETOBJECT, POLLOBJECT,
+            WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT, PROGOBJECT,
+            DATABASEOBJECT, SQLSTMTOBJECT, ENUMLITERALOBJECT,
+            ACTENTRYOBJECT, TYPEOBJECT}:
+        process_expr(function, c_expr);
+      when {REFOBJECT, REFLISTOBJECT}:
+        c_expr.expr &:= "o_";
+        create_name(function, c_expr.expr);
+      when {CALLOBJECT}:
+        process_indirect_func_call(function, c_expr);
+      when {FORWARDOBJECT}:
+        error(FORWARD_CALLED, current_expression, function);
+      otherwise:
+        c_expr.expr &:= "/*[ ";
+        c_expr.expr &:= str(functionCategory);
+        c_expr.expr &:= " ]*/";
+        c_expr.expr &:= "o_";
+        create_name(function, c_expr.expr);
+        c_expr.expr &:= "(";
+        for obj range params do
+          if category(obj) <> SYMBOLOBJECT then
+            if first_element then
+              first_element := FALSE;
+            else
+              c_expr.expr &:= ", ";
+            end if;
+            process_expr(obj, c_expr);
+          end if;
+        end for;
+        c_expr.expr &:= ")";
+    end case;
   end func;
 
 
@@ -1801,317 +1836,313 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
   begin
     optimize_constant_expressions(current_expression, c_expr);
     exprCategory := category(current_expression);
-    if exprCategory = MATCHOBJECT then
-      process_match(current_expression, c_expr);
-    elsif exprCategory = CALLOBJECT then
-      process_call(current_expression, c_expr);
-    elsif exprCategory = BLOCKOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-      if not isVar(current_expression) then
-        c_expr.expr &:= "()";
-        if resultType(getType(current_expression)) = typeData.voidtype then
-          c_expr.expr &:= ";\n";
-        end if;
-      end if;
-    elsif exprCategory = ACTOBJECT then
-      global_c_expr.expr &:= "objRefType ";
-      global_c_expr.expr &:= lower(str(getValue(current_expression, ACTION)));
-      global_c_expr.expr &:= " (listType arguments);\n";
-      c_expr.expr &:= "&";
-      c_expr.expr &:= lower(str(getValue(current_expression, ACTION)));
-    elsif exprCategory = LOCALVOBJECT then
-      if current_expression in funcparam_data then
-        c_expr.expr &:= funcparam_data[current_expression];
-      else
+    case exprCategory of
+      when {MATCHOBJECT}:
+        process_match(current_expression, c_expr);
+      when {CALLOBJECT}:
+        process_call(current_expression, c_expr);
+      when {BLOCKOBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = VALUEPARAMOBJECT then
-      if current_expression in funcparam_data then
-        c_expr.expr &:= funcparam_data[current_expression];
-      elsif current_expression in inlineParam and
-          inlineParam[current_expression][1].paramValue <> NIL then
-        process_expr(inlineParam[current_expression][1].paramValue, c_expr);
-      else
-        if current_expression in inlineParam and
-            inlineParam[current_expression][1].paramNum <> 0 then
-          c_expr.expr &:= "par_";
-          c_expr.expr &:= str(inlineParam[current_expression][1].paramNum);
-          c_expr.expr &:= "_";
-        end if;
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = REFPARAMOBJECT then
-      if current_expression in funcparam_data then
-        c_expr.expr &:= funcparam_data[current_expression];
-      elsif isFunc(getType(current_expression)) or
-          isVarfunc(getType(current_expression)) then
-        if current_expression in inlineParam then
-          process_inline_param(current_expression, c_expr);
-        else
-          if getType(current_expression) = typeData.proctype then
-            setDiagnosticLine(c_expr);
-          end if;
-          c_expr.expr &:= "o_";
-          create_name(current_expression, c_expr.expr);
-          c_expr.expr &:= "->func(o_";
-          create_name(current_expression, c_expr.expr);
-          c_expr.expr &:= ")";
-          if getType(current_expression) = typeData.proctype then
+        if not isVar(current_expression) then
+          c_expr.expr &:= "()";
+          if resultType(getType(current_expression)) = typeData.voidtype then
             c_expr.expr &:= ";\n";
           end if;
         end if;
-      elsif current_expression in inlineParam and
-          inlineParam[current_expression][1].paramValue <> NIL then
-        process_expr(inlineParam[current_expression][1].paramValue, c_expr);
-      else
-        if isPointerParam(current_expression) then
-          c_expr.expr &:= "*";
-        end if;
-        if current_expression in inlineParam and
-            inlineParam[current_expression][1].paramNum <> 0 then
-          c_expr.expr &:= "par_";
-          c_expr.expr &:= str(inlineParam[current_expression][1].paramNum);
-          c_expr.expr &:= "_";
-        end if;
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = RESULTOBJECT then
-      if current_expression in funcparam_data then
-        c_expr.expr &:= funcparam_data[current_expression];
-      else
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = TYPEOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= typeLiteral(getValue(current_expression, type));
-      end if;
-    elsif exprCategory = INTOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= integerLiteral(getValue(current_expression, integer));
-      end if;
-    elsif exprCategory = BIGINTOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= bigIntegerLiteral(getValue(current_expression, bigInteger));
-      end if;
-    elsif exprCategory = FLOATOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= floatLiteral(getValue(current_expression, float));
-      end if;
-    elsif exprCategory = CHAROBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= charLiteral(getValue(current_expression, char));
-      end if;
-    elsif exprCategory = STRIOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= stringLiteral(getValue(current_expression, string));
-      end if;
-    elsif exprCategory = BSTRIOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= bstriLiteral(getValue(current_expression, bstring));
-      end if;
-    elsif exprCategory = SETOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= "(";
-        if isFunc(getType(current_expression)) then
-          c_expr.expr &:= type_name(resultType(getType(current_expression)));
-        else
-          c_expr.expr &:= type_name(getType(current_expression));
-        end if;
-        c_expr.expr &:= ")(";
-        c_expr.expr &:= bitsetLiteral(getValue(current_expression, bitset));
-        c_expr.expr &:= ")";
-      end if;
-    elsif exprCategory = REFOBJECT or
-          exprCategory = STRUCTELEMOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= referenceLiteral(getValue(current_expression, reference));
-      end if;
-    elsif exprCategory = REFLISTOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = ARRAYOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if current_expression not in constTable.other_const then
-          constTable.other_const @:= [current_expression] length(constTable.other_const);
-        end if;
-        c_expr.expr &:= "arr[";
-        c_expr.expr &:= str(constTable.other_const[current_expression]);
-        c_expr.expr &:= "]";
-      end if;
-    elsif exprCategory = STRUCTOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if current_expression not in constTable.other_const then
-          constTable.other_const @:= [current_expression] length(constTable.other_const);
-        end if;
-        c_expr.expr &:= "sct[";
-        c_expr.expr &:= str(constTable.other_const[current_expression]);
-        c_expr.expr &:= "]";
-      end if;
-    elsif exprCategory = HASHOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if current_expression not in constTable.other_const then
-          constTable.other_const @:= [current_expression] length(constTable.other_const);
-        end if;
-        c_expr.expr &:= "hsh[";
-        c_expr.expr &:= str(constTable.other_const[current_expression]);
-        c_expr.expr &:= "]";
-      end if;
-    elsif exprCategory = INTERFACEOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if current_expression not in constTable.other_const then
-          constTable.other_const @:= [current_expression] length(constTable.other_const);
-        end if;
-        c_expr.expr &:= "itf[";
-        c_expr.expr &:= str(constTable.other_const[current_expression]);
-        c_expr.expr &:= "]";
-      end if;
-    elsif exprCategory = FILEOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = SOCKETOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = POLLOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = WINOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= windowLiteral(getValue(current_expression, PRIMITIVE_WINDOW));
-      end if;
-    elsif exprCategory = POINTLISTOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= pointListLiteral(getValue(current_expression, pointList));
-      end if;
-    elsif exprCategory = PROCESSOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if getValue(current_expression, process) = process.EMPTY then
-          c_expr.expr &:= "/*process.EMPTY*/NULL";
+      when {LOCALVOBJECT}:
+        if current_expression in funcparam_data then
+          c_expr.expr &:= funcparam_data[current_expression];
         else
           c_expr.expr &:= "o_";
           create_name(current_expression, c_expr.expr);
         end if;
-      end if;
-    elsif exprCategory = PROGOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        if getValue(current_expression, program) = program.EMPTY then
-          c_expr.expr &:= "/*program.EMPTY*/NULL";
+      when {VALUEPARAMOBJECT}:
+        if current_expression in funcparam_data then
+          c_expr.expr &:= funcparam_data[current_expression];
+        elsif current_expression in inlineParam and
+            inlineParam[current_expression][1].paramValue <> NIL then
+          process_expr(inlineParam[current_expression][1].paramValue, c_expr);
+        else
+          if current_expression in inlineParam and
+              inlineParam[current_expression][1].paramNum <> 0 then
+            c_expr.expr &:= "par_";
+            c_expr.expr &:= str(inlineParam[current_expression][1].paramNum);
+            c_expr.expr &:= "_";
+          end if;
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        end if;
+      when {REFPARAMOBJECT}:
+        if current_expression in funcparam_data then
+          c_expr.expr &:= funcparam_data[current_expression];
+        elsif isFunc(getType(current_expression)) or
+            isVarfunc(getType(current_expression)) then
+          if current_expression in inlineParam then
+            process_inline_param(current_expression, c_expr);
+          else
+            if getType(current_expression) = typeData.proctype then
+              setDiagnosticLine(c_expr);
+            end if;
+            c_expr.expr &:= "o_";
+            create_name(current_expression, c_expr.expr);
+            c_expr.expr &:= "->func(o_";
+            create_name(current_expression, c_expr.expr);
+            c_expr.expr &:= ")";
+            if getType(current_expression) = typeData.proctype then
+              c_expr.expr &:= ";\n";
+            end if;
+          end if;
+        elsif current_expression in inlineParam and
+            inlineParam[current_expression][1].paramValue <> NIL then
+          process_expr(inlineParam[current_expression][1].paramValue, c_expr);
+        else
+          if isPointerParam(current_expression) then
+            c_expr.expr &:= "*";
+          end if;
+          if current_expression in inlineParam and
+              inlineParam[current_expression][1].paramNum <> 0 then
+            c_expr.expr &:= "par_";
+            c_expr.expr &:= str(inlineParam[current_expression][1].paramNum);
+            c_expr.expr &:= "_";
+          end if;
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        end if;
+      when {RESULTOBJECT}:
+        if current_expression in funcparam_data then
+          c_expr.expr &:= funcparam_data[current_expression];
         else
           c_expr.expr &:= "o_";
           create_name(current_expression, c_expr.expr);
         end if;
-      end if;
-    elsif exprCategory = DATABASEOBJECT then
-      if isVar(current_expression) then
+      when {TYPEOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= typeLiteral(getValue(current_expression, type));
+        end if;
+      when {INTOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= integerLiteral(getValue(current_expression, integer));
+        end if;
+      when {BIGINTOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= bigIntegerLiteral(getValue(current_expression, bigInteger));
+        end if;
+      when {FLOATOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= floatLiteral(getValue(current_expression, float));
+        end if;
+      when {CHAROBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= charLiteral(getValue(current_expression, char));
+        end if;
+      when {STRIOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= stringLiteral(getValue(current_expression, string));
+        end if;
+      when {BSTRIOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= bstriLiteral(getValue(current_expression, bstring));
+        end if;
+      when {SETOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= "(";
+          if isFunc(getType(current_expression)) then
+            c_expr.expr &:= type_name(resultType(getType(current_expression)));
+          else
+            c_expr.expr &:= type_name(getType(current_expression));
+          end if;
+          c_expr.expr &:= ")(";
+          c_expr.expr &:= bitsetLiteral(getValue(current_expression, bitset));
+          c_expr.expr &:= ")";
+        end if;
+      when {REFOBJECT, STRUCTELEMOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= referenceLiteral(getValue(current_expression, reference));
+        end if;
+      when {REFLISTOBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= "/*database.value*/NULL";
-      end if;
-    elsif exprCategory = SQLSTMTOBJECT then
-      if isVar(current_expression) then
+      when {ARRAYOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if current_expression not in constTable.other_const then
+            constTable.other_const @:= [current_expression] length(constTable.other_const);
+          end if;
+          c_expr.expr &:= "arr[";
+          c_expr.expr &:= str(constTable.other_const[current_expression]);
+          c_expr.expr &:= "]";
+        end if;
+      when {STRUCTOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if current_expression not in constTable.other_const then
+            constTable.other_const @:= [current_expression] length(constTable.other_const);
+          end if;
+          c_expr.expr &:= "sct[";
+          c_expr.expr &:= str(constTable.other_const[current_expression]);
+          c_expr.expr &:= "]";
+        end if;
+      when {HASHOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if current_expression not in constTable.other_const then
+            constTable.other_const @:= [current_expression] length(constTable.other_const);
+          end if;
+          c_expr.expr &:= "hsh[";
+          c_expr.expr &:= str(constTable.other_const[current_expression]);
+          c_expr.expr &:= "]";
+        end if;
+      when {INTERFACEOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if current_expression not in constTable.other_const then
+            constTable.other_const @:= [current_expression] length(constTable.other_const);
+          end if;
+          c_expr.expr &:= "itf[";
+          c_expr.expr &:= str(constTable.other_const[current_expression]);
+          c_expr.expr &:= "]";
+        end if;
+      when {FILEOBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= "/*sqlStatement.value*/NULL";
-      end if;
-    elsif exprCategory = CONSTENUMOBJECT then
-      if isVar(current_expression) then
+      when {SOCKETOBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= enum_value(getValue(current_expression, reference));
-      end if;
-    elsif exprCategory = VARENUMOBJECT then
-      if current_expression in funcparam_data then
-        c_expr.expr &:= funcparam_data[current_expression];
-      else
+      when {POLLOBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = ENUMLITERALOBJECT then
-      if getType(current_expression) = typeData.voidtype then
-        c_expr.expr &:= "/* empty */\n";
-      else
+      when {WINOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= windowLiteral(getValue(current_expression, PRIMITIVE_WINDOW));
+        end if;
+      when {POINTLISTOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= pointListLiteral(getValue(current_expression, pointList));
+        end if;
+      when {PROCESSOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if getValue(current_expression, process) = process.EMPTY then
+            c_expr.expr &:= "/*process.EMPTY*/NULL";
+          else
+            c_expr.expr &:= "o_";
+            create_name(current_expression, c_expr.expr);
+          end if;
+        end if;
+      when {PROGOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          if getValue(current_expression, program) = program.EMPTY then
+            c_expr.expr &:= "/*program.EMPTY*/NULL";
+          else
+            c_expr.expr &:= "o_";
+            create_name(current_expression, c_expr.expr);
+          end if;
+        end if;
+      when {DATABASEOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= "/*database.value*/NULL";
+        end if;
+      when {SQLSTMTOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= "/*sqlStatement.value*/NULL";
+        end if;
+      when {CONSTENUMOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= enum_value(getValue(current_expression, reference));
+        end if;
+      when {VARENUMOBJECT}:
+        if current_expression in funcparam_data then
+          c_expr.expr &:= funcparam_data[current_expression];
+        else
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        end if;
+      when {ENUMLITERALOBJECT}:
+        if getType(current_expression) = typeData.voidtype then
+          c_expr.expr &:= "/* empty */\n";
+        else
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        end if;
+      when {EXPROBJECT}:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      end if;
-    elsif exprCategory = EXPROBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = ACTENTRYOBJECT then
-      if isVar(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr.expr);
-      else
-        c_expr.expr &:= "aceIConv(";
-        c_expr.expr &:= integerLiteral(ord(getValue(current_expression, ACTION)));
-        c_expr.expr &:= ")";
-      end if;
-    elsif exprCategory = SYMBOLOBJECT then
-      c_expr.expr &:= "/* SYMBOLOBJECT ";
-      c_expr.expr &:= str(current_expression);
-      c_expr.expr &:= " */";
-    else
-      c_expr.expr &:= "/* ";
-      c_expr.expr &:= str(exprCategory);
-      c_expr.expr &:= " */";
-    end if;
+      when {ACTENTRYOBJECT}:
+        if isVar(current_expression) then
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        else
+          c_expr.expr &:= "aceIConv(";
+          c_expr.expr &:= integerLiteral(ord(getValue(current_expression, ACTION)));
+          c_expr.expr &:= " /* ";
+          c_expr.expr &:= str(getValue(current_expression, ACTION));
+          c_expr.expr &:= " */)";
+        end if;
+      when {SYMBOLOBJECT}:
+        c_expr.expr &:= "/* SYMBOLOBJECT ";
+        c_expr.expr &:= str(current_expression);
+        c_expr.expr &:= " */";
+      otherwise:
+        c_expr.expr &:= "/* ";
+        c_expr.expr &:= str(exprCategory);
+        c_expr.expr &:= " */";
+    end case;
   end func;
 
 
@@ -2119,34 +2150,48 @@ const proc: process_call_by_name_expr (in var reference: current_expression, ino
 
   local
     var category: exprCategory is category.value;
+    var type: resultType is void;
   begin
     exprCategory := category(current_expression);
-    if exprCategory = MATCHOBJECT then
-      process_call(current_expression, c_expr);
-    elsif exprCategory = LOCALVOBJECT then
-      if isFunc(getType(current_expression)) or
-          isVarfunc(getType(current_expression)) then
-        process_func_call(current_expression, ref_list.EMPTY, c_expr);
-      else
-        process_expr(current_expression, c_expr);
-      end if;
-    elsif exprCategory = BLOCKOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-      if not isVar(current_expression) then
-        c_expr.expr &:= "()";
-        if resultType(getType(current_expression)) = typeData.voidtype then
-          c_expr.expr &:= ";\n";
+    case exprCategory of
+      when {MATCHOBJECT}:
+        process_call(current_expression, c_expr);
+      when {LOCALVOBJECT}:
+        if isFunc(getType(current_expression)) or
+            isVarfunc(getType(current_expression)) then
+          process_func_call(current_expression, ref_list.EMPTY, c_expr);
+        else
+          process_expr(current_expression, c_expr);
         end if;
-      end if;
-    elsif exprCategory = ACTOBJECT then
-      c_expr.expr &:= "/* process_call_by_name_expr ACTOBJECT ";
-      c_expr.expr &:= str(getValue(current_expression, ACTION));
-      c_expr.expr &:= " */";
-      process_action(current_expression, ref_list.EMPTY, c_expr);
-    else
-      process_expr(current_expression, c_expr);
-    end if;
+      when {BLOCKOBJECT}:
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+        if not isVar(current_expression) then
+          c_expr.expr &:= "()";
+          if resultType(getType(current_expression)) = typeData.voidtype then
+            c_expr.expr &:= ";\n";
+          end if;
+        end if;
+      when {ACTOBJECT}:
+        c_expr.expr &:= "/* process_call_by_name_expr ACTOBJECT ";
+        c_expr.expr &:= str(getValue(current_expression, ACTION));
+        c_expr.expr &:= " */";
+        process_action(current_expression, ref_list.EMPTY, c_expr);
+      when {CALLOBJECT}:
+        if isFunc(getType(current_expression)) or
+            isVarfunc(getType(current_expression)) then
+          resultType := resultType(getType(current_expression));
+          if isFunc(resultType) then
+            process_indirect_func_call(current_expression, c_expr);
+          else
+            process_call(current_expression, c_expr);
+          end if;
+        else
+          process_call(current_expression, c_expr);
+        end if;
+      otherwise:
+        process_expr(current_expression, c_expr);
+    end case;
   end func;
 
 
@@ -2706,7 +2751,6 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "].depth++;\n";
     end if;
     main_prolog &:= "setupStack(" <& config.stack_size <& ");\n";
-    main_prolog &:= "catch_stack_pos++;\n";
     main_prolog &:= "if (catch_stack != NULL &&\n";
     main_prolog &:= "    (fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     main_prolog &:= "setupRand();\n";
@@ -3116,231 +3160,152 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
   begin
     current_action := getValue(function, ACTION);
     action_name := str(current_action);
-    if action_name = "ARR_CPY" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "ARR_CREATE" then
-      object_type := getType(formalParams(function)[1]);
-      typeData.typeCategory @:= [object_type] ARRAYOBJECT;
-      process_generic_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_create_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "ARR_DESTR" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_destr_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "BIG_CMP" then
-      c_expr.expr &:= "&bigCmpGeneric";
-    elsif action_name = "BIG_CPY" then
-      c_expr.expr &:= "&bigCpyGeneric";
-    elsif action_name = "BIG_CREATE" then
-      c_expr.expr &:= "&bigCreateGeneric";
-    elsif action_name = "BIG_DESTR" then
-      c_expr.expr &:= "&bigDestrGeneric";
-    elsif action_name = "BIG_HASHCODE" then
-      c_expr.expr &:= "&bigHashCodeGeneric";
-    elsif action_name = "BIN_CMP" then
-      c_expr.expr &:= "&uintCmpGeneric";
-    elsif action_name = "BLN_ORD" then
-      c_expr.expr &:= "&genericHashCode";
-    elsif action_name = "BLN_CPY" then
-      c_expr.expr &:= "&genericCpy";
-    elsif action_name = "BLN_CREATE" then
-      c_expr.expr &:= "&genericCreate";
-    elsif action_name = "BST_CMP" then
-      c_expr.expr &:= "&bstCmpGeneric";
-    elsif action_name = "BST_CPY" then
-      c_expr.expr &:= "&bstCpyGeneric";
-    elsif action_name = "BST_CREATE" then
-      c_expr.expr &:= "&bstCreateGeneric";
-    elsif action_name = "BST_DESTR" then
-      c_expr.expr &:= "&bstDestrGeneric";
-    elsif action_name = "BST_HASHCODE" then
-      c_expr.expr &:= "&bstHashCodeGeneric";
-    elsif action_name = "CHR_CMP" then
-      c_expr.expr &:= "&chrCmpGeneric";
-    elsif action_name = "CHR_CPY" then
-      c_expr.expr &:= "&genericCpy";
-    elsif action_name = "CHR_CREATE" then
-      c_expr.expr &:= "&genericCreate";
-    elsif action_name = "CHR_HASHCODE" then
-      c_expr.expr &:= "&genericHashCode";
-    elsif action_name = "DRW_CMP" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "DRW_CPY" then
-      c_expr.expr &:= "&drwCpyGeneric";
-    elsif action_name = "DRW_CREATE" then
-      c_expr.expr &:= "&drwCreateGeneric";
-    elsif action_name = "DRW_DESTR" then
-      c_expr.expr &:= "&drwDestrGeneric";
-    elsif action_name = "DRW_HASHCODE" then
-      c_expr.expr &:= "&ptrHashCodeGeneric";
-    elsif action_name = "ENU_CPY" then
-      c_expr.expr &:= "&genericCpy";
-    elsif action_name = "ENU_CREATE" then
-      c_expr.expr &:= "&genericCreate";
-    elsif action_name = "FIL_CPY" then
-      c_expr.expr &:= "&filCpyGeneric";
-    elsif action_name = "FIL_CREATE" then
-      c_expr.expr &:= "&filCreateGeneric";
-    elsif action_name = "FIL_DESTR" then
-      c_expr.expr &:= "&filDestrGeneric";
-    elsif action_name = "FLT_CMP" then
-      c_expr.expr &:= "&fltCmpGeneric";
-    elsif action_name = "FLT_CPY" then
-      c_expr.expr &:= "&fltCpyGeneric";
-    elsif action_name = "FLT_CREATE" then
-      c_expr.expr &:= "&genericCreate";
-    elsif action_name = "FLT_HASHCODE" then
-      c_expr.expr &:= "&genericHashCode";
-    elsif action_name = "GEN_DESTR" then
-      c_expr.expr &:= "&genericDestr";
-    elsif action_name = "INT_CMP" then
-      c_expr.expr &:= "&intCmpGeneric";
-    elsif action_name = "INT_CPY" then
-      c_expr.expr &:= "&genericCpy";
-    elsif action_name = "INT_CREATE" then
-      c_expr.expr &:= "&genericCreate";
-    elsif action_name = "INT_HASHCODE" then
-      c_expr.expr &:= "&genericHashCode";
-    elsif action_name = "ITF_CMP" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "ITF_CPY" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "ITF_CREATE" then
-      c_expr.expr &:= "&itfCreateGeneric";
-    elsif action_name = "ITF_DESTR" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_destr_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "ITF_HASHCODE" then
-      c_expr.expr &:= "&ptrHashCodeGeneric";
-    elsif action_name = "PCS_CMP" then
-      c_expr.expr &:= "&pcsCmpGeneric";
-    elsif action_name = "PCS_CPY" then
-      c_expr.expr &:= "&pcsCpyGeneric";
-    elsif action_name = "PCS_CREATE" then
-      c_expr.expr &:= "&pcsCreateGeneric";
-    elsif action_name = "PCS_DESTR" then
-      c_expr.expr &:= "&pcsDestrGeneric";
-    elsif action_name = "PCS_HASHCODE" then
-      c_expr.expr &:= "&pcsHashCodeGeneric";
-    elsif action_name = "PLT_CMP" then
-      c_expr.expr &:= "&bstCmpGeneric";
-    elsif action_name = "PLT_CPY" then
-      c_expr.expr &:= "&bstCpyGeneric";
-    elsif action_name = "PLT_CREATE" then
-      c_expr.expr &:= "&bstCreateGeneric";
-    elsif action_name = "PLT_DESTR" then
-      c_expr.expr &:= "&bstDestrGeneric";
-    elsif action_name = "PLT_HASHCODE" then
-      c_expr.expr &:= "&bstHashCodeGeneric";
-    elsif action_name = "PRC_NOOP" then
-      c_expr.expr &:= "&prcNoop";
-    elsif action_name = "PRG_CMP" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "PRG_CPY" then
-      c_expr.expr &:= "&prgCpyGeneric";
-    elsif action_name = "PRG_CREATE" then
-      c_expr.expr &:= "&prgCreateGeneric";
-    elsif action_name = "PRG_DESTR" then
-      c_expr.expr &:= "&prgDestrGeneric";
-    elsif action_name = "PRG_HASHCODE" then
-      c_expr.expr &:= "&ptrHashCodeGeneric";
-    elsif action_name = "REF_CMP" or
-          action_name = "SEL_CMP" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "REF_CPY" or
-          action_name = "SEL_CPY" then
-      c_expr.expr &:= "&ptrCpyGeneric";
-    elsif action_name = "REF_CREATE" or
-          action_name = "SEL_CREATE" then
-      c_expr.expr &:= "&ptrCreateGeneric";
-    elsif action_name = "REF_HASHCODE" or
-          action_name = "SEL_HASHCODE" then
-      c_expr.expr &:= "&ptrHashCodeGeneric";
-    elsif action_name = "RFL_CMP" then
-      c_expr.expr &:= "&rflCmpGeneric";
-    elsif action_name = "RFL_CPY" then
-      c_expr.expr &:= "&rflCpyGeneric";
-    elsif action_name = "RFL_CREATE" then
-      c_expr.expr &:= "&rflCreateGeneric";
-    elsif action_name = "RFL_DESTR" then
-      c_expr.expr &:= "&rflDestrGeneric";
-    elsif action_name = "SCT_CPY" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "SCT_CREATE" then
-      object_type := getType(formalParams(function)[1]);
-      typeData.typeCategory @:= [object_type] STRUCTOBJECT;
-      process_generic_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_create_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "SCT_DESTR" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_destr_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "SET_CMP" then
-      c_expr.expr &:= "&setCmpGeneric";
-    elsif action_name = "SET_CPY" then
-      c_expr.expr &:= "&setCpyGeneric";
-    elsif action_name = "SET_CREATE" then
-      c_expr.expr &:= "&setCreateGeneric";
-    elsif action_name = "SET_DESTR" then
-      c_expr.expr &:= "&setDestrGeneric";
-    elsif action_name = "SET_HASHCODE" then
-      c_expr.expr &:= "&setHashCodeGeneric";
-    elsif action_name = "SQL_CMP_DB" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "SQL_CPY_DB" then
-      c_expr.expr &:= "&sqlCpyDbGeneric";
-    elsif action_name = "SQL_CREATE_DB" then
-      c_expr.expr &:= "&sqlCreateDbGeneric";
-    elsif action_name = "SQL_DESTR_DB" then
-      c_expr.expr &:= "&sqlDestrDbGeneric";
-    elsif action_name = "SQL_CMP_STMT" then
-      c_expr.expr &:= "&ptrCmpGeneric";
-    elsif action_name = "SQL_CPY_STMT" then
-      c_expr.expr &:= "&sqlCpyStmtGeneric";
-    elsif action_name = "SQL_CREATE_STMT" then
-      c_expr.expr &:= "&sqlCreateStmtGeneric";
-    elsif action_name = "SQL_DESTR_STMT" then
-      c_expr.expr &:= "&sqlDestrStmtGeneric";
-    elsif action_name = "STR_CMP" then
-      c_expr.expr &:= "&strCmpGeneric";
-    elsif action_name = "STR_CPY" then
-      c_expr.expr &:= "&strCpyGeneric";
-    elsif action_name = "STR_CREATE" then
-      c_expr.expr &:= "&strCreateGeneric";
-    elsif action_name = "STR_DESTR" then
-      c_expr.expr &:= "&strDestrGeneric";
-    elsif action_name = "STR_HASHCODE" then
-      c_expr.expr &:= "&strHashCodeGeneric";
-    elsif action_name = "TYP_CMP" then
-      c_expr.expr &:= "&typCmpGeneric";
-    elsif action_name = "TYP_CPY" then
-      c_expr.expr &:= "&ptrCpyGeneric";
-    elsif action_name = "TYP_CREATE" then
-      c_expr.expr &:= "&ptrCreateGeneric";
-    elsif action_name = "TYP_DESTR" then
-      c_expr.expr &:= "&genericDestr";
-    elsif action_name = "TYP_HASHCODE" then
-      c_expr.expr &:= "&ptrHashCodeGeneric";
-    else
-      c_expr.expr &:= "NULL /* ACTOBJECT { ";
-      c_expr.expr &:= action_name;
-      c_expr.expr &:= " }*/";
-    end if;
+    case action_name of
+      when {"ACE_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"ACE_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"ACE_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"ACE_HASHCODE"}:    c_expr.expr &:= "&aceHashCode";
+      when {"ARR_CPY"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"ARR_CREATE"}:
+        object_type := getType(formalParams(function)[1]);
+        typeData.typeCategory @:= [object_type] ARRAYOBJECT;
+        process_value_create_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_create_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"ARR_DESTR"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"BIG_CMP"}:         c_expr.expr &:= "&bigCmpValue";
+      when {"BIG_CPY"}:         c_expr.expr &:= "&bigCpyValue";
+      when {"BIG_CREATE"}:      c_expr.expr &:= "&bigCreateValue";
+      when {"BIG_DESTR"}:       c_expr.expr &:= "&bigDestrValue";
+      when {"BIG_HASHCODE"}:    c_expr.expr &:= "&bigHashCodeValue";
+      when {"BIN_CMP"}:         c_expr.expr &:= "&uintCmpValue";
+      when {"BLN_ORD"}:         c_expr.expr &:= "&valueHashCode";
+      when {"BLN_CPY"}:         c_expr.expr &:= "&blnCpyValue";
+      when {"BLN_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"BST_CMP"}:         c_expr.expr &:= "&bstCmpValue";
+      when {"BST_CPY"}:         c_expr.expr &:= "&bstCpyValue";
+      when {"BST_CREATE"}:      c_expr.expr &:= "&bstCreateValue";
+      when {"BST_DESTR"}:       c_expr.expr &:= "&bstDestrValue";
+      when {"BST_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeValue";
+      when {"CHR_CMP"}:         c_expr.expr &:= "&chrCmpValue";
+      when {"CHR_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"CHR_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"CHR_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"DRW_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"DRW_CPY"}:         c_expr.expr &:= "&drwCpyValue";
+      when {"DRW_CREATE"}:      c_expr.expr &:= "&drwCreateValue";
+      when {"DRW_DESTR"}:       c_expr.expr &:= "&drwDestrValue";
+      when {"DRW_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"ENU_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"ENU_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"FIL_CPY"}:         c_expr.expr &:= "&filCpyValue";
+      when {"FIL_CREATE"}:      c_expr.expr &:= "&filCreateValue";
+      when {"FIL_DESTR"}:       c_expr.expr &:= "&filDestrValue";
+      when {"FLT_CMP"}:         c_expr.expr &:= "&fltCmpValue";
+      when {"FLT_CPY"}:         c_expr.expr &:= "&fltCpyValue";
+      when {"FLT_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"FLT_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"GEN_DESTR"}:       c_expr.expr &:= "&valueDestr";
+      when {"INT_CMP"}:         c_expr.expr &:= "&intCmpValue";
+      when {"INT_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"INT_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"INT_HASHCODE"}:    c_expr.expr &:= "&valueHashCode";
+      when {"ITF_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"ITF_CPY"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"ITF_CREATE"}:      c_expr.expr &:= "&itfCreateValue";
+      when {"ITF_DESTR"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"ITF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"PCS_CMP"}:         c_expr.expr &:= "&pcsCmpValue";
+      when {"PCS_CPY"}:         c_expr.expr &:= "&pcsCpyValue";
+      when {"PCS_CREATE"}:      c_expr.expr &:= "&pcsCreateValue";
+      when {"PCS_DESTR"}:       c_expr.expr &:= "&pcsDestrValue";
+      when {"PCS_HASHCODE"}:    c_expr.expr &:= "&pcsHashCodeValue";
+      when {"PLT_CMP"}:         c_expr.expr &:= "&bstCmpValue";
+      when {"PLT_CPY"}:         c_expr.expr &:= "&bstCpyValue";
+      when {"PLT_CREATE"}:      c_expr.expr &:= "&bstCreateValue";
+      when {"PLT_DESTR"}:       c_expr.expr &:= "&bstDestrValue";
+      when {"PLT_HASHCODE"}:    c_expr.expr &:= "&bstHashCodeValue";
+      when {"PRC_NOOP"}:        c_expr.expr &:= "&prcNoop";
+      when {"PRG_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"PRG_CPY"}:         c_expr.expr &:= "&prgCpyValue";
+      when {"PRG_CREATE"}:      c_expr.expr &:= "&prgCreateValue";
+      when {"PRG_DESTR"}:       c_expr.expr &:= "&prgDestrValue";
+      when {"PRG_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"REF_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"REF_CPY"}:         c_expr.expr &:= "&ptrCpyValue";
+      when {"REF_CREATE"}:      c_expr.expr &:= "&ptrCreateValue";
+      when {"REF_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"RFL_CMP"}:         c_expr.expr &:= "&rflCmpValue";
+      when {"RFL_CPY"}:         c_expr.expr &:= "&rflCpyValue";
+      when {"RFL_CREATE"}:      c_expr.expr &:= "&rflCreateValue";
+      when {"RFL_DESTR"}:       c_expr.expr &:= "&rflDestrValue";
+      when {"SCT_CPY"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_cpy_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_cpy_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"SCT_CREATE"}:
+        object_type := getType(formalParams(function)[1]);
+        typeData.typeCategory @:= [object_type] STRUCTOBJECT;
+        process_value_create_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_create_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"SCT_DESTR"}:
+        object_type := getType(formalParams(function)[1]);
+        process_value_destr_declaration(object_type, global_c_expr);
+        c_expr.expr &:= "&value_destr_";
+        c_expr.expr &:= str(typeNumber(object_type));
+      when {"SEL_CMP"}:         c_expr.expr &:= "&ptrCmpValue";
+      when {"SEL_CPY"}:         c_expr.expr &:= "&valueCpy";
+      when {"SEL_CREATE"}:      c_expr.expr &:= "&valueCreate";
+      when {"SEL_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      when {"SET_CMP"}:         c_expr.expr &:= "&setCmpValue";
+      when {"SET_CPY"}:         c_expr.expr &:= "&setCpyValue";
+      when {"SET_CREATE"}:      c_expr.expr &:= "&setCreateValue";
+      when {"SET_DESTR"}:       c_expr.expr &:= "&setDestrValue";
+      when {"SET_HASHCODE"}:    c_expr.expr &:= "&setHashCodeValue";
+      when {"SOC_CPY"}:         c_expr.expr &:= "&socCpyValue";
+      when {"SOC_CREATE"}:      c_expr.expr &:= "&socCreateValue";
+      when {"SOC_DESTR"}:       c_expr.expr &:= "&socDestrValue";
+      when {"SQL_CMP_DB"}:      c_expr.expr &:= "&ptrCmpValue";
+      when {"SQL_CPY_DB"}:      c_expr.expr &:= "&sqlCpyDbValue";
+      when {"SQL_CREATE_DB"}:   c_expr.expr &:= "&sqlCreateDbValue";
+      when {"SQL_DESTR_DB"}:    c_expr.expr &:= "&sqlDestrDbValue";
+      when {"SQL_CMP_STMT"}:    c_expr.expr &:= "&ptrCmpValue";
+      when {"SQL_CPY_STMT"}:    c_expr.expr &:= "&sqlCpyStmtValue";
+      when {"SQL_CREATE_STMT"}: c_expr.expr &:= "&sqlCreateStmtValue";
+      when {"SQL_DESTR_STMT"}:  c_expr.expr &:= "&sqlDestrStmtValue";
+      when {"STR_CMP"}:         c_expr.expr &:= "&strCmpValue";
+      when {"STR_CPY"}:         c_expr.expr &:= "&strCpyValue";
+      when {"STR_CREATE"}:      c_expr.expr &:= "&strCreateValue";
+      when {"STR_DESTR"}:       c_expr.expr &:= "&strDestrValue";
+      when {"STR_HASHCODE"}:    c_expr.expr &:= "&strHashCodeValue";
+      when {"TYP_CMP"}:         c_expr.expr &:= "&typCmpValue";
+      when {"TYP_CPY"}:         c_expr.expr &:= "&ptrCpyValue";
+      when {"TYP_CREATE"}:      c_expr.expr &:= "&ptrCreateValue";
+      when {"TYP_DESTR"}:       c_expr.expr &:= "&valueDestr";
+      when {"TYP_HASHCODE"}:    c_expr.expr &:= "&ptrHashCodeValue";
+      otherwise:
+        c_expr.expr &:= "NULL /* ACTOBJECT { ";
+        c_expr.expr &:= action_name;
+        c_expr.expr &:= " }*/";
+    end case;
   end func;
 
 
@@ -3357,40 +3322,40 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
         str(formal_params[2]) = "hashCode" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_hashCode_declaration(function, object_type, global_c_expr);
-      c_expr.expr &:= "&generic_hashCode_";
+      process_value_hashCode_declaration(function, object_type, global_c_expr);
+      c_expr.expr &:= "&value_hashCode_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = ":=" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
+      process_value_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = "::=" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_create_";
+      process_value_create_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_create_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 2 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = "destroy" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_destr_";
+      process_value_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&value_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[3]) = SYMBOLOBJECT and
         str(formal_params[3]) = "compare" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      process_generic_cmp_declaration(function, object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cmp_";
+      process_value_cmp_declaration(function, object_type, global_c_expr);
+      c_expr.expr &:= "&value_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
       address_written := TRUE;
     end if;
@@ -3524,7 +3489,7 @@ const proc: process_socket_declaration (in reference: current_object,
   begin
     c_expr.expr &:= "socketType o_";
     create_name(current_object, c_expr.expr);
-    c_expr.expr &:= " = (socketType) -1;\n\n";
+    c_expr.expr &:= " = &emptySocketRecord;\n\n";
     count_declarations(c_expr);
   end func;
 
@@ -3757,6 +3722,28 @@ const proc: process_prog_declaration (in reference: current_object,
       c_expr.expr &:= "=NULL;\n\n";
       count_declarations(c_expr);
     end if;
+  end func;
+
+
+const proc: process_database_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "databaseType o_";
+    create_name(current_object, c_expr.expr);
+    c_expr.expr &:= "=NULL;\n\n";
+    count_declarations(c_expr);
+  end func;
+
+
+const proc: process_sql_stmt_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "sqlStmtType o_";
+    create_name(current_object, c_expr.expr);
+    c_expr.expr &:= "=NULL;\n\n";
+    count_declarations(c_expr);
   end func;
 
 
@@ -4335,9 +4322,9 @@ const func boolean: process_dynamic_param_struct_elem (in reference: current_obj
     c_switch.expr &:= str(numOfElementNameTable);
     c_switch.expr &:= "], name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ".value.genericValue, ustriHash(name_";
+    c_switch.expr &:= ".value, ustriHashCode(name_";
     c_switch.expr &:= str(symbolTempNum);
-    c_switch.expr &:= ".value.ustriValue), (compareType)(&ustriCmpGeneric))) {\n";
+    c_switch.expr &:= ".value.ustriValue), (compareFuncType)(&ustriCmpValue)).intValue) {\n";
     elements := structSymbols(prog);
     for structSymbol range elements do
       backupParam := formal_params[paramNum];
@@ -5091,127 +5078,128 @@ const proc: process_action_declaration (in reference: current_object,
     else
       current_action := getValue(current_object, ACTION);
       action_name := str(current_action);
-      if action_name = "PRC_DYNAMIC" then
-        process_dynamic_declaration(current_object, c_expr);
-        count_declarations(c_expr);
-      elsif action_name = "ACT_CPY" then
-        defineParam1TypeCategory(current_object, ACTOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_CPY" then
-        process_arr_cpy_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_CREATE" then
-        process_arr_create_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_DESTR" then
-        process_arr_destr_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_GEN" then
-        process_arr_gen_declaration(current_object, c_expr);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_IDX" then
-        process_arr_idx_declaration(current_object, c_expr);
-        count_declarations(c_expr);
-      elsif action_name = "ARR_TIMES" then
-        process_arr_times_declaration(current_object, c_expr);
-        count_declarations(c_expr);
-      elsif action_name = "BIG_CPY" or action_name = "BIG_CREATE" then
-        defineParam1TypeCategory(current_object, BIGINTOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "BLN_CPY" then
-        defineParam1TypeCategory(current_object, BOOLOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "BST_CPY" or action_name = "BST_CREATE" then
-        defineParam1TypeCategory(current_object, BSTRIOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "DRW_CPY" or action_name = "DRW_CREATE" then
-        defineParam1TypeCategory(current_object, WINOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "PLT_CPY" or action_name = "PLT_CREATE" then
-        defineParam1TypeCategory(current_object, POINTLISTOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "PCS_CPY" or action_name = "PCS_CREATE" then
-        defineParam1TypeCategory(current_object, PROCESSOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "ENU_CPY" then
-        defineParam1TypeCategory(current_object, ENUMOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "FIL_CPY" or action_name = "FIL_CREATE" then
-        defineParam1TypeCategory(current_object, FILEOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "FLT_CPY" or action_name = "FLT_CREATE" then
-        defineParam1TypeCategory(current_object, FLOATOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "HSH_CONCAT_KEY_VALUE" then
-        defineParam1TypeCategory(current_object, HASHELEMOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "HSH_CPY" then
-        process_hsh_cpy_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "HSH_CREATE" then
-        process_hsh_create_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "HSH_DESTR" then
-        process_hsh_destr_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "INT_CPY" or action_name = "INT_CREATE" then
-        defineParam1TypeCategory(current_object, INTOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "ITF_CPY" then
-        defineParam1TypeCategory(current_object, INTERFACEOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "ITF_CPY2" then
-        defineParam1TypeCategory(current_object, INTERFACEOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "POL_CPY" or action_name = "POL_CREATE" then
-        defineParam1TypeCategory(current_object, POLLOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "POL_NEXT_FILE" then
-        process_itf_next_file_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "PRG_CPY" or action_name = "PRG_CREATE" then
-        defineParam1TypeCategory(current_object, PROGOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "REF_CPY" or action_name = "REF_CREATE" then
-        defineParam1TypeCategory(current_object, REFOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "RFL_CPY" or action_name = "RFL_CREATE" then
-        defineParam1TypeCategory(current_object, REFLISTOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "SCT_CPY" then
-        process_sct_cpy_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "SCT_CREATE" then
-        process_sct_create_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "SCT_DESTR" then
-        process_sct_destr_declaration(current_object);
-        count_declarations(c_expr);
-      elsif action_name = "SCT_SELECT" then
-        process_sct_select_declaration(current_object, c_expr);
-        count_declarations(c_expr);
-      elsif action_name = "SEL_CPY" or action_name = "SEL_CREATE" then
-        defineParam1TypeCategory(current_object, STRUCTELEMOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "SET_CPY" or action_name = "SET_CREATE" then
-        defineParam1TypeCategory(current_object, SETOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
-        defineParam1TypeCategory(current_object, SOCKETOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "SQL_CPY_DB" or action_name = "SQL_CREATE_DB" then
-        defineParam1TypeCategory(current_object, DATABASEOBJECT);
-        count_declarations(c_expr);
-      elsif action_name = "SQL_CPY_STMT" or action_name = "SQL_CREATE_STMT" then
-        defineParam1TypeCategory(current_object, SQLSTMTOBJECT);
-        count_declarations(c_expr);
+      case action_name of
+        when {"PRC_DYNAMIC"}:
+          process_dynamic_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ACE_CPY"}:
+          defineParam1TypeCategory(current_object, ACTENTRYOBJECT);
+          count_declarations(c_expr);
+        when {"ARR_CPY"}:
+          process_arr_cpy_declaration(current_object);
+          count_declarations(c_expr);
+        when {"ARR_CREATE"}:
+          process_arr_create_declaration(current_object);
+          count_declarations(c_expr);
+        when {"ARR_DESTR"}:
+          process_arr_destr_declaration(current_object);
+          count_declarations(c_expr);
+        when {"ARR_GEN"}:
+          process_arr_gen_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ARR_IDX"}:
+          process_arr_idx_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ARR_TIMES"}:
+          process_arr_times_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"BIG_CPY", "BIG_CREATE"}:
+          defineParam1TypeCategory(current_object, BIGINTOBJECT);
+          count_declarations(c_expr);
+        when {"BLN_CPY"}:
+          defineParam1TypeCategory(current_object, BOOLOBJECT);
+          count_declarations(c_expr);
+        when {"BST_CPY", "BST_CREATE"}:
+          defineParam1TypeCategory(current_object, BSTRIOBJECT);
+          count_declarations(c_expr);
+        when {"DRW_CPY", "DRW_CREATE"}:
+          defineParam1TypeCategory(current_object, WINOBJECT);
+          count_declarations(c_expr);
+        when {"PLT_CPY", "PLT_CREATE"}:
+          defineParam1TypeCategory(current_object, POINTLISTOBJECT);
+          count_declarations(c_expr);
+        when {"PCS_CPY", "PCS_CREATE"}:
+          defineParam1TypeCategory(current_object, PROCESSOBJECT);
+          count_declarations(c_expr);
+        when {"ENU_CPY"}:
+          defineParam1TypeCategory(current_object, ENUMOBJECT);
+          count_declarations(c_expr);
+        when {"FIL_CPY", "FIL_CREATE"}:
+          defineParam1TypeCategory(current_object, FILEOBJECT);
+          count_declarations(c_expr);
+        when {"FLT_CPY", "FLT_CREATE"}:
+          defineParam1TypeCategory(current_object, FLOATOBJECT);
+          count_declarations(c_expr);
+        when {"HSH_CONCAT_KEY_VALUE"}:
+          defineParam1TypeCategory(current_object, HASHELEMOBJECT);
+          count_declarations(c_expr);
+        when {"HSH_CPY"}:
+          process_hsh_cpy_declaration(current_object);
+          count_declarations(c_expr);
+        when {"HSH_CREATE"}:
+          process_hsh_create_declaration(current_object);
+          count_declarations(c_expr);
+        when {"HSH_DESTR"}:
+          process_hsh_destr_declaration(current_object);
+          count_declarations(c_expr);
+        when {"INT_CPY", "INT_CREATE"}:
+          defineParam1TypeCategory(current_object, INTOBJECT);
+          count_declarations(c_expr);
+        when {"ITF_CPY"}:
+          defineParam1TypeCategory(current_object, INTERFACEOBJECT);
+          count_declarations(c_expr);
+        when {"ITF_CPY2"}:
+          defineParam1TypeCategory(current_object, INTERFACEOBJECT);
+          count_declarations(c_expr);
+        when {"POL_CPY", "POL_CREATE"}:
+          defineParam1TypeCategory(current_object, POLLOBJECT);
+          count_declarations(c_expr);
+        when {"POL_NEXT_FILE"}:
+          process_itf_next_file_declaration(current_object);
+          count_declarations(c_expr);
+        when {"PRG_CPY", "PRG_CREATE"}:
+          defineParam1TypeCategory(current_object, PROGOBJECT);
+          count_declarations(c_expr);
+        when {"REF_CPY", "REF_CREATE"}:
+          defineParam1TypeCategory(current_object, REFOBJECT);
+          count_declarations(c_expr);
+        when {"RFL_CPY", "RFL_CREATE"}:
+          defineParam1TypeCategory(current_object, REFLISTOBJECT);
+          count_declarations(c_expr);
+        when {"SCT_CPY"}:
+          process_sct_cpy_declaration(current_object);
+          count_declarations(c_expr);
+        when {"SCT_CREATE"}:
+          process_sct_create_declaration(current_object);
+          count_declarations(c_expr);
+        when {"SCT_DESTR"}:
+          process_sct_destr_declaration(current_object);
+          count_declarations(c_expr);
+        when {"SCT_SELECT"}:
+          process_sct_select_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"SEL_CPY", "SEL_CREATE"}:
+          defineParam1TypeCategory(current_object, STRUCTELEMOBJECT);
+          count_declarations(c_expr);
+        when {"SET_CPY", "SET_CREATE"}:
+          defineParam1TypeCategory(current_object, SETOBJECT);
+          count_declarations(c_expr);
+        when {"SOC_CPY", "SOC_CREATE"}:
+          defineParam1TypeCategory(current_object, SOCKETOBJECT);
+          count_declarations(c_expr);
+        when {"SQL_CPY_DB", "SQL_CREATE_DB"}:
+          defineParam1TypeCategory(current_object, DATABASEOBJECT);
+          count_declarations(c_expr);
+        when {"SQL_CPY_STMT", "SQL_CREATE_STMT"}:
+          defineParam1TypeCategory(current_object, SQLSTMTOBJECT);
+          count_declarations(c_expr);
 (*
-      else
-        c_expr.expr &:= "/* ACTION ";
-        c_expr.expr &:= action_name;
-        c_expr.expr &:= " */";
+        otherwise:
+          c_expr.expr &:= "/* ACTION ";
+          c_expr.expr &:= action_name;
+          c_expr.expr &:= " */";
 *)
-      end if;
+      end case;
     end if;
   end func;
 
@@ -5222,74 +5210,80 @@ const proc: process_object_declaration (in reference: current_object,
   local
     var category: objectCategory is category.value;
   begin
-    objectCategory := category(current_object);
     if current_object = main_object then
       if category(current_object) = FORWARDOBJECT then
         process_library_initialisation(current_object, c_expr);
       else
         process_main_declaration(current_object, c_expr);
       end if;
-    elsif objectCategory = BLOCKOBJECT then
-      process_func_declaration(current_object, c_expr);
-    elsif objectCategory = TYPEOBJECT then
-      process_type_declaration(current_object, c_expr);
-    elsif objectCategory = INTOBJECT then
-      process_int_declaration(current_object, c_expr);
-    elsif objectCategory = BIGINTOBJECT then
-      process_bigint_declaration(current_object, c_expr);
-    elsif objectCategory = CHAROBJECT then
-      process_char_declaration(current_object, c_expr);
-    elsif objectCategory = STRIOBJECT then
-      process_stri_declaration(current_object, c_expr);
-    elsif objectCategory = BSTRIOBJECT then
-      process_bstri_declaration(current_object, c_expr);
-    elsif objectCategory = FLOATOBJECT then
-      process_float_declaration(current_object, c_expr);
-    elsif objectCategory = REFOBJECT or
-          objectCategory = STRUCTELEMOBJECT then
-      process_reference_declaration(current_object, c_expr);
-    elsif objectCategory = REFLISTOBJECT then
-      process_ref_list_declaration(current_object, c_expr);
-    elsif objectCategory = FILEOBJECT then
-      process_file_declaration(current_object, c_expr);
-    elsif objectCategory = SOCKETOBJECT then
-      process_socket_declaration(current_object, c_expr);
-    elsif objectCategory = POLLOBJECT then
-      process_poll_declaration(current_object, c_expr);
-    elsif objectCategory = ARRAYOBJECT then
-      process_array_declaration(current_object, c_expr);
-    elsif objectCategory = HASHOBJECT then
-      process_hash_declaration(current_object, c_expr);
-    elsif objectCategory = SETOBJECT then
-      process_set_declaration(current_object, c_expr);
-    elsif objectCategory = STRUCTOBJECT then
-      process_struct_declaration(current_object, c_expr);
-    elsif objectCategory = INTERFACEOBJECT then
-      process_interface_declaration(current_object, c_expr);
-    elsif objectCategory = WINOBJECT then
-      process_win_declaration(current_object, c_expr);
-    elsif objectCategory = POINTLISTOBJECT then
-      process_plist_declaration(current_object, c_expr);
-    elsif objectCategory = PROCESSOBJECT then
-      process_process_declaration(current_object, c_expr);
-    elsif objectCategory = PROGOBJECT then
-      process_prog_declaration(current_object, c_expr);
-    elsif objectCategory = CONSTENUMOBJECT then
-      process_enum_declaration(current_object, c_expr);
-    elsif objectCategory = VARENUMOBJECT then
-      process_enum_declaration(current_object, c_expr);
-    elsif objectCategory = ENUMLITERALOBJECT then
-      process_enum_literal_declaration(current_object, c_expr);
-    elsif objectCategory = ACTOBJECT then
-      process_action_declaration(current_object, c_expr);
-    elsif objectCategory = FWDREFOBJECT then
-      process_forward_declaration(current_object, c_expr);
     else
-      c_expr.expr &:= "/* ";
-      c_expr.expr &:= str(objectCategory);
-      c_expr.expr &:= ": ";
-      create_name2(current_object, c_expr.expr);
-      c_expr.expr &:= " */\n";
+      objectCategory := category(current_object);
+      case objectCategory of
+        when {BLOCKOBJECT}:
+          process_func_declaration(current_object, c_expr);
+        when {TYPEOBJECT}:
+          process_type_declaration(current_object, c_expr);
+        when {INTOBJECT}:
+          process_int_declaration(current_object, c_expr);
+        when {BIGINTOBJECT}:
+          process_bigint_declaration(current_object, c_expr);
+        when {CHAROBJECT}:
+          process_char_declaration(current_object, c_expr);
+        when {STRIOBJECT}:
+          process_stri_declaration(current_object, c_expr);
+        when {BSTRIOBJECT}:
+          process_bstri_declaration(current_object, c_expr);
+        when {FLOATOBJECT}:
+          process_float_declaration(current_object, c_expr);
+        when {REFOBJECT, STRUCTELEMOBJECT}:
+          process_reference_declaration(current_object, c_expr);
+        when {REFLISTOBJECT}:
+          process_ref_list_declaration(current_object, c_expr);
+        when {FILEOBJECT}:
+          process_file_declaration(current_object, c_expr);
+        when {SOCKETOBJECT}:
+          process_socket_declaration(current_object, c_expr);
+        when {POLLOBJECT}:
+          process_poll_declaration(current_object, c_expr);
+        when {ARRAYOBJECT}:
+          process_array_declaration(current_object, c_expr);
+        when {HASHOBJECT}:
+          process_hash_declaration(current_object, c_expr);
+        when {SETOBJECT}:
+          process_set_declaration(current_object, c_expr);
+        when {STRUCTOBJECT}:
+          process_struct_declaration(current_object, c_expr);
+        when {INTERFACEOBJECT}:
+          process_interface_declaration(current_object, c_expr);
+        when {WINOBJECT}:
+          process_win_declaration(current_object, c_expr);
+        when {POINTLISTOBJECT}:
+          process_plist_declaration(current_object, c_expr);
+        when {PROCESSOBJECT}:
+          process_process_declaration(current_object, c_expr);
+        when {PROGOBJECT}:
+          process_prog_declaration(current_object, c_expr);
+        when {DATABASEOBJECT}:
+          process_database_declaration(current_object, c_expr);
+        when {SQLSTMTOBJECT}:
+          process_sql_stmt_declaration(current_object, c_expr);
+        when {CONSTENUMOBJECT}:
+          process_enum_declaration(current_object, c_expr);
+        when {VARENUMOBJECT}:
+          process_enum_declaration(current_object, c_expr);
+        when {ENUMLITERALOBJECT}:
+          process_enum_literal_declaration(current_object, c_expr);
+        when {ACTOBJECT}:
+          process_action_declaration(current_object, c_expr);
+        when {FWDREFOBJECT}:
+          process_forward_declaration(current_object, c_expr);
+        otherwise:
+          c_expr.expr &:= "/* ";
+          c_expr.expr &:= str(objectCategory);
+          c_expr.expr &:= ": ";
+          create_name2(current_object, c_expr.expr);
+          c_expr.expr &:= " */\n";
+      end case;
     end if;
   end func;
 
@@ -5309,27 +5303,25 @@ const proc: replaceLocalsFromOutside (in reference: local_function,
     for paramNum range 1 to length(params) do
       aParam := params[paramNum];
       paramCategory := category(aParam);
-      if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT then
-        replaceLocalsFromOutside(local_function, aParam, local_objects,
-            additional_act_params, additional_form_params);
-      elsif paramCategory = LOCALVOBJECT or
-            paramCategory = VALUEPARAMOBJECT or
-            paramCategory = REFPARAMOBJECT or
-            paramCategory = RESULTOBJECT then
-        if aParam not in local_objects then
-          if aParam in additional_act_params then
-            formalRefParam := additional_form_params[pos(additional_act_params, aParam)];
-          elsif local_function in params_added and
-              aParam in params_added[local_function] then
-            formalRefParam := params_added[local_function][aParam];
-          else
-            additional_act_params &:= make_list(aParam);
-            formalRefParam := alloc(REFPARAMOBJECT, aParam);
-            additional_form_params &:= make_list(formalRefParam);
+      case paramCategory of
+        when {MATCHOBJECT, CALLOBJECT}:
+          replaceLocalsFromOutside(local_function, aParam, local_objects,
+              additional_act_params, additional_form_params);
+        when {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT}:
+          if aParam not in local_objects then
+            if aParam in additional_act_params then
+              formalRefParam := additional_form_params[pos(additional_act_params, aParam)];
+            elsif local_function in params_added and
+                aParam in params_added[local_function] then
+              formalRefParam := params_added[local_function][aParam];
+            else
+              additional_act_params &:= make_list(aParam);
+              formalRefParam := alloc(REFPARAMOBJECT, aParam);
+              additional_form_params &:= make_list(formalRefParam);
+            end if;
+            params @:= [paramNum] formalRefParam;
           end if;
-          params @:= [paramNum] formalRefParam;
-        end if;
-      end if;
+      end case;
     end for;
     setValue(current_expression, params);
   end func;
@@ -5612,6 +5604,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uintType bitSetType;");
     writeln(c_prog, "typedef uint" <& ccConf.POINTER_SIZE <& "Type memSizeType;");
     writeln(c_prog, "typedef FILE *cFileType;");
+    writeln(c_prog, "typedef int socketNumberType;");
     writeln(c_prog, "typedef char *cstriType;");
     writeln(c_prog, "typedef const char *const_cstriType;");
     writeln(c_prog, "typedef unsigned char *ustriType;");
@@ -5645,6 +5638,11 @@ const proc: write_file_head is func
                     \  uintType usage_count;\n\
                     \} *fileType;");
     writeln(c_prog, "typedef const struct fileStruct  *const_fileType;");
+    writeln(c_prog, "typedef struct socketStruct {\n\
+                    \  socketNumberType socketNumber;\n\
+                    \  uintType usage_count;\n\
+                    \} *socketType;");
+    writeln(c_prog, "typedef const struct socketStruct  *const_socketType;");
     writeln(c_prog, "typedef struct setStruct {\n\
                     \  intType min_position;\n\
                     \  intType max_position;\n\
@@ -5673,6 +5671,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef const struct processStruct *const_processType;");
     writeln(c_prog, "typedef struct databaseStruct {\n\
                     \  uintType usage_count;\n\
+                    \  boolType isOpen;\n\
                     \} *databaseType;");
     writeln(c_prog, "typedef const struct databaseStruct *const_databaseType;");
     writeln(c_prog, "typedef struct sqlStmtStruct {\n\
@@ -5704,13 +5703,13 @@ const proc: write_file_head is func
                     \typedef struct listStruct *listType;\n\
                     \typedef const struct listStruct *const_listType;\n\
                     \typedef objRefType (*actType) (listType);\n\
+                    \typedef void *rtlPtrType;\n\
                     \typedef struct {\n\
                     \  const_cstriType name;\n\
                     \  actType action;\n\
                     \} actEntryRecord;\n\
                     \typedef actEntryRecord *actEntryType;\n\
-                    \typedef const actEntryRecord *const_actEntryType;\n\
-                    \typedef int socketType;");
+                    \typedef const actEntryRecord *const_actEntryType;");
     writeln(c_prog, "typedef uint" <& ccConf.GENERIC_SIZE <& "Type genericType;");
     writeln(c_prog, "typedef union {\n\
                     \  genericType   genericValue;\n\
@@ -5738,6 +5737,7 @@ const proc: write_file_head is func
                     \  interfaceType interfaceValue;\n\
                     \  objRefType    objRefValue;\n\
                     \  listType      listValue;\n\
+                    \  rtlPtrType    ptrValue;\n\
                     \  const_actEntryType actEntryValue;\n\
                     \  actType       actValue;\n\
                     \  ustriType     ustriValue;\n\
@@ -5877,11 +5877,11 @@ const proc: write_file_head is func
                     \  uint64Type bits;\n\
                     \  double aDouble;\n\
                     \} double2BitsUnion;");
-    writeln(c_prog, "typedef intType (*hashCodeFuncType) (genericType);");
-    writeln(c_prog, "typedef intType (*compareType) (genericType, genericType);");
-    writeln(c_prog, "typedef genericType (*createFuncType) (genericType);");
-    writeln(c_prog, "typedef void (*destrFuncType) (genericType);");
-    writeln(c_prog, "typedef void (*copyFuncType) (genericType *, genericType);");
+    writeln(c_prog, "typedef intType (*hashCodeFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef intType (*compareFuncType) (rtlValueUnion, rtlValueUnion);");
+    writeln(c_prog, "typedef rtlValueUnion (*createFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef void (*destrFuncType) (rtlValueUnion);");
+    writeln(c_prog, "typedef void (*copyFuncType) (rtlValueUnion *, rtlValueUnion);");
     writeln(c_prog, "#define bitset_shift " <& log2(ccConf.INTTYPE_SIZE));
     writeln(c_prog, "#define bitset_mask  ((1 << bitset_shift) - 1)");
     if ccConf.RSHIFT_DOES_SIGN_EXTEND then
@@ -5949,6 +5949,7 @@ const proc: write_file_head is func
     writeln(c_prog, "extern struct fileStruct stdinFileRecord;");
     writeln(c_prog, "extern struct fileStruct stdoutFileRecord;");
     writeln(c_prog, "extern struct fileStruct stderrFileRecord;");
+    writeln(c_prog, "extern struct socketStruct emptySocketRecord;");
     writeln(c_prog, "typedef int errInfoType;");
     writeln(c_prog, "#define OKAY_NO_ERROR   0\n\
                     \#define MEMORY_ERROR    1\n\
@@ -6007,9 +6008,9 @@ const proc: write_file_head is func
     writeln(c_prog, "extern int exception_number;");
     writeln(c_prog, "extern const char *error_file;");
     writeln(c_prog, "extern int error_line;");
-    writeln(c_prog, "intType ustriCmpGeneric (const genericType value1, const genericType value2);");
-    writeln(c_prog, "genericType ustriCreateGeneric (const genericType source);");
-    writeln(c_prog, "intType ustriHash (const const_ustriType stri);");
+    writeln(c_prog, "intType ustriCmpValue (const rtlValueUnion value1, const rtlValueUnion value2);");
+    writeln(c_prog, "rtlValueUnion ustriCreateValue (const rtlValueUnion source);");
+    writeln(c_prog, "intType ustriHashCode (const const_ustriType stri);");
     if config.profile_function then
       writeln(c_prog, "intType timMicroSec (void);");
       writeln(c_prog, "static unsigned int profile_size;");
@@ -6107,16 +6108,17 @@ const proc: write_prototypes is func
     writeln(c_prog, "static void        prcNoop (void) {}");
     writeln(c_prog, "static void        init_values (void);");
     writeln(c_prog, "static void        init_globals (void);");
+    writeln(c_prog, "static void        close_all_globals (void);");
     declareExtern("void        initPollOperations (const createFuncType, const destrFuncType);");
-    declareExtern("void        genericCpy (genericType *const, const genericType);");
-    declareExtern("genericType genericCreate (genericType);");
-    declareExtern("void        genericDestr (genericType);");
-    declareExtern("intType     genericHashCode (genericType);");
+    declareExtern("void        valueCpy (rtlValueUnion *const, const rtlValueUnion);");
+    declareExtern("rtlValueUnion valueCreate (rtlValueUnion);");
+    declareExtern("void        valueDestr (rtlValueUnion);");
+    declareExtern("intType     valueHashCode (rtlValueUnion);");
     declareExtern("intType     ptrCmp (const void *const, const void *const);");
-    declareExtern("intType     ptrCmpGeneric (const genericType, const genericType);");
-    declareExtern("void        ptrCpyGeneric (genericType *const, const genericType);");
-    declareExtern("genericType ptrCreateGeneric (const genericType);");
-    declareExtern("intType     ptrHashCodeGeneric (const genericType);");
+    declareExtern("intType     ptrCmpValue (const rtlValueUnion, const rtlValueUnion);");
+    declareExtern("void        ptrCpyValue (rtlValueUnion *const, const rtlValueUnion);");
+    declareExtern("rtlValueUnion ptrCreateValue (const rtlValueUnion);");
+    declareExtern("intType     ptrHashCodeValue (const rtlValueUnion);");
     writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
     declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
     declareExtern("void        triggerSigfpe (void);");
@@ -6151,11 +6153,11 @@ const proc: initPollOperations (inout expr_type: c_expr) is func
 
   begin
     if typeData.fileInterfaceType <> void then
-      c_expr.expr &:= "initPollOperations((createFuncType)(&itfCreate), ";
-      process_destr_declaration(typeData.fileInterfaceType, global_c_expr);
-      c_expr.expr &:= "(destrFuncType)(&destr_";
+      c_expr.expr &:= "initPollOperations((createFuncType)(&itfCreateValue), ";
+      process_value_destr_declaration(typeData.fileInterfaceType, global_c_expr);
+      c_expr.expr &:= "&value_destr_";
       c_expr.expr &:= str(typeNumber(typeData.fileInterfaceType));
-      c_expr.expr &:= "));\n";
+      c_expr.expr &:= ");\n";
     end if;
   end func;
 
@@ -6208,87 +6210,86 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
   begin
     for current_object range const_list do
       objectCategory := category(current_object);
-      if objectCategory = BIGINTOBJECT then
-        if getValue(current_object, bigInteger) not in constTable.bigint_const then
-          constTable.bigint_const @:= [getValue(current_object, bigInteger)] length(constTable.bigint_const);
-        end if;
-      elsif objectCategory = STRIOBJECT then
-        if getValue(current_object, string) not in constTable.stri_const then
-          constTable.stri_const @:= [getValue(current_object, string)] length(constTable.stri_const);
-        end if;
-      elsif objectCategory = BSTRIOBJECT then
-        if getValue(current_object, bstring) not in constTable.bstri_const then
-          constTable.bstri_const @:= [getValue(current_object, bstring)] length(constTable.bstri_const);
-        end if;
-      elsif objectCategory = SETOBJECT then
-        if getValue(current_object, bitset) not in constTable.set_const then
-          constTable.set_const @:= [getValue(current_object, bitset)] length(constTable.set_const);
-        end if;
-      elsif objectCategory = TYPEOBJECT then
-        if getValue(current_object, type) not in constTable.type_const then
-          constTable.type_const @:= [getValue(current_object, type)] length(constTable.type_const);
-        end if;
-      elsif objectCategory = REFOBJECT or
-            objectCategory = STRUCTELEMOBJECT then
-        if getValue(current_object, reference) <> NIL then
-          if objNumber(getValue(current_object, reference)) <> 0 then
-            if getType(getValue(current_object, reference)) not in constTable.type_const then
-              constTable.type_const @:= [getType(getValue(current_object, reference))] length(constTable.type_const);
+      case objectCategory of
+        when {BIGINTOBJECT}:
+          if getValue(current_object, bigInteger) not in constTable.bigint_const then
+            constTable.bigint_const @:= [getValue(current_object, bigInteger)] length(constTable.bigint_const);
+          end if;
+        when {STRIOBJECT}:
+          if getValue(current_object, string) not in constTable.stri_const then
+            constTable.stri_const @:= [getValue(current_object, string)] length(constTable.stri_const);
+          end if;
+        when {BSTRIOBJECT}:
+          if getValue(current_object, bstring) not in constTable.bstri_const then
+            constTable.bstri_const @:= [getValue(current_object, bstring)] length(constTable.bstri_const);
+          end if;
+        when {SETOBJECT}:
+          if getValue(current_object, bitset) not in constTable.set_const then
+            constTable.set_const @:= [getValue(current_object, bitset)] length(constTable.set_const);
+          end if;
+        when {TYPEOBJECT}:
+          if getValue(current_object, type) not in constTable.type_const then
+            constTable.type_const @:= [getValue(current_object, type)] length(constTable.type_const);
+          end if;
+        when {REFOBJECT, STRUCTELEMOBJECT}:
+          if getValue(current_object, reference) <> NIL then
+            if objNumber(getValue(current_object, reference)) <> 0 then
+              if getType(getValue(current_object, reference)) not in constTable.type_const then
+                constTable.type_const @:= [getType(getValue(current_object, reference))] length(constTable.type_const);
+              end if;
+            end if;
+            if getValue(current_object, reference) not in constTable.ref_const then
+              constTable.ref_const @:= [getValue(current_object, reference)] length(constTable.ref_const);
             end if;
           end if;
-          if getValue(current_object, reference) not in constTable.ref_const then
-            constTable.ref_const @:= [getValue(current_object, reference)] length(constTable.ref_const);
+        when {WINOBJECT}:
+          if getValue(current_object, PRIMITIVE_WINDOW) not in constTable.win_const then
+            constTable.win_const @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(constTable.win_const);
           end if;
-        end if;
-      elsif objectCategory = WINOBJECT then
-        if getValue(current_object, PRIMITIVE_WINDOW) not in constTable.win_const then
-          constTable.win_const @:= [getValue(current_object, PRIMITIVE_WINDOW)] length(constTable.win_const);
-        end if;
-      elsif objectCategory = POINTLISTOBJECT then
-        aPointList := getValue(current_object, pointList);
-        if aPointList not in constTable.plist_const then
-          constTable.plist_const @:= [aPointList] length(constTable.plist_const);
-        end if;
-      elsif objectCategory = ARRAYOBJECT then
-        if current_object not in constTable.other_const then
-          constTable.other_const @:= [current_object] length(constTable.other_const);
-        end if;
-        elements_to_walk := determine_multiple_array_elements(arrayToList(current_object));
-        walk_const_list(elements_to_walk, sorted_list);
-        sorted_list &:= make_list(current_object);
-      elsif objectCategory = STRUCTOBJECT then
-        if current_object not in constTable.other_const then
-          constTable.other_const @:= [current_object] length(constTable.other_const);
-        end if;
-        walk_const_list(structToList(current_object), sorted_list);
-        sorted_list &:= make_list(current_object);
-      elsif objectCategory = HASHOBJECT then
-        if current_object not in constTable.other_const then
-          constTable.other_const @:= [current_object] length(constTable.other_const);
-        end if;
-        walk_const_list(hashKeysToList(current_object), sorted_list);
-        walk_const_list(hashDataToList(current_object), sorted_list);
-        sorted_list &:= make_list(current_object);
-      elsif objectCategory = INTERFACEOBJECT then
-        if current_object not in constTable.other_const then
-          constTable.other_const @:= [current_object] length(constTable.other_const);
-        end if;
-        struct_of_interface := interfaceToStruct(current_object);
-        if struct_of_interface not in constTable.other_const then
-          constTable.other_const @:= [struct_of_interface] length(constTable.other_const);
-          walk_const_list(structToList(struct_of_interface), sorted_list);
-          sorted_list &:= make_list(struct_of_interface);
-        elsif constTable.other_const[struct_of_interface] >= constTable.other_const[current_object] then
-          sorted_list &:= make_list(struct_of_interface);
-        end if;
-        sorted_list &:= make_list(current_object);
-      elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
-          objectCategory = BLOCKOBJECT then
-        if current_object not in constTable.other_const then
-          constTable.other_const @:= [current_object] length(constTable.other_const);
-        end if;
-        sorted_list &:= make_list(current_object);
-      end if;
+        when {POINTLISTOBJECT}:
+          aPointList := getValue(current_object, pointList);
+          if aPointList not in constTable.plist_const then
+            constTable.plist_const @:= [aPointList] length(constTable.plist_const);
+          end if;
+        when {ARRAYOBJECT}:
+          if current_object not in constTable.other_const then
+            constTable.other_const @:= [current_object] length(constTable.other_const);
+          end if;
+          elements_to_walk := determine_multiple_array_elements(arrayToList(current_object));
+          walk_const_list(elements_to_walk, sorted_list);
+          sorted_list &:= make_list(current_object);
+        when {STRUCTOBJECT}:
+          if current_object not in constTable.other_const then
+            constTable.other_const @:= [current_object] length(constTable.other_const);
+          end if;
+          walk_const_list(structToList(current_object), sorted_list);
+          sorted_list &:= make_list(current_object);
+        when {HASHOBJECT}:
+          if current_object not in constTable.other_const then
+            constTable.other_const @:= [current_object] length(constTable.other_const);
+          end if;
+          walk_const_list(hashKeysToList(current_object), sorted_list);
+          walk_const_list(hashDataToList(current_object), sorted_list);
+          sorted_list &:= make_list(current_object);
+        when {INTERFACEOBJECT}:
+          if current_object not in constTable.other_const then
+            constTable.other_const @:= [current_object] length(constTable.other_const);
+          end if;
+          struct_of_interface := interfaceToStruct(current_object);
+          if struct_of_interface not in constTable.other_const then
+            constTable.other_const @:= [struct_of_interface] length(constTable.other_const);
+            walk_const_list(structToList(struct_of_interface), sorted_list);
+            sorted_list &:= make_list(struct_of_interface);
+          elsif constTable.other_const[struct_of_interface] >= constTable.other_const[current_object] then
+            sorted_list &:= make_list(struct_of_interface);
+          end if;
+          sorted_list &:= make_list(current_object);
+        when {MATCHOBJECT, ACTOBJECT, BLOCKOBJECT}:
+          if current_object not in constTable.other_const then
+            constTable.other_const @:= [current_object] length(constTable.other_const);
+          end if;
+          sorted_list &:= make_list(current_object);
+      end case;
     end for;
   end func;
 
@@ -6335,101 +6336,105 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     var category: objectCategory is category.value;
   begin
     objectCategory := category(current_object);
-    if objectCategory = INTOBJECT then
-      c_expr.expr &:= ".value.intValue=";
-      c_expr.expr &:= integerLiteral(getValue(current_object, integer));
-    elsif objectCategory = BIGINTOBJECT then
-      c_expr.expr &:= ".value.bigIntValue=";
-      c_expr.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
-    elsif objectCategory = CHAROBJECT then
-      c_expr.expr &:= ".value.charValue=";
-      c_expr.expr &:= charLiteral(getValue(current_object, char));
-    elsif objectCategory = STRIOBJECT then
-      c_expr.expr &:= ".value.striValue=";
-      c_expr.expr &:= stringLiteral(getValue(current_object, string));
-    elsif objectCategory = BSTRIOBJECT then
-      c_expr.expr &:= ".value.bstriValue=";
-      c_expr.expr &:= bstriLiteral(getValue(current_object, bstring));
-    elsif objectCategory = SETOBJECT then
-      c_expr.expr &:= ".value.setValue=";
-      c_expr.expr &:= bitsetLiteral(getValue(current_object, bitset));
-    elsif objectCategory = FLOATOBJECT then
-      c_expr.expr &:= ".value.floatValue=";
-      c_expr.expr &:= floatLiteral(getValue(current_object, float));
-    elsif objectCategory = REFOBJECT or
-          objectCategory = STRUCTELEMOBJECT then
-      c_expr.expr &:= ".value.objRefValue=";
-      c_expr.expr &:= referenceLiteral(getValue(current_object, reference));
-    elsif objectCategory = REFLISTOBJECT then
-      c_expr.expr &:= ".value.listValue=NULL";
-    elsif objectCategory = FILEOBJECT then
-      c_expr.expr &:= ".value.fileValue=&";
-      c_expr.expr &:= lower(literal(getValue(current_object, clib_file)));
-      c_expr.expr &:= "FileRecord";
-    elsif objectCategory = SOCKETOBJECT then
-      c_expr.expr &:= ".value.intValue=";
-      c_expr.expr &:= "-1";
-    elsif objectCategory = POLLOBJECT then
-      c_expr.expr &:= ".value.pollValue=";
-      process_pollData_literal(getValue(current_object, pollData), c_expr);
-    elsif objectCategory = WINOBJECT then
-      c_expr.expr &:= ".value.winValue=drwCreate(";
-      c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
-      c_expr.expr &:= ")";
-    elsif objectCategory = POINTLISTOBJECT then
-      c_expr.expr &:= ".value.bstriValue=";
-      c_expr.expr &:= pointListLiteral(getValue(current_object, pointList));
-    elsif objectCategory = PROCESSOBJECT then
-      c_expr.expr &:= ".value.processValue=";
-      c_expr.expr &:= "NULL";
-    elsif objectCategory = PROGOBJECT then
-      c_expr.expr &:= ".value.progValue=";
-      c_expr.expr &:= "NULL";
-    elsif objectCategory = TYPEOBJECT then
-      c_expr.expr &:= ".value.typeValue=";
-      c_expr.expr &:= typeLiteral(getValue(current_object, type));
-    elsif objectCategory = CONSTENUMOBJECT then
-      c_expr.expr &:= select_value_from_rtlObjectStruct(
-          getType(getValue(current_object, reference)));
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(getValue(current_object, reference));
-    elsif objectCategory = VARENUMOBJECT then
-      c_expr.expr &:= select_value_from_rtlObjectStruct(
-          getType(getValue(current_object, reference)));
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(getValue(current_object, reference));
-    elsif objectCategory = ARRAYOBJECT then
-      c_expr.expr &:= ".value.arrayValue=";
-      c_expr.expr &:= "arr[";
-      c_expr.expr &:= str(constTable.other_const[current_object]);
-      c_expr.expr &:= "]";
-    elsif objectCategory = STRUCTOBJECT then
-      c_expr.expr &:= ".value.structValue=";
-      c_expr.expr &:= "sct[";
-      c_expr.expr &:= str(constTable.other_const[current_object]);
-      c_expr.expr &:= "]";
-    elsif objectCategory = HASHOBJECT then
-      c_expr.expr &:= ".value.hashValue=";
-      c_expr.expr &:= "hsh[";
-      c_expr.expr &:= str(constTable.other_const[current_object]);
-      c_expr.expr &:= "]";
-    elsif objectCategory = INTERFACEOBJECT then
-      c_expr.expr &:= ".value.interfaceValue=itfCreate(itf[";
-      c_expr.expr &:= str(constTable.other_const[current_object]);
-      c_expr.expr &:= "])";
-    elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
-        objectCategory = BLOCKOBJECT then
-      c_expr.expr &:= ".value.genericValue=";
-      process_func_literal(current_object, c_expr);
-    elsif objectCategory = DATABASEOBJECT then
-      c_expr.expr &:= ".value.databaseValue=NULL";
-    elsif objectCategory = SQLSTMTOBJECT then
-      c_expr.expr &:= ".value.sqlStmtValue=NULL";
-    else
-      c_expr.expr &:= "/* ";
-      c_expr.expr &:= str(objectCategory);
-      c_expr.expr &:= " */";
-    end if;
+    case objectCategory of
+      when {INTOBJECT}:
+        c_expr.expr &:= ".value.intValue=";
+        c_expr.expr &:= integerLiteral(getValue(current_object, integer));
+      when {BIGINTOBJECT}:
+        c_expr.expr &:= ".value.bigIntValue=";
+        c_expr.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
+      when {CHAROBJECT}:
+        c_expr.expr &:= ".value.charValue=";
+        c_expr.expr &:= charLiteral(getValue(current_object, char));
+      when {STRIOBJECT}:
+        c_expr.expr &:= ".value.striValue=";
+        c_expr.expr &:= stringLiteral(getValue(current_object, string));
+      when {BSTRIOBJECT}:
+        c_expr.expr &:= ".value.bstriValue=";
+        c_expr.expr &:= bstriLiteral(getValue(current_object, bstring));
+      when {SETOBJECT}:
+        c_expr.expr &:= ".value.setValue=";
+        c_expr.expr &:= bitsetLiteral(getValue(current_object, bitset));
+      when {FLOATOBJECT}:
+        c_expr.expr &:= ".value.floatValue=";
+        c_expr.expr &:= floatLiteral(getValue(current_object, float));
+      when {REFOBJECT, STRUCTELEMOBJECT}:
+        c_expr.expr &:= ".value.objRefValue=";
+        c_expr.expr &:= referenceLiteral(getValue(current_object, reference));
+      when {REFLISTOBJECT}:
+        c_expr.expr &:= ".value.listValue=NULL";
+      when {FILEOBJECT}:
+        c_expr.expr &:= ".value.fileValue=&";
+        c_expr.expr &:= lower(literal(getValue(current_object, clib_file)));
+        c_expr.expr &:= "FileRecord";
+      when {SOCKETOBJECT}:
+        c_expr.expr &:= ".value.socketValue=&emptySocketRecord";
+      when {POLLOBJECT}:
+        c_expr.expr &:= ".value.pollValue=";
+        process_pollData_literal(getValue(current_object, pollData), c_expr);
+      when {WINOBJECT}:
+        c_expr.expr &:= ".value.winValue=drwCreate(";
+        c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
+        c_expr.expr &:= ")";
+      when {POINTLISTOBJECT}:
+        c_expr.expr &:= ".value.bstriValue=";
+        c_expr.expr &:= pointListLiteral(getValue(current_object, pointList));
+      when {PROCESSOBJECT}:
+        c_expr.expr &:= ".value.processValue=";
+        c_expr.expr &:= "NULL";
+      when {PROGOBJECT}:
+        c_expr.expr &:= ".value.progValue=";
+        c_expr.expr &:= "NULL";
+      when {TYPEOBJECT}:
+        c_expr.expr &:= ".value.typeValue=";
+        c_expr.expr &:= typeLiteral(getValue(current_object, type));
+      when {CONSTENUMOBJECT}:
+        c_expr.expr &:= select_value_from_rtlObjectStruct(
+            getType(getValue(current_object, reference)));
+        c_expr.expr &:= "=";
+        c_expr.expr &:= enum_value(getValue(current_object, reference));
+      when {VARENUMOBJECT}:
+        c_expr.expr &:= select_value_from_rtlObjectStruct(
+            getType(getValue(current_object, reference)));
+        c_expr.expr &:= "=";
+        c_expr.expr &:= enum_value(getValue(current_object, reference));
+      when {ARRAYOBJECT}:
+        c_expr.expr &:= ".value.arrayValue=";
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(constTable.other_const[current_object]);
+        c_expr.expr &:= "]";
+      when {STRUCTOBJECT}:
+        c_expr.expr &:= ".value.structValue=";
+        c_expr.expr &:= "sct[";
+        c_expr.expr &:= str(constTable.other_const[current_object]);
+        c_expr.expr &:= "]";
+      when {HASHOBJECT}:
+        c_expr.expr &:= ".value.hashValue=";
+        c_expr.expr &:= "hsh[";
+        c_expr.expr &:= str(constTable.other_const[current_object]);
+        c_expr.expr &:= "]";
+      when {INTERFACEOBJECT}:
+        c_expr.expr &:= ".value.interfaceValue=itfCreate(itf[";
+        c_expr.expr &:= str(constTable.other_const[current_object]);
+        c_expr.expr &:= "])";
+      when {MATCHOBJECT, ACTOBJECT, BLOCKOBJECT}:
+        c_expr.expr &:= ".value.ptrValue=(rtlPtrType)";
+        process_func_literal(current_object, c_expr);
+      when {DATABASEOBJECT}:
+        c_expr.expr &:= ".value.databaseValue=NULL";
+      when {SQLSTMTOBJECT}:
+        c_expr.expr &:= ".value.sqlStmtValue=NULL";
+      when {ACTENTRYOBJECT}:
+        c_expr.expr &:= ".value.actEntryValue=aceIConv(";
+        c_expr.expr &:= integerLiteral(ord(getValue(current_object, ACTION)));
+        c_expr.expr &:= " /* ";
+        c_expr.expr &:= str(getValue(current_object, ACTION));
+        c_expr.expr &:= " */)";
+      otherwise:
+        c_expr.expr &:= "/* ";
+        c_expr.expr &:= str(objectCategory);
+        c_expr.expr &:= " */";
+    end case;
   end func;
 
 
@@ -6950,7 +6955,11 @@ const proc: write_str_table (in stri_index_hash: stri_index,
           c_expr.expr &:= ",";
         end if;
         if stri = "" then
-          c_expr.expr &:= "striChars";
+          if length(constTable.stri_const) > 1 then
+            c_expr.expr &:= "striChars";
+          else
+            c_expr.expr &:= "NULL";
+          end if;
         else
           c_expr.expr &:= "&striChars[";
           c_expr.expr &:= str(pred(stringPosition[number]));
@@ -7201,7 +7210,11 @@ const proc: write_bst_table (in bstri_index_hash: bstri_index,
         c_expr.expr &:= str(length(stri));
         c_expr.expr &:= ",";
         if stri = "" then
-          c_expr.expr &:= "bstriChars";
+          if length(constTable.bstri_const) > 1 then
+            c_expr.expr &:= "bstriChars";
+          else
+            c_expr.expr &:= "NULL";
+          end if;
         else
           c_expr.expr &:= "&bstriChars[";
           c_expr.expr &:= str(pred(stringPosition[number]));
@@ -7698,9 +7711,9 @@ const proc: init_hash_constants (in reference: const_object, inout expr_type: c_
         end if;
         c_expr.expr &:= "hshIncl(hsh[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= "], hash_key.value.genericValue, hash_data.value.genericValue, ";
+        c_expr.expr &:= "], hash_key.value, hash_data.value, ";
         c_expr.expr &:= hashcode_expr.expr;
-        c_expr.expr &:= ", (compareType)(";
+        c_expr.expr &:= ", (compareFuncType)(";
         object_address(keyCompareObj(getType(const_object)), c_expr);
         c_expr.expr &:= "), (createFuncType)(";
         object_address(keyCreateObj(getType(const_object)), c_expr);
@@ -7789,6 +7802,9 @@ const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWh
         c_expr.expr &:= "hash_key";
         init_const_value(key_element, c_expr);
         c_expr.expr &:= ";\n";
+        c_expr.expr &:= "hash_data.value.intValue=";
+        c_expr.expr &:= str(numOfWhenPart);
+        c_expr.expr &:= ";\n";
         hashcode_expr := expr_type.value;
         setVar(key_element, FALSE);
         process_hashcode(key_element, hashcode_expr);
@@ -7799,15 +7815,13 @@ const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWh
         end if;
         c_expr.expr &:= "hshIncl(caseLabels[";
         c_expr.expr &:= str(numOfCaseStmt);
-        c_expr.expr &:= "], hash_key.value.genericValue, ";
-        c_expr.expr &:= str(numOfWhenPart);
-        c_expr.expr &:= ", ";
+        c_expr.expr &:= "], hash_key.value, hash_data.value, ";
         c_expr.expr &:= hashcode_expr.expr;
-        c_expr.expr &:= ", (compareType)(";
+        c_expr.expr &:= ", (compareFuncType)(";
         object_address(keyCompareObj(getType(whenLabels)), c_expr);
         c_expr.expr &:= "), (createFuncType)(";
         object_address(keyCreateObj(getType(whenLabels)), c_expr);
-        c_expr.expr &:= "), (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+        c_expr.expr &:= "), (createFuncType)(&valueCreate), (copyFuncType)(&valueCpy));\n";
         if hashcode_expr.temp_decls <> "" then
           c_expr.expr &:= hashcode_expr.temp_frees;
           c_expr.expr &:= "}\n";
@@ -7841,6 +7855,7 @@ const proc: initCaseLabels (inout expr_type: c_expr) is func
     c_expr.expr &:= "void initCaseLabelsOfSwitch () {\n";
     if length(case_table) <> 0 then
       c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "rtlObjectType hash_data;\n";
       c_expr.expr &:= "caseLabels = (hashType *)(malloc(";
       c_expr.expr &:= str(length(case_table));
       c_expr.expr &:= " * sizeof(hashType)));\n";
@@ -7863,17 +7878,18 @@ const proc: initElementNameLabelsOfCase (in integer: numOfElementNameTable,
     c_expr.expr &:= str(numOfElementNameTable);
     c_expr.expr &:= "]=hshEmpty();\n";
     for labelNumber key name range nameToLabelNumber do
-      c_expr.expr &:= "hash_key.value.ustriValue=(ustriType)";
+      c_expr.expr &:= "hash_key.ustriValue=(ustriType)";
       c_expr.expr &:= c_literal(name);
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= "hash_data.intValue=";
+      c_expr.expr &:= str(labelNumber);
       c_expr.expr &:= ";\n";
       c_expr.expr &:= "hshIncl(elementNameLabels[";
       c_expr.expr &:= str(numOfElementNameTable);
-      c_expr.expr &:= "], hash_key.value.genericValue, ";
-      c_expr.expr &:= str(labelNumber);
-      c_expr.expr &:= ", ";
+      c_expr.expr &:= "], hash_key, hash_data, ";
       c_expr.expr &:= str(hashCode(name));
-      c_expr.expr &:= ", (compareType)(&ustriCmpGeneric), (createFuncType)(&ustriCreateGeneric)";
-      c_expr.expr &:= ", (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+      c_expr.expr &:= ", (compareFuncType)(&ustriCmpValue), (createFuncType)(&ustriCreateValue)";
+      c_expr.expr &:= ", (createFuncType)(&valueCreate), (copyFuncType)(&valueCpy));\n";
     end for;
   end func;
 
@@ -7885,7 +7901,8 @@ const proc: initElementNameLabels (inout expr_type: c_expr) is func
   begin
     c_expr.expr &:= "void initElementNameLabelsOfSwitch () {\n";
     if length(elementNameTable) <> 0 then
-      c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "rtlValueUnion hash_key;\n";
+      c_expr.expr &:= "rtlValueUnion hash_data;\n";
       c_expr.expr &:= "elementNameLabels = (hashType *)(malloc(";
       c_expr.expr &:= str(length(elementNameTable));
       c_expr.expr &:= " * sizeof(hashType)));\n";
@@ -7897,34 +7914,25 @@ const proc: initElementNameLabels (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: init_values (inout expr_type: c_expr) is func
+const proc: walk_const_list (in reference: const_object, inout ref_list: sorted_list) is func
 
   local
-    var const_index_hash: const_index is const_index_hash.EMPTY_HASH;
-    var ref_list: sorted_list is ref_list.EMPTY;
-    var reference: struct_of_interface is NIL;
-    var reference: const_object is NIL;
-    var integer: number is 0;
     var ref_list: elements_to_walk is ref_list.EMPTY;
-    var integer: functionNumber is 1;
-    var integer: functionBreakupLimit is 0;
-    const integer: intendedFunctionSize is 100000;
+    var reference: struct_of_interface is NIL;
   begin
-    const_index := flip(constTable.other_const);
-    for number range sort(keys(const_index)) do
-      const_object := const_index[number][1];
-      if category(const_object) = ARRAYOBJECT then
+    case category(const_object) of
+      when {ARRAYOBJECT}:
         elements_to_walk := determine_multiple_array_elements(arrayToList(const_object));
         walk_const_list(elements_to_walk, sorted_list);
         sorted_list &:= make_list(const_object);
-      elsif category(const_object) = STRUCTOBJECT then
+      when {STRUCTOBJECT}:
         walk_const_list(structToList(const_object), sorted_list);
         sorted_list &:= make_list(const_object);
-      elsif category(const_object) = HASHOBJECT then
+      when {HASHOBJECT}:
         walk_const_list(hashKeysToList(const_object), sorted_list);
         walk_const_list(hashDataToList(const_object), sorted_list);
         sorted_list &:= make_list(const_object);
-      elsif category(const_object) = INTERFACEOBJECT then
+      when {INTERFACEOBJECT}:
         if const_object not in constTable.other_const then
           constTable.other_const @:= [const_object] length(constTable.other_const);
         end if;
@@ -7937,7 +7945,26 @@ const proc: init_values (inout expr_type: c_expr) is func
           sorted_list &:= make_list(struct_of_interface);
         end if;
         sorted_list &:= make_list(const_object);
-      end if;
+    end case;
+  end func;
+
+
+const proc: init_values (inout expr_type: c_expr) is func
+
+  local
+    var const_index_hash: const_index is const_index_hash.EMPTY_HASH;
+    var ref_list: sorted_list is ref_list.EMPTY;
+    var reference: const_object is NIL;
+    var integer: number is 0;
+    var integer: oldOtherConstLength is 0;
+    var integer: functionNumber is 1;
+    var integer: functionBreakupLimit is 0;
+    const integer: intendedFunctionSize is 100000;
+  begin
+    const_index := flip(constTable.other_const);
+    for number range sort(keys(const_index)) do
+      const_object := const_index[number][1];
+      walk_const_list(const_object, sorted_list);
     end for;
     writeln("after walk_const_list");
 
@@ -7948,6 +7975,16 @@ const proc: init_values (inout expr_type: c_expr) is func
         prepare_func_literal(const_object, c_expr);
       end if;
     end for;
+
+    if length(constTable.other_const) > oldOtherConstLength then
+      const_index := flip(constTable.other_const);
+      for number range sort(keys(const_index)) do
+        if number >= oldOtherConstLength then
+          const_object := const_index[number][1];
+          walk_const_list(const_object, sorted_list);
+        end if;
+      end for;
+    end if;
 
     init_bigint_constants;
     init_win_constants;
@@ -7987,23 +8024,25 @@ const proc: init_values (inout expr_type: c_expr) is func
         c_expr.expr &:= " (void)\n";
         c_expr.expr &:= "{\n";
       end if;
-      if category(const_object) = ARRAYOBJECT then
-        init_array_constants(const_object, c_expr);
-      elsif category(const_object) = STRUCTOBJECT then
-        init_struct_constants(const_object, c_expr);
-      elsif category(const_object) = HASHOBJECT then
-        init_hash_constants(const_object, c_expr);
-      elsif category(const_object) = INTERFACEOBJECT then
-        init_interface_constants(const_object, c_expr);
-      elsif category(const_object) <> MATCHOBJECT and
-            category(const_object) <> ACTOBJECT then
-        number := constTable.other_const[const_object];
-        c_expr.expr &:= "/* const ";
-        c_expr.expr &:= str(category(const_object));
-        c_expr.expr &:= " [";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "] */\n";
-      end if;
+      case category(const_object) of
+        when {ARRAYOBJECT}:
+          init_array_constants(const_object, c_expr);
+        when {STRUCTOBJECT}:
+          init_struct_constants(const_object, c_expr);
+        when {HASHOBJECT}:
+          init_hash_constants(const_object, c_expr);
+        when {INTERFACEOBJECT}:
+          init_interface_constants(const_object, c_expr);
+        when {MATCHOBJECT, ACTOBJECT}:
+          noop;
+        otherwise:
+          number := constTable.other_const[const_object];
+          c_expr.expr &:= "/* const ";
+          c_expr.expr &:= str(category(const_object));
+          c_expr.expr &:= " [";
+          c_expr.expr &:= str(number);
+          c_expr.expr &:= "] */\n";
+      end case;
     end for;
     c_expr.expr &:= "}\n\n";
     c_expr.expr &:= "static void init_values (void)\n";
@@ -8256,10 +8295,10 @@ const func string: temp_name (in string: source) is func
     var string: tempName is "";
   begin
     if rpos(source, "/") = 0 then
-      tempName := "tmp_" & source;
+      tempName := ccConf.TEMP_FILE_PREFIX & source;
     else
       tempName := source[.. rpos(source, "/")] &
-          "tmp_" & source[succ(rpos(source, "/")) ..];
+          ccConf.TEMP_FILE_PREFIX & source[succ(rpos(source, "/")) ..];
     end if;
   end func;
 
@@ -8572,25 +8611,18 @@ const proc: execProgramScript (in string: command, in array string: parameters,
     in string: errorFile) is func
 
   local
-    var array string: redirection is 0 times "";
+    var string: redirectStdout is "";
+    var string: redirectStderr is "";
     var integer: shellResult is 0;
   begin
     logProgram(command, parameters, errorFile);
     case ccConf.CC_ERROR_FILEDES of
       when {1}:
-        redirection &:= ccConf.REDIRECT_FILEDES_1 & toShellPath(errorFile);
-        redirection &:= ccConf.REDIRECT_FILEDES_2 & ccConf.NULL_DEVICE;
+        redirectStdout := errorFile;
       when {2}:
-        redirection &:= ccConf.REDIRECT_FILEDES_2 & toShellPath(errorFile);
-        redirection &:= ccConf.REDIRECT_FILEDES_1 & ccConf.NULL_DEVICE;
+        redirectStderr := errorFile;
     end case;
-    if length(redirection) = 0 then
-      # An CC_ERROR_FILEDES of zero means: Do not redirect.
-      shellResult := shell(command, shellParameters(parameters));
-    else
-      shellResult := shell(command, shellParameters(parameters) <& " " <&
-                           join(redirection, " "));
-    end if;
+    shellResult := shell(command, parameters, "", redirectStdout, redirectStderr);
     if shellResult <> 0 then
       writeln("*** The shell command returned " <& shellResult);
     end if;
@@ -8682,16 +8714,16 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         workDir := sourcePath[.. rpos(sourcePath, "/")];
         sourceFile := sourcePath[succ(rpos(sourcePath, "/")) ..];
       end if;
-      cSourceFile  := "tmp_" & sourceFile;
+      cSourceFile  := ccConf.TEMP_FILE_PREFIX & sourceFile;
       if config.generate_c_plus_plus then
         cSourceFile  &:= ".cpp";
       else
         cSourceFile  &:= ".c";
       end if;
-      cErrorFile     := "tmp_" & sourceFile & ".cerrs";
-      objectFile     := "tmp_" & sourceFile & ccConf.OBJECT_FILE_EXTENSION;
-      linkErrFile    := "tmp_" & sourceFile & ".lerrs";
-      tempExeFile    := "tmp_" & sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
+      cErrorFile     := ccConf.TEMP_FILE_PREFIX & sourceFile & ".cerrs";
+      objectFile     := ccConf.TEMP_FILE_PREFIX & sourceFile & ccConf.OBJECT_FILE_EXTENSION;
+      linkErrFile    := ccConf.TEMP_FILE_PREFIX & sourceFile & ".lerrs";
+      tempExeFile    := ccConf.TEMP_FILE_PREFIX & sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
       if sourceExtension = "" and ccConf.LINKED_PROGRAM_EXTENSION = "" then
         linkedProgram :=         sourceFile & "_exe";
       else
@@ -8972,7 +9004,7 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 3.5." <& ccConf.VERSION_REVISION_LEVEL <&
-            " Copyright (c) 1990-2025 Thomas Mertes");
+            " Copyright (c) 1990-2026 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

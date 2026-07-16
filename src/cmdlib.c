@@ -1346,35 +1346,47 @@ objectType cmd_set_search_path (listType arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       cmdSetSearchPath(searchPath);
-      FREE_RTL_ARRAY(searchPath, ARRAY_LENGTH(searchPath));
+      FREE_RTL_ARRAY(searchPath, arraySize(searchPath));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_set_search_path */
 
 
 
-/**
- *  Use the shell to execute a 'command' with 'parameters'.
- *  Parameters which contain a space must be enclosed in double
- *  quotes (E.g.: shell("aCommand", "\"par 1\" par2"); ). The
- *  commands supported and the format of the 'parameters' are not
- *  covered by the description of the 'shell' function. Due to the
- *  usage of the operating system shell and external programs, it is
- *  hard to write portable programs, which use the 'shell' function.
- *  @param command/arg_1 Name of the command to be executed. A path
- *         must use the standard path representation.
- *  @param parameters/arg_2 Space separated list of parameters for
- *         the 'command', or "" if there are no parameters.
- *  @return the return code of the executed command or of the shell.
- */
-objectType cmd_shell (listType arguments)
+objectType cmd_shell_command_line (listType arguments)
 
-  { /* cmd_shell */
+  {
+    rtlArrayType parameters;
+    striType result;
+
+  /* cmd_shell_command_line */
     isit_stri(arg_1(arguments));
-    isit_stri(arg_2(arguments));
-    return bld_int_temp(
-        cmdShell(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
-  } /* cmd_shell */
+    isit_array(arg_2(arguments));
+    isit_stri(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    logFunction(printf("cmd_shell_command_line(\"%s\", arr, %d, %d, %d)\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(take_stri(arg_3(arguments))));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(take_stri(arg_4(arguments))));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(take_stri(arg_5(arguments)))););
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      result = cmdShellCommandLine(take_stri(arg_1(arguments)), parameters,
+                                   take_stri(arg_3(arguments)),
+                                   take_stri(arg_4(arguments)),
+                                   take_stri(arg_5(arguments)));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
+    } /* if */
+    logFunction(printf("cmd_shell_command_line --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return bld_stri_temp(result);
+  } /* cmd_shell_command_line */
 
 
 
@@ -1395,6 +1407,44 @@ objectType cmd_shell_escape (listType arguments)
     return bld_stri_temp(
         cmdShellEscape(take_stri(arg_1(arguments))));
   } /* cmd_shell_escape */
+
+
+
+objectType cmd_shell_execute (listType arguments)
+
+  {
+    rtlArrayType parameters;
+    intType result;
+
+  /* cmd_shell_execute */
+    isit_stri(arg_1(arguments));
+    isit_array(arg_2(arguments));
+    isit_stri(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    logFunction(printf("cmd_shell_execute(\"%s\", array[" FMT_D "]",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       take_array(arg_2(arguments))->max_position);
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(take_stri(arg_3(arguments))));
+                printf(", \"%s\"",
+                       striAsUnquotedCStri(take_stri(arg_4(arguments))));
+                printf(", \"%s\")\n",
+                       striAsUnquotedCStri(take_stri(arg_5(arguments)))););
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      result = cmdShellExecute(take_stri(arg_1(arguments)), parameters,
+                               take_stri(arg_3(arguments)),
+                               take_stri(arg_4(arguments)),
+                               take_stri(arg_5(arguments)));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
+    } /* if */
+    logFunction(printf("cmd_shell_execute --> " FMT_D "\n",
+                       result););
+    return bld_int_temp(result);
+  } /* cmd_shell_execute */
 
 
 

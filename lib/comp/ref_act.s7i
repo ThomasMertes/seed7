@@ -675,7 +675,17 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
         when {SOCKETOBJECT}:
-          c_expr.expr &:= "printf(\"<SOCKETOBJECT>\")";
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "socketType socket=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<SOCKETOBJECT>\");\n";
+          c_expr.expr &:= "if (socket == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_SOCKET* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" socket %d\", socket->socketNumber);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
         when {POLLOBJECT}:
           c_expr.expr &:= "printf(\"<POLLOBJECT>\")";
         when {TYPEOBJECT}:

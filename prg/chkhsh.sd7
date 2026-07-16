@@ -33,8 +33,6 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "graph.s7i";
 
-enable_output(type);
-
 const type: enumerationType is new enum
     RED, YELLOW, GREEN
   end enum;

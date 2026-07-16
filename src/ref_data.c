@@ -867,7 +867,7 @@ intType refNum (const const_objectType aReference)
       raise_error(RANGE_ERROR);
       objectNumber = 0;
     } else {
-      objectNumber = (intType) hshIdxEnterDefault(
+      objectNumber = (intType) hshIdxEnterGeneric(
           (const rtlHashType) aReference->type_of->owningProg->objectNumberMap,
           (genericType) (memSizeType) aReference,
           (genericType) aReference->type_of->owningProg->nextFreeObjectNumber,
@@ -1772,6 +1772,36 @@ setType setValue (const const_objectType aReference)
     } /* if */
     return result;
   } /* setValue */
+
+
+
+/**
+ *  Get 'PRIMITIVE_SOCKET' value of the object referenced by 'aReference'.
+ *  @return the 'PRIMITIVE_SOCKET' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             category(aReference) <> SOCKETOBJECT holds.
+ */
+socketType socValue (const const_objectType aReference)
+
+  {
+    socketType aSocket;
+
+  /* socValue */
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != SOCKETOBJECT ||
+                 (aSocket = take_socket(aReference)) == NULL)) {
+      logError(printf("socValue(");
+               trace1(aReference);
+               printf("): Not a legal SOCKETOBJECT.\n"););
+      raise_error(RANGE_ERROR);
+      aSocket = NULL;
+    } else {
+      if (aSocket->usage_count != 0) {
+        aSocket->usage_count++;
+      } /* if */
+    } /* if */
+    return aSocket;
+  } /* socValue */
 
 
 

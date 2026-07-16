@@ -58,6 +58,7 @@
 #include "flt_rtl.h"
 #include "set_rtl.h"
 #include "str_rtl.h"
+#include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "big_drv.h"
 #include "con_rtl.h"
@@ -551,8 +552,21 @@ static void print_real_value (const_objectType anyobject)
         } /* if */
         break;
       case SOCKETOBJECT:
-        prot_cstri("socket ");
-        prot_int((intType) anyobject->value.socketValue);
+        if (anyobject->value.socketValue == NULL) {
+          prot_cstri(" *NULL_SOCKET* ");
+        } else {
+          if (anyobject->value.socketValue->socketNumber == EMPTY_SOCKET) {
+            prot_cstri(" *EMPTY_SOCKET* ");
+          } else {
+            prot_cstri("socket ");
+            prot_int((intType) anyobject->value.socketValue->socketNumber);
+            if (anyobject->value.socketValue->usage_count != 0) {
+              prot_cstri("<");
+              prot_int((intType) anyobject->value.socketValue->usage_count);
+              prot_cstri(">");
+            } /* if */
+          } /* if */
+        } /* if */
         break;
 #if WITH_FLOAT
       case FLOATOBJECT:
@@ -1150,7 +1164,7 @@ void prot_dot_expr (const_listType list)
             if (HAS_ENTITY(list->obj) &&
                 GET_ENTITY(list->obj)->ident != NULL) {
               idString = id_string(GET_ENTITY(list->obj)->ident);
-              if (isalpha(idString[0])) {
+              if (isalpha((unsigned char) idString[0])) {
                 prot_cstri8(idString);
               } else {
                 prot_cstri(" ");
@@ -1383,6 +1397,12 @@ static const char *match_object_id (const_objectType anyobject)
 
 
 
+#define INOUT_PARAM " inout_param "
+#define OTHER_PARAM " other_param "
+#define ATTR_PARAM " attr "
+
+
+
 static void list_node_names (const_nodeType anynode, char *buffer)
 
   {
@@ -1391,6 +1411,9 @@ static void list_node_names (const_nodeType anynode, char *buffer)
     const char *stri1;
     const char *stri2;
     const char *stri3;
+    size_t len1;
+    size_t len2;
+    size_t len3;
 
   /* list_node_names */
     logFunction(printf("list_node_names\n"););
@@ -1428,11 +1451,15 @@ static void list_node_names (const_nodeType anynode, char *buffer)
           stri2 = "";
         } /* if */
         stri3 = obj_ptr(anynode->match_obj);
-        if (buf_len + strlen(stri1) + strlen(stri2) +
-	    strlen(stri3) <= NODE_NAME_LEN_MAX) {
-          strcat(buffer, stri1);
-          strcat(buffer, stri2);
-          strcat(buffer, stri3);
+        len1 = strlen(stri1);
+        len2 = strlen(stri2);
+        len3 = strlen(stri3);
+        buf_len2 = buf_len + len1 + len2 + len3;
+        if (buf_len2 <= NODE_NAME_LEN_MAX) {
+          memcpy(&buffer[buf_len], stri1, len1);
+          memcpy(&buffer[buf_len + len1], stri2, len2);
+          memcpy(&buffer[buf_len + len1 + len2], stri3, len3);
+          buffer[buf_len2] = '\0';
           if (anynode->entity != NULL) {
             if (anynode->entity->data.owner != NULL) {
               prot_cstri8(buffer);
@@ -1441,28 +1468,31 @@ static void list_node_names (const_nodeType anynode, char *buffer)
               prot_nl();
             } /* if */
           } /* if */
-          buf_len2 = strlen(buffer);
           if (anynode->symbol != NULL &&
               buf_len2 + 1 <= NODE_NAME_LEN_MAX) {
-            strcat(buffer, " ");
+            buffer[buf_len2] = ' ';
+            buffer[buf_len2 + 1] = '\0';
             list_node_names(anynode->symbol, buffer);
             buffer[buf_len2] = '\0';
           } /* if */
           if (anynode->inout_param != NULL &&
-              buf_len2 + STRLEN(" inout_param ") <= NODE_NAME_LEN_MAX) {
-            strcat(buffer, " inout_param ");
+              buf_len2 + STRLEN(INOUT_PARAM) <= NODE_NAME_LEN_MAX) {
+            memcpy(&buffer[buf_len2], INOUT_PARAM, STRLEN(INOUT_PARAM));
+            buffer[buf_len2 + STRLEN(INOUT_PARAM)] = '\0';
             list_node_names(anynode->inout_param, buffer);
             buffer[buf_len2] = '\0';
           } /* if */
           if (anynode->other_param != NULL &&
-              buf_len2 + STRLEN(" other_param ") <= NODE_NAME_LEN_MAX) {
-            strcat(buffer, " other_param ");
+              buf_len2 + STRLEN(OTHER_PARAM) <= NODE_NAME_LEN_MAX) {
+            memcpy(&buffer[buf_len2], OTHER_PARAM, STRLEN(OTHER_PARAM));
+            buffer[buf_len2 + STRLEN(OTHER_PARAM)] = '\0';
             list_node_names(anynode->other_param, buffer);
             buffer[buf_len2] = '\0';
           } /* if */
           if (anynode->attr != NULL &&
-              buf_len2 + STRLEN(" attr ") <= NODE_NAME_LEN_MAX) {
-            strcat(buffer, " attr ");
+              buf_len2 + STRLEN(ATTR_PARAM) <= NODE_NAME_LEN_MAX) {
+            memcpy(&buffer[buf_len2], ATTR_PARAM, STRLEN(ATTR_PARAM));
+            buffer[buf_len2 + STRLEN(ATTR_PARAM)] = '\0';
             list_node_names(anynode->attr, buffer);
             buffer[buf_len2] = '\0';
           } /* if */
@@ -1486,6 +1516,7 @@ void trace_nodes (void)
   {
     int position;
     int character;
+    identType tableEntry;
     char buffer[NODE_NAME_LEN_MAX + NULL_TERMINATION_LEN];
 
   /* trace_nodes */
@@ -1499,31 +1530,34 @@ void trace_nodes (void)
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        if (prog->ident.table1[character]->entity != NULL) {
-          if (prog->ident.table1[character]->entity->data.owner != NULL) {
-            prot_cstri8(id_string(prog->ident.table1[character]));
+        tableEntry = prog->ident.table1[character];
+        if (tableEntry != NULL && tableEntry->entity != NULL) {
+          if (tableEntry->entity->data.owner != NULL) {
+            prot_cstri8(id_string(tableEntry));
             prot_cstri(" is ");
-            printobject(prog->ident.table1[character]->entity->data.owner->obj);
+            printobject(tableEntry->entity->data.owner->obj);
             prot_nl();
           } /* if */
         } /* if */
       } /* if */
     } /* for */
-    if (prog->declaration_root->symbol != NULL) {
-      buffer[0] = '\0';
-      list_node_names(prog->declaration_root->symbol, buffer);
-    } /* if */
-    if (prog->declaration_root->inout_param != NULL) {
-      strcpy(buffer, "inout_param ");
-      list_node_names(prog->declaration_root->inout_param, buffer);
-    } /* if */
-    if (prog->declaration_root->other_param != NULL) {
-      strcpy(buffer, "other_param ");
-      list_node_names(prog->declaration_root->other_param, buffer);
-    } /* if */
-    if (prog->declaration_root->attr != NULL) {
-      strcpy(buffer, "attr ");
-      list_node_names(prog->declaration_root->attr, buffer);
+    if (prog->declaration_root != NULL) {
+      if (prog->declaration_root->symbol != NULL) {
+        buffer[0] = '\0';
+        list_node_names(prog->declaration_root->symbol, buffer);
+      } /* if */
+      if (prog->declaration_root->inout_param != NULL) {
+        strcpy(buffer, "inout_param ");
+        list_node_names(prog->declaration_root->inout_param, buffer);
+      } /* if */
+      if (prog->declaration_root->other_param != NULL) {
+        strcpy(buffer, "other_param ");
+        list_node_names(prog->declaration_root->other_param, buffer);
+      } /* if */
+      if (prog->declaration_root->attr != NULL) {
+        strcpy(buffer, "attr ");
+        list_node_names(prog->declaration_root->attr, buffer);
+      } /* if */
     } /* if */
     prot_cstri("----------");
     prot_nl();
@@ -1608,6 +1642,7 @@ void trace1 (const_objectType traceobject)
       } else {
         switch (CATEGORY_OF_OBJ(traceobject)) {
           case REFOBJECT:
+          case STRUCTELEMOBJECT:
           case ENUMLITERALOBJECT:
           case CONSTENUMOBJECT:
           case VARENUMOBJECT:

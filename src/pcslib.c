@@ -408,7 +408,7 @@ objectType pcs_pipe2 (listType arguments)
       pcsPipe2(take_stri(arg_1(arguments)), parameters,
                &childStdin_variable->value.fileValue,
                &childStdout_variable->value.fileValue);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pcs_pipe2 */
@@ -436,7 +436,7 @@ objectType pcs_pty (listType arguments)
       pcsPty(take_stri(arg_1(arguments)), parameters,
                &childStdin_variable->value.fileValue,
                &childStdout_variable->value.fileValue);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pcs_pty */
@@ -468,7 +468,7 @@ objectType pcs_start (listType arguments)
                          take_file(arg_3(arguments)),
                          take_file(arg_4(arguments)),
                          take_file(arg_5(arguments)));
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
     } /* if */
     logFunction(printf("pcs_start --> " FMT_U_MEM "\n",
                        (memSizeType) process););
@@ -493,7 +493,7 @@ objectType pcs_start_pipe (listType arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       process = pcsStartPipe(take_stri(arg_1(arguments)), parameters);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
     } /* if */
     logFunction(printf("pcs_start_pipe --> " FMT_U_MEM "\n",
                        (memSizeType) process););

@@ -36,10 +36,12 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "arrutl.h"
 #include "objutl.h"
 #include "traceutl.h"
 #include "runerr.h"
@@ -259,6 +261,7 @@ objectType fil_destr (listType arguments)
       arg_1(arguments)->value.fileValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
+    logFunction(printf("fil_destr -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* fil_destr */
 
@@ -272,6 +275,11 @@ objectType fil_destr (listType arguments)
 objectType fil_empty (listType arguments)
 
   { /* fil_empty */
+    logFunction(printf("fil_empty --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &nullFileRecord,
+                       safe_fileno(nullFileRecord.cFile),
+                       nullFileRecord.usage_count););
     return bld_file_temp(&nullFileRecord);
   } /* fil_empty */
 
@@ -323,6 +331,11 @@ objectType fil_eq (listType arguments)
 objectType fil_err (listType arguments)
 
   { /* fil_err */
+    logFunction(printf("fil_err --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stderrFileRecord,
+                       safe_fileno(stderrFileRecord.cFile),
+                       stderrFileRecord.usage_count););
     return bld_file_temp(&stderrFileRecord);
   } /* fil_err */
 
@@ -400,6 +413,11 @@ objectType fil_has_next (listType arguments)
 objectType fil_in (listType arguments)
 
   { /* fil_in */
+    logFunction(printf("fil_in --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stdinFileRecord,
+                       safe_fileno(stdinFileRecord.cFile),
+                       stdinFileRecord.usage_count););
     return bld_file_temp(&stdinFileRecord);
   } /* fil_in */
 
@@ -453,13 +471,13 @@ objectType fil_line_read (listType arguments)
 
 
 
-objectType fil_lit (listType arguments)
+objectType fil_literal (listType arguments)
 
-  { /* fil_lit */
+  { /* fil_literal */
     isit_file(arg_1(arguments));
     return bld_stri_temp(
-        filLit(take_file(arg_1(arguments))));
-  } /* fil_lit */
+        filLiteral(take_file(arg_1(arguments))));
+  } /* fil_literal */
 
 
 
@@ -503,7 +521,7 @@ objectType fil_ne (listType arguments)
 
 
 /**
- *  Opens a file with the specified 'path' and 'mode'.
+ *  Open a file with the specified 'path' and 'mode'.
  *  There are text modes and binary modes:
  *  - Binary modes:
  *   - "r"   Open file for reading.
@@ -525,7 +543,7 @@ objectType fil_ne (listType arguments)
  *  @param path/arg_1 Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode/arg_2 Mode of the file to be opened.
- *  @return the file opened, or NULL if it could not be opened or
+ *  @return the file opened, or CLIB_NULL_FILE if it could not be opened or
  *          if 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -568,23 +586,13 @@ objectType fil_open_null_device (listType arguments)
 objectType fil_out (listType arguments)
 
   { /* fil_out */
+    logFunction(printf("fil_out --> "
+                       FMT_U_MEM " %d (usage=" FMT_U "))\n",
+                       (memSizeType) &stdoutFileRecord,
+                       safe_fileno(stdoutFileRecord.cFile),
+                       stdoutFileRecord.usage_count););
     return bld_file_temp(&stdoutFileRecord);
   } /* fil_out */
-
-
-
-/**
- *  Wait for the process associated with aPipe/arg_1 to terminate.
- *  @param aPipe Pipe to be closed (created by 'fil_popen').
- *  @exception FILE_ERROR A system function returned an error.
- */
-objectType fil_pclose (listType arguments)
-
-  { /* fil_pclose */
-    isit_file(arg_1(arguments));
-    filPclose(take_file(arg_1(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* fil_pclose */
 
 
 
@@ -630,13 +638,32 @@ objectType fil_pipe (listType arguments)
  */
 objectType fil_popen (listType arguments)
 
-  { /* fil_popen */
+  {
+    rtlArrayType parameters;
+    fileType pipeOpened;
+
+  /* fil_popen */
     isit_stri(arg_1(arguments));
-    isit_stri(arg_2(arguments));
+    isit_array(arg_2(arguments));
     isit_stri(arg_3(arguments));
-    return bld_file_temp(
-        filPopen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
-                 take_stri(arg_3(arguments))));
+    logFunction(printf("fil_popen(\"%s\", array[" FMT_D "]",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       take_array(arg_2(arguments))->max_position);
+                printf(", \"%s\")\n",
+                       striAsUnquotedCStri(take_stri(arg_3(arguments)))););
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      pipeOpened = filPopen(take_stri(arg_1(arguments)), parameters,
+                            take_stri(arg_3(arguments)));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
+    } /* if */
+    logFunction(printf("fil_popen --> %s%d\n",
+                       pipeOpened == NULL ? "NULL " : "",
+                       pipeOpened != NULL ?
+                           safe_fileno(pipeOpened->cFile) : 0););
+    return bld_file_temp(pipeOpened);
   } /* fil_popen */
 
 
@@ -688,19 +715,6 @@ objectType fil_seekable (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_seekable */
-
-
-
-objectType fil_setbuf (listType arguments)
-
-  { /* fil_setbuf */
-    isit_file(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    filSetbuf(take_file(arg_1(arguments)),
-        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* fil_setbuf */
 
 
 

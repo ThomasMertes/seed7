@@ -48,7 +48,7 @@ const proc: typ_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "intType     typCmp (const const_typeType, const const_typeType);");
-    declareExtern(c_prog, "intType     typCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     typCmpValue (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "typeType    typFunc (typeType);");
     declareExtern(c_prog, "arrayType   typInterfaces (typeType);");
     declareExtern(c_prog, "boolType    typIsDerived (typeType);");

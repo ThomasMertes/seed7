@@ -42,6 +42,7 @@
 #include "data.h"
 #include "data_rtl.h"
 #include "os_decls.h"
+#include "stackutl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "syvarutl.h"
@@ -87,11 +88,6 @@
 
 #define TRACE_DECL_ANY 0
 
-
-typedef longjmpPosition catch_type;
-extern catch_type *catch_stack;
-extern size_t catch_stack_pos;
-extern size_t max_catch_stack;
 
 /* If the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
@@ -477,7 +473,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                 printf("\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
                        striAsUnquotedCStri(sourceFilePath), options,
                        errorFile == NULL ? "NULL " : "",
-                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL && errorFile->cFile == NULL ?
+                           "NULL_FILE " : "",
                        errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
                        *err_info););
     if (unlikely(errorFile != NULL &&
@@ -518,7 +515,6 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                                 errorFile != &nullFileRecord;
       resultProg->errorFile = filCreate(errorFile);
       resultProg->error_count = 0;
-      resultProg->types = NULL;
       resultProg->literals = NULL;
       resultProg->arg0         = strCreate(sourceFileArgument);
       resultProg->program_name = getProgramName(sourceFileArgument);
@@ -572,7 +568,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
       } else {
-        logMessage(printf("analyzeProg: MEMORY_ERROR cought\n");)
+        logMessage(printf("analyzeProg: MEMORY_ERROR caught\n");)
         resetExceptionCheck();
         prog = progBackup;
         closeInfile();
@@ -619,7 +615,8 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     logFunction(printf("analyzeFile(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
                        striAsUnquotedCStri(sourceFileArgument), options,
                        errorFile == NULL ? "NULL " : "",
-                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL && errorFile->cFile == NULL ?
+                           "NULL_FILE " : "",
                        errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
                        *err_info););
     initAnalyze();
@@ -762,7 +759,8 @@ progType analyzeBString (const bstriType input_bstri, uintType options,
     logFunction(printf("analyzeBString(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
                        bstriAsUnquotedCStri(input_bstri), options,
                        errorFile == NULL ? "NULL " : "",
-                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL && errorFile->cFile == NULL ?
+                           "NULL_FILE " : "",
                        errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
                        *err_info););
     initAnalyze();
@@ -801,7 +799,8 @@ progType analyzeString (const const_striType input_string, uintType options,
     logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, %s%s%d, %d)\n",
                        striAsUnquotedCStri(input_string), options,
                        errorFile == NULL ? "NULL " : "",
-                       errorFile->cFile == NULL? "NULL_FILE " : "",
+                       errorFile != NULL && errorFile->cFile == NULL ?
+                           "NULL_FILE " : "",
                        errorFile != NULL ? safe_fileno(errorFile->cFile) : 0,
                        *err_info););
     input_bstri = stri_to_bstri8(input_string);

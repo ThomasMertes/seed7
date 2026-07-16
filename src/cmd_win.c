@@ -62,6 +62,10 @@
 #include "cmd_drv.h"
 
 
+#if DO_HEAP_STATISTIC
+size_t sizeof_nameCacheEntryRecord = 0;
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
@@ -107,7 +111,7 @@ static PSID worldSid = NULL;
  *  - (2n) + 1 backslashes followed by a quotation mark produce
  *    n backslashes followed by a quotation mark. In this case the
  *    quotation mark is added to the argument and the quotation mode
- +    is not changed.
+ *    is not changed.
  *  - n backslashes not followed by a quotation mark simply produce
  *    n backslashes.
  */
@@ -372,14 +376,14 @@ os_striType *getEnvironment (void)
     if (envBuffer == NULL) {
       env = NULL;
     } else {
-      /* printf("envBuffer: \"" FMT_S_OS "\"\n", envBuffer); */
+      logMessage(printf("envBuffer: \"" FMT_S_OS "\"\n", envBuffer););
       currPos = envBuffer;
       do {
         length = os_stri_strlen(currPos);
         currPos = &currPos[length + 1];
         numElems++;
       } while (length != 0);
-      /* printf("numElems: " FMT_U_MEM "\n", numElems); */
+      logMessage(printf("numElems: " FMT_U_MEM "\n", numElems););
       env = (os_striType *) malloc(numElems * sizeof(os_striType));
       if (env != NULL) {
         currPos = envBuffer;
@@ -390,9 +394,10 @@ os_striType *getEnvironment (void)
           currIdx++;
         } while (length != 0);
         env[currIdx - 1] = NULL;
-        /* for (currIdx = 0; env[currIdx] != NULL; currIdx++) {
-          printf("env[" FMT_U_MEM "]: \"" FMT_S_OS "\"\n", currIdx, env[currIdx]);
-        } */
+        logMessage(for (currIdx = 0; env[currIdx] != NULL; currIdx++) {
+                     printf("env[" FMT_U_MEM "]: \"" FMT_S_OS "\"\n",
+                            currIdx, env[currIdx]);
+                   });
       } /* if */
       if (env == NULL || env[0] == NULL) {
         if (FreeEnvironmentStringsW(envBuffer) == 0) {
@@ -411,7 +416,7 @@ void freeEnvironment (os_striType *environment)
     if (environment != NULL) {
       if (environment[0] != NULL) {
         if (FreeEnvironmentStringsW(environment[0]) == 0) {
-          logError(printf("getEnvironment: FreeEnvironmentStrings() failed.\n"););
+          logError(printf("freeEnvironment: FreeEnvironmentStrings() failed.\n"););
         } /* if */
       } /* if */
       free(environment);
@@ -497,7 +502,7 @@ int winRename (const const_os_striType oldPath, const const_os_striType newPath)
   /* winRename */
     logFunction(printf("winRename(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                        oldPath, newPath););
-    if (unlikely(MoveFileExW(oldPath, newPath, MOVEFILE_REPLACE_EXISTING)) == 0) {
+    if (unlikely(MoveFileExW(oldPath, newPath, MOVEFILE_REPLACE_EXISTING) == 0)) {
       lastError = GetLastError();
       logError(printf("winRename(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
                       "MoveFileW failed:\nlastError=" FMT_U32 "\n",
@@ -883,7 +888,7 @@ static const wchar_t *followSymlinkRecursive (const wchar_t *osSymlinkPath,
 
   {
     USHORT substituteNameLength;
-    wchar_t *lastBackslashPos;
+    const wchar_t *lastBackslashPos;
     memSizeType directoryPathLength;
     wchar_t *destination;
     const wchar_t *result;
@@ -1071,7 +1076,7 @@ const wchar_t *winFollowSymlink (const wchar_t *path, int numberOfFollowsAllowed
                                              &bytesReturned, NULL) == 0)) {
                   logError(printf("winFollowSymlink(\"%ls\", ...): "
                                   "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
-                                  "lastError=" FMT_U32 "%\n",
+                                  "lastError=" FMT_U32 "\n",
                                   path, (memSizeType) fileHandle,
                                   (uint32Type) GetLastError()););
                   errno = EACCES;
@@ -1288,7 +1293,7 @@ void winCopySymlink (const const_os_striType sourcePath,
                                          &bytesReturned, NULL) == 0)) {
               logError(printf("winCopySymlink(\"%ls\", \"%ls\", %d): "
                               "DeviceIoControl(" FMT_U_MEM ", ...) failed:\n"
-                              "lastError=" FMT_U32 "%\n",
+                              "lastError=" FMT_U32 "\n",
                               sourcePath, destPath, *err_info,
                               (memSizeType) fileHandle,
                               (uint32Type) GetLastError()););
@@ -1366,6 +1371,13 @@ static boolType setupWellKnownSids (void)
     } /* if */
     return administratorSid != NULL && worldSid != NULL;
   } /* setupWellKnownSids */
+
+
+
+void freeNameCache (void)
+
+  { /* freeNameCache */
+  } /* freeNameCache */
 
 
 
@@ -2039,7 +2051,7 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    const_os_striType os_path;
+    os_striType os_path;
     int path_info;
     errInfoType err_info = OKAY_NO_ERROR;
     WIN32_FILE_ATTRIBUTE_DATA fileInfo;

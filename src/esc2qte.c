@@ -30,7 +30,7 @@
 #define BUFFER_SIZE 65536
 
 
-int main (int argc, char *argv)
+int main (int argc, char *argv[])
 
   {
     char line[BUFFER_SIZE];

@@ -799,8 +799,8 @@ const proc: check_isLetter is func
   end func;
 
 
-const proc: check_width is func
-  local
+const func boolean: check_width_1 is func
+  result
     var boolean: success is TRUE;
   begin
     if width('\16#00021;') <> 1 then writeln("width(#   21) incorrect"); success := FALSE; end if; # EXCLAMATION MARK
@@ -1122,6 +1122,13 @@ const proc: check_width is func
     if width('\16#0222f;') <> 1 then writeln("width(# 222f) incorrect"); success := FALSE; end if; # SURFACE INTEGRAL
     if width('\16#02231;') <> 1 then writeln("width(# 2231) incorrect"); success := FALSE; end if; # CLOCKWISE INTEGRAL
     if width('\16#02234;') <> 1 then writeln("width(# 2234) incorrect"); success := FALSE; end if; # THEREFORE
+  end func;
+
+
+const func boolean: check_width_2 is func
+  result
+    var boolean: success is TRUE;
+  begin
     if width('\16#02236;') <> 1 then writeln("width(# 2236) incorrect"); success := FALSE; end if; # RATIO
     if width('\16#02238;') <> 1 then writeln("width(# 2238) incorrect"); success := FALSE; end if; # DOT MINUS
     if width('\16#0223a;') <> 1 then writeln("width(# 223a) incorrect"); success := FALSE; end if; # GEOMETRIC PROPORTION
@@ -1444,7 +1451,21 @@ const proc: check_width is func
     if width('\16#1f251;') <> 1 then writeln("width(#1f251) incorrect"); success := FALSE; end if; # CIRCLED IDEOGRAPH ACCEPT
     if width('\16#20000;') <> 1 then writeln("width(#20000) incorrect"); success := FALSE; end if; # CJK UNIFIED IDEOGRAPH-20000
     if width('\16#27fff;') <> 2 then writeln("width(#27fff) incorrect"); success := FALSE; end if; # CJK UNIFIED IDEOGRAPH-27FFF
-    if success then
+  end func;
+
+
+const proc: check_width is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_width_1 then
+      okay := FALSE;
+    end if;
+    if not check_width_2 then
+      okay := FALSE;
+    end if;
+
+    if okay then
       writeln("width function works correctly.");
     end if;
   end func;

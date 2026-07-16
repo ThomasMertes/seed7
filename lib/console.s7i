@@ -145,10 +145,10 @@ const proc: clear (in console_file: aConsoleFile) is func
 
 const proc: v_scroll (inout console_file: aConsoleFile,
     in integer: upper, in integer: left, in integer: lower,
-    in integer: right, in integer: count)                        is action "CON_V_SCL";
+    in integer: right, in integer: count)                        is action "CON_V_SCROLL";
 const proc: h_scroll (inout console_file: aConsoleFile,
     in integer: upper, in integer: left, in integer: lower,
-    in integer: right, in integer: count)                        is action "CON_H_SCL";
+    in integer: right, in integer: count)                        is action "CON_H_SCROLL";
 
 
 const proc: color (in console_file: aConsoleFile, in color: foreground) is noop;

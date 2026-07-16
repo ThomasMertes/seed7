@@ -48,7 +48,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o stackutl.o striutl.o
 DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_dos.o fil_dos.o pcs_dos.o pol_dos.o soc_none.o \
        tim_dos.o
 OBJ = $(MOBJ)
@@ -74,8 +74,8 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
-DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_dos.c pcs_dos.c pol_dos.c soc_none.c \
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c stackutl.c striutl.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_dos.c fil_dos.c pcs_dos.c pol_dos.c soc_none.c \
        tim_dos.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -98,7 +98,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	del next_lvl
 
 ..\prg\s7.exe: ..\bin\s7.exe
-	copy ..\bin\s7.exe ..\prg
+	copy ..\bin\s7.exe ..\prg /Y
 
 ..\bin\s7c.exe: ..\prg\s7c.exe
 	copy ..\prg\s7c.exe ..\bin /Y
@@ -197,6 +197,7 @@ base.h:
 	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ > base.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> base.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
+	echo #define TEMP_FILE_PREFIX "t_" >> base.h
 	echo #define C_COMPILER "$(CC)" >> base.h
 	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
 	echo #define CC_FLAGS "" >> base.h
@@ -213,7 +214,6 @@ settings.h:
 	echo #define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo #define AWAIT_WITH_SELECT >> settings.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
-	echo #define MAP_LONG_FILE_NAMES_TO_SHORT >> settings.h
 	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
 	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> settings.h

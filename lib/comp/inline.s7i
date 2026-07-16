@@ -54,6 +54,16 @@ const proc: process_local_var_declaration (in reference: current_object,
     inout expr_type: c_expr) is forward;
 
 
+const func boolean: isInlineParam (in reference: aParam) is
+  return category(aParam) = REFPARAMOBJECT and
+         aParam in inlineParam and
+         inlineParam[aParam][1].actualParam <> NIL;
+
+
+const func type: getInlineParamType (in reference: aParam) is
+  return getType(inlineParam[aParam][1].actualParam);
+
+
 const proc: pushInlineParam (in reference: obj, in inlineParamData: paramData) is func
 
   begin
@@ -195,12 +205,12 @@ const proc: push_inline_func_param (in reference: formal_param,
           if actual_param_expr.result_expr <> "" then
             c_expr.expr &:= actual_param_expr.result_expr;
           else
-            process_create_declaration(getType(formal_param), global_c_expr);
-            process_create_call(getType(formal_param),
+            process_create_declaration(param_type, global_c_expr);
+            process_create_call(param_type,
                 actual_param_expr.expr, c_expr.expr);
           end if;
-          process_destr_declaration(getType(formal_param), global_c_expr);
-          process_destr_call(getType(formal_param),
+          process_destr_declaration(param_type, global_c_expr);
+          process_destr_call(param_type,
               param_name, c_expr.temp_frees);
         else
           assign_inline_param(formal_param, actual_param, c_expr);
@@ -416,13 +426,13 @@ const proc: push_inline_proc_param (in reference: formal_param,
         if actual_param_expr.result_expr <> "" then
           c_expr.temp_assigns &:= actual_param_expr.result_expr;
         else
-          process_create_declaration(getType(formal_param), global_c_expr);
-          process_create_call(getType(formal_param),
+          process_create_declaration(param_type, global_c_expr);
+          process_create_call(param_type,
               actual_param_expr.expr, c_expr.temp_assigns);
         end if;
         c_expr.temp_assigns &:= ";\n";
-        process_destr_declaration(getType(formal_param), global_c_expr);
-        process_destr_call(getType(formal_param),
+        process_destr_declaration(param_type, global_c_expr);
+        process_destr_call(param_type,
             "o_" & param_name, c_expr.temp_frees);
       else
         c_expr.expr &:= diagnosticLine(formal_param);

@@ -89,12 +89,16 @@ void dllErrorMessage (const char *funcName, const char *dbFuncName,
     const char *dllList[], memSizeType dllListLength)
 
   {
-    unsigned int pos;
+    memSizeType pos;
     memSizeType dllNamesSize = 0;
     char *dllNames;
     char *currPos;
 
   /* dllErrorMessage */
+    /* The callers of dllErrorMessage() define dllList with macros. */
+    /* These macros contain string literals with DLL names. The     */
+    /* computation of dllNameSize can only overflow if the length   */
+    /* of such a macro would be longer than MAX_MEMSIZETYPE.        */
     for (pos = 0; pos < dllListLength; pos++) {
       dllNamesSize += strlen(dllList[pos]) + 2; /* 2 chars for comma and space */
     } /* for */

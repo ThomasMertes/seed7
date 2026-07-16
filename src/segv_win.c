@@ -34,7 +34,8 @@
 
 #include "version.h"
 
-#define _WIN32_WINNT 0x500
+#if HAS_VECTORED_EXCEPTION_HANDLER
+#define _WIN32_WINNT 0x501
 #include <windows.h>
 #include <stdio.h>
 #include <setjmp.h>
@@ -85,3 +86,5 @@ void resetExceptionCheck (void)
       stackOverflow = FALSE;
     } /* if */
   } /* resetExceptionCheck */
+
+#endif

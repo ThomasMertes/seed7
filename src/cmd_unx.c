@@ -72,12 +72,36 @@
 #include "tim_rtl.h"
 #include "str_rtl.h"
 #include "int_rtl.h"
+#include "hsh_rtl.h"
+#include "tim_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "cmd_drv.h"
 
+
+#define CACHE_GID_TO_NAME 1
+#define CACHE_UID_TO_NAME 1
+
+
+#if CACHE_GID_TO_NAME || CACHE_UID_TO_NAME
+typedef struct {
+    intType timestamp;
+    striType name;
+  } nameCacheEntryRecord, *nameCacheEntryType;
+#endif
+
+#if CACHE_GID_TO_NAME
+static rtlHashType groupCache = NULL;
+#endif
+#if CACHE_UID_TO_NAME
+static rtlHashType userCache = NULL;
+#endif
+
+#if DO_HEAP_STATISTIC
+size_t sizeof_nameCacheEntryRecord = 0;
+#endif
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
@@ -188,7 +212,9 @@ char *getenv7 (const char *name)
     char *c;
 
   /* getenv7 */
-    logFunction(printf("getenv7(\"%s\")\n", name););
+    logFunction(printf("getenv7(%s\"%s\")\n",
+                       name == NULL ? "NULL " : "",
+                       name != NULL ? name : ""););
     if (name != NULL && environ7 != NULL && strchr(name, '=') == NULL) {
       nameLen = strlen(name);
       for (p = environ7; (c = *p) != NULL; ++p) {
@@ -200,7 +226,9 @@ char *getenv7 (const char *name)
         } /* if */
       } /* for */
     } /* if */
-    logFunction(printf("getenv7(\"%s\") --> NULL\n", name));
+    logFunction(printf("getenv7(%s\"%s\") --> NULL\n",
+                       name == NULL ? "NULL " : "",
+                       name != NULL ? name : ""););
     return NULL;
   } /* getenv7 */
 
@@ -217,8 +245,12 @@ int setenv7 (const char *name, const char *value, int overwrite)
     char **resizedEnviron7;
 
   /* setenv7 */
-    logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n",
-                       name, value, overwrite););
+    logFunction(printf("setenv7(%s\"%s\", %s\"%s\", %d)\n",
+                       name == NULL ? "NULL " : "",
+                       name != NULL ? name : "",
+                       value == NULL ? "NULL " : "",
+                       value != NULL ? value : "",
+                       overwrite););
     if (name == NULL || name[0] == '\0' ||
         strchr(name, '=') != NULL || value == NULL) {
       errno = EINVAL;
@@ -241,7 +273,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
                 return -1;
               } else {
                 *p = c;
-                strcpy(&c[nameLen + 1], value);
+                memcpy(&c[nameLen + 1], value, valueLen + 1);
               } /* if */
             } /* if **/
             return 0;
@@ -264,7 +296,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
         } else {
           memcpy(c, name, nameLen);
           c[nameLen] = '=';
-          strcpy(&c[nameLen + 1], value);
+          memcpy(&c[nameLen + 1], value, valueLen + 1);
           environ7[nameCount] = c;
           environ7[nameCount + 1] = NULL;
           return 0;
@@ -369,6 +401,128 @@ int unsetenvForNodeJs (const char *name)
 #endif
 
 
+#if CACHE_GID_TO_NAME || CACHE_UID_TO_NAME
+static void destrNameCacheEntry (rtlValueUnion cacheValue)
+
+  {
+    nameCacheEntryType cacheEntry;
+
+  /* destrNameCacheEntry */
+    cacheEntry = (nameCacheEntryType) cacheValue.ptrValue;
+    FREE_STRI(cacheEntry->name);
+    FREE_RECORD(cacheEntry, nameCacheEntryRecord, count.name_cache);
+  } /* destrNameCacheEntry */
+
+
+
+static striType getCachedNameFromId (rtlHashType nameCache, genericType id)
+
+  {
+    rtlValueUnion idKey;
+    rtlValueUnion defaultData;
+    rtlValueUnion cacheValue;
+    nameCacheEntryType cacheEntry;
+    striType name;
+
+  /* getCachedNameFromId */
+    idKey.genericValue = id;
+    defaultData.ptrValue = NULL;
+    if (nameCache != NULL &&
+        (cacheValue = hshIdxWithDefault(nameCache, idKey,
+                                        defaultData, (intType) id,
+                                        (compareFuncType) &valueCmp),
+                                        cacheValue.ptrValue != NULL)) {
+      cacheEntry = (nameCacheEntryType) cacheValue.ptrValue;
+      if (cacheEntry->timestamp + 10000000 < timMicroSec()) {
+        hshExcl(nameCache, idKey, (intType) id,
+                (compareFuncType) &valueCmp,
+                (destrFuncType) &valueDestr,
+                (destrFuncType) &destrNameCacheEntry);
+        name = NULL;
+      } else if (likely(ALLOC_STRI_SIZE_OK(name,
+                                           cacheEntry->name->size))) {
+        name->size = cacheEntry->name->size;
+        memcpy(name->mem, cacheEntry->name->mem,
+               cacheEntry->name->size * sizeof(strElemType));
+      } /* if */
+    } else {
+      name = NULL;
+    } /* if */
+    logFunction(printf("getCachedNameFromId(" FMT_X_MEM ", "
+                       FMT_U_GEN ") --> \"%s\"\n",
+                       (memSizeType) nameCache, id,
+                       striAsUnquotedCStri(name)););
+    return name;
+  } /* getCachedNameFromId */
+
+
+
+static rtlHashType addNameToCache (rtlHashType nameCache, genericType id, striType name)
+
+  {
+    nameCacheEntryType cacheEntry;
+    rtlValueUnion idKey;
+    rtlValueUnion data;
+
+  /* addNameToCache */
+    logFunction(printf("addNameToCache(" FMT_X_MEM ", " FMT_U_GEN
+                       ", \"%s\")\n",
+                        (memSizeType) nameCache, id,
+                        striAsUnquotedCStri(name)););
+    if (nameCache == NULL) {
+      logMessage(printf("addNameToCache: New hash table.\n"););
+      nameCache = hshEmpty();
+#if DO_HEAP_STATISTIC
+      sizeof_nameCacheEntryRecord = sizeof(nameCacheEntryRecord);
+#endif
+    } /* if */
+    if (likely(nameCache != NULL)) {
+      if (likely(ALLOC_RECORD(cacheEntry, nameCacheEntryRecord,
+                              count.name_cache))) {
+        if (likely(ALLOC_STRI_SIZE_OK(cacheEntry->name, name->size))) {
+          cacheEntry->name->size = name->size;
+          memcpy(cacheEntry->name->mem, name->mem,
+                 name->size * sizeof(strElemType));
+          cacheEntry->timestamp = timMicroSec();
+          idKey.genericValue = id;
+          data.ptrValue = (rtlPtrType) cacheEntry;
+          if (unlikely(!hashAdd(nameCache, idKey, data,
+                                (intType) id,
+                                (compareFuncType) &valueCmp,
+                                (createFuncType) &valueCreate,
+                                (createFuncType) &ptrCreateValue))) {
+            FREE_STRI(cacheEntry->name);
+            FREE_RECORD(cacheEntry, nameCacheEntryRecord,
+                        count.name_cache);
+          } /* if */
+        } else {
+          FREE_RECORD(cacheEntry, nameCacheEntryRecord,
+                      count.name_cache);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("addNameToCache --> " FMT_X_MEM "\n",
+                       (memSizeType) nameCache););
+    return nameCache;
+  } /* addNameToCache */
+#endif
+
+
+
+void freeNameCache (void)
+
+  { /* freeNameCache */
+#if CACHE_GID_TO_NAME
+    hshDestr(groupCache, (destrFuncType) &valueDestr,
+             (destrFuncType) &destrNameCacheEntry);
+#endif
+#if CACHE_UID_TO_NAME
+    hshDestr(userCache, (destrFuncType) &valueDestr,
+             (destrFuncType) &destrNameCacheEntry);
+#endif
+  } /* freeNameCache */
+
+
 
 static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
 
@@ -389,6 +543,10 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
                        gid == (gid_t) -1 ? (gid_t) 1 : gid,
                        *err_info););
 #if HAS_GETGRGID_R || HAS_GETGRGID
+#if CACHE_GID_TO_NAME
+    group = getCachedNameFromId(groupCache, (genericType) gid);
+    if (group == NULL) {
+#endif
 #if HAS_GETGRGID_R
     getgrgid_result = getgrgid_r(gid, &grp, buffer,
                                  sizeof(buffer), &grpResult);
@@ -410,8 +568,15 @@ static striType getGroupFromGid (gid_t gid, errInfoType *err_info)
       } /* if */
       if (unlikely(group == NULL)) {
         *err_info = MEMORY_ERROR;
+#if CACHE_GID_TO_NAME
+      } else {
+        groupCache = addNameToCache(groupCache, (genericType) gid, group);
+#endif
       } /* if */
     }
+#if CACHE_GID_TO_NAME
+    }
+#endif
 #else
     group = intStr((intType) gid);
     if (unlikely(group == NULL)) {
@@ -512,6 +677,10 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
                        uid == (uid_t) -1 ? (uid_t) 1 : uid,
                        *err_info););
 #if HAS_GETPWUID_R || HAS_GETPWUID
+#if CACHE_UID_TO_NAME
+    user = getCachedNameFromId(userCache, (genericType) uid);
+    if (user == NULL) {
+#endif
 #if HAS_GETPWUID_R
     getpwuid_result = getpwuid_r(uid, &pwd, buffer,
                                  sizeof(buffer), &pwdResult);
@@ -533,8 +702,15 @@ static striType getUserFromUid (uid_t uid, errInfoType *err_info)
       } /* if */
       if (unlikely(user == NULL)) {
         *err_info = MEMORY_ERROR;
+#if CACHE_UID_TO_NAME
+      } else {
+        userCache = addNameToCache(userCache, (genericType) uid, user);
+#endif
       } /* if */
     }
+#if CACHE_UID_TO_NAME
+    }
+#endif
 #else
     user = intStr((intType) uid);
     if (unlikely(user == NULL)) {
@@ -884,9 +1060,10 @@ void cmdSetGroup (const const_striType filePath, const const_striType group)
         raise_error(err_info);
       } else {
         if (unlikely(os_chown(os_path, (uid_t) -1, gid) != 0)) {
-          logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+          logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, "
+                          FMT_GID ") failed:\n"
                           "errno=%d\nerror: %s\n",
-                          os_path, (long) gid, errno, strerror(errno)););
+                          os_path, gid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
         } else {
@@ -943,9 +1120,10 @@ void cmdSetGroupOfSymlink (const const_striType filePath, const const_striType g
         gid = getGidFromGroup(group, &err_info);
         if (likely(gid != (gid_t) -1)) {
           if (unlikely(os_lchown(os_path, (uid_t) -1, gid) != 0)) {
-            logError(printf("cmdSetGroupOfSymlink: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+            logError(printf("cmdSetGroupOfSymlink: chown(\"" FMT_S_OS
+                            "\", -1, " FMT_GID ") failed:\n"
                             "errno=%d\nerror: %s\n",
-                            os_path, (long) gid, errno, strerror(errno)););
+                            os_path, gid, errno, strerror(errno)););
             err_info = FILE_ERROR;
           } /* if */
         } /* if */
@@ -979,7 +1157,7 @@ void cmdSetMTimeOfSymlink (const const_striType filePath,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    const_os_striType os_path;
+    os_striType os_path;
     int path_info;
     errInfoType err_info = OKAY_NO_ERROR;
     os_stat_struct stat_buf;
@@ -1088,9 +1266,10 @@ void cmdSetOwner (const const_striType filePath, const const_striType owner)
         raise_error(err_info);
       } else {
         if (unlikely(os_chown(os_path, uid, (gid_t) -1) != 0)) {
-          logError(printf("cmdSetOwner: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+          logError(printf("cmdSetOwner: chown(\"" FMT_S_OS "\", "
+                          FMT_UID ", -1) failed:\n"
                           "errno=%d\nerror: %s\n",
-                          os_path, (long) uid, errno, strerror(errno)););
+                          os_path, uid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
         } else {
@@ -1147,9 +1326,10 @@ void cmdSetOwnerOfSymlink (const const_striType filePath, const const_striType o
         uid = getUidFromUser(owner, &err_info);
         if (likely(uid != (uid_t) -1)) {
           if (unlikely(os_lchown(os_path, uid, (gid_t) -1) != 0)) {
-            logError(printf("cmdSetOwnerOfSymlink: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+            logError(printf("cmdSetOwnerOfSymlink: chown(\"" FMT_S_OS
+                            "\", " FMT_UID ", -1) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            os_path, (long) uid, errno, strerror(errno)););
+                            os_path, uid, errno, strerror(errno)););
             err_info = FILE_ERROR;
           } /* if */
         } /* if */

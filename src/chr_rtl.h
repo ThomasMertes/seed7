@@ -36,9 +36,9 @@
 #endif
 
 
-striType chrCLit (charType character);
+striType chrCLiteral (charType character);
 #if ALLOW_STRITYPE_SLICES
-striType chrCLitToBuffer (charType character, striType buffer);
+striType chrCLiteralToBuffer (charType character, striType buffer);
 #endif
 intType chrCmp (charType char1, charType char2);
 boolType chrIsLetter (charType ch);

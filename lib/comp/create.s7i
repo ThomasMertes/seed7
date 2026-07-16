@@ -396,6 +396,7 @@ const proc: process_create_call (in type: object_type,
         when {STRIOBJECT}:      expr &:= "strCreate(" & param_b & ")";
         when {BSTRIOBJECT}:     expr &:= "bstCreate(" & param_b & ")";
         when {FILEOBJECT}:      expr &:= "filCreate(" & param_b & ")";
+        when {SOCKETOBJECT}:    expr &:= "socCreate(" & param_b & ")";
         when {SETOBJECT}:       expr &:= "setCreate(" & param_b & ")";
         when {POLLOBJECT}:      expr &:= "polCreate(" & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCreate(" & param_b & ")";

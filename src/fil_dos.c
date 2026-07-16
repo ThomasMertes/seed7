@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_dos.c     File functions which call the Dos API.            */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018, 2025, 2026  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -47,6 +47,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
@@ -155,7 +156,7 @@ boolType filInputReady (fileType inFile)
 
 
 
-void filPipe (fileType *inFile, fileType *outFile)
+void filPipe (fileType *const inFile, fileType *const outFile)
 
   { /* filPipe */
     *inFile = NULL;
@@ -171,6 +172,9 @@ void setupFiles (void)
     struct termios term_descr;
 
   /* setupFiles */
+    logFunction(printf("setupFiles: stdin=%d, stdout=%d, stderr=%d)\n",
+                       os_fileno(stdin), os_fileno(stdout),
+                       os_fileno(stderr)););
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;
@@ -196,4 +200,5 @@ void setupFiles (void)
     if (!os_isatty(STDERR_FILENO)) {
       setmode(STDERR_FILENO, O_BINARY);
     } /* if */
+    logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */

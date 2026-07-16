@@ -28,6 +28,7 @@
 
 
 include "osfiles.s7i";
+include "process.s7i";
 include "shell.s7i";
 include "getf.s7i";
 include "wildcard.s7i";
@@ -283,25 +284,56 @@ const proc: doMkdirCmd (in array string: fileList,
   end func;
 
 
-const func string: getCommandParameter (inout string: stri) is func
+const func string: getCommandParameter (inout string: parameters) is func
   result
     var string: symbol is "";
   local
     var integer: leng is 0;
     var integer: pos is 1;
-    var char: quotation is ' ';
     var integer: quotedPos is 0;
     var string: quotedPart is "";
+    var integer: numberOfBackslashes is 0;
     var boolean: quoteMissing is FALSE;
   begin
-    leng := length(stri);
-    repeat
-      if stri[pos] = '"' or stri[pos] = ''' then
-        quotation := stri[pos];
+    leng := length(parameters);
+    while pos <= leng and parameters[pos] in parameter_char and
+        not quoteMissing do
+      if parameters[pos] = '"' then
         quotedPos := succ(pos);
         quotedPart := "";
-        while quotedPos <= leng and stri[quotedPos] <> quotation do
-          quotedPart &:= stri[quotedPos];
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          # The backslash can escape a double quote.
+          if parameters[quotedPos] = '\\' then
+            incr(quotedPos);
+            numberOfBackslashes := 1;
+            while quotedPos <= leng and parameters[quotedPos] = '\\' do
+              incr(quotedPos);
+              incr(numberOfBackslashes);
+            end while;
+            if quotedPos <= leng and parameters[quotedPos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              quotedPart &:= "\\" mult numberOfBackslashes mdiv 2;
+              quotedPart &:= '"';
+              incr(quotedPos);
+            else
+              quotedPart &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            quotedPart &:= parameters[quotedPos];
+            incr(quotedPos);
+          end if;
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      elsif parameters[pos] = ''' then
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> ''' do
+          quotedPart &:= parameters[quotedPos];
           incr(quotedPos);
         end while;
         if quotedPos <= leng then
@@ -312,13 +344,31 @@ const func string: getCommandParameter (inout string: stri) is func
         end if;
       else
         repeat
-          symbol &:= stri[pos];
-          incr(pos);
-        until pos > leng or stri[pos] not in parameter_char or
-            stri[pos] = '"' or stri[pos] = ''';
+          # The backslash can escape a double quote.
+          if parameters[pos] = '\\' then
+            incr(pos);
+            numberOfBackslashes := 1;
+            while pos <= leng and parameters[pos] = '\\' do
+              incr(pos);
+              incr(numberOfBackslashes);
+            end while;
+            if pos <= leng and parameters[pos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              symbol &:= "\\" mult numberOfBackslashes mdiv 2;
+              symbol &:= '"';
+              incr(pos);
+            else
+              symbol &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            symbol &:= parameters[pos];
+            incr(pos);
+          end if;
+        until pos > leng or parameters[pos] not in parameter_char or
+            parameters[pos] = '"' or parameters[pos] = ''';
       end if;
-    until pos > leng or stri[pos] not in parameter_char or quoteMissing;
-    stri := stri[pos ..];
+    end while;
+    parameters := parameters[pos ..];
   end func;
 
 
@@ -329,14 +379,16 @@ const func string: getCommandParameter (inout string: stri) is func
  *  A single quoted part ends with the next single quote. A double
  *  quoted part ends with unescaped double quotes. In a double quoted
  *  part the sequences \" and \\ do not terminate the quoted part and
- *  describe a double quote (") respectively a backslash (\). In an
- *  unquoted part a backslash (\) can used to escape characters that
- *  would otherwise have a special meaning. The backslash is ignored
- *  and the character after it is added to the word. To represent a
- *  backslash it must be doubled. When the function is called it is
- *  assumed that parameters[1] contains the first character of the
- *  parameter. When the function is left ''parameters'' is empty or
- *  parameters[1] contains the character after the parameter.
+ *  describe a double quote (") respectively a backslash (\). All
+ *  other combinations of a backslash (\) in a double quoted part are
+ *  left unchanged. In an unquoted part a backslash (\) can be used to
+ *  escape characters that would otherwise have a special meaning. The
+ *  backslash is ignored and the character after it is added to the
+ *  word. To represent a backslash it must be doubled. When the
+ *  function is called it is assumed that parameters[1] contains the
+ *  first character of the parameter. When the function is left
+ *  ''parameters'' is empty or parameters[1] contains the character
+ *  after the parameter.
  *  @return the next parameter for a Unix command.
  *)
 const func string: getUnixCommandParameter (inout string: parameters) is func
@@ -385,6 +437,7 @@ const func string: getUnixCommandParameter (inout string: parameters) is func
         end if;
       else
         repeat
+          # If the backslash is the last character it is kept.
           if parameters[pos] = '\\' and pos < leng then
             incr(pos);
           end if;
@@ -419,6 +472,7 @@ const func string: getDosCommandParameter (inout string: parameters) is func
     var integer: pos is 1;
     var integer: quotedPos is 0;
     var string: quotedPart is "";
+    var integer: numberOfBackslashes is 0;
     var boolean: quoteMissing is FALSE;
   begin
     leng := length(parameters);
@@ -428,8 +482,26 @@ const func string: getDosCommandParameter (inout string: parameters) is func
         quotedPos := succ(pos);
         quotedPart := "";
         while quotedPos <= leng and parameters[quotedPos] <> '"' do
-          quotedPart &:= parameters[quotedPos];
-          incr(quotedPos);
+          # The backslash can escape a double quote.
+          if parameters[quotedPos] = '\\' then
+            incr(quotedPos);
+            numberOfBackslashes := 1;
+            while quotedPos <= leng and parameters[quotedPos] = '\\' do
+              incr(quotedPos);
+              incr(numberOfBackslashes);
+            end while;
+            if quotedPos <= leng and parameters[quotedPos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              quotedPart &:= "\\" mult numberOfBackslashes mdiv 2;
+              quotedPart &:= '"';
+              incr(quotedPos);
+            else
+              quotedPart &:= "\\" mult numberOfBackslashes;
+            end if;
+          else
+            quotedPart &:= parameters[quotedPos];
+            incr(quotedPos);
+          end if;
         end while;
         if quotedPos <= leng then
           pos := succ(quotedPos);
@@ -441,13 +513,30 @@ const func string: getDosCommandParameter (inout string: parameters) is func
         repeat
           if parameters[pos] = '^' then
             incr(pos);
+            # If the caret is the last character it is ignored.
             if pos <= leng then
               symbol &:= parameters[pos];
             end if;
+            incr(pos);
+          elsif parameters[pos] = '\\' then
+            incr(pos);
+            numberOfBackslashes := 1;
+            while pos <= leng and parameters[pos] = '\\' do
+              incr(pos);
+              incr(numberOfBackslashes);
+            end while;
+            if pos <= leng and parameters[pos] = '"' and
+                numberOfBackslashes mod 2 = 1 then
+              symbol &:= "\\" mult numberOfBackslashes mdiv 2;
+              symbol &:= '"';
+              incr(pos);
+            else
+              symbol &:= "\\" mult numberOfBackslashes;
+            end if;
           else
             symbol &:= parameters[pos];
+            incr(pos);
           end if;
-          incr(pos);
         until pos > leng or parameters[pos] not in dos_parameter_char or
             parameters[pos] = '"';
       end if;
@@ -500,6 +589,11 @@ const func string: getDosEchoParameter (inout string: parameters) is func
               symbol &:= parameters[pos];
             end if;
           else
+            # The backslash can escape a double quote.
+            if parameters[pos] = '\\' and pos < leng and
+                parameters[succ(pos)] = '"' then
+              incr(pos);
+            end if;
             symbol &:= parameters[pos];
           end if;
           incr(pos);
@@ -511,33 +605,18 @@ const func string: getDosEchoParameter (inout string: parameters) is func
   end func;
 
 
-const func boolean: doOneCommand (inout string: command,
-    inout string: commandOutput) is forward;
+const func integer: doOneCommand (inout string: command,
+    in boolean: doRedirection, inout string: commandOutput,
+    inout boolean: redirected) is forward;
 
 
 const func string: execCommand (inout string: command) is func
   result
     var string: backtickOutput is "";
   local
-    var string: fullCommand is "";
-    var file: commandFile is STD_NULL;
+    var boolean: redirected is FALSE;
   begin
-    fullCommand := command;
-    if not doOneCommand(command, backtickOutput) then
-      # writeln("command: " <& literal(fullCommand));
-      commandFile := popen(fullCommand, "r");
-      if commandFile <> STD_NULL then
-        backtickOutput := gets(commandFile, 999999999);
-        while endsWith(backtickOutput, "\r\n") do
-          backtickOutput := backtickOutput[.. length(backtickOutput) - 2];
-        end while;
-        while endsWith(backtickOutput, "\n") do
-          backtickOutput := backtickOutput[.. pred(length(backtickOutput))];
-        end while;
-      else
-        backtickOutput := "";
-      end if;
-    end if;
+    ignore(doOneCommand(command, FALSE, backtickOutput, redirected));
   end func;
 
 
@@ -970,6 +1049,161 @@ const proc: doCd (inout string: parameters) is func
   end func;
 
 
+const proc: appendToFile (in string: file_name, in string: stri) is func
+  local
+    var file: work_file is STD_NULL;
+  begin
+    if stri <> "" then
+      work_file := open(file_name, "a");
+      if work_file <> STD_NULL then
+        write(work_file, stri);
+        close(work_file);
+      end if;
+    end if;
+  end func;
+
+
+const func integer: oneExternalCommand (in string: commandPath,
+    inout string: parameters) is func
+  result
+    var integer: returnCode is 0;
+  local
+    var string: aParam is "";
+    var array string: parameterArray is 0 times "";
+    var string: fileName is "";
+    var boolean: doRedirect is FALSE;
+    var boolean: doAppend is FALSE;
+    var string: executablePath is "";
+    var process: aProcess is process.value;
+    var file: aPipe is STD_NULL;
+    var string: commandOutput is "";
+  begin
+    skipWhiteSpace(parameters);
+    aParam := getCommandParameter(parameters);
+    while aParam <> "" do
+      parameterArray &:= aParam;
+      skipWhiteSpace(parameters);
+      aParam := getCommandParameter(parameters);
+    end while;
+    skipWhiteSpace(parameters);
+    if startsWith(parameters, ">>") then
+      parameters := parameters[3 ..];
+      skipWhiteSpace(parameters);
+      fileName := getCommandParameter(parameters);
+      if fileName <> "" and fileName <> "/dev/null" and
+          fileName <> "NUL:" and fileName <> "NUL" then
+        fileName := convDosPath(fileName);
+        doAppend := TRUE;
+      end if;
+    elsif startsWith(parameters, ">") then
+      parameters := parameters[2 ..];
+      skipWhiteSpace(parameters);
+      fileName := getCommandParameter(parameters);
+      if fileName <> "" and fileName <> "/dev/null" and
+          fileName <> "NUL:" and fileName <> "NUL" then
+        fileName := convDosPath(fileName);
+        doRedirect := TRUE;
+      end if;
+    end if;
+    executablePath := commandPath(commandPath);
+    if doRedirect or doAppend then
+      # writeln("cmd: " <& literal(commandPath) <& " " <&
+      #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+      #                                     : "");
+      if executablePath <> "" then
+        if succeeds(aProcess := startPipe(executablePath, parameterArray)) then
+          aPipe := childStdOut(aProcess);
+          commandOutput := gets(aPipe, 999999999);
+          waitFor(aProcess);
+          returnCode := exitValue(aProcess);
+          if doAppend then
+            appendToFile(convDosPath(fileName), commandOutput);
+          else
+            putf(convDosPath(fileName), commandOutput);
+          end if;
+        else
+          returnCode := -1;
+        end if;
+      else
+        aPipe := popen(commandPath, parameterArray, "r");
+        if aPipe <> STD_NULL then
+          commandOutput := gets(aPipe, 999999999);
+          close(aPipe);
+          if doAppend then
+            appendToFile(convDosPath(fileName), commandOutput);
+          else
+            putf(convDosPath(fileName), commandOutput);
+          end if;
+        else
+          returnCode := -1;
+        end if;
+      end if;
+    else
+      # writeln("cmd: " <& literal(commandPath) <& " " <&
+      #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+      #                                     : "");
+      if executablePath <> "" then
+        if succeeds(aProcess := startProcess(executablePath,
+                                             parameterArray)) then
+          waitFor(aProcess);
+          returnCode := exitValue(aProcess);
+        else
+          returnCode := -1;
+        end if;
+      else
+        returnCode := shell(commandPath, parameterArray);
+      end if;
+    end if;
+  end func;
+
+
+const func integer: oneExternalCommand (in string: commandPath,
+    inout string: parameters, inout string: commandOutput) is func
+  result
+    var integer: returnCode is 0;
+  local
+    var string: aParam is "";
+    var array string: parameterArray is 0 times "";
+    var string: fileName is "";
+    var boolean: doRedirect is FALSE;
+    var boolean: doAppend is FALSE;
+    var string: executablePath is "";
+    var process: aProcess is process.value;
+    var file: aPipe is STD_NULL;
+  begin
+    skipWhiteSpace(parameters);
+    aParam := getCommandParameter(parameters);
+    while aParam <> "" do
+      parameterArray &:= aParam;
+      skipWhiteSpace(parameters);
+      aParam := getCommandParameter(parameters);
+    end while;
+    skipWhiteSpace(parameters);
+    # writeln("cmd: " <& literal(commandPath) <& " " <&
+    #         length(parameterArray) <> 0 ? join(parameterArray, " ")
+    #                                     : "");
+    executablePath := commandPath(commandPath);
+    if executablePath <> "" then
+      if succeeds(aProcess := startPipe(executablePath, parameterArray)) then
+        aPipe := childStdOut(aProcess);
+        commandOutput := gets(aPipe, 999999999);
+        waitFor(aProcess);
+        returnCode := exitValue(aProcess);
+      else
+        returnCode := -1;
+      end if;
+    else
+      aPipe := popen(commandPath, parameterArray, "r");
+      if aPipe <> STD_NULL then
+        commandOutput := gets(aPipe, 999999999);
+        close(aPipe);
+      else
+        returnCode := -1;
+      end if;
+    end if;
+  end func;
+
+
 (**
  *  Act like the Unix make command.
  *  This library just contains a forward definition.
@@ -982,22 +1216,36 @@ const proc: doCd (inout string: parameters) is func
 const proc: doMake (inout string: parameters) is forward;
 
 
-const func boolean: doOneCommand (inout string: command,
-    inout string: commandOutput) is func
+const func integer: doOneCommand (inout string: command,
+    in boolean: doRedirection, inout string: commandOutput,
+    inout boolean: redirected) is func
   result
-    var boolean: done is TRUE;
+    var integer: returnCode is 0;
   local
+    var string: backtickCommand is "";
     var string: commandWord is "";
     var string: commandName is "";
   begin
+    redirected := FALSE;
     if command <> "" and command[1] = '#' then
       command := "";
       commandOutput := "";
     else
-      commandWord := getWord(command);
+      if startsWith(command, "\"") then
+        commandWord := getQuotedText(command);
+      elsif startsWith(command, "`") then
+        backtickCommand := getQuotedText(command);
+        commandWord := execCommand(backtickCommand);
+      else
+        commandWord := getWord(command);
+      end if;
       commandName := lower(commandWord);
       # writeln("doOneCommand: " <& commandName);
       case commandName of
+        when {""}:
+          # An empty command name is treated as error.
+          commandOutput := "";
+          returnCode := -1;
         when {"rm"}:
           doRm(command);
           commandOutput := "";
@@ -1039,7 +1287,8 @@ const func boolean: doOneCommand (inout string: command,
           command := "";
           commandOutput := "";
         when {"("}:
-          done := doOneCommand(command, commandOutput);
+          returnCode := doOneCommand(command, doRedirection,
+                                     commandOutput, redirected);
         otherwise:
           if  startsWith(commandName, "echo.") or
               startsWith(commandName, "echo:") or
@@ -1047,36 +1296,26 @@ const func boolean: doOneCommand (inout string: command,
               startsWith(commandName, "echo\\") then
             command := commandWord[6 ..] & command;
             commandOutput := doEcho(command);
+          elsif doRedirection then
+            returnCode := oneExternalCommand(convDosPath(commandWord),
+                                             command);
+            redirected := TRUE;
           else
-            done := FALSE;
-            commandOutput := "";
+            returnCode := oneExternalCommand(convDosPath(commandWord),
+                                             command, commandOutput);
           end if;
       end case;
     end if;
   end func;
 
 
-const proc: appendToFile (in string: file_name, in string: stri) is func
-  local
-    var file: work_file is STD_NULL;
-  begin
-    if stri <> "" then
-      work_file := open(file_name, "a");
-      if work_file <> STD_NULL then
-        write(work_file, stri);
-        close(work_file);
-      end if;
-    end if;
-  end func;
-
-
-const func boolean: doCommands (inout string: command) is func
+const func integer: processCommand (in var string: command) is func
   result
-    var boolean: done is TRUE;
+    var integer: returnCode is 0;
   local
     var integer: quotePos is 0;
+    var boolean: redirected is FALSE;
     var string: commandOutput is "";
-    var string: redirect is "";
     var string: fileName is "";
   begin
     if startsWith(command, "\"") then
@@ -1086,105 +1325,35 @@ const func boolean: doCommands (inout string: command) is func
       end if;
     end if;
     repeat
-      done := doOneCommand(command, commandOutput);
-      if done then
+      returnCode := doOneCommand(command, TRUE, commandOutput, redirected);
+      if not redirected then
         skipWhiteSpace(command);
-        redirect := getWord(command);
-        if redirect = ">" then
+        if startsWith(command, ">>") then
+          command := command[3 ..];
           skipWhiteSpace(command);
           fileName := getCommandParameter(command);
-          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
-            fileName := convDosPath(fileName);
-            putf(fileName, commandOutput);
-          end if;
-        elsif redirect = ">>" then
-          skipWhiteSpace(command);
-          fileName := getCommandParameter(command);
-          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
+          if fileName <> "" and fileName <> "/dev/null" and
+              fileName <> "NUL:" and fileName <> "NUL" then
             fileName := convDosPath(fileName);
             appendToFile(fileName, commandOutput);
+          end if;
+        elsif startsWith(command, ">") then
+          command := command[2 ..];
+          skipWhiteSpace(command);
+          fileName := getCommandParameter(command);
+          if fileName <> "" and fileName <> "/dev/null" and
+              fileName <> "NUL:" and fileName <> "NUL" then
+            fileName := convDosPath(fileName);
+            putf(fileName, commandOutput);
           end if;
         elsif commandOutput <> "" then
           write(commandOutput);
         end if;
+      end if;
+      skipWhiteSpace(command);
+      if command <> "" and command[1] = ';' then
+        command := command[2 ..];
         skipWhiteSpace(command);
-        if command <> "" and command[1] = ';' then
-          command := command[2 ..];
-          skipWhiteSpace(command);
-        end if;
       end if;
-    until command = "" or not done;
-  end func;
-
-
-const func integer: processCommand (in var string: command) is func
-  result
-    var integer: commandStatus is 0;
-  local
-    var string: fullCommand is "";
-    var integer: gtPos is 0;
-    var boolean: doRedirect is FALSE;
-    var boolean: doAppend is FALSE;
-    var string: rawFileName is "";
-    var string: fileName is "";
-    var file: aFile is STD_NULL;
-    var string: backtickCommand is "";
-    var string: commandOutput is "";
-  begin
-    # writeln("process command: " <& command);
-    fullCommand := command;
-    if not doCommands(command) then
-      gtPos := rpos(fullCommand, ">");
-      if gtPos >= 2 then
-        rawFileName := fullCommand[succ(gtPos) ..];
-        skipWhiteSpace(rawFileName);
-        fileName := getCommandParameter(rawFileName);
-        skipWhiteSpace(rawFileName);
-        if rawFileName = "" then
-          if fullCommand[pred(gtPos)] = '>' and gtPos >= 3 and
-              fullCommand[gtPos - 2] not in {'\\', '^'} then
-            doAppend := TRUE;
-            fullCommand := fullCommand[.. gtPos - 2];
-          elsif fullCommand[pred(gtPos)] not in {'\\', '^', '2'} then
-            doRedirect := TRUE;
-            fullCommand := fullCommand[.. pred(gtPos)];
-          end if;
-        end if;
-      end if;
-      if doRedirect or doAppend then
-        if startsWith(fullCommand, "\"") then
-          command := getQuotedText(fullCommand);
-        elsif startsWith(fullCommand, "`") then
-          backtickCommand := getQuotedText(fullCommand);
-          command := execCommand(backtickCommand);
-        else
-          command := getWord(fullCommand);
-        end if;
-        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
-        aFile := popen(convDosPath(command), fullCommand, "r");
-        if aFile <> STD_NULL then
-          commandOutput := gets(aFile, 999999999);
-          close(aFile);
-          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
-            fileName := convDosPath(fileName);
-            if doAppend then
-              appendToFile(fileName, commandOutput);
-            else
-              putf(fileName, commandOutput);
-            end if;
-          end if;
-        end if;
-      else
-        if startsWith(fullCommand, "\"") then
-          command := getQuotedText(fullCommand);
-        elsif startsWith(fullCommand, "`") then
-          backtickCommand := getQuotedText(fullCommand);
-          command := execCommand(backtickCommand);
-        else
-          command := getWord(fullCommand);
-        end if;
-        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
-        commandStatus := shell(convDosPath(command), fullCommand);
-      end if;
-    end if;
+    until command = "" or returnCode <> 0;
   end func;

@@ -769,6 +769,8 @@ const func pollData: getValue (in reference: aReference, attr pollData)      is 
 const func program: getValue (in reference: aReference, attr program)        is action "PRG_VALUE";
 const func ACTION: getValue (in reference: aReference, attr ACTION)          is action "ACE_VALUE";
 const func clib_file: getValue (in reference: aReference, attr clib_file)    is action "FIL_VALUE";
+const func PRIMITIVE_SOCKET: getValue (in reference: aReference,
+                                       attr PRIMITIVE_SOCKET)                is action "SOC_VALUE";
 const func ref_list: getValue (in reference: aReference, attr ref_list)      is action "RFL_VALUE";
 const func bigInteger: getValue (in reference: aReference, attr bigInteger)  is action "BIG_VALUE";
 const func float: getValue (in reference: aReference, attr float)            is action "FLT_VALUE";

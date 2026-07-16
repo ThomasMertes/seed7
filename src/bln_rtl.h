@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  bln_rtl.h     Primitive actions for the integer type.           */
+/*  bln_rtl.h     Primitive actions for the boolean type.           */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -29,4 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void blnCpyGeneric (genericType *const dest, const genericType source);
+void blnCpyValue (rtlValueUnion *const dest, const rtlValueUnion source);

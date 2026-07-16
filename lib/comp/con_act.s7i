@@ -24,18 +24,18 @@
 (********************************************************************)
 
 
-const ACTION: CON_CLEAR   is action "CON_CLEAR";
-const ACTION: CON_COLUMN  is action "CON_COLUMN";
-const ACTION: CON_CURSOR  is action "CON_CURSOR";
-const ACTION: CON_FLUSH   is action "CON_FLUSH";
-const ACTION: CON_HEIGHT  is action "CON_HEIGHT";
-const ACTION: CON_H_SCL   is action "CON_H_SCL";
-const ACTION: CON_LINE    is action "CON_LINE";
-const ACTION: CON_OPEN    is action "CON_OPEN";
-const ACTION: CON_SETPOS  is action "CON_SETPOS";
-const ACTION: CON_V_SCL   is action "CON_V_SCL";
-const ACTION: CON_WIDTH   is action "CON_WIDTH";
-const ACTION: CON_WRITE   is action "CON_WRITE";
+const ACTION: CON_CLEAR    is action "CON_CLEAR";
+const ACTION: CON_COLUMN   is action "CON_COLUMN";
+const ACTION: CON_CURSOR   is action "CON_CURSOR";
+const ACTION: CON_FLUSH    is action "CON_FLUSH";
+const ACTION: CON_HEIGHT   is action "CON_HEIGHT";
+const ACTION: CON_H_SCROLL is action "CON_H_SCROLL";
+const ACTION: CON_LINE     is action "CON_LINE";
+const ACTION: CON_OPEN     is action "CON_OPEN";
+const ACTION: CON_SETPOS   is action "CON_SETPOS";
+const ACTION: CON_V_SCROLL is action "CON_V_SCROLL";
+const ACTION: CON_WIDTH    is action "CON_WIDTH";
+const ACTION: CON_WRITE    is action "CON_WRITE";
 
 
 const proc: con_prototypes (inout file: c_prog) is func
@@ -110,7 +110,7 @@ const proc: process (CON_HEIGHT, in reference: function,
   end func;
 
 
-const proc: process (CON_H_SCL, in reference: function,
+const proc: process (CON_H_SCROLL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -158,7 +158,7 @@ const proc: process (CON_SETPOS, in reference: function,
   end func;
 
 
-const proc: process (CON_V_SCL, in reference: function,
+const proc: process (CON_V_SCROLL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

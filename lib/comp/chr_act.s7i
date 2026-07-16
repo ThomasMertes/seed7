@@ -24,9 +24,9 @@
 (********************************************************************)
 
 
-const ACTION: CHR_CLIT      is action "CHR_CLIT";
 const ACTION: CHR_CMP       is action "CHR_CMP";
 const ACTION: CHR_CPY       is action "CHR_CPY";
+const ACTION: CHR_C_LITERAL is action "CHR_C_LITERAL";
 const ACTION: CHR_EQ        is action "CHR_EQ";
 const ACTION: CHR_DECR      is action "CHR_DECR";
 const ACTION: CHR_GE        is action "CHR_GE";
@@ -52,11 +52,11 @@ const ACTION: CHR_WIDTH     is action "CHR_WIDTH";
 const proc: chr_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "striType    chrCLit (charType);");
-    declareExtern(c_prog, "striType    chrCLitToBuffer (charType, striType);");
+    declareExtern(c_prog, "striType    chrCLiteral (charType);");
+    declareExtern(c_prog, "striType    chrCLiteralToBuffer (charType, striType);");
     declareExtern(c_prog, "intType     chrCmp (charType, charType);");
-    declareExtern(c_prog, "intType     chrCmpGeneric (const genericType, const genericType);");
-    declareExtern(c_prog, "void        chrCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "intType     chrCmpValue (const rtlValueUnion, const rtlValueUnion);");
+    declareExtern(c_prog, "void        chrCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "boolType    chrIsLetter (charType);");
     declareExtern(c_prog, "charType    chrLow (charType);");
     declareExtern(c_prog, "striType    chrStr (charType);");
@@ -68,35 +68,6 @@ const proc: chr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "charType    chrUp (charType);");
     declareExtern(c_prog, "charType    chrValue (const const_objRefType);");
     declareExtern(c_prog, "intType     chrWidth (charType);");
-  end func;
-
-
-const proc: process (CHR_CLIT, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var string: buffer_name is "";
-  begin
-    if ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
-      incr(c_expr.temp_num);
-      buffer_name := "buffer_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "union {\n";
-      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
-      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(INTTYPE_DECIMAL_SIZE)];\n";
-      c_expr.temp_decls &:= "} ";
-      c_expr.temp_decls &:= buffer_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "chrCLitToBuffer(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ", &";
-      c_expr.expr &:= buffer_name;
-      c_expr.expr &:= ".striBuf)";
-    else
-      prepare_stri_result(c_expr);
-      c_expr.result_expr := "chrCLit(";
-      getStdParamToResultExpr(params[1], c_expr);
-      c_expr.result_expr &:= ")";
-    end if;
   end func;
 
 
@@ -123,6 +94,35 @@ const proc: process (CHR_CPY, in reference: function,
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (CHR_C_LITERAL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: buffer_name is "";
+  begin
+    if ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(INTTYPE_DECIMAL_SIZE)];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "chrCLiteralToBuffer(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf)";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "chrCLiteral(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 

@@ -25,6 +25,7 @@
 
 
 const ACTION: PRC_ARGS             is action "PRC_ARGS";
+const ACTION: PRC_ASSERT           is action "PRC_ASSERT";
 const ACTION: PRC_BLOCK            is action "PRC_BLOCK";
 const ACTION: PRC_BLOCK_CATCH_ALL  is action "PRC_BLOCK";
 const ACTION: PRC_BLOCK_OTHERWISE  is action "PRC_BLOCK";
@@ -62,7 +63,7 @@ var reference: currentProfiledFunction is NIL;
 const proc: prc_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "rtlValueUnion hshIdxDefault0 (const const_hashType, const rtlValueUnion, intType, compareFuncType);");
     declareExtern(c_prog, "void        heapStatistic (void);");
     declareExtern(c_prog, "void        prcGetRunError (intType *, striType *, intType *);");
     if ccConf.HAS_VECTORED_EXCEPTION_HANDLER then
@@ -802,6 +803,11 @@ const proc: generate_switch (in reference: controlExpr,
       c_expr.expr &:= "(scharType)(";
       process_expr(controlExpr, c_expr);
       c_expr.expr &:= ")";
+    elsif controlExprType in typeData.typeCategory and
+        typeData.typeCategory[controlExprType] = ACTENTRYOBJECT then
+      c_expr.expr &:= "aceOrd(";
+      process_expr(controlExpr, c_expr);
+      c_expr.expr &:= ")";
     elsif ccConf.SWITCH_WORKS_FOR_INT64TYPE then
       process_expr(controlExpr, c_expr);
     else
@@ -1030,13 +1036,13 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
     statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
-    getGenericValue(caseExprType, variableName, statement);
+    getRtlValue(caseExprType, variableName, statement);
     statement.expr &:= ", ";
     process_hashcode(caseExprType, variableName,
                      params[2], statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);
-    statement.expr &:= ")) {\n";
+    statement.expr &:= ").intValue) {\n";
     process_when(numOfCaseStmt, 1, params[4], statement);
     setDiagnosticLine(statement);
     statement.expr &:= "}\n";
@@ -1066,13 +1072,13 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
-    getGenericValue(caseExprType, variableName, statement);
+    getRtlValue(caseExprType, variableName, statement);
     statement.expr &:= ", ";
     process_hashcode(caseExprType, variableName,
                      params[2], statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);
-    statement.expr &:= ")) {\n";
+    statement.expr &:= ").intValue) {\n";
     process_when(numOfCaseStmt, 1, params[4], statement);
     statement.expr &:= diagnosticLine(params[7]);
     statement.expr &:= "default:\n";
@@ -1437,6 +1443,58 @@ const proc: process (PRC_ARGS, in reference: function, in ref_list: params,
   end func;
 
 
+const proc: process (PRC_ASSERT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_condition is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: statementFile is "";
+    var integer: statementLine is 0;
+  begin
+    if getConstant(params[2], ENUMLITERALOBJECT, evaluatedParam) then
+      if getValue(evaluatedParam, boolean) then
+        c_expr.expr &:= "/* Assertion always TRUE */\n";
+      else
+        setDiagnosticLine(c_expr);
+        warning(DOES_RAISE, "ASSERTION_ERROR", c_expr);
+        c_expr.expr &:= "raiseError(ASSERTION_ERROR);\n";
+      end if;
+    else
+      process_expr(params[2], c_condition);
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        appendWithDiagnostic(c_condition.temp_decls, c_expr);
+        appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      end if;
+      statementFile := c_expr.currentFile;
+      statementLine := c_expr.currentLine;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "if (unlikely(!(";
+      c_expr.expr &:= c_condition.expr;
+      if endsWith(c_expr.expr, "\n") then
+        setDiagnosticLine(c_expr);
+      end if;
+      c_expr.expr &:= "))) {\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "raiseError(ASSERTION_ERROR);\n}\n";
+      if c_condition.temp_num <> 0 then
+        c_expr.expr &:= " else {\n";
+        c_expr.currentFile := statementFile;
+        c_expr.currentLine := statementLine;
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+        c_expr.expr &:= "}}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
@@ -1456,7 +1514,8 @@ const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     if isVar(params[3]) then
       c_expr.expr &:= "o_";
       create_name(params[3], c_expr.expr);
-    elsif getType(params[1]) = resultType(getType(params[3])) then
+    elsif getType(params[1]) = resultType(getType(params[3])) or
+        resultType(getType(params[1])) = resultType(getType(params[3])) then
       process_expr(params[3], c_expr);
     elsif getType(params[1]) = getType(params[3]) then
       create_name(params[3], objNumber(params[3]), valueName);

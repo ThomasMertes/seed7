@@ -111,14 +111,14 @@ const func char: getArc4PseudoRandomByte (inout arc4State: state) is func
  *  Encode a string with the ARC4 (Alleged RC4) stream cipher.
  *  @return the encoded string.
  *)
-const func string: encode (inout arc4State: state, in string: plaintext) is func
+const func string: encode (inout arc4State: state, in string: plainText) is func
   result
     var string: encoded is "";
   local
     var char: ch is ' ';
     var char: keystreamChar is ' ';
   begin
-    for ch range plaintext do
+    for ch range plainText do
       keystreamChar := getArc4PseudoRandomByte(state);
       encoded &:= char(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
     end for;
@@ -131,13 +131,13 @@ const func string: encode (inout arc4State: state, in string: plaintext) is func
  *)
 const func string: decode (inout arc4State: state, in string: encoded) is func
   result
-    var string: plaintext is "";
+    var string: plainText is "";
   local
     var char: ch is ' ';
     var char: keystreamChar is ' ';
   begin
     for ch range encoded do
       keystreamChar := getArc4PseudoRandomByte(state);
-      plaintext &:= char(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
+      plainText &:= char(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
     end for;
   end func;

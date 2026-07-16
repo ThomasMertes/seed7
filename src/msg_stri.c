@@ -583,8 +583,12 @@ void appendRealValue (striType *const msg, const const_objectType anyobject)
         } /* if */
         break;
       case SOCKETOBJECT:
-        appendCStri(msg, "socket ");
-        appendInt(msg, (intType) anyobject->value.socketValue);
+        if (anyobject->value.socketValue == NULL) {
+          appendCStri(msg, " *NULL_SOCKET* ");
+        } else {
+          appendCStri(msg, "socket ");
+          appendInt(msg, (intType) anyobject->value.socketValue->socketNumber);
+        } /* if */
         break;
 #if WITH_FLOAT
       case FLOATOBJECT:
@@ -868,6 +872,14 @@ static void appendListElement (striType *const msg, const const_objectType anyob
             appendValue(msg, anyobject->value.objValue);
           } /* if */
           break;
+        case STRUCTELEMOBJECT:
+          if (anyobject->value.objValue == NULL) {
+            appendCStri(msg, "*NULL_ELEM*");
+          } else {
+            appendCStri(msg, "elem ");
+            appendValue(msg, anyobject->value.objValue);
+          } /* if */
+          break;
         default:
           if (HAS_ENTITY(anyobject) &&
               GET_ENTITY(anyobject)->ident != NULL) {
@@ -904,14 +916,14 @@ void appendListLimited (striType *const msg, const_listType list,
     if (list != NULL &&
         list->obj != NULL &&
         LEGAL_CATEGORY_FIELD(list->obj) &&
-	(CATEGORY_OF_OBJ(list->obj) != SYMBOLOBJECT ||
-	 (HAS_ENTITY(list->obj) &&
+        (CATEGORY_OF_OBJ(list->obj) != SYMBOLOBJECT ||
+         (HAS_ENTITY(list->obj) &&
           GET_ENTITY(list->obj)->ident != NULL &&
           GET_ENTITY(list->obj)->ident->prefix_priority == 0)) &&
         list_end != NULL &&
         list_end->obj != NULL &&
         LEGAL_CATEGORY_FIELD(list_end->obj) &&
-	CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+        CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
         HAS_ENTITY(list_end->obj) &&
         GET_ENTITY(list_end->obj)->ident != NULL &&
         GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
@@ -990,7 +1002,7 @@ void appendDotExpr (striType *const msg, const_listType list)
             if (HAS_ENTITY(list->obj) &&
                 GET_ENTITY(list->obj)->ident != NULL) {
               idString = id_string(GET_ENTITY(list->obj)->ident);
-              if (isalpha(idString[0])) {
+              if (isalpha((unsigned char) idString[0])) {
                 appendCStri8(msg, idString);
               } else {
                 appendChar(msg, ' ');

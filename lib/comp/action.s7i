@@ -98,12 +98,16 @@ const proc: process_action (in reference: function, in ref_list: params,
     actionName := str(currentAction);
     # c_expr.expr &:= "/* " <& actionName <& " */\n";
     case actionName of
+      when {"ACE_CMP"}:
+        process(ACE_CMP, function, params, c_expr);
       when {"ACE_CPY"}:
         process(ACE_CPY, function, params, c_expr);
       when {"ACE_EQ"}:
         process(ACE_EQ, function, params, c_expr);
       when {"ACE_GEN"}:
         process(ACE_GEN, function, params, c_expr);
+      when {"ACE_HASHCODE"}:
+        process(ACE_HASHCODE, function, params, c_expr);
       when {"ACE_ICONV1"}:
         process(ACE_ICONV1, function, params, c_expr);
       when {"ACE_ICONV3"}:
@@ -441,12 +445,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BST_STR, function, params, c_expr);
       when {"BST_VALUE"}:
         process(BST_VALUE, function, params, c_expr);
-      when {"CHR_CLIT"}:
-        process(CHR_CLIT, function, params, c_expr);
       when {"CHR_CMP"}:
         process(CHR_CMP, function, params, c_expr);
       when {"CHR_CPY"}:
         process(CHR_CPY, function, params, c_expr);
+      when {"CHR_C_LITERAL"}:
+        process(CHR_C_LITERAL, function, params, c_expr);
       when {"CHR_EQ"}:
         process(CHR_EQ, function, params, c_expr);
       when {"CHR_DECR"}:
@@ -573,10 +577,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SET_OWNER_OF_SYMLINK, function, params, c_expr);
       when {"CMD_SET_SEARCH_PATH"}:
         process(CMD_SET_SEARCH_PATH, function, params, c_expr);
-      when {"CMD_SHELL"}:
-        process(CMD_SHELL, function, params, c_expr);
+      when {"CMD_SHELL_COMMAND_LINE"}:
+        process(CMD_SHELL_COMMAND_LINE, function, params, c_expr);
       when {"CMD_SHELL_ESCAPE"}:
         process(CMD_SHELL_ESCAPE, function, params, c_expr);
+      when {"CMD_SHELL_EXECUTE"}:
+        process(CMD_SHELL_EXECUTE, function, params, c_expr);
       when {"CMD_TO_OS_PATH"}:
         process(CMD_TO_OS_PATH, function, params, c_expr);
       when {"CMD_UNSETENV"}:
@@ -596,9 +602,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"CON_HEIGHT"}:
         programUses.consoleLibrary := TRUE;
         process(CON_HEIGHT, function, params, c_expr);
-      when {"CON_H_SCL"}:
+      when {"CON_H_SCROLL"}:
         programUses.consoleLibrary := TRUE;
-        process(CON_H_SCL, function, params, c_expr);
+        process(CON_H_SCROLL, function, params, c_expr);
       when {"CON_LINE"}:
         programUses.consoleLibrary := TRUE;
         process(CON_LINE, function, params, c_expr);
@@ -608,9 +614,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"CON_SETPOS"}:
         programUses.consoleLibrary := TRUE;
         process(CON_SETPOS, function, params, c_expr);
-      when {"CON_V_SCL"}:
+      when {"CON_V_SCROLL"}:
         programUses.consoleLibrary := TRUE;
-        process(CON_V_SCL, function, params, c_expr);
+        process(CON_V_SCROLL, function, params, c_expr);
       when {"CON_WIDTH"}:
         programUses.consoleLibrary := TRUE;
         process(CON_WIDTH, function, params, c_expr);
@@ -745,9 +751,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PUT_SCALED"}:
         programUses.drawLibrary := TRUE;
         process(DRW_PUT_SCALED, function, params, c_expr);
-      when {"DRW_RGBCOL"}:
+      when {"DRW_RGB_COLOR"}:
         programUses.drawLibrary := TRUE;
-        process(DRW_RGBCOL, function, params, c_expr);
+        process(DRW_RGB_COLOR, function, params, c_expr);
       when {"DRW_SCREEN_HEIGHT"}:
         programUses.drawLibrary := TRUE;
         process(DRW_SCREEN_HEIGHT, function, params, c_expr);
@@ -806,8 +812,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ENU_ICONV2, function, params, c_expr);
       when {"ENU_ICONV3_EXCEPT"}:
         process(ENU_ICONV3_EXCEPT, function, params, c_expr);
-      when {"ENU_LIT"}:
-        process(ENU_LIT, function, params, c_expr);
+      when {"ENU_LITERAL"}:
+        process(ENU_LITERAL, function, params, c_expr);
       when {"ENU_NE"}:
         process(ENU_NE, function, params, c_expr);
       when {"ENU_ORD2"}:
@@ -848,8 +854,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_INPUT_READY, function, params, c_expr);
       when {"FIL_LINE_READ"}:
         process(FIL_LINE_READ, function, params, c_expr);
-      when {"FIL_LIT"}:
-        process(FIL_LIT, function, params, c_expr);
+      when {"FIL_LITERAL"}:
+        process(FIL_LITERAL, function, params, c_expr);
       when {"FIL_LNG"}:
         process(FIL_LNG, function, params, c_expr);
       when {"FIL_NE"}:
@@ -860,8 +866,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_OPEN_NULL_DEVICE, function, params, c_expr);
       when {"FIL_OUT"}:
         process(FIL_OUT, function, params, c_expr);
-      when {"FIL_PCLOSE"}:
-        process(FIL_PCLOSE, function, params, c_expr);
       when {"FIL_PIPE"}:
         process(FIL_PIPE, function, params, c_expr);
       when {"FIL_POPEN"}:
@@ -872,8 +876,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_SEEK, function, params, c_expr);
       when {"FIL_SEEKABLE"}:
         process(FIL_SEEKABLE, function, params, c_expr);
-      when {"FIL_SETBUF"}:
-        process(FIL_SETBUF, function, params, c_expr);
       when {"FIL_TELL"}:
         process(FIL_TELL, function, params, c_expr);
       when {"FIL_TERMINATED_READ"}:
@@ -1352,6 +1354,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(POL_VALUE, function, params, c_expr);
       when {"PRC_ARGS"}:
         process(PRC_ARGS, function, params, c_expr);
+      when {"PRC_ASSERT"}:
+        process(PRC_ASSERT, function, params, c_expr);
       when {"PRC_BLOCK"}:
         process(PRC_BLOCK, function, params, c_expr);
       when {"PRC_BLOCK_CATCH_ALL"}:
@@ -1558,6 +1562,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(RFL_FOR, function, params, c_expr);
       when {"RFL_FOR_UNTIL"}:
         process(RFL_FOR_UNTIL, function, params, c_expr);
+      when {"RFL_FOR_VAR_KEY"}:
+        process(RFL_FOR_VAR_KEY, function, params, c_expr);
       when {"RFL_HEAD"}:
         process(RFL_HEAD, function, params, c_expr);
       when {"RFL_IDX"}:
@@ -1728,6 +1734,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SOC_SET_OPT_BOOL, function, params, c_expr);
       when {"SOC_SOCKET"}:
         process(SOC_SOCKET, function, params, c_expr);
+      when {"SOC_VALUE"}:
+        process(SOC_VALUE, function, params, c_expr);
       when {"SOC_WORD_READ"}:
         process(SOC_WORD_READ, function, params, c_expr);
       when {"SOC_WRITE"}:
@@ -1904,12 +1912,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_CHPOS, function, params, c_expr);
       when {"STR_CHSPLIT"}:
         process(STR_CHSPLIT, function, params, c_expr);
-      when {"STR_CLIT"}:
-        process(STR_CLIT, function, params, c_expr);
       when {"STR_CMP"}:
         process(STR_CMP, function, params, c_expr);
       when {"STR_CPY"}:
         process(STR_CPY, function, params, c_expr);
+      when {"STR_C_LITERAL"}:
+        process(STR_C_LITERAL, function, params, c_expr);
       when {"STR_ELEMCPY"}:
         process(STR_ELEMCPY, function, params, c_expr);
       when {"STR_EQ"}:
@@ -1936,8 +1944,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_IPOS, function, params, c_expr);
       when {"STR_LE"}:
         process(STR_LE, function, params, c_expr);
-      when {"STR_LIT"}:
-        process(STR_LIT, function, params, c_expr);
+      when {"STR_LITERAL"}:
+        process(STR_LITERAL, function, params, c_expr);
       when {"STR_LNG"}:
         process(STR_LNG, function, params, c_expr);
       when {"STR_LOW"}:

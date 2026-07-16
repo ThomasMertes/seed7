@@ -126,8 +126,9 @@ const proc: (inout boolean: dest) |:= (in boolean: source)               is acti
 
 
 (**
- *  Assign the result of ''dest <> source'' (exclusive or) to dest.
+ *  Assign the result of ''dest <> source'' to dest.
  *  This corresponds ''to dest := dest <> source;''
+ *  The boolean <> operator is the same as an exclusive or.
  *)
 const proc: (inout boolean: dest) ><:= (in boolean: source)              is action "BLN_XOR_ASSIGN";
 
@@ -141,7 +142,8 @@ const func boolean: (in boolean: boolValue1) = (in boolean: boolValue2)  is acti
 
 
 (**
- *  Check if two boolean values are not equal (= exclusive or).
+ *  Check if two boolean values are not equal.
+ *  The boolean <> operator is the same as an exclusive or.
  *  @return FALSE if the two boolean values are equal,
  *          TRUE otherwise.
  *)
@@ -290,7 +292,7 @@ const proc: decr (inout boolean: boolValue) is func
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: str (in boolean: aBool)                               is action "ENU_LIT";
+const func string: str (in boolean: aBool)                               is action "ENU_LITERAL";
 
 
 (**
@@ -300,7 +302,7 @@ const func string: str (in boolean: aBool)                               is acti
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: literal (in boolean: aBool)                           is action "ENU_LIT";
+const func string: literal (in boolean: aBool)                           is action "ENU_LITERAL";
 
 
 (**

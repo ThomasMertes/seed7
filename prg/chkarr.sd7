@@ -177,7 +177,7 @@ DECLARE_RAISES_INDEX_ERROR(bstring);
 DECLARE_RAISES_INDEX_ERROR(bitset);
 
 
-const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
+const proc: DECLARE_RAISES_RANGE_ERROR (in type: aType) is func
   begin
 
     const func boolean: raisesRangeError (in func array aType: expression) is func
@@ -197,15 +197,15 @@ const proc: DECLARE_RAISES_RAMGE_ERROR (in type: aType) is func
   end func;
 
 
-DECLARE_RAISES_RAMGE_ERROR(boolean);
-DECLARE_RAISES_RAMGE_ERROR(integer);
-DECLARE_RAISES_RAMGE_ERROR(bigInteger);
-DECLARE_RAISES_RAMGE_ERROR(float);
-DECLARE_RAISES_RAMGE_ERROR(complex);
-DECLARE_RAISES_RAMGE_ERROR(char);
-DECLARE_RAISES_RAMGE_ERROR(string);
-DECLARE_RAISES_RAMGE_ERROR(bstring);
-DECLARE_RAISES_RAMGE_ERROR(bitset);
+DECLARE_RAISES_RANGE_ERROR(boolean);
+DECLARE_RAISES_RANGE_ERROR(integer);
+DECLARE_RAISES_RANGE_ERROR(bigInteger);
+DECLARE_RAISES_RANGE_ERROR(float);
+DECLARE_RAISES_RANGE_ERROR(complex);
+DECLARE_RAISES_RANGE_ERROR(char);
+DECLARE_RAISES_RANGE_ERROR(string);
+DECLARE_RAISES_RANGE_ERROR(bstring);
+DECLARE_RAISES_RANGE_ERROR(bitset);
 
 
 const proc: subprog1 is func
@@ -1989,12 +1989,17 @@ const func boolean: testFixArrayIndex is func
     var boolean: okay is TRUE;
   local
     var fixArrayType: anArray is fixArrayType.value;
+    var fixArrayType: anArrayB is fixArrayType.value;
+    var fixArrayType: anArrayX is fixArrayType times 1234567890;
     var fixArrayType2: anArray2 is fixArrayType2.value;
     var fixArrayType3: anArray3 is fixArrayType3.value;
   begin
     anArray[1]  :=  1;
     anArray[12] := 12;
     anArray[64] := 64;
+    anArrayX[1]  :=  1;
+    anArrayX[12] := 12;
+    anArrayX[64] := 64;
     anArray2[0]  :=  0;
     anArray2[5]  :=  5;
     anArray2[15] := 15;
@@ -2003,6 +2008,13 @@ const func boolean: testFixArrayIndex is func
     if  anArray[ 1] <>  1 or
         anArray[12] <> 12 or
         anArray[64] <> 64 or
+        anArrayX[ 1] <>          1 or
+        anArrayX[ 2] <> 1234567890 or
+        anArrayX[11] <> 1234567890 or
+        anArrayX[12] <>         12 or
+        anArrayX[13] <> 1234567890 or
+        anArrayX[63] <> 1234567890 or
+        anArrayX[64] <>         64 or
         anArray2[ 0] <>  0 or
         anArray2[ 5] <>  5 or
         anArray2[15] <> 15 or
@@ -2049,6 +2061,14 @@ const func boolean: testFixArrayIndex is func
         anArray3[-abs(intExpr(1)) - 2147483646] <> -2147483647 or
         anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 then
       writeln(" ***** Indexing into a fixed size array failed. (3)");
+      okay := FALSE;
+    end if;
+
+    anArrayB := anArray;
+    if  anArrayB[ 1] <>  1 or
+        anArrayB[12] <> 12 or
+        anArrayB[64] <> 64 then
+      writeln(" ***** Copying a fixed size array failed.");
       okay := FALSE;
     end if;
 
@@ -6901,6 +6921,7 @@ const proc: testInsertElement is func
     var array char: chrArr is [] ('c', 'd');
     var array string: strArr is [] ("three", "four");
     var array bstring: bstArr is [] (bstring("three"), bstring("four"));
+    var array bitset: setArr is [] ({3}, {4});
     var array array string: arrArr is 0 times 0 times "";
   begin
     insert(intArr, 1, 1);
@@ -7043,6 +7064,26 @@ const proc: testInsertElement is func
       okay := FALSE;
     end if;
 
+    insert(setArr, 1, {1});
+    if length(setArr) <> 3 or setArr[1] <> {1} or setArr[2] <> {3} or
+                              setArr[3] <> {4} then
+      writeln(" ***** Insert of bitset element to array failed. (1)");
+      okay := FALSE;
+    end if;
+    insert(setArr, 2, setExpr({2}));
+    if length(setArr) <> 4 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} then
+      writeln(" ***** Insert of bitset element to array failed. (2)");
+      okay := FALSE;
+    end if;
+    insert(setArr, anIndex, {5});
+    if length(setArr) <> 5 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} or
+                              setArr[5] <> {5} then
+      writeln(" ***** Insert of bitset element to array failed. (3)");
+      okay := FALSE;
+    end if;
+
     insert(arrArr, 1, 0 times "");
     if length(arrArr) <> 1 or length(arrArr[1]) <> 0 then
       writeln(" ***** Insert of array element to array failed. (1)");
@@ -7067,6 +7108,7 @@ const proc: testInsertElement is func
         not raisesIndexError(insert(chrArr, integer.first, '@')) or
         not raisesIndexError(insert(strArr, integer.first, "zero")) or
         not raisesIndexError(insert(bstArr, integer.first, bstring("zero"))) or
+        not raisesIndexError(insert(setArr, integer.first, {0})) or
         not raisesIndexError(insert(intArr, 0, 0)) or
         not raisesIndexError(insert(bigArr, 0, 0_)) or
         not raisesIndexError(insert(fltArr, 0, 0.0)) or
@@ -7074,6 +7116,7 @@ const proc: testInsertElement is func
         not raisesIndexError(insert(chrArr, 0, '@')) or
         not raisesIndexError(insert(strArr, 0, "zero")) or
         not raisesIndexError(insert(bstArr, 0, bstring("zero"))) or
+        not raisesIndexError(insert(setArr, 0, {0})) or
         not raisesIndexError(insert(intArr, 7, 0)) or
         not raisesIndexError(insert(bigArr, 7, 0_)) or
         not raisesIndexError(insert(fltArr, 7, 0.0)) or
@@ -7081,13 +7124,15 @@ const proc: testInsertElement is func
         not raisesIndexError(insert(chrArr, 7, '@')) or
         not raisesIndexError(insert(strArr, 7, "zero")) or
         not raisesIndexError(insert(bstArr, 7, bstring("zero"))) or
+        not raisesIndexError(insert(setArr, 7, {0})) or
         not raisesIndexError(insert(intArr, integer.last, 0)) or
         not raisesIndexError(insert(bigArr, integer.last, 0_)) or
         not raisesIndexError(insert(fltArr, integer.last, 0.0)) or
         not raisesIndexError(insert(cpxArr, integer.last, complex(0.0, 0.0))) or
         not raisesIndexError(insert(chrArr, integer.last, '@')) or
         not raisesIndexError(insert(strArr, integer.last, "zero")) or
-        not raisesIndexError(insert(bstArr, integer.last, bstring("zero"))) then
+        not raisesIndexError(insert(bstArr, integer.last, bstring("zero"))) or
+        not raisesIndexError(insert(setArr, integer.last, {0})) then
       writeln(" ***** Insert with index out of range does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
@@ -7109,6 +7154,7 @@ const proc: testInsertArray is func
     var array char: chrArr is [] ('a', 'd');
     var array string: strArr is [] ("one", "four");
     var array bstring: bstArr is [] (bstring("one"), bstring("four"));
+    var array bitset: setArr is [] ({1}, {4});
     var array integer: intArr2 is [] (2, 3);
     var array bigInteger: bigArr2 is [] (2_, 3_);
     var array float: fltArr2 is [] (2.0, 3.0);
@@ -7116,7 +7162,7 @@ const proc: testInsertArray is func
     var array char: chrArr2 is [] ('b', 'c');
     var array string: strArr2 is [] ("two", "three");
     var array bstring: bstArr2 is [] (bstring("two"), bstring("three"));
-    var array array string: arrArr is 0 times 0 times "";
+    var array bitset: setArr2 is [] ({2}, {3});
   begin
     insert(intArr, 2, [] (2, 3));
     if length(intArr) <> 4 or intArr[1] <> 1 or intArr[2] <> 2 or
@@ -7489,6 +7535,59 @@ const proc: testInsertArray is func
       okay := FALSE;
     end if;
 
+    insert(setArr, 2, [] ({2}, {3}));
+    if length(setArr) <> 4 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} then
+      writeln(" ***** Insert of bitset array to array failed. (1)");
+      okay := FALSE;
+    end if;
+    insert(setArr, 5, [] ({5}, {6}));
+    if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} or
+                              setArr[5] <> {5} or setArr[6] <> {6} then
+      writeln(" ***** Insert of bitset array to array failed. (2)");
+      okay := FALSE;
+    end if;
+    setArr := [] ({1}, {2});
+    insert(setArr, 2, setArr);
+    if length(setArr) <> 4 or setArr[1] <> {1} or setArr[2] <> {1} or
+                              setArr[3] <> {2} or setArr[4] <> {2} then
+      writeln(" ***** Insert of bitset array to array failed. (3)");
+      okay := FALSE;
+    end if;
+    setArr := [] ({1}, {2}, {3});
+    insert(setArr, 1, setArr[2 ..]);
+    if length(setArr) <> 5 or setArr[1] <> {2} or setArr[2] <> {3} or
+                              setArr[3] <> {1} or setArr[4] <> {2} or
+                              setArr[5] <> {3} then
+      writeln(" ***** Insert of bitset array to array failed. (4)");
+      okay := FALSE;
+    end if;
+    setArr := [] ({1}, {2}, {3});
+    insert(setArr, 2, setArr[.. 2]);
+    if length(setArr) <> 5 or setArr[1] <> {1} or setArr[2] <> {1} or
+                              setArr[3] <> {2} or setArr[4] <> {2} or
+                              setArr[5] <> {3} then
+      writeln(" ***** Insert of bitset array to array failed. (5)");
+      okay := FALSE;
+    end if;
+    setArr := [] ({1}, {6});
+    insert(setArr, 2, [] ({2}, {3}) & [] ({4}, {5}));
+    if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} or
+                              setArr[5] <> {5} or setArr[6] <> {6} then
+      writeln(" ***** Insert of bitset array to array failed. (6)");
+      okay := FALSE;
+    end if;
+    setArr := [] ({1}, {6});
+    insert(setArr, 2, setArr2 & [] ({4}, {5}));
+    if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {3} or setArr[4] <> {4} or
+                              setArr[5] <> {5} or setArr[6] <> {6} then
+      writeln(" ***** Insert of bitset array to array failed. (7)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(insert(intArr, integer.first, 0 times 0)) or
         not raisesIndexError(insert(bigArr, integer.first, 0 times 0_)) or
         not raisesIndexError(insert(fltArr, integer.first, 0 times 0.0)) or
@@ -7496,6 +7595,7 @@ const proc: testInsertArray is func
         not raisesIndexError(insert(chrArr, integer.first, 0 times '@')) or
         not raisesIndexError(insert(strArr, integer.first, 0 times "zero")) or
         not raisesIndexError(insert(bstArr, integer.first, 0 times bstring("zero"))) or
+        not raisesIndexError(insert(setArr, integer.first, 0 times {0})) or
         not raisesIndexError(insert(intArr, 0, 0 times 0)) or
         not raisesIndexError(insert(bigArr, 0, 0 times 0_)) or
         not raisesIndexError(insert(fltArr, 0, 0 times 0.0)) or
@@ -7503,6 +7603,7 @@ const proc: testInsertArray is func
         not raisesIndexError(insert(chrArr, 0, 0 times '@')) or
         not raisesIndexError(insert(strArr, 0, 0 times "zero")) or
         not raisesIndexError(insert(bstArr, 0, 0 times bstring("zero"))) or
+        not raisesIndexError(insert(setArr, 0, 0 times {0})) or
         not raisesIndexError(insert(intArr, 8, 0 times 0)) or
         not raisesIndexError(insert(bigArr, 8, 0 times 0_)) or
         not raisesIndexError(insert(fltArr, 8, 0 times 0.0)) or
@@ -7510,13 +7611,15 @@ const proc: testInsertArray is func
         not raisesIndexError(insert(chrArr, 8, 0 times '@')) or
         not raisesIndexError(insert(strArr, 8, 0 times "zero")) or
         not raisesIndexError(insert(bstArr, 8, 0 times bstring("zero"))) or
+        not raisesIndexError(insert(setArr, 8, 0 times {0})) or
         not raisesIndexError(insert(intArr, integer.last, 0 times 0)) or
         not raisesIndexError(insert(bigArr, integer.last, 0 times 0_)) or
         not raisesIndexError(insert(fltArr, integer.last, 0 times 0.0)) or
         not raisesIndexError(insert(cpxArr, integer.last, 0 times complex(0.0, 0.0))) or
         not raisesIndexError(insert(chrArr, integer.last, 0 times '@')) or
         not raisesIndexError(insert(strArr, integer.last, 0 times "zero")) or
-        not raisesIndexError(insert(bstArr, integer.last, 0 times bstring("zero"))) then
+        not raisesIndexError(insert(bstArr, integer.last, 0 times bstring("zero"))) or
+        not raisesIndexError(insert(setArr, integer.last, 0 times {0})) then
       writeln(" ***** Insert with index out of range does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
@@ -7539,6 +7642,7 @@ const proc: testRemoveElement is func
     var array string: strArr is [] ("one", "two", "three", "four", "five");
     var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
         bstring("four"), bstring("five"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5});
     var integer: intElem is 0;
     var bigInteger: bigElem is 0_;
     var float: fltElem is 0.0;
@@ -7546,6 +7650,7 @@ const proc: testRemoveElement is func
     var char: chrElem is ' ';
     var string: strElem is "";
     var bstring: bstElem is bstring.value;
+    var bitset: setElem is {0};
   begin
     intElem := remove(intArr, 1);
     if intElem <> 1 or length(intArr) <> 4 or intArr[1] <> 2 or intArr[2] <> 3 or
@@ -7716,6 +7821,33 @@ const proc: testRemoveElement is func
       okay := FALSE;
     end if;
 
+    setElem := remove(setArr, 1);
+    if setElem <> {1} or
+        length(setArr) <> 4 or setArr[1] <> {2} or setArr[2] <> {3} or
+                               setArr[3] <> {4} or setArr[4] <> {5} then
+      writeln(" ***** Remove of bitset element from array failed. (1)");
+      okay := FALSE;
+    end if;
+    setElem := remove(setArr, intExpr(1));
+    if setElem <> {2} or
+        length(setArr) <> 3 or setArr[1] <> {3} or setArr[2] <> {4} or
+                               setArr[3] <> {5} then
+      writeln(" ***** Remove of bitset element from array failed. (2)");
+      okay := FALSE;
+    end if;
+    setElem := remove(setArr, 2);
+    if setElem <> {4} or
+        length(setArr) <> 2 or setArr[1] <> {3} or setArr[2] <> {5} then
+      writeln(" ***** Remove of bitset element from array failed. (3)");
+      okay := FALSE;
+    end if;
+    setElem := remove(setArr, 2);
+    if setElem <> {5} or
+        length(setArr) <> 1 or setArr[1] <> {3} then
+      writeln(" ***** Remove of bitset element from array failed. (4)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(remove(intArr, integer.first)) or
         not raisesIndexError(remove(bigArr, integer.first)) or
         not raisesIndexError(remove(fltArr, integer.first)) or
@@ -7723,6 +7855,7 @@ const proc: testRemoveElement is func
         not raisesIndexError(remove(chrArr, integer.first)) or
         not raisesIndexError(remove(strArr, integer.first)) or
         not raisesIndexError(remove(bstArr, integer.first)) or
+        not raisesIndexError(remove(setArr, integer.first)) or
         not raisesIndexError(remove(intArr, 0)) or
         not raisesIndexError(remove(bigArr, 0)) or
         not raisesIndexError(remove(fltArr, 0)) or
@@ -7730,6 +7863,7 @@ const proc: testRemoveElement is func
         not raisesIndexError(remove(chrArr, 0)) or
         not raisesIndexError(remove(strArr, 0)) or
         not raisesIndexError(remove(bstArr, 0)) or
+        not raisesIndexError(remove(setArr, 0)) or
         not raisesIndexError(remove(intArr, 2)) or
         not raisesIndexError(remove(bigArr, 2)) or
         not raisesIndexError(remove(fltArr, 2)) or
@@ -7737,13 +7871,15 @@ const proc: testRemoveElement is func
         not raisesIndexError(remove(chrArr, 2)) or
         not raisesIndexError(remove(strArr, 2)) or
         not raisesIndexError(remove(bstArr, 2)) or
+        not raisesIndexError(remove(setArr, 2)) or
         not raisesIndexError(remove(intArr, integer.last)) or
         not raisesIndexError(remove(bigArr, integer.last)) or
         not raisesIndexError(remove(fltArr, integer.last)) or
         not raisesIndexError(remove(cpxArr, integer.last)) or
         not raisesIndexError(remove(chrArr, integer.last)) or
         not raisesIndexError(remove(strArr, integer.last)) or
-        not raisesIndexError(remove(bstArr, integer.last)) then
+        not raisesIndexError(remove(bstArr, integer.last)) or
+        not raisesIndexError(remove(setArr, integer.last)) then
       writeln(" ***** Remove with index out of range does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
@@ -7766,6 +7902,7 @@ const proc: testRemoveArray is func
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
         bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intRemoved is 0 times 0;
     var array bigInteger: bigRemoved is 0 times 0_;
     var array float: fltRemoved is 0 times 0.0;
@@ -7773,6 +7910,7 @@ const proc: testRemoveArray is func
     var array char: chrRemoved is 0 times ' ';
     var array string: strRemoved is 0 times "";
     var array bstring: bstRemoved is 0 times bstring.value;
+    var array bitset: setRemoved is 0 times {0};
   begin
     intRemoved := remove(intArr, 1, 0);
     if length(intRemoved) <> 0 or
@@ -7983,6 +8121,37 @@ const proc: testRemoveArray is func
       okay := FALSE;
     end if;
 
+    setRemoved := remove(setArr, 1, 0);
+    if length(setRemoved) <> 0 or
+        length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or
+                               setArr[3] <> {3} or setArr[4] <> {4} or
+                               setArr[5] <> {5} or setArr[6] <> {6} or
+                               setArr[7] <> {7} then
+      writeln(" ***** Remove of bitset array from array failed. (1)");
+      okay := FALSE;
+    end if;
+    setRemoved := remove(setArr, 1, 1);
+    if length(setRemoved) <> 1 or setRemoved[1] <> {1} or
+        length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or
+                               setArr[3] <> {4} or setArr[4] <> {5} or
+                               setArr[5] <> {6} or setArr[6] <> {7} then
+      writeln(" ***** Remove of bitset array from array failed. (2)");
+      okay := FALSE;
+    end if;
+    setRemoved := remove(setArr, 2, 2);
+    if length(setRemoved) <> 2 or setRemoved[1] <> {3} or setRemoved[2] <> {4} or
+        length(setArr) <> 4 or setArr[1] <> {2} or setArr[2] <> {5} or
+                               setArr[3] <> {6} or setArr[4] <> {7} then
+      writeln(" ***** Remove of bitset array from array failed. (3)");
+      okay := FALSE;
+    end if;
+    setRemoved := remove(setArr, 3, integer.last);
+    if length(setRemoved) <> 2 or setRemoved[1] <> {6} or setRemoved[2] <> {7} or
+        length(setArr) <> 2 or setArr[1] <> {2} or setArr[2] <> {5} then
+      writeln(" ***** Remove of bitset array from array failed. (4)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(remove(intArr, integer.first, 0)) or
         not raisesIndexError(remove(bigArr, integer.first, 0)) or
         not raisesIndexError(remove(fltArr, integer.first, 0)) or
@@ -7990,6 +8159,7 @@ const proc: testRemoveArray is func
         not raisesIndexError(remove(chrArr, integer.first, 0)) or
         not raisesIndexError(remove(strArr, integer.first, 0)) or
         not raisesIndexError(remove(bstArr, integer.first, 0)) or
+        not raisesIndexError(remove(setArr, integer.first, 0)) or
         not raisesIndexError(remove(intArr, 0, 0)) or
         not raisesIndexError(remove(bigArr, 0, 0)) or
         not raisesIndexError(remove(fltArr, 0, 0)) or
@@ -7997,6 +8167,7 @@ const proc: testRemoveArray is func
         not raisesIndexError(remove(chrArr, 0, 0)) or
         not raisesIndexError(remove(strArr, 0, 0)) or
         not raisesIndexError(remove(bstArr, 0, 0)) or
+        not raisesIndexError(remove(setArr, 0, 0)) or
         not raisesIndexError(remove(intArr, 3, 0)) or
         not raisesIndexError(remove(bigArr, 3, 0)) or
         not raisesIndexError(remove(fltArr, 3, 0)) or
@@ -8004,13 +8175,15 @@ const proc: testRemoveArray is func
         not raisesIndexError(remove(chrArr, 3, 0)) or
         not raisesIndexError(remove(strArr, 3, 0)) or
         not raisesIndexError(remove(bstArr, 3, 0)) or
+        not raisesIndexError(remove(setArr, 3, 0)) or
         not raisesIndexError(remove(intArr, integer.last, 0)) or
         not raisesIndexError(remove(bigArr, integer.last, 0)) or
         not raisesIndexError(remove(fltArr, integer.last, 0)) or
         not raisesIndexError(remove(cpxArr, integer.last, 0)) or
         not raisesIndexError(remove(chrArr, integer.last, 0)) or
         not raisesIndexError(remove(strArr, integer.last, 0)) or
-        not raisesIndexError(remove(bstArr, integer.last, 0)) then
+        not raisesIndexError(remove(bstArr, integer.last, 0)) or
+        not raisesIndexError(remove(setArr, integer.last, 0)) then
       writeln(" ***** Remove with index out of range does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
@@ -8021,12 +8194,16 @@ const proc: testRemoveArray is func
         not raisesRangeError(remove(cpxArr, 1, integer.first)) or
         not raisesRangeError(remove(chrArr, 1, integer.first)) or
         not raisesRangeError(remove(strArr, 1, integer.first)) or
+        not raisesRangeError(remove(bstArr, 1, integer.first)) or
+        not raisesRangeError(remove(setArr, 1, integer.first)) or
         not raisesRangeError(remove(intArr, 1, -1)) or
         not raisesRangeError(remove(bigArr, 1, -1)) or
         not raisesRangeError(remove(fltArr, 1, -1)) or
         not raisesRangeError(remove(cpxArr, 1, -1)) or
         not raisesRangeError(remove(chrArr, 1, -1)) or
-        not raisesRangeError(remove(strArr, 1, -1)) then
+        not raisesRangeError(remove(strArr, 1, -1)) or
+        not raisesRangeError(remove(bstArr, 1, -1)) or
+        not raisesRangeError(remove(setArr, 1, -1)) then
       writeln(" ***** Remove with negative length does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;

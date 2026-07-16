@@ -39,62 +39,30 @@ const func char: charExpr (in char: ch) is
   return char(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesIndexError (in proc: statement) is func
-  result
-    var boolean: raisesIndexError is FALSE;
+const proc: DECLARE_RAISES_INDEX_ERROR (in type: aType) is func
   begin
-    block
-      statement;
-    exception
-      catch INDEX_ERROR:
-        raisesIndexError := TRUE;
-    end block;
+
+    const func boolean: raisesIndexError (in func aType: expression) is func
+      result
+        var boolean: raisesIndexError is FALSE;
+      local
+        var aType: exprResult is aType.value;
+      begin
+        block
+          exprResult := expression;
+        exception
+          catch INDEX_ERROR:
+            raisesIndexError := TRUE;
+        end block;
+      end func;
+
   end func;
 
 
-const func boolean: raisesIndexError (in func char: expression) is func
-  result
-    var boolean: raisesIndexError is FALSE;
-  local
-    var char: exprResult is ' ';
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch INDEX_ERROR:
-        raisesIndexError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesIndexError (in func string: expression) is func
-  result
-    var boolean: raisesIndexError is FALSE;
-  local
-    var string: exprResult is "";
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch INDEX_ERROR:
-        raisesIndexError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesIndexError (in func boolean: expression) is func
-  result
-    var boolean: raisesIndexError is FALSE;
-  local
-    var boolean: exprResult is FALSE;
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch INDEX_ERROR:
-        raisesIndexError := TRUE;
-    end block;
-  end func;
+DECLARE_RAISES_INDEX_ERROR(void);
+DECLARE_RAISES_INDEX_ERROR(char);
+DECLARE_RAISES_INDEX_ERROR(string);
+DECLARE_RAISES_INDEX_ERROR(boolean);
 
 
 const proc: check_string_index is func

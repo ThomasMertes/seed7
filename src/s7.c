@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2025  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2026  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "setjmp.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -41,6 +42,7 @@
 #include "data_rtl.h"
 #include "os_decls.h"
 #include "infile.h"
+#include "stackutl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "actutl.h"
@@ -52,6 +54,7 @@
 #include "symbol.h"
 #include "analyze.h"
 #include "prg_comp.h"
+#include "objutl.h"
 #include "traceutl.h"
 #include "exec.h"
 #include "option.h"
@@ -68,6 +71,7 @@
 #include "fil_drv.h"
 #include "big_drv.h"
 #include "drw_drv.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_WINMAIN
@@ -77,7 +81,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.4.%d  Copyright (c) 1990-2025 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.4.%d  Copyright (c) 1990-2026 Thomas Mertes\n"
 
 
 
@@ -278,7 +282,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 opt = arg_v->arr[position].value.striValue;
                 pathObj.value.striValue = stri_to_standard_path(opt);
                 if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
-                  arrPush(&libraryDirs, pathObj.value.genericValue);
+                  arrPush(&libraryDirs, pathObj.value);
                 } /* if */
                 arg_v->arr[position].value.striValue = NULL;
                 opt = NULL;
@@ -399,97 +403,110 @@ int main (int argc, char **argv)
   /* main */
     logFunction(printf("main\n"););
     setupStack(DEFAULT_STACK_SIZE);
-    setupRand();
-    setupFiles();
-    set_protfile_name(NULL);
+    if (likely(catch_stack != NULL &&
+               do_setjmp(catch_stack[catch_stack_pos]) == 0)) {
+      setupRand();
+      setupFiles();
+      set_protfile_name(NULL);
 #ifdef USE_WINMAIN
-    arg_v = getArgv(0, NULL, NULL, NULL, NULL);
+      arg_v = getArgv(0, NULL, NULL, NULL, NULL);
 #else
-    arg_v = getArgv(argc, argv, NULL, NULL, NULL);
+      arg_v = getArgv(argc, argv, NULL, NULL, NULL);
 #endif
-    if (arg_v == NULL) {
-      printf(VERSION_INFO, LEVEL);
-      printf("\n*** No more memory. Program terminated.\n");
-    } else {
-      processOptions(arg_v, &option);
-      setupSignalHandlers((option.parserOptions & HANDLE_SIGNALS) != 0,
-                          (option.parserOptions & TRACE_SIGNALS) != 0,
-                          FALSE, FALSE, doSuspendInterpreter);
-      if (fail_flag) {
-        printf("\n*** Processing the options failed. Program terminated.\n");
+      if (arg_v == NULL) {
+        printf(VERSION_INFO, LEVEL);
+        printf("\n*** No more memory. Program terminated.\n");
       } else {
-        if (arg_v->max_position < arg_v->min_position) {
-          printf("This is free software; see the source for copying conditions.  There is NO\n");
-          printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
-          printf("Homepage: http://seed7.sourceforge.net\n\n");
-          printf("usage: s7 [options] sourcefile [parameters]\n\n");
-          printf("Use  s7 -?  or  s7 -h  to get more information about s7.\n\n");
-        } else if (option.writeHelp) {
-          writeHelp();
+        processOptions(arg_v, &option);
+        setupSignalHandlers((option.parserOptions & HANDLE_SIGNALS) != 0,
+                            (option.parserOptions & TRACE_SIGNALS) != 0,
+                            FALSE, FALSE, doSuspendInterpreter);
+        if (fail_flag) {
+          printf("\n*** Processing the options failed. Program terminated.\n");
         } else {
-          setupFloat();
-          setupBig();
-          drawInit();
-          logMessage(printf("sourceFileArgument: \"%s\"\n",
-                            striAsUnquotedCStri(option.sourceFileArgument)););
-          logMessage(printf("protFileName: \"%s\"\n",
-                            striAsUnquotedCStri(option.protFileName)););
-          if (option.sourceFileArgument == NULL) {
-            printf("*** Sourcefile missing\n");
+          if (arg_v->max_position < arg_v->min_position) {
+            printf("This is free software; see the source for copying conditions.  There is NO\n");
+            printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+            printf("Homepage: http://seed7.sourceforge.net\n\n");
+            printf("usage: s7 [options] sourcefile [parameters]\n\n");
+            printf("Use  s7 -?  or  s7 -h  to get more information about s7.\n\n");
+          } else if (option.writeHelp) {
+            writeHelp();
           } else {
-            currentProg = analyze(option.sourceFileArgument, option.parserOptions,
-                                  option.libraryDirs, option.protFileName);
-            if (!option.analyzeOnly && currentProg != NULL &&
-                (currentProg->error_count == 0 || option.executeAlways)) {
-              /* PRIME_OBJECTS(); */
-              /* printf("%d%d\n",
-                 trace.actions,
-                 trace.check_actions); */
-              if (currentProg->main_object == NULL ||
-                  CATEGORY_OF_OBJ(currentProg->main_object) == FORWARDOBJECT) {
-                printf("*** Declaration for main missing\n");
-              } else {
-                interpret(currentProg, option.argv, option.argvStart,
-                          option.execOptions, option.protFileName);
-              } /* if */
-              if (fail_flag) {
-                returnCode = 1;
-                uncaught_exception(currentProg);
-                if (fail_value == DB_EXCEPTION(currentProg)) {
-                  striType message;
+            setupFloat();
+            setupBig();
+            drawInit();
+            logMessage(printf("sourceFileArgument: \"%s\"\n",
+                              striAsUnquotedCStri(option.sourceFileArgument)););
+            logMessage(printf("protFileName: \"%s\"\n",
+                              striAsUnquotedCStri(option.protFileName)););
+            if (option.sourceFileArgument == NULL) {
+              printf("*** Sourcefile missing\n");
+            } else {
+              currentProg = analyze(option.sourceFileArgument, option.parserOptions,
+                                    option.libraryDirs, option.protFileName);
+              if (!option.analyzeOnly && currentProg != NULL &&
+                  (currentProg->error_count == 0 || option.executeAlways)) {
+                /* PRIME_OBJECTS(); */
+                /* printf("%d%d\n",
+                   trace.actions,
+                   trace.check_actions); */
+                if (currentProg->main_object == NULL ||
+                    CATEGORY_OF_OBJ(currentProg->main_object) == FORWARDOBJECT) {
+                  printf("*** Declaration for main missing\n");
+                } else {
+                  interpret(currentProg, option.argv, option.argvStart,
+                            option.execOptions, option.protFileName);
+                } /* if */
+                if (fail_flag) {
+                  returnCode = 1;
+                  uncaught_exception(currentProg);
+                  if (fail_value == DB_EXCEPTION(currentProg)) {
+                    striType message;
 
-                  message = sqlErrMessage();
-                  printf("\nMessage from the DATABASE_ERROR exception:\n");
-                  conWrite(message);
-                  printf("\n");
-                  FREE_STRI(message);
+                    message = sqlErrMessage();
+                    printf("\nMessage from the DATABASE_ERROR exception:\n");
+                    conWrite(message);
+                    printf("\n");
+                    FREE_STRI(message);
+                  } /* if */
                 } /* if */
               } /* if */
-            } /* if */
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
-            prgDestr(currentProg);
+              prgDestr(currentProg);
+#elif CLOSE_ALL_GLOBAL_OBJECTS
+              closeAllGlobalObjects(currentProg);
 #endif
+            } /* if */
           } /* if */
+          shutDrivers();
+          freeOptions(&option);
         } /* if */
-        shutDrivers();
-        freeOptions(&option);
+        freeStringArray(arg_v);
       } /* if */
-      freeStringArray(arg_v);
-    } /* if */
-    /* getchar(); */
+      /* getchar(); */
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
-    leaveExceptionHandling();
-    freeActPtrTable();
-    drawClose();
-    closeBig();
-    heapStatistic();
+      leaveExceptionHandling();
+      freeActPtrTable();
+      freeNameCache();
+      drawClose();
+      closeBig();
+      heapStatistic();
 #endif
 #if SHOW_OBJECT_MEMORY_LEAKS
-    listAllObjects();
+      listAllObjects();
 #endif
 #if CHECK_STACK
-    printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
+      printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif
+    } else {
+      returnCode = 1;
+      printf("\n*** Uncaught exception MEMORY_ERROR raised");
+      if (error_file != NULL) {
+        printf(" at %s(%d)", error_file, error_line);
+      } /* if */
+      printf("\n");
+    } /* if */
     logFunction(printf("main --> %d\n", returnCode););
 #ifdef USE_DO_EXIT
     doExit(returnCode);

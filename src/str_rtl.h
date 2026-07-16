@@ -40,6 +40,11 @@
                                       (stri)->mem[(stri)->size - 1] << 1 ^ \
                                       (stri)->size))
 
+#define ustringHashCode(ustri, length) (intType) ((uintType) ((ustri)[0]) << 5 ^ \
+                                                  (uintType) ((ustri)[(length) >> 1]) << 3 ^ \
+                                                  (uintType) ((ustri)[(length) - 1]) << 1 ^ \
+                                                  (length));
+
 
 void toLower (const strElemType *const source, memSizeType length,
     strElemType *const dest);
@@ -62,7 +67,7 @@ striType strChRepl (const const_striType mainStri,
     const charType searched, const const_striType replacement);
 /* rtlArrayType strChSplit (const const_striType mainStri,
     const charType delimiter); */
-striType strCLit (const const_striType stri);
+striType strCLiteral (const const_striType stri);
 intType strCompare (const const_striType stri1, const const_striType stri2);
 striType strConcat (const const_striType stri1, const const_striType stri2);
 striType strConcatChar (const const_striType stri1, const charType aChar);
@@ -86,7 +91,7 @@ striType strHeadTemp (const striType stri, const intType stop);
 intType strIPos (const const_striType mainStri, const const_striType searched,
     const intType fromIndex);
 boolType strLe (const const_striType stri1, const const_striType stri2);
-striType strLit (const const_striType stri);
+striType strLiteral (const const_striType stri);
 striType strLow (const const_striType stri);
 striType strLowTemp (const striType stri);
 striType strLpad (const const_striType stri, const intType padSize);

@@ -90,7 +90,7 @@ objectType prg_bstri_parse (listType arguments)
                               take_set(arg_2(arguments)),
                               libraryDirs,
                               take_file(arg_4(arguments)));
-      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      FREE_RTL_ARRAY(libraryDirs, arraySize(libraryDirs));
       return bld_prog_temp(program);
     } /* if */
   } /* prg_bstri_parse */
@@ -328,7 +328,7 @@ objectType prg_exec (listType arguments)
               parameters,
               take_set(arg_3(arguments)),
               take_stri(arg_4(arguments)));
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+      FREE_RTL_ARRAY(parameters, arraySize(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prg_exec */
@@ -366,7 +366,7 @@ objectType prg_fil_parse (listType arguments)
                             take_set(arg_2(arguments)),
                             libraryDirs,
                             take_file(arg_4(arguments)));
-      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      FREE_RTL_ARRAY(libraryDirs, arraySize(libraryDirs));
       return bld_prog_temp(program);
     } /* if */
   } /* prg_fil_parse */
@@ -574,7 +574,7 @@ objectType prg_str_parse (listType arguments)
                             take_set(arg_2(arguments)),
                             libraryDirs,
                             take_file(arg_4(arguments)));
-      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      FREE_RTL_ARRAY(libraryDirs, arraySize(libraryDirs));
       return bld_prog_temp(program);
     } /* if */
   } /* prg_str_parse */

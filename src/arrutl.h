@@ -25,7 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-#define ARRAY_LENGTH(anArray) (uintType) ((anArray)->max_position - (anArray)->min_position + 1)
-
-
 rtlArrayType gen_rtl_array (arrayType anArray);

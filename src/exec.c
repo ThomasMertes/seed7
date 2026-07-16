@@ -795,6 +795,7 @@ objectType exec_call (objectType object)
       case ENUMLITERALOBJECT:
       case REFOBJECT:
       case REFLISTOBJECT:
+      case ACTENTRYOBJECT:
       case TYPEOBJECT:
       case INTERFACEOBJECT:
       case PROGOBJECT:
@@ -824,17 +825,19 @@ objectType exec_call (objectType object)
         /* result = exec_object(subroutine_object->value.objValue); */
         break;
       case MATCHOBJECT:
-/*        printf("\nsubroutine_object: ");
-        trace1(subroutine_object);
-        printf(" params ");
-        prot_list(actual_parameters);
-        printf("\n");
-        printf("\n"); */
+        result = evaluate(subroutine_object);
+        break;
+      case CALLOBJECT:
+        subroutine_object = exec_call(subroutine_object);
         result = evaluate(subroutine_object);
         break;
       case FORWARDOBJECT:
-        logError(printf("exec_call: forward object\n"););
-        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, actual_parameters);
+        logError(printf("exec_call: forward object\n");
+                 trace1(object);
+                 printf("\n"););
+        result = raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         object,
+                                         actual_parameters);
         break;
       default:
         printf("category_of_obj: ");
@@ -894,7 +897,9 @@ objectType evaluate (objectType object)
     objectType result;
 
   /* evaluate */
-    logFunction(printf("evaluate\n"););
+    logFunction(printf("evaluate(");
+                trace1(object);
+                printf(")\n"););
 #ifdef OUT_OF_ORDER
     if (fail_flag) {
       printf("evaluate fail_flag for ");

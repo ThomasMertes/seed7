@@ -39,6 +39,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "actutl.h"
 #include "rtl_err.h"
 
@@ -49,9 +50,9 @@
 
 
 /**
- *  Convert a string to an action.
+ *  Convert a string to an action entry.
  *  @param actionName Name of the action to be converted.
- *  @return an action which corresponds to the given string.
+ *  @return an action entry which corresponds to the given string.
  *  @exception RANGE_ERROR No such action exists.
  */
 const_actEntryType aceGen (const const_striType actionName)
@@ -76,9 +77,34 @@ const_actEntryType aceGen (const const_striType actionName)
 
 
 /**
- *  Convert an integer number to an action.
+ *  Compute the hash value of an action entry.
+ *  @return the hash value.
+ */
+intType aceHashCode (const_actEntryType actEntry)
+
+  {
+    intType hashCode;
+
+  /* aceHashCode */
+    logFunction(printf("aceHashCode(" FMT_U_MEM ")\n",
+                       (memSizeType) actEntry););
+    if (unlikely(actEntry == NULL)) {
+      logError(printf("aceHashCode: NULL action entry.\n"););
+      raise_error(RANGE_ERROR);
+      hashCode = 0;
+    } else {
+      hashCode = actEntry - actTable.table;
+    } /* if */
+    logFunction(printf("aceHashCode --> " FMT_D "\n", hashCode););
+    return hashCode;
+  } /* aceHashCode */
+
+
+
+/**
+ *  Convert an integer number to an action entry.
  *  @param ordinal Number to be converted.
- *  @return an action which corresponds to the given integer.
+ *  @return an action entry which corresponds to the given integer.
  *  @exception RANGE_ERROR Number not in allowed range.
  */
 const_actEntryType aceIConv (intType ordinal)
@@ -105,10 +131,11 @@ const_actEntryType aceIConv (intType ordinal)
 
 
 /**
- *  Get the ordinal number of an action.
+ *  Get the ordinal number of an action entry.
  *  The action ACT_ILLEGAL has the ordinal number 0.
- *  @param actEntry Action for which the ordinal number is determined.
- *  @return the ordinal number of the action.
+ *  @param actEntry Action entry for which the ordinal number is determined.
+ *  @return the ordinal number of 'actEntry'.
+ *  @exception RANGE_ERROR If 'actEntry' is NULL.
  */
 intType aceOrd (const_actEntryType actEntry)
 
@@ -132,11 +159,10 @@ intType aceOrd (const_actEntryType actEntry)
 
 
 /**
- *  Convert an action to a string.
- *  If the action is not found in the table of legal actions
- *  the string "ACT_ILLEGAL" is returned.
- *  @param actEntry Action which is converted to a string..
- *  @return the string result of the conversion.
+ *  Get the name of an action entry.
+ *  @param actEntry Action entry from which the name is retrieved.
+ *  @return the name of 'actEntry'.
+ *  @exception RANGE_ERROR If 'actEntry' is NULL.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType aceStr (const_actEntryType actEntry)

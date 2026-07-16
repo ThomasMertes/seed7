@@ -100,6 +100,9 @@
 
 #define MAX_CSTRI_BUFFER_LEN 40
 
+#ifndef TEMP_FILE_PREFIX
+#define TEMP_FILE_PREFIX "tmp_"
+#endif
 #ifndef CALL_C_COMPILER_FROM_SHELL
 #define CALL_C_COMPILER_FROM_SHELL 0
 #endif
@@ -278,11 +281,14 @@ static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
 char *nullDevice;
 unsigned char shellPathDelimiter;
 boolType shellUsesDriveLetters;
+
 #ifdef EMULATE_ENVIRONMENT
 int (*environmentStrncmp) (const char *s1, const char *s2, size_t n);
 #endif
+
 #define NULL_DEVICE_FOR_SCRIPTS nullDevice
 #define SHELL_PATH_DELIMITER shellPathDelimiter
+
 #define if_pathDelimiterNotSlash(thenPart) if (shellPathDelimiter != '/') thenPart
 #define pathIsWrong(standardPath) (shellUsesDriveLetters && driveLetterPathWrong(standardPath)) || \
                                   (!shellUsesDriveLetters && standardPathWrong(standardPath))
@@ -323,6 +329,30 @@ static int cmp_mem (void const *strg1, void const *strg2)
         ((const_rtlObjectType *) strg1)->value.striValue,
         ((const_rtlObjectType *) strg2)->value.striValue);
   } /* cmp_mem */
+
+
+
+#if ANY_LOG_ACTIVE
+static void printParameters (const const_rtlArrayType parameters)
+
+  {
+    memSizeType paramSize;
+    memSizeType pos;
+
+  /* printParameters */
+    paramSize = arraySize(parameters);
+    for (pos = 0; pos < paramSize; pos++) {
+      if (pos != 0) {
+        printf(", ");
+      } /* if */
+      printf("\"%s\"",
+             striAsUnquotedCStri(parameters->arr[pos].value.striValue));
+    } /* for */
+  } /* printParameters */
+
+#else
+#define printParameters(parameters) printf(" *not shown* ")
+#endif
 
 
 
@@ -701,8 +731,11 @@ static void copy_any_file (const const_os_striType from_name,
                                        (size_t) from_stat.st_size);
             if (unlikely(readlink_result != -1)) {
               link_destination[readlink_result] = '\0';
-              /* printf("readlink_result=%lu\n", readlink_result);
-                 printf("link=" FMT_S_OS "\n", link_destination); */
+              logMessage(printf("readlink(\"%s\", \"%s\", " FMT_U_MEM ")"
+                                " returned " FMT_U_MEM "\n",
+                                from_name, link_destination,
+                                (memSizeType) from_stat.st_size,
+                                (memSizeType) readlink_result););
               if (os_symlink(link_destination, to_name) != 0) {
                 *err_info = FILE_ERROR;
               } /* if */
@@ -822,8 +855,8 @@ static boolType devices_differ (const const_os_striType from_name,
           dir_name[dir_name_length] = '\0';
           logMessage(printf("os_stat(\"" FMT_S_OS "\", *)\n", dir_name););
           if (os_stat(dir_name, &dir_stat) == 0) {
-            /* printf("from device: %ld, to device: %ld\n",
-               from_stat.st_dev, dir_stat.st_dev); */
+            logMessage(printf("from device: %ld, to device: %ld\n",
+                              from_stat.st_dev, dir_stat.st_dev););
             differs = from_stat.st_dev != dir_stat.st_dev;
           } /* if */
           os_stri_free(dir_name);
@@ -857,17 +890,19 @@ static void move_any_file (const const_os_striType from_name,
         switch (errno) {
 #ifdef EXDEV
           case EXDEV:
-            /* printf("move_any_file: "
-                "os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") triggers EXDEV\n",
-                from_name, to_name); */
+            logMessage(printf("move_any_file: "
+                              "os_rename(\"" FMT_S_OS "\", "
+                              "\"" FMT_S_OS "\") triggers EXDEV\n",
+                              from_name, to_name););
             move_with_copy(from_name, to_name, err_info);
             break;
 #endif
 #ifdef USE_EACCES_INSTEAD_OF_EXDEV
           case EACCES:
-            /* printf("move_any_file: "
-                "os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") triggers EACCES\n",
-                from_name, to_name); */
+            logMessage(printf("move_any_file: "
+                              "os_rename(\"" FMT_S_OS "\", "
+                              "\"" FMT_S_OS "\") triggers EACCES\n",
+                              from_name, to_name););
             if (devices_differ(from_name, to_name)) {
               move_with_copy(from_name, to_name, err_info);
             } else {
@@ -1321,8 +1356,10 @@ static intType getFileTypeSL (const const_striType filePath, errInfoType *err_in
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       saved_errno = errno;
-      /* printf("lstat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
-          os_path, stat_result, saved_errno); */
+      logMessage(printf("lstat(\"" FMT_S_OS "\") returns: %d,\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, stat_result,
+                        saved_errno, strerror(saved_errno)););
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -1905,6 +1942,563 @@ static int systemForNodeJs (const char *command)
 
 
 
+#if !LONG_FILE_NAMES
+static boolType isShortFileName (strElemType *fileName,
+    memSizeType sourceLength)
+
+  {
+    memSizeType sourcePos = 0;
+    strElemType ch;
+    memSizeType dotPos = (memSizeType) -1;
+    boolType shortFileName = TRUE;
+
+  /* isShortFileName */
+    ch = fileName[0];
+    do {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+        case '{':  case '}':  case '~':
+          /* Characters allowed in 8.3 file names. */
+          break;
+        case '.':
+          if (dotPos == (memSizeType) -1) {
+            if (sourcePos == 0 &&
+                (sourceLength == 1 || fileName[1] == '/')) {
+              /* The file name is ".". */
+              /* Keep dotPos to avoid that dotPos == 0 triggers later. */
+            } else {
+              dotPos = sourcePos;
+            } /* if */
+          } else if (dotPos == 0 && sourcePos == 1 &&
+                     (sourceLength == 2 || fileName[2] == '/')) {
+            /* The file name is "..". */
+            /* Change dotPos to avoid that dotPos == 0 triggers later. */
+            dotPos = 1;
+          } else {
+            shortFileName = FALSE;
+          } /* if */
+          break;
+        default:
+          shortFileName = FALSE;
+          break;
+      } /* switch */
+      sourcePos++;
+    } while (sourcePos < sourceLength &&
+             (ch = fileName[sourcePos]) != '/');
+    if (dotPos == (memSizeType) -1) {
+      if (sourcePos > 8) {
+        shortFileName = FALSE;
+      } /* if */
+    } else if (dotPos == 0 || dotPos > 8 || sourcePos - dotPos > 4) {
+      shortFileName = FALSE;
+    } /* if */
+    logFunction(printf("isShortFileName --> %d\n", shortFileName););
+    return shortFileName;
+  } /* isShortFileName */
+
+
+
+static boolType findDot (striType path, memSizeType sourceIdx)
+
+  {
+    strElemType ch;
+    boolType found = FALSE;
+
+  /* findDot */
+    while (sourceIdx < path->size &&
+           (ch = path->mem[sourceIdx]) != '/' && !found) {
+      if (ch == '.') {
+        found = TRUE;
+      } /* if */
+      sourceIdx++;
+    } /* while */
+    return found;
+  } /* findDot */
+
+
+
+static memSizeType toShortFileName (striType path,
+    memSizeType *sourceIdxAddr, memSizeType destIdx)
+
+  {
+    memSizeType sourceIdx;
+    strElemType *dest;
+    strElemType ch;
+    memSizeType destPos = 0;
+    memSizeType dotPos = (memSizeType) -1;
+    boolType writeToDest = TRUE;
+
+  /* toShortFileName */
+    sourceIdx = *sourceIdxAddr;
+    dest = &path->mem[destIdx];
+    ch = path->mem[sourceIdx];
+    do {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+        case '{':  case '}':  case '~':
+          if (writeToDest) {
+            dest[destPos] = ch;
+            destPos++;
+          } /* if */
+          break;
+        case '+':  case ',':  case ';':  case '=':  case '[':
+        case ']':
+          if (writeToDest) {
+            dest[destPos] = '_';
+            destPos++;
+          } /* if */
+          break;
+        case '.':
+          if (!findDot(path, sourceIdx + 1)) {
+            if (!writeToDest && destIdx + destPos + 2 < path->size) {
+              dest[destPos] = '~';
+              destPos++;
+              dest[destPos] = '1';
+              destPos++;
+              writeToDest = TRUE;
+            } /* if */
+            dotPos = destPos;
+            dest[destPos] = '.';
+            destPos++;
+          } /* if */
+          break;
+        default:
+          /* Ignore other characters */
+          break;
+      } /* switch */
+      if (dotPos == (memSizeType) -1) {
+        if (destPos >= 6) {
+          writeToDest = FALSE;
+        } /* if */
+      } else {
+        if (destPos - dotPos >= 4) {
+          writeToDest = FALSE;
+        } /* if */
+      } /* if */
+      sourceIdx++;
+    } while (sourceIdx < path->size &&
+             (ch = path->mem[sourceIdx]) != '/');
+    if (dotPos == (memSizeType) -1) {
+      if (!writeToDest && destIdx + destPos + 1 < path->size) {
+        dest[destPos] = '~';
+        destPos++;
+        dest[destPos] = '1';
+        destPos++;
+      } /* if */
+    } /* if */
+    *sourceIdxAddr = sourceIdx;
+    return destPos;
+  } /* toShortFileName */
+
+
+
+static memSizeType copyFileName (striType path,
+    memSizeType *sourceIdxAddr, memSizeType destIdx)
+
+  {
+    memSizeType sourceIdx;
+    strElemType ch;
+
+  /* copyFileName */
+    sourceIdx = *sourceIdxAddr;
+    ch = path->mem[sourceIdx];
+    do {
+      path->mem[destIdx] = ch;
+      destIdx++;
+      sourceIdx++;
+    } while (sourceIdx < path->size &&
+             (ch = path->mem[sourceIdx]) != '/');
+    *sourceIdxAddr = sourceIdx;
+    return destIdx;
+  } /* copyFileName */
+
+
+
+static void mapLongFileNamesToShort (striType path,
+    memSizeType sourceIdx)
+
+  {
+    memSizeType sourceLength;
+    memSizeType destIdx;
+
+  /* mapLongFileNamesToShort */
+    logFunction(printf("mapLongFileNamesToShort(\"%s\")\n",
+                       striAsUnquotedCStri(path)););
+    destIdx = sourceIdx;
+    sourceLength = path->size;
+    while (sourceIdx < sourceLength) {
+      if (path->mem[sourceIdx] == '/') {
+        sourceIdx++;
+        path->mem[destIdx] = '/';
+        destIdx++;
+      } else {
+        if (isShortFileName(&path->mem[sourceIdx],
+                            sourceLength - sourceIdx)) {
+          destIdx = copyFileName(path, &sourceIdx, destIdx);
+        } else {
+          destIdx += toShortFileName(path, &sourceIdx, destIdx);
+        } /* if */
+      } /* if */
+    } /* while */
+    logMessage(printf("destIdx: " FMT_U_MEM "\n", destIdx););
+    logErrorIfTrue(destIdx > path->size,
+                   printf("mapLongFileNamesToShort: destIdx ("
+                          FMT_U_MEM ") larger than size ("
+                          FMT_U_MEM ")\n",
+                          destIdx, path->size););
+    path->size = destIdx;
+    logFunction(printf("mapLongFileNamesToShort --> \"%s\"\n",
+                       striAsUnquotedCStri(path)););
+  } /* mapLongFileNamesToShort */
+
+#else
+#define mapLongFileNamesToShort(path, sourceIdx)
+#endif
+
+
+
+/**
+ *  Convert a standard path to the path of the operating system.
+ *  The function ''toOsPath'' should only be used for parameters which
+ *  represent a path. Don't use ''toOsPath'' for the command of a shell
+ *  or process function.
+ *  @param standardPath Path in the standard path representation.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if 'standardPath' is not representable
+ *                  as operating system path.
+ *  @return a string containing an operating system path.
+ */
+static striType toOsPath (const const_striType standardPath,
+    errInfoType *err_info)
+
+  {
+    striType result;
+
+  /* toOsPath */
+    logFunction(printf("toOsPath(\"%s\", %d)\n",
+                       striAsUnquotedCStri(standardPath),
+                       *err_info););
+    if (unlikely(pathIsWrong(standardPath))) {
+      logError(printf("toOsPath: "
+                      "\"%s\" uses a drive letter or ends with slash.\n",
+                      striAsUnquotedCStri(standardPath)););
+      *err_info = RANGE_ERROR;
+    } else {
+      if_mapAbsoluteShellPathToDriveLetters(
+          standardPath->size >= 1 && standardPath->mem[0] == '/', {
+        /* Absolute path: Try to map the path to a drive letter */
+        if (unlikely(standardPath->size == 1)) {
+          /* "/"    cannot be mapped to a drive letter */
+          logError(printf("toOsPath: "
+                          "\"%s\" cannot be mapped to a drive letter.\n",
+                          striAsUnquotedCStri(standardPath)););
+          *err_info = RANGE_ERROR;
+        } else if (standardPath->mem[1] >= 'a' && standardPath->mem[1] <= 'z') {
+          if (standardPath->size == 2) {
+            /* "/c"   is mapped to "c:/"  */
+            if (unlikely(!ALLOC_STRI_SIZE_OK(result, 3))) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              result->size = 3;
+              result->mem[0] = standardPath->mem[1];
+              result->mem[1] = ':';
+              result->mem[2] = '/';
+              mapLongFileNamesToShort(result, 2);
+            } /* if */
+          } else if (unlikely(standardPath->mem[2] != '/')) {
+            /* "/cd"  cannot be mapped to a drive letter */
+            logError(printf("toOsPath: "
+                            "\"%s\" cannot be mapped to a drive letter.\n",
+                            striAsUnquotedCStri(standardPath)););
+            *err_info = RANGE_ERROR;
+          } else {
+            /* "/c/d" is mapped to "c:/d" */
+            if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              result->size = standardPath->size;
+              result->mem[0] = standardPath->mem[1];
+              result->mem[1] = ':';
+              result->mem[2] = '/';
+              memcpy(&result->mem[3], &standardPath->mem[3],
+                     (standardPath->size - 3) * sizeof(strElemType));
+              mapLongFileNamesToShort(result, 2);
+            } /* if */
+          } /* if */
+        } else {
+          /* "/C"  cannot be mapped to a drive letter */
+          logError(printf("toOsPath: "
+                          "\"%s\" cannot be mapped to a drive letter.\n",
+                          striAsUnquotedCStri(standardPath)););
+          *err_info = RANGE_ERROR;
+        } /* if */
+      }, /* else */ {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          result->size = standardPath->size;
+          memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
+          mapLongFileNamesToShort(result, 0);
+        } /* if */
+      });
+    } /* if */
+    if (unlikely(*err_info != OKAY_NO_ERROR)) {
+      result = NULL;
+    } else {
+      if_pathDelimiterNotSlash({
+        memSizeType position;
+
+        for (position = 0; position < result->size; position++) {
+          if (result->mem[position] == '/') {
+            result->mem[position] = SHELL_PATH_DELIMITER;
+          } /* if */
+        } /* for */
+      });
+    } /* if */
+    logFunction(printf("toOsPath --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(result), *err_info););
+    return result;
+  } /* toOsPath */
+
+
+
+striType createCommandLine (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr,
+    errInfoType *err_info)
+
+  {
+    striType escapedCommand;
+    memSizeType numberOfParameters;
+    striType *parameterArray;
+    memSizeType pos;
+    striType escapedParameter;
+    memSizeType commandLineSize;
+    striType osPath;
+    striType stdinPath = NULL;
+    striType stdoutPath = NULL;
+    striType stderrPath = NULL;
+    memSizeType index;
+    striType commandLine;
+
+  /* createCommandLine */
+    numberOfParameters = arraySize(parameters);
+    logFunction(printf("createCommandLine(\"%s\", array[" FMT_D "]: (",
+                       striAsUnquotedCStri(command),
+                       parameters->max_position);
+                printParameters(parameters);
+                printf("), \"%s\"", striAsUnquotedCStri(redirectStdin));
+                printf(", \"%s\"", striAsUnquotedCStri(redirectStdout));
+                printf(", \"%s\", %d)\n",
+                       striAsUnquotedCStri(redirectStderr),
+                       *err_info););
+    osPath = toOsPath(command, err_info);
+    if (unlikely(osPath == NULL)) {
+      logError(printf("createCommandLine: toOsPath(\"%s\", %d) failed.\n",
+                      striAsUnquotedCStri(command), *err_info););
+      commandLine = NULL;
+    } else {
+      escapedCommand = escapeCommand(osPath, err_info);
+      FREE_STRI(osPath);
+      if (unlikely(escapedCommand == NULL)) {
+        logError(printf("createCommandLine: escapeCommand(\"%s\", %d) failed.\n",
+                        striAsUnquotedCStri(osPath), *err_info););
+        commandLine = NULL;
+      } else if (unlikely(numberOfParameters >
+                          MAX_MEMSIZETYPE / sizeof(striType))) {
+        *err_info = MEMORY_ERROR;
+        commandLine = NULL;
+      } else {
+        if (numberOfParameters == 0) {
+          parameterArray = NULL;
+        } else {
+          parameterArray = (striType *) malloc(sizeof(striType) *
+                                               numberOfParameters);
+          if (unlikely(parameterArray == NULL)) {
+            *err_info = MEMORY_ERROR;
+            commandLine = NULL;
+          } /* if */
+        } /* if */
+        if (likely(*err_info == OKAY_NO_ERROR)) {
+          commandLineSize = escapedCommand->size;
+          for (pos = 0; pos < numberOfParameters; pos++) {
+            escapedParameter =
+                escapeParameter(parameters->arr[pos].value.striValue,
+                            err_info);
+            parameterArray[pos] = escapedParameter;
+            if (likely(escapedParameter != NULL)) {
+              if (unlikely(escapedParameter->size >
+                           MAX_STRI_LEN - commandLineSize - 1)) {
+                *err_info = MEMORY_ERROR;
+              } else {
+                commandLineSize += escapedParameter->size + 1;
+              } /* if */
+            } /* if */
+          } /* for */
+          if (redirectStdin != NULL && redirectStdin->size != 0) {
+            osPath = toOsPath(redirectStdin, err_info);
+            if (likely(osPath != NULL)) {
+              stdinPath = escapeParameter(osPath, err_info);
+              if (likely(stdinPath != NULL)) {
+                commandLineSize += STRLEN(REDIRECT_FILEDES_0) + 2 +
+                                     stdinPath->size;
+              } /* if */
+              FREE_STRI(osPath);
+            } /* if */
+          } /* if */
+          if (redirectStdout != NULL && redirectStdout->size != 0) {
+            osPath = toOsPath(redirectStdout, err_info);
+            if (likely(osPath != NULL)) {
+              stdoutPath = escapeParameter(osPath, err_info);
+              if (likely(stdoutPath != NULL)) {
+                commandLineSize += STRLEN(REDIRECT_FILEDES_1) + 2 +
+                                     stdoutPath->size;
+              } /* if */
+              FREE_STRI(osPath);
+            } /* if */
+          } /* if */
+          if (redirectStderr != NULL && redirectStderr->size != 0) {
+            osPath = toOsPath(redirectStderr, err_info);
+            if (likely(osPath != NULL)) {
+              stderrPath = escapeParameter(osPath, err_info);
+              if (likely(stderrPath != NULL)) {
+                commandLineSize += STRLEN(REDIRECT_FILEDES_2) + 2 +
+                                     stderrPath->size;
+              } /* if */
+              FREE_STRI(osPath);
+            } /* if */
+          } /* if */
+          if (unlikely(*err_info != OKAY_NO_ERROR)) {
+            logError(printf("createCommandLine: err_info=%d\n",
+                            *err_info););
+            commandLine = NULL;
+          } else {
+            logMessage(printf("createCommandLine: commandLineSize: "
+                              FMT_U_MEM "\n", commandLineSize););
+            if (unlikely(!ALLOC_STRI_CHECK_SIZE(commandLine,
+                                                commandLineSize))) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              commandLine->size = commandLineSize;
+              memcpy(commandLine->mem, escapedCommand->mem,
+                     escapedCommand->size * sizeof(strElemType));
+              index = escapedCommand->size;
+              for (pos = 0; pos < numberOfParameters; pos++) {
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy(&commandLine->mem[index],
+                       parameterArray[pos]->mem,
+                       parameterArray[pos]->size * sizeof(strElemType));
+                index += parameterArray[pos]->size;
+              } /* for */
+              if (stdinPath != NULL) {
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy_to_strelem(&commandLine->mem[index],
+                                  (const_ustriType) REDIRECT_FILEDES_0,
+                                  STRLEN(REDIRECT_FILEDES_0));
+                index += STRLEN(REDIRECT_FILEDES_0);
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy(&commandLine->mem[index], stdinPath->mem,
+                       stdinPath->size * sizeof(strElemType));
+                index += stdinPath->size;
+              } /* if */
+              if (stdoutPath != NULL) {
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy_to_strelem(&commandLine->mem[index],
+                                  (const_ustriType) REDIRECT_FILEDES_1,
+                                  STRLEN(REDIRECT_FILEDES_1));
+                index += STRLEN(REDIRECT_FILEDES_1);
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy(&commandLine->mem[index], stdoutPath->mem,
+                       stdoutPath->size * sizeof(strElemType));
+                index += stdoutPath->size;
+              } /* if */
+              if (stderrPath != NULL) {
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy_to_strelem(&commandLine->mem[index],
+                                  (const_ustriType) REDIRECT_FILEDES_2,
+                                  STRLEN(REDIRECT_FILEDES_2));
+                index += STRLEN(REDIRECT_FILEDES_2);
+                commandLine->mem[index] = ' ';
+                index++;
+                memcpy(&commandLine->mem[index], stderrPath->mem,
+                       stderrPath->size * sizeof(strElemType));
+                index += stderrPath->size;
+              } /* if */
+              logMessage(printf("createCommandLine: "
+                                "commandLine=\"%s\"\n",
+                                striAsUnquotedCStri(commandLine)););
+            } /* if */
+          } /* if */
+          for (pos = 0; pos < numberOfParameters; pos++) {
+            if (parameterArray[pos] != NULL) {
+              FREE_STRI(parameterArray[pos]);
+            } /* if */
+          } /* for */
+          free(parameterArray);
+          if (stdinPath != NULL) {
+            FREE_STRI(stdinPath);
+          } /* if */
+          if (stdoutPath != NULL) {
+            FREE_STRI(stdoutPath);
+          } /* if */
+          if (stderrPath != NULL) {
+            FREE_STRI(stderrPath);
+          } /* if */
+        } /* if */
+      } /* if */
+      if (escapedCommand != NULL) {
+        FREE_STRI(escapedCommand);
+      } /* if */
+    } /* if */
+    logFunction(printf("createCommandLine -> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(commandLine),
+                       *err_info););
+    return commandLine;
+  } /* createCommandLine */
+
+
+
 /**
  *  Determine the size of a file.
  *  The function follows symbolic links. The file size is measured in bytes.
@@ -2169,6 +2763,8 @@ striType cmdConfigValue (const const_striType name)
       opt = EXECUTABLE_FILE_EXTENSION;
     } else if (strcmp(opt_name, "LINKED_PROGRAM_EXTENSION") == 0) {
       opt = LINKED_PROGRAM_EXTENSION;
+    } else if (strcmp(opt_name, "TEMP_FILE_PREFIX") == 0) {
+      opt = TEMP_FILE_PREFIX;
     } else if (strcmp(opt_name, "C_COMPILER") == 0) {
       opt = C_COMPILER;
     } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
@@ -2543,7 +3139,6 @@ rtlArrayType cmdEnvironment (void)
     os_striType *nameStartPos;
     os_striType nameEndPos;
     striType variableName;
-    errInfoType err_info = OKAY_NO_ERROR;
     rtlArrayType environment_array;
 
   /* cmdEnvironment */
@@ -2573,7 +3168,9 @@ rtlArrayType cmdEnvironment (void)
             variableName = conv_from_os_stri(*nameStartPos,
                                              (memSizeType) (nameEndPos - *nameStartPos));
             if (unlikely(variableName == NULL)) {
-              err_info = MEMORY_ERROR;
+              /* Free what has been added up to now. */
+              freeRtlStriArray(environment_array, used_max_position);
+              environment_array = NULL;
             } else {
               environment_array = addStriToRtlArray(variableName, environment_array,
                   used_max_position);
@@ -2584,11 +3181,7 @@ rtlArrayType cmdEnvironment (void)
       } /* if */
       environment_array = completeRtlStriArray(environment_array, used_max_position);
       if (unlikely(environment_array == NULL)) {
-        err_info = MEMORY_ERROR;
-      } /* if */
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-        environment_array = NULL;
+        raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
 #if USE_GET_ENVIRONMENT
@@ -2738,10 +3331,14 @@ intType cmdFileType (const const_striType filePath)
         type_of_file = FILE_ABSENT;
       }
     } else {
+      logMessage(printf("\ncmdFileType: os_path: \"" FMT_S_OS "\"\n",
+                        os_path););
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
-      /* printf("stat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
-         os_path, stat_result, saved_errno); */
+      logMessage(printf("stat(\"" FMT_S_OS "\") returns: %d,\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, stat_result,
+                        saved_errno, strerror(saved_errno)););
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -3556,8 +4153,8 @@ striType cmdHomeDir (void)
     } /* if */
 #endif
     os_home_dir = os_getenv(home_dir_env_var);
-    /* printf("os_getenv(\"" FMT_S_OS "\") returns: " FMT_S_OS "\n",
-        home_dir_env_var, os_home_dir); */
+    logMessage(printf("os_getenv(\"" FMT_S_OS "\") returns: " FMT_S_OS "\n",
+                      home_dir_env_var, os_home_dir););
     if (unlikely(os_home_dir == NULL)) {
 #ifdef DEFAULT_HOME_DIR
       home_dir = cp_from_os_path(default_home_dir, &err_info);
@@ -3907,6 +4504,8 @@ void cmdRemoveFile (const const_striType filePath)
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, err_info););
     } else {
+      logMessage(printf("cmdRemoveFile(\"%s\"): os_path: \"" FMT_S_OS "\"\n",
+                        striAsUnquotedCStri(filePath), os_path););
 #if REMOVE_FAILS_FOR_EMPTY_DIRS
       if (os_lstat(os_path, &file_stat) != 0) {
         logError(printf("cmdRemoveFile: os_lstat(\"" FMT_S_OS "\") failed:\n"
@@ -4178,7 +4777,7 @@ void cmdSetATime (const const_striType filePath,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    const_os_striType os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     os_utimbuf_struct utime_buf;
     int path_info;
@@ -4319,7 +4918,7 @@ void cmdSetMTime (const const_striType filePath,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    const_os_striType os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     os_utimbuf_struct utime_buf;
     int path_info;
@@ -4394,135 +4993,43 @@ void cmdSetSearchPath (const const_rtlArrayType searchPath)
 
 
 
-/**
- *  Use the shell to execute a 'command' with 'parameters'.
- *  Parameters which contain a space must be enclosed in double
- *  quotes (E.g.: shell("aCommand", "\"par 1\" par2"); ). The
- *  commands supported and the format of the 'parameters' are not
- *  covered by the description of the 'shell' function. Due to the
- *  usage of the operating system shell and external programs, it is
- *  hard to write portable programs, which use the 'shell' function.
- *  @param command Name of the command to be executed. A path must
- *         use the standard path representation.
- *  @param parameters Space separated list of parameters for the
- *         'command', or "" if there are no parameters.
- *  @return the return code of the executed command or of the shell.
- */
-intType cmdShell (const const_striType command, const const_striType parameters)
+striType cmdShellCommandLine (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr)
 
   {
-    os_striType os_command;
     errInfoType err_info = OKAY_NO_ERROR;
-    intType result;
+    striType commandLine;
 
-  /* cmdShell */
-    logFunction(printf("cmdShell(\"%s\", ", striAsUnquotedCStri(command));
-                printf("\"%s\")\n", striAsUnquotedCStri(parameters)););
-#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
-    adjustCwdForShell(&err_info);
-#endif
-    os_command = cp_to_command(command, parameters, &err_info);
-    if (unlikely(os_command == NULL)) {
-      logError(printf("cmdShell: cp_to_command(\"%s\", ",
-                      striAsUnquotedCStri(command));
-               printf("\"%s\", *) failed:\n"
-                      "err_info=%d\n",
-                      striAsUnquotedCStri(parameters), err_info););
+  /* cmdShellCommandLine */
+    logFunction(printf("cmdShellCommandLine(\"%s\""
+                       ", array[" FMT_D "]: (",
+                       striAsUnquotedCStri(command),
+                       parameters->max_position);
+                printParameters(parameters);
+                printf("), \"%s\"", striAsUnquotedCStri(redirectStdin));
+                printf(", \"%s\"", striAsUnquotedCStri(redirectStdout));
+                printf(", \"%s\")\n",
+                       striAsUnquotedCStri(redirectStderr)););
+    commandLine = createCommandLine(command, parameters,
+        redirectStdin, redirectStdout, redirectStderr, &err_info);
+    if (unlikely(commandLine == NULL)) {
+      logError(printf("cmdShellCommandLine: createCommandLine(\"%s\""
+                      ", array[" FMT_D "]: (",
+                      striAsUnquotedCStri(command),
+                      parameters->max_position);
+               printParameters(parameters);
+               printf("), \"%s\"", striAsUnquotedCStri(redirectStdin));
+               printf(", \"%s\"", striAsUnquotedCStri(redirectStdout));
+               printf(", \"%s\", *) failed:\n",
+                      striAsUnquotedCStri(redirectStderr));
+               printf("err_info=%d\n", err_info););
       raise_error(err_info);
-      result = 0;
-    } else {
-      logMessage(printf("cmdShell: os_command: \"" FMT_S_OS "\"\n", os_command););
-      result = (intType) os_system(os_command);
-      logErrorIfTrue(result != 0,
-                     printf("cmdShell(\"%s\", ", striAsUnquotedCStri(command));
-                     printf("\"%s\") failed:\n", striAsUnquotedCStri(parameters));
-                     printf("errno=%d\nerror: %s\n", errno, strerror(errno));
-                     printf("result=" FMT_D "\n", result););
-      FREE_OS_STRI(os_command);
     } /* if */
-    logFunction(printf("cmdShell --> " FMT_D "\n", result););
-    return result;
-  } /* cmdShell */
-
-
-
-#ifdef ESCAPE_SHELL_COMMANDS
-/**
- *  Convert a string, such that it can be used as shell parameter.
- *  The function adds escape characters or quotations to a string.
- *  The result is useable as parameter for the functions 'cmdShell'
- *  and 'filPopen'. Shell parameters must be escaped individually.
- *  Afterwards escaped parameters are joined to a space separated
- *  list of parameters.
- *  @return a string which can be used as shell parameter.
- *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
- */
-striType cmdShellEscape (const const_striType stri)
-
-  {
-    /* A shell parameter might start and end with quote ("): */
-    const memSizeType numOfQuotes = 0;
-    /* Maximum escape sequence length in shell parameter: */
-    const memSizeType escSequenceMax = STRLEN("\\=");
-    memSizeType inPos;
-    memSizeType outPos;
-    errInfoType err_info = OKAY_NO_ERROR;
-    striType resized_result;
-    striType result;
-
-  /* cmdShellEscape */
-    logFunction(printf("cmdShellEscape(\"%s\")", striAsUnquotedCStri(stri));
-                fflush(stdout););
-    if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
-                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      for (inPos = 0, outPos = 0; inPos < stri->size; inPos++, outPos++) {
-        switch (stri->mem[inPos]) {
-          case '\t': case ' ':  case '!':  case '\"': case '#':
-          case '$':  case '&':  case '\'': case '(':  case ')':
-          case '*':  case ',':  case ':':  case ';':  case '<':
-          case '=':  case '>':  case '?':  case '[':  case '\\':
-          case ']':  case '^':  case '`':  case '{':  case '|':
-          case '}':  case '~':
-            result->mem[outPos] = '\\';
-            outPos++;
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-          case '\0': case '\n':
-            logError(printf("cmdShellEscape: "
-                            "Illegal character in string ('\\" FMT_U32 ";').\n",
-                            stri->mem[inPos]););
-            err_info = RANGE_ERROR;
-            break;
-          default:
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-        } /* switch */
-      } /* for */
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
-        raise_error(err_info);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
-            escSequenceMax * stri->size + numOfQuotes, outPos);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          result->size = outPos;
-        } /* if */
-      } /* if */
-    } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
-    return result;
-  } /* cmdShellEscape */
-
-#else
+    logFunction(printf("cmdShellCommandLine --> \"%s\"\n",
+                       striAsUnquotedCStri(commandLine)););
+    return commandLine;
+  } /* cmdShellCommandLine */
 
 
 
@@ -4535,137 +5042,115 @@ striType cmdShellEscape (const const_striType stri)
  *  list of parameters.
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
+ *  @exception RANGE_ERROR An illegal character is in 'stri'.
  */
 striType cmdShellEscape (const const_striType stri)
 
   {
-    /* A shell parameter might start and end with quote ("): */
-    const memSizeType numOfQuotes = 2;
-    /* Maximum escape sequence length in shell parameter: */
-    const memSizeType escSequenceMax = 4;
-    memSizeType inPos;
-    memSizeType outPos;
-    boolType quotation_mode = FALSE;
-    boolType in_escaped_quotation = FALSE;
-    memSizeType countBackslash;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType resized_result;
     striType result;
 
   /* cmdShellEscape */
-    logFunction(printf("cmdShellEscape(\"%s\")", striAsUnquotedCStri(stri));
+    logFunction(printf("cmdShellEscape(\"%s\")\n",
+                       striAsUnquotedCStri(stri));
                 fflush(stdout););
-    if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
-                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      for (inPos = 0, outPos = 0; inPos < stri->size; inPos++, outPos++) {
-        switch (stri->mem[inPos]) {
-          case '\t': case '\f': case ' ':  case '%':  case '*':
-          case ',':  case ';':  case '=':  case '~':  case 160:
-            if (!quotation_mode) {
-              quotation_mode = TRUE;
-              result->mem[outPos] = '"';
-              outPos++;
-            } /* if */
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-          case '&':  case '<':  case '>':  case '^':  case '|':
-            if (!quotation_mode) {
-              quotation_mode = TRUE;
-              result->mem[outPos] = '"';
-              outPos++;
-            } /* if */
-            if (in_escaped_quotation) {
-              result->mem[outPos] = '^';
-              outPos++;
-            } /* if */
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-          case '\"':
-            if (!quotation_mode) {
-              quotation_mode = TRUE;
-              result->mem[outPos] = '"';
-              outPos++;
-            } /* if */
-            result->mem[outPos] = '\\';
-            outPos++;
-            result->mem[outPos] = stri->mem[inPos];
-            in_escaped_quotation = !in_escaped_quotation;
-            break;
-          case '\\':
-            result->mem[outPos] = '\\';
-            outPos++;
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-          case '\0': case '\n': case '\r':
-            logError(printf("cmdShellEscape: "
-                            "Illegal character in string ('\\" FMT_U32 ";').\n",
-                            stri->mem[inPos]););
-            err_info = RANGE_ERROR;
-            break;
-          default:
-            if (quotation_mode) {
-              quotation_mode = FALSE;
-              result->mem[outPos] = '"';
-              outPos++;
-            } /* if */
-            result->mem[outPos] = stri->mem[inPos];
-            break;
-        } /* switch */
-      } /* for */
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
-        raise_error(err_info);
-        result = NULL;
-      } else {
-        if (quotation_mode) {
-          result->mem[outPos] = '"';
-          outPos++;
-        } /* if */
-        for (inPos = 0; inPos < outPos; inPos++) {
-          if (result->mem[inPos] == '\\') {
-            inPos++;
-            countBackslash = 1;
-            while (inPos < outPos && result->mem[inPos] == '\\') {
-              inPos++;
-              countBackslash++;
-            } /* while */
-            if (inPos == outPos || result->mem[inPos] != '"') {
-              countBackslash /= 2;
-              memcpy(&result->mem[inPos - countBackslash], &result->mem[inPos],
-                     (outPos - inPos) * sizeof(strElemType));
-              inPos -= countBackslash;
-              outPos -= countBackslash;
-            } /* if */
-            inPos--;
-          } /* if */
-        } /* for */
-        REALLOC_STRI_SIZE_SMALLER2(resized_result, result,
-            escSequenceMax * stri->size + numOfQuotes, outPos);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI2(result, escSequenceMax * stri->size + numOfQuotes);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          result->size = outPos;
-        } /* if */
-      } /* if */
+    result = escapeParameter(stri, &err_info);
+    if (unlikely(result == NULL)) {
+      logError(printf("cmdShellEscape: escapeParameter(\"%s\") failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(stri), err_info););
+      raise_error(err_info);
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunction(printf("cmdShellEscape --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* cmdShellEscape */
 
-#endif
+
+
+intType cmdShellExecute (const const_striType command,
+    const const_rtlArrayType parameters, const const_striType redirectStdin,
+    const const_striType redirectStdout, const const_striType redirectStderr)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType commandLine;
+    os_striType os_command;
+    intType returnCode;
+
+  /* cmdShellExecute */
+    logFunction(printf("cmdShellExecute(\"%s\""
+                       ", array[" FMT_D "]: (",
+                       striAsUnquotedCStri(command),
+                       parameters->max_position);
+                printParameters(parameters);
+                printf("), \"%s\"", striAsUnquotedCStri(redirectStdin));
+                printf(", \"%s\"", striAsUnquotedCStri(redirectStdout));
+                printf(", \"%s\")\n",
+                       striAsUnquotedCStri(redirectStderr)););
+    commandLine = createCommandLine(command, parameters,
+        redirectStdin, redirectStdout, redirectStderr, &err_info);
+    if (unlikely(commandLine == NULL)) {
+      logError(printf("cmdShellExecute: createCommandLine(\"%s\""
+                       ", array[" FMT_D "]: (",
+                       striAsUnquotedCStri(command),
+                       parameters->max_position);
+               printParameters(parameters);
+               printf("), \"%s\"", striAsUnquotedCStri(redirectStdin));
+               printf(", \"%s\"", striAsUnquotedCStri(redirectStdout));
+               printf(", \"%s\", *) failed:\n",
+                      striAsUnquotedCStri(redirectStderr));
+               printf("err_info=%d\n", err_info););
+      raise_error(err_info);
+      returnCode = 0;
+    } else {
+      logMessage(printf("cmdShellExecute: commandLine: \"%s\"\n",
+                        striAsUnquotedCStri(commandLine)););
+      os_command = stri_to_os_stri(commandLine, &err_info);
+      if (unlikely(os_command == NULL)) {
+        logError(printf("cmdShellExecute: "
+                        "stri_to_os_stri(\"%s\") failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(commandLine), err_info););
+        FREE_STRI(commandLine);
+        raise_error(err_info);
+        returnCode = 0;
+      } else {
+        FREE_STRI(commandLine);
+        logMessage(printf("cmdShellExecute: "
+                          "os_command: \"" FMT_S_OS "\"\n",
+                          os_command););
+        returnCode = (intType) os_system(os_command);
+        logErrorIfTrue(returnCode != 0,
+                       printf("cmdShellExecute(\"%s\""
+                              ", array[" FMT_D "]: (",
+                              striAsUnquotedCStri(command),
+                              parameters->max_position);
+                       printParameters(parameters);
+                       printf("), \"%s\"",
+                              striAsUnquotedCStri(redirectStdin));
+                       printf(", \"%s\"",
+                              striAsUnquotedCStri(redirectStdout));
+                       printf(", \"%s\"):\n",
+                              striAsUnquotedCStri(redirectStderr));
+                       printf("system(\"" FMT_S_OS "\") failed:\n",
+                              os_command);
+                       printf("errno=%d\nerror: %s\n", errno, strerror(errno));
+                       printf("returnCode=" FMT_D "\n", returnCode););
+        os_stri_free(os_command);
+      } /* if */
+    } /* if */
+    logFunction(printf("cmdShellExecute --> " FMT_D "\n", returnCode););
+    return returnCode;
+  } /* cmdShellExecute */
 
 
 
 /**
  *  Convert a standard path to the path of the operating system.
- *  The result must be escaped with 'cmdShellEscape' to be useable as
- *  parameter for the functions 'cmdShell' and 'filPopen'.
+ *  The function ''cmdToOsPath'' should only be used for parameters which
+ *  represent a path. Don't use ''cmdToOsPath'' for the command of a shell
+ *  or process function.
  *  @param standardPath Path in the standard path representation.
  *  @return a string containing an operating system path.
  *  @exception MEMORY_ERROR Not enough memory to convert 'standardPath'.
@@ -4679,84 +5164,17 @@ striType cmdToOsPath (const const_striType standardPath)
     striType result;
 
   /* cmdToOsPath */
-    logFunction(printf("cmdToOsPath(\"%s\")", striAsUnquotedCStri(standardPath));
-                fflush(stdout););
-    if (unlikely(pathIsWrong(standardPath))) {
-      logError(printf("cmdToOsPath: "
-                      "\"%s\" uses a drive letter or ends with slash.\n",
-                      striAsUnquotedCStri(standardPath)););
-      err_info = RANGE_ERROR;
-    } else {
-      if_mapAbsoluteShellPathToDriveLetters(
-          standardPath->size >= 1 && standardPath->mem[0] == '/', {
-        /* Absolute path: Try to map the path to a drive letter */
-        if (unlikely(standardPath->size == 1)) {
-          /* "/"    cannot be mapped to a drive letter */
-          logError(printf("cmdToOsPath: "
-                          "\"%s\" cannot be mapped to a drive letter.\n",
-                          striAsUnquotedCStri(standardPath)););
-          err_info = RANGE_ERROR;
-        } else if (standardPath->mem[1] >= 'a' && standardPath->mem[1] <= 'z') {
-          if (standardPath->size == 2) {
-            /* "/c"   is mapped to "c:/"  */
-            if (unlikely(!ALLOC_STRI_SIZE_OK(result, 3))) {
-              err_info = MEMORY_ERROR;
-            } else {
-              result->size = 3;
-              result->mem[0] = standardPath->mem[1];
-              result->mem[1] = ':';
-              result->mem[2] = '/';
-            } /* if */
-          } else if (unlikely(standardPath->mem[2] != '/')) {
-            /* "/cd"  cannot be mapped to a drive letter */
-            logError(printf("cmdToOsPath: "
-                            "\"%s\" cannot be mapped to a drive letter.\n",
-                            striAsUnquotedCStri(standardPath)););
-            err_info = RANGE_ERROR;
-          } else {
-            /* "/c/d" is mapped to "c:/d" */
-            if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
-              err_info = MEMORY_ERROR;
-            } else {
-              result->size = standardPath->size;
-              result->mem[0] = standardPath->mem[1];
-              result->mem[1] = ':';
-              result->mem[2] = '/';
-              memcpy(&result->mem[3], &standardPath->mem[3],
-                     (standardPath->size - 3) * sizeof(strElemType));
-            } /* if */
-          } /* if */
-        } else {
-          /* "/C"  cannot be mapped to a drive letter */
-          logError(printf("cmdToOsPath: "
-                          "\"%s\" cannot be mapped to a drive letter.\n",
-                          striAsUnquotedCStri(standardPath)););
-          err_info = RANGE_ERROR;
-        } /* if */
-      }, /* else */ {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
-          err_info = MEMORY_ERROR;
-        } else {
-          result->size = standardPath->size;
-          memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
-        } /* if */
-      });
-    } /* if */
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    logFunction(printf("cmdToOsPath(\"%s\")\n",
+                       striAsUnquotedCStri(standardPath)););
+    result = toOsPath(standardPath, &err_info);
+    if (unlikely(result == NULL)) {
+      logError(printf("cmdToOsPath: toOsPath(\"%s\") failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(standardPath), err_info););
       raise_error(err_info);
-      result = NULL;
-    } else {
-      if_pathDelimiterNotSlash({
-        memSizeType position;
-
-        for (position = 0; position < result->size; position++) {
-          if (result->mem[position] == '/') {
-            result->mem[position] = SHELL_PATH_DELIMITER;
-          } /* if */
-        } /* for */
-      });
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    logFunction(printf("cmdToOsPath --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* cmdToOsPath */
 

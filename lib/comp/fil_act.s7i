@@ -40,19 +40,17 @@ const ACTION: FIL_HAS_NEXT         is action "FIL_HAS_NEXT";
 const ACTION: FIL_IN               is action "FIL_IN";
 const ACTION: FIL_INPUT_READY      is action "FIL_INPUT_READY";
 const ACTION: FIL_LINE_READ        is action "FIL_LINE_READ";
-const ACTION: FIL_LIT              is action "FIL_LIT";
+const ACTION: FIL_LITERAL          is action "FIL_LITERAL";
 const ACTION: FIL_LNG              is action "FIL_LNG";
 const ACTION: FIL_NE               is action "FIL_NE";
 const ACTION: FIL_OPEN             is action "FIL_OPEN";
 const ACTION: FIL_OPEN_NULL_DEVICE is action "FIL_OPEN_NULL_DEVICE";
 const ACTION: FIL_OUT              is action "FIL_OUT";
-const ACTION: FIL_PCLOSE           is action "FIL_PCLOSE";
 const ACTION: FIL_PIPE             is action "FIL_PIPE";
 const ACTION: FIL_POPEN            is action "FIL_POPEN";
 const ACTION: FIL_PRINT            is action "FIL_PRINT";
 const ACTION: FIL_SEEK             is action "FIL_SEEK";
 const ACTION: FIL_SEEKABLE         is action "FIL_SEEKABLE";
-const ACTION: FIL_SETBUF           is action "FIL_SETBUF";
 const ACTION: FIL_TELL             is action "FIL_TELL";
 const ACTION: FIL_TERMINATED_READ  is action "FIL_TERMINATED_READ";
 const ACTION: FIL_VALUE            is action "FIL_VALUE";
@@ -63,43 +61,41 @@ const ACTION: FIL_WORD_READ        is action "FIL_WORD_READ";
 const proc: fil_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "bigIntType  filBigLng (fileType);");
-    declareExtern(c_prog, "void        filBigSeek (fileType, const const_bigIntType);");
-    declareExtern(c_prog, "bigIntType  filBigTell (fileType);");
-    declareExtern(c_prog, "void        filClose (fileType);");
+    declareExtern(c_prog, "bigIntType  filBigLng (const const_fileType);");
+    declareExtern(c_prog, "void        filBigSeek (const const_fileType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  filBigTell (const const_fileType);");
+    declareExtern(c_prog, "void        filClose (const fileType);");
     declareExtern(c_prog, "void        filCpy (fileType *const, const fileType);");
-    declareExtern(c_prog, "void        filCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "void        filCpyValue (rtlValueUnion *const, const rtlValueUnion);");
     declareExtern(c_prog, "fileType    filCreate (const fileType);");
-    declareExtern(c_prog, "genericType filCreateGeneric (const genericType);");
+    declareExtern(c_prog, "rtlValueUnion filCreateValue (const rtlValueUnion);");
     declareExtern(c_prog, "void        filDestr (const fileType);");
-    declareExtern(c_prog, "void        filDestrGeneric (const genericType);");
-    declareExtern(c_prog, "boolType    filEof (fileType);");
-    declareExtern(c_prog, "void        filFlush (fileType);");
-    declareExtern(c_prog, "charType    filGetcChkCtrlC (fileType);");
-    declareExtern(c_prog, "striType    filGets (fileType, intType);");
-    declareExtern(c_prog, "striType    filGetsChkCtrlC (fileType, intType);");
-    declareExtern(c_prog, "boolType    filHasNext (fileType);");
-    declareExtern(c_prog, "boolType    filHasNextChkCtrlC (fileType);");
-    declareExtern(c_prog, "boolType    filInputReady (fileType);");
-    declareExtern(c_prog, "striType    filLineRead (fileType, charType *);");
-    declareExtern(c_prog, "striType    filLineReadChkCtrlC (fileType, charType *);");
-    declareExtern(c_prog, "striType    filLit (fileType);");
-    declareExtern(c_prog, "intType     filLng (fileType);");
+    declareExtern(c_prog, "void        filDestrValue (const rtlValueUnion);");
+    declareExtern(c_prog, "boolType    filEof (const const_fileType);");
+    declareExtern(c_prog, "void        filFlush (const const_fileType);");
+    declareExtern(c_prog, "charType    filGetcChkCtrlC (const const_fileType);");
+    declareExtern(c_prog, "striType    filGets (const const_fileType, intType);");
+    declareExtern(c_prog, "striType    filGetsChkCtrlC (const const_fileType, intType);");
+    declareExtern(c_prog, "boolType    filHasNext (const const_fileType);");
+    declareExtern(c_prog, "boolType    filHasNextChkCtrlC (const const_fileType);");
+    declareExtern(c_prog, "boolType    filInputReady (const const_fileType);");
+    declareExtern(c_prog, "striType    filLineRead (const const_fileType, charType *const);");
+    declareExtern(c_prog, "striType    filLineReadChkCtrlC (const const_fileType, charType *const);");
+    declareExtern(c_prog, "striType    filLiteral (const const_fileType);");
+    declareExtern(c_prog, "intType     filLng (const const_fileType);");
     declareExtern(c_prog, "fileType    filOpen (const const_striType, const const_striType);");
     declareExtern(c_prog, "fileType    filOpenNullDevice (void);");
-    declareExtern(c_prog, "void        filPclose (fileType);");
-    declareExtern(c_prog, "void        filPipe (fileType *, fileType *);");
-    declareExtern(c_prog, "fileType    filPopen (const const_striType, const const_striType, const const_striType);");
+    declareExtern(c_prog, "void        filPipe (fileType *const, fileType *const);");
+    declareExtern(c_prog, "fileType    filPopen (const const_striType, const const_arrayType, const const_striType);");
     declareExtern(c_prog, "void        filPrint (const const_striType);");
-    declareExtern(c_prog, "void        filSeek (fileType, intType);");
-    declareExtern(c_prog, "boolType    filSeekable (fileType);");
-    declareExtern(c_prog, "void        filSetbuf (fileType, intType, intType);");
-    declareExtern(c_prog, "intType     filTell (fileType);");
-    declareExtern(c_prog, "striType    filTerminatedRead (fileType, charType, charType *);");
-    declareExtern(c_prog, "void        filTruncate (fileType, intType);");
-    declareExtern(c_prog, "striType    filWordRead (fileType, charType *);");
-    declareExtern(c_prog, "striType    filWordReadChkCtrlC (fileType, charType *);");
-    declareExtern(c_prog, "void        filWrite (fileType, const const_striType);");
+    declareExtern(c_prog, "void        filSeek (const const_fileType, intType);");
+    declareExtern(c_prog, "boolType    filSeekable (const const_fileType);");
+    declareExtern(c_prog, "intType     filTell (const const_fileType);");
+    declareExtern(c_prog, "striType    filTerminatedRead (const const_fileType, charType, charType *const);");
+    declareExtern(c_prog, "void        filTruncate (const const_fileType, intType);");
+    declareExtern(c_prog, "striType    filWordRead (const const_fileType, charType *const);");
+    declareExtern(c_prog, "striType    filWordReadChkCtrlC (const const_fileType, charType *const);");
+    declareExtern(c_prog, "void        filWrite (const const_fileType, const const_striType);");
     declareExtern(c_prog, "fileType    filValue (const const_objRefType);");
   end func;
 
@@ -110,7 +106,7 @@ const proc: process (FIL_BIG_LNG, in reference: function,
   begin
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "filBigLng(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -121,7 +117,7 @@ const proc: process (FIL_BIG_SEEK, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filBigSeek(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -134,7 +130,7 @@ const proc: process (FIL_BIG_TELL, in reference: function,
   begin
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "filBigTell(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -145,7 +141,7 @@ const proc: process (FIL_CLOSE, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filClose(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -204,7 +200,7 @@ const proc: process (FIL_EOF, in reference: function,
 
   begin
     c_expr.expr &:= "filEof(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -214,9 +210,9 @@ const proc: process (FIL_EQ, in reference: function,
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") == (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -235,7 +231,7 @@ const proc: process (FIL_FLUSH, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filFlush(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -245,7 +241,7 @@ const proc: process (FIL_GETC, in reference: function,
 
   begin
     c_expr.expr &:= "filGetc(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -256,7 +252,7 @@ const proc: process (FIL_GETS, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "filGets(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
@@ -268,7 +264,7 @@ const proc: process (FIL_HAS_NEXT, in reference: function,
 
   begin
     c_expr.expr &:= "filHasNext(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -286,7 +282,7 @@ const proc: process (FIL_INPUT_READY, in reference: function,
 
   begin
     c_expr.expr &:= "filInputReady(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -297,20 +293,20 @@ const proc: process (FIL_LINE_READ, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "filLineRead(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
 
-const proc: process (FIL_LIT, in reference: function,
+const proc: process (FIL_LITERAL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr := "filLit(";
-    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr := "filLiteral(";
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -320,7 +316,7 @@ const proc: process (FIL_LNG, in reference: function,
 
   begin
     c_expr.expr &:= "filLng(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -330,9 +326,9 @@ const proc: process (FIL_NE, in reference: function,
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") != (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -364,17 +360,6 @@ const proc: process (FIL_OUT, in reference: function,
 
   begin
     c_expr.expr &:= "&stdoutFileRecord";
-  end func;
-
-
-const proc: process (FIL_PCLOSE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "filPclose(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -423,7 +408,7 @@ const proc: process (FIL_SEEK, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filSeek(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -435,23 +420,8 @@ const proc: process (FIL_SEEKABLE, in reference: function,
 
   begin
     c_expr.expr &:= "filSeekable(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (FIL_SETBUF, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "filSetbuf(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -460,7 +430,7 @@ const proc: process (FIL_TELL, in reference: function,
 
   begin
     c_expr.expr &:= "filTell(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -471,7 +441,7 @@ const proc: process (FIL_TERMINATED_READ, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "filTerminatedRead(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ", &(";
@@ -486,7 +456,7 @@ const proc: process (FIL_TRUNCATE, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filTruncate(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -497,9 +467,10 @@ const proc: process (FIL_VALUE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "filValue(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "filValue(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -509,7 +480,7 @@ const proc: process (FIL_WORD_READ, in reference: function,
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "filWordRead(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
@@ -522,7 +493,7 @@ const proc: process (FIL_WRITE, in reference: function,
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "filWrite(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";

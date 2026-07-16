@@ -32,6 +32,7 @@
 intType pcsCmp (const const_processType process1, const const_processType process2);
 boolType pcsEq (const const_processType process1, const const_processType process2);
 intType pcsExitValue (const const_processType process);
+/*  All callers of pcsFree() must ensure that oldProcess is never NULL. */
 void pcsFree (processType oldProcess);
 intType pcsHashCode (const const_processType aProcess);
 boolType pcsIsAlive (const processType aProcess);

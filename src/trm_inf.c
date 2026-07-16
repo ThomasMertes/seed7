@@ -188,9 +188,9 @@ static char *read_stri_cap (FILE *fix_file, int *term_char)
       from = fgetc(fix_file);
     } /* while */
     if (pos < CAP_VALUE_BUFFER_SIZE) {
-      value[pos] = '\0';
       if (ALLOC_CSTRI(cap_value, pos)) {
-        strcpy(cap_value, value);
+        memcpy(cap_value, value, pos);
+        cap_value[pos] = '\0';
       } /* if */
     } /* if */
     *term_char = from;
@@ -270,14 +270,15 @@ static void fix_capability (void)
     /* It allocates one byte more than file_name_len.          */
     if (file_name_len != 0 &&
         ALLOC_CSTRI(file_name, file_name_len)) {
-      strcpy(file_name, home_dir_path);
-      len = strlen(file_name);
+      memcpy(file_name, home_dir_path, home_dir_len);
+      len = home_dir_len;
       if (len > 0 && file_name[len - 1] != '/') {
         file_name[len] = '/';
         len++;
       } /* if */
-      strcpy(&file_name[len], ".term");
-      strcat(file_name, terminal_name);
+      memcpy(&file_name[len], ".term", 5);
+      len += 5;
+      memcpy(&file_name[len], terminal_name, terminal_name_len + 1);
       if ((fix_file = fopen(file_name, "r")) != NULL) {
         do {
           read_cap_name(fix_file, cap_name, &term_char);
@@ -434,7 +435,7 @@ int outch (int ch)
 
 
 
-void putcontrol (char *control)
+void putcontrol (const char *control)
 
   { /* putcontrol */
     if (control != NULL) {

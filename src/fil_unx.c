@@ -51,6 +51,7 @@
 #endif
 
 #include "common.h"
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
@@ -262,7 +263,7 @@ boolType filInputReady (fileType inFile)
 
 
 
-void filPipe (fileType *inFile, fileType *outFile)
+void filPipe (fileType *const inFile, fileType *const outFile)
 
   {
     fileType pipeInFile = NULL;

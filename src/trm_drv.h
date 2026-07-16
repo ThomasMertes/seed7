@@ -47,4 +47,4 @@ int outch (char ch);
 #else
 int outch (int ch);
 #endif
-void putcontrol (char *);
+void putcontrol (const char *);

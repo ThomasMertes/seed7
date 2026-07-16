@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  gkb_rtl.h     Generic keyboard support for graphics keyboard.   */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  stackutl.h    Functions for stack, sigaltstack and catch_stack. */
+/*  Copyright (C) 1989 - 2011, 2014, 2023, 2026  Thomas Mertes      */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,12 +23,29 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/gkb_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Generic keyboard support for graphics keyboard.        */
+/*  File: seed7/src/stackutl.h                                      */
+/*  Changes: 2014, 2023, 2026  Thomas Mertes                        */
+/*  Content: Functions for stack, sigaltstack and catch_stack.      */
 /*                                                                  */
 /********************************************************************/
 
-striType gkbGets (intType length);
-striType gkbLineRead (charType *const terminationChar);
-striType gkbWordRead (charType *const terminationChar);
+typedef longjmpPosition catch_type;
+
+#ifdef DO_INIT
+catch_type *catch_stack = NULL;
+size_t catch_stack_pos = 0;
+size_t max_catch_stack = 0;
+#else
+extern catch_type *catch_stack;
+extern size_t catch_stack_pos;
+extern size_t max_catch_stack;
+#endif
+
+
+void setupStack (memSizeType stackSize);
+boolType resizeCatchStackOkay (void);
+void resize_catch_stack (void);
+#if CHECK_STACK
+boolType checkStack (boolType inLogMacro);
+memSizeType getMaxStackSize (void);
+#endif

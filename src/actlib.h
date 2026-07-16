@@ -25,15 +25,17 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType ace_cpy     (listType arguments);
-objectType ace_create  (listType arguments);
-objectType ace_gen     (listType arguments);
-objectType ace_eq      (listType arguments);
-objectType ace_iconv1  (listType arguments);
-objectType ace_iconv3  (listType arguments);
-objectType ace_ne      (listType arguments);
-objectType ace_ord     (listType arguments);
-objectType ace_str     (listType arguments);
-objectType ace_value   (listType arguments);
-objectType act_create  (listType arguments);
-objectType act_illegal (listType arguments);
+objectType ace_cmp      (listType arguments);
+objectType ace_cpy      (listType arguments);
+objectType ace_create   (listType arguments);
+objectType ace_eq       (listType arguments);
+objectType ace_gen      (listType arguments);
+objectType ace_hashcode (listType arguments);
+objectType ace_iconv1   (listType arguments);
+objectType ace_iconv3   (listType arguments);
+objectType ace_ne       (listType arguments);
+objectType ace_ord      (listType arguments);
+objectType ace_str      (listType arguments);
+objectType ace_value    (listType arguments);
+objectType act_create   (listType arguments);
+objectType act_illegal  (listType arguments);
