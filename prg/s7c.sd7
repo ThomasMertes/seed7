@@ -67,6 +67,7 @@ var boolean: compileLibrary is FALSE;
 var array string: libraryDirs is 0 times "";
 
 var reference: main_object is NIL;
+var boolean: main_function_called is FALSE;
 var file: c_prog is STD_NULL;
 
 var expr_type: global_init is expr_type.value;
@@ -1502,6 +1503,9 @@ const proc: process_const_func_call (in reference: function,
     var ref_list: formal_params is ref_list.EMPTY;
     var expr_type: c_params is expr_type.value;
   begin
+    if function = main_object then
+      main_function_called := TRUE;
+    end if;
     if function not in prototype_declared and
         function not in function_declared then
       process_prototype_declaration(function, global_c_expr);
@@ -2776,24 +2780,41 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "init_globals();\n";
     main_prolog &:= "{\n";
 
-    if ccConf.USE_WINMAIN then
-      c_expr.expr &:= "typedef struct {\n";
-      c_expr.expr &:= "    int dummy;\n";
-      c_expr.expr &:= "  } HINSTANCE__;\n";
-      c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
-      c_expr.expr &:= "\n";
+    if main_function_called then
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "static void o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= " (void)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_local_vars.temp_decls;
+      appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+      c_expr.expr &:= c_local_vars.temp_assigns;
+      appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+      c_expr.expr &:= c_func_body.expr;
+      appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+      c_expr.expr &:= "}\n\n";
+      appendWithDiagnostic(main_prolog, c_expr);
+      process_const_func_call(current_object, ref_list.value, c_expr);
+    else
+      if ccConf.USE_WINMAIN then
+        c_expr.expr &:= "typedef struct {\n";
+        c_expr.expr &:= "    int dummy;\n";
+        c_expr.expr &:= "  } HINSTANCE__;\n";
+        c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
+        c_expr.expr &:= "\n";
+      end if;
+      appendWithDiagnostic(main_prolog, c_expr);
+      c_expr.expr &:= c_local_vars.temp_decls;
+      appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+      c_expr.expr &:= c_local_vars.temp_assigns;
+      appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+      c_expr.expr &:= c_func_body.expr;
+      appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     end if;
-    appendWithDiagnostic(main_prolog, c_expr);
-    c_expr.expr &:= c_local_vars.temp_decls;
-    appendWithDiagnostic(c_func_body.temp_decls, c_expr);
-    c_expr.expr &:= c_local_vars.temp_assigns;
-    appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
-    c_expr.expr &:= c_func_body.expr;
-    appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
-    appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
-
     if config.profile_function then
       main_epilog &:= "profile[";
       main_epilog &:= str(objNumber(main_object));
