@@ -88,7 +88,7 @@ const proc: process_const_bin_and (in reference: bits1, in integer: bits2,
       c_expr.expr &:= integerLiteral(bits2);
     elsif config.modDividendOptimization then
       incr(count.optimizations);
-      c_expr.expr &:= "(";
+      c_expr.expr &:= "(intType) ((";
       if isActionExpression(bits1, "BIN_BINARY") then
         if bits2 > 0 and (bits2 = integer.last or
             2 ** log2(succ(bits2)) = succ(bits2)) then
@@ -99,13 +99,16 @@ const proc: process_const_bin_and (in reference: bits1, in integer: bits2,
                                     succ(bigInteger(bin64(-1))), c_expr);
         end if;
       else
+        c_expr.expr &:= "(uintType) (";
         optimize_mod_dividend(bits1, c_expr);
+        c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
       if bits2 <> ord(~bin64(0)) then
-        c_expr.expr &:= " & ";
+        c_expr.expr &:= " & (uintType) ";
         c_expr.expr &:= integerLiteral(bits2);
       end if;
+      c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
       process_expr(bits1, c_expr);
@@ -167,13 +170,15 @@ const proc: optimize_bin_binary_of_big_mod (in reference: param1,
   begin
     if divisor > 0_ and log2(divisor) <= 64_ and
         2_ ** ord(log2(divisor)) = divisor then
+      c_expr.expr &:= "(intType) (";
       optimize_big_mod_dividend(dividend, divisor, c_expr);
       if log2(divisor) < 64_ then
-        c_expr.expr &:= "&";
+        c_expr.expr &:= "& (uintType) ";
         c_expr.expr &:= integerLiteral(ord(pred(divisor)));
       end if;
+      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "bigToUInt64(";
+      c_expr.expr &:= "(intType) bigToUInt64(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -194,7 +199,7 @@ const proc: process (BIN_BINARY, in reference: function,
           getActionParameter(params[1], 1),
           getValue(evaluatedParam, bigInteger), c_expr);
     else
-      c_expr.expr &:= "bigToUInt64(";
+      c_expr.expr &:= "(intType) bigToUInt64(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -485,13 +490,13 @@ const proc: optimize_bin_bytes_be_2_uint (in reference: stri,
         c_expr.expr &:= integerLiteral(length);
         c_expr.expr &:= "?(";
         optimize_bin_bytes_be_2_uint(slice_name, length, or_name, result_name, c_expr);
-        c_expr.expr &:= "):uintBytesBe2UInt(&";
+        c_expr.expr &:= "):(intType) uintBytesBe2UInt(&";
         c_expr.expr &:= slice_name;
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "uintBytesBe2UInt(";
+      c_expr.expr &:= "(intType) uintBytesBe2UInt(";
       getAnyParamToExpr(stri, c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -515,7 +520,7 @@ const proc: process (BIN_BYTES_BE_2_UINT, in reference: function,
       optimize_bin_bytes_be_2_uint(params[1], getActionParameter(params[1], 3),
           getActionParameter(params[1], 5), getValue(evaluatedParam, integer), TRUE, c_expr);
     else
-      c_expr.expr &:= "uintBytesBe2UInt(";
+      c_expr.expr &:= "(intType) uintBytesBe2UInt(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -611,13 +616,13 @@ const proc: optimize_bin_bytes_le_2_uint (in reference: stri,
         c_expr.expr &:= integerLiteral(length);
         c_expr.expr &:= "?(";
         optimize_bin_bytes_le_2_uint(slice_name, length, or_name, result_name, c_expr);
-        c_expr.expr &:= "):uintBytesLe2UInt(&";
+        c_expr.expr &:= "):(intType) uintBytesLe2UInt(&";
         c_expr.expr &:= slice_name;
         c_expr.expr &:= ")";
       end if;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "uintBytesLe2UInt(";
+      c_expr.expr &:= "(intType) uintBytesLe2UInt(";
       getAnyParamToExpr(stri, c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -641,7 +646,7 @@ const proc: process (BIN_BYTES_LE_2_UINT, in reference: function,
       optimize_bin_bytes_le_2_uint(params[1], getActionParameter(params[1], 3),
           getActionParameter(params[1], 5), getValue(evaluatedParam, integer), TRUE, c_expr);
     else
-      c_expr.expr &:= "uintBytesLe2UInt(";
+      c_expr.expr &:= "(intType) uintBytesLe2UInt(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")";
     end if;
@@ -708,7 +713,7 @@ const proc: process (BIN_LOWEST_SET_BIT, in reference: function,
     var string: numberName is "";
   begin
     c_expr.expr &:= "(intType)(";
-    numberName := getParameterAsVariable("uintType", "num1_", params[1], c_expr);
+    numberName := getParameterAsVariable("intType", "num1_", params[1], c_expr);
     c_expr.expr &:= numberName;
     c_expr.expr &:= " == 0 ? -1 : uint64LeastSignificantBit((uintType)(";
     c_expr.expr &:= numberName;
