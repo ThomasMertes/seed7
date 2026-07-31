@@ -2167,6 +2167,10 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             } else {
               columnValue = cstri8_buf_to_stri(utf8_stri, length, &err_info);
               if (unlikely(columnValue == NULL)) {
+                logError(printf("sqlColumnStri: cstri8_buf_to_stri(\"%s\", "
+                                FMT_U_MEM ") failed\n",
+                                cstriBufAsUnquotedCLiteral(utf8_stri, length),
+                                length););
                 raise_error(err_info);
               } /* if */
             } /* if */
@@ -2222,6 +2226,11 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                     columnValue = NULL;
                   } else {
                     columnValue = cstri8_buf_to_stri(utf8_stri, length, &err_info);
+                    logErrorIfTrue(columnValue == NULL,
+                                   printf("sqlColumnStri: cstri8_buf_to_stri(\"%s\", "
+                                          FMT_U_MEM ") failed\n",
+                                          cstriBufAsUnquotedCLiteral(utf8_stri, length),
+                                          length););
                     FREE_BYTES(utf8_stri, length);
                   } /* if */
                 } /* if */
