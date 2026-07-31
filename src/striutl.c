@@ -279,10 +279,9 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 
 
 
-cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri)
+cstriType cstriBufAsUnquotedCLiteral (const const_cstriType cstri, memSizeType originalSize)
 
   {
-    memSizeType originalSize;
     memSizeType size;
     ucharType ch;
     memSizeType idx;
@@ -291,9 +290,11 @@ cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri)
     static char buffer[AND_SO_ON_LIMIT * MAXIMUM_CSTRI_ESCAPE_WIDTH +
                        AND_SO_ON_LENGTH];
 
-  /* cstriAsUnquotedCLiteral */
+  /* cstriBufAsUnquotedCLiteral */
     if (cstri != NULL) {
-      originalSize = strlen(cstri);
+      if (originalSize == (memSizeType) -1) {
+        originalSize = strlen(cstri);
+      } /* if */
       size = originalSize;
       if (size > AND_SO_ON_LIMIT) {
         size = AND_SO_ON_LIMIT;
@@ -328,7 +329,7 @@ cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri)
     } /* if */
     buffer[pos] = '\0';
     return buffer;
-  } /* cstriAsUnquotedCLiteral */
+  } /* cstriBufAsUnquotedCLiteral */
 
 
 
