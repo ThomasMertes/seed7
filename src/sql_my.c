@@ -1823,7 +1823,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                   columnData->buffer = columnValue->mem;
                   columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
-                                                       preparedStmt->result_array,
+                                                       columnData,
                                                        (unsigned int) column - 1,
                                                        0) != 0)) {
                     setDbErrorMsg("sqlColumnBStri", "mysql_stmt_fetch_column",
@@ -2189,7 +2189,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                   columnData->buffer = columnValue->mem;
                   columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
-                                                       preparedStmt->result_array,
+                                                       columnData,
                                                        (unsigned int) column - 1,
                                                        0) != 0)) {
                     setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
@@ -2213,7 +2213,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                   columnData->buffer = utf8_stri;
                   columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
-                                                       preparedStmt->result_array,
+                                                       columnData,
                                                        (unsigned int) column - 1,
                                                        0) != 0)) {
                     setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
