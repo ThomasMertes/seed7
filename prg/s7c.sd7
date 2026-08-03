@@ -1368,12 +1368,10 @@ const proc: checkParameterAliasing (in ref_list: formalParams,
     var reference: actualParam is NIL;
     var bitset: alreadyComplained is {};
   begin
-    for checkedParamNumber range 1 to length(formalParams) do
-      formalParam := formalParams[checkedParamNumber];
+    for formalParam key checkedParamNumber range formalParams do
       if isInOutParam(formalParam) then
         checkedActualInOutParam := actualParams[checkedParamNumber];
-        for paramNumber range 1 to length(actualParams) do
-          actualParam := actualParams[paramNumber];
+        for actualParam key paramNumber range actualParams do
           if paramNumber <> checkedParamNumber and
               actualParam = checkedActualInOutParam then
             if isInOutParam(formalParams[paramNumber]) then
@@ -1405,9 +1403,8 @@ const proc: call_params (in ref_list: formal_params,
     var integer: temp_num is 0;
   begin
     checkParameterAliasing(formal_params, actual_params, c_expr);
-    for number range 1 to length(actual_params) do
+    for actual_param key number range actual_params do
       formal_param := formal_params[number];
-      actual_param := actual_params[number];
       paramCategory := category(formal_param);
       if paramCategory <> SYMBOLOBJECT then
         if paramCategory = TYPEOBJECT then
@@ -3912,8 +3909,7 @@ const proc: process_dynamic_parameter_list (in reference: function,
     var integer: number is 0;
   begin
     formal_params := formalParams(function);
-    for number range 1 to length(formal_params) do
-      formal_param := formal_params[number];
+    for formal_param key number range formal_params do
       actual_param := actual_params[number];
       formalCategory := category(formal_param);
       paramCategory := category(actual_param);
@@ -5321,8 +5317,7 @@ const proc: replaceLocalsFromOutside (in reference: local_function,
     var reference: formalRefParam is NIL;
   begin
     params := getValue(current_expression, ref_list);
-    for paramNum range 1 to length(params) do
-      aParam := params[paramNum];
+    for aParam key paramNum range params do
       paramCategory := category(aParam);
       case paramCategory of
         when {MATCHOBJECT, CALLOBJECT}:
@@ -5420,8 +5415,7 @@ const proc: adjustParamsToAdd (in reference: local_function,
           incr(paramNum);
         end if;
       end while;
-      for paramNum range 1 to length(additional_act_params) do
-        actParam := additional_act_params[paramNum];
+      for actParam key paramNum range additional_act_params do
         formParam := additional_form_params[paramNum];
         if actParam not in params_added[local_function] then
           params_added[local_function] @:= [actParam] formParam;
