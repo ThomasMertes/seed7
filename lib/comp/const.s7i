@@ -91,9 +91,8 @@ const func boolean: isConstantCall (in reference: current_expression,
         # write(" {isPureFunction(" <& str(function) <& ")}");
         isConstantCall := TRUE;
         formal_params := formalParams(function);
-        for number range 1 to length(actual_params) do
+        for actual_param key number range actual_params do
           formal_param := formal_params[number];
-          actual_param := actual_params[number];
           paramCategory := category(formal_param);
           if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
             if not isConstant(actual_param, local_objects) then
@@ -385,9 +384,8 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
             str(getValue(function, ACTION)) in specialActions then
           formal_params := formalParams(function);
           new_actual_params &:= make_list(function);
-          for number range 1 to length(actual_params) do
+          for actual_param key number range actual_params do
             formal_param := formal_params[number];
-            actual_param := actual_params[number];
             paramCategory := category(formal_param);
             if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT and
                 not isConstant(actual_param) and actual_param in inlineParam and
