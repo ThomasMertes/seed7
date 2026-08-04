@@ -67,6 +67,7 @@ var boolean: compileLibrary is FALSE;
 var array string: libraryDirs is 0 times "";
 
 var reference: main_object is NIL;
+var boolean: main_function_called is FALSE;
 var file: c_prog is STD_NULL;
 
 var expr_type: global_init is expr_type.value;
@@ -1367,12 +1368,10 @@ const proc: checkParameterAliasing (in ref_list: formalParams,
     var reference: actualParam is NIL;
     var bitset: alreadyComplained is {};
   begin
-    for checkedParamNumber range 1 to length(formalParams) do
-      formalParam := formalParams[checkedParamNumber];
+    for formalParam key checkedParamNumber range formalParams do
       if isInOutParam(formalParam) then
         checkedActualInOutParam := actualParams[checkedParamNumber];
-        for paramNumber range 1 to length(actualParams) do
-          actualParam := actualParams[paramNumber];
+        for actualParam key paramNumber range actualParams do
           if paramNumber <> checkedParamNumber and
               actualParam = checkedActualInOutParam then
             if isInOutParam(formalParams[paramNumber]) then
@@ -1404,9 +1403,8 @@ const proc: call_params (in ref_list: formal_params,
     var integer: temp_num is 0;
   begin
     checkParameterAliasing(formal_params, actual_params, c_expr);
-    for number range 1 to length(actual_params) do
+    for actual_param key number range actual_params do
       formal_param := formal_params[number];
-      actual_param := actual_params[number];
       paramCategory := category(formal_param);
       if paramCategory <> SYMBOLOBJECT then
         if paramCategory = TYPEOBJECT then
@@ -1502,6 +1500,9 @@ const proc: process_const_func_call (in reference: function,
     var ref_list: formal_params is ref_list.EMPTY;
     var expr_type: c_params is expr_type.value;
   begin
+    if function = main_object then
+      main_function_called := TRUE;
+    end if;
     if function not in prototype_declared and
         function not in function_declared then
       process_prototype_declaration(function, global_c_expr);
@@ -2776,24 +2777,41 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "init_globals();\n";
     main_prolog &:= "{\n";
 
-    if ccConf.USE_WINMAIN then
-      c_expr.expr &:= "typedef struct {\n";
-      c_expr.expr &:= "    int dummy;\n";
-      c_expr.expr &:= "  } HINSTANCE__;\n";
-      c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
-      c_expr.expr &:= "\n";
+    if main_function_called then
+      c_expr.expr &:= diagnosticLine(current_object);
+      c_expr.expr &:= "static void o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= " (void)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_local_vars.temp_decls;
+      appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+      c_expr.expr &:= c_local_vars.temp_assigns;
+      appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+      c_expr.expr &:= c_func_body.expr;
+      appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+      c_expr.expr &:= "}\n\n";
+      appendWithDiagnostic(main_prolog, c_expr);
+      process_const_func_call(current_object, ref_list.value, c_expr);
+    else
+      if ccConf.USE_WINMAIN then
+        c_expr.expr &:= "typedef struct {\n";
+        c_expr.expr &:= "    int dummy;\n";
+        c_expr.expr &:= "  } HINSTANCE__;\n";
+        c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
+        c_expr.expr &:= "\n";
+      end if;
+      appendWithDiagnostic(main_prolog, c_expr);
+      c_expr.expr &:= c_local_vars.temp_decls;
+      appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+      c_expr.expr &:= c_local_vars.temp_assigns;
+      appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+      c_expr.expr &:= c_func_body.expr;
+      appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     end if;
-    appendWithDiagnostic(main_prolog, c_expr);
-    c_expr.expr &:= c_local_vars.temp_decls;
-    appendWithDiagnostic(c_func_body.temp_decls, c_expr);
-    c_expr.expr &:= c_local_vars.temp_assigns;
-    appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
-    c_expr.expr &:= c_func_body.expr;
-    appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
-    appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
-
     if config.profile_function then
       main_epilog &:= "profile[";
       main_epilog &:= str(objNumber(main_object));
@@ -3891,8 +3909,7 @@ const proc: process_dynamic_parameter_list (in reference: function,
     var integer: number is 0;
   begin
     formal_params := formalParams(function);
-    for number range 1 to length(formal_params) do
-      formal_param := formal_params[number];
+    for formal_param key number range formal_params do
       actual_param := actual_params[number];
       formalCategory := category(formal_param);
       paramCategory := category(actual_param);
@@ -5300,8 +5317,7 @@ const proc: replaceLocalsFromOutside (in reference: local_function,
     var reference: formalRefParam is NIL;
   begin
     params := getValue(current_expression, ref_list);
-    for paramNum range 1 to length(params) do
-      aParam := params[paramNum];
+    for aParam key paramNum range params do
       paramCategory := category(aParam);
       case paramCategory of
         when {MATCHOBJECT, CALLOBJECT}:
@@ -5399,8 +5415,7 @@ const proc: adjustParamsToAdd (in reference: local_function,
           incr(paramNum);
         end if;
       end while;
-      for paramNum range 1 to length(additional_act_params) do
-        actParam := additional_act_params[paramNum];
+      for actParam key paramNum range additional_act_params do
         formParam := additional_form_params[paramNum];
         if actParam not in params_added[local_function] then
           params_added[local_function] @:= [actParam] formParam;

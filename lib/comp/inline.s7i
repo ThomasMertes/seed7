@@ -225,10 +225,11 @@ const proc: push_inline_func_params (in ref_list: formal_params,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
+    var reference: formal_param is NIL;
     var integer: number is 0;
   begin
-    for number range 1 to length(formal_params) do
-      push_inline_func_param(formal_params[number], actual_params[number], c_expr);
+    for formal_param key number range formal_params do
+      push_inline_func_param(formal_param, actual_params[number], c_expr);
     end for;
   end func;
 
@@ -264,10 +265,10 @@ const proc: pop_inline_func_params (in ref_list: formal_params,
     inout string: expr) is func
 
   local
-    var integer: number is 0;
+    var reference: formal_param is NIL;
   begin
-    for number range 1 to length(formal_params) do
-      pop_inline_func_param(formal_params[number], expr);
+    for formal_param range formal_params do
+      pop_inline_func_param(formal_param, expr);
     end for;
   end func;
 
@@ -488,10 +489,11 @@ const proc: push_inline_proc_params (in ref_list: formal_params,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
+    var reference: formal_param is NIL;
     var integer: number is 0;
   begin
-    for number range 1 to length(formal_params) do
-      push_inline_proc_param(formal_params[number], actual_params[number], c_expr);
+    for formal_param key number range formal_params do
+      push_inline_proc_param(formal_param, actual_params[number], c_expr);
     end for;
   end func;
 
@@ -527,10 +529,10 @@ const proc: pop_inline_proc_params (in ref_list: formal_params,
     inout expr_type: c_expr) is func
 
   local
-    var integer: number is 0;
+    var reference: formal_param is NIL;
   begin
-    for number range 1 to length(formal_params) do
-      pop_inline_proc_param(formal_params[number], c_expr);
+    for formal_param range formal_params do
+      pop_inline_proc_param(formal_param, c_expr);
     end for;
   end func;
 

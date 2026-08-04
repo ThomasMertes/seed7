@@ -21,6 +21,7 @@ chkbst.sd7   Checks byte string operations
 chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.
 chkdb.sd7    Checks the database interface.
+chkdecl.sd7  Check declarations of local functions.
 chkenum.sd7  Checks enumeration literals and operations
 chkerr.sd7   Checks for parsing errors
 chkexc.sd7   Checks exceptions
@@ -138,10 +139,12 @@ archive.s7i  Archive library
 archive_base.s7i Common functions for file archives.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
+asn1oid.s7i  Definitions of object identifiers.
 basearray.s7i Support for arrays with a fixed minimum index.
 bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
+bin16.s7i    16-bit binary value support library
 bin32.s7i    32-bit binary value support library
 bin64.s7i    64-bit binary value support library
 bitdata.s7i  Read and write bits to and from strings
@@ -219,7 +222,9 @@ hmac.s7i     Hash-based message authentication code functions.
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
 htmldom.s7i  HTML dom parser
-http_response.s7i Support for HTTP responses.
+http_request.s7i Support to get and send data with HTTP
+http_srv_resp.s7i Support for HTTP server responses.
+https_request.s7i Support to get and send data with HTTPS
 httpserv.s7i Support for HTTP server and HTTP requests.
 huffman.s7i  Support for Huffman coding.
 ico.s7i      Support for the ICO image file format.
@@ -255,6 +260,7 @@ multiscr.s7i Demonstration for several file filters
 null_file.s7i Base implementation type for all files
 osfiles.s7i  Functions to handle operating system files
 pbm.s7i      Support for PBM (portable bitmap) image format
+pcx.s7i      Support for the PCX image file format.
 pem.s7i      Support for the PEM cryptographic file format.
 pgm.s7i      Support for PGM (portable graymap) image format
 pic16.s7i    Pictures in the size 16 x 16
@@ -284,6 +290,7 @@ seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type
 shell.s7i    Support for shell commands
 showtls.s7i  Show TLS messages. Use it to debug tls.s7i.
+signature.s7i Support for RSA signatures.
 smtp.s7i     Support for SMTP (simple mail transfer protocol)
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets

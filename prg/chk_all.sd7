@@ -246,6 +246,7 @@ const string: chkarr_output is "\n\
   \Sorting arrays works correctly.\n";
 
 const string: chkprc_output is "\n\
+  \Assertions work correctly.\n\
   \If statements work correctly.\n\
   \While statements work correctly.\n\
   \Repeat statements work correctly.\n\

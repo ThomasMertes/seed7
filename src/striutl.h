@@ -203,7 +203,11 @@ extern const os_charType emulated_root[];
 
 cstriType striAsUnquotedCStri (const const_striType stri);
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
-cstriType cstriAsUnquotedCLiteral (const const_cstriType cstri);
+cstriType cstriBufAsUnquotedCLiteral (const const_cstriType cstri,
+                                      memSizeType originalSize);
+
+#define cstriAsUnquotedCLiteral(cstri) cstriBufAsUnquotedCLiteral(cstri, (memSizeType) -1)
+
 #if !STRINGIFY_WORKS
 cstriType stringify (intType number);
 #endif

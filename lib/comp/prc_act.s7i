@@ -1412,11 +1412,12 @@ const proc: noop_params (in ref_list: formal_params,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
+    var reference: formal_param is NIL;
     var integer: number is 0;
   begin
-    for number range 1 to length(formal_params) do
+    for formal_param key number range formal_params do
       if number <= length(actual_params) then
-        do_noop_param(formal_params[number], actual_params[number], c_expr);
+        do_noop_param(formal_param, actual_params[number], c_expr);
       end if;
     end for;
   end func;

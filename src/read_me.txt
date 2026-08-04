@@ -509,15 +509,34 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
 
 COMPILING UNDER DOS WITH DJGPP
 
-    You need gcc and make from DJGPP. Make sure that the search
-  PATH leads to gcc and make from DJGPP. Additionally the
-  environment variable DJGPP must be set to a path leading to
-  DJGPP.ENV. Note that make from DJGPP has some limitations:
+    You need gcc and the make tool from DJGPP. This can be done
+  by creating the directory DJGPP in the home directory and
+  extracting the contents of gcc142b.zip, djdev205.zip,
+  bnu2351b.zip, mak44b.zip and csdpmi7b.zip (or newer versions
+  of them) into DJGPP.
 
-    - It does not understand the option -f. So copying mk_djgpp.mak
-      to makefile is really mandatory.
-    - It does not support redirecting command output. So you will
-      see all errors and warnings created by test programs.
+  Make sure that the search PATH leads to gcc and the make tool
+  from DJGPP. Additionally the environment variable DJGPP must be
+  set to a path leading to DJGPP.ENV. For DOSBOX the commands are:
+
+    MOUNT c <direcory of DOSBOX>
+    MOUNT d <home directory with DJGPP>
+    set PATH=D:\DJGPP\BIN;C:\BIN;%PATH%
+    set DJGPP=D:\DJGPP\DJGPP.ENV
+
+  For DOSEMU the commands are:
+
+    lredir f: linux\fs<home directory with DJGPP and DOSEMU>
+    set PATH=F:\DJGPP\BIN;F:\DOSEMU\BIN;%PATH%
+    set DJGPP=F:\DJGPP\DJGPP.ENV
+
+  The make tool from DJGPP might have some limitations:
+
+    - It might not understand the option -f. In this case copying
+      mk_djgpp.mak to makefile is really mandatory.
+    - Redirecting command output might not be supported. In this
+      case you will see all errors and warnings created by test
+      programs.
 
   Use the command line, go to the 'seed7\src' directory and type:
 
@@ -525,28 +544,100 @@ COMPILING UNDER DOS WITH DJGPP
     make depend
     make
 
+  If the ar tool from DJGPP hangs you should update it.
   After the compilation the interpreter executable can be found
   in the 'bin' directory and it is also copied to prg/s7.exe.
   If your get errors you can try mk_djgp2.mak instead.
 
-  DOS usually supports only files with 8.3 file names (8 Ascii
-  character name + dot + 3 Ascii character extension). The C
-  source and header files of Seed7 all use this convention.
-  Seed7 library files use longer file names. The DOS version of
-  Seed7 maps long file names like reference.s7i to REFERE~1.S7I.
-  Dosbox uses the same mapping so it should just work. Dosemu
-  uses a different mapping, so the libraries are not found.
-  In that case I suggest to copy files with long names in the
-  'lib' directory:
+  Older versions of DOS support only files with 8.3 file names
+  (8 Ascii character name + dot + 3 Ascii character extension).
+  All C source and header files of Seed7 follow this convention.
+  Seed7 library files use longer file names. Starting with
+  DOS version 7.10 there is Long File Name (LFN) support. The
+  program chkccomp.c (invoked by make depend) checks if LFN
+  support is present. If DOS has LFN support Seed7 has no
+  problem finding library files.
 
-    copy reference.s7i REFERE~1.S7I
-    copy hashsetof.s7i HASHSE~1.S7I
-    copy environment.s7i ENVIRO~1.S7I
-    copy null_file.s7i NULL_F~1.S7I
+  Without LFN support Seed7 maps long file names like
+  reference.s7i to REFERE~1.S7I. Dosbox uses the same mapping
+  so it should just work. Dosemu uses a different mapping, so
+  without LFN support the libraries are not found. In that case
+  I suggest to copy files with long names in the 'lib' directory:
+
+    copy archive_base.s7i  ARCHIV~1.S7I
+    copy basearray.s7i     BASEAR~1.S7I
+    copy bitmapfont.s7i    BITMAP~1.S7I
+    copy cgidialog.s7i     CGIDIA~1.S7I
+    copy clib_file.s7i     CLIB_F~1.S7I
+    copy enable_io.s7i     ENABLE~1.S7I
+    copy enumeration.s7i   ENUMER~1.S7I
+    copy environment.s7i   ENVIRO~1.S7I
     copy external_file.s7i EXTERN~1.S7I
-    copy clib_file.s7i CLIB_F~1.S7I
-    copy enable_io.s7i ENABLE~1.S7i
-    copy graph_file.s7i GRAPH_~1.S7I
+    copy graph_file.s7i    GRAPH_~1.S7I
+    copy hashsetof.s7i     HASHSE~1.S7I
+    copy http_request.s7i  HTTP_R~1.S7I
+    copy http_srv_resp.s7i HTTP_S~1.S7I
+    copy https_request.s7i HTTPS_~1.S7I
+    copy json_serde.s7i    JSON_S~1.S7I
+    copy null_file.s7i     NULL_F~1.S7I
+    copy msgdigest.s7i     MSGDIG~1.S7I
+    copy pixmap_file.s7i   PIXMAP~1.S7I
+    copy propertyfile.s7i  PROPER~1.S7I
+    copy reference.s7i     REFERE~1.S7I
+    copy signature.s7i     SIGNAT~1.S7I
+    copy struct_elem.s7i   STRUCT~1.S7I
+
+  As an alternative you can create symbolic links in the
+  'lib' directory in Linux/BSD/Unix:
+
+    ln -s archive_base.s7i  ARCHIV~1.S7I
+    ln -s basearray.s7i     BASEAR~1.S7I
+    ln -s bitmapfont.s7i    BITMAP~1.S7I
+    ln -s cgidialog.s7i     CGIDIA~1.S7I
+    ln -s clib_file.s7i     CLIB_F~1.S7I
+    ln -s enable_io.s7i     ENABLE~1.S7I
+    ln -s enumeration.s7i   ENUMER~1.S7I
+    ln -s environment.s7i   ENVIRO~1.S7I
+    ln -s external_file.s7i EXTERN~1.S7I
+    ln -s graph_file.s7i    GRAPH_~1.S7I
+    ln -s hashsetof.s7i     HASHSE~1.S7I
+    ln -s http_request.s7i  HTTP_R~1.S7I
+    ln -s http_srv_resp.s7i HTTP_S~1.S7I
+    ln -s https_request.s7i HTTPS_~1.S7I
+    ln -s json_serde.s7i    JSON_S~1.S7I
+    ln -s null_file.s7i     NULL_F~1.S7I
+    ln -s msgdigest.s7i     MSGDIG~1.S7I
+    ln -s pixmap_file.s7i   PIXMAP~1.S7I
+    ln -s propertyfile.s7i  PROPER~1.S7I
+    ln -s reference.s7i     REFERE~1.S7I
+    ln -s signature.s7i     SIGNAT~1.S7I
+    ln -s struct_elem.s7i   STRUCT~1.S7I
+
+  To avoid wrong mappings it might be necessary to remove
+  files which end with .s7i~ in Linux/BSD/Unix:
+
+    rm archive_base.s7i~
+    rm basearray.s7i~
+    rm bitmapfont.s7i~
+    rm cgidialog.s7i~
+    rm clib_file.s7i~
+    rm enable_io.s7i~
+    rm enumeration.s7i~
+    rm environment.s7i~
+    rm external_file.s7i~
+    rm graph_file.s7i~
+    rm hashsetof.s7i~
+    rm http_request.s7i~
+    rm http_srv_resp.s7i~
+    rm https_request.s7i~
+    rm json_serde.s7i~
+    rm null_file.s7i~
+    rm msgdigest.s7i~
+    rm pixmap_file.s7i~
+    rm propertyfile.s7i~
+    rm reference.s7i~
+    rm signature.s7i~
+    rm struct_elem.s7i~
 
   Note that the DOS version of Seed7 currently does not support
   graphics, sockets, processes and databases.
@@ -1061,6 +1152,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbool ........... okay
     chkenum ........... okay
     chktime ........... okay
+    chkdecl ........... okay
     chkscan ........... okay
     chkjson ........... okay
     chktoml ........... okay
@@ -1697,7 +1789,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
       static linking (e.g.: "-static").
 
   DEFAULT_STACK_SIZE:
-      Default stack size for a compiled executable.
+      Default stack size for the interpreter and for compiled executables.
       This value is used, if the Seed7 compiler is invoked without -S.
       If LINKER_OPT_STACK_SIZE exists DEFAULT_STACK_SIZE is used
       as argument for the stack size. Additionally DEFAULT_STACK_SIZE
