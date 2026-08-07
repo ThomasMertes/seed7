@@ -2977,7 +2977,39 @@ const func boolean: checkDeclFailed is func
                     \const func string: (in string: stri) & (in integer: number) is action \"STR_CAT\";",
                     DECL_FAILED, 2, 0,
                     "Declaration of \"(ref string: stri) & (val integer: number)\" failed",
-                    "const func string: (in string: stri) & (in integer: number) is action \"STR_CAT\";") then
+                    "const func string: (in string: stri) & (in integer: number) is action \"STR_CAT\";") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: test (in integer: number) is func\n\
+                    \  result\n\
+                    \    var integer: sum is number;\n\
+                    \  begin\n\
+                    \    noop;\n\
+                    \  end func;\n",
+                    DECL_FAILED, 4, 0,
+                    "Declaration of \"sum\" failed",
+                    "    var integer: sum is number;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const func integer: test (in integer: number) is func\n\
+                    \  result\n\
+                    \    var integer: sum is number;\n\
+                    \  local\n\
+                    \    var integer: difference is 0;\n\
+                    \  begin\n\
+                    \    noop;\n\
+                    \  end func;\n",
+                    DECL_FAILED, 4, 0,
+                    "Declaration of \"sum\" failed",
+                    "    var integer: sum is number;") and
+        checkError1("$ include \"seed7_05.s7i\";\n\
+                    \const proc: test (in integer: number) is func\n\
+                    \  local\n\
+                    \    var integer: sum is number;\n\
+                    \  begin\n\
+                    \    noop;\n\
+                    \  end func;\n",
+                    DECL_FAILED, 4, 0,
+                    "Declaration of \"sum\" failed",
+                    "    var integer: sum is number;") then
       okay := TRUE;
     else
       writeln(" *** DECL_FAILED not reported correctly.");
