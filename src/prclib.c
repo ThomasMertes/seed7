@@ -1625,7 +1625,23 @@ objectType prc_res_begin (listType arguments)
         shrink_stack();
       } /* if */
       if (err_info == OKAY_NO_ERROR && result_var.object != NULL) {
-        get_result_var(&result_var, result_type, result_init, &err_info);
+        if (get_result_var(&result_var, result_type, result_init, &err_info)) {
+          arg_8(arguments) = NULL;
+        } /* if */
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          if (err_info != CREATE_ERROR) {
+            if (fail_file_number != 0) {
+              err_at_file_in_line(EXCEPTION_RAISED,
+                                  prog->sys_var[err_info],
+                                  fail_file_number, fail_line_number);
+            } else {
+              err_expr_obj(EXCEPTION_RAISED, result_var_name,
+                           prog->sys_var[err_info]);
+            } /* if */
+          } /* if */
+          err_expr_obj(DECL_FAILED, result_var_name, result_var.object);
+          err_info = OKAY_NO_ERROR;
+        } /* if */
         /* printf("result_var.object ");
         trace1(result_var.object);
         printf("\n");
@@ -1723,7 +1739,23 @@ objectType prc_res_local (listType arguments)
         shrink_stack();
       } /* if */
       if (err_info == OKAY_NO_ERROR && result_var.object != NULL) {
-        get_result_var(&result_var, result_type, result_init, &err_info);
+        if (get_result_var(&result_var, result_type, result_init, &err_info)) {
+          arg_8(arguments) = NULL;
+        } /* if */
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          if (err_info != CREATE_ERROR) {
+            if (fail_file_number != 0) {
+              err_at_file_in_line(EXCEPTION_RAISED,
+                                  prog->sys_var[err_info],
+                                  fail_file_number, fail_line_number);
+            } else {
+              err_expr_obj(EXCEPTION_RAISED, result_var_name,
+                           prog->sys_var[err_info]);
+            } /* if */
+          } /* if */
+          err_expr_obj(DECL_FAILED, result_var_name, result_var.object);
+          err_info = OKAY_NO_ERROR;
+        } /* if */
         local_object_insert_place = get_local_object_insert_place();
         decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
         if (decl_res != SYS_EMPTY_OBJECT) {

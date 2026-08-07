@@ -1123,7 +1123,9 @@ objectType create_return_object (const_locObjType local, objectType init_value,
         *err_info = CREATE_ERROR;
       } /* if */
     } /* if */
-    logFunction(printf("create_return_object -->\n"););
+    logFunction(printf("create_return_object --> ");
+                trace1(new_object);
+                printf(" (err_info=%d)\n", *err_info););
     return new_object;
   } /* create_return_object */
 

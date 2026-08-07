@@ -32,7 +32,7 @@ void free_block (blockType block);
 blockType new_block (locListType block_params, const_locObjType block_result,
     locListType block_local_vars, listType block_local_consts,
     objectType block_body);
-void get_result_var (locObjType result_var, typeType result_type,
+boolType get_result_var (locObjType result_var, typeType result_type,
     objectType result_init, errInfoType *err_info);
 void get_return_var (locObjType return_var, typeType return_type,
     errInfoType *err_info);
