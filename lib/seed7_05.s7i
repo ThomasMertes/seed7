@@ -144,30 +144,12 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
                            begin
                              (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
-
-    const func func aType: func
-                           result
-                             var (attr aType) : (ref expr: name) is (ref func aType: initExpression)
-                           local
-                             (ref proc: localDecls)
-                           begin
-                             (ref expr: functionBody)
-                           end func                                   is action "PRC_RES_LOCAL";
-
     const func func aType: func
                            result
                              var (attr aType) : (ref expr: name) is (ref aType: initValue)
                            begin
                              (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
-
-    const func func aType: func
-                           result
-                             var (attr aType) : (ref expr: name) is (ref func aType: initExpression)
-                           begin
-                             (ref expr: functionBody)
-                           end func                                   is action "PRC_RES_BEGIN";
-
     const func func aType: return (ref aType: resultValue)            is action "PRC_RETURN";
     const func func aType: return (ref func aType: resultExpression)  is action "PRC_RETURN";
     const func varfunc aType: return var (inout aType: resultValue)               is action "PRC_RETURN_VAR";
@@ -183,12 +165,6 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const func func func aType: func
                                 result
                                   var (attr func aType) : (ref expr: name) is (ref func aType: initExpression)
-                                begin
-                                  (ref expr: functionBody)
-                                end func                              is action "PRC_RES_BEGIN";
-    const func func func aType: func
-                                result
-                                  var (attr func aType) : (ref expr: name) is (ref func func aType: initExpression)
                                 begin
                                   (ref expr: functionBody)
                                 end func                              is action "PRC_RES_BEGIN";
@@ -243,30 +219,12 @@ const func type: subtype (in type: baseType) is func
                            begin
                              (ref expr: functionBody)
                            end func                                   is action "PRC_RES_LOCAL";
-
-    const func func aType: func
-                           result
-                             var (attr aType) : (ref expr: name) is (ref func baseType: initExpression)
-                           local
-                             (ref proc: localDecls)
-                           begin
-                             (ref expr: functionBody)
-                           end func                                   is action "PRC_RES_LOCAL";
-
     const func func aType: func
                            result
                              var (attr aType) : (ref expr: name) is (ref baseType: initValue)
                            begin
                              (ref expr: functionBody)
                            end func                                   is action "PRC_RES_BEGIN";
-
-    const func func aType: func
-                           result
-                             var (attr aType) : (ref expr: name) is (ref func baseType: initExpression)
-                           begin
-                             (ref expr: functionBody)
-                           end func                                   is action "PRC_RES_BEGIN";
-
     const func func aType: (attr aType) return (ref baseType: resultValue)                     is action "PRC_RETURN2";
     const func func aType: (attr aType) return (ref func baseType: resultExpression)           is action "PRC_RETURN2";
     const func varfunc aType: (attr aType) return var (inout baseType: resultValue)            is action "PRC_RETURN_VAR2";
