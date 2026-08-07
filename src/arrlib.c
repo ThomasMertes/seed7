@@ -714,6 +714,13 @@ objectType arr_create (listType arguments)
   /* arr_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
+    logFunction(printf("arr_create(" FMT_U_MEM " ",
+                       (memSizeType) dest);
+                trace1(dest);
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) source);
+                trace1(source);
+                printf(")\n"););
     isit_array(source);
     arr_source = take_array(source);
     SET_CATEGORY_OF_OBJ(dest, ARRAYOBJECT);
@@ -743,6 +750,13 @@ objectType arr_create (listType arguments)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("arr_create(" FMT_U_MEM " ",
+                       (memSizeType) dest);
+                trace1(dest);
+                printf(", " FMT_U_MEM " ",
+                       (memSizeType) source);
+                trace1(source);
+                printf(") -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* arr_create */
 
