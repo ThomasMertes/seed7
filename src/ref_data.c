@@ -952,6 +952,9 @@ objectType refResini (const const_objectType funcRef)
     objectType result;
 
   /* refResini */
+    logFunction(printf("refResini(");
+                trace1(funcRef);
+                printf(")\n"););
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT ||
                  (block = take_block(funcRef)) == NULL)) {
@@ -963,6 +966,9 @@ objectType refResini (const const_objectType funcRef)
     } else {
       result = block->result.init_value;
     } /* if */
+    logFunction(printf("refResini --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* refResini */
 
@@ -981,6 +987,9 @@ objectType refResult (const const_objectType funcRef)
     objectType result;
 
   /* refResult */
+    logFunction(printf("refResult(");
+                trace1(funcRef);
+                printf(")\n"););
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT ||
                  (block = take_block(funcRef)) == NULL)) {
@@ -992,6 +1001,9 @@ objectType refResult (const const_objectType funcRef)
     } else {
       result = block->result.object;
     } /* if */
+    logFunction(printf("refResult --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* refResult */
 
