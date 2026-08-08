@@ -87,7 +87,7 @@ const func bin32: crc32 (in string: stri, in bin32: oldCrc) is func
     for ch range stri do
       crc := crc32Table[ord(crc >< bin32(ch)) mod 256] >< crc >> 8;
     end for;
-    crc := crc >< bin32(16#ffffffff);
+    crc ><:= bin32(16#ffffffff);
   end func;
 
 
@@ -171,7 +171,7 @@ const func bin32: bzip2Crc32 (in string: stri) is func
       crc := bzip2Crc32Table[ord((crc >> 24) >< bin32(ch)) mod 256] ><
              ((crc << 8) & bin32(16#ffffffff));
     end for;
-    crc := crc >< bin32(16#ffffffff);
+    crc ><:= bin32(16#ffffffff);
   end func;
 
 
@@ -189,5 +189,5 @@ const func bin32: bzip2Crc32 (in string: stri, in bin32: oldCrc) is func
       crc := bzip2Crc32Table[ord((crc >> 24) >< bin32(ch)) mod 256] ><
              ((crc << 8) & bin32(16#ffffffff));
     end for;
-    crc := crc >< bin32(16#ffffffff);
+    crc ><:= bin32(16#ffffffff);
   end func;
