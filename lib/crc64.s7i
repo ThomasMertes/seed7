@@ -72,3 +72,20 @@ const func bin64: crc64 (in string: stri) is func
     end for;
     crc ><:= bin64(16#ffffffffffffffff_);
   end func;
+
+
+(**
+ *  Compute the CRC-64 cyclic redundancy check code.
+ *)
+const func bin64: crc64 (in string: stri, in bin64: oldCrc) is func
+  result
+    var bin64: crc is bin64(0);
+  local
+    var char: ch is ' ';
+  begin
+    crc := oldCrc >< bin64(16#ffffffffffffffff_);
+    for ch range stri do
+      crc := crc64Table[ord(crc >< bin64(ch)) mod 256] >< crc >> 8;
+    end for;
+    crc ><:= bin64(16#ffffffffffffffff_);
+  end func;
