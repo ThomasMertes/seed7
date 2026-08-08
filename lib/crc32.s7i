@@ -36,20 +36,21 @@ const func crc32TableType: createCrc32Table is func
   result
     var crc32TableType: crc32Table is crc32TableType.value;
   local
-    var bin32: c is bin32.value; # crc shift register
-    var integer: i is 0;         # counter for all possible eight bit values
-    var integer: k is 0;         # byte being shifted into crc apparatus
+    # Reversed / reflected (LSB-First) standard IEEE 802.3 CRC-32 polynomial.
+    const bin32: IEEE_802_1_POLYNOMIAL is bin32(16#edb88320);
+    var bin32: crc is bin32(0); # crc shift register
+    var integer: i is 0;        # counter for all possible eight bit values
   begin
     for i range 1 to 255 do
-      c := bin32(i);
-      for k range 8 downto 1 do
-        if c & bin32(1) = bin32(1) then
-          c := (c >> 1) >< bin32(16#edb88320);
+      crc := bin32(i);
+      for 8 do
+        if crc & bin32(1) <> bin32(0) then
+          crc := (crc >> 1) >< IEEE_802_1_POLYNOMIAL;
         else
-          c >>:= 1;
+          crc >>:= 1;
         end if;
       end for;
-      crc32Table[i] := c;
+      crc32Table[i] := crc;
     end for;
   end func;
 
@@ -69,7 +70,7 @@ const func bin32: crc32 (in string: stri) is func
     for ch range stri do
       crc := crc32Table[ord(crc >< bin32(ch)) mod 256] >< crc >> 8;
     end for;
-    crc := crc >< bin32(16#ffffffff);
+    crc ><:= bin32(16#ffffffff);
   end func;
 
 
