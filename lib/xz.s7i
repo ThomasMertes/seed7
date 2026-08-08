@@ -240,18 +240,23 @@ const func string: xzDecompress (inout file: compressed) is func
   local
     var string: streamHeader is "";
     var integer: flags is 0;
-    var integer: crc32 is 0;
+    var integer: headerCrc32 is 0;
     var lzmaDecoder: lzmaDec is lzmaDecoder.value;
     var boolean: finished is FALSE;
   begin
     streamHeader := gets(compressed, XZ_STREAM_HEADER_SIZE);
     if length(streamHeader) = XZ_STREAM_HEADER_SIZE and
         startsWith(streamHeader, XZ_MAGIC) then
-      # Ignore first byte of stream flags.
-      flags := ord(streamHeader[7]) mod 16;
+      flags := bytes2Int(streamHeader[7 fixLen 2], UNSIGNED,BE);
       # writeln("flags: " <& flags);
-      crc32 := bytes2Int(streamHeader[8 fixLen 4], UNSIGNED, LE);
-      # writeln("crc32: " <& crc32);
+      if flags >= 16 then
+        raise RANGE_ERROR;
+      end if;
+      headerCrc32 := bytes2Int(streamHeader[9 fixLen 4], UNSIGNED, LE);
+      # writeln("headerCrc32: " <& headerCrc32);
+      if bin32(headerCrc32) <> crc32(streamHeader[7 fixLen 2]) then
+        raise RANGE_ERROR;
+      end if;
       lzmaDec.rangeDec.compressed := compressed;
       readXzBlockHeader(lzmaDec);
       repeat
@@ -268,7 +273,6 @@ const func string: xzDecompress (inout file: compressed) is func
  *)
 const type: xzFile is sub null_file struct
     var integer: flags is 0;
-    var integer: crc32 is 0;
     var lzmaDecoder: lzmaDec is lzmaDecoder.value;
     var boolean: finished is FALSE;
     var integer: position is 1;
@@ -290,15 +294,21 @@ const func file: openXzFile (inout file: compressed) is func
   local
     var string: streamHeader is "";
     var xzFile: new_xzFile is xzFile.value;
+    var integer: headerCrc32 is 0;
   begin
     streamHeader := gets(compressed, XZ_STREAM_HEADER_SIZE);
     if length(streamHeader) = XZ_STREAM_HEADER_SIZE and
         startsWith(streamHeader, XZ_MAGIC) then
-      # Ignore first byte of stream flags.
-      new_xzFile.flags := ord(streamHeader[7]) mod 16;
+      new_xzFile.flags := bytes2Int(streamHeader[7 fixLen 2], UNSIGNED,BE);
       # writeln("flags: " <& new_xzFile.flags);
-      new_xzFile.crc32 := bytes2Int(streamHeader[8 fixLen 4], UNSIGNED, LE);
-      # writeln("crc32: " <& new_xzFile.crc32);
+      if new_xzFile.flags >= 16 then
+        raise RANGE_ERROR;
+      end if;
+      headerCrc32 := bytes2Int(streamHeader[9 fixLen 4], UNSIGNED, LE);
+      # writeln("headerCrc32: " <& headerCrc32);
+      if bin32(headerCrc32) <> crc32(streamHeader[7 fixLen 2]) then
+        raise RANGE_ERROR;
+      end if;
       new_xzFile.lzmaDec.rangeDec.compressed := compressed;
       readXzBlockHeader(new_xzFile.lzmaDec);
       # compressed.bufferChar := getc(compressed);
