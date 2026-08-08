@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  crc32.s7i     CRC-32 cyclic redundancy check support library    *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013, 2019, 2024 - 2026  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -95,7 +95,7 @@ const func crc32TableType: createBzip2Crc32Table is func
   result
     var crc32TableType: crc32Table is crc32TableType.value;
   local
-    # Standard IEEE 802.3 Polynomial (Unreflected) used by bzip2
+    # Standard IEEE 802.3 Polynomial (Unreflected) used by bzip2.
     const bin32: BZIP2_POLYNOMIAL is bin32(16#04C11DB7);
     var bin32: crc is bin32(0); # crc shift register
     var integer: i is 0;        # counter for all possible eight bit values
