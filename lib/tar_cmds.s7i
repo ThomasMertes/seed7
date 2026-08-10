@@ -89,7 +89,7 @@ const func file: openTarFileWithMagic (in string: inFileName,
             magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
             if magicBytes = XZ_MAGIC then
               seek(inFile, 1);
-              inFile := openXzFile(inFile);
+              inFile := openXzFile(inFile, READ);
             elsif endsWith(inFileName, ".lzma") then
               seek(inFile, 1);
               inFile := openLzmaFile(inFile);

@@ -76,6 +76,16 @@ const func string: gets (inout lzmaRangeDecoderState: decoderState, in integer: 
   end func;
 
 
+const func boolean: eof (in lzmaRangeDecoderState: decoderState) is
+  return eof(decoderState.compressed) and
+         decoderState.inBufferPos > length(decoderState.inBuffer);
+
+
+const func integer: tell (in lzmaRangeDecoderState: decoderState) is
+  return tell(decoderState.compressed) - length(decoderState.inBuffer) +
+         decoderState.inBufferPos - 1;
+
+
 const proc: resetRangeDecoder (inout lzmaRangeDecoderState: decoderState) is func
   local
     var char: ch is ' ';
