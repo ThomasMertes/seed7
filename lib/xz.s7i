@@ -40,6 +40,7 @@ const string: XZ_MAGIC is "\16#FD;7zXZ\0;";
 const integer: XZ_STREAM_HEADER_SIZE is 12;
 
 const char: XZ_INDEX_INDICATOR is '\0;';
+const integer: XZ_DELTA_FILTER   is 3;
 
 
 const type: xzFilterFlags is new struct
@@ -88,6 +89,7 @@ const type: xzBlockHeader is new struct
     var boolean: uncompressedSizeFieldPresent is FALSE;
     var integer: uncompressedSize is 0;
     var array xzFilterFlags: filterFlags is 0 times xzFilterFlags.value;
+    var boolean: doFilter is FALSE;
   end struct;
 
 
@@ -143,19 +145,22 @@ const proc: readBlockHeader (inout xzBlockHeader: header,
     # writeln("blockHeaderSize: " <& blockHeaderSize);
     blockHeaderStri := str(encodedHeaderSize) & gets(lzmaDec.rangeDec, pred(blockHeaderSize));
     header := readXzBlockHeader(blockHeaderStri);
-    if length(header.filterFlags) <> 1 then
+    if length(header.filterFlags) < 1 or length(header.filterFlags) > 2 then
       raise RANGE_ERROR;
     end if;
     for key idx range header.filterFlags do
       # writeln("filterId: " <& header.filterFlags[idx].filterId);
       case header.filterFlags[idx].filterId of
         when {33}:
-          if length(header.filterFlags[idx].filterProperties) <> 1 then
+          if idx <> length(header.filterFlags) or
+              length(header.filterFlags[idx].filterProperties) <> 1 then
             raise RANGE_ERROR;
           else
             lzmaDec.dictSize := xzDictionarySize(ord(header.filterFlags[idx].filterProperties[1]));
             # writeln("dictionarySize: " <& lzmaDec.dictSize);
           end if;
+        when {XZ_DELTA_FILTER}:
+          header.doFilter := TRUE;
         otherwise:
           raise RANGE_ERROR;
       end case;
@@ -168,6 +173,8 @@ const type: xzStreamHeader is new struct
     var xzBlockHeader: blockHeader is xzBlockHeader.value;
     var integer: blockStartPos is 1;
     var boolean: streamFinished is FALSE;
+    var boolean: useFiltered is FALSE;
+    var string: filtered is "";
   end struct;
 
 
@@ -189,28 +196,29 @@ const proc: readStreamHeader (inout xzStreamHeader: header,
   end func;
 
 
-const proc: verifyChecksum (inout xzStreamHeader: header, inout lzmaDecoder: lzmaDec) is func
+const proc: verifyChecksum (inout xzStreamHeader: header,
+    in string: data, inout lzmaDecoder: lzmaDec) is func
   begin
     case header.flags of
       when {0}:  noop;
       when {1}:
         if bin32(gets(lzmaDec.rangeDec, 4), LE) <>
-            crc32(lzmaDec.uncompressed[header.blockStartPos ..]) then
+            crc32(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       when {4}:
         if bin64(gets(lzmaDec.rangeDec, 8), LE) <>
-            crc64(lzmaDec.uncompressed[header.blockStartPos ..]) then
+            crc64(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       when {10}:
         if gets(lzmaDec.rangeDec, 32) <>
-            sha256(lzmaDec.uncompressed[header.blockStartPos ..]) then
+            sha256(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       otherwise: raise RANGE_ERROR;
     end case;
-    header.blockStartPos := succ(length(lzmaDec.uncompressed));
+    header.blockStartPos := succ(length(data));
   end func;
 
 
@@ -227,7 +235,11 @@ const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: 
       if gets(lzmaDec.rangeDec, skipSize) <> "\0;" mult skipSize then
         raise RANGE_ERROR;
       end if;
-      verifyChecksum(header, lzmaDec);
+      if header.useFiltered then
+        verifyChecksum(header, header.filtered, lzmaDec);
+      else
+        verifyChecksum(header, lzmaDec.uncompressed, lzmaDec);
+      end if;
       encodedHeaderSize := getc(lzmaDec.rangeDec);
       if encodedHeaderSize = XZ_INDEX_INDICATOR then
         header.streamFinished := TRUE;
@@ -235,6 +247,43 @@ const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: 
         readBlockHeader(header.blockHeader, lzmaDec, encodedHeaderSize);
       end if;
     end if;
+  end func;
+
+
+const proc: xzDeltaDecode (in integer: distance, in string: data,
+    in integer: startPos, inout string: filtered) is func
+  local
+    var integer: idx is 1;
+  begin
+    filtered &:= "\0;" mult length(data) - length(filtered);
+    for idx range startPos to length(data) do
+      if idx <= distance then
+        filtered @:= [idx] data[idx];
+      else
+        filtered @:= [idx] char((ord(filtered[idx - distance]) + ord(data[idx])) mod 256);
+      end if;
+    end for;
+  end func;
+
+
+const proc: applyFilters (inout xzStreamHeader: header, in string: data,
+    in integer: startPos) is func
+  local
+    var integer: filterIdx is 0;
+  begin
+    for filterIdx range pred(length(header.blockHeader.filterFlags)) downto 1 do
+      header.useFiltered := TRUE;
+      if length(header.filtered) < pred(startPos) then
+        header.filtered &:= data[succ(length(header.filtered)) .. pred(startPos)];
+      end if;
+      case header.blockHeader.filterFlags[filterIdx].filterId of
+        when {XZ_DELTA_FILTER}:
+          xzDeltaDecode(succ(ord(header.blockHeader.filterFlags[filterIdx].filterProperties[1])),
+                        data, startPos, header.filtered);
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end for;
   end func;
 
 
@@ -246,6 +295,7 @@ const proc: xzPacket (inout xzStreamHeader: header,
     var integer: propertiesByte is 0;
     var integer: compressedSize is 0;
     var integer: uncompressedSize is 0;
+    var integer: packetStart is 0;
     var integer: res is 0;
   begin
     # writeln("xzPacket");
@@ -300,7 +350,11 @@ const proc: xzPacket (inout xzStreamHeader: header,
         resetRangeDecoder(lzmaDec.rangeDec);
       end if;
       # showLzmaDecoder(lzmaDec);
+      packetStart := succ(length(lzmaDec.uncompressed));
       res := decodePacket(lzmaDec, TRUE, uncompressedSize);
+      if header.blockHeader.doFilter then
+        applyFilters(header, lzmaDec.uncompressed, packetStart);
+      end if;
     end if;
     # writeln("xzPacket -->");
   end func;
@@ -330,7 +384,11 @@ const func string: xzDecompress (inout file: compressed) is func
       repeat
         xzPacket(header, lzmaDec);
       until header.streamFinished;
-      uncompressed := lzmaDec.uncompressed;
+      if header.useFiltered then
+        uncompressed := header.filtered;
+      else
+        uncompressed := lzmaDec.uncompressed;
+      end if;
     end if;
   end func;
 
@@ -393,11 +451,20 @@ const func char: getc (inout xzFile: inFile) is func
         not inFile.header.streamFinished do
       xzPacket(inFile.header, inFile.lzmaDec);
     end while;
-    if inFile.position <= length(inFile.lzmaDec.uncompressed) then
-      charRead := inFile.lzmaDec.uncompressed[inFile.position];
-      incr(inFile.position);
+    if inFile.header.useFiltered then
+      if inFile.position <= length(inFile.header.filtered) then
+        charRead := inFile.header.filtered[inFile.position];
+        incr(inFile.position);
+      else
+        charRead := EOF;
+      end if;
     else
-      charRead := EOF;
+      if inFile.position <= length(inFile.lzmaDec.uncompressed) then
+        charRead := inFile.lzmaDec.uncompressed[inFile.position];
+        incr(inFile.position);
+      else
+        charRead := EOF;
+      end if;
     end if;
   end func;
 
@@ -420,12 +487,22 @@ const func string: gets (inout xzFile: inFile, in integer: maxLength) is func
           not inFile.header.streamFinished do
         xzPacket(inFile.header, inFile.lzmaDec);
       end while;
-      if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
-        striRead := inFile.lzmaDec.uncompressed[inFile.position fixLen maxLength];
-        inFile.position +:= maxLength;
+      if inFile.header.useFiltered then
+        if maxLength <= succ(length(inFile.header.filtered) - inFile.position) then
+          striRead := inFile.header.filtered[inFile.position fixLen maxLength];
+          inFile.position +:= maxLength;
+        else
+          striRead := inFile.header.filtered[inFile.position ..];
+          inFile.position := succ(length(inFile.header.filtered));
+        end if;
       else
-        striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
-        inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+        if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
+          striRead := inFile.lzmaDec.uncompressed[inFile.position fixLen maxLength];
+          inFile.position +:= maxLength;
+        else
+          striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
+          inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+        end if;
       end if;
     end if;
   end func;
