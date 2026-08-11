@@ -45,27 +45,27 @@ const integer: XZ_LZMA2_FILTER   is 33;
 const integer: XZ_DELTA_FILTER   is  3;
 
 
-const type: xzFilterFlags is new struct
+const type: xzFilter is new struct
     var integer: filterId is 0;
-    var string: filterProperties is "";
+    var string: properties is "";
   end struct;
 
 
-const func xzFilterFlags: xzFilterFlags (in string: compressed, inout integer: pos) is func
+const func xzFilter: xzFilter (in string: compressed, inout integer: pos) is func
   result
-    var xzFilterFlags: flags is xzFilterFlags.value;
+    var xzFilter: filter is xzFilter.value;
   local
     var integer: sizeOfProperties is 0;
   begin
-    flags.filterId := uLeb128ToInt(compressed, pos);
-    # writeln("filterId: " <& flags.filterId);
+    filter.filterId := uLeb128ToInt(compressed, pos);
+    # writeln("filterId: " <& filter.filterId);
     sizeOfProperties := uLeb128ToInt(compressed, pos);
     # writeln("sizeOfProperties: " <& sizeOfProperties);
     if sizeOfProperties <> 0 then
-      flags.filterProperties := compressed[pos fixLen sizeOfProperties];
+      filter.properties := compressed[pos fixLen sizeOfProperties];
       pos +:= sizeOfProperties;
     end if;
-    # writeln("filterProperties: " <& hex(flags.filterProperties));
+    # writeln("properties: " <& hex(filter.properties));
   end func;
 
 
@@ -90,7 +90,7 @@ const type: xzBlockHeader is new struct
     var integer: compressedSize is 0;
     var boolean: uncompressedSizeFieldPresent is FALSE;
     var integer: uncompressedSize is 0;
-    var array xzFilterFlags: filterFlags is 0 times xzFilterFlags.value;
+    var array xzFilter: filters is 0 times xzFilter.value;
     var boolean: doFilter is FALSE;
   end struct;
 
@@ -122,9 +122,9 @@ const func xzBlockHeader: readXzBlockHeader (in string: blockHeaderStri) is func
       header.uncompressedSize := uLeb128ToInt(blockHeaderStri, pos);
     end if;
     # writeln("uncompressedSize: " <& header.uncompressedSize);
-    header.filterFlags := numberOfFilters times xzFilterFlags.value;
+    header.filters := numberOfFilters times xzFilter.value;
     for idx range 1 to numberOfFilters do
-      header.filterFlags[idx] := xzFilterFlags(blockHeaderStri, pos);
+      header.filters[idx] := xzFilter(blockHeaderStri, pos);
     end for;
     # Skip header padding
     pos := blockHeaderSize - 3;
@@ -147,22 +147,26 @@ const proc: readBlockHeader (inout xzBlockHeader: header,
     # writeln("blockHeaderSize: " <& blockHeaderSize);
     blockHeaderStri := str(encodedHeaderSize) & gets(lzmaDec.rangeDec, pred(blockHeaderSize));
     header := readXzBlockHeader(blockHeaderStri);
-    if length(header.filterFlags) < 1 or length(header.filterFlags) > 2 then
+    if length(header.filters) < 1 or length(header.filters) > 2 or
+        header.filters[length(header.filters)].filterId <> XZ_LZMA2_FILTER then
       raise RANGE_ERROR;
     end if;
-    for key idx range header.filterFlags do
-      # writeln("filterId: " <& header.filterFlags[idx].filterId);
-      case header.filterFlags[idx].filterId of
+    for key idx range header.filters do
+      # writeln("filterId: " <& header.filters[idx].filterId);
+      case header.filters[idx].filterId of
         when {XZ_LZMA2_FILTER}:
-          if idx <> length(header.filterFlags) or
-              length(header.filterFlags[idx].filterProperties) <> 1 then
+          if length(header.filters[idx].properties) <> 1 then
             raise RANGE_ERROR;
           else
-            lzmaDec.dictSize := xzDictionarySize(ord(header.filterFlags[idx].filterProperties[1]));
+            lzmaDec.dictSize := xzDictionarySize(ord(header.filters[idx].properties[1]));
             # writeln("dictionarySize: " <& lzmaDec.dictSize);
           end if;
         when {XZ_DELTA_FILTER}:
-          header.doFilter := TRUE;
+          if length(header.filters[idx].properties) <> 1 then
+            raise RANGE_ERROR;
+          else
+            header.doFilter := TRUE;
+          end if;
         otherwise:
           raise RANGE_ERROR;
       end case;
@@ -273,14 +277,14 @@ const proc: applyFilters (inout xzStreamHeader: header, in string: data,
   local
     var integer: filterIdx is 0;
   begin
-    for filterIdx range pred(length(header.blockHeader.filterFlags)) downto 1 do
+    for filterIdx range pred(length(header.blockHeader.filters)) downto 1 do
       header.useFiltered := TRUE;
       if length(header.filtered) < pred(startPos) then
         header.filtered &:= data[succ(length(header.filtered)) .. pred(startPos)];
       end if;
-      case header.blockHeader.filterFlags[filterIdx].filterId of
+      case header.blockHeader.filters[filterIdx].filterId of
         when {XZ_DELTA_FILTER}:
-          xzDeltaDecode(succ(ord(header.blockHeader.filterFlags[filterIdx].filterProperties[1])),
+          xzDeltaDecode(succ(ord(header.blockHeader.filters[filterIdx].properties[1])),
                         data, startPos, header.filtered);
         otherwise:
           raise RANGE_ERROR;
