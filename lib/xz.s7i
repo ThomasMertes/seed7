@@ -40,7 +40,9 @@ const string: XZ_MAGIC is "\16#FD;7zXZ\0;";
 const integer: XZ_STREAM_HEADER_SIZE is 12;
 
 const char: XZ_INDEX_INDICATOR is '\0;';
-const integer: XZ_DELTA_FILTER   is 3;
+
+const integer: XZ_LZMA2_FILTER   is 33;
+const integer: XZ_DELTA_FILTER   is  3;
 
 
 const type: xzFilterFlags is new struct
@@ -151,7 +153,7 @@ const proc: readBlockHeader (inout xzBlockHeader: header,
     for key idx range header.filterFlags do
       # writeln("filterId: " <& header.filterFlags[idx].filterId);
       case header.filterFlags[idx].filterId of
-        when {33}:
+        when {XZ_LZMA2_FILTER}:
           if idx <> length(header.filterFlags) or
               length(header.filterFlags[idx].filterProperties) <> 1 then
             raise RANGE_ERROR;
