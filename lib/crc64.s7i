@@ -60,6 +60,7 @@ const crc64TableType: crc64Table is createCrc64Table;
 
 (**
  *  Compute the CRC-64 cyclic redundancy check code.
+ *   crc64("123456789")  returns bin64(16#995dc9bbdf1939fa)
  *)
 const func bin64: crc64 (in string: stri) is func
   result
@@ -75,15 +76,19 @@ const func bin64: crc64 (in string: stri) is func
 
 
 (**
- *  Compute the CRC-64 cyclic redundancy check code.
+ *  Compute the CRC-64 cyclic redundancy check code with ''interimCrc''.
+ *  This function can be used to compute the CRC-64 with multiple steps:
+ *   interimCrc := crc64(data1);
+ *   interimCrc := crc64(data2, interimCrc);
+ *   finalCrc   := crc64(data3, interimCrc);
  *)
-const func bin64: crc64 (in string: stri, in bin64: oldCrc) is func
+const func bin64: crc64 (in string: stri, in bin64: interimCrc) is func
   result
     var bin64: crc is bin64(0);
   local
     var char: ch is ' ';
   begin
-    crc := oldCrc >< bin64(16#ffffffffffffffff_);
+    crc := interimCrc >< bin64(16#ffffffffffffffff_);
     for ch range stri do
       crc := crc64Table[ord(crc >< bin64(ch)) mod 256] >< crc >> 8;
     end for;

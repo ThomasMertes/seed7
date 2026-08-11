@@ -60,6 +60,7 @@ const crc32TableType: crc32Table is createCrc32Table;
 
 (**
  *  Compute the CRC-32 cyclic redundancy check code.
+ *   crc32("123456789")  returns bin32(16#cbf43926)
  *)
 const func bin32: crc32 (in string: stri) is func
   result
@@ -75,15 +76,19 @@ const func bin32: crc32 (in string: stri) is func
 
 
 (**
- *  Compute the CRC-32 cyclic redundancy check code.
+ *  Compute the CRC-32 cyclic redundancy check code with ''interimCrc''.
+ *  This function can be used to compute the CRC-32 with multiple steps:
+ *   interimCrc := crc32(data1);
+ *   interimCrc := crc32(data2, interimCrc);
+ *   finalCrc   := crc32(data3, interimCrc);
  *)
-const func bin32: crc32 (in string: stri, in bin32: oldCrc) is func
+const func bin32: crc32 (in string: stri, in bin32: interimCrc) is func
   result
     var bin32: crc is bin32(0);
   local
     var char: ch is ' ';
   begin
-    crc := oldCrc >< bin32(16#ffffffff);
+    crc := interimCrc >< bin32(16#ffffffff);
     for ch range stri do
       crc := crc32Table[ord(crc >< bin32(ch)) mod 256] >< crc >> 8;
     end for;
@@ -119,6 +124,7 @@ const crc32TableType: bzip2Crc32Table is createBzip2Crc32Table;
 
 (**
  *  Compute the CRC-32 cyclic redundancy check code of BZIP2.
+ *   bzip2Crc32("123456789")  returns bin32(16#fc891918)
  *)
 const func bin32: bzip2Crc32 (in string: stri) is func
   result
@@ -135,15 +141,19 @@ const func bin32: bzip2Crc32 (in string: stri) is func
 
 
 (**
- *  Compute the CRC-32 cyclic redundancy check code of BZIP2.
+ *  Compute the CRC-32 cyclic redundancy check code of BZIP2 with ''interimCrc''.
+ *  This function can be used to compute the CRC-32 with multiple steps:
+ *   interimCrc := bzip2Crc32(data1);
+ *   interimCrc := bzip2Crc32(data2, interimCrc);
+ *   finalCrc   := bzip2Crc32(data3, interimCrc);
  *)
-const func bin32: bzip2Crc32 (in string: stri, in bin32: oldCrc) is func
+const func bin32: bzip2Crc32 (in string: stri, in bin32: interimCrc) is func
   result
     var bin32: crc is bin32(0);
   local
     var char: ch is ' ';
   begin
-    crc := oldCrc >< bin32(16#ffffffff);
+    crc := interimCrc >< bin32(16#ffffffff);
     for ch range stri do
       crc := bzip2Crc32Table[ord((crc >> 24) >< bin32(ch)) mod 256] ><
              ((crc << 8) & bin32(16#ffffffff));
