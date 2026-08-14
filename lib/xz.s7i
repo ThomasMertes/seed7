@@ -43,6 +43,7 @@ const char: XZ_INDEX_INDICATOR is '\0;';
 
 const integer: XZ_LZMA2_FILTER   is 33;
 const integer: XZ_DELTA_FILTER   is  3;
+const integer: XZ_X86_BCJ_FILTER is  4;
 
 
 const type: xzFilter is new struct
@@ -85,6 +86,11 @@ const func integer: xzDictionarySize (in integer: bits) is func
   end func;
 
 
+const type: xzBcjState is new struct
+    var integer: x86PrevMask is 0;
+  end struct;
+
+
 const type: xzBlockHeader is new struct
     var boolean: compressedSizeFieldPresent is FALSE;
     var integer: compressedSize is 0;
@@ -92,6 +98,7 @@ const type: xzBlockHeader is new struct
     var integer: uncompressedSize is 0;
     var array xzFilter: filters is 0 times xzFilter.value;
     var boolean: doFilter is FALSE;
+    var xzBcjState: filterState is xzBcjState.value
   end struct;
 
 
@@ -167,7 +174,10 @@ const proc: readBlockHeader (inout xzBlockHeader: header,
           else
             header.doFilter := TRUE;
           end if;
+        when {XZ_X86_BCJ_FILTER}:
+          header.doFilter := TRUE;
         otherwise:
+          # writeln("FilterId: " <& header.filters[idx].filterId);
           raise RANGE_ERROR;
       end case;
     end for;
@@ -272,6 +282,86 @@ const proc: xzDeltaDecode (in integer: distance, in string: data,
   end func;
 
 
+const proc: x86bcjDecode (inout xzBcjState: state, inout string: data,
+    in integer: startPos, in integer: blockStartPos) is func
+  local
+    const func boolean: minOrMaxByte (in char: aByte) is
+        return aByte = '\0;' or aByte = '\16#ff;';
+    const set of char: callOrJmp is {'\16#e8;' (*CALL*),
+                                     '\16#e9;' (*JMP*)};
+    const array boolean: maskToAllowedStatus is
+        [0] (TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, FALSE);
+    const array integer: maskToBitNum is [0] (0, 1, 2, 2, 3, 3, 3, 3);
+    var integer: index is 0;
+    var integer: endPos is 0;
+    var integer: prevPos is -1;
+    var integer: prevMask is 0;
+    var integer: src is 0;
+    var integer: dest is 0;
+    var integer: bitNum is 0;
+    var char: aByte is '\0;';
+    var boolean: doProcess is FALSE;
+  begin
+    prevMask := state.x86PrevMask;
+    index := startPos;
+    endPos := length(data);
+    if endPos > 4 then
+      endPos -:= 4;  # Ignore CALL and JMP in the last 4 bytes.
+      while index <= endPos do
+        if data[index] in callOrJmp then
+          doProcess := TRUE;
+          prevPos := index - prevPos;
+          if prevPos > 3 then
+            prevMask := 0;
+          else
+            prevMask := (prevMask << (prevPos - 1)) mod 8;
+            if prevMask <> 0 then
+              aByte := data[index + 4 - maskToBitNum[prevMask]];
+              if not maskToAllowedStatus[prevMask] or
+                  minOrMaxByte(aByte) then
+                prevPos := index;
+                prevMask := (prevMask << 1) + 1;
+                doProcess := FALSE;
+              end if;
+            end if;
+          end if;
+          if doProcess then
+            prevPos := index;
+            if minOrMaxByte(data[index + 4]) then
+              src := bytes2Int(data[succ(index) fixLen 4], UNSIGNED, LE);
+              repeat
+                dest := (src - (index - blockStartPos + 5)) mod 16#100000000;
+                if prevMask = 0 then
+                  doProcess := FALSE;
+                else
+                  bitNum := maskToBitNum[prevMask] * 8;
+                  aByte := char(dest >> (24 - bitNum) mod 16#100);
+                  if not minOrMaxByte(aByte) then
+                    doProcess := FALSE;
+                  else
+                    src := integer(bin64(dest) >< bin64(pred(1 << (32 - bitNum))));
+                  end if;
+                end if;
+              until not doProcess;
+              dest := dest mod 16#02000000;
+              if dest >= 16#01000000 then
+                dest +:= 16#fe000000;
+              end if;
+              data @:= [succ(index)] bytes(dest, UNSIGNED, LE, 4);
+              index +:= 4;
+            else
+              prevMask := (prevMask << 1) + 1;
+            end if;
+          end if;
+        end if;
+        incr(index);
+      end while;
+      prevPos := index - prevPos;
+      state.x86PrevMask := prevPos > 3 ? 0 : prevMask << (prevPos - 1);
+    end if;
+  end func;
+
+
 const proc: applyFilters (inout xzStreamHeader: header, in string: data,
     in integer: startPos) is func
   local
@@ -282,10 +372,15 @@ const proc: applyFilters (inout xzStreamHeader: header, in string: data,
       if length(header.filtered) < pred(startPos) then
         header.filtered &:= data[succ(length(header.filtered)) .. pred(startPos)];
       end if;
+      # writeln("filter: " <& header.blockHeader.filters[filterIdx].filterId);
       case header.blockHeader.filters[filterIdx].filterId of
         when {XZ_DELTA_FILTER}:
           xzDeltaDecode(succ(ord(header.blockHeader.filters[filterIdx].properties[1])),
                         data, startPos, header.filtered);
+        when {XZ_X86_BCJ_FILTER}:
+          header.filtered &:= data[startPos ..];
+          x86bcjDecode(header.blockHeader.filterState, header.filtered,
+                       startPos, header.blockStartPos);
         otherwise:
           raise RANGE_ERROR;
       end case;
@@ -296,15 +391,16 @@ const proc: applyFilters (inout xzStreamHeader: header, in string: data,
 const proc: xzPacket (inout xzStreamHeader: header,
     inout lzmaDecoder: lzmaDec) is func
   local
+    var integer: packetStart is 0;
     var integer: controlByte is 0;
     var integer: resetIndicator is 0;
     var integer: propertiesByte is 0;
     var integer: compressedSize is 0;
     var integer: uncompressedSize is 0;
-    var integer: packetStart is 0;
     var integer: res is 0;
   begin
     # writeln("xzPacket");
+    packetStart := succ(length(lzmaDec.uncompressed));
     controlByte := ord(getc(lzmaDec.rangeDec));
     # writeln("controlByte: " <& controlByte);
     if controlByte < 16#80 then
@@ -356,11 +452,14 @@ const proc: xzPacket (inout xzStreamHeader: header,
         resetRangeDecoder(lzmaDec.rangeDec);
       end if;
       # showLzmaDecoder(lzmaDec);
-      packetStart := succ(length(lzmaDec.uncompressed));
       res := decodePacket(lzmaDec, TRUE, uncompressedSize);
-      if header.blockHeader.doFilter then
+    end if;
+    if header.blockHeader.doFilter then
+      if length(lzmaDec.uncompressed) <> length(header.filtered) then
         applyFilters(header, lzmaDec.uncompressed, packetStart);
       end if;
+    elsif header.useFiltered then
+      header.filtered &:= lzmaDec.uncompressed[packetStart ..];
     end if;
     # writeln("xzPacket -->");
   end func;
