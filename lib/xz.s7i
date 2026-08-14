@@ -241,14 +241,14 @@ const proc: verifyChecksum (inout xzStreamHeader: header,
 const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: lzmaDec) is func
   local
     var char: encodedHeaderSize is ' ';
-    var integer: skipSize is 0;
+    var integer: paddingSize is 0;
   begin
     if eof(lzmaDec.rangeDec) then
       raise RANGE_ERROR;
     else
       # Skip block padding.
-      skipSize := -(pred(tell(lzmaDec.rangeDec)) mod -4);
-      if gets(lzmaDec.rangeDec, skipSize) <> "\0;" mult skipSize then
+      paddingSize := -(pred(tell(lzmaDec.rangeDec)) mod -4);
+      if gets(lzmaDec.rangeDec, paddingSize) <> "\0;" mult paddingSize then
         raise RANGE_ERROR;
       end if;
       if header.useFiltered then
