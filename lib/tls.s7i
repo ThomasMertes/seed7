@@ -1855,7 +1855,7 @@ const func file: openNewTlsSocket (inout file: sock, in string: hostName) is fun
   end func;
 
 
-const func file: openTlsSocket (inout file: sock, in clientSession: session,
+const func file: openTlsSocket (inout file: sock, val clientSession: session,
     in string: hostName) is func
   result
     var file: tlsSock is STD_NULL;
