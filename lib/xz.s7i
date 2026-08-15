@@ -217,29 +217,29 @@ const proc: readStreamHeader (inout xzStreamHeader: header,
   end func;
 
 
-const proc: verifyChecksum (inout xzStreamHeader: header,
-    in string: data, inout lzmaDecoder: lzmaDec) is func
+const proc: verifyChecksum (in xzStreamHeader: header, in string: data,
+    inout integer: blockStartPos, inout lzmaRangeDecoderState: rangeDec) is func
   begin
     case header.flags of
       when {XZ_CHECK_NONE}:  noop;
       when {XZ_CHECK_CRC32}:
-        if bin32(gets(lzmaDec.rangeDec, 4), LE) <>
-            crc32(data[header.blockStartPos ..]) then
+        if bin32(gets(rangeDec, 4), LE) <>
+            crc32(data[blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       when {XZ_CHECK_CRC64}:
-        if bin64(gets(lzmaDec.rangeDec, 8), LE) <>
-            crc64(data[header.blockStartPos ..]) then
+        if bin64(gets(rangeDec, 8), LE) <>
+            crc64(data[blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       when {XZ_CHECK_SHA_256}:
-        if gets(lzmaDec.rangeDec, 32) <>
-            sha256(data[header.blockStartPos ..]) then
+        if gets(rangeDec, 32) <>
+            sha256(data[blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
       otherwise: raise RANGE_ERROR;
     end case;
-    header.blockStartPos := succ(length(data));
+    blockStartPos := succ(length(data));
   end func;
 
 
@@ -257,9 +257,11 @@ const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: 
         raise RANGE_ERROR;
       end if;
       if header.useFiltered then
-        verifyChecksum(header, header.filtered, lzmaDec);
+        verifyChecksum(header, header.filtered,
+                       header.blockStartPos, lzmaDec.rangeDec);
       else
-        verifyChecksum(header, lzmaDec.uncompressed, lzmaDec);
+        verifyChecksum(header, lzmaDec.uncompressed,
+                               header.blockStartPos, lzmaDec.rangeDec);
       end if;
       encodedHeaderSize := getc(lzmaDec.rangeDec);
       if encodedHeaderSize = XZ_INDEX_INDICATOR then
