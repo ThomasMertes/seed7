@@ -86,6 +86,7 @@ const proc: process (BLN_AND_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "&=";
@@ -102,6 +103,7 @@ const proc: process (BLN_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
@@ -297,6 +299,7 @@ const proc: process (BLN_OR_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "|=";
@@ -473,6 +476,7 @@ const proc: process (BLN_XOR_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "^=";

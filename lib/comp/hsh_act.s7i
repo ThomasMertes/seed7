@@ -147,6 +147,7 @@ const proc: process (HSH_CPY, in reference: function,
     var expr_type: c_param2 is expr_type.value;
     var expr_type: c_param3_6 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     declare_func_pointer_if_necessary(params[3], global_c_expr);
     declare_func_pointer_if_necessary(params[4], global_c_expr);
     declare_func_pointer_if_necessary(params[5], global_c_expr);
@@ -283,6 +284,7 @@ const proc: process (HSH_EXCL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     declare_func_pointer_if_necessary(params[4], global_c_expr);
     declare_func_pointer_if_necessary(params[5], global_c_expr);
     declare_func_pointer_if_necessary(params[6], global_c_expr);
@@ -579,6 +581,7 @@ const proc: process (HSH_INCL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     declare_func_pointer_if_necessary(params[5], global_c_expr);
     declare_func_pointer_if_necessary(params[6], global_c_expr);
     declare_func_pointer_if_necessary(params[7], global_c_expr);

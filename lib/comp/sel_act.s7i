@@ -54,6 +54,7 @@ const proc: process (SEL_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], statement);
     statement.expr &:= "=";
     process_expr(params[3], statement);

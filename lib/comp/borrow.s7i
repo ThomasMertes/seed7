@@ -1,0 +1,229 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  borrow.s7i    Check parameter and global var aliasing.          *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: globalsHash is hash [reference] placeType;
+const type: globalsInFunctionHash is hash [reference] globalsHash;
+
+var globalsInFunctionHash: globalsInFunction is globalsInFunctionHash.value;
+var globalsInFunctionHash: globalsChangedInFunction is globalsInFunctionHash.value;
+var reference: current_function is NIL;
+
+const set of category: localObjectCategory is
+    {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT};
+
+
+const func boolean: isPointerParam (in reference: a_param) is
+  return category(a_param) = REFPARAMOBJECT and
+        (not valueIsAtHeap(a_param) or isVar(a_param));
+
+
+const func boolean: isCopyParam (in reference: a_param) is
+  return category(a_param) = VALUEPARAMOBJECT and
+        valueIsAtHeap(a_param);
+
+
+const func boolean: isInOutParam (in reference: a_param) is
+  return category(a_param) = REFPARAMOBJECT and isVar(a_param);
+
+
+const func placeType: setPlace (in expr_type: c_expr) is func
+
+  result
+    var placeType: place is placeType.value;
+  begin
+    place.currentFile := c_expr.currentFile;
+    place.currentLine := c_expr.currentLine;
+  end func;
+
+
+const proc: checkGlobalVariableChange (in reference: destination,
+    in expr_type: c_expr) is func
+
+  begin
+    if isVar(destination) and
+        category(destination) not in localObjectCategory and
+        current_function <> NIL then
+      if current_function not in globalsChangedInFunction then
+        globalsChangedInFunction @:= [current_function] globalsHash.value;
+      end if;
+      globalsChangedInFunction[current_function] @:= [destination]
+          setPlace(c_expr);
+    end if;
+  end func;
+
+
+const func boolean: usedInExpression (in reference: searched,
+    in reference: expression) is func
+
+  result
+    var boolean: found is FALSE;
+  local
+    const set of string: actionsReferringParam is
+        {"ARR_IDX", "HSH_IDX", "HSH_IDX2", "SCT_SELECT", "STR_HEAD",
+         "STR_RANGE", "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL"};
+    var category: exprCategory is category.value;
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var reference: aParam is NIL;
+  begin
+    exprCategory := category(expression);
+    case exprCategory of
+(*
+      when {MATCHOBJECT}:
+        params := getValue(expression, ref_list);
+        function := params[1];
+        for aParam range params[2 ..] until found do
+          found := usedInExpression(searched, aParam);
+        end for;
+*)
+      when {CALLOBJECT}:
+        params := getValue(expression, ref_list);
+        function := params[1];
+        if category(function) <> ACTOBJECT or
+            str(getValue(function, ACTION)) in actionsReferringParam then
+          for aParam range params[2 ..] until found do
+            found := usedInExpression(searched, aParam);
+          end for;
+        end if;
+      otherwise:
+        found := searched = expression;
+    end case;
+  end func;
+
+
+const proc: checkParameterAliasing (in reference: function,
+    in ref_list: formalParams, in ref_list: actualParams,
+    in expr_type: c_expr) is func
+
+  local
+    const set of category: checkedCategories is {
+        STRIOBJECT, ARRAYOBJECT, HASHOBJECT};
+    var reference: checkedFormalInOutParam is NIL;
+    var integer: checkedParamNumber is 0;
+    var type: paramType is void;
+    var boolean: checkActualExpression is FALSE;
+    var reference: checkedActualInOutParam is NIL;
+    var integer: paramNumber is 0;
+    var reference: actualParam is NIL;
+    var reference: formalParam is NIL;
+    var reference: globalVariable is NIL;
+    var bitset: alreadyComplained is {};
+  begin
+    for checkedFormalInOutParam key checkedParamNumber range formalParams do
+      if isInOutParam(checkedFormalInOutParam) then
+        paramType := getType(checkedFormalInOutParam);
+        checkActualExpression := paramType in typeData.typeCategory and
+            typeData.typeCategory[paramType] in checkedCategories;
+        checkedActualInOutParam := actualParams[checkedParamNumber];
+        checkGlobalVariableChange(checkedActualInOutParam, c_expr);
+        for actualParam key paramNumber range actualParams do
+          if paramNumber <> checkedParamNumber then
+            formalParam := formalParams[paramNumber];
+            if actualParam = checkedActualInOutParam then
+              if isInOutParam(formalParam) then
+                if checkedParamNumber not in alreadyComplained then
+                  error(VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS,
+                        actualParam, checkedFormalInOutParam, c_expr);
+                  incl(alreadyComplained, checkedParamNumber);
+                end if;
+              elsif category(formalParam) = REFPARAMOBJECT then
+                error(VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER,
+                      actualParam, checkedFormalInOutParam, formalParam, c_expr);
+              end if;
+            elsif category(formalParam) = REFPARAMOBJECT and
+                usedInExpression(checkedActualInOutParam, actualParam) then
+              error(VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER,
+                    checkedActualInOutParam, checkedFormalInOutParam,
+                    formalParam, c_expr);
+            end if;
+          end if;
+        end for;
+      end if;
+    end for;
+    alreadyComplained := {};
+    if function in globalsChangedInFunction then
+      for key globalVariable range globalsChangedInFunction[function] do
+        for actualParam key paramNumber range actualParams do
+          formalParam := formalParams[paramNumber];
+          if actualParam = globalVariable then
+            if isInOutParam(formalParam) then
+              error(GLOBAL_VARIABLE_CHANGED_IN_FUNCTION_AND_USED_AS_INOUT_PARAMETER,
+                    globalVariable, function, formalParam, c_expr);
+              error(PLACE_OF_GLOBAL_VARIABLE_DEFINITION,
+                    globalVariable);
+              error(PLACE_OF_GLOBAL_VARIABLE_CHANGE,
+                    globalsChangedInFunction[function][globalVariable],
+                    globalVariable, function);
+              error(PLACE_OF_INOUT_PARAMETER_DEFINITION,
+                    formalParam);
+              incl(alreadyComplained, paramNumber);
+            elsif category(formalParam) = REFPARAMOBJECT then
+              error(GLOBAL_VARIABLE_CHANGED_IN_FUNCTION_AND_USED_AS_REF_PARAMETER,
+                    globalVariable, function, formalParam, c_expr);
+              error(PLACE_OF_GLOBAL_VARIABLE_DEFINITION,
+                    globalVariable);
+              error(PLACE_OF_GLOBAL_VARIABLE_CHANGE,
+                    globalsChangedInFunction[function][globalVariable],
+                    globalVariable, function);
+              error(PLACE_OF_REF_PARAMETER_DEFINITION,
+                    formalParam);
+            end if;
+          elsif category(formalParam) = REFPARAMOBJECT and
+              usedInExpression(globalVariable, actualParam) then
+            error(GLOBAL_VARIABLE_CHANGED_IN_FUNCTION_AND_USED_AS_REF_PARAMETER,
+                  globalVariable, function, formalParam, c_expr);
+            error(PLACE_OF_GLOBAL_VARIABLE_DEFINITION,
+                  globalVariable);
+            error(PLACE_OF_GLOBAL_VARIABLE_CHANGE,
+                  globalsChangedInFunction[function][globalVariable],
+                  globalVariable, function);
+            error(PLACE_OF_REF_PARAMETER_DEFINITION,
+                  formalParam);
+          end if;
+        end for;
+      end for;
+    end if;
+    if function in globalsInFunction then
+      for key globalVariable range globalsInFunction[function] do
+        for actualParam key paramNumber range actualParams do
+          formalParam := formalParams[paramNumber];
+          if paramNumber not in alreadyComplained and
+              actualParam = globalVariable and
+              isInOutParam(formalParam) then
+            error(GLOBAL_VARIABLE_USED_IN_FUNCTION_AND_USED_AS_INOUT_PARAMETER,
+                  globalVariable, function, formalParam, c_expr);
+            error(PLACE_OF_GLOBAL_VARIABLE_DEFINITION,
+                  globalVariable);
+            error(PLACE_OF_GLOBAL_VARIABLE_USE,
+                  globalsInFunction[function][globalVariable],
+                  globalVariable, function);
+            error(PLACE_OF_INOUT_PARAMETER_DEFINITION,
+                  formalParam);
+          end if;
+        end for;
+      end for;
+    end if;
+  end func;

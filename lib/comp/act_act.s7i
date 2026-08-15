@@ -68,6 +68,7 @@ const proc: process (ACE_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
     process_expr(params[3], c_param3);

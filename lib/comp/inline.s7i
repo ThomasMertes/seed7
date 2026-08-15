@@ -41,10 +41,6 @@ const type: inlineDepthHash is hash [reference] integer;
 var inlineDepthHash: functionInlineDepth is inlineDepthHash.value;
 
 
-const func boolean: isPointerParam (in reference: a_param) is forward;
-
-const func boolean: isCopyParam (in reference: a_param) is forward;
-
 const func boolean: canTakeAddress (in reference: an_expression) is forward;
 
 const func boolean: getConstant (in reference: currExpr,
@@ -289,6 +285,7 @@ const proc: process_inline_func (in reference: function,
     function_type := getType(function);
     result_type := resultType(function_type);
     formal_params := formalParams(function);
+    checkParameterAliasing(function, formal_params, actual_params, c_expr);
     inline_decls.temp_num := c_expr.temp_num;
     push_inline_func_params(formal_params, actual_params, inline_decls);
     process_local_var_declaration(function, inline_decls);
@@ -547,6 +544,7 @@ const proc: process_inline_proc (in reference: function,
   begin
     diagnosticLine := diagnosticLine(function);
     formal_params := formalParams(function);
+    checkParameterAliasing(function, formal_params, actual_params, c_expr);
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "/* inline proc o_";
     create_name2(function, c_expr.expr);

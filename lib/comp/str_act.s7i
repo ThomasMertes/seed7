@@ -640,6 +640,7 @@ const proc: process (STR_APPEND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_str_append(params[1], params[3], c_expr);
   end func;
 
@@ -944,6 +945,7 @@ const proc: process (STR_CPY, in reference: function,
     var expr_type: c_param3 is expr_type.value;
     var boolean: codeGenerated is FALSE;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if config.useSpecialCaseFunctions and
         isActionExpression(params[3], "STR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
@@ -1303,6 +1305,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
     var string: destStriName is "";
     var string: positionName is "";
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if config.optimizeStringFunctions and
         isActionExpression(params[4], "STR_LNG") and
         getActionParameter(params[4], 1) = params[1] then
@@ -3499,6 +3502,7 @@ const proc: process (STR_POSCPY, in reference: function,
     var expr_type: c_position is expr_type.value;
     var expr_type: c_aStri is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[6], STRIOBJECT, evaluatedParam) then
       sourceStri := getValue(evaluatedParam, string);
       if length(sourceStri) = 1 then
@@ -3577,6 +3581,7 @@ const proc: process (STR_PUSH, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], CHAROBJECT, evaluatedParam) then
       process_const_str_push(params[1], getValue(evaluatedParam, char), c_expr);
     else

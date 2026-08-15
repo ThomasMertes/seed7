@@ -49,10 +49,11 @@ $ include "seed7_05.s7i";
   include "comp/copy.s7i";
   include "comp/expr_utl.s7i";
   include "comp/stat.s7i";
+  include "comp/error.s7i";
+  include "comp/borrow.s7i";
   include "comp/inline.s7i";
   include "comp/const.s7i";
   include "comp/intrange.s7i";
-  include "comp/error.s7i";
   include "comp/library.s7i";
   include "comp/action.s7i";
 
@@ -421,20 +422,6 @@ const func string: getExprValue (in reference: current_expression, attr string) 
       end if;
     end if;
   end func;
-
-
-const func boolean: isPointerParam (in reference: a_param) is
-  return category(a_param) = REFPARAMOBJECT and
-        (not valueIsAtHeap(a_param) or isVar(a_param));
-
-
-const func boolean: isCopyParam (in reference: a_param) is
-  return category(a_param) = VALUEPARAMOBJECT and
-        valueIsAtHeap(a_param);
-
-
-const func boolean: isInOutParam (in reference: a_param) is
-  return category(a_param) = REFPARAMOBJECT and isVar(a_param);
 
 
 const func boolean: canTakeAddress (in reference: an_expression) is func
@@ -1357,41 +1344,7 @@ const proc: processFuncParam (in reference: formal_param,
   end func;
 
 
-const proc: checkParameterAliasing (in ref_list: formalParams,
-    in ref_list: actualParams, in expr_type: c_expr) is func
-
-  local
-    var integer: checkedParamNumber is 0;
-    var reference: formalParam is NIL;
-    var reference: checkedActualInOutParam is NIL;
-    var integer: paramNumber is 0;
-    var reference: actualParam is NIL;
-    var bitset: alreadyComplained is {};
-  begin
-    for formalParam key checkedParamNumber range formalParams do
-      if isInOutParam(formalParam) then
-        checkedActualInOutParam := actualParams[checkedParamNumber];
-        for actualParam key paramNumber range actualParams do
-          if paramNumber <> checkedParamNumber and
-              actualParam = checkedActualInOutParam then
-            if isInOutParam(formalParams[paramNumber]) then
-              if checkedParamNumber not in alreadyComplained then
-                error(VARIABLE_USED_FOR_TWO_INOUT_PARAMETERS,
-                      actualParam, formalParam, c_expr);
-                incl(alreadyComplained, checkedParamNumber);
-              end if;
-            elsif category(formalParams[paramNumber]) = REFPARAMOBJECT then
-              error(VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER,
-                    actualParam, formalParam, formalParams[paramNumber], c_expr);
-            end if;
-          end if;
-        end for;
-      end if;
-    end for;
-  end func;
-
-
-const proc: call_params (in ref_list: formal_params,
+const proc: call_params (in reference: function, in ref_list: formal_params,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
@@ -1402,7 +1355,7 @@ const proc: call_params (in ref_list: formal_params,
     var boolean: first_element is TRUE;
     var integer: temp_num is 0;
   begin
-    checkParameterAliasing(formal_params, actual_params, c_expr);
+    checkParameterAliasing(function, formal_params, actual_params, c_expr);
     for actual_param key number range actual_params do
       formal_param := formal_params[number];
       paramCategory := category(formal_param);
@@ -1521,7 +1474,7 @@ const proc: process_const_func_call (in reference: function,
       create_name(function, c_expr.result_expr);
       c_expr.result_expr &:= "(";
       c_params.temp_num := c_expr.temp_num;
-      call_params(formal_params, actual_params, c_params);
+      call_params(function, formal_params, actual_params, c_params);
       c_expr.temp_num := c_params.temp_num;
       c_expr.temp_decls &:= c_params.temp_decls;
       c_expr.temp_assigns &:= c_params.temp_assigns;
@@ -1531,7 +1484,7 @@ const proc: process_const_func_call (in reference: function,
       c_expr.result_expr &:= ")";
     elsif result_type = typeData.voidtype then
       c_params.temp_num := c_expr.temp_num;
-      call_params(formal_params, actual_params, c_params);
+      call_params(function, formal_params, actual_params, c_params);
       c_expr.temp_num := c_params.temp_num;
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
         setDiagnosticLine(c_expr);
@@ -1563,7 +1516,7 @@ const proc: process_const_func_call (in reference: function,
       end if;
       create_name(function, c_expr.expr);
       c_expr.expr &:= "(";
-      call_params(formal_params, actual_params, c_expr);
+      call_params(function, formal_params, actual_params, c_expr);
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -1835,8 +1788,20 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
   local
     var category: exprCategory is category.value;
   begin
-    optimize_constant_expressions(current_expression, c_expr);
-    exprCategory := category(current_expression);
+    if isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory not in localObjectCategory and
+          current_function <> NIL then
+        if current_function not in globalsInFunction then
+          globalsInFunction @:= [current_function] globalsHash.value;
+        end if;
+        globalsInFunction[current_function] @:= [current_expression]
+            setPlace(c_expr);
+      end if;
+    else
+      optimize_constant_expressions(current_expression, c_expr);
+      exprCategory := category(current_expression);
+    end if;
     case exprCategory of
       when {MATCHOBJECT}:
         process_match(current_expression, c_expr);
@@ -2395,6 +2360,7 @@ const proc: process_const_func_declaration (in reference: function,
     var reference: result_object is NIL;
     var reference: result_init is NIL;
   begin
+    current_function := function;
     function_type := getType(function);
     result_type := resultType(function_type);
     param_list := formalParams(function);
@@ -2622,6 +2588,7 @@ const proc: process_const_func_declaration (in reference: function,
       create_name2(function, c_expr.expr);
       c_expr.expr &:= "*/\n\n";
     end if;
+    current_function := NIL;
   end func;
 
 

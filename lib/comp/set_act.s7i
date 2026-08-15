@@ -253,6 +253,7 @@ const proc: process (SET_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     c_param3.demand := ASSIGN_RESULT;
@@ -316,6 +317,7 @@ const proc: process (SET_DIFF_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
       incr(count.optimizations);
@@ -798,6 +800,7 @@ const proc: process (SET_INTERSECT_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
       incr(count.optimizations);
@@ -1005,6 +1008,7 @@ const proc: process (SET_UNION_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], SETOBJECT, evaluatedParam) and
         getValue(evaluatedParam, bitset) = EMPTY_SET then
       incr(count.optimizations);

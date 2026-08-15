@@ -1503,6 +1503,7 @@ const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     var category: paramCategory is category.value;
     var string: valueName is "";
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     setDiagnosticLine(c_expr);
     if category(params[1]) = REFPARAMOBJECT and
         params[1] in inlineParam and

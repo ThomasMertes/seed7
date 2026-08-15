@@ -1729,6 +1729,7 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
     var intRange: deltaRange is intRange.value;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_add_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_arithmetic_overflow then
@@ -2509,6 +2510,7 @@ const proc: process (INT_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
@@ -2527,6 +2529,7 @@ const proc: process (INT_DECR, in reference: function,
     var string: variable_name is "";
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if config.check_int_arithmetic_overflow then
       incr(count.overflowChecks);
       if isNormalVariable(params[1]) then
@@ -3129,6 +3132,7 @@ const proc: process (INT_INCR, in reference: function,
     var string: variable_name is "";
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if config.check_int_arithmetic_overflow then
       incr(count.overflowChecks);
       if isNormalVariable(params[1]) then
@@ -3569,6 +3573,7 @@ const proc: process (INT_LSHIFT_ASSIGN, in reference: function,
     var string: lshift_name is "";
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_lshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_shift_overflow then
@@ -5207,6 +5212,7 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
     var string: product_name is "";
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mult_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_arithmetic_overflow then
@@ -6828,6 +6834,7 @@ const proc: process (INT_RSHIFT_ASSIGN, in reference: function,
     var string: variable_name is "";
     var string: rshift_name is "";
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_rshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif ccConf.RSHIFT_DOES_SIGN_EXTEND then
@@ -6961,6 +6968,7 @@ const proc: process (INT_SBTR_ASSIGN, in reference: function,
     var intRange: deltaRange is intRange.value;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_sbtr_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif config.check_int_arithmetic_overflow then

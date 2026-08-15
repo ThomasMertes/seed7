@@ -218,6 +218,7 @@ const proc: process (FLT_ADD_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], statement);
     statement.expr &:= "+=";
     process_expr(params[3], statement);
@@ -379,6 +380,7 @@ const proc: process (FLT_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
@@ -569,6 +571,7 @@ const proc: process (FLT_DIV_ASSIGN, in reference: function,
     var string: dividend is "";
     var string: divisor is "";
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_div_assign(params[1], getValue(evaluatedParam, float), c_expr);
     elsif ccConf.FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_NEGATE") and
@@ -1894,6 +1897,7 @@ const proc: process (FLT_MULT_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], statement);
     statement.expr &:= "*=";
     process_expr(params[3], statement);
@@ -2604,6 +2608,7 @@ const proc: process (FLT_SBTR_ASSIGN, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], statement);
     statement.expr &:= "-=";
     process_expr(params[3], statement);

@@ -146,6 +146,7 @@ const proc: process (ARR_APPEND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_arr_append(params[1], params[3], c_expr);
   end func;
 
@@ -564,6 +565,7 @@ const proc: process (ARR_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     arrayType := getExprResultType(params[1]);
     if isActionExpression(params[3], "ARR_CAT") and
         getActionParameter(params[3], 1) = params[1] then
@@ -1283,6 +1285,7 @@ const proc: process (ARR_INSERT, in reference: function,
     var string: array_name is "";
     var string: position_name is "";
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     array_type := getExprResultType(params[1]);
     element_type := getExprResultType(params[3]);
     if array_type not in typeData.array_element then
@@ -1356,6 +1359,7 @@ const proc: process (ARR_INSERT_ARRAY, in reference: function,
     var type: param3_type is void;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     param3_type := getExprResultType(params[3]);
     if valueIsAtHeap(typeData.array_element[param3_type]) then
       statement.expr &:= "arrInsertArrayTemp(&(";
@@ -1500,6 +1504,7 @@ const proc: process (ARR_PUSH, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getType(params[1]) not in typeData.array_element then
       typeData.array_element @:= [getType(params[1])] getType(params[3]);
     end if;
@@ -1599,6 +1604,7 @@ const proc: process (ARR_REMOVE, in reference: function,
     var type: proc_type is void;
     var type: result_type is void;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     proc_type := getType(function);
     result_type := resultType(proc_type);
     if valueIsAtHeap(result_type) then
@@ -1626,6 +1632,7 @@ const proc: process (ARR_REMOVE_ARRAY, in reference: function,
   local
     var type: param_type is void;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     param_type := getExprResultType(params[1]);
     prepare_typed_result(param_type, c_expr);
     c_expr.result_expr := "arrRemoveArray(&(";
