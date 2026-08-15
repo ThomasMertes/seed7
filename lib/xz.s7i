@@ -45,6 +45,11 @@ const integer: XZ_LZMA2_FILTER   is 33;
 const integer: XZ_DELTA_FILTER   is  3;
 const integer: XZ_X86_BCJ_FILTER is  4;
 
+const integer: XZ_CHECK_NONE    is  0;
+const integer: XZ_CHECK_CRC32   is  1;
+const integer: XZ_CHECK_CRC64   is  4;
+const integer: XZ_CHECK_SHA_256 is 10;
+
 
 const type: xzFilter is new struct
     var integer: filterId is 0;
@@ -216,18 +221,18 @@ const proc: verifyChecksum (inout xzStreamHeader: header,
     in string: data, inout lzmaDecoder: lzmaDec) is func
   begin
     case header.flags of
-      when {0}:  noop;
-      when {1}:
+      when {XZ_CHECK_NONE}:  noop;
+      when {XZ_CHECK_CRC32}:
         if bin32(gets(lzmaDec.rangeDec, 4), LE) <>
             crc32(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
-      when {4}:
+      when {XZ_CHECK_CRC64}:
         if bin64(gets(lzmaDec.rangeDec, 8), LE) <>
             crc64(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
         end if;
-      when {10}:
+      when {XZ_CHECK_SHA_256}:
         if gets(lzmaDec.rangeDec, 32) <>
             sha256(data[header.blockStartPos ..]) then
           raise RANGE_ERROR;
