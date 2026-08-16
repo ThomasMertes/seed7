@@ -233,7 +233,7 @@ const proc: write (in local_file_header: header) is func
 
 
 const proc: considerZip64ExtraField (inout local_file_header: header,
-    in string: zip64ExtraField) is func
+    val string: zip64ExtraField) is func
   local
     var integer: pos is 1;
   begin
@@ -594,7 +594,7 @@ const proc: write (in central_file_header: header) is func
 
 
 const proc: considerZip64ExtraField (inout central_file_header: header,
-    in string: zip64ExtraField) is func
+    val string: zip64ExtraField) is func
   local
     var integer: pos is 1;
   begin
