@@ -607,8 +607,10 @@ const type: zstdSequencesSectionType is new struct
     var fseDecodingType: matchLengthsFseDecoding is fseDecodingType.value;
   end struct;
 
+const type: zstdOffsetHistoryType is array integer;
+
 const type: zstdBlockStateType is new struct
-    var array integer: offsetHistory is [] (1, 4, 8);
+    var zstdOffsetHistoryType: offsetHistory is [] (1, 4, 8);
     var zstdHuffmanDecoder: decoder is zstdHuffmanDecoder.value;
     var zstdSequencesSectionType: sequencesSection is zstdSequencesSectionType.value;
   end struct;
@@ -917,7 +919,7 @@ const func zstdSequenceType: decodeSequence (in zstdSequencesSectionType: sequen
 
 const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
     inout reverseBitStream: compressedStream, in string: literals,
-    inout zstdBlockStateType: blockState, inout string: uncompressed) is func
+    inout zstdOffsetHistoryType: offsetHistory, inout string: uncompressed) is func
   local
     var integer: aBit is 0;
     var zstdSequenceState: state is zstdSequenceState.value;
@@ -950,33 +952,33 @@ const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
             if sequence.literalLength = 0 then
               case sequence.offset of
                 when {0}: raise RANGE_ERROR;
-                when {1}: offset := blockState.offsetHistory[2];
-                          blockState.offsetHistory[2] := blockState.offsetHistory[1];
-                when {2}: offset := blockState.offsetHistory[3];
-                          blockState.offsetHistory[3] := blockState.offsetHistory[2];
-                          blockState.offsetHistory[2] := blockState.offsetHistory[1];
-                when {3}: offset := pred(blockState.offsetHistory[1]);
-                          blockState.offsetHistory[3] := blockState.offsetHistory[2];
-                          blockState.offsetHistory[2] := blockState.offsetHistory[1];
+                when {1}: offset := offsetHistory[2];
+                          offsetHistory[2] := offsetHistory[1];
+                when {2}: offset := offsetHistory[3];
+                          offsetHistory[3] := offsetHistory[2];
+                          offsetHistory[2] := offsetHistory[1];
+                when {3}: offset := pred(offsetHistory[1]);
+                          offsetHistory[3] := offsetHistory[2];
+                          offsetHistory[2] := offsetHistory[1];
               end case;
-              blockState.offsetHistory[1] := offset;
+              offsetHistory[1] := offset;
             else
-              offset := blockState.offsetHistory[sequence.offset];
+              offset := offsetHistory[sequence.offset];
               case sequence.offset of
                 when {0}: raise RANGE_ERROR;
                 when {1}: noop;
-                when {2}: blockState.offsetHistory[2] := blockState.offsetHistory[1];
-                          blockState.offsetHistory[1] := offset;
-                when {3}: blockState.offsetHistory[3] := blockState.offsetHistory[2];
-                          blockState.offsetHistory[2] := blockState.offsetHistory[1];
-                          blockState.offsetHistory[1] := offset;
+                when {2}: offsetHistory[2] := offsetHistory[1];
+                          offsetHistory[1] := offset;
+                when {3}: offsetHistory[3] := offsetHistory[2];
+                          offsetHistory[2] := offsetHistory[1];
+                          offsetHistory[1] := offset;
               end case;
             end if;
           else
             offset := sequence.offset - 3;
-            blockState.offsetHistory[3] := blockState.offsetHistory[2];
-            blockState.offsetHistory[2] := blockState.offsetHistory[1];
-            blockState.offsetHistory[1] := offset;
+            offsetHistory[3] := offsetHistory[2];
+            offsetHistory[2] := offsetHistory[1];
+            offsetHistory[1] := offset;
           end if;
           if sequence.matchLength > offset then
             nextPos := succ(length(uncompressed));
@@ -1027,7 +1029,8 @@ const proc: readCompressedBlock (inout file: compressed, in integer: blockSize,
       initDecodeTables(compressed, blockState, header);
       lengthOfSequencesData := blockSize - (tell(compressed) - blockStartPos);
       compressedStream := reverseBitStream(compressed, lengthOfSequencesData);
-      decodeSequences(blockState.sequencesSection, compressedStream, literals, blockState, uncompressed);
+      decodeSequences(blockState.sequencesSection, compressedStream, literals,
+                      blockState.offsetHistory, uncompressed);
     end if;
   end func;
 
