@@ -126,10 +126,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_ARRLIT, function, params, c_expr);
       when {"ARR_ARRLIT2"}:
         process(ARR_ARRLIT2, function, params, c_expr);
+      when {"ARR_ARRLIT3"}:
+        process(ARR_ARRLIT3, function, params, c_expr);
       when {"ARR_BASELIT"}:
         process(ARR_BASELIT, function, params, c_expr);
       when {"ARR_BASELIT2"}:
         process(ARR_BASELIT2, function, params, c_expr);
+      when {"ARR_BASELIT3"}:
+        process(ARR_BASELIT3, function, params, c_expr);
       when {"ARR_CAT"}:
         process(ARR_CAT, function, params, c_expr);
       when {"ARR_CONV"}:

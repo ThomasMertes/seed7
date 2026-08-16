@@ -28,8 +28,10 @@
 const ACTION: ARR_APPEND       is action "ARR_APPEND";
 const ACTION: ARR_ARRLIT       is action "ARR_ARRLIT";
 const ACTION: ARR_ARRLIT2      is action "ARR_ARRLIT2";
+const ACTION: ARR_ARRLIT3      is action "ARR_ARRLIT3";
 const ACTION: ARR_BASELIT      is action "ARR_BASELIT";
 const ACTION: ARR_BASELIT2     is action "ARR_BASELIT2";
+const ACTION: ARR_BASELIT3     is action "ARR_BASELIT3";
 const ACTION: ARR_CAT          is action "ARR_CAT";
 const ACTION: ARR_CONV         is action "ARR_CONV";
 const ACTION: ARR_CPY          is action "ARR_CPY";
@@ -60,8 +62,10 @@ const proc: arr_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "void        arrAppend (arrayType *const, const arrayType);");
     declareExtern(c_prog, "arrayType   arrArrlit2 (intType, arrayType);");
+    declareExtern(c_prog, "arrayType   arrArrlit3 (intType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrBaselit (const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrBaselit2 (intType, const rtlValueUnion);");
+    declareExtern(c_prog, "arrayType   arrBaselit3 (intType, intType, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrCat (arrayType, const arrayType);");
     declareExtern(c_prog, "arrayType   arrExtend (arrayType, const rtlValueUnion);");
     declareExtern(c_prog, "void        arrFree (arrayType);");
@@ -195,6 +199,21 @@ const proc: process (ARR_ARRLIT2, in reference: function,
   end func;
 
 
+const proc: process (ARR_ARRLIT3, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(getExprResultType(params[3]), c_expr);
+    c_expr.result_expr := "arrArrlit3(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getTemporaryToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process (ARR_BASELIT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -221,6 +240,24 @@ const proc: process (ARR_BASELIT2, in reference: function,
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ", ";
     getRtlValueTemporaryToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (ARR_BASELIT3, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if resultType(getType(function)) not in typeData.array_element then
+      typeData.array_element @:= [resultType(getType(function))] getType(params[3]);
+    end if;
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "arrBaselit3(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getRtlValueTemporaryToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
