@@ -1,0 +1,181 @@
+#!/bin/sh
+# SH FILE: build-seed7
+#
+# Purpose   : Build the Seed7 system.
+# Created   : Friday, March 28 2025.
+# Author    : Pierre Rouleau
+# Time-stamp: <2025-04-04 08:57:53 EDT, updated by Pierre Rouleau>
+# ----------------------------------------------------------------------------
+# Module Description
+# ------------------
+#
+# Build and test the Seed7 system, using a single command.
+# Stop at the first error.
+# By default cleans, builds everything and runs tests.
+# There are options to do a dry-run or skip the clean and the test.
+# The help provides some info.
+
+# ----------------------------------------------------------------------------
+# Dependencies
+# ------------
+#
+# - Can only be executed from the root directory of Seed7 repo.
+# - Unix-like OS: Posix shell, printf, ls, sed, column.
+#
+
+# ----------------------------------------------------------------------------
+# Code
+# ----
+#
+#
+pgm_name="$(basename "$0")"
+makefile_name=""
+no_clean=""
+no_test=""
+dry_run=""
+
+print_usage()
+{
+    printf -- "\
+%s: List information of specified running process.
+
+ Usage: %s h|--help
+ • Print this help information.
+
+ Usage: %s [-n|--no-test] [makefile-name]
+ • Build Seed7.
+
+   Options:
+        -c | --no-clean: build without first performing a make clean,
+                         which would otherwise be done.
+        -t | --no-test: build only.  Do not run tests, which are
+                        executed by default.
+        -n |  --dry-run: only show what make would execute, without
+                         doing anything.
+
+  See the src/read_me.txt for more information about the various
+  make files provided.
+
+  If needed, you can specify any of the following makefile to use
+  on the command line.
+
+" "$pgm_name" "$pgm_name" "$pgm_name"
+    ls src/*.mak | sed -e 's:src/::g' | column
+}
+
+
+# --
+# Check for help
+if [ -n "$1" ]; then
+    if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+        print_usage
+        if [ "$#" = "1" ]; then
+            exit 0
+        else
+            exit  1
+        fi
+    fi
+fi
+
+# --
+# Check for no-test or file name
+while [ -n "$1" ]; do
+    if [ -n "$1" ]; then
+        case "$1" in
+            -c | --no-clean)
+                no_clean="true"
+                ;;
+
+            -t | --no-test)
+                no_test="true"
+                ;;
+
+            -n | --dry-run)
+                dry_run="true"
+                ;;
+
+            -* )
+                printf -- "%s ** Invalid option %s\n" "$pgm_name" "$1"
+                printf -- "Use '%s -h' to see usage.\n"  "$pgm_name"
+                exit 1
+                ;;
+
+            *)
+                makefile_name="$1"
+                ;;
+        esac
+    fi
+    shift
+done
+
+#--
+# Proceed
+
+if [ "$makefile_name" = "" ]; then
+    case $(uname) in
+        Darwin)
+            if [ "$dry_run" = "true" ] ; then
+                make_cmd='make -n -f mk_osxcl.mak'
+            else
+                make_cmd='make -f mk_osxcl.mak'
+            fi
+            ;;
+        Linux)
+            if [ "$dry_run" = "true" ] ; then
+                make_cmd='make -n'
+            else
+                make_cmd='make'
+            fi
+            ;;
+        *)
+            printf -- "%s ** OS not supported by %s, please specify makefile name on command line!\n"  "$pgm_name" "$pgm_name"
+            printf -- "       Report the issue with uname output to request automatic support for your OS.\n"
+            exit 1
+            ;;
+    esac
+else
+    if [ "$dry_run" = "true" ] ; then
+        make_cmd="make -n -f ${makefile_name}"
+    else
+        make_cmd="make -f ${makefile_name}"
+    fi
+fi
+
+
+# --
+# Build
+
+# Execute from Seed7 repo root.
+cd src || exit 1
+
+if [ "$no_clean" = "" ]; then
+    printf -- "%s %s clean\n\n" "${make_cmd}"
+    if ! $make_cmd clean; then
+        exit 1
+    fi
+fi
+
+printf -- "\n\n%s depend\n\n" "${make_cmd}"
+if $make_cmd depend; then
+    printf -- "\n\n%s\n\n" "${make_cmd}"
+    if  $make_cmd; then
+        printf -- "\n\n%s s7c\n\n" "${make_cmd}"
+        if  $make_cmd s7c; then
+            if [ "$no_test" = "true" ]; then
+                printf -- "All completed!\n"
+            else
+                printf -- "\n\n%s test\n\n" "${make_cmd}"
+                if $make_cmd test; then
+                    printf -- "All tests passed!\n"
+                fi
+            fi
+        fi
+    fi
+fi
+
+
+
+# ----------------------------------------------------------------------------
+# Local Variables:
+# sh-shell: sh
+# End:
