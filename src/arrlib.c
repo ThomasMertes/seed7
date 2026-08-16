@@ -404,6 +404,70 @@ objectType arr_arrlit2 (listType arguments)
 
 
 
+objectType arr_arrlit3 (listType arguments)
+
+  {
+    intType minIdx;
+    intType maxIdx;
+    objectType arr_arg;
+    arrayType arr1;
+    objectType array_exec_object;
+    memSizeType result_size;
+    arrayType result_array;
+    objectType result;
+
+  /* arr_arrlit3 */
+    logFunction(printf("arr_arrlit3\n"););
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    minIdx = take_int(arg_1(arguments));
+    maxIdx = take_int(arg_2(arguments));
+    arr_arg = arg_3(arguments);
+    isit_array(arr_arg);
+    arr1 = take_array(arr_arg);
+    result_size = arraySize(arr1);
+    if (unlikely(minIdx < MIN_MEM_INDEX ||
+                 maxIdx > MAX_MEM_INDEX ||
+                 maxIdx < minIdx ||
+                 result_size != arraySize2(minIdx, maxIdx))) {
+      logError(printf("arr_arrlit3(" FMT_D ", " FMT_D
+                      ", arr1 (size=" FMT_U_MEM ")): "
+                      "Minimum or maximum index out of range.\n",
+                      minIdx, maxIdx, result_size););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      if (TEMP_OBJECT(arr_arg)) {
+        arr1->min_position = minIdx;
+        arr1->max_position = maxIdx;
+        result = arr_arg;
+        result->type_of = NULL;
+        arg_3(arguments) = NULL;
+      } else {
+        if (unlikely(!ALLOC_ARRAY(result_array, result_size))) {
+          logError(printf("arr_arrlit3: ALLOC_ARRAY() failed.\n"););
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          array_exec_object = curr_exec_object;
+          result_array->min_position = minIdx;
+          result_array->max_position = maxIdx;
+          if (unlikely(!crea_array(result_array->arr, arr1->arr, result_size))) {
+            logError(printf("arr_arrlit3: crea_array() failed.\n"););
+            FREE_ARRAY(result_array, result_size);
+            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           array_exec_object,
+                                           arguments);
+          } else {
+            result = bld_array_temp(result_array);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("arr_arrlit3 -->\n"););
+    return result;
+  } /* arr_arrlit3 */
+
+
+
 objectType arr_baselit (listType arguments)
 
   {
@@ -504,6 +568,72 @@ objectType arr_baselit2 (listType arguments)
     } /* if */
     return bld_array_temp(result);
   } /* arr_baselit2 */
+
+
+
+objectType arr_baselit3 (listType arguments)
+
+  {
+    intType minIdx;
+    intType maxIdx;
+    objectType element;
+    typeType element_type;
+    objectType array_exec_object;
+    memSizeType result_size;
+    arrayType result;
+
+  /* arr_baselit3 */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    minIdx = take_int(arg_1(arguments));
+    maxIdx = take_int(arg_2(arguments));
+    element = arg_3(arguments);
+    logFunction(printf("arr_baselit3(" FMT_D ", " FMT_D ", ",
+                       minIdx, maxIdx);
+                trace1(element);
+                printf(")\n"););
+    if (unlikely(minIdx < MIN_MEM_INDEX ||
+                 maxIdx > MAX_MEM_INDEX ||
+                 minIdx != maxIdx)) {
+      logError(printf("arr_baselit3(" FMT_D ", " FMT_D ", "
+                      FMT_U_MEM "): "
+                      "Minimum or maximum index out of range.\n",
+                      minIdx, maxIdx, (memSizeType) element););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      result_size = 1;
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
+        logError(printf("arr_baselit3: ALLOC_ARRAY() failed.\n"););
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->min_position = minIdx;
+        result->max_position = maxIdx;
+        /* The element type is the type of the 3rd formal parameter */
+        element_type = curr_exec_object->value.listValue->obj->
+                       descriptor.property->params->next->next->obj->type_of;
+        if (TEMP_OBJECT(element) && element->type_of == element_type) {
+          CLEAR_TEMP_FLAG(element);
+          SET_VAR_FLAG(element);
+          SET_EMBEDDED_FLAG(element);
+          memcpy(&result->arr[0], element, sizeof(objectRecord));
+          FREE_OBJECT(element);
+          arg_3(arguments) = NULL;
+        } else {
+          array_exec_object = curr_exec_object;
+          if (unlikely(!arr_elem_initialisation(element_type,
+                                                &result->arr[0],
+                                                element))) {
+            logError(printf("arr_baselit3: arr_elem_initialisation() failed.\n"););
+            FREE_ARRAY(result, result_size);
+            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           array_exec_object,
+                                           arguments);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return bld_array_temp(result);
+  } /* arr_baselit3 */
 
 
 

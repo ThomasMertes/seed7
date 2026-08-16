@@ -157,7 +157,9 @@ static const objectCategory p_hsh_op_int_ref[]       = {HASHOBJECT, SYMBOLOBJECT
 static const objectCategory p_any_hsh_prc_ref[]      = {ILLEGALOBJECT, HASHOBJECT, BLOCKOBJECT, REFOBJECT};
 static const objectCategory p_int[]                  = {INTOBJECT};
 static const objectCategory p_int_int[]              = {INTOBJECT, INTOBJECT};
+static const objectCategory p_int_int_arr[]          = {INTOBJECT, INTOBJECT, ARRAYOBJECT};
 static const objectCategory p_int_int_int[]          = {INTOBJECT, INTOBJECT, INTOBJECT};
+static const objectCategory p_int_int_any[]          = {INTOBJECT, INTOBJECT, ILLEGALOBJECT};
 static const objectCategory p_int_int_int_int[]      = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT};
 static const objectCategory p_4_int[]                = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT};
 static const objectCategory p_4_int_str[]            = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT, STRIOBJECT};
@@ -440,7 +442,9 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_any_hsh_prc_ref      argCountAndArgs(p_any_hsh_prc_ref)
 #define par_int                  argCountAndArgs(p_int)
 #define par_int_int              argCountAndArgs(p_int_int)
+#define par_int_int_arr          argCountAndArgs(p_int_int_arr)
 #define par_int_int_int          argCountAndArgs(p_int_int_int)
+#define par_int_int_any          argCountAndArgs(p_int_int_any)
 #define par_int_int_int_int      argCountAndArgs(p_int_int_int_int)
 #define par_4_int                argCountAndArgs(p_4_int)
 #define par_4_int_str            argCountAndArgs(p_4_int_str)
@@ -655,8 +659,10 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_APPEND",                   arr_append,                   VOIDOBJECT,        par_arr_op_arr},
     { "ARR_ARRLIT",                   arr_arrlit,                   ARRAYOBJECT,       par_op_op_arr},
     { "ARR_ARRLIT2",                  arr_arrlit2,                  ARRAYOBJECT,       par_op_int_op_arr},
+    { "ARR_ARRLIT3",                  arr_arrlit3,                  ARRAYOBJECT,       par_int_int_arr},
     { "ARR_BASELIT",                  arr_baselit,                  ARRAYOBJECT,       par_op_op_any},
     { "ARR_BASELIT2",                 arr_baselit2,                 ARRAYOBJECT,       par_op_int_op_any},
+    { "ARR_BASELIT3",                 arr_baselit3,                 ARRAYOBJECT,       par_int_int_any},
     { "ARR_CAT",                      arr_cat,                      ARRAYOBJECT,       par_arr_op_arr},
     { "ARR_CONV",                     arr_conv,                     ARRAYOBJECT,       par_op_op_arr},
     { "ARR_CPY",                      arr_cpy,                      VOIDOBJECT,        par_arr_op_arr},
