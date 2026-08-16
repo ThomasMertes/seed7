@@ -607,10 +607,10 @@ const type: zstdSequencesSectionType is new struct
     var fseDecodingType: matchLengthsFseDecoding is fseDecodingType.value;
   end struct;
 
-const type: zstdOffsetHistoryType is array integer;
+const type: zstdOffsetHistoryType is array [3] integer;
 
 const type: zstdBlockStateType is new struct
-    var zstdOffsetHistoryType: offsetHistory is [] (1, 4, 8);
+    var zstdOffsetHistoryType: offsetHistory is zstdOffsetHistoryType [] (1, 4, 8);
     var zstdHuffmanDecoder: decoder is zstdHuffmanDecoder.value;
     var zstdSequencesSectionType: sequencesSection is zstdSequencesSectionType.value;
   end struct;
