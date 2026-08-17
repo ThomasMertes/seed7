@@ -102,8 +102,15 @@ const func boolean: usedInExpression (in reference: searched,
       when {CALLOBJECT}:
         params := getValue(expression, ref_list);
         function := params[1];
-        if category(function) <> ACTOBJECT or
-            str(getValue(function, ACTION)) in actionsReferringParam then
+        if category(function) = ACTOBJECT then
+          if str(getValue(function, ACTION)) in actionsReferringParam then
+            for aParam range params[2 ..] until found do
+              found := usedInExpression(searched, aParam);
+            end for;
+          end if;
+        elsif category(function) = BLOCKOBJECT and
+            getType(function) <> typeData.proctype and
+            resultVar(function) = NIL then
           for aParam range params[2 ..] until found do
             found := usedInExpression(searched, aParam);
           end for;
