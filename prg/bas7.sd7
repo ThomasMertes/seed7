@@ -5471,7 +5471,7 @@ const proc: exec_print_using (inout file: outFile,
               symbol := get_symbol(line);
               write(log, ":");
               while symbol = ":" do
-                writeln(win);
+                writeln(outFile);
                 symbol := get_symbol(line);
                 write(log, ":");
               end while;
