@@ -189,6 +189,59 @@ const proc: readBlockHeader (inout xzBlockHeader: header,
   end func;
 
 
+const func string: getLeb128 (inout lzmaDecoder: lzmaDec) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: ch is ' ';
+  begin
+    ch := getc(lzmaDec.rangeDec);
+    while ch >= '\128;' and ch <= '\255;' do
+      resultStri &:= ch;
+      ch := getc(lzmaDec.rangeDec);
+    end while;
+    if ch >= '\0;' and ch <= '\127;' then
+      resultStri &:= ch;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readIndexStructure (inout lzmaDecoder: lzmaDec) is func
+  local
+    var string: indexStructureStri is str(XZ_INDEX_INDICATOR);
+    var integer: pos is 2;
+    var integer: numberOfRecords is 0;
+    var integer: recordNumber is 0;
+    var integer: paddingSize is 0;
+    var integer: paddingStart is 0;
+    var string: crc32Stri is "";
+    var integer: crc32 is 0;
+  begin
+    indexStructureStri &:= getLeb128(lzmaDec);
+    numberOfRecords := uLeb128ToInt(indexStructureStri, pos);
+    # writeln("numberOfRecords: " <& numberOfRecords);
+    for recordNumber range 1 to numberOfRecords do
+      indexStructureStri &:= getLeb128(lzmaDec);
+      # writeln("unpaddedSize: " <& uLeb128ToInt(indexStructureStri, pos));
+      indexStructureStri &:= getLeb128(lzmaDec);
+      # writeln("uncompressedSize: " <& uLeb128ToInt(indexStructureStri, pos));
+    end for;
+    paddingSize := -(pred(tell(lzmaDec.rangeDec)) mod -4);
+    paddingStart := succ(length(indexStructureStri));
+    indexStructureStri &:= gets(lzmaDec.rangeDec, paddingSize);
+    if indexStructureStri[paddingStart ..] <> "\0;" mult paddingSize then
+      raise RANGE_ERROR;
+    end if;
+    crc32Stri := gets(lzmaDec.rangeDec, 4);
+    crc32 := bytes2Int(crc32Stri[1 fixLen 4], UNSIGNED, LE);
+    if bin32(crc32) <> crc32(indexStructureStri) then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
 const type: xzStreamHeader is new struct
     var integer: flags is 0;
     var xzBlockHeader: blockHeader is xzBlockHeader.value;
@@ -265,6 +318,7 @@ const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: 
       end if;
       encodedHeaderSize := getc(lzmaDec.rangeDec);
       if encodedHeaderSize = XZ_INDEX_INDICATOR then
+        readIndexStructure(lzmaDec);
         header.streamFinished := TRUE;
       else
         readBlockHeader(header.blockHeader, lzmaDec, encodedHeaderSize);
