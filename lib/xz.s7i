@@ -314,7 +314,7 @@ const proc: processEndOfBlock (inout xzStreamHeader: header, inout lzmaDecoder: 
                        header.blockStartPos, lzmaDec.rangeDec);
       else
         verifyChecksum(header, lzmaDec.uncompressed,
-                               header.blockStartPos, lzmaDec.rangeDec);
+                       header.blockStartPos, lzmaDec.rangeDec);
       end if;
       encodedHeaderSize := getc(lzmaDec.rangeDec);
       if encodedHeaderSize = XZ_INDEX_INDICATOR then
