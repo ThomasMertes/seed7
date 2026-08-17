@@ -211,7 +211,7 @@ void free_block (blockType block)
 
 
 
-blockType new_block (locListType block_params, const_locObjType block_result,
+blockType new_block (const_locObjType block_result,
     locListType block_local_vars, listType block_local_consts,
     objectType block_body)
 
@@ -219,10 +219,10 @@ blockType new_block (locListType block_params, const_locObjType block_result,
     register blockType created_block;
 
   /* new_block */
-    logFunction(printf("new_block(" FMT_U_MEM ")\n", (memSizeType) block_params););
+    logFunction(printf("new_block\n"););
     if (ALLOC_RECORD(created_block, blockRecord, count.block)) {
       created_block->usage_count = 1;
-      created_block->params = block_params;
+      created_block->params = NULL;
       if (block_result == NULL) {
         created_block->result.object           = NULL;
         created_block->result.init_value       = NULL;
