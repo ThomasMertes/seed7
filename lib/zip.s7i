@@ -245,7 +245,6 @@ const proc: considerZip64ExtraField (inout local_file_header: header,
     if header.compressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
       header.compressed_size := bytes2Int(zip64ExtraField[pos fixLen 8], UNSIGNED, LE);
       # writeln("compressed_size: " <& header.compressed_size);
-      pos +:= 8;
     end if;
   end func;
 
@@ -616,7 +615,6 @@ const proc: considerZip64ExtraField (inout central_file_header: header,
     if header.disk_number_start = 16#ffff and length(zip64ExtraField) >= pos + 3 then
       header.disk_number_start := bytes2Int(zip64ExtraField[pos fixLen 4], UNSIGNED, LE);
       # writeln("disk_number_start: " <& header.disk_number_start);
-      pos +:= 4;
     end if;
   end func;
 
