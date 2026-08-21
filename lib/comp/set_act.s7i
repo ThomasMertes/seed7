@@ -687,6 +687,7 @@ const proc: process (SET_EXCL, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if config.inlineFunctions then
       incr(count.optimizations);
       incr(count.inlinedFunctions);
@@ -762,6 +763,7 @@ const proc: process (SET_INCL, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.expr := "setIncl(&(";
     process_expr(params[1], statement);
     statement.expr &:= "), ";
