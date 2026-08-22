@@ -95,7 +95,7 @@ const proc: process (BLN_AND_ASSIGN, in reference: function,
         process_expr(params[1], statement);
         statement.expr &:= "=0;\n";
       end if;
-    elsif category(params[3]) in {VARENUMOBJECT, LOCALVOBJECT, RESULTOBJECT} then
+    elsif category(params[3]) in {VARENUMOBJECT, LOCALVOBJECT, VALUEPARAMOBJECT, RESULTOBJECT} then
       process_expr(params[1], statement);
       statement.expr &:= "&=";
       process_expr(params[3], statement);
@@ -327,7 +327,7 @@ const proc: process (BLN_OR_ASSIGN, in reference: function,
         process_expr(params[1], statement);
         statement.expr &:= "=1;\n";
       end if;
-    elsif category(params[3]) in {VARENUMOBJECT, LOCALVOBJECT, RESULTOBJECT} then
+    elsif category(params[3]) in {VARENUMOBJECT, LOCALVOBJECT, VALUEPARAMOBJECT, RESULTOBJECT} then
       process_expr(params[1], statement);
       statement.expr &:= "|=";
       process_expr(params[3], statement);
