@@ -399,19 +399,83 @@ const proc: check_or is func
   end func;
 
 
+const func boolean: check_or_assign_from_false_result is func
+  result
+    var boolean: false_result_var is FALSE;
+  local
+    var boolean: okay is TRUE;
+    var boolean: aBoolean is FALSE;
+  begin
+    aBoolean := FALSE; aBoolean |:= false_result_var; okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean |:= false_result_var; okay := okay and     aBoolean;
+    false_result_var := okay;
+  end func;
+
+
+const func boolean: check_or_assign_from_true_result is func
+  result
+    var boolean: true_result_var is TRUE;
+  local
+    var boolean: okay is TRUE;
+    var boolean: aBoolean is FALSE;
+  begin
+    aBoolean := FALSE; aBoolean |:= true_result_var; okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= true_result_var; okay := okay and     aBoolean;
+    true_result_var := okay;
+  end func;
+
+
+const func boolean: doReturn (in boolean: aBoolean) is
+  return aBoolean;
+
+
+const func boolean: setFalse (inout boolean: okay) is func
+  result
+    var boolean: resultVar is FALSE;
+  begin
+    okay := FALSE;
+  end func;
+
+
 const proc: check_or_assign is func
   local
     var boolean: okay is TRUE;
-    var boolean: aBoolean is FALSE
+    var boolean: aBoolean is FALSE;
+    var boolean: local_true_var is TRUE;
+    var boolean: local_false_var is FALSE;
   begin
-    aBoolean := FALSE; aBoolean |:=          FALSE;  okay := okay and not aBoolean;
-    aBoolean := FALSE; aBoolean |:=          TRUE;   okay := okay and     aBoolean;
-    aBoolean := TRUE;  aBoolean |:=          FALSE;  okay := okay and     aBoolean;
-    aBoolean := TRUE;  aBoolean |:=          TRUE;   okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:=           FALSE; okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:=           TRUE;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=           FALSE; okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=           TRUE;  okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:=      boolean(0); okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:=      boolean(1); okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=      boolean(0); okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=      boolean(1); okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:=       false_var; okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:=       true_var;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=       false_var; okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:=       true_var;  okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:= local_false_var; okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:= local_true_var;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= local_false_var; okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= local_true_var;  okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:= doReturn(FALSE); okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean |:= doReturn(TRUE);  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= setFalse(okay);  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= setFalse(okay);  okay := okay and     aBoolean;
     aBoolean := FALSE; aBoolean |:= boolExpr(FALSE); okay := okay and not aBoolean;
     aBoolean := FALSE; aBoolean |:= boolExpr(TRUE);  okay := okay and     aBoolean;
     aBoolean := TRUE;  aBoolean |:= boolExpr(FALSE); okay := okay and     aBoolean;
     aBoolean := TRUE;  aBoolean |:= boolExpr(TRUE);  okay := okay and     aBoolean;
+
+    if not check_or_assign_from_false_result then
+      okay := FALSE;
+    end if;
+
+    if not check_or_assign_from_true_result then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Boolean or assignment works correctly.");
