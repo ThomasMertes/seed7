@@ -91,20 +91,35 @@ objectType bln_and (listType arguments)
 /**
  *  Assign the result of 'dest/arg_1 and source/arg_3' to dest/arg_1.
  *  This corresponds to dest := dest and source;
- *  The 'and' operation used here always evaluates the right argument.
  */
 objectType bln_and_assign (listType arguments)
 
   {
     objectType dest;
+    objectType temp;
+    objectType param3;
 
   /* bln_and_assign */
     dest = arg_1(arguments);
     isit_bool(dest);
     is_variable(dest);
-    isit_bool(arg_3(arguments));
-    if (take_bool(arg_3(arguments)) == SYS_FALSE_OBJECT) {
-      dest->value.objValue = SYS_FALSE_OBJECT;
+    if (take_bool(dest) == SYS_TRUE_OBJECT) {
+      param3 = evaluate(arg_3(arguments));
+      if (!fail_flag) {
+        isit_bool(param3);
+        if (TEMP_OBJECT(param3) &&
+            (CATEGORY_OF_OBJ(param3) == CONSTENUMOBJECT ||
+             CATEGORY_OF_OBJ(param3) == VARENUMOBJECT)) {
+          temp = param3;
+          param3 = param3->value.objValue;
+          FREE_OBJECT(temp);
+        } else {
+          param3 = take_bool(param3);
+        } /* if */
+        if (param3 == SYS_FALSE_OBJECT) {
+          dest->value.objValue = SYS_FALSE_OBJECT;
+        } /* if */
+      } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* bln_and_assign */

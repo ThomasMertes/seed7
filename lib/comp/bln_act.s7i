@@ -84,14 +84,33 @@ const proc: process (BLN_AND_ASSIGN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
+    var string: variableName is "";
     var expr_type: statement is expr_type.value;
   begin
     checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
-    process_expr(params[1], statement);
-    statement.expr &:= "&=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
+    if getConstant(params[3], ENUMLITERALOBJECT, evaluatedParam) then
+      if not getValue(evaluatedParam, boolean) then
+        process_expr(params[1], statement);
+        statement.expr &:= "=0;\n";
+      end if;
+    elsif category(params[3]) in {VARENUMOBJECT, LOCALVOBJECT, RESULTOBJECT} then
+      process_expr(params[1], statement);
+      statement.expr &:= "&=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
+    else
+      variableName := getParameterAsReference("boolType", "variable_", params[1], statement);
+      statement.expr &:= "if (";
+      statement.expr &:= variableName;
+      statement.expr &:= ") {";
+      statement.expr &:= variableName;
+      statement.expr &:= "=";
+      statement.expr &:= "(";
+      process_call_by_name_expr(params[3], statement);
+      statement.expr &:= ");}\n";
+    end if;
     doLocalDeclsOfStatement(statement, c_expr);
     c_expr.temp_num := statement.temp_num;
   end func;
