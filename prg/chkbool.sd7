@@ -304,6 +304,25 @@ const func boolean: check_and_assign_from_true_result is func
   end func;
 
 
+const func boolean: check_and_assign_from_parameter (in boolean: falseParam, in boolean: trueParam) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: aBoolean is FALSE;
+    var array boolean: boolArr is [] (FALSE);
+  begin
+    aBoolean := FALSE; aBoolean &:= falseParam; okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:= falseParam; okay := okay and not aBoolean;
+    aBoolean := FALSE; aBoolean &:= trueParam;  okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean &:= trueParam;  okay := okay and     aBoolean;
+
+    boolArr[1] := FALSE; boolArr[1] &:= falseParam; okay := okay and not boolArr[1];
+    boolArr[1] := TRUE;  boolArr[1] &:= falseParam; okay := okay and not boolArr[1];
+    boolArr[1] := FALSE; boolArr[1] &:= trueParam;  okay := okay and not boolArr[1];
+    boolArr[1] := TRUE;  boolArr[1] &:= trueParam;  okay := okay and     boolArr[1];
+  end func;
+
+
 const proc: check_and_assign is func
   local
     var boolean: okay is TRUE;
@@ -367,6 +386,10 @@ const proc: check_and_assign is func
     end if;
 
     if not check_and_assign_from_true_result then
+      okay := FALSE;
+    end if;
+
+    if not check_and_assign_from_parameter(FALSE, TRUE) then
       okay := FALSE;
     end if;
 
@@ -531,6 +554,25 @@ const func boolean: check_or_assign_from_true_result is func
   end func;
 
 
+const func boolean: check_or_assign_from_parameter (in boolean: falseParam, in boolean: trueParam) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: aBoolean is FALSE;
+    var array boolean: boolArr is [] (FALSE);
+  begin
+    aBoolean := FALSE; aBoolean |:= falseParam; okay := okay and not aBoolean;
+    aBoolean := TRUE;  aBoolean |:= falseParam; okay := okay and     aBoolean;
+    aBoolean := FALSE; aBoolean |:= trueParam;  okay := okay and     aBoolean;
+    aBoolean := TRUE;  aBoolean |:= trueParam;  okay := okay and     aBoolean;
+
+    boolArr[1] := FALSE; boolArr[1] |:= falseParam; okay := okay and not boolArr[1];
+    boolArr[1] := TRUE;  boolArr[1] |:= falseParam; okay := okay and     boolArr[1];
+    boolArr[1] := FALSE; boolArr[1] |:= trueParam;  okay := okay and     boolArr[1];
+    boolArr[1] := TRUE;  boolArr[1] |:= trueParam;  okay := okay and     boolArr[1];
+  end func;
+
+
 const proc: check_or_assign is func
   local
     var boolean: okay is TRUE;
@@ -594,6 +636,10 @@ const proc: check_or_assign is func
     end if;
 
     if not check_or_assign_from_true_result then
+      okay := FALSE;
+    end if;
+
+    if not check_or_assign_from_parameter(FALSE, TRUE) then
       okay := FALSE;
     end if;
 
