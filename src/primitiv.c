@@ -1474,6 +1474,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SET_SCONV1",                   set_sconv1,                   INTOBJECT,         par_set},
     { "SET_SCONV3",                   set_sconv3,                   INTOBJECT,         par_op_op_set},
     { "SET_SYMDIFF",                  set_symdiff,                  SETOBJECT,         par_set_op_set},
+    { "SET_SYMDIFF_ASSIGN",           set_symdiff_assign,           VOIDOBJECT,        par_set_op_set},
     { "SET_UNION",                    set_union,                    SETOBJECT,         par_set_op_set},
     { "SET_UNION_ASSIGN",             set_union_assign,             VOIDOBJECT,        par_set_op_set},
     { "SET_VALUE",                    set_value,                    SETOBJECT,         par_ref},

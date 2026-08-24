@@ -60,6 +60,7 @@ objectType set_rangelit         (listType arguments);
 objectType set_sconv1           (listType arguments);
 objectType set_sconv3           (listType arguments);
 objectType set_symdiff          (listType arguments);
+objectType set_symdiff_assign   (listType arguments);
 objectType set_union            (listType arguments);
 objectType set_union_assign     (listType arguments);
 objectType set_value            (listType arguments);

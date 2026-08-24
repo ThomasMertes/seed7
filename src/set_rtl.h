@@ -72,6 +72,7 @@ intType setRand (const const_setType aSet);
 setType setRangelit (const intType lowValue, const intType highValue);
 intType setSConv (const const_setType aSet);
 setType setSymdiff (const const_setType set1, const const_setType set2);
+void setSymdiffAssign (setType *const dest, const const_setType delta);
 uintType setToUInt (const const_setType set1, const intType lowestBitNum);
 setType setUnion (const const_setType set1, const const_setType set2);
 void setUnionAssign (setType *const dest, const const_setType delta);
