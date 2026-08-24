@@ -186,7 +186,6 @@ const func integer: pos (in ref_list: main, in reference: searched,
 
 
 const proc: incl (in ref_list: aRefList, in reference: element)          is action "RFL_INCL";
-const proc: excl (in ref_list: aRefList, in reference: element)          is action "RFL_EXCL";
 
 
 (**

@@ -355,18 +355,6 @@ objectType rfl_eq (listType arguments)
 
 
 
-objectType rfl_excl (listType arguments)
-
-  { /* rfl_excl */
-    isit_reflist(arg_1(arguments));
-    isit_reference(arg_2(arguments));
-    excl_list(&arg_1(arguments)->value.listValue,
-        take_reference(arg_2(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* rfl_excl */
-
-
-
 objectType rfl_expr (listType arguments)
 
   {

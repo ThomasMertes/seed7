@@ -34,7 +34,6 @@ objectType rfl_elem        (listType arguments);
 objectType rfl_elemcpy     (listType arguments);
 objectType rfl_empty       (listType arguments);
 objectType rfl_eq          (listType arguments);
-objectType rfl_excl        (listType arguments);
 objectType rfl_expr        (listType arguments);
 objectType rfl_for         (listType arguments);
 objectType rfl_for_until   (listType arguments);

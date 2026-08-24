@@ -1397,7 +1397,6 @@ static const actEntryRecord actEntryTable[] = {
     { "RFL_ELEMCPY",                  rfl_elemcpy,                  VOIDOBJECT,        par_rfl_op_op_int_op_ref},
     { "RFL_EMPTY",                    rfl_empty,                    REFLISTOBJECT,     par_no_args},
     { "RFL_EQ",                       rfl_eq,                       BOOLOBJECT,        par_rfl_op_rfl},
-    { "RFL_EXCL",                     rfl_excl,                     VOIDOBJECT,        par_rfl_ref},
     { "RFL_EXPR",                     rfl_expr,                     REFLISTOBJECT,     par_exp},
     { "RFL_FOR",                      rfl_for,                      VOIDOBJECT,        par_op_ref_op_rfl_op_prc},
     { "RFL_FOR_UNTIL",                rfl_for_until,                VOIDOBJECT,        par_op_ref_op_rfl_op_bln_op_prc},

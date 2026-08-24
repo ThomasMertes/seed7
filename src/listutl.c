@@ -321,53 +321,19 @@ void incl_list (listType *list, objectType element_object,
 
 
 
-void excl_list (listType *list, const_objectType elementobject)
-
-  {
-    listType listelement, disposeelement;
-    boolType found;
-
-  /* excl_list */
-    logFunction(printf("excl_list\n"););
-    if (*list != NULL) {
-      listelement = *list;
-      if (listelement->obj == elementobject) {
-        *list = listelement->next;
-        FREE_L_ELEM(listelement);
-      } else {
-        found = FALSE;
-        while ((listelement->next != NULL) && !found) {
-          if (listelement->next->obj == elementobject) {
-            found = TRUE;
-          } else {
-            listelement = listelement->next;
-          } /* if */
-        } /* while */
-        if (found) {
-          disposeelement = listelement->next;
-          listelement->next = disposeelement->next;
-          FREE_L_ELEM(disposeelement);
-        } /* if */
-      } /* if */
-    } /* if */
-    logFunction(printf("excl_list -->\n"););
-  } /* excl_list */
-
-
-
 void pop_list (listType *list)
 
   {
     listType listelement;
 
   /* pop_list */
-    logFunction(printf("excl_list\n"););
+    logFunction(printf("pop_list\n"););
     if (*list != NULL) {
       listelement = *list;
       *list = listelement->next;
       FREE_L_ELEM(listelement);
     } /* if */
-    logFunction(printf("excl_list -->\n"););
+    logFunction(printf("pop_list -->\n"););
   } /* pop_list */
 
 
