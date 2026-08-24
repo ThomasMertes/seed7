@@ -1678,6 +1678,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_SCONV3, function, params, c_expr);
       when {"SET_SYMDIFF"}:
         process(SET_SYMDIFF, function, params, c_expr);
+      when {"SET_SYMDIFF_ASSIGN"}:
+        process(SET_SYMDIFF_ASSIGN, function, params, c_expr);
       when {"SET_UNION"}:
         process(SET_UNION, function, params, c_expr);
       when {"SET_UNION_ASSIGN"}:
