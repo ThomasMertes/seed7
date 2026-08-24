@@ -24,6 +24,7 @@
 (********************************************************************)
 
 
+const type: setOfType is set of type;
 const type: typeReferenceHash is hash [type] reference;
 const type: typeCategoryHash is hash [type] category;
 const type: type_hash is hash [type] type;
@@ -45,6 +46,7 @@ const type: struct_element_idx_hash is hash [type] element_idx_hash;
 const type: boolean_obj_hash is hash [reference] boolean;
 
 const type: typeDataStruct is new struct
+  var setOfType: declared_types is setOfType.value;
   var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
 
   var type_hash: array_element is type_hash.EMPTY_HASH;
