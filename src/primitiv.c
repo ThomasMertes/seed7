@@ -1403,7 +1403,6 @@ static const actEntryRecord actEntryTable[] = {
     { "RFL_FOR_VAR_KEY",              rfl_for_var_key,              VOIDOBJECT,        par_op_ref_op_int_op_rfl_op_prc},
     { "RFL_HEAD",                     rfl_head,                     REFLISTOBJECT,     par_rfl_op_op_int},
     { "RFL_IDX",                      rfl_idx,                      REFOBJECT,         par_rfl_op_int},
-    { "RFL_INCL",                     rfl_incl,                     VOIDOBJECT,        par_rfl_ref},
     { "RFL_IPOS",                     rfl_ipos,                     INTOBJECT,         par_rfl_ref},
     { "RFL_LNG",                      rfl_lng,                      INTOBJECT,         par_rfl},
     { "RFL_MKLIST",                   rfl_mklist,                   REFLISTOBJECT,     par_ref},

@@ -682,25 +682,6 @@ objectType rfl_idx (listType arguments)
 
 
 
-objectType rfl_incl (listType arguments)
-
-  {
-    errInfoType err_info = OKAY_NO_ERROR;
-
-  /* rfl_incl */
-    isit_reflist(arg_1(arguments));
-    isit_reference(arg_2(arguments));
-    incl_list(&arg_1(arguments)->value.listValue,
-        take_reference(arg_2(arguments)), &err_info);
-    if (err_info != OKAY_NO_ERROR) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      return SYS_EMPTY_OBJECT;
-    } /* if */
-  } /* rfl_incl */
-
-
-
 objectType rfl_ipos (listType arguments)
 
   {

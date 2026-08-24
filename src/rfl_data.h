@@ -36,7 +36,6 @@ void rflElemcpy (listType dest, intType position, objectType elem);
 boolType rflEq (const_listType list1, const_listType list2);
 listType rflHead (const listType list, intType stop);
 objectType rflIdx (const_listType list, intType position);
-void rflIncl (listType *list, objectType elem);
 intType rflIpos (listType list_element, objectType searched_object,
     const intType from_index);
 intType rflLng (const_listType list);

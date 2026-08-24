@@ -40,7 +40,6 @@ objectType rfl_for_until   (listType arguments);
 objectType rfl_for_var_key (listType arguments);
 objectType rfl_head        (listType arguments);
 objectType rfl_idx         (listType arguments);
-objectType rfl_incl        (listType arguments);
 objectType rfl_ipos        (listType arguments);
 objectType rfl_lng         (listType arguments);
 objectType rfl_mklist      (listType arguments);

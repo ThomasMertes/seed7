@@ -1572,8 +1572,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(RFL_HEAD, function, params, c_expr);
       when {"RFL_IDX"}:
         process(RFL_IDX, function, params, c_expr);
-      when {"RFL_INCL"}:
-        process(RFL_INCL, function, params, c_expr);
       when {"RFL_IPOS"}:
         process(RFL_IPOS, function, params, c_expr);
       when {"RFL_LNG"}:
