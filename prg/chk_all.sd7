@@ -439,7 +439,8 @@ const string: chkset_output is "\n\
   \set relations work correctly.\n\
   \set union works correctly.\n\
   \set union assignment works correctly.\n\
-  \set symdiff works correctly.\n\
+  \set symmetric difference works correctly.\n\
+  \set symmetric difference assignment works correctly.\n\
   \set intersection works correctly.\n\
   \set intersection assignment works correctly.\n\
   \set difference test works correctly.\n\
