@@ -328,7 +328,7 @@ const proc: check_conv is func
     if okay then
       writeln("Conversion of sets works correctly.");
     else
-      writeln(" ***** Conversion of sets does not work correctly");
+      writeln(" ***** Conversion of sets does not work correctly.");
       writeln;
     end if;
   end func;
@@ -680,7 +680,7 @@ const proc: check_card is func
     if okay then
       writeln("card(set) works correctly.");
     else
-      writeln(" ***** card(set) does not work correctly");
+      writeln(" ***** card(set) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -852,7 +852,7 @@ const proc: check_incl is func
     if okay then
       writeln("incl(bitset, integer) works correctly.");
     else
-      writeln(" ***** incl(bitset, integer) does not work correctly");
+      writeln(" ***** incl(bitset, integer) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -887,7 +887,7 @@ const proc: check_excl is func
     if okay then
       writeln("excl(bitset, integer) works correctly.");
     else
-      writeln(" ***** excl(bitset, integer) does not work correctly");
+      writeln(" ***** excl(bitset, integer) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -1773,7 +1773,7 @@ const proc: check_compare is func
     if okay then
       writeln("set compare works correctly.");
     else
-      writeln(" ***** set compare does not work correctly");
+      writeln(" ***** set compare does not work correctly.");
       writeln;
     end if;
   end func;
@@ -4328,7 +4328,7 @@ const proc: check_union is func
     if okay then
       writeln("set union works correctly.");
     else
-      writeln(" ***** set union does not work correctly");
+      writeln(" ***** set union does not work correctly.");
       writeln;
     end if;
   end func;
@@ -5260,7 +5260,7 @@ const proc: check_union_assign is func
     if okay then
       writeln("set union assignment works correctly.");
     else
-      writeln(" ***** set union assignment does not work correctly");
+      writeln(" ***** set union assignment does not work correctly.");
       writeln;
     end if;
   end func;
@@ -6081,7 +6081,7 @@ const proc: check_symdiff is func
     if okay then
       writeln("set symmetric difference works correctly.");
     else
-      writeln(" ***** set symmetric difference does not work correctly");
+      writeln(" ***** set symmetric difference does not work correctly.");
       writeln;
     end if;
   end func;
@@ -7833,7 +7833,7 @@ const proc: check_intersection is func
     if okay then
       writeln("set intersection works correctly.");
     else
-      writeln(" ***** set intersection does not work correctly");
+      writeln(" ***** set intersection does not work correctly.");
       writeln;
     end if;
   end func;
@@ -8764,7 +8764,7 @@ const proc: check_intersection_assign is func
     if okay then
       writeln("set intersection assignment works correctly.");
     else
-      writeln(" ***** set intersection assignment does not work correctly");
+      writeln(" ***** set intersection assignment does not work correctly.");
       writeln;
     end if;
   end func;
@@ -9679,7 +9679,7 @@ const proc: check_difference is func
     if okay then
       writeln("set difference test works correctly.");
     else
-      writeln(" ***** set difference test does not work correctly");
+      writeln(" ***** set difference test does not work correctly.");
       writeln;
     end if;
   end func;
@@ -10610,7 +10610,7 @@ const proc: check_difference_assign is func
     if okay then
       writeln("set difference assignment works correctly.");
     else
-      writeln(" ***** set difference assignment does not work correctly");
+      writeln(" ***** set difference assignment does not work correctly.");
       writeln;
     end if;
   end func;
@@ -11645,7 +11645,7 @@ const proc: check_elem is func
     if okay then
       writeln("set membership test works correctly.");
     else
-      writeln(" ***** set membership test does not work correctly");
+      writeln(" ***** set membership test does not work correctly.");
       writeln;
     end if;
   end func;
@@ -11948,7 +11948,7 @@ const proc: check_elem_char is func
     if okay then
       writeln("set membership test for char works correctly.");
     else
-      writeln(" ***** set membership test for char does not work correctly");
+      writeln(" ***** set membership test for char does not work correctly.");
       writeln;
     end if;
   end func;
@@ -12250,7 +12250,7 @@ const proc: check_elem_string is func
     if okay then
       writeln("set membership test for string works correctly.");
     else
-      writeln(" ***** set membership test for string does not work correctly");
+      writeln(" ***** set membership test for string does not work correctly.");
       writeln;
     end if;
   end func;
@@ -12327,7 +12327,7 @@ const proc: check_min is func
     if okay then
       writeln("min(bitset) works correctly.");
     else
-      writeln(" ***** min(set) does not work correctly");
+      writeln(" ***** min(set) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -12378,7 +12378,7 @@ const proc: check_max is func
     if okay then
       writeln("max(bitset) works correctly.");
     else
-      writeln(" ***** max(set) does not work correctly");
+      writeln(" ***** max(set) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -12446,7 +12446,7 @@ const proc: check_next is func
     if okay then
       writeln("next(bitset) works correctly.");
     else
-      writeln(" ***** next(set) does not work correctly");
+      writeln(" ***** next(set) does not work correctly.");
       writeln;
     end if;
   end func;
@@ -12561,7 +12561,7 @@ const proc: check_assign is func
     if okay then
       writeln("set assignment works correctly.");
     else
-      writeln(" ***** set assignment does not work correctly");
+      writeln(" ***** set assignment does not work correctly.");
       writeln;
     end if;
   end func;
