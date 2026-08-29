@@ -1146,6 +1146,7 @@ static const actEntryRecord actEntryTable[] = {
     { "INT_BYTES_LE_2_UINT",          int_bytes_le_2_uint,          INTOBJECT,         par_str},
     { "INT_BYTES_LE_SIGNED",          int_bytes_le_signed,          STRIOBJECT,        par_int},
     { "INT_BYTES_LE_UNSIGNED",        int_bytes_le_unsigned,        STRIOBJECT,        par_int},
+    { "INT_CEIL_DIV",                 int_ceil_div,                 INTOBJECT,         par_int_op_int},
     { "INT_CMP",                      int_cmp,                      INTOBJECT,         par_int_int},
     { "INT_CPY",                      int_cpy,                      VOIDOBJECT,        par_int_op_int},
     { "INT_CREATE",                   int_create,                   VOIDOBJECT,        par_int_op_int},
