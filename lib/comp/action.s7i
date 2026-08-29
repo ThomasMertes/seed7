@@ -1152,6 +1152,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_BYTES_LE_SIGNED, function, params, c_expr);
       when {"INT_BYTES_LE_UNSIGNED"}:
         process(INT_BYTES_LE_UNSIGNED, function, params, c_expr);
+      when {"INT_CEIL_DIV"}:
+        process(INT_CEIL_DIV, function, params, c_expr);
       when {"INT_CMP"}:
         process(INT_CMP, function, params, c_expr);
       when {"INT_CPY"}:
