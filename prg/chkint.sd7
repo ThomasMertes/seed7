@@ -17643,35 +17643,59 @@ const func boolean: check_div_by_zero is func
         not raisesNumericError(intExpr(          1) div intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) div intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR. (1)");
+      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(      abs(intExpr( 9223372036854775806))  div intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(            12345652))  div intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(                   0))  div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR. (2)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  div intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(            12345652))  div intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(                   0))  div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR. (3)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) div intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(            12345652))) div intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(                   0))) div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR. (4)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) div intExpr(0)) or
+    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) div         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) div         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) div         0 ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) div      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) div      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) div      zero ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) div intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(            12345652))) div intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(                   0))) div intExpr(0)) then
-      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR. (5)");
+      writeln(" ***** Division by zero with the div operator and dividend < 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  div         0 ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  div         0 ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  div         0 ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  div      zero ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  div      zero ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  div      zero ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  div intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  div intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  div intExpr(0)) then
+      writeln(" ***** Division by zero with the div operator and dividend <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr( 9223372036854775807))  div         0 ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  div         0 ) or
+        not raisesNumericError(      abs(intExpr(                   0))  div         0 ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  div      zero ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  div      zero ) or
+        not raisesNumericError(      abs(intExpr(                   0))  div      zero ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  div intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(            12345652))  div intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  div intExpr(0)) then
+      writeln(" ***** Division by zero with the div operator and dividend >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) div         0 ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) div         0 ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) div         0 ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) div      zero ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) div      zero ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) div      zero ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) div intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) div intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) div intExpr(0)) then
+      writeln(" ***** Division by zero with the div operator and dividend > 0 does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -20712,35 +20736,59 @@ const func boolean: check_rem_by_zero is func
         not raisesNumericError(intExpr(          1) rem intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) rem intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR. (1)");
+      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(      abs(intExpr( 9223372036854775806))  rem intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(            12345652))  rem intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(                   0))  rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR. (2)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  rem intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(            12345652))  rem intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(                   0))  rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR. (3)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) rem intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(            12345652))) rem intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(                   0))) rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR. (4)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) rem intExpr(0)) or
+    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) rem         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) rem         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) rem         0 ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) rem      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) rem      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) rem      zero ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) rem intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(            12345652))) rem intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(                   0))) rem intExpr(0)) then
-      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR. (5)");
+      writeln(" ***** Division by zero with the rem operator and dividend < 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  rem         0 ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  rem         0 ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  rem         0 ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  rem      zero ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  rem      zero ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  rem      zero ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  rem intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  rem intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  rem intExpr(0)) then
+      writeln(" ***** Division by zero with the rem operator and dividend <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr( 9223372036854775807))  rem         0 ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  rem         0 ) or
+        not raisesNumericError(      abs(intExpr(                   0))  rem         0 ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  rem      zero ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  rem      zero ) or
+        not raisesNumericError(      abs(intExpr(                   0))  rem      zero ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  rem intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(            12345652))  rem intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  rem intExpr(0)) then
+      writeln(" ***** Division by zero with the rem operator and dividend >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) rem         0 ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) rem         0 ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) rem         0 ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) rem      zero ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) rem      zero ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) rem      zero ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) rem intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) rem intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) rem intExpr(0)) then
+      writeln(" ***** Division by zero with the rem operator and dividend > 0 does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
@@ -23182,35 +23230,59 @@ const func boolean: check_mdiv_by_zero is func
         not raisesNumericError(intExpr(          1) mdiv intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR. (1)");
+      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(      abs(intExpr( 9223372036854775806))  mdiv intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(            12345652))  mdiv intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(                   0))  mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR. (2)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mdiv intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(            12345652))  mdiv intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(                   0))  mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR. (3)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mdiv intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(            12345652))) mdiv intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(                   0))) mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR. (4)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mdiv intExpr(0)) or
+    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mdiv         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mdiv         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mdiv         0 ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mdiv      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mdiv      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mdiv      zero ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mdiv intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(            12345652))) mdiv intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(                   0))) mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR. (5)");
+      writeln(" ***** Division by zero with the mdiv operator and dividend < 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mdiv         0 ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mdiv         0 ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mdiv         0 ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mdiv      zero ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mdiv      zero ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mdiv      zero ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mdiv intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mdiv intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mdiv intExpr(0)) then
+      writeln(" ***** Division by zero with the mdiv operator and dividend <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr( 9223372036854775807))  mdiv         0 ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mdiv         0 ) or
+        not raisesNumericError(      abs(intExpr(                   0))  mdiv         0 ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  mdiv      zero ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mdiv      zero ) or
+        not raisesNumericError(      abs(intExpr(                   0))  mdiv      zero ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  mdiv intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mdiv intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  mdiv intExpr(0)) then
+      writeln(" ***** Division by zero with the mdiv operator and dividend >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mdiv         0 ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mdiv         0 ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mdiv         0 ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mdiv      zero ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mdiv      zero ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mdiv      zero ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mdiv intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mdiv intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mdiv intExpr(0)) then
+      writeln(" ***** Division by zero with the mdiv operator and dividend > 0 does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -27945,35 +28017,59 @@ const func boolean: check_mod_by_zero is func
         not raisesNumericError(intExpr(          1) mod intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) mod intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR. (1)");
+      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(      abs(intExpr( 9223372036854775806))  mod intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(            12345652))  mod intExpr(0)) or
-        not raisesNumericError(      abs(intExpr(                   0))  mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR. (2)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mod intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(            12345652))  mod intExpr(0)) or
-        not raisesNumericError(     -abs(intExpr(                   0))  mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR. (3)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(            12345652))) mod intExpr(0)) or
-        not raisesNumericError(succ( abs(intExpr(                   0))) mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR. (4)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mod intExpr(0)) or
+    if  not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mod         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod         0 ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod         0 ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mod      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod      zero ) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod      zero ) or
+        not raisesNumericError(pred(-abs(intExpr( 9223372036854775807))) mod intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(            12345652))) mod intExpr(0)) or
         not raisesNumericError(pred(-abs(intExpr(                   0))) mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR. (5)");
+      writeln(" ***** Division by zero with the mod operator and dividend < 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mod         0 ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mod         0 ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod         0 ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mod      zero ) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mod      zero ) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod      zero ) or
+        not raisesNumericError(     -abs(intExpr( 9223372036854775807))  mod intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(            12345652))  mod intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod intExpr(0)) then
+      writeln(" ***** Division by zero with the mod operator and dividend <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr( 9223372036854775807))  mod         0 ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mod         0 ) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod         0 ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  mod      zero ) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mod      zero ) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod      zero ) or
+        not raisesNumericError(      abs(intExpr( 9223372036854775807))  mod intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(            12345652))  mod intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod intExpr(0)) then
+      writeln(" ***** Division by zero with the mod operator and dividend >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod         0 ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod         0 ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod         0 ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod      zero ) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod      zero ) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod      zero ) or
+        not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod intExpr(0)) then
+      writeln(" ***** Division by zero with the mod operator and dividend > 0 does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
   end func;
