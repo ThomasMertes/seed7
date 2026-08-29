@@ -71,6 +71,7 @@ const string: chkint_output is "\n\
   \Rem works correctly for selected values.\n\
   \Mdiv works correctly for selected values.\n\
   \Mod works correctly for selected values.\n\
+  \CeilDiv works correctly for selected values.\n\
   \odd(i) works correctly in the range -20 to 20.\n\
   \!i works correctly for i in the range 0 to 12.\n\
   \The binomial coefficient (n ! k) works correctly for selected values.\n\
@@ -106,6 +107,7 @@ const string: chkovf_output is "\n\
   \Overflow checking of rem operator works correctly.\n\
   \Overflow checking of mdiv operator works correctly.\n\
   \Overflow checking of mod operator works correctly.\n\
+  \Overflow checking of ceilDiv operator works correctly.\n\
   \Overflow checking of left shift works correctly.\n\
   \Overflow checking of left shift assignment works correctly.\n\
   \Overflow checking of right shift works correctly.\n\
