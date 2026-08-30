@@ -125,7 +125,7 @@ const proc: main is func
       if num2 = num_columns then
         decr(num2);
       end if;
-      num_lines := succ(pred(number_of_names) div num_columns);
+      num_lines := number_of_names ceilDiv num_columns;
       writeln;
       for line range 1 to num_lines do
         for column range 1 to num2 + 1 do

@@ -224,7 +224,7 @@ const proc: tarTell (inout file: inFile, inout tarHeader: header,
         writeln(header.filePath <& header.filePathSuffix);
       end if;
       if header.fileSize <> 0 then
-        seek(inFile, tell(inFile) + succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+        seek(inFile, tell(inFile) + header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
       end if;
       readHead(inFile, header);
     until header.endOfFileMarker or
@@ -441,12 +441,12 @@ const proc: tarXtract (inout file: inFile, inout tarHeader: header,
               skip(inFile, header.fileSize - bytesCopied +
                    pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
             else
-              skip(inFile, succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+              skip(inFile, header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
               writeln("*** Cannot create file " <& literal(header.filePath));
               okay := FALSE;
             end if;
           else
-            skip(inFile, succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+            skip(inFile, header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
             writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
             okay := FALSE;
           end if;

@@ -475,7 +475,7 @@ const func fileSys: openCpio (inout file: cpioFile) is func
           cpio.register @:= [header.filePath] headPos;
           # writeln(tell(cpioFile));
           headPos := tell(cpioFile) +
-              succ(pred(header.fileSize) mdiv header.padding) * header.padding;
+              header.fileSize ceilDiv header.padding * header.padding;
           # writeln(headPos);
           seek(cpioFile, headPos);
           readMinimumOfHead(cpioFile, header);
@@ -1459,8 +1459,8 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
         if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
           raise FILE_ERROR;
         else
-          if succ(pred(header.fileSize) mdiv header.padding) * header.padding =
-              succ(pred(length(data)) mdiv header.padding) * header.padding then
+          if header.fileSize ceilDiv header.padding * header.padding =
+              length(data) ceilDiv header.padding * header.padding then
             # The number of blocks used of the old file and the new file are identical.
             # The file data is rewritten in place.
             header.fileSize := length(data);
@@ -1649,7 +1649,7 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
           isEmptyDir(cpio.register, filePath))) then
       posOfHeaderToBeRemoved := cpio.register[filePath];
       numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
-          succ(pred(header.fileSize) mdiv header.padding) * header.padding;
+          header.fileSize ceilDiv header.padding * header.padding;
       # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
       deleteArea(cpio.cpioFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
       excl(cpio.register, filePath);

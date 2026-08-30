@@ -197,7 +197,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
         end for;
         stri &:= "\0;" mult padding;
       end for;
-      lineMaskLen := succ(pred(width) mdiv 8);
+      lineMaskLen := width ceilDiv 8;
       padding := lineMaskLen mod 4;
       for line range pred(height) downto 0 do
         # Assume no transparent pixels.

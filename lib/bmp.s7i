@@ -350,8 +350,8 @@ const proc: readBmpImage1Bit (inout file: bmpFile, in bmpHeader: header,
     var integer: line is 0;
     var integer: byteIndex is 1;
   begin
-    padding := -succ(pred(header.width) mdiv 8) mod 4;
-    bytesPerLine := succ(pred(header.width) mdiv 8) + padding;
+    padding := -(header.width ceilDiv 8) mod 4;
+    bytesPerLine := header.width ceilDiv 8 + padding;
     pixelData := gets(bmpFile, bytesPerLine * header.height);
     for line range header.height downto 1 do
       readBmpImageLine1Bit(image[line], header, pixelData, byteIndex);
@@ -395,8 +395,8 @@ const proc: readBmpImage2Bit (inout file: bmpFile, in bmpHeader: header,
     var integer: line is 0;
     var integer: byteIndex is 1;
   begin
-    padding := -succ(pred(header.width) mdiv 4) mod 4;
-    bytesPerLine := succ(pred(header.width) mdiv 4) + padding;
+    padding := -(header.width ceilDiv 4) mod 4;
+    bytesPerLine := header.width ceilDiv 4 + padding;
     pixelData := gets(bmpFile, bytesPerLine * header.height);
     for line range header.height downto 1 do
       readBmpImageLine2Bit(image[line], header, pixelData, byteIndex);
@@ -433,8 +433,8 @@ const proc: readBmpImage4Bit (inout file: bmpFile, in bmpHeader: header,
     var integer: line is 0;
     var integer: byteIndex is 1;
   begin
-    padding := -succ(pred(header.width) mdiv 2) mod 4;
-    bytesPerLine := succ(pred(header.width) mdiv 2) + padding;
+    padding := -(header.width ceilDiv 2) mod 4;
+    bytesPerLine := header.width ceilDiv 2 + padding;
     pixelData := gets(bmpFile, bytesPerLine * header.height);
     for line range header.height downto 1 do
       readBmpImageLine4Bit(image[line], header, pixelData, byteIndex);

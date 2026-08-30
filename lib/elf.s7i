@@ -944,8 +944,8 @@ const func elfNoteHeader: readNoteHeader (in string: sectionData, inout integer:
       else
         readNoteHeaderBe(stri, noteHeader);
       end if;
-      alignedNameSize        := succ(pred(noteHeader.nameSize       ) mdiv 4) * 4;
-      alignedDescriptionSize := succ(pred(noteHeader.descriptionSize) mdiv 4) * 4;
+      alignedNameSize        := noteHeader.nameSize        ceilDiv 4 * 4;
+      alignedDescriptionSize := noteHeader.descriptionSize ceilDiv 4 * 4;
       if length(stri) >= alignedNameSize + noteHeader.descriptionSize then
         if noteHeader.nameSize > 0 then
           noteHeader.name :=      stri[13                   fixLen pred(noteHeader.nameSize)];
