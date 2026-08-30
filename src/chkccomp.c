@@ -11294,7 +11294,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
   /* writeReadBufferEmptyMacro */
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",(int)sizeof(FILE)); return 0;}\n")) {
-      sizeof_FILE = = doTest();
+      sizeof_FILE = doTest();
     } /* if */
     if (sizeof_FILE != -1) {
       fprintf(versionFile, "#define sizeof_FILE %d\n", sizeof_FILE);
