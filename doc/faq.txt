@@ -2183,7 +2183,7 @@ The length can be obtained with 'length(dataBlockType)' or
 'length(aDataBlockValue)'.
 
 Finally, there are indexed 'arrays' where the index may be any type that
-can be converted to an integer. E.d:
+can be converted to an integer. E.g:
 
   const type: charIndexArray is array [char] bigInteger;
 
@@ -3439,6 +3439,7 @@ bugs and security vulnerabilities when dealing with memory access.
 This means that in all possible executions of a program, there is
 no access to invalid memory. The violations include:
 
+ - stack overflow
  - buffer overflow
  - buffer over-read
  - use after free
@@ -3452,6 +3453,65 @@ defined datatypes. For all accesses to containers like 'array' and
 In Seed7 there are no pointers that can access arbitrary memory
 areas. All computations of memory sizes are protected against
 integer overflow.
+
+
+What happens when a stack overflow occurs?
+==========================================
+
+In case of a stack overflow the exception MEMORY_ERROR is raised.
+Depending on the operating system different strategies are used to
+achieve this goal:
+
+ - Under Linux/BSD/Unix an alternate signal stack is used. A stack
+   overflow triggers a SIGSEGV. The SIGSEGV handler raises
+   MEMORY_ERROR.
+ - Under Windows a stack overflow handler is used. The function
+   AddVectoredExceptionHandler() registers an error handler.
+   In case of a stack overflow the handler raises MEMORY_ERROR.
+   At the place where a MEMORY_ERROR is cought the function
+   _resetstkoflw() is called to restore the guard pages.
+
+The program below triggers a stack overflow with an infinite
+recursion:
+
+  $ include "seed7_05.s7i";
+
+  const proc: main is func
+    begin
+      main;
+    end func;
+
+This program raises MEMORY_ERROR instead of triggering a crash:
+
+  *** Uncaught exception MEMORY_ERROR raised at sigutl.c(355)
+
+
+Is a shell injection possible?
+==============================
+
+No. All functions which invoke the shell prevent a shell injection.
+All shell invoking functions are defined with a shell command and
+a list of parameters. E.g.:
+
+  const func integer: shell (in string: command,
+                             in array string: parameters) is ...
+
+This function escapes or quotes shell metacharacters in command
+and parameters. The shell() function can be called with
+
+  shell("ping", [] ("-c", "1", userInput))
+
+An attacker might provide the following userInput:
+
+  8.8.8.8; whoami
+
+This does not execute whoami, because shell() escapes the semicolon.
+Instead the result is:
+
+  ping: 8.8.8.8; whoami: Name or service not known
+
+The expansion of environment variables like $PATH or %PATH% is also
+prevented by shell(). Backticks won't work either.
 
 
 Are there exceptions?

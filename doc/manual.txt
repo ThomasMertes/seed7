@@ -3211,11 +3211,9 @@ to 'newFile'.
                   ( Type of result: integer )
     Statements:
       A &:= B   Assign the result of A and B to A.
-                  ( The expression B is always evaluated,
-                    A &:= B => A := A and B )
+                  ( A &:= B => A := A and B )
       A |:= B   Assign the result of A or B to A.
-                  ( The expression B is always evaluated,
-                    A |:= B => A := A or B )
+                  ( A |:= B => A := A or B )
       A ><:= B   Assign the result of A <> B (exclusive or) to A.
                   ( A ><:= B => A := A <> B )
       incr(A)   Increment
@@ -3327,6 +3325,9 @@ to 'newFile'.
       mod       Reminder of integer division mdiv
                   ( A mod B => A - (A mdiv B) * B,
                     A mod 0 => EXCEPTION NUMERIC_ERROR )
+      ceilDiv   Integer division rounded up towards positive infinity
+                  ( A ceilDiv B => round(ceil(float(A) / float(B))),
+                    A ceilDiv 0 => EXCEPTION NUMERIC_ERROR )
       **        Power
                   ( A ** B is okay for B >= 0,
                     A ** 0 => 1 for every A, even for A = 0,
@@ -3575,40 +3576,46 @@ to 'newFile'.
     A mod B = A rem B          when A and B have the same
                                sign or A rem B = 0 holds.
 
+  For the operation 'ceilDiv' holds:
+    A ceilDiv B = -(-A mdiv B)
+    A ceilDiv B = -(A mdiv -B)
+    (A ceilDiv B) * B + A mod -B = A      when B <> 0
+    -A ceilDiv B = A ceilDiv -B           when B <> 0
 
-  Tables for the behavior of 'div', 'rem', 'mdiv' and 'mod':
 
-    +-----+-----+---------+---------+----------+---------+
-    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
-    +-----+-----+---------+---------+----------+---------+
-    |  5  |  3  |    1    |    2    |     1    |    2    |
-    |  4  |  3  |    1    |    1    |     1    |    1    |
-    |  3  |  3  |    1    |    0    |     1    |    0    |
-    |  2  |  3  |    0    |    2    |     0    |    2    |
-    |  1  |  3  |    0    |    1    |     0    |    1    |
-    |  0  |  3  |    0    |    0    |     0    |    0    |
-    | -1  |  3  |    0    |   -1    |    -1    |    2    |
-    | -2  |  3  |    0    |   -2    |    -1    |    1    |
-    | -3  |  3  |   -1    |    0    |    -1    |    0    |
-    | -4  |  3  |   -1    |   -1    |    -2    |    2    |
-    | -5  |  3  |   -1    |   -2    |    -2    |    1    |
-    +-----+-----+---------+---------+----------+---------+
+  Tables for the behavior of 'div', 'rem', 'mdiv', 'mod' and 'ceilDiv':
 
-    +-----+-----+---------+---------+----------+---------+
-    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
-    +-----+-----+---------+---------+----------+---------+
-    |  5  | -3  |   -1    |    2    |    -2    |   -1    |
-    |  4  | -3  |   -1    |    1    |    -2    |   -2    |
-    |  3  | -3  |   -1    |    0    |    -1    |    0    |
-    |  2  | -3  |    0    |    2    |    -1    |   -1    |
-    |  1  | -3  |    0    |    1    |    -1    |   -2    |
-    |  0  | -3  |    0    |    0    |     0    |    0    |
-    | -1  | -3  |    0    |   -1    |     0    |   -1    |
-    | -2  | -3  |    0    |   -2    |     0    |   -2    |
-    | -3  | -3  |    1    |    0    |     1    |    0    |
-    | -4  | -3  |    1    |   -1    |     1    |   -1    |
-    | -5  | -3  |    1    |   -2    |     1    |   -2    |
-    +-----+-----+---------+---------+----------+---------+
+    +-----+-----+---------+---------+----------+---------+-------------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B | A ceilDiv B |
+    +-----+-----+---------+---------+----------+---------+-------------+
+    |  5  |  3  |    1    |    2    |     1    |    2    |      2      |
+    |  4  |  3  |    1    |    1    |     1    |    1    |      2      |
+    |  3  |  3  |    1    |    0    |     1    |    0    |      1      |
+    |  2  |  3  |    0    |    2    |     0    |    2    |      1      |
+    |  1  |  3  |    0    |    1    |     0    |    1    |      1      |
+    |  0  |  3  |    0    |    0    |     0    |    0    |      0      |
+    | -1  |  3  |    0    |   -1    |    -1    |    2    |      0      |
+    | -2  |  3  |    0    |   -2    |    -1    |    1    |      0      |
+    | -3  |  3  |   -1    |    0    |    -1    |    0    |     -1      |
+    | -4  |  3  |   -1    |   -1    |    -2    |    2    |     -1      |
+    | -5  |  3  |   -1    |   -2    |    -2    |    1    |     -1      |
+    +-----+-----+---------+---------+----------+---------+-------------+
+
+    +-----+-----+---------+---------+----------+---------+-------------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B | A ceilDiv B |
+    +-----+-----+---------+---------+----------+---------+-------------+
+    |  5  | -3  |   -1    |    2    |    -2    |   -1    |     -1      |
+    |  4  | -3  |   -1    |    1    |    -2    |   -2    |     -1      |
+    |  3  | -3  |   -1    |    0    |    -1    |    0    |     -1      |
+    |  2  | -3  |    0    |    2    |    -1    |   -1    |      0      |
+    |  1  | -3  |    0    |    1    |    -1    |   -2    |      0      |
+    |  0  | -3  |    0    |    0    |     0    |    0    |      0      |
+    | -1  | -3  |    0    |   -1    |     0    |   -1    |      1      |
+    | -2  | -3  |    0    |   -2    |     0    |   -2    |      1      |
+    | -3  | -3  |    1    |    0    |     1    |    0    |      1      |
+    | -4  | -3  |    1    |   -1    |     1    |   -1    |      2      |
+    | -5  | -3  |    1    |   -2    |     1    |   -2    |      2      |
+    +-----+-----+---------+---------+----------+---------+-------------+
 
 
   Tables for the behavior of '!' (Binomial coefficient):
@@ -5546,6 +5553,7 @@ to 'newFile'.
       A |:= B   Assign the union of A and B to A
       A &:= B   Assign the intersection of A and B to A
       A -:= B   Assign the difference of A and B to A
+      A ><:= B  Assign the symmetric difference of A and B to A
       A @:= [B] C  Add or remove B to respectively from A
                   ( Type of argument B: baseType,
                     Type of argument C: boolean,
@@ -7256,10 +7264,6 @@ to 'newFile'.
                   ( Type of argument B: reference,
                     Type of argument C: integer,
                     Type of result: integer )
-      incl(A, B) Include element in list
-                  ( Type of argument B: reference )
-      excl(A, B) Exclude element from list
-                  ( Type of argument B: reference )
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
@@ -14267,6 +14271,27 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     const func integer: (in integer: summand1) + (in integer: summand2) is action "INT_ADD";
 
+  Primitive actions carry information about their parameters and
+  their result. In every declaration with primitive actions the
+  following things are checked:
+
+    - If the result of a primitive action fits to the
+      declaration.
+    - If the number of parameters of a primitive action
+      fits to the declaration.
+    - If the parameters of a primitive action fit to
+      the declaration.
+
+  The declaration fails if a parameter of "INT_ADD" is defined as
+  string instead of integer:
+
+    const func integer: (in string: summand1) + (in integer: summand2) is action "INT_ADD";
+
+  This would trigger the error:
+
+    *** hello.sd7(27):42: Declaration of "(ref string: summand1) + (val integer: summand2)" failed
+    const func integer: (in string: summand1) + (in integer: summand2) is action "INT_ADD";
+
   To execute an action a corresponding C function must
   be present in the s7 interpreter. The function for the
   action 'INT_ADD' is 'int_add()'. The function 'int_add()'
@@ -14416,8 +14441,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Action name         actlib.c function   act_comp.c function
     ACT_ILLEGAL         act_illegal
     ACE_CMP             ace_cmp             ptrCmp
-    ACE_CPY             ace_cpy             = or genericCpy
-    ACE_CREATE          ace_create          = or genericCreate
+    ACE_CPY             ace_cpy             = or valueCpy
+    ACE_CREATE          ace_create          = or valueCreate
     ACE_EQ              ace_eq              ==
     ACE_GEN             ace_gen             aceGen
     ACE_HASHCODE        ace_hashcode        aceHashcode
@@ -14558,8 +14583,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Action name         blnlib.c function   bln_rtl.c function
     BLN_AND             bln_and             &&
     BLN_AND_ASSIGN      bln_and_assign      &=
-    BLN_CPY             bln_cpy             = or genericCpy
-    BLN_CREATE          bln_create          = or genericCreate
+    BLN_CPY             bln_cpy             = or blnCpyValue
+    BLN_CREATE          bln_create          = or valueCreate
     BLN_EQ              bln_eq              ==
     BLN_GE              bln_ge              >=
     BLN_GT              bln_gt              >
@@ -14603,8 +14628,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         chrlib.c function   chr_rtl.c function
     CHR_CMP             chr_cmp             chrCmp
-    CHR_CPY             chr_cpy             = or genericCpy
-    CHR_CREATE          chr_create          = or genericCreate
+    CHR_CPY             chr_cpy             = or valueCpy
+    CHR_CREATE          chr_create          = or valueCreate
     CHR_C_LITERAL       chr_c_literal       chrCLiteral
     CHR_DECR            chr_decr            --
     CHR_EQ              chr_eq              ==
@@ -14674,8 +14699,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     CMD_SET_OWNER       cmd_set_owner       cmdSetOwner
     CMD_SET_OWNER_OF_SYMLINK cmd_set_owner_of_symlink cmdSetOwnerOfSymlink
     CMD_SET_SEARCH_PATH cmd_set_search_path cmdSetSearchPath
-    CMD_SHELL           cmd_shell           cmdShell
+    CMD_SHELL_COMMAND_LINE cmd_shell_command_line cmdShellCommandLine
     CMD_SHELL_ESCAPE    cmd_shell_escape    cmdShellEscape
+    CMD_SHELL_EXECUTE   cmd_shell_execute   cmdShellExecute
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
     CMD_UNSETENV        cmd_unsetenv        cmdUnsetenv
 
@@ -14730,7 +14756,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     DRW_BORDER          drw_border          drwBorder
     DRW_CAPTURE         drw_capture         drwCapture
     DRW_CLEAR           drw_clear           drwClear
-    DRW_CMP             drw_cmp             ptrCmp or ptrCmpGeneric
+    DRW_CMP             drw_cmp             ptrCmp or ptrCmpValue
     DRW_CONV_POINT_LIST drw_conv_point_list drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
     DRW_CPY             drw_cpy             drwCpy
@@ -14793,8 +14819,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         enulib.c function
     ENU_CONV            enu_conv            (noop)
-    ENU_CPY             enu_cpy             = or genericCpy
-    ENU_CREATE          enu_create          = or genericCreate
+    ENU_CPY             enu_cpy             = or valueCpy
+    ENU_CREATE          enu_create          = or valueCreate
     ENU_EQ              enu_eq              ==
     ENU_GENLIT          enu_genlit
     ENU_ICONV2          enu_iconv2          (noop)
@@ -14864,8 +14890,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_CMP             flt_cmp             fltCmp
     FLT_COS             flt_cos             cos
     FLT_COSH            flt_cosh            cosh
-    FLT_CPY             flt_cpy             = or fltCpyGeneric
-    FLT_CREATE          flt_create          = or genericCreate
+    FLT_CPY             flt_cpy             = or fltCpyValue
+    FLT_CREATE          flt_create          = or valueCreate
     FLT_DECOMPOSE       flt_decompose       frexp
     FLT_DGTS            flt_dgts            fltDgts
     FLT_DIV             flt_div             /
@@ -14975,8 +15001,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     INT_BYTES_LE_SIGNED int_bytes_le_signed intBytesLe
     INT_BYTES_LE_UNSIGNED int_bytes_le_unsigned intBytesLe
     INT_CMP             int_cmp             intCmp
-    INT_CPY             int_cpy             = or genericCpy
-    INT_CREATE          int_create          = or genericCreate
+    INT_CPY             int_cpy             = or valueCpy
+    INT_CREATE          int_create          = or valueCreate
     INT_DECR            int_decr            --
     INT_DIV             int_div             /
     INT_EQ              int_eq              ==
@@ -15029,13 +15055,13 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 15.18 Actions for interface types
 
     Action name         itflib.c function
-    ITF_CMP             itf_cmp             ptrCmp or ptrCmpGeneric
+    ITF_CMP             itf_cmp             ptrCmp or ptrCmpValue
     ITF_CONV2           itf_conv2           (noop)
-    ITF_CPY             itf_cpy             = or generic_cpy_ ...
+    ITF_CPY             itf_cpy             = or value_cpy_ ...
     ITF_CPY2            itf_cpy2            =
     ITF_CREATE          itf_create          itfCreate
     ITF_CREATE2         itf_create2
-    ITF_DESTR           itf_destr           destr_ ...
+    ITF_DESTR           itf_destr           destr_ ... or value_destr_ ...
     ITF_EQ              itf_eq              ==
     ITF_HASHCODE        itf_hashcode        (intType)(((memSizeType)a)>>6)
     ITF_NE              itf_ne              !=
@@ -15120,6 +15146,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         prclib.c function
     PRC_ARGS            prc_args            arg_v
+    PRC_ASSERT          prc_assert          if(!(cond))raiseError(ASSERTION_ERROR)
     PRC_BEGIN           prc_begin           Executed at compile-time
     PRC_BEGIN_NOOP      prc_begin_noop      Executed at compile-time
     PRC_BLOCK           prc_block
@@ -15168,7 +15195,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         prglib.c function   prg_comp.c function
     PRG_BSTRI_PARSE     prg_bstri_parse     prgBStriParse
-    PRG_CMP             prg_cmp             ptrCmp or ptrCmpGeneric
+    PRG_CMP             prg_cmp             ptrCmp or ptrCmpValue
     PRG_CPY             prg_cpy             prgCpy
     PRG_CREATE          prg_create          prgCreate;
     PRG_DESTR           prg_destr           prgDestr
@@ -15211,9 +15238,9 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
     REF_CAT_STR         ref_cat_str         refCatStr
-    REF_CMP             ref_cmp             ptrCmp or ptrCmpGeneric
-    REF_CPY             ref_cpy             = or ptrCpyGeneric
-    REF_CREATE          ref_create          = or ptrCreateGeneric
+    REF_CMP             ref_cmp             ptrCmp or ptrCmpValue
+    REF_CPY             ref_cpy             = or ptrCpyValue
+    REF_CREATE          ref_create          = or ptrCreateValue
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
     REF_GETREF          ref_getref          refGetRef
@@ -15296,10 +15323,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 15.28 Actions for the type structElement
 
     Action name         sctlib.c function
-    SEL_CMP             sel_cmp             ptrCmp or ptrCmpGeneric
+    SEL_CMP             sel_cmp             ptrCmp or ptrCmpValue
     SEL_CONV1           sel_conv1
-    SEL_CPY             sel_cpy             = or genericCpy
-    SEL_CREATE          sel_create          = or genericCreate
+    SEL_CPY             sel_cpy             = or valueCpy
+    SEL_CREATE          sel_create          = or valueCreate
     SEL_EQ              sel_eq              ==
     SEL_HASHCODE        sel_hashcode        (intType)(((memSizeType)a)>>6)
     SEL_NAME            sel_name            refStr
@@ -15405,8 +15432,8 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     SQL_BIND_STRI       sql_bind_stri       sqlBindStri
     SQL_BIND_TIME       sql_bind_time       sqlBindTime
     SQL_CLOSE           sql_close           sqlClose
-    SQL_CMP_DB          sql_cmp_db          ptrCmp or ptrCmpGeneric
-    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp or ptrCmpGeneric
+    SQL_CMP_DB          sql_cmp_db          ptrCmp or ptrCmpValue
+    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp or ptrCmpValue
     SQL_COLUMN_BIGINT   sql_column_bigint   sqlColumnBigInt
     SQL_COLUMN_BIGRAT   sql_column_bigrat   sqlColumnBigRat
     SQL_COLUMN_BOOL     sql_column_bool     sqlColumnBool
@@ -15526,10 +15553,10 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     Action name         typlib.c function   typ_data.c function
     TYP_ADDINTERFACE    typ_addinterface
-    TYP_CMP             typ_cmp             typCmp
-    TYP_CPY             typ_cpy             = or ptrCpyGeneric
-    TYP_CREATE          typ_create          = or ptrCreateGeneric
-    TYP_DESTR           typ_destr           genericDestr
+    TYP_CMP             typ_cmp             typCmp or typCmpValue
+    TYP_CPY             typ_cpy             = or ptrCpyValue
+    TYP_CREATE          typ_create          = or ptrCreateValue
+    TYP_DESTR           typ_destr           valueDestr
     TYP_EQ              typ_eq              ==
     TYP_FUNC            typ_func            typFunc
     TYP_GENSUB          typ_gensub
@@ -15547,6 +15574,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     TYP_SET_IN_PARAM_REF   typ_set_in_param_ref
     TYP_SET_IN_PARAM_VALUE typ_set_in_param_value
     TYP_STR             typ_str             typStr
+    TYP_TYPEOF          typ_typeof
     TYP_VALUE           typ_value           typValue
     TYP_VARCONV         typ_varconv
     TYP_VARFUNC         typ_varfunc         typVarfunc
@@ -17068,7 +17096,20 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   operations of the following types:
 
     'array', 'struct', 'hash', 'file', 'func', 'proc', 'reference', 'string'.
-    Additionally the interpreter kernel may raise this exception also.
+
+  A stack overflow also raises MEMORY_ERROR. The program below
+  triggers a stack overflow with an infinite recursion:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      begin
+        main;
+      end func;
+
+  This program raises MEMORY_ERROR instead of triggering a crash:
+
+    *** Uncaught exception MEMORY_ERROR raised at sigutl.c(355)
 
 
 17.3.2 ASSERTION_ERROR
