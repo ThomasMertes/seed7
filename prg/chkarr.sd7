@@ -8292,6 +8292,7 @@ const proc: testRemoveArray is func
 
 const proc: testArraySort is func
   local
+    var array integer:    emptyArr is [0 .. -1] times 0;
     var array integer:    intArr is [] (2, 4, 6, 5, 3, 1);
     var array bigInteger: bigArr is [] (pred(2_**107), pred(2_**89));
     var array float:      fltArr is [] (E, sqrt(2.0), PI, 1.0);
@@ -8300,6 +8301,14 @@ const proc: testArraySort is func
     var boolean: ok is TRUE;
     var boolean: okay is TRUE;
   begin
+    if  length(sort(emptyArr)) <> 0 or
+        length(sort(arrExpr(emptyArr))) <> 0 or
+        length(sort(emptyArr, REVERSE)) <> 0 or
+        length(sort(arrExpr(emptyArr), REVERSE)) <> 0 then
+      writeln(" ***** Sorting empty arrays does not work correctly.");
+      okay := FALSE;
+    end if;
+
     if  sort(intArr) <> [] (1, 2, 3, 4, 5, 6) or
         sort(bigArr) <> [] (pred(2_**89), pred(2_**107)) or
         sort(fltArr) <> [] (1.0, sqrt(2.0), E, PI) or
