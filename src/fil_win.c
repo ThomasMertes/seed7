@@ -152,6 +152,27 @@ int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
 
 
 
+#ifdef define_get_stream_buffer_pointers_prototype
+void __cdecl _get_stream_buffer_pointers (FILE *fp, char ***base,
+					  char ***pointer, int **count);
+#endif
+
+
+
+#ifdef defineReadBufferEmpty
+int readBufferEmpty (FILE *fp)
+
+  {
+    int *countPtr = NULL;
+
+  /* readBufferEmpty */
+    _get_stream_buffer_pointers(fp, NULL, NULL, &countPtr);
+    return countPtr == NULL || *countPtr <= 0;
+  } /* readBufferEmpty */
+#endif
+
+
+
 static boolType stdinReady (void)
 
   {

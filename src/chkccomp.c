@@ -11363,13 +11363,9 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
+	fprintf(versionFile, "#define defineReadBufferEmpty\n");
         sprintf(macro_buffer,
-                "int read_buffer_empty (FILE *fp)\n"
-                "{\n"
-                "  int *cnt_ptr = NULL;\n"
-                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
-                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
-                "}\n");
+                "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
       } else {
         define_read_buffer_empty = NULL;
@@ -11382,14 +11378,10 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
+	fprintf(versionFile, "#define define_get_stream_buffer_pointers_prototype\n");
+	fprintf(versionFile, "#define defineReadBufferEmpty\n");
         sprintf(macro_buffer,
-                "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
-                "int read_buffer_empty (FILE *fp)\n"
-                "{\n"
-                "  int *cnt_ptr = NULL;\n"
-                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
-                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
-                "}\n");
+                "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
       } else {
         define_read_buffer_empty = NULL;
