@@ -11363,7 +11363,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
-	fprintf(versionFile, "#define defineReadBufferEmpty\n");
+        fprintf(versionFile, "#define defineReadBufferEmpty\n");
         sprintf(macro_buffer,
                 "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
@@ -11378,8 +11378,8 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
-	fprintf(versionFile, "#define define_get_stream_buffer_pointers_prototype\n");
-	fprintf(versionFile, "#define defineReadBufferEmpty\n");
+        fprintf(versionFile, "#define define_get_stream_buffer_pointers_prototype\n");
+        fprintf(versionFile, "#define defineReadBufferEmpty\n");
         sprintf(macro_buffer,
                 "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
