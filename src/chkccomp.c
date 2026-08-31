@@ -11365,7 +11365,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
       if (doTest()) {
         sprintf(macro_buffer,
                 "int read_buffer_empty (FILE *fp)\n"
-		"{\n"
+                "{\n"
                 "  int *cnt_ptr = NULL;\n"
                 "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
                 "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
@@ -11385,7 +11385,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
         sprintf(macro_buffer,
                 "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
                 "int read_buffer_empty (FILE *fp)\n"
-		"{\n"
+                "{\n"
                 "  int *cnt_ptr = NULL;\n"
                 "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
                 "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
