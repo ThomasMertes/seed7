@@ -89,6 +89,7 @@ const proc: process (CHR_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     process_expr(params[1], statement);
     statement.expr &:= "=";
     process_expr(params[3], statement);
@@ -130,6 +131,7 @@ const proc: process (CHR_DECR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "--(";
     process_expr(params[1], c_expr);
@@ -268,6 +270,7 @@ const proc: process (CHR_INCR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "++(";
     process_expr(params[1], c_expr);

@@ -58,7 +58,6 @@ const type: expr_type is new struct
   end struct;
 
 var expr_type: global_c_expr is expr_type.value;
-var ref_list: declared_types is ref_list.EMPTY;
 var boolean: write_object_declaration is TRUE;
 var boolean: calls_dcl_actions is FALSE;
 
@@ -83,12 +82,10 @@ const proc: defineVarFuncType (in type: functionType, inout expr_type: c_expr) i
 const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) is func
 
   local
-    var reference: type_obj is NIL;
     var type: metaType is void;
     var type: baseType is void;
   begin
-    type_obj := typeObject(aType);
-    if not type_obj in declared_types then
+    if aType not in typeData.declared_types then
       if aType not in typeData.typeCategory then
         if isDerived(aType) then
           metaType := meta(aType);
@@ -119,12 +116,12 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
           c_expr.expr &:= type_name(aType);
           c_expr.expr &:= ";\n\n";
         end if;
-        incl(declared_types, type_obj);
+        incl(typeData.declared_types, aType);
       elsif typeData.typeCategory[aType] = BLOCKOBJECT and
           (isFunc(aType) or isVarfunc(aType)) then
         declare_type_if_necessary(resultType(aType), c_expr);
         defineVarFuncType(aType, c_expr);
-        incl(declared_types, type_obj);
+        incl(typeData.declared_types, aType);
       # else
       #   writeln(type_name2(aType) & " in typeData.typeCategory " & str(typeData.typeCategory[aType]));
       #   c_expr.expr &:= "/* " & type_name2(aType) & " in typeData.typeCategory " & str(typeData.typeCategory[aType]) & " */\n";

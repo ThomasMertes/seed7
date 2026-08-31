@@ -383,6 +383,55 @@ objectType int_bytes_le_unsigned (listType arguments)
 
 
 /**
+ *  Integer division rounded up towards positive infinity (ceil division).
+ *  It corresponds to (intType) ceil((double) dividend / (double) divisor).
+ *  The actual implementation does not use floating point operations.
+ *  @return the quotient of the integer ceil division.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
+ */
+objectType int_ceil_div (listType arguments)
+
+  {
+    intType dividend;
+    intType divisor;
+    intType quotient;
+
+  /* int_ceil_div */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    dividend = take_int(arg_1(arguments));
+    divisor = take_int(arg_3(arguments));
+    logFunction(printf("int_ceil_div(" FMT_D ", " FMT_D ")\n",
+                       dividend, divisor););
+    if (unlikely(divisor == 0)) {
+      logError(printf("int_ceil_div(" FMT_D ", 0): Division by zero.\n",
+                      dividend););
+      return raise_exception(SYS_NUM_EXCEPTION);
+#if CHECK_INT_OVERFLOW && TWOS_COMPLEMENT_INTTYPE
+    } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
+      /* A division of the most negative number by -1 is equivalent */
+      /* to changing the sign of the most negative number. In twos  */
+      /* complement arithmetic this triggers an overflow.           */
+      logError(printf("int_ceil_div(" FMT_D ", -1): No corresponding positive number.\n",
+                      INTTYPE_MIN););
+      return raise_exception(SYS_OVF_EXCEPTION);
+#endif
+    } /* if */
+    if (dividend > 0 && divisor > 0) {
+      quotient = (dividend - 1) / divisor + 1;
+    } else if (dividend < 0 && divisor < 0) {
+      quotient = (dividend + 1) / divisor + 1;
+    } else {
+      quotient = dividend / divisor;
+    } /* if */
+    logFunction(printf("int_ceil_div --> " FMT_D "\n", quotient););
+    return bld_int_temp(quotient);
+  } /* int_ceil_div */
+
+
+
+/**
  *  Compare two integer numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
@@ -889,6 +938,8 @@ objectType int_lt (listType arguments)
 
 /**
  *  Integer division truncated towards negative infinity.
+ *  It corresponds to (intType) floor((double) dividend / (double) divisor).
+ *  The actual implementation does not use floating point operations.
  *  The modulo (remainder) of this division is computed with int_mod.
  *  Therefore this division is called modulo division (mdiv).
  *  @return the quotient of the integer division.

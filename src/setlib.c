@@ -1031,6 +1031,26 @@ objectType set_symdiff (listType arguments)
 
 
 /**
+ *  Assign the symmetric difference of dest/arg_1 and delta/arg_3 to dest/arg_1.
+ *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
+ */
+objectType set_symdiff_assign (listType arguments)
+
+  {
+    objectType set_variable;
+
+  /* set_symdiff_assign */
+    set_variable = arg_1(arguments);
+    isit_set(set_variable);
+    is_variable(set_variable);
+    isit_set(arg_3(arguments));
+    setSymdiffAssign(&set_variable->value.setValue, take_set(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* set_symdiff_assign */
+
+
+
+/**
  *  Union of two sets.
  *  @return the union of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.

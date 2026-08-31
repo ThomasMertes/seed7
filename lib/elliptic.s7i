@@ -229,7 +229,7 @@ const ellipticCurve: secp521r1 is ellipticCurve(
  *  coordinate of an ecPoint.
  *)
 const func integer: getSizeInBytes (in ellipticCurve: curve) is
-  return succ(pred(curve.bits) mdiv 8);
+  return curve.bits ceilDiv 8;
 
 
 (**

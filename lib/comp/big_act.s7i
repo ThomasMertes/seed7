@@ -606,6 +606,7 @@ const proc: process (BIG_ADD_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_add_assign(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
@@ -702,6 +703,7 @@ const proc: process (BIG_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     c_param3.demand := ASSIGN_RESULT;
@@ -739,6 +741,7 @@ const proc: process (BIG_DECR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigDecr(&(";
     getAnyParamToExpr(params[1], c_expr);
@@ -1014,6 +1017,7 @@ const proc: process (BIG_INCR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigIncr(&(";
     getAnyParamToExpr(params[1], c_expr);
@@ -1305,6 +1309,7 @@ const proc: process (BIG_LSHIFT_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
       incr(count.optimizations);
@@ -1664,6 +1669,7 @@ const proc: process (BIG_MULT_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_mult_assign(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
@@ -1991,6 +1997,7 @@ const proc: process (BIG_RSHIFT_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 0 then
       incr(count.optimizations);
@@ -2089,6 +2096,7 @@ const proc: process (BIG_SBTR_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_sbtr_assign(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else

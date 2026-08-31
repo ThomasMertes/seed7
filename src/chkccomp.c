@@ -11285,12 +11285,22 @@ static void determineIncludesAndLibs (FILE *versionFile)
 static void writeReadBufferEmptyMacro (FILE *versionFile)
 
   {
+    int sizeof_FILE = -1;
     const char *define_read_buffer_empty;
     int offset_to_count;
     char macro_buffer[BUFFER_SIZE];
     char buffer[2 * BUFFER_SIZE];
 
   /* writeReadBufferEmptyMacro */
+    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",(int)sizeof(FILE)); return 0;}\n")) {
+      sizeof_FILE = doTest();
+    } /* if */
+    if (sizeof_FILE != -1) {
+      fprintf(versionFile, "#define sizeof_FILE %d\n", sizeof_FILE);
+    } else {
+      fprintf(logFile, "\n *** Could not determine sizeof(FILE).\n");
+    } /* if */
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                          "{FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) "
@@ -11319,7 +11329,8 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                                 "{FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+    } else if (sizeof_FILE > 8 &&
+               compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                                 "{FILE stru; FILE*fp=&stru;char**base;char**pointer;int*count;\n"
                                 "_get_stream_buffer_pointers(fp,&base,&pointer,&count);\n"
                                 "printf(\"%d\\n\",(int)((char *)count-(char *)fp)); return 0;}\n")) {
@@ -11327,6 +11338,58 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
         sprintf(macro_buffer,
                 "#define read_buffer_empty(fp) (*((int *)&((char *)(fp))[%d])==0)",
                 offset_to_count);
+        define_read_buffer_empty = macro_buffer;
+      } else {
+        define_read_buffer_empty = NULL;
+      } /* if */
+    } else if (sizeof_FILE > 8 &&
+               compileAndLinkOk("#include<stdio.h>\n"
+                                "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{FILE stru; FILE*fp=&stru;char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(fp,&base,&pointer,&count);\n"
+                                "printf(\"%d\\n\",(int)((char *)count-(char *)fp)); return 0;}\n")) {
+      if ((offset_to_count = doTest()) != -1) {
+        sprintf(macro_buffer,
+                "#define read_buffer_empty(fp) (*((int *)&((char *)(fp))[%d])==0)",
+                offset_to_count);
+        define_read_buffer_empty = macro_buffer;
+      } else {
+        define_read_buffer_empty = NULL;
+      } /* if */
+    } else if (sizeof_FILE <= 8 &&
+               compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
+                                "printf(\"1\\n\"); return 0;}\n")) {
+      if (doTest() == 1) {
+        sprintf(macro_buffer,
+                "int read_buffer_empty (FILE *fp)\n"
+                "{\n"
+                "  int *cnt_ptr = NULL;\n"
+                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
+                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
+                "}\n");
+        define_read_buffer_empty = macro_buffer;
+      } else {
+        define_read_buffer_empty = NULL;
+      } /* if */
+    } else if (sizeof_FILE <= 8 &&
+               compileAndLinkOk("#include<stdio.h>\n"
+                                "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
+                                "printf(\"1\\n\"); return 0;}\n")) {
+      if (doTest() == 1) {
+        sprintf(macro_buffer,
+                "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
+                "int read_buffer_empty (FILE *fp)\n"
+                "{\n"
+                "  int *cnt_ptr = NULL;\n"
+                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
+                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
+                "}\n");
         define_read_buffer_empty = macro_buffer;
       } else {
         define_read_buffer_empty = NULL;

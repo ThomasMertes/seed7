@@ -325,7 +325,7 @@ const func fileSys: openAr (inout file: arFile) is func
               headerPos := tell(arFile);
             else
               headerPos := tell(arFile) +
-                  succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
+                  header.fileSize ceilDiv AR_PADDING * AR_PADDING;
               seek(arFile, headerPos);
             end if;
           end if;
@@ -1321,8 +1321,8 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
         if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
           raise FILE_ERROR;
         else
-          oldPaddedSize := succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
-          newPaddedSize := succ(pred(length(data)) mdiv AR_PADDING) * AR_PADDING;
+          oldPaddedSize := header.fileSize ceilDiv AR_PADDING * AR_PADDING;
+          newPaddedSize := length(data) ceilDiv AR_PADDING * AR_PADDING;
           # writeln("oldPaddedSize: " <& oldPaddedSize);
           # writeln("newPaddedSize: " <& newPaddedSize);
           if newPaddedSize > oldPaddedSize then
@@ -1468,7 +1468,7 @@ const proc: removeFile (inout arArchive: ar, in string: filePath) is func
          (bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_DIR and
           isEmptyDir(ar.register, filePath))) then
       posOfHeaderToBeRemoved := ar.register[filePath];
-      numCharsToBeRemoved := AR_HEADER_SIZE + succ(pred(header.fileSize) mdiv AR_PADDING) * AR_PADDING;
+      numCharsToBeRemoved := AR_HEADER_SIZE + header.fileSize ceilDiv AR_PADDING * AR_PADDING;
       # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
       deleteArea(ar.arFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
       excl(ar.register, filePath);

@@ -188,6 +188,7 @@ const proc: process (SOC_CPY, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     c_param3.demand := ASSIGN_RESULT;

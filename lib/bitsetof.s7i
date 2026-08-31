@@ -115,6 +115,12 @@ const func type: bitset (in type: baseType) is func
       const proc: (inout setType: dest) -:= (in setType: set2)           is action "SET_DIFF_ASSIGN";
 
       (**
+       *  Assign the symmetric difference of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+       *)
+      const proc: (inout setType: dest) ><:= (in setType: set2)          is action "SET_SYMDIFF_ASSIGN";
+
+      (**
        *  Check if two sets are equal.
        *  @return TRUE if the two sets are equal,
        *          FALSE otherwise.

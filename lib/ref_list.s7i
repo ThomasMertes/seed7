@@ -185,10 +185,6 @@ const func integer: pos (in ref_list: main, in reference: searched,
                          in integer: start)                              is action "RFL_IPOS";
 
 
-const proc: incl (in ref_list: aRefList, in reference: element)          is action "RFL_INCL";
-const proc: excl (in ref_list: aRefList, in reference: element)          is action "RFL_EXCL";
-
-
 (**
  *  Determine the length of a ''ref_list''.
  *  @return the length of the ''ref_list''.

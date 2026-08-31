@@ -126,10 +126,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_ARRLIT, function, params, c_expr);
       when {"ARR_ARRLIT2"}:
         process(ARR_ARRLIT2, function, params, c_expr);
+      when {"ARR_ARRLIT3"}:
+        process(ARR_ARRLIT3, function, params, c_expr);
       when {"ARR_BASELIT"}:
         process(ARR_BASELIT, function, params, c_expr);
       when {"ARR_BASELIT2"}:
         process(ARR_BASELIT2, function, params, c_expr);
+      when {"ARR_BASELIT3"}:
+        process(ARR_BASELIT3, function, params, c_expr);
       when {"ARR_CAT"}:
         process(ARR_CAT, function, params, c_expr);
       when {"ARR_CONV"}:
@@ -1148,6 +1152,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_BYTES_LE_SIGNED, function, params, c_expr);
       when {"INT_BYTES_LE_UNSIGNED"}:
         process(INT_BYTES_LE_UNSIGNED, function, params, c_expr);
+      when {"INT_CEIL_DIV"}:
+        process(INT_CEIL_DIV, function, params, c_expr);
       when {"INT_CMP"}:
         process(INT_CMP, function, params, c_expr);
       when {"INT_CPY"}:
@@ -1568,8 +1574,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(RFL_HEAD, function, params, c_expr);
       when {"RFL_IDX"}:
         process(RFL_IDX, function, params, c_expr);
-      when {"RFL_INCL"}:
-        process(RFL_INCL, function, params, c_expr);
       when {"RFL_IPOS"}:
         process(RFL_IPOS, function, params, c_expr);
       when {"RFL_LNG"}:
@@ -1674,6 +1678,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_SCONV3, function, params, c_expr);
       when {"SET_SYMDIFF"}:
         process(SET_SYMDIFF, function, params, c_expr);
+      when {"SET_SYMDIFF_ASSIGN"}:
+        process(SET_SYMDIFF_ASSIGN, function, params, c_expr);
       when {"SET_UNION"}:
         process(SET_UNION, function, params, c_expr);
       when {"SET_UNION_ASSIGN"}:

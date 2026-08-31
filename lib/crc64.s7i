@@ -1,0 +1,96 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  crc64.s7i     CRC-64 cyclic redundancy check support library    *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin64.s7i";
+
+
+const type: crc64TableType is array [0 .. 255] bin64;
+
+
+const func crc64TableType: createCrc64Table is func
+  result
+    var crc64TableType: crc64Table is crc64TableType.value;
+  local
+    # Reversed / reflected (LSB-First) ECMA-182 polynomial.
+    const bin64: ECMA_182_POLYNOMIAL is bin64(16#c96c5795d7870f42_);
+    var bin64: crc is bin64(0); # crc shift register
+    var integer: i is 0;        # counter for all possible eight bit values
+  begin
+    for i range 1 to 255 do
+      crc := bin64(i);
+      for 8 do
+        if (crc & bin64(1)) <> bin64(0) then
+          crc := (crc >> 1) >< ECMA_182_POLYNOMIAL;
+        else
+          crc >>:= 1;
+        end if;
+      end for;
+      crc64Table[i] := crc;
+    end for;
+  end func;
+
+
+const crc64TableType: crc64Table is createCrc64Table;
+
+
+(**
+ *  Compute the CRC-64 cyclic redundancy check code.
+ *   crc64("123456789")  returns bin64(16#995dc9bbdf1939fa)
+ *)
+const func bin64: crc64 (in string: stri) is func
+  result
+    var bin64: crc is bin64(16#ffffffffffffffff_);
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      crc := crc64Table[ord(crc >< bin64(ch)) mod 256] >< crc >> 8;
+    end for;
+    crc ><:= bin64(16#ffffffffffffffff_);
+  end func;
+
+
+(**
+ *  Compute the CRC-64 cyclic redundancy check code with ''interimCrc''.
+ *  This function can be used to compute the CRC-64 with multiple steps:
+ *   interimCrc := crc64(data1);
+ *   interimCrc := crc64(data2, interimCrc);
+ *   finalCrc   := crc64(data3, interimCrc);
+ *)
+const func bin64: crc64 (in string: stri, in bin64: interimCrc) is func
+  result
+    var bin64: crc is bin64(0);
+  local
+    var char: ch is ' ';
+  begin
+    crc := interimCrc >< bin64(16#ffffffffffffffff_);
+    for ch range stri do
+      crc := crc64Table[ord(crc >< bin64(ch)) mod 256] >< crc >> 8;
+    end for;
+    crc ><:= bin64(16#ffffffffffffffff_);
+  end func;

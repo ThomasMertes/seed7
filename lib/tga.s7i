@@ -105,7 +105,7 @@ const proc: readPalette (inout file: tgaFile, inout tgaHeader: header) is func
     var integer: colorBits is 1;
   begin
     maxColorIndex := pred(header.colorMapFirstEntryIndex + header.colorMapLength);
-    colorEntrySize := succ(pred(header.colorMapEntrySize) mdiv 8);
+    colorEntrySize := header.colorMapEntrySize ceilDiv 8;
     header.palette := colorLookupTable[.. maxColorIndex] times pixel.value;
     bytesNeeded := header.colorMapLength * colorEntrySize;
     colorData := gets(tgaFile, bytesNeeded);

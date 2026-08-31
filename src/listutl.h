@@ -57,7 +57,6 @@ void free_expression_list (listType list);
 void concat_lists (listType *list1, listType list2);
 void incl_list (listType *list, objectType element_object,
                 errInfoType *err_info);
-void excl_list (listType *list, const_objectType elementobject);
 void pop_list (listType *list);
 void replace_list_elem (listType list, const_objectType elem1,
                         objectType elem2);

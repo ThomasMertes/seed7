@@ -43,13 +43,13 @@ const type: ruleType is new struct
     var string: target is "";
     var array string: dependencies is 0 times "";
     var array string: commands is 0 times "";
-    var boolean: ruleProcessed is FALSE;
   end struct;
 
 const type: ruleHash is hash [string] ruleType;
 const type: ruleArray is array ruleType;
 const type: ruleArrayHash is hash [string] ruleArray;
 const type: stringHash is hash [string] string;
+const type: rulesProcessedType is set of string;
 
 (**
  *  Describes rules and macros from a makefile and flags from the command line.

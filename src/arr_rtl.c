@@ -801,6 +801,44 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
 
 
 
+rtlArrayType arrArrlit3 (intType minIdx, intType maxIdx, rtlArrayType arr1)
+
+  {
+    memSizeType result_size;
+
+  /* arrArrlit3 */
+    logFunction(printf("arrArrlit3(" FMT_D ", " FMT_D ", " FMT_U_MEM
+                                   " (array[" FMT_D " .. " FMT_D "]))\n",
+                       minIdx, maxIdx, (memSizeType) arr1,
+                       arr1 != NULL ? arr1->min_position : (intType) 1,
+                       arr1 != NULL ? arr1->max_position : (intType) 0););
+    result_size = arraySize(arr1);
+    if (unlikely(minIdx < MIN_MEM_INDEX ||
+                 maxIdx > MAX_MEM_INDEX ||
+                 maxIdx < minIdx ||
+                 result_size != arraySize2(minIdx, maxIdx))) {
+      logError(printf("arrArrlit3(" FMT_D ", " FMT_D
+                      ", arr1 (size=" FMT_U_MEM ")): "
+                      "Minimum or maximum index out of range.\n",
+                      minIdx, maxIdx, result_size););
+      raise_error(RANGE_ERROR);
+      arr1 = NULL;
+    } else {
+      arr1->min_position = minIdx;
+      arr1->max_position = maxIdx;
+    } /* if */
+    logFunction(printf("arrArrlit3 --> " FMT_U_MEM " (array[" FMT_D
+                                     " .. " FMT_D "])\n",
+                       (memSizeType) arr1,
+                       arr1 != NULL ?
+                           arr1->min_position : (intType) 1,
+                       arr1 != NULL ?
+                           arr1->max_position : (intType) 0););
+    return arr1;
+  } /* arrArrlit3 */
+
+
+
 rtlArrayType arrBaselit (const rtlValueUnion element)
 
   {
@@ -855,6 +893,47 @@ rtlArrayType arrBaselit2 (intType start_position, const rtlValueUnion element)
                            result->max_position : (intType) 0););
     return result;
   } /* arrBaselit2 */
+
+
+
+rtlArrayType arrBaselit3 (intType minIdx, intType maxIdx, const rtlValueUnion element)
+
+  {
+    memSizeType result_size;
+    rtlArrayType result;
+
+  /* arrBaselit3 */
+    logFunction(printf("arrBaselit3(" FMT_D ", " FMT_D ", "
+                       FMT_U_GEN ")\n",
+                       minIdx, maxIdx, element.genericValue););
+    if (unlikely(minIdx < MIN_MEM_INDEX ||
+                 maxIdx > MAX_MEM_INDEX ||
+                 minIdx != maxIdx)) {
+      logError(printf("arrBaselit3(" FMT_D ", " FMT_D ", "
+                      FMT_U_MEM "): "
+                      "Minimum or maximum index out of range.\n",
+                      minIdx, maxIdx, element.genericValue););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result_size = 1;
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = minIdx;
+        result->max_position = minIdx;
+        result->arr[0].value = element;
+      } /* if */
+    } /* if */
+    logFunction(printf("arrBaselit3 --> " FMT_U_MEM " (array[" FMT_D
+                                        " .. " FMT_D "])\n",
+                       (memSizeType) result,
+                       result != NULL ?
+                           result->min_position : (intType) 1,
+                       result != NULL ?
+                           result->max_position : (intType) 0););
+    return result;
+  } /* arrBaselit3 */
 
 
 

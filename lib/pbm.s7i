@@ -70,7 +70,7 @@ const proc: readPbmBinaryImageLine (inout pixelArray: imageLine,
     var integer: currentByte is 0;
     var integer: column is 0;
   begin
-    pixelData := gets(pbmFile, succ(pred(width) div 8));
+    pixelData := gets(pbmFile, width ceilDiv 8);
     currentByte := ord(pixelData[1]);
     for column range 1 to width do
       if not odd(currentByte >> bitNumber) then

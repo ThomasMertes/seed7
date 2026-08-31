@@ -322,6 +322,23 @@ const func type: hashset (in type: baseType) is func
         end func;
 
       (**
+       *  Assign the symmetric difference of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+       *)
+      const proc: (inout setType: dest) ><:= (in setType: set2) is func
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set2 do
+            if element in dest then
+              excl(dest, element);
+            else
+              incl(dest, element);
+            end if;
+          end for;
+        end func;
+
+      (**
        *  Check if two sets are equal.
        *  @return TRUE if the two sets are equal,
        *          FALSE otherwise.

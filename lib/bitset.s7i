@@ -113,6 +113,13 @@ const proc: (inout bitset: dest) -:= (in bitset: set2)          is action "SET_D
 
 
 (**
+ *  Assign the symmetric difference of ''dest'' and ''set2'' to ''dest''.
+ *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+ *)
+const proc: (inout bitset: dest) ><:= (in bitset: set2)         is action "SET_SYMDIFF_ASSIGN";
+
+
+(**
  *  Check if two sets are equal.
  *   {} = {}          returns  TRUE
  *   {} = {1}         returns  FALSE

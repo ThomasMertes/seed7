@@ -39,6 +39,7 @@ objectType int_bytes_le_2_int      (listType arguments);
 objectType int_bytes_le_2_uint     (listType arguments);
 objectType int_bytes_le_signed     (listType arguments);
 objectType int_bytes_le_unsigned   (listType arguments);
+objectType int_ceil_div            (listType arguments);
 objectType int_cmp                 (listType arguments);
 objectType int_cpy                 (listType arguments);
 objectType int_create              (listType arguments);

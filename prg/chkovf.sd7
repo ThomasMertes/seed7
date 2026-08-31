@@ -4702,24 +4702,24 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(          integer.first   div                   -1)    or
-        not raisesOverflowError(          integer.first   div  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(          integer.first   div       -abs(intExpr(1)))  or
-        not raisesOverflowError(          integer.first   div  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(          integer.first   div  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(          integer.first   div -ord(rand(TRUE, TRUE)))  or
-        not raisesOverflowError(pred(-abs(integer.last )) div                   -1)    or
-        not raisesOverflowError(pred(-abs(integer.last )) div  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) div       -abs(intExpr(1)))  or
-        not raisesOverflowError(pred(-abs(integer.last )) div  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) div  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) div -ord(rand(TRUE, TRUE)))  or
-        not raisesOverflowError(intExpr(  integer.first)  div                   -1)    or
-        not raisesOverflowError(intExpr(  integer.first)  div  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(intExpr(  integer.first)  div       -abs(intExpr(1)))  or
-        not raisesOverflowError(intExpr(  integer.first)  div  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(intExpr(  integer.first)  div  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(intExpr(  integer.first)  div -ord(rand(TRUE, TRUE)))  then
+    if  not raisesOverflowError(                  integer.first   div                   -1)    or
+        not raisesOverflowError(                  integer.first   div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   div       -abs(intExpr(1)))  or
+        not raisesOverflowError(                  integer.first   div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(                  integer.first   div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   div -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(          intExpr(integer.first)  div                   -1)    or
+        not raisesOverflowError(          intExpr(integer.first)  div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  div       -abs(intExpr(1)))  or
+        not raisesOverflowError(          intExpr(integer.first)  div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(          intExpr(integer.first)  div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  div -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div                   -1)    or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div       -abs(intExpr(1)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) div -ord(rand(TRUE, TRUE)))  then
       writeln(" ***** Computing integer.first div -1 does not raise OVERFLOW_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -4781,24 +4781,24 @@ const proc: check_mdiv is func
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(          integer.first   mdiv                   -1)    or
-        not raisesOverflowError(          integer.first   mdiv  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(          integer.first   mdiv       -abs(intExpr(1)))  or
-        not raisesOverflowError(          integer.first   mdiv  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(          integer.first   mdiv  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(          integer.first   mdiv -ord(rand(TRUE, TRUE)))  or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv                   -1)    or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv       -abs(intExpr(1)))  or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(pred(-abs(integer.last )) mdiv -ord(rand(TRUE, TRUE)))  or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv                   -1)    or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv  pred(-abs(intExpr(0)))) or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv       -abs(intExpr(1)))  or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv  succ(-abs(intExpr(2)))) or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv  pred( abs(intExpr(0)))) or
-        not raisesOverflowError(intExpr(  integer.first)  mdiv -ord(rand(TRUE, TRUE)))  then
+    if  not raisesOverflowError(                  integer.first   mdiv                   -1)    or
+        not raisesOverflowError(                  integer.first   mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(                  integer.first   mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(                  integer.first   mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   mdiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv                   -1)    or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  mdiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv                   -1)    or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) mdiv -ord(rand(TRUE, TRUE)))  then
       writeln(" ***** Computing integer.first mdiv -1 does not raise OVERFLOW_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -4965,6 +4965,52 @@ const proc: check_mod is func
       writeln("Overflow checking of mod operator works correctly.");
     else
       writeln(" ***** Overflow checking of mod operator does not work correctly.");
+    end if;
+  end func;
+
+
+const proc: check_ceilDiv is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError(                      INT64_MIN   ceilDiv         -1 ) or
+        not raisesOverflowError(                      INT64_MIN   ceilDiv intExpr(-1)) or
+        not raisesOverflowError(        (-9223372036854775807-1)  ceilDiv         -1 ) or
+        not raisesOverflowError(        (-9223372036854775807-1)  ceilDiv intExpr(-1)) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  ceilDiv         -1 ) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  ceilDiv intExpr(-1)) or
+        not raisesOverflowError(intExpr((-9223372036854775807-1)) ceilDiv         -1 ) or
+        not raisesOverflowError(intExpr((-9223372036854775807-1)) ceilDiv intExpr(-1)) then
+      writeln(" ***** Computing integer.first ceilDiv -1 does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                  integer.first   ceilDiv                   -1)    or
+        not raisesOverflowError(                  integer.first   ceilDiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   ceilDiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(                  integer.first   ceilDiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(                  integer.first   ceilDiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(                  integer.first   ceilDiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv                   -1)    or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(          intExpr(integer.first)  ceilDiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv                   -1)    or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(intExpr(integer.last))) ceilDiv -ord(rand(TRUE, TRUE)))  then
+      writeln(" ***** Computing integer.first ceilDiv -1 does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Overflow checking of ceilDiv operator works correctly.");
+    else
+      writeln(" ***** Overflow checking of ceilDiv operator does not work correctly.");
     end if;
   end func;
 
@@ -8201,6 +8247,7 @@ const proc: main is func
     check_rem;
     check_mdiv;
     check_mod;
+    check_ceilDiv;
     check_lShift;
     check_lShift_assign;
     check_rShift;

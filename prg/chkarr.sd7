@@ -1982,18 +1982,42 @@ const func boolean: testIndex2 (in array array complex: cpxArr,
 const type: fixArrayType is array [1 .. 64] integer;
 const type: fixArrayType2 is array [0 .. 15] integer;
 const type: fixArrayType3 is array [-2147483647 .. -2147483646] integer;
+const type: fixArrayType4 is array [-2147483647 .. -2147483647] integer;
 
 
 const func boolean: testFixArrayIndex is func
   result
     var boolean: okay is TRUE;
   local
+    const fixArrayType2: constArray2 is fixArrayType2 []
+        (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
     var fixArrayType: anArray is fixArrayType.value;
     var fixArrayType: anArrayB is fixArrayType.value;
     var fixArrayType: anArrayX is fixArrayType times 1234567890;
     var fixArrayType2: anArray2 is fixArrayType2.value;
     var fixArrayType3: anArray3 is fixArrayType3.value;
+    var fixArrayType4: anArray4 is fixArrayType4.value;
   begin
+    if  constArray2[ 0] <>  0 or
+        constArray2[ 1] <>  1 or
+        constArray2[ 2] <>  2 or
+        constArray2[ 3] <>  3 or
+        constArray2[ 4] <>  4 or
+        constArray2[ 5] <>  5 or
+        constArray2[ 6] <>  6 or
+        constArray2[ 7] <>  7 or
+        constArray2[ 8] <>  8 or
+        constArray2[ 9] <>  9 or
+        constArray2[10] <> 10 or
+        constArray2[11] <> 11 or
+        constArray2[12] <> 12 or
+        constArray2[13] <> 13 or
+        constArray2[14] <> 14 or
+        constArray2[15] <> 15 then
+      writeln(" ***** Indexing into a fixed size array failed. (1)");
+      okay := FALSE;
+    end if;
+
     anArray[1]  :=  1;
     anArray[12] := 12;
     anArray[64] := 64;
@@ -2005,6 +2029,7 @@ const func boolean: testFixArrayIndex is func
     anArray2[15] := 15;
     anArray3[-2147483647] := -2147483647;
     anArray3[-2147483646] := -2147483646;
+    anArray4[-2147483647] := -2147483647;
     if  anArray[ 1] <>  1 or
         anArray[12] <> 12 or
         anArray[64] <> 64 or
@@ -2019,8 +2044,9 @@ const func boolean: testFixArrayIndex is func
         anArray2[ 5] <>  5 or
         anArray2[15] <> 15 or
         anArray3[-2147483647] <> -2147483647 or
-        anArray3[-2147483646] <> -2147483646 then
-      writeln(" ***** Indexing into a fixed size array failed. (1)");
+        anArray3[-2147483646] <> -2147483646 or
+        anArray4[-2147483647] <> -2147483647 then
+      writeln(" ***** Indexing into a fixed size array failed. (2)");
       okay := FALSE;
     end if;
 
@@ -2032,6 +2058,7 @@ const func boolean: testFixArrayIndex is func
         anArray2[intExpr(15)] <> 15 or
         anArray3[intExpr(-2147483647)] <> -2147483647 or
         anArray3[intExpr(-2147483646)] <> -2147483646 or
+        anArray4[intExpr(-2147483647)] <> -2147483647 or
         anArray[intExpr( 0) mod 64 + 1] <>  1 or
         anArray[intExpr(11) mod 64 + 1] <> 12 or
         anArray[intExpr(63) mod 64 + 1] <> 64 or
@@ -2039,8 +2066,9 @@ const func boolean: testFixArrayIndex is func
         anArray2[intExpr( 5) mod 16] <>  5 or
         anArray2[intExpr(15) mod 16] <> 15 or
         anArray3[intExpr(0) mod 8 - 2147483647] <> -2147483647 or
-        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 then
-      writeln(" ***** Indexing into a fixed size array failed. (2)");
+        anArray3[intExpr(1) mod 8 - 2147483647] <> -2147483646 or
+        anArray4[intExpr(0) mod 8 - 2147483647] <> -2147483647 then
+      writeln(" ***** Indexing into a fixed size array failed. (3)");
       okay := FALSE;
     end if;
 
@@ -2059,8 +2087,10 @@ const func boolean: testFixArrayIndex is func
         anArray3[ abs(intExpr(0)) - 2147483647] <> -2147483647 or
         anArray3[ abs(intExpr(1)) - 2147483647] <> -2147483646 or
         anArray3[-abs(intExpr(1)) - 2147483646] <> -2147483647 or
-        anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 then
-      writeln(" ***** Indexing into a fixed size array failed. (3)");
+        anArray3[-abs(intExpr(0)) - 2147483646] <> -2147483646 or
+        anArray4[ abs(intExpr(0)) - 2147483647] <> -2147483647 or
+        anArray4[-abs(intExpr(1)) - 2147483646] <> -2147483647 then
+      writeln(" ***** Indexing into a fixed size array failed. (4)");
       okay := FALSE;
     end if;
 
@@ -2072,30 +2102,76 @@ const func boolean: testFixArrayIndex is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError(anArray[ 0]) or
+    anArray2 := fixArrayType2 [] (16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+    if  anArray2[ 0] <> 16 or
+        anArray2[ 1] <> 15 or
+        anArray2[ 2] <> 14 or
+        anArray2[ 3] <> 13 or
+        anArray2[ 4] <> 12 or
+        anArray2[ 5] <> 11 or
+        anArray2[ 6] <> 10 or
+        anArray2[ 7] <>  9 or
+        anArray2[ 8] <>  8 or
+        anArray2[ 9] <>  7 or
+        anArray2[10] <>  6 or
+        anArray2[11] <>  5 or
+        anArray2[12] <>  4 or
+        anArray2[13] <>  3 or
+        anArray2[14] <>  2 or
+        anArray2[15] <>  1 then
+      writeln(" ***** Using a fixed size array literal failed. (1)");
+      okay := FALSE;
+    end if;
+
+    anArray3 := fixArrayType3 [] (1, 2);
+    if anArray3[-2147483647] <> 1 or
+       anArray3[-2147483646] <> 2 then
+      writeln(" ***** Using a fixed size array literal failed. (2)");
+      okay := FALSE;
+    end if;
+
+    anArray4 := fixArrayType4 [] (1);
+    if anArray4[-2147483647] <> 1 then
+      writeln(" ***** Using a fixed size array literal failed. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(constArray2[-1]) or
+        not raisesIndexError(constArray2[16]) or
+        not raisesIndexError(anArray[ 0]) or
         not raisesIndexError(anArray[65]) or
         not raisesIndexError(anArray2[-1]) or
         not raisesIndexError(anArray2[16]) or
         not raisesIndexError(anArray3[-2147483648]) or
         not raisesIndexError(anArray3[-2147483645]) or
+        not raisesIndexError(anArray4[-2147483648]) or
+        not raisesIndexError(anArray4[-2147483646]) or
+        not raisesIndexError(constArray2[intExpr(-1)]) or
+        not raisesIndexError(constArray2[intExpr(16)]) or
         not raisesIndexError(anArray[intExpr( 0)]) or
         not raisesIndexError(anArray[intExpr(65)]) or
         not raisesIndexError(anArray2[intExpr(-1)]) or
         not raisesIndexError(anArray2[intExpr(16)]) or
         not raisesIndexError(anArray3[intExpr(-2147483648)]) or
         not raisesIndexError(anArray3[intExpr(-2147483645)]) or
+        not raisesIndexError(anArray4[intExpr(-2147483648)]) or
+        not raisesIndexError(anArray4[intExpr(-2147483646)]) or
         not raisesIndexError(anArray[-abs(intExpr(0))]) or
         not raisesIndexError(anArray[ abs(intExpr(0)) + 65]) or
         not raisesIndexError(anArray2[-abs(intExpr(0)) -  1]) or
         not raisesIndexError(anArray2[ abs(intExpr(0)) + 16]) or
         not raisesIndexError(anArray3[-abs(intExpr(0)) - 2147483648]) or
         not raisesIndexError(anArray3[ abs(intExpr(0)) - 2147483645]) or
+        not raisesIndexError(anArray4[-abs(intExpr(0)) - 2147483648]) or
+        not raisesIndexError(anArray4[ abs(intExpr(0)) - 2147483646]) or
         not raisesIndexError(anArray[ abs(intExpr(64)) +  1]) or
         not raisesIndexError(anArray[-abs(intExpr(64)) + 64]) or
         not raisesIndexError(anArray2[ abs(intExpr(16))]) or
         not raisesIndexError(anArray2[-abs(intExpr(16)) + 15]) or
         not raisesIndexError(anArray3[ abs(intExpr(2)) - 2147483647]) or
-        not raisesIndexError(anArray3[-abs(intExpr(2)) - 2147483646]) then
+        not raisesIndexError(anArray3[-abs(intExpr(2)) - 2147483646]) or
+        not raisesIndexError(anArray4[ abs(intExpr(2)) - 2147483648]) or
+        not raisesIndexError(anArray4[-abs(intExpr(2)) - 2147483646]) then
       writeln(" ***** Indexing into a fixed size array does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;

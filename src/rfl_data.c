@@ -426,20 +426,6 @@ objectType rflIdx (const_listType list, intType position)
 
 
 
-void rflIncl (listType *list, objectType elem)
-
-  {
-    errInfoType err_info = OKAY_NO_ERROR;
-
-  /* rflIncl */
-    incl_list(list, elem, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
-      raise_error(MEMORY_ERROR);
-    } /* if */
-  } /* rflIncl */
-
-
-
 /**
  *  Determine the length of a 'ref_list'.
  *  @return the length of the 'ref_list'.

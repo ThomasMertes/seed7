@@ -2017,7 +2017,7 @@ const proc: getArchive (inout rpmArchive: rpm) is func
         case compressor of
           when {"gzip"}:  payload := openGzipFile(rpm.rpmFile, READ);
           when {"lzma"}:  payload := openLzmaFile(rpm.rpmFile);
-          when {"xz"}:    payload := openXzFile(rpm.rpmFile);
+          when {"xz"}:    payload := openXzFile(rpm.rpmFile, READ);
           when {"zstd"}:  payload := openZstdFile(rpm.rpmFile);
           when {"bzip2"}: payload := openBzip2File(rpm.rpmFile, READ);
         end case;

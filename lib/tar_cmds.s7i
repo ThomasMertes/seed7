@@ -89,7 +89,7 @@ const func file: openTarFileWithMagic (in string: inFileName,
             magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
             if magicBytes = XZ_MAGIC then
               seek(inFile, 1);
-              inFile := openXzFile(inFile);
+              inFile := openXzFile(inFile, READ);
             elsif endsWith(inFileName, ".lzma") then
               seek(inFile, 1);
               inFile := openLzmaFile(inFile);
@@ -167,66 +167,6 @@ const func boolean: filePathIsInTarMemberList (in string: filePath,
   end func;
 
 
-(**
- *  List the files in the TAR achive ''inFile''.
- *  This function is used by the ''tar7'' program. In other application areas the
- *  [[tar]] file system might be more convenient.
- *   aFile := open("test.tar", "r");
- *   if aFile <> STD_NULL then
- *     tarTell(aFile, 0 times "", TRUE);
- *     ...
- *  @param inFile File in TAR format.
- *  @param memberList List of archive members that should be listed.
- *                    If ''memberList'' is empty all files in the archive are listed.
- *  @param doView TRUE show details of the files in the archive,
- *                FALSE only write the names of the files in the archive.
- *)
-const proc: tarTell (inout file: inFile, in array string: memberList,
-    in boolean: doView) is func
-  local
-    var tarHeader: header is tarHeader.value;
-    var time: modTime is time.value;
-  begin
-    readHead(inFile, header);
-    while not header.endOfFileMarker and
-        header.chksumOkay and header.filePath <> "" and
-        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) do
-      if filePathIsInTarMemberList(header.filePath, memberList) then
-        if doView then
-          case header.typeflag of
-            when {REGTYPE, AREGTYPE}: write("-");
-            when {SYMTYPE}:           write("l");
-            when {CHRTYPE}:           write("c");
-            when {BLKTYPE}:           write("b");
-            when {DIRTYPE}:           write("d");
-            when {FIFOTYPE}:          write("f");
-            otherwise:                write("?");
-          end case;
-          write(fileMode(header.mode mod 8#1000) <& " ");
-          write(header.uname <> "" ? header.uname : str(header.uid) <& "/");
-          write(header.gname <> "" ? header.gname : str(header.gid));
-          write(header.fileSize lpad 14 <& " ");
-          modTime := timestamp1970ToTime(header.mtime);
-          write(strDate(modTime) <& " " <& str_hh_mm(modTime, ":") <& " ");
-          # write(strTimeZone(modTime) rpad 12);
-        end if;
-        writeln(header.filePath <& header.filePathSuffix);
-      end if;
-      if header.fileSize <> 0 then
-        seek(inFile, tell(inFile) + succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
-      end if;
-      readHead(inFile, header);
-    end while;
-    if not header.endOfFileMarker then
-      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
-        writeln("*** The magic number of a tar header is not okay");
-      elsif not header.chksumOkay then
-        writeln("*** The check-sum of a tar header is not okay");
-      end if;
-    end if;
-  end func;
-
-
 const proc: archiveTell (inout fileSys: archive, in array string: memberList,
     in boolean: doView) is func
   local
@@ -253,6 +193,92 @@ const proc: archiveTell (inout fileSys: archive, in array string: memberList,
         writeln(filePath <& filType = FILE_DIR ? "/" : "");
       end if;
     end for;
+  end func;
+
+
+const proc: tarTell (inout file: inFile, inout tarHeader: header,
+    in array string: memberList, in boolean: doView) is func
+  local
+    var time: modTime is time.value;
+  begin
+    repeat
+      if filePathIsInTarMemberList(header.filePath, memberList) then
+        if doView then
+          case header.typeflag of
+            when {REGTYPE, AREGTYPE}: write("-");
+            when {SYMTYPE}:           write("l");
+            when {CHRTYPE}:           write("c");
+            when {BLKTYPE}:           write("b");
+            when {DIRTYPE}:           write("d");
+            when {FIFOTYPE}:          write("f");
+            otherwise:                write("?");
+          end case;
+          write(fileMode(header.mode mod 8#1000) <& " ");
+          write(header.uname <> "" ? header.uname : str(header.uid) <& "/");
+          write(header.gname <> "" ? header.gname : str(header.gid));
+          write(header.fileSize lpad 14 <& " ");
+          modTime := timestamp1970ToTime(header.mtime);
+          write(strDate(modTime) <& " " <& str_hh_mm(modTime, ":") <& " ");
+          # write(strTimeZone(modTime) rpad 12);
+        end if;
+        writeln(header.filePath <& header.filePathSuffix);
+      end if;
+      if header.fileSize <> 0 then
+        seek(inFile, tell(inFile) + header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
+      end if;
+      readHead(inFile, header);
+    until header.endOfFileMarker or
+        not header.chksumOkay or header.filePath = "" or
+        (header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC);
+    if not header.endOfFileMarker then
+      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+        writeln("*** The magic number of a tar header is not okay");
+      elsif not header.chksumOkay then
+        writeln("*** The check-sum of a tar header is not okay");
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  List the files in the TAR achive ''inFile''.
+ *  This function is used by the ''tar7'' program. In other application areas the
+ *  [[tar]] file system might be more convenient.
+ *   aFile := open("test.tar", "r");
+ *   if aFile <> STD_NULL then
+ *     tarTell(aFile, 0 times "", TRUE);
+ *     ...
+ *  @param inFile File in TAR format.
+ *  @param memberList List of archive members that should be listed.
+ *                    If ''memberList'' is empty all files in the archive are listed.
+ *  @param doView TRUE show details of the files in the archive,
+ *                FALSE only write the names of the files in the archive.
+ *)
+const proc: tarTell (inout file: inFile, in array string: memberList,
+    in boolean: doView) is func
+  local
+    var tarHeader: header is tarHeader.value;
+    var fileSys: archive is fileSys.value;
+  begin
+    readHead(inFile, header);
+    if not header.endOfFileMarker and
+        header.chksumOkay and header.filePath <> "" and
+        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) then
+      tarTell(inFile, header, memberList, doView);
+    else
+      seek(inFile, 1);
+      archive := openArchive(inFile);
+      if archive <> fileSys.value then
+        archiveTell(archive, memberList, doView);
+        close(archive);
+      elsif not header.endOfFileMarker then
+        if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+          writeln("*** The magic number of a tar header is not okay");
+        elsif not header.chksumOkay then
+          writeln("*** The check-sum of a tar header is not okay");
+        end if;
+      end if;
+    end if;
   end func;
 
 
@@ -289,119 +315,6 @@ const proc: tarTell (in string: inFileName, in array string: memberList,
         writeln("tar7: Cannot open \"" <& inFileName <& "\".");
       end if;
     end if;
-  end func;
-
-
-(**
- *  Extract files from the TAR achive ''inFile''.
- *  This function is used by the ''tar7'' program. The function extracts files
- *  directly to the hard-disk respectively solid-state drive of the operating
- *  system. In other application areas the [[tar]] file system might be more
- *  convenient.
- *   aFile := open("test.tar", "r");
- *   if aFile <> STD_NULL then
- *     tarXtract(aFile, 0 times "", FALSE);
- *     ...
- *  @param inFile File in TAR format.
- *  @param memberList List of archive members that should be extracted.
- *                    If ''memberList'' is empty all files in the archive are extracted.
- *  @param doView TRUE write the names of the extracted files,
- *                FALSE extract quietly.
- *)
-const proc: tarXtract (inout file: inFile, in array string: memberList,
-    in boolean: doView) is func
-  local
-    var tarHeader: header is tarHeader.value;
-    var file: aFile is STD_NULL;
-    var integer: bytesCopied is 0;
-    var time: modTime is time.value;
-    var array tarHeader: dirHeaderList is 0 times tarHeader.value;
-    var integer: index is 0;
-    var boolean: okay is TRUE;
-  begin
-    readHead(inFile, header);
-    while not header.endOfFileMarker and
-        header.chksumOkay and header.filePath <> "" and
-        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) and okay do
-      if filePathIsInTarMemberList(header.filePath, memberList) then
-        if doView then
-          write("x ");
-          writeln(header.filePath <& header.filePathSuffix);
-        end if;
-        if header.typeflag = DIRTYPE then
-          if fileTypeSL(header.filePath) = FILE_DIR then
-            dirHeaderList &:= [] (header);
-          elsif fileTypeSL(header.filePath) = FILE_ABSENT then
-            makeParentDirs(header.filePath);
-            makeDir(header.filePath);
-            dirHeaderList &:= [] (header);
-          else
-            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a directory");
-            okay := FALSE;
-          end if;
-        elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
-          if fileTypeSL(header.filePath) = FILE_REGULAR then
-            removeFile(header.filePath);
-          end if;
-          if fileTypeSL(header.filePath) = FILE_ABSENT then
-            makeParentDirs(header.filePath);
-            aFile  := open(header.filePath, "w");
-            if aFile <> STD_NULL then
-              bytesCopied := copyFile(inFile, aFile, header.fileSize);
-              close(aFile);
-              # Just take the permission bits of the file mode.
-              setFileMode(header.filePath, fileMode(header.mode mod 8#1000));
-              modTime := timestamp1970ToTime(header.mtime);
-              setMTime(header.filePath, modTime);
-              # Skip bytes up to header.fileSize and then up to a multiple of TAR_BLOCK_SIZE.
-              skip(inFile, header.fileSize - bytesCopied +
-                   pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
-            else
-              skip(inFile, succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
-              writeln("*** Cannot create file " <& literal(header.filePath));
-              okay := FALSE;
-            end if;
-          else
-            skip(inFile, succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
-            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
-            okay := FALSE;
-          end if;
-        elsif header.typeflag = SYMTYPE then
-          if fileTypeSL(header.filePath) = FILE_SYMLINK then
-            removeFile(header.filePath);
-          end if;
-          if fileTypeSL(header.filePath) = FILE_ABSENT then
-            makeParentDirs(header.filePath);
-            if succeeds(makeLink(header.filePath, header.linkPath)) then
-              modTime := timestamp1970ToTime(header.mtime);
-              setMTime(header.filePath, modTime, SYMLINK);
-            else
-              writeln("*** Cannot create symbolic link " <& literal(header.filePath));
-              okay := FALSE;
-            end if;
-          else
-            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a symbolic link");
-            okay := FALSE;
-          end if;
-        else
-          writeln("*** Cannot create " <& literal(header.filePath));
-        end if;
-      end if;
-      readHead(inFile, header);
-    end while;
-    if not header.endOfFileMarker then
-      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
-        writeln("*** The magic number of a tar header is not okay");
-      elsif not header.chksumOkay then
-        writeln("*** The check-sum of a tar header is not okay");
-      end if;
-    end if;
-    for index range length(dirHeaderList) downto 1 do
-      # Just take the permission bits of the file mode.
-      setFileMode(dirHeaderList[index].filePath, fileMode(dirHeaderList[index].mode mod 8#1000));
-      modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
-      setMTime(dirHeaderList[index].filePath, modTime);
-    end for;
   end func;
 
 
@@ -480,6 +393,144 @@ const proc: archiveXtract (inout fileSys: archive, in array string: memberList,
       setFileMode(dirPathList[index], getFileMode(archive, dirPathList[index]));
       setMTime(dirPathList[index], getMTime(archive, dirPathList[index]));
     end for;
+  end func;
+
+
+const proc: tarXtract (inout file: inFile, inout tarHeader: header,
+    in array string: memberList, in boolean: doView) is func
+  local
+    var file: aFile is STD_NULL;
+    var integer: bytesCopied is 0;
+    var time: modTime is time.value;
+    var array tarHeader: dirHeaderList is 0 times tarHeader.value;
+    var integer: index is 0;
+    var boolean: okay is TRUE;
+  begin
+    repeat
+      if filePathIsInTarMemberList(header.filePath, memberList) then
+        if doView then
+          write("x ");
+          writeln(header.filePath <& header.filePathSuffix);
+        end if;
+        if header.typeflag = DIRTYPE then
+          if fileTypeSL(header.filePath) = FILE_DIR then
+            dirHeaderList &:= [] (header);
+          elsif fileTypeSL(header.filePath) = FILE_ABSENT then
+            makeParentDirs(header.filePath);
+            makeDir(header.filePath);
+            dirHeaderList &:= [] (header);
+          else
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a directory");
+            okay := FALSE;
+          end if;
+        elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
+          if fileTypeSL(header.filePath) = FILE_REGULAR then
+            removeFile(header.filePath);
+          end if;
+          if fileTypeSL(header.filePath) = FILE_ABSENT then
+            makeParentDirs(header.filePath);
+            aFile  := open(header.filePath, "w");
+            if aFile <> STD_NULL then
+              bytesCopied := copyFile(inFile, aFile, header.fileSize);
+              close(aFile);
+              # Just take the permission bits of the file mode.
+              setFileMode(header.filePath, fileMode(header.mode mod 8#1000));
+              modTime := timestamp1970ToTime(header.mtime);
+              setMTime(header.filePath, modTime);
+              # Skip bytes up to header.fileSize and then up to a multiple of TAR_BLOCK_SIZE.
+              skip(inFile, header.fileSize - bytesCopied +
+                   pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
+            else
+              skip(inFile, header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
+              writeln("*** Cannot create file " <& literal(header.filePath));
+              okay := FALSE;
+            end if;
+          else
+            skip(inFile, header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE);
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
+            okay := FALSE;
+          end if;
+        elsif header.typeflag = SYMTYPE then
+          if fileTypeSL(header.filePath) = FILE_SYMLINK then
+            removeFile(header.filePath);
+          end if;
+          if fileTypeSL(header.filePath) = FILE_ABSENT then
+            makeParentDirs(header.filePath);
+            if succeeds(makeLink(header.filePath, header.linkPath)) then
+              modTime := timestamp1970ToTime(header.mtime);
+              setMTime(header.filePath, modTime, SYMLINK);
+            else
+              writeln("*** Cannot create symbolic link " <& literal(header.filePath));
+              okay := FALSE;
+            end if;
+          else
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a symbolic link");
+            okay := FALSE;
+          end if;
+        else
+          writeln("*** Cannot create " <& literal(header.filePath));
+        end if;
+      end if;
+      readHead(inFile, header);
+    until header.endOfFileMarker or
+        not header.chksumOkay or header.filePath = "" or
+        (header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC) or not okay;
+    if not header.endOfFileMarker then
+      if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+        writeln("*** The magic number of a tar header is not okay");
+      elsif not header.chksumOkay then
+        writeln("*** The check-sum of a tar header is not okay");
+      end if;
+    end if;
+    for index range length(dirHeaderList) downto 1 do
+      # Just take the permission bits of the file mode.
+      setFileMode(dirHeaderList[index].filePath, fileMode(dirHeaderList[index].mode mod 8#1000));
+      modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
+      setMTime(dirHeaderList[index].filePath, modTime);
+    end for;
+  end func;
+
+
+(**
+ *  Extract files from the TAR achive ''inFile''.
+ *  This function is used by the ''tar7'' program. The function extracts files
+ *  directly to the hard-disk respectively solid-state drive of the operating
+ *  system. In other application areas the [[tar]] file system might be more
+ *  convenient.
+ *   aFile := open("test.tar", "r");
+ *   if aFile <> STD_NULL then
+ *     tarXtract(aFile, 0 times "", FALSE);
+ *     ...
+ *  @param inFile File in TAR format.
+ *  @param memberList List of archive members that should be extracted.
+ *                    If ''memberList'' is empty all files in the archive are extracted.
+ *  @param doView TRUE write the names of the extracted files,
+ *                FALSE extract quietly.
+ *)
+const proc: tarXtract (inout file: inFile, in array string: memberList,
+    in boolean: doView) is func
+  local
+    var tarHeader: header is tarHeader.value;
+    var fileSys: archive is fileSys.value;
+  begin
+    readHead(inFile, header);
+    if not header.endOfFileMarker and
+        header.chksumOkay and header.filePath <> "" and
+        (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) then
+      tarXtract(inFile, header, memberList, doView)
+    else
+      archive := openArchive(inFile);
+      if archive <> fileSys.value then
+        archiveXtract(archive, memberList, doView);
+        close(archive);
+      elsif not header.endOfFileMarker then
+        if header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC then
+          writeln("*** The magic number of a tar header is not okay");
+        elsif not header.chksumOkay then
+          writeln("*** The check-sum of a tar header is not okay");
+        end if;
+      end if;
+    end if;
   end func;
 
 

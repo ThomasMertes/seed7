@@ -43,15 +43,22 @@
 const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type: baseType) is func
   result
     var type: arrayType is void;
+  local
+    var type: tupleType is void;
   begin
     global
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
+      tupleType := tuple(baseType);
 
       const creator: (ref arrayType: dest) ::= (in arrayType: source)         is action "ARR_CREATE";
       const destroyer: destroy (ref arrayType: aValue)                        is action "ARR_DESTR";
       const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
+      const func arrayType: ARRLIT3 (in integer: minIdx, in integer: maxIdx,
+                                     in tupleType: aTuple, attr arrayType)    is action "ARR_ARRLIT3";
+      const func arrayType: BASELIT3 (in integer: minIdx, in integer: maxIdx,
+                                      in baseType: anElement, attr arrayType) is action "ARR_BASELIT3";
       const func arrayType: SET_MIN_IDX (paren1, in integer: start, paren2,
                                          in arrayType: arr)                   is action "ARR_ARRLIT2";
       const func arrayType: TIMES (in integer: factor, times,
@@ -60,6 +67,12 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
       const arrayType: (attr arrayType) . value is
           SET_MIN_IDX(paren1, minIdx, paren2,
                       TIMES(succ(maxIdx - minIdx), times, baseType.value, arrayType));
+
+      const func arrayType: (attr arrayType) [] (in tupleType: aTuple) is
+          return ARRLIT3(minIdx, maxIdx, aTuple, arrayType);
+
+      const func arrayType: (attr arrayType) [] (in baseType: anElement) is
+          return BASELIT3(minIdx, maxIdx, anElement, arrayType);
 
       (**
        *  Generate an ''arrayType'' array filled with ''elements''.

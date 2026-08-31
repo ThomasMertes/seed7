@@ -157,7 +157,9 @@ static const objectCategory p_hsh_op_int_ref[]       = {HASHOBJECT, SYMBOLOBJECT
 static const objectCategory p_any_hsh_prc_ref[]      = {ILLEGALOBJECT, HASHOBJECT, BLOCKOBJECT, REFOBJECT};
 static const objectCategory p_int[]                  = {INTOBJECT};
 static const objectCategory p_int_int[]              = {INTOBJECT, INTOBJECT};
+static const objectCategory p_int_int_arr[]          = {INTOBJECT, INTOBJECT, ARRAYOBJECT};
 static const objectCategory p_int_int_int[]          = {INTOBJECT, INTOBJECT, INTOBJECT};
+static const objectCategory p_int_int_any[]          = {INTOBJECT, INTOBJECT, ILLEGALOBJECT};
 static const objectCategory p_int_int_int_int[]      = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT};
 static const objectCategory p_4_int[]                = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT};
 static const objectCategory p_4_int_str[]            = {INTOBJECT, INTOBJECT, INTOBJECT, INTOBJECT, STRIOBJECT};
@@ -440,7 +442,9 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_any_hsh_prc_ref      argCountAndArgs(p_any_hsh_prc_ref)
 #define par_int                  argCountAndArgs(p_int)
 #define par_int_int              argCountAndArgs(p_int_int)
+#define par_int_int_arr          argCountAndArgs(p_int_int_arr)
 #define par_int_int_int          argCountAndArgs(p_int_int_int)
+#define par_int_int_any          argCountAndArgs(p_int_int_any)
 #define par_int_int_int_int      argCountAndArgs(p_int_int_int_int)
 #define par_4_int                argCountAndArgs(p_4_int)
 #define par_4_int_str            argCountAndArgs(p_4_int_str)
@@ -655,8 +659,10 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_APPEND",                   arr_append,                   VOIDOBJECT,        par_arr_op_arr},
     { "ARR_ARRLIT",                   arr_arrlit,                   ARRAYOBJECT,       par_op_op_arr},
     { "ARR_ARRLIT2",                  arr_arrlit2,                  ARRAYOBJECT,       par_op_int_op_arr},
+    { "ARR_ARRLIT3",                  arr_arrlit3,                  ARRAYOBJECT,       par_int_int_arr},
     { "ARR_BASELIT",                  arr_baselit,                  ARRAYOBJECT,       par_op_op_any},
     { "ARR_BASELIT2",                 arr_baselit2,                 ARRAYOBJECT,       par_op_int_op_any},
+    { "ARR_BASELIT3",                 arr_baselit3,                 ARRAYOBJECT,       par_int_int_any},
     { "ARR_CAT",                      arr_cat,                      ARRAYOBJECT,       par_arr_op_arr},
     { "ARR_CONV",                     arr_conv,                     ARRAYOBJECT,       par_op_op_arr},
     { "ARR_CPY",                      arr_cpy,                      VOIDOBJECT,        par_arr_op_arr},
@@ -1140,6 +1146,7 @@ static const actEntryRecord actEntryTable[] = {
     { "INT_BYTES_LE_2_UINT",          int_bytes_le_2_uint,          INTOBJECT,         par_str},
     { "INT_BYTES_LE_SIGNED",          int_bytes_le_signed,          STRIOBJECT,        par_int},
     { "INT_BYTES_LE_UNSIGNED",        int_bytes_le_unsigned,        STRIOBJECT,        par_int},
+    { "INT_CEIL_DIV",                 int_ceil_div,                 INTOBJECT,         par_int_op_int},
     { "INT_CMP",                      int_cmp,                      INTOBJECT,         par_int_int},
     { "INT_CPY",                      int_cpy,                      VOIDOBJECT,        par_int_op_int},
     { "INT_CREATE",                   int_create,                   VOIDOBJECT,        par_int_op_int},
@@ -1391,14 +1398,12 @@ static const actEntryRecord actEntryTable[] = {
     { "RFL_ELEMCPY",                  rfl_elemcpy,                  VOIDOBJECT,        par_rfl_op_op_int_op_ref},
     { "RFL_EMPTY",                    rfl_empty,                    REFLISTOBJECT,     par_no_args},
     { "RFL_EQ",                       rfl_eq,                       BOOLOBJECT,        par_rfl_op_rfl},
-    { "RFL_EXCL",                     rfl_excl,                     VOIDOBJECT,        par_rfl_ref},
     { "RFL_EXPR",                     rfl_expr,                     REFLISTOBJECT,     par_exp},
     { "RFL_FOR",                      rfl_for,                      VOIDOBJECT,        par_op_ref_op_rfl_op_prc},
     { "RFL_FOR_UNTIL",                rfl_for_until,                VOIDOBJECT,        par_op_ref_op_rfl_op_bln_op_prc},
     { "RFL_FOR_VAR_KEY",              rfl_for_var_key,              VOIDOBJECT,        par_op_ref_op_int_op_rfl_op_prc},
     { "RFL_HEAD",                     rfl_head,                     REFLISTOBJECT,     par_rfl_op_op_int},
     { "RFL_IDX",                      rfl_idx,                      REFOBJECT,         par_rfl_op_int},
-    { "RFL_INCL",                     rfl_incl,                     VOIDOBJECT,        par_rfl_ref},
     { "RFL_IPOS",                     rfl_ipos,                     INTOBJECT,         par_rfl_ref},
     { "RFL_LNG",                      rfl_lng,                      INTOBJECT,         par_rfl},
     { "RFL_MKLIST",                   rfl_mklist,                   REFLISTOBJECT,     par_ref},
@@ -1468,6 +1473,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SET_SCONV1",                   set_sconv1,                   INTOBJECT,         par_set},
     { "SET_SCONV3",                   set_sconv3,                   INTOBJECT,         par_op_op_set},
     { "SET_SYMDIFF",                  set_symdiff,                  SETOBJECT,         par_set_op_set},
+    { "SET_SYMDIFF_ASSIGN",           set_symdiff_assign,           VOIDOBJECT,        par_set_op_set},
     { "SET_UNION",                    set_union,                    SETOBJECT,         par_set_op_set},
     { "SET_UNION_ASSIGN",             set_union_assign,             VOIDOBJECT,        par_set_op_set},
     { "SET_VALUE",                    set_value,                    SETOBJECT,         par_ref},

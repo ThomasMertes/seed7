@@ -29,7 +29,7 @@ void free_locobj (const_locObjType locobj);
 void free_loclist (locListType loclist);
 void free_local_consts (listType list);
 void free_block (blockType block);
-blockType new_block (locListType block_params, const_locObjType block_result,
+blockType new_block (const_locObjType block_result,
     locListType block_local_vars, listType block_local_consts,
     objectType block_body);
 boolType get_result_var (locObjType result_var, typeType result_type,

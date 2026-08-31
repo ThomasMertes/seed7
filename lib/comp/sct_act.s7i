@@ -46,6 +46,7 @@ const proc: process (SCT_CPY, in reference: function,
     var type: param1Type is void;
     var expr_type: c_param3 is expr_type.value;
   begin
+    checkGlobalVariableChange(params[1], c_expr);
     statement.temp_num := c_expr.temp_num;
     prepareAnyParamTemporarys(params[1], c_param1, statement);
     param1Type := getExprResultType(params[1]);

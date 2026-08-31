@@ -861,8 +861,8 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
       jpegHead.vertical := 1;
     end if;
     jpegHead.numLuma := jpegHead.vertical * jpegHead.horizontal;
-    jpegHead.unitLines := succ(pred(jpegHead.height) mdiv (8 * jpegHead.vertical));
-    jpegHead.unitColumns := succ(pred(jpegHead.width) mdiv (8 * jpegHead.horizontal));
+    jpegHead.unitLines := jpegHead.height ceilDiv (8 * jpegHead.vertical);
+    jpegHead.unitColumns := jpegHead.width ceilDiv (8 * jpegHead.horizontal);
     if TIFF_TAG_JPEG_TABLES in header.stringTagValues then
       jpegTables := header.stringTagValues[TIFF_TAG_JPEG_TABLES];
       if startsWith(jpegTables, JPEG_MAGIC) then
@@ -1015,8 +1015,8 @@ const func PRIMITIVE_WINDOW: readOldJpeg (inout file: tiffFile,
       jpegHead.vertical := 1;
     end if;
     jpegHead.numLuma := jpegHead.vertical * jpegHead.horizontal;
-    jpegHead.unitLines := succ(pred(jpegHead.height) mdiv (8 * jpegHead.vertical));
-    jpegHead.unitColumns := succ(pred(jpegHead.width) mdiv (8 * jpegHead.horizontal));
+    jpegHead.unitLines := jpegHead.height ceilDiv (8 * jpegHead.vertical);
+    jpegHead.unitColumns := jpegHead.width ceilDiv (8 * jpegHead.horizontal);
     if TIFF_TAG_JPEG_Q_TABLES in header.integerTagValues then
       for offset key tableNumber range header.integerTagValues[TIFF_TAG_JPEG_Q_TABLES] do
         seek(tiffFile, succ(offset));
@@ -2012,8 +2012,8 @@ const proc: decompressStripOrTile (in tiffHeader: header,
     var integer: bytesPerTileLine is 0;
     var integer: requestedLength is 0;
   begin
-    bytesPerLine := succ(pred(width * header.bitsPerPixel) mdiv 8);
-    bytesPerTileLine := succ(pred(tileWidth * header.bitsPerPixel) mdiv 8);
+    bytesPerLine := (width * header.bitsPerPixel) ceilDiv 8;
+    bytesPerTileLine := (tileWidth * header.bitsPerPixel) ceilDiv 8;
     case header.compression of
       when {TIFF_NO_COMPRESSION}:
         noop;

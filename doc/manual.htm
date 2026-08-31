@@ -3433,11 +3433,9 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       A <span class="op_no_ul">&amp;:=</span> B   Assign the result of A <span class="op">and</span> B to A.
-                  ( The expression B is always evaluated,
-                    A <span class="op_no_ul">&amp;:=</span> B <b>&rArr;</b> A := A <span class="op">and</span> B )
+                  ( A <span class="op_no_ul">&amp;:=</span> B <b>&rArr;</b> A := A <span class="op">and</span> B )
       A <span class="op_no_ul">|:=</span> B   Assign the result of A <span class="op">or</span> B to A.
-                  ( The expression B is always evaluated,
-                    A <span class="op_no_ul">|:=</span> B <b>&rArr;</b> A := A <span class="op">or</span> B )
+                  ( A <span class="op_no_ul">|:=</span> B <b>&rArr;</b> A := A <span class="op">or</span> B )
       A <span class="op_no_ul">>&lt;:=</span> B   Assign the result of A <span class="op_no_ul">&lt;></span> B (exclusive or) to A.
                   ( A <span class="op_no_ul">>&lt;:=</span> B <b>&rArr;</b> A := A <span class="op_no_ul">&lt;></span> B )
       <span class="func">incr</span>(A)   Increment
@@ -3538,17 +3536,20 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="op">-</span>         Subtraction
       <span class="op">*</span>         Multiplication
       <span class="op">div</span>       Integer division truncated towards zero
-                  ( A <span class="op">div</span> B <b>&rArr;</b> trunc(float(A) / float(B)),
+                  ( A <span class="op">div</span> B <b>&rArr;</b> <span class="op">trunc</span>(<span class="func">float</span>(A) <span class="op_no_ul">/</span> <span class="func">float</span>(B)),
                     A <span class="op">div</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">rem</span>       Reminder of integer division <span class="op">div</span>
                   ( A <span class="op">rem</span> B <b>&rArr;</b> A - (A <span class="op">div</span> B) * B,
                     A <span class="op">rem</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">mdiv</span>      Integer division truncated towards negative infinity
-                  ( A <span class="op">mdiv</span> B <b>&rArr;</b> round(floor(float(A) / float(B))),
+                  ( A <span class="op">mdiv</span> B <b>&rArr;</b> <span class="func">round</span>(<span class="func">floor</span>(<span class="func">float</span>(A) <span class="op_no_ul">/</span> <span class="func">float</span>(B))),
                     A <span class="op">mdiv</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">mod</span>       Reminder of integer division <span class="op">mdiv</span>
                   ( A <span class="op">mod</span> B <b>&rArr;</b> A - (A <span class="op">mdiv</span> B) * B,
                     A <span class="op">mod</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
+      <span class="op">ceilDiv</span>   Integer division rounded up towards positive infinity
+                  ( A <span class="op">ceilDiv</span> B <b>&rArr;</b> <span class="func">round</span>(<span class="func">ceil</span>(<span class="func">float</span>(A) <span class="op_no_ul">/</span> <span class="func">float</span>(B))),
+                    A <span class="op">ceilDiv</span> 0 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="op">**</span>        Power
                   ( A ** B is okay for B >= 0,
                     A ** 0 <b>&rArr;</b> 1 for every A, even for A = 0,
@@ -3769,71 +3770,77 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <a class="func" href="#stats_Ignoring_values">ignore</a>(A) Ignore value
 </pre><p>
   <a name="types_div_rem_mdiv_mod_properties"></a>For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
-    (A <span class="op">div</span> B) * B + A <span class="op">rem</span> B = A           when B &lt;> 0
-    -A <span class="op">div</span> B = -(A <span class="op">div</span> B)                 when B &lt;> 0
-    -A <span class="op">rem</span> B = -(A <span class="op">rem</span> B)                 when B &lt;> 0
+    (A <span class="op">div</span> B) <span class="op_no_ul">*</span> B <span class="op_no_ul">+</span> A <span class="op">rem</span> B = A           when B &lt;> 0
+    <span class="op_no_ul">-</span>A <span class="op">div</span> B = <span class="op_no_ul">-</span>(A <span class="op">div</span> B)                 when B &lt;> 0
+    <span class="op_no_ul">-</span>A <span class="op">rem</span> B = <span class="op_no_ul">-</span>(A <span class="op">rem</span> B)                 when B &lt;> 0
     A <span class="op">rem</span> B >= 0 <span class="op">and</span> A <span class="op">rem</span> B &lt; abs(B)     when B &lt;> 0 and A >= 0
-    A <span class="op">rem</span> B &lt;= 0 <span class="op">and</span> A <span class="op">rem</span> B > -abs(B)    when B &lt;> 0 and A &lt;= 0
+    A <span class="op">rem</span> B &lt;= 0 <span class="op">and</span> A <span class="op">rem</span> B > <span class="op_no_ul">-</span>abs(B)    when B &lt;> 0 and A &lt;= 0
 </pre><p>
   For the operations <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt> holds for all A:</p><pre class="box">
-    (A <span class="op">mdiv</span> B) * B + A <span class="op">mod</span> B = A          when B &lt;> 0
-    -A <span class="op">mdiv</span> B = A <span class="op">mdiv</span> -B                 when B &lt;> 0
-    -A <span class="op">mod</span> -B = -(A <span class="op">mod</span> B)                when B &lt;> 0
+    (A <span class="op">mdiv</span> B) <span class="op_no_ul">*</span> B <span class="op_no_ul">+</span> A <span class="op">mod</span> B = A          when B &lt;> 0
+    <span class="op_no_ul">-</span>A <span class="op">mdiv</span> B = A <span class="op">mdiv</span> <span class="op_no_ul">-</span>B                 when B &lt;> 0
+    <span class="op_no_ul">-</span>A <span class="op">mod</span> <span class="op_no_ul">-</span>B = <span class="op_no_ul">-</span>(A <span class="op">mod</span> B)                when B &lt;> 0
     A <span class="op">mod</span> B >= 0 <span class="op">and</span> A <span class="op">mod</span> B &lt; B          when B > 0
     A <span class="op">mod</span> B &lt;= 0 <span class="op">and</span> A <span class="op">mod</span> B > B          when B &lt; 0
 </pre><p>
   For the operation <tt><span class="op">mdiv</span></tt> holds:</p><pre class="box">
-    A <span class="op">mdiv</span> B = A <span class="op">div</span> B - 1            when A and B have different
+    A <span class="op">mdiv</span> B = A <span class="op">div</span> B <span class="op_no_ul">-</span> 1            when A and B have different
                                       signs and A <span class="op">rem</span> B &lt;> 0 holds.
     A <span class="op">mdiv</span> B = A <span class="op">div</span> B                when A and B have the same
                                       sign or A <span class="op">rem</span> B = 0 holds.
-    A <span class="op">mdiv</span> B = (A - 1) <span class="op">div</span> B - 1      when A > 0 and B &lt; 0 holds.
-    A <span class="op">mdiv</span> B = (A + 1) <span class="op">div</span> B - 1      when A &lt; 0 and B > 0 holds.
+    A <span class="op">mdiv</span> B = (A <span class="op_no_ul">-</span> 1) <span class="op">div</span> B <span class="op_no_ul">-</span> 1      when A > 0 and B &lt; 0 holds.
+    A <span class="op">mdiv</span> B = (A <span class="op_no_ul">+</span> 1) <span class="op">div</span> B <span class="op_no_ul">-</span> 1      when A &lt; 0 and B > 0 holds.
     A <span class="op">mdiv</span> 2 ** B = A >> B            when B >= 0 holds
 </pre><p>
   For the operation <tt><span class="op">mod</span></tt> holds:</p><pre class="box">
-    A <span class="op">mod</span> B = A <span class="op">rem</span> B + B      when A and B have different
+    A <span class="op">mod</span> B = A <span class="op">rem</span> B <span class="op_no_ul">+</span> B      when A and B have different
                                signs and A <span class="op">rem</span> B &lt;> 0 holds.
     A <span class="op">mod</span> B = A <span class="op">rem</span> B          when A and B have the same
                                sign or A <span class="op">rem</span> B = 0 holds.
 </pre><p>
+  For the operation <tt><span class="op">ceilDiv</span></tt> holds:</p><pre class="box">
+    A <span class="op">ceilDiv</span> B = <span class="op_no_ul">-</span>(<span class="op_no_ul">-</span>A <span class="op">mdiv</span> B)
+    A <span class="op">ceilDiv</span> B = <span class="op_no_ul">-</span>(A <span class="op">mdiv</span> <span class="op_no_ul">-</span>B)
+    (A <span class="op">ceilDiv</span> B) <span class="op_no_ul">*</span> B <span class="op_no_ul">+</span> A <span class="op">mod</span> <span class="op_no_ul">-</span>B = A      when B <> 0
+    <span class="op_no_ul">-</span>A <span class="op">ceilDiv</span> B = A <span class="op">ceilDiv</span> <span class="op_no_ul">-</span>B           when B <> 0
+</pre><p>
 
-  <a name="types_div_rem_mdiv_mod_tables"></a>Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt>:
+  <a name="types_div_rem_mdiv_mod_tables"></a>Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt>, <tt><span class="op">mod</span></tt> and <tt><span class="op">ceilDiv</span></tt>:
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
 
-    <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
+    <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th><th> A <span class="op">ceilDiv</span> B </th></tr>
 
-    <tr><td align="center">  5  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    2    </td><td align="center">     1    </td><td align="center">    2    </td></tr>
-    <tr><td align="center">  4  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    1    </td><td align="center">     1    </td><td align="center">    1    </td></tr>
-    <tr><td align="center">  3  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td></tr>
-    <tr><td align="center">  2  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    2    </td><td align="center">     0    </td><td align="center">    2    </td></tr>
-    <tr><td align="center">  1  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    1    </td><td align="center">     0    </td><td align="center">    1    </td></tr>
-    <tr><td align="center">  0  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    0    </td><td align="center">     0    </td><td align="center">    0    </td></tr>
-    <tr><td align="center"> -1  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">   -1    </td><td align="center">    -1    </td><td align="center">    2    </td></tr>
-    <tr><td align="center"> -2  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">   -2    </td><td align="center">    -1    </td><td align="center">    1    </td></tr>
-    <tr><td align="center"> -3  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td></tr>
-    <tr><td align="center"> -4  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -1    </td><td align="center">    -2    </td><td align="center">    2    </td></tr>
-    <tr><td align="center"> -5  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -2    </td><td align="center">    -2    </td><td align="center">    1    </td></tr>
+    <tr><td align="center">  5  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    2    </td><td align="center">     1    </td><td align="center">    2    </td><td align="center">      2      </td></tr>
+    <tr><td align="center">  4  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    1    </td><td align="center">     1    </td><td align="center">    1    </td><td align="center">      2      </td></tr>
+    <tr><td align="center">  3  </td><td align="center">  3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td><td align="center">      1      </td></tr>
+    <tr><td align="center">  2  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    2    </td><td align="center">     0    </td><td align="center">    2    </td><td align="center">      1      </td></tr>
+    <tr><td align="center">  1  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    1    </td><td align="center">     0    </td><td align="center">    1    </td><td align="center">      1      </td></tr>
+    <tr><td align="center">  0  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">    0    </td><td align="center">     0    </td><td align="center">    0    </td><td align="center">      0      </td></tr>
+    <tr><td align="center"> -1  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">   -1    </td><td align="center">    -1    </td><td align="center">    2    </td><td align="center">      0      </td></tr>
+    <tr><td align="center"> -2  </td><td align="center">  3  </td><td align="center">    0    </td><td align="center">   -2    </td><td align="center">    -1    </td><td align="center">    1    </td><td align="center">      0      </td></tr>
+    <tr><td align="center"> -3  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td><td align="center">     -1      </td></tr>
+    <tr><td align="center"> -4  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -1    </td><td align="center">    -2    </td><td align="center">    2    </td><td align="center">     -1      </td></tr>
+    <tr><td align="center"> -5  </td><td align="center">  3  </td><td align="center">   -1    </td><td align="center">   -2    </td><td align="center">    -2    </td><td align="center">    1    </td><td align="center">     -1      </td></tr>
 
 </table></dd></dl><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
 
-    <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
+    <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th><th> A <span class="op">ceilDiv</span> B </th></tr>
 
-    <tr><td align="center">  5  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    2    </td><td align="center">    -2    </td><td align="center">   -1    </td></tr>
-    <tr><td align="center">  4  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    1    </td><td align="center">    -2    </td><td align="center">   -2    </td></tr>
-    <tr><td align="center">  3  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td></tr>
-    <tr><td align="center">  2  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    2    </td><td align="center">    -1    </td><td align="center">   -1    </td></tr>
-    <tr><td align="center">  1  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    1    </td><td align="center">    -1    </td><td align="center">   -2    </td></tr>
-    <tr><td align="center">  0  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    0    </td><td align="center">     0    </td><td align="center">    0    </td></tr>
-    <tr><td align="center"> -1  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">   -1    </td><td align="center">     0    </td><td align="center">   -1    </td></tr>
-    <tr><td align="center"> -2  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">   -2    </td><td align="center">     0    </td><td align="center">   -2    </td></tr>
-    <tr><td align="center"> -3  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td></tr>
-    <tr><td align="center"> -4  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -1    </td><td align="center">     1    </td><td align="center">   -1    </td></tr>
-    <tr><td align="center"> -5  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -2    </td><td align="center">     1    </td><td align="center">   -2    </td></tr>
+    <tr><td align="center">  5  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    2    </td><td align="center">    -2    </td><td align="center">   -1    </td><td align="center">     -1      </td></tr>
+    <tr><td align="center">  4  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    1    </td><td align="center">    -2    </td><td align="center">   -2    </td><td align="center">     -1      </td></tr>
+    <tr><td align="center">  3  </td><td align="center"> -3  </td><td align="center">   -1    </td><td align="center">    0    </td><td align="center">    -1    </td><td align="center">    0    </td><td align="center">     -1      </td></tr>
+    <tr><td align="center">  2  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    2    </td><td align="center">    -1    </td><td align="center">   -1    </td><td align="center">      0      </td></tr>
+    <tr><td align="center">  1  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    1    </td><td align="center">    -1    </td><td align="center">   -2    </td><td align="center">      0      </td></tr>
+    <tr><td align="center">  0  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">    0    </td><td align="center">     0    </td><td align="center">    0    </td><td align="center">      0      </td></tr>
+    <tr><td align="center"> -1  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">   -1    </td><td align="center">     0    </td><td align="center">   -1    </td><td align="center">      1      </td></tr>
+    <tr><td align="center"> -2  </td><td align="center"> -3  </td><td align="center">    0    </td><td align="center">   -2    </td><td align="center">     0    </td><td align="center">   -2    </td><td align="center">      1      </td></tr>
+    <tr><td align="center"> -3  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">    0    </td><td align="center">     1    </td><td align="center">    0    </td><td align="center">      1      </td></tr>
+    <tr><td align="center"> -4  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -1    </td><td align="center">     1    </td><td align="center">   -1    </td><td align="center">      2      </td></tr>
+    <tr><td align="center"> -5  </td><td align="center"> -3  </td><td align="center">    1    </td><td align="center">   -2    </td><td align="center">     1    </td><td align="center">   -2    </td><td align="center">      2      </td></tr>
 
 </table></dd></dl><p>
 
-  <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op">!</span></tt> (Binomial coefficient):
+  <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op_no_ul">!</span></tt> (Binomial coefficient):
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
 
     <tr><th rowspan="2" colspan="2"> n ! k  </th><th colspan="11">                           k                             </th></tr>
@@ -3865,8 +3872,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </table></dd></dl><p>
 
   For the <tt><span class="func">sqrt</span></tt> function holds (when A >= 0):</p><pre class="box">
-    sqrt(A) * sqrt(A) &lt;= A <span class="op">and</span>
-    (sqrt(A) + 1) * (sqrt(A) + 1) > A
+    <span class="func">sqrt</span>(A) <span class="op_no_ul">*</span> <span class="func">sqrt</span>(A) &lt;= A <span class="op">and</span>
+    (<span class="func">sqrt</span>(A) <span class="op_no_ul">+</span> 1) <span class="op_no_ul">*</span> (<span class="func">sqrt</span>(A) <span class="op_no_ul">+</span> 1) > A
 </pre><p></p>
 
 <a name="types_bigInteger"><h3>5.3 bigInteger</h3></a>
@@ -5768,6 +5775,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       A <span class="op">|:=</span> B   Assign the union of A and B to A
       A <span class="op">&amp;:=</span> B   Assign the intersection of A and B to A
       A <span class="op">-:=</span> B   Assign the difference of A and B to A
+      A <span class="op">>&lt;:=</span> B  Assign the symmetric difference of A and B to A
       A <span class="op">@:=</span> [B] C  Add or remove B to respectively from A
                   ( Type of argument B: <span class="type">baseType</span>,
                     Type of argument C: <a class="type" href="#types_boolean">boolean</a>,
@@ -7478,10 +7486,6 @@ enable_output(<span class="type">anEnumType</span>);
                   ( Type of argument B: <a class="type" href="#types_reference">reference</a>,
                     Type of argument C: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_integer">integer</a> )
-      incl(A, B) Include element in list
-                  ( Type of argument B: <a class="type" href="#types_reference">reference</a> )
-      excl(A, B) Exclude element from list
-                  ( Type of argument B: <a class="type" href="#types_reference">reference</a> )
     Statements:
       A <span class="op">&amp;:=</span> B   Append B to A
                   ( A &amp;:= B <b>&rArr;</b> A := A &amp; B )
@@ -14484,10 +14488,31 @@ TYPE_ACTION
 </p><p>
   In a Seed7 program the operator <tt><span class="op_no_ul">+</span></tt> is used to add two <tt><a class="type" href="#types_integer">integer</a></tt>
   values. The primitive action, which describes the addition of
-  two integers, is <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt>. The connection between <tt><span class="op">+</span></tt>
+  two integers, is <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt>. The connection between <tt><span class="op_no_ul">+</span></tt>
   and <tt><a class="link" href="#actions_INT_ADD">INT_ADD</a></tt> is done in the library <tt><span class="stri">"<span class="lib">integer.s7i</span>"</span></tt> with the definition:
 </p><pre class="indent">
 <a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span> <span class="keywd">action</span> <a class="stri" href="#actions_INT_ADD">"INT_ADD"</a>;
+</pre><p>
+  <a name="actions_actionCreateOkay"></a>Primitive actions carry information about their parameters and
+  their result. In every declaration with primitive actions the
+  following things are checked:
+</p><ul>
+    <li>If the result of a primitive action fits to the
+      declaration.
+    <li>If the number of parameters of a primitive action
+      fits to the declaration.
+    <li>If the parameters of a primitive action fit to
+      the declaration.
+</ul><p>
+  The declaration fails if a parameter of <tt><a class="stri" href="#actions_INT_ADD">"INT_ADD"</a></tt> is defined as
+  <tt><a class="type" href="#types_string">string</a></tt> instead of <tt><a class="type" href="#types_integer">integer</a></tt>:
+</p><pre class="indent">
+<a class="keywd_no_ul" href="#decls_Function_declarations">const</a> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_string">string</a>: summand1) + (<a class="keywd_no_ul" href="#params_in_parameter">in</a> <a class="type" href="#types_integer">integer</a>: summand2) <span class="keywd">is</span> <span class="keywd">action</span> <a class="stri" href="#actions_INT_ADD">"INT_ADD"</a>;
+</pre><p>
+  This would trigger the error:
+</p><pre class="indent">
+*** hello.sd7(27):42: <a class="link" href="#errors_DECL_FAILED">Declaration of "(ref string: summand1) + (val integer: summand2)" failed</a>
+const func integer: (in string: summand1) + (in integer: summand2) is action "INT_ADD";
 </pre><p>
   To execute an action a corresponding C function must
   be present in the s7 interpreter. The function for the
@@ -14638,8 +14663,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><th>Action name</th>         <th>actlib.c function</th>   <th>act_comp.c function</th></tr>
     <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td>&nbsp;</td></tr>
     <tr><td>ACE_CMP</td>             <td>ace_cmp</td>             <td>ptrCmp</td></tr>
-    <tr><td>ACE_CPY</td>             <td>ace_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>ACE_CREATE</td>          <td>ace_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>ACE_CPY</td>             <td>ace_cpy</td>             <td>= or valueCpy</td></tr>
+    <tr><td>ACE_CREATE</td>          <td>ace_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>ACE_EQ</td>              <td>ace_eq</td>              <td>==</td></tr>
     <tr><td>ACE_GEN</td>             <td>ace_gen</td>             <td>aceGen</td></tr>
     <tr><td>ACE_HASHCODE</td>        <td>ace_hashcode</td>        <td>aceHashcode</td></tr>
@@ -14669,7 +14694,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ARR_EXTEND</td>          <td>arr_extend</td>          <td>arrExtend</td></tr>
     <tr><td>ARR_GEN</td>             <td>arr_gen</td>             <td>arrGen</td></tr>
     <tr><td>ARR_HEAD</td>            <td>arr_head</td>            <td>arrHead</td></tr>
-    <tr><td>ARR_IDX</td>             <td>arr_idx</td>             <td>a-&gt;arr[b-a-&gt;min_position]</td></tr>
+    <tr><td><a name="actions_ARR_IDX"        >ARR_IDX</a></td>             <td>arr_idx</td>             <td>a-&gt;arr[b-a-&gt;min_position]</td></tr>
     <tr><td>ARR_INSERT</td>          <td>arr_insert</td>          <td>arrInsert</td></tr>
     <tr><td>ARR_INSERT_ARRAY</td>    <td>arr_insert_array</td>    <td>arrInsertArray</td></tr>
     <tr><td>ARR_LNG</td>             <td>arr_lng</td>             <td>a->max_position-a->min_position + 1</td></tr>
@@ -14779,9 +14804,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>blnlib.c function</th>   <th>bln_rtl.c function</th></tr>
     <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
-    <tr><td>BLN_AND_ASSIGN</td>      <td>bln_and_assign</td>      <td>&amp;=</td></tr>
-    <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td><a name="actions_BLN_AND_ASSIGN" >BLN_AND_ASSIGN</a></td>      <td>bln_and_assign</td>      <td>&amp;=</td></tr>
+    <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>= or blnCpyValue</td></tr>
+    <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>BLN_EQ</td>              <td>bln_eq</td>              <td>==</td></tr>
     <tr><td>BLN_GE</td>              <td>bln_ge</td>              <td>&gt;=</td></tr>
     <tr><td>BLN_GT</td>              <td>bln_gt</td>              <td>&gt;</td></tr>
@@ -14793,12 +14818,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BLN_NOT</td>             <td>bln_not</td>             <td>!</td></tr>
     <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
     <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(intType)</td></tr>
-    <tr><td>BLN_OR_ASSIGN</td>       <td>bln_or_assign</td>       <td>|=</td></tr>
+    <tr><td><a name="actions_BLN_OR_ASSIGN"  >BLN_OR_ASSIGN</a></td>       <td>bln_or_assign</td>       <td>|=</td></tr>
     <tr><td>BLN_PRED</td>            <td>bln_pred</td>            <td>-1</td></tr>
     <tr><td>BLN_SUCC</td>            <td>bln_succ</td>            <td>+1</td></tr>
     <tr><td>BLN_TERNARY</td>         <td>bln_ternary</td>         <td>((cond)?(thenExpr):(elseExpr))</td></tr>
     <tr><td>BLN_VALUE</td>           <td>bln_value</td>           <td>blnValue</td></tr>
-    <tr><td>BLN_XOR_ASSIGN</td>      <td>bln_xor_assign</td>      <td>^=</td></tr>
+    <tr><td><a name="actions_BLN_XOR_ASSIGN" >BLN_XOR_ASSIGN</a></td>      <td>bln_xor_assign</td>      <td>^=</td></tr>
 </table><p></p>
 
 <a name="actions_bstring"><h3>15.6 Actions for byte strings</h3></a>
@@ -14825,8 +14850,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>chrlib.c function</th>   <th>chr_rtl.c function</th></tr>
     <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
-    <tr><td>CHR_CPY</td>             <td>chr_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>CHR_CREATE</td>          <td>chr_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>CHR_CPY</td>             <td>chr_cpy</td>             <td>= or valueCpy</td></tr>
+    <tr><td>CHR_CREATE</td>          <td>chr_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>CHR_C_LITERAL</td>       <td>chr_c_literal</td>       <td>chrCLiteral</td></tr>
     <tr><td>CHR_DECR</td>            <td>chr_decr</td>            <td>--</td></tr>
     <tr><td>CHR_EQ</td>              <td>chr_eq</td>              <td>==</td></tr>
@@ -14896,8 +14921,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_SET_OWNER</td>       <td>cmd_set_owner</td>       <td>cmdSetOwner</td></tr>
     <tr><td>CMD_SET_OWNER_OF_SYMLINK</td> <td>cmd_set_owner_of_symlink</td> <td>cmdSetOwnerOfSymlink</td></tr>
     <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_set_search_path</td> <td>cmdSetSearchPath</td></tr>
-    <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
+    <tr><td>CMD_SHELL_COMMAND_LINE</td> <td>cmd_shell_command_line</td> <td>cmdShellCommandLine</td></tr>
     <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
+    <tr><td><a name="actions_CMD_SHELL_EXECUTE">CMD_SHELL_EXECUTE</a></td>   <td>cmd_shell_execute</td>   <td>cmdShellExecute</td></tr>
     <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
     <tr><td>CMD_UNSETENV</td>        <td>cmd_unsetenv</td>        <td>cmdUnsetenv</td></tr>
 </table><p></p>
@@ -14952,7 +14978,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_BORDER</td>          <td>drw_border</td>          <td>drwBorder</td></tr>
     <tr><td>DRW_CAPTURE</td>         <td>drw_capture</td>         <td>drwCapture</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
-    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>ptrCmp or ptrCmpGeneric</td></tr>
+    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>ptrCmp or ptrCmpValue</td></tr>
     <tr><td>DRW_CONV_POINT_LIST</td> <td>drw_conv_point_list</td> <td>drwConvPointList</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
@@ -15015,8 +15041,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>enulib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
-    <tr><td>ENU_CPY</td>             <td>enu_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>ENU_CPY</td>             <td>enu_cpy</td>             <td>= or valueCpy</td></tr>
+    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>ENU_EQ</td>              <td>enu_eq</td>              <td>==</td></tr>
     <tr><td>ENU_GENLIT</td>          <td>enu_genlit</td>          <td>&nbsp;</td></tr>
     <tr><td>ENU_ICONV2</td>          <td>enu_iconv2</td>          <td>(noop)</td></tr>
@@ -15086,8 +15112,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_CMP</td>             <td>flt_cmp</td>             <td>fltCmp</td></tr>
     <tr><td>FLT_COS</td>             <td>flt_cos</td>             <td>cos</td></tr>
     <tr><td>FLT_COSH</td>            <td>flt_cosh</td>            <td>cosh</td></tr>
-    <tr><td>FLT_CPY</td>             <td>flt_cpy</td>             <td>= or fltCpyGeneric</td></tr>
-    <tr><td>FLT_CREATE</td>          <td>flt_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>FLT_CPY</td>             <td>flt_cpy</td>             <td>= or fltCpyValue</td></tr>
+    <tr><td>FLT_CREATE</td>          <td>flt_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>FLT_DECOMPOSE</td>       <td>flt_decompose</td>       <td>frexp</td></tr>
     <tr><td>FLT_DGTS</td>            <td>flt_dgts</td>            <td>fltDgts</td></tr>
     <tr><td>FLT_DIV</td>             <td>flt_div</td>             <td>/</td></tr>
@@ -15197,8 +15223,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_BYTES_LE_SIGNED</td> <td>int_bytes_le_signed</td> <td>intBytesLe</td></tr>
     <tr><td>INT_BYTES_LE_UNSIGNED</td> <td>int_bytes_le_unsigned</td> <td>intBytesLe</td></tr>
     <tr><td>INT_CMP</td>             <td>int_cmp</td>             <td>intCmp</td></tr>
-    <tr><td>INT_CPY</td>             <td>int_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>INT_CREATE</td>          <td>int_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>INT_CPY</td>             <td>int_cpy</td>             <td>= or valueCpy</td></tr>
+    <tr><td>INT_CREATE</td>          <td>int_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>INT_DECR</td>            <td>int_decr</td>            <td>--</td></tr>
     <tr><td>INT_DIV</td>             <td>int_div</td>             <td>/</td></tr>
     <tr><td>INT_EQ</td>              <td>int_eq</td>              <td>==</td></tr>
@@ -15251,13 +15277,13 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_interface"><h3>15.18 Actions for interface types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>itflib.c function</th>   <th>&nbsp;</th></tr>
-    <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>ptrCmp or ptrCmpGeneric</td></tr>
+    <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>ptrCmp or ptrCmpValue</td></tr>
     <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
-    <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>= or generic_cpy_ ...</td></tr>
+    <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>= or value_cpy_ ...</td></tr>
     <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
     <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td>itfCreate</td></tr>
     <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td>&nbsp;</td></tr>
-    <tr><td>ITF_DESTR</td>           <td>itf_destr</td>           <td>destr_ ...</td></tr>
+    <tr><td>ITF_DESTR</td>           <td>itf_destr</td>           <td>destr_ ... or value_destr_ ...</td></tr>
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
     <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
@@ -15342,6 +15368,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>arg_v</td></tr>
+    <tr><td><a name="actions_PRC_ASSERT"     >PRC_ASSERT</a></td>          <td>prc_assert</td>          <td>if(!(cond))raiseError(ASSERTION_ERROR)</td></tr>
     <tr><td><a name="actions_PRC_BEGIN"      >PRC_BEGIN</a></td>           <td>prc_begin</td>           <td>Executed at compile-time</td></tr>
     <tr><td><a name="actions_PRC_BEGIN_NOOP" >PRC_BEGIN_NOOP</a></td>      <td>prc_begin_noop</td>      <td>Executed at compile-time</td></tr>
     <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td>&nbsp;</td></tr>
@@ -15390,7 +15417,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prglib.c function</th>   <th>prg_comp.c function</th></tr>
     <tr><td>PRG_BSTRI_PARSE</td>     <td>prg_bstri_parse</td>     <td>prgBStriParse</td></tr>
-    <tr><td>PRG_CMP</td>             <td>prg_cmp</td>             <td>ptrCmp or ptrCmpGeneric</td></tr>
+    <tr><td>PRG_CMP</td>             <td>prg_cmp</td>             <td>ptrCmp or ptrCmpValue</td></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
     <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td>prgCreate;</td></tr>
     <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td>prgDestr</td></tr>
@@ -15433,9 +15460,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
     <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
     <tr><td>REF_CAT_STR</td>         <td>ref_cat_str</td>         <td>refCatStr</td></tr>
-    <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>ptrCmp or ptrCmpGeneric</td></tr>
-    <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>= or ptrCpyGeneric</td></tr>
-    <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>= or ptrCreateGeneric</td></tr>
+    <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>ptrCmp or ptrCmpValue</td></tr>
+    <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>= or ptrCpyValue</td></tr>
+    <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>= or ptrCreateValue</td></tr>
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
     <tr><td>REF_GETREF</td>          <td>ref_getref</td>          <td>refGetRef</td></tr>
@@ -15518,10 +15545,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_structElement"><h3>15.28 Actions for the type structElement</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
-    <tr><td>SEL_CMP</td>             <td>sel_cmp</td>             <td>ptrCmp or ptrCmpGeneric</td></tr>
+    <tr><td>SEL_CMP</td>             <td>sel_cmp</td>             <td>ptrCmp or ptrCmpValue</td></tr>
     <tr><td>SEL_CONV1</td>           <td>sel_conv1</td>           <td>&nbsp;</td></tr>
-    <tr><td>SEL_CPY</td>             <td>sel_cpy</td>             <td>= or genericCpy</td></tr>
-    <tr><td>SEL_CREATE</td>          <td>sel_create</td>          <td>= or genericCreate</td></tr>
+    <tr><td>SEL_CPY</td>             <td>sel_cpy</td>             <td>= or valueCpy</td></tr>
+    <tr><td>SEL_CREATE</td>          <td>sel_create</td>          <td>= or valueCreate</td></tr>
     <tr><td>SEL_EQ</td>              <td>sel_eq</td>              <td>==</td></tr>
     <tr><td>SEL_HASHCODE</td>        <td>sel_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>SEL_NAME</td>            <td>sel_name</td>            <td>refStr</td></tr>
@@ -15627,8 +15654,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SQL_BIND_STRI</td>       <td>sql_bind_stri</td>       <td>sqlBindStri</td></tr>
     <tr><td>SQL_BIND_TIME</td>       <td>sql_bind_time</td>       <td>sqlBindTime</td></tr>
     <tr><td>SQL_CLOSE</td>           <td>sql_close</td>           <td>sqlClose</td></tr>
-    <tr><td>SQL_CMP_DB</td>          <td>sql_cmp_db</td>          <td>ptrCmp or ptrCmpGeneric</td></tr>
-    <tr><td>SQL_CMP_STMT</td>        <td>sql_cmp_stmt</td>        <td>ptrCmp or ptrCmpGeneric</td></tr>
+    <tr><td>SQL_CMP_DB</td>          <td>sql_cmp_db</td>          <td>ptrCmp or ptrCmpValue</td></tr>
+    <tr><td>SQL_CMP_STMT</td>        <td>sql_cmp_stmt</td>        <td>ptrCmp or ptrCmpValue</td></tr>
     <tr><td>SQL_COLUMN_BIGINT</td>   <td>sql_column_bigint</td>   <td>sqlColumnBigInt</td></tr>
     <tr><td>SQL_COLUMN_BIGRAT</td>   <td>sql_column_bigrat</td>   <td>sqlColumnBigRat</td></tr>
     <tr><td>SQL_COLUMN_BOOL</td>     <td>sql_column_bool</td>     <td>sqlColumnBool</td></tr>
@@ -15692,7 +15719,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_C_LITERAL</td>       <td>str_c_literal</td>       <td>strCLiteral</td></tr>
     <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
     <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
-    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strElemType))==0</td></tr>
+    <tr><td><a name="actions_STR_EQ"         >STR_EQ</a></td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strElemType))==0</td></tr>
     <tr><td>STR_FOR</td>             <td>str_for</td>             <td>for</td></tr>
     <tr><td>STR_FOR_KEY</td>         <td>str_for_key</td>         <td>for</td></tr>
     <tr><td>STR_FOR_VAR_KEY</td>     <td>str_for_var_key</td>     <td>for</td></tr>
@@ -15701,7 +15728,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
     <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
     <tr><td>STR_HEAD</td>            <td>str_head</td>            <td>strHead</td></tr>
-    <tr><td>STR_IDX</td>             <td>str_idx</td>             <td>a-&gt;mem[b-1]</td></tr>
+    <tr><td><a name="actions_STR_IDX"        >STR_IDX</a></td>             <td>str_idx</td>             <td>a-&gt;mem[b-1]</td></tr>
     <tr><td>STR_IPOS</td>            <td>str_ipos</td>            <td>strIpos</td></tr>
     <tr><td>STR_LE</td>              <td>str_le</td>              <td>strLe</td></tr>
     <tr><td>STR_LITERAL</td>         <td>str_literal</td>         <td>strLiteral</td></tr>
@@ -15712,7 +15739,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
     <tr><td>STR_LTRIM</td>           <td>str_ltrim</td>           <td>strLtrim</td></tr>
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
-    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strElemType))!=0</td></tr>
+    <tr><td><a name="actions_STR_NE"         >STR_NE</a></td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strElemType))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
     <tr><td>STR_POSCPY</td>          <td>str_poscpy</td>          <td>memcpy</td></tr>
     <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
@@ -15748,10 +15775,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>typlib.c function</th>   <th>typ_data.c function</th></tr>
     <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td>&nbsp;</td></tr>
-    <tr><td>TYP_CMP</td>             <td>typ_cmp</td>             <td>typCmp</td></tr>
-    <tr><td>TYP_CPY</td>             <td>typ_cpy</td>             <td>= or ptrCpyGeneric</td></tr>
-    <tr><td>TYP_CREATE</td>          <td>typ_create</td>          <td>= or ptrCreateGeneric</td></tr>
-    <tr><td>TYP_DESTR</td>           <td>typ_destr</td>           <td>genericDestr</td></tr>
+    <tr><td>TYP_CMP</td>             <td>typ_cmp</td>             <td>typCmp or typCmpValue</td></tr>
+    <tr><td>TYP_CPY</td>             <td>typ_cpy</td>             <td>= or ptrCpyValue</td></tr>
+    <tr><td>TYP_CREATE</td>          <td>typ_create</td>          <td>= or ptrCreateValue</td></tr>
+    <tr><td>TYP_DESTR</td>           <td>typ_destr</td>           <td>valueDestr</td></tr>
     <tr><td>TYP_EQ</td>              <td>typ_eq</td>              <td>==</td></tr>
     <tr><td>TYP_FUNC</td>            <td>typ_func</td>            <td>typFunc</td></tr>
     <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td>&nbsp;</td></tr>
@@ -15769,6 +15796,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TYP_SET_IN_PARAM_REF</td>   <td>typ_set_in_param_ref</td>    <td>&nbsp;</td></tr>
     <tr><td>TYP_SET_IN_PARAM_VALUE</td> <td>typ_set_in_param_value</td>  <td>&nbsp;</td></tr>
     <tr><td>TYP_STR</td>             <td>typ_str</td>             <td>typStr</td></tr>
+    <tr><td>TYP_TYPEOF</td>          <td>typ_typeof</td>          <td>&nbsp;</td></tr>
     <tr><td>TYP_VALUE</td>           <td>typ_value</td>           <td>typValue</td></tr>
     <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td>&nbsp;</td></tr>
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
@@ -17290,8 +17318,21 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   operations of the following types:
 </p><dl><dt></dt><dd>
     <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_struct">struct</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_file">file</a></tt>, <tt><a class="type" href="#types_func">func</a></tt>, <tt><a class="type" href="#types_proc">proc</a></tt>, <tt><a class="type" href="#types_reference">reference</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>.</dd><dt></dt><dd>
-    Additionally the interpreter kernel may raise this exception also.
-</dd></dl><p></p>
+</dd></dl><p>
+  A stack overflow also raises <tt><span class="exception">MEMORY_ERROR</span></tt>. The program below
+  triggers a stack overflow with an infinite recursion:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<a class="keywd_no_ul" href="#decls_Procedure_declarations">const</a> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">begin</span>
+    main;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+  This program raises <tt><span class="exception">MEMORY_ERROR</span></tt> instead of triggering a crash:
+</p><pre class="indent">
+*** Uncaught exception MEMORY_ERROR raised at sigutl.c(355)
+</pre>
 
 <a name="errors_ASSERTION_ERROR"><h4>17.3.2 ASSERTION_ERROR</h4></a>
 <p>

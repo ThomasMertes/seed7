@@ -688,7 +688,7 @@ const proc: deflateBlock (inout deflateData: deflateState,
       putBit(compressedStream, ord(bfinal));
       deflateDynamic(deflateState, uncompressed, limit, compressedStream);
     end if;
-    compressedSize := succ(pred(length(compressedStream) - compressedStart) mdiv 8);
+    compressedSize := (length(compressedStream) - compressedStart) ceilDiv 8;
     if compressedSize >= uncompressedSize + 4 then
       deflateState.uncompressedPos := uncompressedStart;
       truncate(compressedStream, compressedStart);

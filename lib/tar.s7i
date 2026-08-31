@@ -609,7 +609,7 @@ const func fileSys: openTar (inout file: tarFile) is func
             headPos := tell(tarFile);
           else
             headPos := tell(tarFile) +
-                succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+                header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE;
             seek(tarFile, headPos);
           end if;
           readMinimumOfHead(tarFile, header);
@@ -1664,8 +1664,8 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
         if header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE then
           raise FILE_ERROR;
         else
-          if succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE =
-              succ(pred(length(data)) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE then
+          if header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE =
+              length(data) ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE then
             # The number of blocks used of the old file and the new file are identical.
             # The file data is rewritten in place.
             header.fileSize := length(data);
@@ -1821,7 +1821,7 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
          (header.typeflag = DIRTYPE and isEmptyDir(tar.register, filePath))) then
       posOfHeaderToBeRemoved := tar.register[filePath];
       numCharsToBeRemoved := header.dataStartPos - posOfHeaderToBeRemoved +
-          succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+          header.fileSize ceilDiv TAR_BLOCK_SIZE * TAR_BLOCK_SIZE;
       # writeln("numCharsToBeRemoved: " <& numCharsToBeRemoved);
       deleteArea(tar.tarFile, posOfHeaderToBeRemoved, numCharsToBeRemoved);
       excl(tar.register, filePath);

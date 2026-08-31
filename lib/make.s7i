@@ -186,7 +186,7 @@ const func string: applyInternalMacros (in ruleType: rule, in string: stri) is f
   end func;
 
 
-const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is func
+const proc: processCommands (in makeDataType: makeData, in ruleType: rule) is func
   local
     var string: command is "";
     var integer: commandStatus is 0;
@@ -248,10 +248,12 @@ const func string: pattern_match (in var string: main_stri, in string: pattern) 
   end func;
 
 
-const proc: processRule (inout makeDataType: makeData, in string: targetName) is forward;
+const proc: processRule (in makeDataType: makeData, in string: targetName,
+    inout rulesProcessedType: rulesProcessed) is forward;
 
 
-const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is func
+const proc: processRule (in makeDataType: makeData, in ruleType: rule,
+    inout rulesProcessedType: rulesProcessed) is func
   local
     var string: dependency is "";
     var string: dependencyFile is "";
@@ -264,40 +266,85 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
         write(" " <& dependency);
       end for;
       writeln; *)
-    if not rule.ruleProcessed then
+    for dependency range rule.dependencies do
+      processRule(makeData, dependency, rulesProcessed);
+    end for;
+    ruleFile := convDosPath(rule.target);
+    if fileType(ruleFile) = FILE_ABSENT then
+      processCommands(makeData, rule);
+    else
+      targetTime := getMTime(ruleFile);
       for dependency range rule.dependencies do
-        processRule(makeData, dependency);
-      end for;
-      ruleFile := convDosPath(rule.target);
-      if fileType(ruleFile) = FILE_ABSENT then
-        processCommands(makeData, rule);
-      else
-        targetTime := getMTime(ruleFile);
-        for dependency range rule.dependencies do
-          dependencyFile := convDosPath(applyMacros(makeData.macros, dependency, FALSE));
-          if dependencyFile <> "" then
-            if fileType(dependencyFile) = FILE_ABSENT then
-              if makeData.executeCommands then
-                writeln(" *** File " <& dependencyFile <& " missing");
-              else
-                commandsNecessary := TRUE;
-              end if;
-            elsif getMTime(dependencyFile) > targetTime then
+        dependencyFile := convDosPath(applyMacros(makeData.macros, dependency, FALSE));
+        if dependencyFile <> "" then
+          if fileType(dependencyFile) = FILE_ABSENT then
+            if makeData.executeCommands then
+              writeln(" *** File " <& dependencyFile <& " missing");
+            else
               commandsNecessary := TRUE;
             end if;
+          elsif getMTime(dependencyFile) > targetTime then
+            commandsNecessary := TRUE;
           end if;
-        end for;
-        if commandsNecessary then
-          processCommands(makeData, rule);
         end if;
+      end for;
+      if commandsNecessary then
+        processCommands(makeData, rule);
       end if;
-      rule.ruleProcessed := TRUE;
     end if;
   end func;
 
 
-const proc: processPatternRule (inout makeDataType: makeData, in string: targetName,
-    inout ruleType: dependencyRule) is func
+const proc: processRuleOnce (in makeDataType: makeData, in ruleType: rule,
+    inout rulesProcessedType: rulesProcessed) is func
+  begin
+    if rule.target not in rulesProcessed then
+      processRule(makeData, rule, rulesProcessed);
+      if rule.target <> "" then
+        incl(rulesProcessed, rule.target);
+      end if;
+    end if;
+  end func;
+
+
+const proc: processPatternRule (in makeDataType: makeData,
+    in ruleType: patternRule, in string: targetName,
+    in string: stemFound, in ruleType: dependencyRule,
+    inout rulesProcessedType: rulesProcessed) is func
+  local
+    var ruleType: actualRule is ruleType.value;
+    var string: dependency is "";
+    var string: actualDependency is "";
+  begin
+    actualRule.target := targetName;
+    if stemFound = targetName then
+      # Avoid rule recursion.
+      for dependency range patternRule.dependencies do
+        if pos(dependency, "%") <> 0 then
+          actualDependency := replace(dependency, "%", stemFound);
+          if fileType(convDosPath(actualDependency)) <> FILE_ABSENT or
+              actualDependency in makeData.rules then
+            actualRule.dependencies &:= actualDependency;
+          end if;
+        else
+          actualRule.dependencies &:= dependency;
+        end if;
+      end for;
+    else
+      for dependency range patternRule.dependencies do
+        actualRule.dependencies &:= replace(dependency, "%", stemFound);
+      end for;
+    end if;
+    for dependency range dependencyRule.dependencies do
+      actualRule.dependencies &:= dependency;
+    end for;
+    actualRule.commands := patternRule.commands;
+    processRule(makeData, actualRule, rulesProcessed);
+  end func;
+
+
+const proc: processPatternRule (in makeDataType: makeData, in string: targetName,
+    in ruleType: dependencyRule, inout rulesProcessedType: rulesProcessed) is func
   local
     var string: ruleName is "";
     var integer: ruleIndex is 0;
@@ -307,8 +354,6 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
     var integer: ruleIndexFound is 1;
     var integer: numberOfRulesFound is 1;
     var string: stemFound is "";
-    var ruleType: patternRule is ruleType.value;
-    var ruleType: actualRule is ruleType.value;
     var string: dependency is "";
     var string: actualDependency is "";
   begin
@@ -343,42 +388,22 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
           end for;
         end for;
       end if;
-      if numberOfRulesFound = 1 then
-        patternRule := makeData.patternRules[ruleNameFound][ruleIndexFound];
-        actualRule.target := targetName;
-        if stemFound = targetName then
-          # Avoid rule recursion.
-          for dependency range patternRule.dependencies do
-            if pos(dependency, "%") <> 0 then
-              actualDependency := replace(dependency, "%", stemFound);
-              if fileType(convDosPath(actualDependency)) <> FILE_ABSENT or
-                  actualDependency in makeData.rules then
-                actualRule.dependencies &:= actualDependency;
-              end if;
-            else
-              actualRule.dependencies &:= dependency;
-            end if;
-          end for;
-        else
-          for dependency range patternRule.dependencies do
-            actualRule.dependencies &:= replace(dependency, "%", stemFound);
-          end for;
-        end if;
-        for dependency range dependencyRule.dependencies do
-          actualRule.dependencies &:= dependency;
-        end for;
-        actualRule.commands := patternRule.commands;
-        processRule(makeData, actualRule);
-      else
-        processRule(makeData, dependencyRule);
+      if numberOfRulesFound <> 1 then
+        found := FALSE;
       end if;
+    end if;
+    if found then
+      processPatternRule(makeData,
+                         makeData.patternRules[ruleNameFound][ruleIndexFound],
+                         targetName, stemFound, dependencyRule, rulesProcessed);
     else
-      processRule(makeData, dependencyRule);
+      processRuleOnce(makeData, dependencyRule, rulesProcessed);
     end if;
   end func;
 
 
-const proc: processRule (inout makeDataType: makeData, in string: targetName) is func
+const proc: processRule (in makeDataType: makeData, in string: targetName,
+    inout rulesProcessedType: rulesProcessed) is func
   local
     var string: ruleName is "";
     var ruleType: emptyRule is ruleType.value;
@@ -388,12 +413,15 @@ const proc: processRule (inout makeDataType: makeData, in string: targetName) is
       # writeln("process rule: " <& ruleName);
       if ruleName in makeData.rules then
         if length(makeData.rules[ruleName].commands) <> 0 then
-          processRule(makeData, makeData.rules[ruleName]);
+          processRuleOnce(makeData, makeData.rules[ruleName],
+                          rulesProcessed);
         else
-          processPatternRule(makeData, ruleName, makeData.rules[ruleName]);
+          processPatternRule(makeData, ruleName, makeData.rules[ruleName],
+                             rulesProcessed);
         end if;
       else
-        processPatternRule(makeData, ruleName, emptyRule);
+        processPatternRule(makeData, ruleName, emptyRule,
+                           rulesProcessed);
       end if;
     end if;
   end func;
@@ -414,6 +442,7 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
   local
     var ruleType: rule is ruleType.value;
     var makeDataType: makeData is makeDataType.value;
+    var rulesProcessedType: rulesProcessed is rulesProcessedType.value;
     var string: target is "";
   begin
     # writeln("make -f " <& makefile <& " " <& join(targets, " "));
@@ -484,10 +513,10 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
       end if;
     end if;
     if length(targets) = 0 then
-      processRule(makeData, makeData.targetOfFirstRule);
+      processRule(makeData, makeData.targetOfFirstRule, rulesProcessed);
     else
       for target range targets do
-        processRule(makeData, target);
+        processRule(makeData, target, rulesProcessed);
       end for;
     end if;
   end func;

@@ -107,6 +107,7 @@ $ syntax expr: .().div.()                    is  ->  6;
 $ syntax expr: .().rem.()                    is  ->  6;
 $ syntax expr: .().divRem.()                 is  ->  6;
 $ syntax expr: .().mdiv.()                   is  ->  6;
+$ syntax expr: .().ceilDiv.()                is  ->  6;
 $ syntax expr: .().mod.()                    is  ->  6;
 $ syntax expr: .(). << .()                   is  ->  6;
 $ syntax expr: .(). >> .()                   is  ->  6;

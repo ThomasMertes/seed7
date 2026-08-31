@@ -198,10 +198,10 @@ const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is
               ord(componentData[3 + pred(index) * 3]) + 1;
         end for;
         header.numLuma := header.vertical * header.horizontal;
-        header.unitLines := succ(pred(header.height) mdiv (8 * header.vertical));
-        header.unitColumns := succ(pred(header.width) mdiv (8 * header.horizontal));
-        header.blockLines := succ(pred(header.height) mdiv 8);
-        header.blockColumns := succ(pred(header.width) mdiv 8);
+        header.unitLines := header.height ceilDiv (8 * header.vertical);
+        header.unitColumns := header.width ceilDiv (8 * header.horizontal);
+        header.blockLines := header.height ceilDiv 8;
+        header.blockColumns := header.width ceilDiv 8;
         if length <> JPEG_SOF_HEADER_FIXED_SIZE + numComponents * 3 then
           raise RANGE_ERROR;
         end if;
@@ -1098,8 +1098,8 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
           decr(mcuCount);
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
-        readDcValue(mcuImage[succ(pred(line) mdiv header.vertical)]
-                            [succ(pred(column) mdiv header.horizontal)].luma[index][1],
+        readDcValue(mcuImage[line ceilDiv header.vertical]
+                            [column ceilDiv header.horizontal].luma[index][1],
                     entropyCodedStream, dcDecoder, diffLuminance, header.approximationLow);
       end for;
     end for;
@@ -1283,8 +1283,8 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
           decr(eobRunLength);
         else
           index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
-          readBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
-                              [succ(pred(column) mdiv header.horizontal)].luma[index],
+          readBlockAc(mcuImage[line ceilDiv header.vertical]
+                              [column ceilDiv header.horizontal].luma[index],
                       entropyCodedStream, acDecoder, header.startOfSpectral, header.endOfSpectral,
                       eobRunLength, header.approximationLow);
         end if;
@@ -1447,8 +1447,8 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
           decr(mcuCount);
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
-        refineBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
-                              [succ(pred(column) mdiv header.horizontal)].luma[index],
+        refineBlockAc(mcuImage[line ceilDiv header.vertical]
+                              [column ceilDiv header.horizontal].luma[index],
                       entropyCodedStream, acDecoder, header.startOfSpectral,
                       header.endOfSpectral, eobRunLength,
                       1 << header.approximationLow);
