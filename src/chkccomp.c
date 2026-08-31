@@ -11359,10 +11359,10 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
       } /* if */
     } else if (sizeof_FILE <= 8 &&
                compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
-                                "{FILE stru; FILE*fp=&stru;char**base;char**pointer;int*count;\n"
-                                "_get_stream_buffer_pointers(fp,&base,&pointer,&count);\n"
+                                "{char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
-      if (doTest()) {
+      if (doTest() == 1) {
         sprintf(macro_buffer,
                 "int read_buffer_empty (FILE *fp)\n"
                 "{\n"
@@ -11378,10 +11378,10 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                compileAndLinkOk("#include<stdio.h>\n"
                                 "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{FILE stru; FILE*fp=&stru;char**base;char**pointer;int*count;\n"
-                                "_get_stream_buffer_pointers(fp,&base,&pointer,&count);\n"
+                                "{char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
-      if (doTest()) {
+      if (doTest() == 1) {
         sprintf(macro_buffer,
                 "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
                 "int read_buffer_empty (FILE *fp)\n"
