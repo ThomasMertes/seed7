@@ -132,7 +132,9 @@ const func integer: (in integer: dividend) rem (in integer: divisor)   is action
 
 
 (**
- *  Integer division truncated towards negative infinity.
+ *  Integer division truncated towards negative infinity (floor division).
+ *  It corresponds to round(floor(float(dividend) / float(divisor))).
+ *  The actual implementation does not use floating point operations.
  *  The modulo (remainder) of this division is computed with ''mod''.
  *  Therefore this division is called modulo division (''mdiv'').
  *  For the operations ''mdiv'' and ''mod'' holds for all A:
