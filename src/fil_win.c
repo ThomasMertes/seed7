@@ -159,7 +159,7 @@ void __cdecl _get_stream_buffer_pointers (FILE *fp, char ***base,
 
 
 
-#ifdef defineReadBufferEmpty
+#ifdef defineReadBufferEmptyFunction
 int readBufferEmpty (FILE *fp)
 
   {
