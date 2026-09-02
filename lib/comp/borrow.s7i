@@ -75,7 +75,7 @@ const proc: checkGlobalVariableChange (in reference: destination,
   end func;
 
 
-const func boolean: usedInExpression (in reference: searched,
+const func boolean: referredByExpression (in reference: searched,
     in reference: expression) is func
 
   result
@@ -91,28 +91,22 @@ const func boolean: usedInExpression (in reference: searched,
   begin
     exprCategory := category(expression);
     case exprCategory of
-(*
-      when {MATCHOBJECT}:
-        params := getValue(expression, ref_list);
-        function := params[1];
-        for aParam range params[2 ..] until found do
-          found := usedInExpression(searched, aParam);
-        end for;
-*)
-      when {CALLOBJECT}:
+      when {CALLOBJECT, MATCHOBJECT}:
         params := getValue(expression, ref_list);
         function := params[1];
         if category(function) = ACTOBJECT then
           if str(getValue(function, ACTION)) in actionsReferringParam then
+            # Action which returns a reference to existing data.
             for aParam range params[2 ..] until found do
-              found := usedInExpression(searched, aParam);
+              found := referredByExpression(searched, aParam);
             end for;
           end if;
         elsif category(function) = BLOCKOBJECT and
             getType(function) <> typeData.proctype and
             resultVar(function) = NIL then
+          # Function defined with return or return var.
           for aParam range params[2 ..] until found do
-            found := usedInExpression(searched, aParam);
+            found := referredByExpression(searched, aParam);
           end for;
         end if;
       otherwise:
@@ -160,7 +154,7 @@ const proc: checkInOutParamAliasing (in reference: function,
                       actualParam, checkedFormalInOutParam, formalParam, c_expr);
               end if;
             elsif category(formalParam) = REFPARAMOBJECT and
-                usedInExpression(checkedActualInOutParam, actualParam) then
+                referredByExpression(checkedActualInOutParam, actualParam) then
               error(VARIABLE_USED_AS_INOUT_AND_REF_PARAMETER,
                     checkedActualInOutParam, checkedFormalInOutParam,
                     formalParam, c_expr);
@@ -212,7 +206,7 @@ const proc: checkParameterAliasing (in reference: function,
                     formalParam);
             end if;
           elsif category(formalParam) = REFPARAMOBJECT and
-              usedInExpression(globalVariable, actualParam) then
+              referredByExpression(globalVariable, actualParam) then
             error(GLOBAL_VARIABLE_CHANGED_IN_FUNCTION_AND_USED_AS_REF_PARAMETER,
                   globalVariable, function, formalParam, c_expr);
             error(PLACE_OF_GLOBAL_VARIABLE_DEFINITION,
