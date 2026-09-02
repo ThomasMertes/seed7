@@ -121,7 +121,7 @@ const func boolean: usedInExpression (in reference: searched,
   end func;
 
 
-const proc: checkParameterAliasing (in reference: function,
+const proc: checkInOutParamAliasing (in reference: function,
     in ref_list: formalParams, in ref_list: actualParams,
     in expr_type: c_expr) is func
 
@@ -136,7 +136,6 @@ const proc: checkParameterAliasing (in reference: function,
     var integer: paramNumber is 0;
     var reference: actualParam is NIL;
     var reference: formalParam is NIL;
-    var reference: globalVariable is NIL;
     var bitset: alreadyComplained is {};
   begin
     for checkedFormalInOutParam key checkedParamNumber range formalParams do
@@ -170,7 +169,21 @@ const proc: checkParameterAliasing (in reference: function,
         end for;
       end if;
     end for;
-    alreadyComplained := {};
+  end func;
+
+
+const proc: checkParameterAliasing (in reference: function,
+    in ref_list: formalParams, in ref_list: actualParams,
+    in expr_type: c_expr) is func
+
+  local
+    var integer: paramNumber is 0;
+    var reference: actualParam is NIL;
+    var reference: formalParam is NIL;
+    var reference: globalVariable is NIL;
+    var bitset: alreadyComplained is {};
+  begin
+    checkInOutParamAliasing(function, formalParams, actualParams, c_expr);
     if function in globalsChangedInFunction then
       for key globalVariable range globalsChangedInFunction[function] do
         for actualParam key paramNumber range actualParams do
