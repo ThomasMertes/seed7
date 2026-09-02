@@ -11412,7 +11412,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     } /* if */
     if (define_read_buffer_empty != NULL) {
       if (defineReadBufferEmptyFunction) {
-	readBufferEmptyFunction = "int readBufferEmpty (FILE *fp) {\n"
+        readBufferEmptyFunction = "int readBufferEmpty (FILE *fp) {\n"
                                   "int *countPtr = NULL;\n"
                                   "_get_stream_buffer_pointers(fp, NULL, NULL, &countPtr);\n"
                                   "return countPtr == NULL || *countPtr <= 0;}\n";
@@ -11451,8 +11451,8 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     } else {
       fprintf(logFile, "\n *** Could not define macro read_buffer_empty.\n");
     } /* if */
+    fprintf(versionFile, "#define defineReadBufferEmptyFunction %d\n", defineReadBufferEmptyFunction);
     if (define_read_buffer_empty != NULL) {
-      fprintf(versionFile, "#define defineReadBufferEmptyFunction %d\n", defineReadBufferEmptyFunction);
       fprintf(versionFile, "%s\n", define_read_buffer_empty);
       fprintf(logFile, "\rMacro read_buffer_empty defined.\n");
     } /* if */
