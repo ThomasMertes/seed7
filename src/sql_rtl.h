@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+intType sqlAffectedRows (sqlStmtType sqlStatement);
 void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                     const const_bigIntType value);
 void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
