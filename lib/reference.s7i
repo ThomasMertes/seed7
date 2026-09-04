@@ -123,3 +123,6 @@ const func type: get_type (in reference: type_ref) is func
       aType := getValue(type_ref, type);
     end if;
   end func;
+
+
+DECLARE_TERNARY(reference);
