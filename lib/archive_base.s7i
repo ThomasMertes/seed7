@@ -62,15 +62,17 @@ const func array string: readDir (in archiveRegisterType: register, in string: d
     if dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
     elsif dirPath = "" or dirPath = "." then
-      for key fileName range register do
-        slashPos := pos(fileName, '/');
+      for key filePath range register do
+        slashPos := pos(filePath, '/');
         if slashPos = 1 then
-          fileName := "/";
+          if "/" not in fileNameSet then
+            incl(fileNameSet, "/");
+          end if;
         elsif slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
+          fileName := filePath[.. pred(slashPos)];
+          if fileName not in fileNameSet then
+            incl(fileNameSet, fileName);
+          end if;
         end if;
       end for;
     else
