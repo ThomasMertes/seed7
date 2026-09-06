@@ -151,7 +151,6 @@ const proc: writeLine (in string: fileName, in integer: fileLine) is func
     var string: buffer is "";
     var integer: lineNumber is 1;
     var integer: startPos is 1;
-    var integer: endPos is 0;
     var integer: pos is 1;
   begin
     sourceFile := open(fileName, "r");
@@ -185,9 +184,9 @@ const proc: writeLine (in string: fileName, in integer: fileLine) is func
             if pos = 0 then
               if length(buffer) > 1 and
                   buffer[length(buffer)] = '\r' then
-                write(buffer[startPos .. pred(length(buffer))]);
+                write(buffer[.. pred(length(buffer))]);
               else
-                write(buffer[startPos ..]);
+                write(buffer);
               end if;
             end if;
           until pos <> 0 or buffer = "";
