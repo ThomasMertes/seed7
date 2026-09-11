@@ -243,6 +243,20 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
             case 'i':
               option->parserOptions |= SHOW_IDENT_TABLE;
               break;
+            case 'l':
+              if (position < arg_v->max_position - 1) {
+                arg_v->arr[position].value.striValue = NULL;
+                FREE_STRI(opt);
+                position++;
+                opt = arg_v->arr[position].value.striValue;
+                pathObj.value.striValue = stri_to_standard_path(opt);
+                if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
+                  arrPush(&libraryDirs, pathObj.value);
+                } /* if */
+                arg_v->arr[position].value.striValue = NULL;
+                opt = NULL;
+              } /* if */
+              break;
             case 'p':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
@@ -273,20 +287,6 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
               break;
             case 'x':
               option->executeAlways = TRUE;
-              break;
-            case 'l':
-              if (position < arg_v->max_position - 1) {
-                arg_v->arr[position].value.striValue = NULL;
-                FREE_STRI(opt);
-                position++;
-                opt = arg_v->arr[position].value.striValue;
-                pathObj.value.striValue = stri_to_standard_path(opt);
-                if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
-                  arrPush(&libraryDirs, pathObj.value);
-                } /* if */
-                arg_v->arr[position].value.striValue = NULL;
-                opt = NULL;
-              } /* if */
               break;
             default:
               if (!error) {
@@ -491,7 +491,7 @@ int main (int argc, char **argv)
       freeNameCache();
       drawClose();
       closeBig();
-      heapStatistic();
+      /* heapStatistic(); */
 #endif
 #if SHOW_OBJECT_MEMORY_LEAKS
       listAllObjects();
