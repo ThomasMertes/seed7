@@ -75,8 +75,8 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
  *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] should be used
  *  instead of a combination of [[file#getln(inout_file)|getln]] and
  *  [[#fromCsvLine(in_string,in_char)|fromCsvLine]]. The function
- *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] allows to read
- *  CSV fields, which contain linefeed characters.
+ *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] supports reading
+ *  CSV fields, which contain linefeed characters (inside a quoted field).
  *  @param csvLine CSV line to be converted.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.
@@ -146,6 +146,8 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  ''separator'' characters, double quotes (") or linefeed characters.
  *  Double quotes inside a double quoted field are represented by doubling
  *  them (e.g.: The double quoted field "a""b" has the value a"b ).
+ *  The function readCsvLine supports reading CSV fields, which contain
+ *  linefeed characters (inside a quoted field).
  *  For UTF-8 encoded CSV files there are two possibilities:
  *  * If the CSV file has been opened with [[utf8#openUtf8(in_string,in_string)|openUtf8]] \
  *    the CSV fields will contain Unicode data.
