@@ -1388,8 +1388,7 @@ void arrInsertArray (rtlArrayType *arr_to, intType position,
 
   {
     rtlArrayType arr1;
-    rtlArrayType resized_arr1;
-    rtlObjectType *array_pointer;
+    rtlArrayType new_array;
     memSizeType new_size;
     memSizeType arr1_size;
     memSizeType elements_size;
@@ -1428,29 +1427,20 @@ void arrInsertArray (rtlArrayType *arr_to, intType position,
           raise_error(MEMORY_ERROR);
         } else {
           new_size = arr1_size + elements_size;
-          if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, new_size))) {
+          if (unlikely(!ALLOC_RTL_ARRAY(new_array, new_size))) {
             raise_error(MEMORY_ERROR);
           } else {
-            COUNT3_RTL_ARRAY(arr1_size, new_size);
-            *arr_to = resized_arr1;
-            array_pointer = resized_arr1->arr;
-            memmove(&array_pointer[arrayIndex(resized_arr1, position) + elements_size],
-                    &array_pointer[arrayIndex(resized_arr1, position)],
-                    arraySize2(position, resized_arr1->max_position) * sizeof(rtlObjectType));
-            /* It is possible that arr1 == elements holds. */
-            /* In this case the new hole in arr1 must be   */
-            /* considered.                                   */
-            if (unlikely(arr1 == elements)) {
-              memcpy(&array_pointer[arrayIndex(resized_arr1, position)],
-                     array_pointer, arrayIndex(resized_arr1, position) * sizeof(rtlObjectType));
-              memcpy(&array_pointer[2 * arrayIndex(resized_arr1, position)],
-                     &array_pointer[arrayIndex(resized_arr1, position) + elements_size],
-                     (elements_size - arrayIndex(resized_arr1, position)) * sizeof(rtlObjectType));
-            } else {
-              memcpy(&array_pointer[arrayIndex(resized_arr1, position)],
-                     elements->arr, elements_size * sizeof(rtlObjectType));
-            } /* if */
-            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
+            new_array->min_position = arr1->min_position;
+            new_array->max_position = arrayMaxPos(new_array->min_position, new_size);
+            memcpy(new_array->arr, arr1->arr,
+                   arrayIndex(arr1 ,position) * sizeof(rtlObjectType));
+            memcpy(&new_array->arr[arrayIndex(new_array, position)], elements->arr,
+                   elements_size * sizeof(rtlObjectType));
+            memcpy(&new_array->arr[arrayIndex(new_array, position + (intType) elements_size)],
+                   &arr1->arr[arrayIndex(arr1, position)],
+                   arraySize2(position, arr1->max_position) * sizeof(rtlObjectType));
+            FREE_RTL_ARRAY(arr1, arr1_size);
+            *arr_to = new_array;
           } /* if */
         } /* if */
       } /* if */
