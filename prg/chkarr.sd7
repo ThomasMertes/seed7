@@ -4203,141 +4203,141 @@ const proc: testTail is func
     intTail := intArr[1 ..];
     if length(intTail) <> 7 or intTail[1] <> 1 or intTail[2] <> 2 or intTail[3] <> 3 or
             intTail[4] <> 4 or intTail[5] <> 5 or intTail[6] <> 6 or intTail[7] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (1)");
       okay := FALSE;
     end if;
     intTail := intArr[intExpr(1) ..];
     if length(intTail) <> 7 or intTail[1] <> 1 or intTail[2] <> 2 or intTail[3] <> 3 or
             intTail[4] <> 4 or intTail[5] <> 5 or intTail[6] <> 6 or intTail[7] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (2)");
       okay := FALSE;
     end if;
     intTail := intArr[intExpr(2) ..];
     if length(intTail) <> 6 or intTail[1] <> 2 or intTail[2] <> 3 or intTail[3] <> 4 or
                                intTail[4] <> 5 or intTail[5] <> 6 or intTail[6] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (3)");
       okay := FALSE;
     end if;
     intTail := intArr[intExpr(7) ..];
     if length(intTail) <> 1 or intTail[1] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (4)");
       okay := FALSE;
     end if;
     intTail := ([] (1, 2) & [] (3, 4))[2 ..];
     if length(intTail) <> 3 or intTail[1] <> 2 or intTail[2] <> 3 or intTail[3] <> 4 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (5)");
       okay := FALSE;
     end if;
     intArr := intArr[1 ..];
     if length(intArr) <> 7 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (6)");
       okay := FALSE;
     end if;
     intArr := intArr[intExpr(1) ..];
     if length(intArr) <> 7 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (7)");
       okay := FALSE;
     end if;
     intArr := intArr[intExpr(2) ..];
     if length(intArr) <> 6 or intArr[1] <> 2 or intArr[2] <> 3 or intArr[3] <> 4 or
                               intArr[4] <> 5 or intArr[5] <> 6 or intArr[6] <> 7 then
-      writeln(" ***** ARRAY [ .. INDEX ] for integer array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for integer array failed. (8)");
       okay := FALSE;
     end if;
 
     bigTail := bigArr[1 ..];
     if length(bigTail) <> 7 or bigTail[1] <> 1_ or bigTail[2] <> 2_ or bigTail[3] <> 3_ or
            bigTail[4] <> 4_ or bigTail[5] <> 5_ or bigTail[6] <> 6_ or bigTail[7] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (1)");
       okay := FALSE;
     end if;
     bigTail := bigArr[intExpr(1) ..];
     if length(bigTail) <> 7 or bigTail[1] <> 1_ or bigTail[2] <> 2_ or bigTail[3] <> 3_ or
            bigTail[4] <> 4_ or bigTail[5] <> 5_ or bigTail[6] <> 6_ or bigTail[7] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (2)");
       okay := FALSE;
     end if;
     bigTail := bigArr[intExpr(2) ..];
     if length(bigTail) <> 6 or bigTail[1] <> 2_ or bigTail[2] <> 3_ or bigTail[3] <> 4_ or
                                bigTail[4] <> 5_ or bigTail[5] <> 6_ or bigTail[6] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (3)");
       okay := FALSE;
     end if;
     bigTail := bigArr[intExpr(7) ..];
     if length(bigTail) <> 1 or bigTail[1] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (4)");
       okay := FALSE;
     end if;
     bigTail := ([] (1_, 2_) & [] (3_, 4_))[2 ..];
     if length(bigTail) <> 3 or bigTail[1] <> 2_ or bigTail[2] <> 3_ or bigTail[3] <> 4_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (5)");
       okay := FALSE;
     end if;
     bigArr := bigArr[1 ..];
     if length(bigArr) <> 7 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
            bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (6)");
       okay := FALSE;
     end if;
     bigArr := bigArr[intExpr(1) ..];
     if length(bigArr) <> 7 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
            bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (7)");
       okay := FALSE;
     end if;
     bigArr := bigArr[intExpr(2) ..];
     if length(bigArr) <> 6 or bigArr[1] <> 2_ or bigArr[2] <> 3_ or bigArr[3] <> 4_ or
                               bigArr[4] <> 5_ or bigArr[5] <> 6_ or bigArr[6] <> 7_ then
-      writeln(" ***** ARRAY [ .. INDEX ] for bigInteger array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bigInteger array failed. (8)");
       okay := FALSE;
     end if;
 
     fltTail := fltArr[1 ..];
     if length(fltTail) <> 7 or fltTail[1] <> 1.0 or fltTail[2] <> 2.0 or fltTail[3] <> 3.0 or
           fltTail[4] <> 4.0 or fltTail[5] <> 5.0 or fltTail[6] <> 6.0 or fltTail[7] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (1)");
       okay := FALSE;
     end if;
     fltTail := fltArr[intExpr(1) ..];
     if length(fltTail) <> 7 or fltTail[1] <> 1.0 or fltTail[2] <> 2.0 or fltTail[3] <> 3.0 or
           fltTail[4] <> 4.0 or fltTail[5] <> 5.0 or fltTail[6] <> 6.0 or fltTail[7] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (2)");
       okay := FALSE;
     end if;
     fltTail := fltArr[intExpr(2) ..];
     if length(fltTail) <> 6 or fltTail[1] <> 2.0 or fltTail[2] <> 3.0 or fltTail[3] <> 4.0 or
                                fltTail[4] <> 5.0 or fltTail[5] <> 6.0 or fltTail[6] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (3)");
       okay := FALSE;
     end if;
     fltTail := fltArr[intExpr(7) ..];
     if length(fltTail) <> 1 or fltTail[1] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (4)");
       okay := FALSE;
     end if;
     fltTail := ([] (1.0, 2.0) & [] (3.0, 4.0))[2 ..];
     if length(fltTail) <> 3 or fltTail[1] <> 2.0 or fltTail[2] <> 3.0 or fltTail[3] <> 4.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (5)");
       okay := FALSE;
     end if;
     fltArr := fltArr[1 ..];
     if length(fltArr) <> 7 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
           fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (6)");
       okay := FALSE;
     end if;
     fltArr := fltArr[intExpr(1) ..];
     if length(fltArr) <> 7 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
           fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (7)");
       okay := FALSE;
     end if;
     fltArr := fltArr[intExpr(2) ..];
     if length(fltArr) <> 6 or fltArr[1] <> 2.0 or fltArr[2] <> 3.0 or fltArr[3] <> 4.0 or
                               fltArr[4] <> 5.0 or fltArr[5] <> 6.0 or fltArr[6] <> 7.0 then
-      writeln(" ***** ARRAY [ .. INDEX ] for float array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for float array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -4346,7 +4346,7 @@ const proc: testTail is func
                                cpxTail[3] <> complex(3.0, 3.0) or cpxTail[4] <> complex(4.0, 4.0) or
                                cpxTail[5] <> complex(5.0, 5.0) or cpxTail[6] <> complex(6.0, 6.0) or
                                cpxTail[7] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (1)");
       okay := FALSE;
     end if;
     cpxTail := cpxArr[intExpr(1) ..];
@@ -4354,25 +4354,25 @@ const proc: testTail is func
                                cpxTail[3] <> complex(3.0, 3.0) or cpxTail[4] <> complex(4.0, 4.0) or
                                cpxTail[5] <> complex(5.0, 5.0) or cpxTail[6] <> complex(6.0, 6.0) or
                                cpxTail[7] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (2)");
       okay := FALSE;
     end if;
     cpxTail := cpxArr[intExpr(2) ..];
     if length(cpxTail) <> 6 or cpxTail[1] <> complex(2.0, 2.0) or cpxTail[2] <> complex(3.0, 3.0) or
                                cpxTail[3] <> complex(4.0, 4.0) or cpxTail[4] <> complex(5.0, 5.0) or
                                cpxTail[5] <> complex(6.0, 6.0) or cpxTail[6] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (3)");
       okay := FALSE;
     end if;
     cpxTail := cpxArr[intExpr(7) ..];
     if length(cpxTail) <> 1 or cpxTail[1] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (4)");
       okay := FALSE;
     end if;
     cpxTail := ([] (complex(1.0, 1.0), complex(2.0, 2.0)) & [] (complex(3.0, 3.0), complex(4.0, 4.0)))[2 ..];
     if length(cpxTail) <> 3 or cpxTail[1] <> complex(2.0, 2.0) or cpxTail[2] <> complex(3.0, 3.0) or
                                cpxTail[3] <> complex(4.0, 4.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (5)");
       okay := FALSE;
     end if;
     cpxArr := cpxArr[1 ..];
@@ -4380,7 +4380,7 @@ const proc: testTail is func
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
                               cpxArr[7] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (6)");
       okay := FALSE;
     end if;
     cpxArr := cpxArr[intExpr(1) ..];
@@ -4388,108 +4388,108 @@ const proc: testTail is func
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
                               cpxArr[7] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (7)");
       okay := FALSE;
     end if;
     cpxArr := cpxArr[intExpr(2) ..];
     if length(cpxArr) <> 6 or cpxArr[1] <> complex(2.0, 2.0) or cpxArr[2] <> complex(3.0, 3.0) or
                               cpxArr[3] <> complex(4.0, 4.0) or cpxArr[4] <> complex(5.0, 5.0) or
                               cpxArr[5] <> complex(6.0, 6.0) or cpxArr[6] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ .. INDEX ] for complex array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (8)");
       okay := FALSE;
     end if;
 
     chrTail := chrArr[1 ..];
     if length(chrTail) <> 7 or chrTail[1] <> 'a' or chrTail[2] <> 'b' or chrTail[3] <> 'c' or
             chrTail[4] <> 'd' or chrTail[5] <> 'e' or chrTail[6] <> 'f' or chrTail[7] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (1)");
       okay := FALSE;
     end if;
     chrTail := chrArr[intExpr(1) ..];
     if length(chrTail) <> 7 or chrTail[1] <> 'a' or chrTail[2] <> 'b' or chrTail[3] <> 'c' or
             chrTail[4] <> 'd' or chrTail[5] <> 'e' or chrTail[6] <> 'f' or chrTail[7] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (2)");
       okay := FALSE;
     end if;
     chrTail := chrArr[intExpr(2) ..];
     if length(chrTail) <> 6 or chrTail[1] <> 'b' or chrTail[2] <> 'c' or chrTail[3] <> 'd' or
                                chrTail[4] <> 'e' or chrTail[5] <> 'f' or chrTail[6] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (3)");
       okay := FALSE;
     end if;
     chrTail := chrArr[intExpr(7) ..];
     if length(chrTail) <> 1 or chrTail[1] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (4)");
       okay := FALSE;
     end if;
     chrTail := ([] ('a', 'b') & [] ('c', 'd'))[2 ..];
     if length(chrTail) <> 3 or chrTail[1] <> 'b' or chrTail[2] <> 'c' or chrTail[3] <> 'd' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (5)");
       okay := FALSE;
     end if;
     chrArr := chrArr[1 ..];
     if length(chrArr) <> 7 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
             chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (6)");
       okay := FALSE;
     end if;
     chrArr := chrArr[intExpr(1) ..];
     if length(chrArr) <> 7 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
             chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (7)");
       okay := FALSE;
     end if;
     chrArr := chrArr[intExpr(2) ..];
     if length(chrArr) <> 6 or chrArr[1] <> 'b' or chrArr[2] <> 'c' or chrArr[3] <> 'd' or
                               chrArr[4] <> 'e' or chrArr[5] <> 'f' or chrArr[6] <> 'g' then
-      writeln(" ***** ARRAY [ .. INDEX ] for char array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for char array failed. (8)");
       okay := FALSE;
     end if;
 
     strTail := strArr[1 ..];
     if length(strTail) <> 7 or strTail[1] <> "one" or strTail[2] <> "two" or strTail[3] <> "three" or
             strTail[4] <> "four" or strTail[5] <> "five" or strTail[6] <> "six" or strTail[7] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (1)");
       okay := FALSE;
     end if;
     strTail := strArr[intExpr(1) ..];
     if length(strTail) <> 7 or strTail[1] <> "one" or strTail[2] <> "two" or strTail[3] <> "three" or
             strTail[4] <> "four" or strTail[5] <> "five" or strTail[6] <> "six" or strTail[7] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (2)");
       okay := FALSE;
     end if;
     strTail := strArr[intExpr(2) ..];
     if length(strTail) <> 6 or strTail[1] <> "two" or strTail[2] <> "three" or strTail[3] <> "four" or
                                strTail[4] <> "five" or strTail[5] <> "six" or strTail[6] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (3)");
       okay := FALSE;
     end if;
     strTail := strArr[intExpr(7) ..];
     if length(strTail) <> 1 or strTail[1] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (4)");
       okay := FALSE;
     end if;
     strTail := ([] ("one", "two") & [] ("three", "four"))[2 ..];
     if length(strTail) <> 3 or strTail[1] <> "two" or strTail[2] <> "three" or strTail[3] <> "four" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (5)");
       okay := FALSE;
     end if;
     strArr := strArr[1 ..];
     if length(strArr) <> 7 or strArr[1] <> "one" or strArr[2] <> "two" or strArr[3] <> "three" or
             strArr[4] <> "four" or strArr[5] <> "five" or strArr[6] <> "six" or strArr[7] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (6)");
       okay := FALSE;
     end if;
     strArr := strArr[intExpr(1) ..];
     if length(strArr) <> 7 or strArr[1] <> "one" or strArr[2] <> "two" or strArr[3] <> "three" or
             strArr[4] <> "four" or strArr[5] <> "five" or strArr[6] <> "six" or strArr[7] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (7)");
       okay := FALSE;
     end if;
     strArr := strArr[intExpr(2) ..];
     if length(strArr) <> 6 or strArr[1] <> "two" or strArr[2] <> "three" or strArr[3] <> "four" or
                               strArr[4] <> "five" or strArr[5] <> "six" or strArr[6] <> "seven" then
-      writeln(" ***** ARRAY [ .. INDEX ] for string array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for string array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -4498,7 +4498,7 @@ const proc: testTail is func
                                bstTail[3] <> bstring("three") or bstTail[4] <> bstring("four") or
                                bstTail[5] <> bstring("five")  or bstTail[6] <> bstring("six")  or
                                bstTail[7] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (1)");
       okay := FALSE;
     end if;
     bstTail := bstArr[intExpr(1) ..];
@@ -4506,25 +4506,25 @@ const proc: testTail is func
                                bstTail[3] <> bstring("three") or bstTail[4] <> bstring("four") or
                                bstTail[5] <> bstring("five")  or bstTail[6] <> bstring("six")  or
                                bstTail[7] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (2)");
       okay := FALSE;
     end if;
     bstTail := bstArr[intExpr(2) ..];
     if length(bstTail) <> 6 or bstTail[1] <> bstring("two")  or bstTail[2] <> bstring("three") or
                                bstTail[3] <> bstring("four") or bstTail[4] <> bstring("five")  or
                                bstTail[5] <> bstring("six")  or bstTail[6] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (3)");
       okay := FALSE;
     end if;
     bstTail := bstArr[intExpr(7) ..];
     if length(bstTail) <> 1 or bstTail[1] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (4)");
       okay := FALSE;
     end if;
     bstTail := ([] (bstring("one"), bstring("two")) & [] (bstring("three"), bstring("four")))[2 ..];
     if length(bstTail) <> 3 or bstTail[1] <> bstring("two") or bstTail[2] <> bstring("three") or
                                bstTail[3] <> bstring("four") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (5)");
       okay := FALSE;
     end if;
     bstArr := bstArr[1 ..];
@@ -4532,7 +4532,7 @@ const proc: testTail is func
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four") or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")  or
                               bstArr[7] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (6)");
       okay := FALSE;
     end if;
     bstArr := bstArr[intExpr(1) ..];
@@ -4540,61 +4540,61 @@ const proc: testTail is func
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four") or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")  or
                               bstArr[7] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (7)");
       okay := FALSE;
     end if;
     bstArr := bstArr[intExpr(2) ..];
     if length(bstArr) <> 6 or bstArr[1] <> bstring("two")  or bstArr[2] <> bstring("three") or
                               bstArr[3] <> bstring("four") or bstArr[4] <> bstring("five")  or
                               bstArr[5] <> bstring("six")  or bstArr[6] <> bstring("seven") then
-      writeln(" ***** ARRAY [ .. INDEX ] for bstring array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bstring array failed. (8)");
       okay := FALSE;
     end if;
 
     setTail := setArr[1 ..];
     if length(setTail) <> 7 or setTail[1] <> {1} or setTail[2] <> {2} or setTail[3] <> {3} or
             setTail[4] <> {4} or setTail[5] <> {5} or setTail[6] <> {6} or setTail[7] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (1)");
       okay := FALSE;
     end if;
     setTail := setArr[intExpr(1) ..];
     if length(setTail) <> 7 or setTail[1] <> {1} or setTail[2] <> {2} or setTail[3] <> {3} or
             setTail[4] <> {4} or setTail[5] <> {5} or setTail[6] <> {6} or setTail[7] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (2)");
       okay := FALSE;
     end if;
     setTail := setArr[intExpr(2) ..];
     if length(setTail) <> 6 or setTail[1] <> {2} or setTail[2] <> {3} or setTail[3] <> {4} or
                                setTail[4] <> {5} or setTail[5] <> {6} or setTail[6] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (3)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (3)");
       okay := FALSE;
     end if;
     setTail := setArr[intExpr(7) ..];
     if length(setTail) <> 1 or setTail[1] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (4)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (4)");
       okay := FALSE;
     end if;
     setTail := ([] ({1}, {2}) & [] ({3}, {4}))[2 ..];
     if length(setTail) <> 3 or setTail[1] <> {2} or setTail[2] <> {3} or setTail[3] <> {4} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (5)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (5)");
       okay := FALSE;
     end if;
     setArr := setArr[1 ..];
     if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
             setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (6)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (6)");
       okay := FALSE;
     end if;
     setArr := setArr[intExpr(1) ..];
     if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
             setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (7)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (7)");
       okay := FALSE;
     end if;
     setArr := setArr[intExpr(2) ..];
     if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
                               setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
-      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (8)");
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (8)");
       okay := FALSE;
     end if;
 
@@ -4630,7 +4630,7 @@ const proc: testTail is func
         not raisesIndexError(strArr[integer.last ..]) or
         not raisesIndexError(bstArr[integer.last ..]) or
         not raisesIndexError(setArr[integer.last ..]) *) then
-      writeln(" ***** ARRAY [ .. INDEX ] with index out of range does not raise INDEX_ERROR. (1)");
+      writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
 
@@ -4674,7 +4674,7 @@ const proc: testTail is func
         not raisesIndexError(([] (bstring("one"), bstring("two")) &
                               [] (bstring("three"), bstring("four")))   [integer.last ..]) or
         not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last ..]) *) then
-      writeln(" ***** ARRAY [ .. INDEX ] with index out of range does not raise INDEX_ERROR. (2)");
+      writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
 
