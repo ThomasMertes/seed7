@@ -8191,12 +8191,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of integer array to array failed. (6)");
       okay := FALSE;
     end if;
+    intArr := [] (1, 2, 3, 4);
+    insert(intArr, 3, intArr[2 len 2]);
+    if length(intArr) <> 6 or intArr[1] <> 1 or intArr[2] <> 2 or
+                              intArr[3] <> 2 or intArr[4] <> 3 or
+                              intArr[5] <> 3 or intArr[6] <> 4 then
+      writeln(" ***** Insert of integer array to array failed. (7)");
+      okay := FALSE;
+    end if;
     intArr := [] (1, 6);
     insert(intArr, 2, [] (2, 3) & [] (4, 5));
     if length(intArr) <> 6 or intArr[1] <> 1 or intArr[2] <> 2 or
                               intArr[3] <> 3 or intArr[4] <> 4 or
                               intArr[5] <> 5 or intArr[6] <> 6 then
-      writeln(" ***** Insert of integer array to array failed. (7)");
+      writeln(" ***** Insert of integer array to array failed. (8)");
       okay := FALSE;
     end if;
     intArr := [] (1, 6);
@@ -8204,7 +8212,7 @@ const proc: testInsertArray is func
     if length(intArr) <> 6 or intArr[1] <> 1 or intArr[2] <> 2 or
                               intArr[3] <> 3 or intArr[4] <> 4 or
                               intArr[5] <> 5 or intArr[6] <> 6 then
-      writeln(" ***** Insert of integer array to array failed. (8)");
+      writeln(" ***** Insert of integer array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8252,12 +8260,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of bigInteger array to array failed. (6)");
       okay := FALSE;
     end if;
+    bigArr := [] (1_, 2_, 3_, 4_);
+    insert(bigArr, 3, bigArr[2 len 2]);
+    if length(bigArr) <> 6 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or
+                              bigArr[3] <> 2_ or bigArr[4] <> 3_ or
+                              bigArr[5] <> 3_ or bigArr[6] <> 4_ then
+      writeln(" ***** Insert of bigInteger array to array failed. (7)");
+      okay := FALSE;
+    end if;
     bigArr := [] (1_, 6_);
     insert(bigArr, 2, [] (2_, 3_) & [] (4_, 5_));
     if length(bigArr) <> 6 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or
                               bigArr[3] <> 3_ or bigArr[4] <> 4_ or
                               bigArr[5] <> 5_ or bigArr[6] <> 6_ then
-      writeln(" ***** Insert of bigInteger array to array failed. (7)");
+      writeln(" ***** Insert of bigInteger array to array failed. (8)");
       okay := FALSE;
     end if;
     bigArr := [] (1_, 6_);
@@ -8265,7 +8281,7 @@ const proc: testInsertArray is func
     if length(bigArr) <> 6 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or
                               bigArr[3] <> 3_ or bigArr[4] <> 4_ or
                               bigArr[5] <> 5_ or bigArr[6] <> 6_ then
-      writeln(" ***** Insert of bigInteger array to array failed. (8)");
+      writeln(" ***** Insert of bigInteger array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8313,12 +8329,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of float array to array failed. (6)");
       okay := FALSE;
     end if;
+    fltArr := [] (1.0, 2.0, 3.0, 4.0);
+    insert(fltArr, 3, fltArr[2 len 2]);
+    if length(fltArr) <> 6 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or
+                              fltArr[3] <> 2.0 or fltArr[4] <> 3.0 or
+                              fltArr[5] <> 3.0 or fltArr[6] <> 4.0 then
+      writeln(" ***** Insert of float array to array failed. (7)");
+      okay := FALSE;
+    end if;
     fltArr := [] (1.0, 6.0);
     insert(fltArr, 2, [] (2.0, 3.0) & [] (4.0, 5.0));
     if length(fltArr) <> 6 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or
                               fltArr[3] <> 3.0 or fltArr[4] <> 4.0 or
                               fltArr[5] <> 5.0 or fltArr[6] <> 6.0 then
-      writeln(" ***** Insert of float array to array failed. (7)");
+      writeln(" ***** Insert of float array to array failed. (8)");
       okay := FALSE;
     end if;
     fltArr := [] (1.0, 6.0);
@@ -8326,7 +8350,7 @@ const proc: testInsertArray is func
     if length(fltArr) <> 6 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or
                               fltArr[3] <> 3.0 or fltArr[4] <> 4.0 or
                               fltArr[5] <> 5.0 or fltArr[6] <> 6.0 then
-      writeln(" ***** Insert of float array to array failed. (8)");
+      writeln(" ***** Insert of float array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8374,12 +8398,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of complex array to array failed. (6)");
       okay := FALSE;
     end if;
+    cpxArr := [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0), complex(4.0, 4.0));
+    insert(cpxArr, 3, cpxArr[2 len 2]);
+    if length(cpxArr) <> 6 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
+                              cpxArr[3] <> complex(2.0, 2.0) or cpxArr[4] <> complex(3.0, 3.0) or
+                              cpxArr[5] <> complex(3.0, 3.0) or cpxArr[6] <> complex(4.0, 4.0) then
+      writeln(" ***** Insert of complex array to array failed. (7)");
+      okay := FALSE;
+    end if;
     cpxArr := [] (complex(1.0, 1.0), complex(6.0, 6.0));
     insert(cpxArr, 2, [] (complex(2.0, 2.0), complex(3.0, 3.0)) & [] (complex(4.0, 4.0), complex(5.0, 5.0)));
     if length(cpxArr) <> 6 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) then
-      writeln(" ***** Insert of complex array to array failed. (7)");
+      writeln(" ***** Insert of complex array to array failed. (8)");
       okay := FALSE;
     end if;
     cpxArr := [] (complex(1.0, 1.0), complex(6.0, 6.0));
@@ -8387,7 +8419,7 @@ const proc: testInsertArray is func
     if length(cpxArr) <> 6 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) then
-      writeln(" ***** Insert of complex array to array failed. (8)");
+      writeln(" ***** Insert of complex array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8435,12 +8467,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of char array to array failed. (6)");
       okay := FALSE;
     end if;
+    chrArr := [] ('a', 'b', 'c', 'd');
+    insert(chrArr, 3, chrArr[2 len 2]);
+    if length(chrArr) <> 6 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or
+                              chrArr[3] <> 'b' or chrArr[4] <> 'c' or
+                              chrArr[5] <> 'c' or chrArr[6] <> 'd' then
+      writeln(" ***** Insert of char array to array failed. (7)");
+      okay := FALSE;
+    end if;
     chrArr := [] ('a', 'f');
     insert(chrArr, 2, chrArr2 & [] ('d', 'e'));
     if length(chrArr) <> 6 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or
                               chrArr[3] <> 'c' or chrArr[4] <> 'd' or
                               chrArr[5] <> 'e' or chrArr[6] <> 'f' then
-      writeln(" ***** Insert of char array to array failed. (7)");
+      writeln(" ***** Insert of char array to array failed. (8)");
       okay := FALSE;
     end if;
     chrArr := [] ('a', 'f');
@@ -8448,7 +8488,7 @@ const proc: testInsertArray is func
     if length(chrArr) <> 6 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or
                               chrArr[3] <> 'c' or chrArr[4] <> 'd' or
                               chrArr[5] <> 'e' or chrArr[6] <> 'f' then
-      writeln(" ***** Insert of char array to array failed. (8)");
+      writeln(" ***** Insert of char array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8496,12 +8536,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of string array to array failed. (6)");
       okay := FALSE;
     end if;
+    strArr := [] ("one", "two", "three", "four");
+    insert(strArr, 3, strArr[2 len 2]);
+    if length(strArr) <> 6 or strArr[1] <> "one"   or strArr[2] <> "two"   or
+                              strArr[3] <> "two"   or strArr[4] <> "three" or
+                              strArr[5] <> "three" or strArr[6] <> "four"   then
+      writeln(" ***** Insert of string array to array failed. (7)");
+      okay := FALSE;
+    end if;
     strArr := [] ("one", "six");
     insert(strArr, 2, [] ("two", "three") & [] ("four", "five"));
     if length(strArr) <> 6 or strArr[1] <> "one" or strArr[2] <> "two" or
                               strArr[3] <> "three" or strArr[4] <> "four" or
                               strArr[5] <> "five" or strArr[6] <> "six" then
-      writeln(" ***** Insert of string array to array failed. (7)");
+      writeln(" ***** Insert of string array to array failed. (8)");
       okay := FALSE;
     end if;
     strArr := [] ("one", "six");
@@ -8509,7 +8557,7 @@ const proc: testInsertArray is func
     if length(strArr) <> 6 or strArr[1] <> "one" or strArr[2] <> "two" or
                               strArr[3] <> "three" or strArr[4] <> "four" or
                               strArr[5] <> "five" or strArr[6] <> "six" then
-      writeln(" ***** Insert of string array to array failed. (8)");
+      writeln(" ***** Insert of string array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8557,12 +8605,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of bstring array to array failed. (6)");
       okay := FALSE;
     end if;
+    bstArr := [] (bstring("one"), bstring("two"), bstring("three"), bstring("four"));
+    insert(bstArr, 3, bstArr[2 len 2]);
+    if length(bstArr) <> 6 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")   or
+                              bstArr[3] <> bstring("two")   or bstArr[4] <> bstring("three") or
+                              bstArr[5] <> bstring("three") or bstArr[6] <> bstring("four")  then
+      writeln(" ***** Insert of bstring array to array failed. (7)");
+      okay := FALSE;
+    end if;
     bstArr := [] (bstring("one"), bstring("six"));
     insert(bstArr, 2, [] (bstring("two"), bstring("three")) & [] (bstring("four"), bstring("five")));
     if length(bstArr) <> 6 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")  or
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four") or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")  then
-      writeln(" ***** Insert of bstring array to array failed. (7)");
+      writeln(" ***** Insert of bstring array to array failed. (8)");
       okay := FALSE;
     end if;
     bstArr := [] (bstring("one"), bstring("six"));
@@ -8570,7 +8626,7 @@ const proc: testInsertArray is func
     if length(bstArr) <> 6 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")  or
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four") or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")  then
-      writeln(" ***** Insert of bstring array to array failed. (8)");
+      writeln(" ***** Insert of bstring array to array failed. (9)");
       okay := FALSE;
     end if;
 
@@ -8618,12 +8674,20 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of bitset array to array failed. (6)");
       okay := FALSE;
     end if;
+    setArr := [] ({1}, {2}, {3}, {4});
+    insert(setArr, 3, setArr[2 len 2]);
+    if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
+                              setArr[3] <> {2} or setArr[4] <> {3} or
+                              setArr[5] <> {3} or setArr[6] <> {4} then
+      writeln(" ***** Insert of bitset array to array failed. (7)");
+      okay := FALSE;
+    end if;
     setArr := [] ({1}, {6});
     insert(setArr, 2, [] ({2}, {3}) & [] ({4}, {5}));
     if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
                               setArr[3] <> {3} or setArr[4] <> {4} or
                               setArr[5] <> {5} or setArr[6] <> {6} then
-      writeln(" ***** Insert of bitset array to array failed. (7)");
+      writeln(" ***** Insert of bitset array to array failed. (8)");
       okay := FALSE;
     end if;
     setArr := [] ({1}, {6});
@@ -8631,7 +8695,7 @@ const proc: testInsertArray is func
     if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or
                               setArr[3] <> {3} or setArr[4] <> {4} or
                               setArr[5] <> {5} or setArr[6] <> {6} then
-      writeln(" ***** Insert of bitset array to array failed. (8)");
+      writeln(" ***** Insert of bitset array to array failed. (9)");
       okay := FALSE;
     end if;
 
