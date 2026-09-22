@@ -8291,6 +8291,7 @@ const proc: pass_1 (in string: source, inout program: prog,
   local
     var char: optionChar is ' ';
     var string: configFileName is "";
+    var parseOptions: parseFileOptions is parseOptions.value;
   begin
     if source = "" then
       writeln("*** Sourcefile missing");
@@ -8395,11 +8396,14 @@ const proc: pass_1 (in string: source, inout program: prog,
     else
       config.stack_size := ccConf.DEFAULT_STACK_SIZE;
     end if;
+    if "-n" in compilerOptions then
+      incl(parseFileOptions, NO_ERROR_LIMIT);
+    end if;
     if okay then
       writeln("Source: " <& source);
       writeln("Compiling the program ...");
       block
-        prog := parseFile(source, parseOptions.value, libraryDirs, STD_ERR);
+        prog := parseFile(source, parseFileOptions, libraryDirs, STD_ERR);
         if prog = program.EMPTY then
           writeln("*** File " <& literal(source) <& " not found.");
           okay := FALSE;
@@ -8945,6 +8949,7 @@ const proc: writeHelp is func
     writeln("       To generate debug information which refers to the temporary C program");
     writeln("       the option -g-debug_c can be used.");
     writeln("  -l   Add a directory to the include library search path (e.g.: -l ../lib).");
+    writeln("  -n   No limit on the number of errors displayed (default: 10).");
     writeln("  -ocn Optimize generated C code with level n. E.g.: -oc3");
     writeln("       The level n is a digit between 0 and 3:");
     writeln("         0 Do no optimizations with constants.");
@@ -9007,7 +9012,7 @@ const proc: main is func
           elsif currArg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif currArg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-h", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
+          elsif currArg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-h", "-n", "-o", "-p", "-s", "-t", "-w", "-O", "-S"} then
             if currArg[.. 2] in compilerOptions then
               if currArg[3 ..] = compilerOptions[currArg[.. 2]] then
                 writeln("*** Option " <& currArg <& " specified twice.");
@@ -9015,7 +9020,7 @@ const proc: main is func
                 writeln("*** Option " <& currArg[.. 2] <& " specified twice.");
               end if;
               okay := FALSE;
-            elsif currArg[.. 2] in {"-?", "-e", "-h", "-p"} and currArg[3 ..] <> "" then
+            elsif currArg[.. 2] in {"-?", "-e", "-h", "-n", "-p"} and currArg[3 ..] <> "" then
               writeln("*** Unsupported option: " <& currArg);
               okay := FALSE;
             else
