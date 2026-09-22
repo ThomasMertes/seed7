@@ -118,7 +118,7 @@ static void writeHelp (void)
     printf("  -d   Equivalent to -da\n");
     printf("  -i   Show the identifier table after the analysis phase.\n");
     printf("  -l   Add a directory to the include library search path (e.g.: -l ../lib).\n");
-    printf("  -n   No limit for showing parser errors.\n");
+    printf("  -n   No limit on the number of errors displayed (default: 10).\n");
     printf("  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
     printf("       statistics are suppressed.\n");
