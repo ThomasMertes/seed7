@@ -830,38 +830,19 @@ definePeelFirstElement(array bstring);
 definePeelFirstElement(array bitset);
 
 
-const proc: testAssign is func
-  local
+const func boolean: testAssign1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
-    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
-    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
-        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
-    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
-    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
-    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
-        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
-    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array boolean: blnArr2 is 0 times FALSE;
     var array integer: intArr2 is 0 times 0;
     var array bigInteger: bigArr2 is 0 times 0_;
-    var array float: fltArr2 is 0 times 0.0;
-    var array complex: cpxArr2 is 0 times complex.value;
-    var array char: chrArr2 is 0 times ' ';
-    var array string: strArr2 is 0 times "";
-    var array bstring: bstArr2 is 0 times bstring.value;
-    var array bitset: setArr2 is 0 times {};
     var array array boolean: blnArrArr is 1 times 0 times FALSE;
     var array array integer: intArrArr is 1 times 0 times 0;
     var array array bigInteger: bigArrArr is 1 times 0 times 0_;
-    var array array float: fltArrArr is 1 times 0 times 0.0;
-    var array array complex: cpxArrArr is 1 times 0 times complex.value;
-    var array array char: chrArrArr is 1 times 0 times ' ';
-    var array array string: strArrArr is 1 times 0 times "";
-    var array array bstring: bstArrArr is 1 times 0 times bstring.value;
-    var array array bitset: setArrArr is 1 times 0 times {};
   begin
     blnArr := blnArr;
     if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
@@ -1075,7 +1056,24 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array bigInteger' does not work correctly. (14)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testAssign2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array float: fltArr2 is 0 times 0.0;
+    var array complex: cpxArr2 is 0 times complex.value;
+    var array char: chrArr2 is 0 times ' ';
+    var array array float: fltArrArr is 1 times 0 times 0.0;
+    var array array complex: cpxArrArr is 1 times 0 times complex.value;
+    var array array char: chrArrArr is 1 times 0 times ' ';
+  begin
     fltArr := fltArr;
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0) then
       writeln(" ***** array assignment for 'array float' does not work correctly. (1)");
@@ -1305,7 +1303,24 @@ const proc: testAssign is func
       writeln(" ***** array assignment for 'array char' does not work correctly. (14)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testAssign3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array string: strArr2 is 0 times "";
+    var array bstring: bstArr2 is 0 times bstring.value;
+    var array bitset: setArr2 is 0 times {};
+    var array array string: strArrArr is 1 times 0 times "";
+    var array array bstring: bstArrArr is 1 times 0 times bstring.value;
+    var array array bitset: setArrArr is 1 times 0 times {};
+  begin
     strArr := strArr;
     if strArr <> [] ("one", "two", "three", "four", "five", "six", "seven") then
       writeln(" ***** array assignment for 'array string' does not work correctly. (1)");
@@ -1530,6 +1545,22 @@ const proc: testAssign is func
     setArrArr[1] := [] ({}, {}, {}, {});
     if setArrArr[1] <> [] ({}, {}, {}, {}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (14)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: testAssign is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testAssign1 then
+      okay := FALSE;
+    end if;
+    if not testAssign2 then
+      okay := FALSE;
+    end if;
+    if not testAssign3 then
       okay := FALSE;
     end if;
 
@@ -3543,27 +3574,19 @@ getCheckHead(bstring);
 getCheckHead(bitset);
 
 
-const proc: testHead is func
-  local
+const func boolean: testHead1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
     var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
-    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
-    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
-    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
-        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
-    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intHead is 0 times 0;
     var array bigInteger: bigHead is 0 times 0_;
     var array float: fltHead is 0 times 0.0;
     var array complex: cpxHead is 0 times complex(0.0, 0.0);
-    var array char: chrHead is 0 times ' ';
-    var array string: strHead is 0 times "";
-    var array bstring: bstHead is 0 times bstring.value;
-    var array bitset: setHead is 0 times {};
   begin
     intHead := intArr[.. 7];
     if length(intHead) <> 7 or intHead[1] <> 1 or intHead[2] <> 2 or intHead[3] <> 3 or
@@ -3889,7 +3912,23 @@ const proc: testHead is func
       writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (13)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testHead2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array char: chrHead is 0 times ' ';
+    var array string: strHead is 0 times "";
+    var array bstring: bstHead is 0 times bstring.value;
+    var array bitset: setHead is 0 times {};
+  begin
     chrHead := chrArr[.. 7];
     if length(chrHead) <> 7 or chrHead[1] <> 'a' or chrHead[2] <> 'b' or chrHead[3] <> 'c' or
             chrHead[4] <> 'd' or chrHead[5] <> 'e' or chrHead[6] <> 'f' or chrHead[7] <> 'g' then
@@ -4213,7 +4252,24 @@ const proc: testHead is func
       writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (13)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testHead3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+  begin
     if  not raisesIndexError(intArr[.. integer.first]) or
         not raisesIndexError(bigArr[.. integer.first]) or
         not raisesIndexError(fltArr[.. integer.first]) or
@@ -4293,6 +4349,22 @@ const proc: testHead is func
       writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: testHead is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testHead1 then
+      okay := FALSE;
+    end if;
+    if not testHead2 then
+      okay := FALSE;
+    end if;
+    if not testHead3 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Head of array works correctly.");
@@ -4335,27 +4407,19 @@ getCheckTail(bstring);
 getCheckTail(bitset);
 
 
-const proc: testTail is func
-  local
+const func boolean: testTail1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
     var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
-    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
-    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
-    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
-        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
-    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intTail is 0 times 0;
     var array bigInteger: bigTail is 0 times 0_;
     var array float: fltTail is 0 times 0.0;
     var array complex: cpxTail is 0 times complex(0.0, 0.0);
-    var array char: chrTail is 0 times ' ';
-    var array string: strTail is 0 times "";
-    var array bstring: bstTail is 0 times bstring.value;
-    var array bitset: setTail is 0 times {};
   begin
     intTail := intArr[1 ..];
     if length(intTail) <> 7 or intTail[1] <> 1 or intTail[2] <> 2 or intTail[3] <> 3 or
@@ -4591,6 +4655,23 @@ const proc: testTail is func
       writeln(" ***** ARRAY [ INDEX .. ] for complex array failed. (9)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const func boolean: testTail2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array char: chrTail is 0 times ' ';
+    var array string: strTail is 0 times "";
+    var array bstring: bstTail is 0 times bstring.value;
+    var array bitset: setTail is 0 times {};
+  begin
 
     chrTail := chrArr[1 ..];
     if length(chrTail) <> 7 or chrTail[1] <> 'a' or chrTail[2] <> 'b' or chrTail[3] <> 'c' or
@@ -4826,7 +4907,24 @@ const proc: testTail is func
       writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (9)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testTail3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+  begin
     if  not raisesIndexError(intArr[integer.first ..]) or
         not raisesIndexError(bigArr[integer.first ..]) or
         not raisesIndexError(fltArr[integer.first ..]) or
@@ -4906,6 +5004,22 @@ const proc: testTail is func
       writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: testTail is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testTail1 then
+      okay := FALSE;
+    end if;
+    if not testTail2 then
+      okay := FALSE;
+    end if;
+    if not testTail3 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Tail of array works correctly.");
@@ -4948,30 +5062,14 @@ getCheckRange(bstring);
 getCheckRange(bitset);
 
 
-const proc: testRange is func
-  local
+const func boolean: testRange1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7, 8, 9);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_, 9_);
-    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
-    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
-        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
-        complex(8.0, 8.0), complex(9.0, 9.0));
-    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
-    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
-        "eight", "nine");
-    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
-        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
-        bstring("eight"), bstring("nine"));
-    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
     var array integer: intRange is 0 times 0;
     var array bigInteger: bigRange is 0 times 0_;
-    var array float: fltRange is 0 times 0.0;
-    var array complex: cpxRange is 0 times complex(0.0, 0.0);
-    var array char: chrRange is 0 times ' ';
-    var array string: strRange is 0 times "";
-    var array bstring: bstRange is 0 times bstring.value;
-    var array bitset: setRange is 0 times {};
   begin
     intRange := intArr[1 .. 9];
     if length(intRange) <> 9 or intRange[1] <> 1 or intRange[2] <> 2 or intRange[3] <> 3 or
@@ -5246,7 +5344,20 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testRange2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
+        complex(8.0, 8.0), complex(9.0, 9.0));
+    var array float: fltRange is 0 times 0.0;
+    var array complex: cpxRange is 0 times complex(0.0, 0.0);
+  begin
     fltRange := fltArr[1 .. 9];
     if length(fltRange) <> 9 or fltRange[1] <> 1.0 or fltRange[2] <> 2.0 or fltRange[3] <> 3.0 or
           fltRange[4] <> 4.0 or fltRange[5] <> 5.0 or fltRange[6] <> 6.0 or fltRange[7] <> 7.0 or
@@ -5533,7 +5644,19 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testRange3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine");
+    var array char: chrRange is 0 times ' ';
+    var array string: strRange is 0 times "";
+  begin
     chrRange := chrArr[1 .. 9];
     if length(chrRange) <> 9 or chrRange[1] <> 'a' or chrRange[2] <> 'b' or chrRange[3] <> 'c' or
             chrRange[4] <> 'd' or chrRange[5] <> 'e' or chrRange[6] <> 'f' or chrRange[7] <> 'g' or
@@ -5812,7 +5935,20 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testRange4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
+        bstring("eight"), bstring("nine"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
+    var array bstring: bstRange is 0 times bstring.value;
+    var array bitset: setRange is 0 times {};
+  begin
     bstRange := bstArr[1 .. 9];
     if length(bstRange) <> 9 or bstRange[1] <> bstring("one")   or bstRange[2] <> bstring("two")   or
                                 bstRange[3] <> bstring("three") or bstRange[4] <> bstring("four")  or
@@ -6104,7 +6240,27 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testRange5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7, 8, 9);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_, 9_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
+        complex(8.0, 8.0), complex(9.0, 9.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
+        bstring("eight"), bstring("nine"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
+  begin
     if  not raisesIndexError(intArr[integer.first .. integer.first]) or
         not raisesIndexError(bigArr[integer.first .. integer.first]) or
         not raisesIndexError(fltArr[integer.first .. integer.first]) or
@@ -6506,6 +6662,28 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (6)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: testRange is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testRange1 then
+      okay := FALSE;
+    end if;
+    if not testRange2 then
+      okay := FALSE;
+    end if;
+    if not testRange3 then
+      okay := FALSE;
+    end if;
+    if not testRange4 then
+      okay := FALSE;
+    end if;
+    if not testRange5 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Range of array works correctly.");
@@ -6548,30 +6726,14 @@ getCheckSubarr(bstring);
 getCheckSubarr(bitset);
 
 
-const proc: testSubarr is func
-  local
+const func boolean: testSubarr1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7, 8, 9);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_, 9_);
-    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
-    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
-        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
-        complex(8.0, 8.0), complex(9.0, 9.0));
-    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
-    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
-        "eight", "nine");
-    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
-        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
-        bstring("eight"), bstring("nine"));
-    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
     var array integer: intSubarr is 0 times 0;
     var array bigInteger: bigSubarr is 0 times 0_;
-    var array float: fltSubarr is 0 times 0.0;
-    var array complex: cpxSubarr is 0 times complex(0.0, 0.0);
-    var array char: chrSubarr is 0 times ' ';
-    var array string: strSubarr is 0 times "";
-    var array bstring: bstSubarr is 0 times bstring.value;
-    var array bitset: setSubarr is 0 times {};
   begin
     intSubarr := intArr[1 len 9];
     if length(intSubarr) <> 9 or intSubarr[1] <> 1 or intSubarr[2] <> 2 or intSubarr[3] <> 3 or
@@ -6846,7 +7008,20 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testSubarr2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
+        complex(8.0, 8.0), complex(9.0, 9.0));
+    var array float: fltSubarr is 0 times 0.0;
+    var array complex: cpxSubarr is 0 times complex(0.0, 0.0);
+  begin
     fltSubarr := fltArr[1 len 9];
     if length(fltSubarr) <> 9 or fltSubarr[1] <> 1.0 or fltSubarr[2] <> 2.0 or fltSubarr[3] <> 3.0 or
           fltSubarr[4] <> 4.0 or fltSubarr[5] <> 5.0 or fltSubarr[6] <> 6.0 or fltSubarr[7] <> 7.0 or
@@ -7133,7 +7308,19 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testSubarr3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine");
+    var array char: chrSubarr is 0 times ' ';
+    var array string: strSubarr is 0 times "";
+  begin
     chrSubarr := chrArr[1 len 9];
     if length(chrSubarr) <> 9 or chrSubarr[1] <> 'a' or chrSubarr[2] <> 'b' or chrSubarr[3] <> 'c' or
             chrSubarr[4] <> 'd' or chrSubarr[5] <> 'e' or chrSubarr[6] <> 'f' or chrSubarr[7] <> 'g' or
@@ -7412,7 +7599,20 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testSubarr4 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
+        bstring("eight"), bstring("nine"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
+    var array bstring: bstSubarr is 0 times bstring.value;
+    var array bitset: setSubarr is 0 times {};
+  begin
     bstSubarr := bstArr[1 len 9];
     if length(bstSubarr) <> 9 or bstSubarr[1] <> bstring("one")   or bstSubarr[2] <> bstring("two")   or
                                  bstSubarr[3] <> bstring("three") or bstSubarr[4] <> bstring("four")  or
@@ -7704,7 +7904,27 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (18)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testSubarr5 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7, 8, 9);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_, 9_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0),
+        complex(8.0, 8.0), complex(9.0, 9.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
+    var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine");
+    var array bstring: bstArr is [] (bstring("one"), bstring("two"), bstring("three"),
+        bstring("four"), bstring("five"), bstring("six"), bstring("seven"),
+        bstring("eight"), bstring("nine"));
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
+  begin
     if  not raisesIndexError(intArr[integer.first len integer.first]) or
         not raisesIndexError(bigArr[integer.first len integer.first]) or
         not raisesIndexError(fltArr[integer.first len integer.first]) or
@@ -8106,6 +8326,28 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (6)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: testSubarr is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testSubarr1 then
+      okay := FALSE;
+    end if;
+    if not testSubarr2 then
+      okay := FALSE;
+    end if;
+    if not testSubarr3 then
+      okay := FALSE;
+    end if;
+    if not testSubarr4 then
+      okay := FALSE;
+    end if;
+    if not testSubarr5 then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Sub array of array works correctly.");
@@ -8346,26 +8588,18 @@ const proc: testInsertElement is func
   end func;
 
 
-const proc: testInsertArray is func
-  local
+const func boolean: testInsertArray1 is func
+  result
     var boolean: okay is TRUE;
-    var integer: anIndex is 5;
+  local
     var array integer: intArr is [] (1, 4);
     var array bigInteger: bigArr is [] (1_, 4_);
     var array float: fltArr is [] (1.0, 4.0);
     var array complex: cpxArr is [] (complex(1.0, 1.0), complex(4.0, 4.0));
-    var array char: chrArr is [] ('a', 'd');
-    var array string: strArr is [] ("one", "four");
-    var array bstring: bstArr is [] (bstring("one"), bstring("four"));
-    var array bitset: setArr is [] ({1}, {4});
     var array integer: intArr2 is [] (2, 3);
     var array bigInteger: bigArr2 is [] (2_, 3_);
     var array float: fltArr2 is [] (2.0, 3.0);
     var array complex: cpxArr2 is [] (complex(2.0, 2.0), complex(3.0, 3.0));
-    var array char: chrArr2 is [] ('b', 'c');
-    var array string: strArr2 is [] ("two", "three");
-    var array bstring: bstArr2 is [] (bstring("two"), bstring("three"));
-    var array bitset: setArr2 is [] ({2}, {3});
   begin
     insert(intArr, 2, [] (2, 3));
     if length(intArr) <> 4 or intArr[1] <> 1 or intArr[2] <> 2 or
@@ -8642,7 +8876,22 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of complex array to array failed. (9)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testInsertArray2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array char: chrArr is [] ('a', 'd');
+    var array string: strArr is [] ("one", "four");
+    var array bstring: bstArr is [] (bstring("one"), bstring("four"));
+    var array bitset: setArr is [] ({1}, {4});
+    var array char: chrArr2 is [] ('b', 'c');
+    var array string: strArr2 is [] ("two", "three");
+    var array bstring: bstArr2 is [] (bstring("two"), bstring("three"));
+    var array bitset: setArr2 is [] ({2}, {3});
+  begin
     insert(chrArr, 2, [] ('b', 'c'));
     if length(chrArr) <> 4 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or
                               chrArr[3] <> 'c' or chrArr[4] <> 'd' then
@@ -8918,7 +9167,22 @@ const proc: testInsertArray is func
       writeln(" ***** Insert of bitset array to array failed. (9)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: testInsertArray3 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var array integer: intArr is [] (1, 4);
+    var array bigInteger: bigArr is [] (1_, 4_);
+    var array float: fltArr is [] (1.0, 4.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(4.0, 4.0));
+    var array char: chrArr is [] ('a', 'd');
+    var array string: strArr is [] ("one", "four");
+    var array bstring: bstArr is [] (bstring("one"), bstring("four"));
+    var array bitset: setArr is [] ({1}, {4});
+  begin
     if  not raisesIndexError(insert(intArr, integer.first, 0 times 0)) or
         not raisesIndexError(insert(bigArr, integer.first, 0 times 0_)) or
         not raisesIndexError(insert(fltArr, integer.first, 0 times 0.0)) or
@@ -8952,6 +9216,22 @@ const proc: testInsertArray is func
         not raisesIndexError(insert(bstArr, integer.last, 0 times bstring("zero"))) or
         not raisesIndexError(insert(setArr, integer.last, 0 times {0})) then
       writeln(" ***** Insert with index out of range does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: testInsertArray is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not testInsertArray1 then
+      okay := FALSE;
+    end if;
+    if not testInsertArray2 then
+      okay := FALSE;
+    end if;
+    if not testInsertArray3 then
       okay := FALSE;
     end if;
 
