@@ -189,24 +189,13 @@ const proc: process (ARR_ARRLIT, in reference: function,
 const proc: process (ARR_ARRLIT2, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var expr_type: c_param is expr_type.value;
   begin
-    prepareAnyParamTemporarys(params[4], c_param, c_expr);
-    if c_param.result_expr <> "" then
-      prepare_typed_result(getExprResultType(params[4]), c_expr);
-      c_expr.result_expr := "arrArrlit2(";
-      getStdParamToResultExpr(params[2], c_expr);
-      c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= c_param.result_expr;
-      c_expr.result_expr &:= ")";
-    else
-      c_expr.expr &:= "arrArrlit2(";
-      process_expr(params[2], c_expr);
-      c_expr.expr &:= ", ";
-      c_expr.expr &:= c_param.expr;
-      c_expr.expr &:= ")";
-    end if;
+    prepare_typed_result(getExprResultType(params[4]), c_expr);
+    c_expr.result_expr := "arrArrlit2(";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getTemporaryToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
