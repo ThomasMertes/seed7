@@ -5040,17 +5040,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (12)");
       okay := FALSE;
     end if;
+    intArr := intArr[1 .. intExpr(9)];
+    if length(intArr) <> 9 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
+            intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 or
+            intArr[8] <> 8 or intArr[9] <> 9 then
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (13)");
+      okay := FALSE;
+    end if;
     intArr := intArr[intExpr(1) .. 8];
     if length(intArr) <> 8 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 or
             intArr[8] <> 8 then
-      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (14)");
       okay := FALSE;
     end if;
-    intArr := intArr[intExpr(2) .. 7];
+    intArr := intArr[intExpr(2) .. intExpr(7)];
     if length(intArr) <> 6 or intArr[1] <> 2 or intArr[2] <> 3 or intArr[3] <> 4 or
                               intArr[4] <> 5 or intArr[5] <> 6 or intArr[6] <> 7 then
-      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(intArr, intArr[1 .. 3], 1, 3) and checkRange(intArr, intArr[1 .. 4], 1, 4) and
@@ -5088,12 +5095,18 @@ const proc: testRange is func
             checkRange(intArr, intArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(intArr, intArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(intArr, intArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (16)");
       okay := FALSE;
     end if;
-    intArr := intArr[intExpr(3) .. 5];
+    intArr := intArr[2 .. intExpr(6)];
+    if length(intArr) <> 5 or intArr[1] <> 3 or intArr[2] <> 4 or intArr[3] <> 5 or
+            intArr[4] <> 6 or intArr[5] <> 7 then
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (17)");
+      okay := FALSE;
+    end if;
+    intArr := intArr[2 .. 4];
     if length(intArr) <> 3 or intArr[1] <> 4 or intArr[2] <> 5 or intArr[3] <> 6 then
-      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for integer array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5164,17 +5177,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (12)");
       okay := FALSE;
     end if;
+    bigArr := bigArr[1 .. intExpr(9)];
+    if length(bigArr) <> 9 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
+           bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ or
+           bigArr[8] <> 8_ or bigArr[9] <> 9_ then
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (13)");
+      okay := FALSE;
+    end if;
     bigArr := bigArr[intExpr(1) .. 8];
     if length(bigArr) <> 8 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
            bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ or
            bigArr[8] <> 8_ then
-      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (14)");
       okay := FALSE;
     end if;
-    bigArr := bigArr[intExpr(2) .. 7];
+    bigArr := bigArr[intExpr(2) .. intExpr(7)];
     if length(bigArr) <> 6 or bigArr[1] <> 2_ or bigArr[2] <> 3_ or bigArr[3] <> 4_ or
                               bigArr[4] <> 5_ or bigArr[5] <> 6_ or bigArr[6] <> 7_ then
-      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(bigArr, bigArr[1 .. 3], 1, 3) and checkRange(bigArr, bigArr[1 .. 4], 1, 4) and
@@ -5212,12 +5232,18 @@ const proc: testRange is func
             checkRange(bigArr, bigArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(bigArr, bigArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(bigArr, bigArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (16)");
       okay := FALSE;
     end if;
-    bigArr := bigArr[intExpr(3) .. 5];
-    if length(bigArr) <> 3 or bigArr[1] <> 4_ or bigArr[2] <> 5_ or bigArr[3] <> 6_ then
-      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (16)");
+    bigArr := bigArr[2 .. intExpr(6)];
+    if length(bigArr) <> 5 or bigArr[1] <> 3_ or bigArr[2] <> 4_ or bigArr[3] <> 5_ or
+           bigArr[4] <> 6_ or bigArr[5] <> 7_ then
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (17)");
+      okay := FALSE;
+    end if;
+    bigArr := bigArr[2 .. 4];
+    if length(bigArr) <> 3 or bigArr[1] <> 4_ or bigArr[2] <> 5_ or bigArr[3] <> 6_  then
+      writeln(" ***** ARRAY [ START .. STOP ] for bigInteger array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5288,17 +5314,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (12)");
       okay := FALSE;
     end if;
+    fltArr := fltArr[1 .. intExpr(9)];
+    if length(fltArr) <> 9 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
+          fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 or
+          fltArr[8] <> 8.0 or fltArr[9] <> 9.0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (13)");
+      okay := FALSE;
+    end if;
     fltArr := fltArr[intExpr(1) .. 8];
     if length(fltArr) <> 8 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
           fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 or
           fltArr[8] <> 8.0 then
-      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (14)");
       okay := FALSE;
     end if;
-    fltArr := fltArr[intExpr(2) .. 7];
+    fltArr := fltArr[intExpr(2) .. intExpr(7)];
     if length(fltArr) <> 6 or fltArr[1] <> 2.0 or fltArr[2] <> 3.0 or fltArr[3] <> 4.0 or
                               fltArr[4] <> 5.0 or fltArr[5] <> 6.0 or fltArr[6] <> 7.0 then
-      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(fltArr, fltArr[1 .. 3], 1, 3) and checkRange(fltArr, fltArr[1 .. 4], 1, 4) and
@@ -5336,12 +5369,18 @@ const proc: testRange is func
             checkRange(fltArr, fltArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(fltArr, fltArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(fltArr, fltArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (16)");
       okay := FALSE;
     end if;
-    fltArr := fltArr[intExpr(3) .. 5];
+    fltArr := fltArr[2 .. intExpr(6)];
+    if length(fltArr) <> 5 or fltArr[1] <> 3.0 or fltArr[2] <> 4.0 or fltArr[3] <> 5.0 or
+          fltArr[4] <> 6.0 or fltArr[5] <> 7.0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (17)");
+      okay := FALSE;
+    end if;
+    fltArr := fltArr[2 .. 4];
     if length(fltArr) <> 3 or fltArr[1] <> 4.0 or fltArr[2] <> 5.0 or fltArr[3] <> 6.0 then
-      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for float array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5419,19 +5458,28 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (12)");
       okay := FALSE;
     end if;
+    cpxArr := cpxArr[1 .. intExpr(9)];
+    if length(cpxArr) <> 9 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
+                              cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
+                              cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
+                              cpxArr[7] <> complex(7.0, 7.0) or cpxArr[8] <> complex(8.0, 8.0) or
+                              cpxArr[9] <> complex(9.0, 9.0) then
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (13)");
+      okay := FALSE;
+    end if;
     cpxArr := cpxArr[intExpr(1) .. 8];
     if length(cpxArr) <> 8 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
                               cpxArr[7] <> complex(7.0, 7.0) or cpxArr[8] <> complex(8.0, 8.0) then
-      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (14)");
       okay := FALSE;
     end if;
-    cpxArr := cpxArr[intExpr(2) .. 7];
+    cpxArr := cpxArr[intExpr(2) .. intExpr(7)];
     if length(cpxArr) <> 6 or cpxArr[1] <> complex(2.0, 2.0) or cpxArr[2] <> complex(3.0, 3.0) or
                               cpxArr[3] <> complex(4.0, 4.0) or cpxArr[4] <> complex(5.0, 5.0) or
                               cpxArr[5] <> complex(6.0, 6.0) or cpxArr[6] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(cpxArr, cpxArr[1 .. 3], 1, 3) and checkRange(cpxArr, cpxArr[1 .. 4], 1, 4) and
@@ -5469,13 +5517,20 @@ const proc: testRange is func
             checkRange(cpxArr, cpxArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(cpxArr, cpxArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(cpxArr, cpxArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (16)");
       okay := FALSE;
     end if;
-    cpxArr := cpxArr[intExpr(3) .. 5];
+    cpxArr := cpxArr[2 .. intExpr(6)];
+    if length(cpxArr) <> 5 or cpxArr[1] <> complex(3.0, 3.0) or cpxArr[2] <> complex(4.0, 4.0) or
+                              cpxArr[3] <> complex(5.0, 5.0) or cpxArr[4] <> complex(6.0, 6.0) or
+                              cpxArr[5] <> complex(7.0, 7.0) then
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (17)");
+      okay := FALSE;
+    end if;
+    cpxArr := cpxArr[2 .. 4];
     if length(cpxArr) <> 3 or cpxArr[1] <> complex(4.0, 4.0) or cpxArr[2] <> complex(5.0, 5.0) or
                               cpxArr[3] <> complex(6.0, 6.0) then
-      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for complex array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5546,17 +5601,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (12)");
       okay := FALSE;
     end if;
+    chrArr := chrArr[1 .. intExpr(9)];
+    if length(chrArr) <> 9 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
+            chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' or
+            chrArr[8] <> 'h' or chrArr[9] <> 'i' then
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (13)");
+      okay := FALSE;
+    end if;
     chrArr := chrArr[intExpr(1) .. 8];
     if length(chrArr) <> 8 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
             chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' or
             chrArr[8] <> 'h' then
-      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (14)");
       okay := FALSE;
     end if;
-    chrArr := chrArr[intExpr(2) .. 7];
+    chrArr := chrArr[intExpr(2) .. intExpr(7)];
     if length(chrArr) <> 6 or chrArr[1] <> 'b' or chrArr[2] <> 'c' or chrArr[3] <> 'd' or
                               chrArr[4] <> 'e' or chrArr[5] <> 'f' or chrArr[6] <> 'g' then
-      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(chrArr, chrArr[1 .. 3], 1, 3) and checkRange(chrArr, chrArr[1 .. 4], 1, 4) and
@@ -5594,12 +5656,18 @@ const proc: testRange is func
             checkRange(chrArr, chrArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(chrArr, chrArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(chrArr, chrArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (16)");
       okay := FALSE;
     end if;
-    chrArr := chrArr[intExpr(3) .. 5];
+    chrArr := chrArr[2 .. intExpr(6)];
+    if length(chrArr) <> 5 or chrArr[1] <> 'c' or chrArr[2] <> 'd' or chrArr[3] <> 'e' or
+          chrArr[4] <> 'f' or chrArr[5] <> 'g' then
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (17)");
+      okay := FALSE;
+    end if;
+    chrArr := chrArr[2 .. 4];
     if length(chrArr) <> 3 or chrArr[1] <> 'd' or chrArr[2] <> 'e' or chrArr[3] <> 'f' then
-      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for char array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5675,17 +5743,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (12)");
       okay := FALSE;
     end if;
+    strArr := strArr[1 .. intExpr(9)];
+    if length(strArr) <> 9 or strArr[1] <> "one"   or strArr[2] <> "two"   or strArr[3] <> "three" or
+                              strArr[4] <> "four"  or strArr[5] <> "five"  or strArr[6] <> "six"   or
+                              strArr[7] <> "seven" or strArr[8] <> "eight" or strArr[9] <> "nine"  then
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (13)");
+      okay := FALSE;
+    end if;
     strArr := strArr[intExpr(1) .. 8];
     if length(strArr) <> 8 or strArr[1] <> "one"   or strArr[2] <> "two"   or strArr[3] <> "three" or
                               strArr[4] <> "four"  or strArr[5] <> "five"  or strArr[6] <> "six"   or
                               strArr[7] <> "seven" or strArr[8] <> "eight" then
-      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (14)");
       okay := FALSE;
     end if;
-    strArr := strArr[intExpr(2) .. 7];
+    strArr := strArr[intExpr(2) .. intExpr(7)];
     if length(strArr) <> 6 or strArr[1] <> "two"  or strArr[2] <> "three" or strArr[3] <> "four"  or
                               strArr[4] <> "five" or strArr[5] <> "six"   or strArr[6] <> "seven" then
-      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(strArr, strArr[1 .. 3], 1, 3) and checkRange(strArr, strArr[1 .. 4], 1, 4) and
@@ -5723,12 +5798,18 @@ const proc: testRange is func
             checkRange(strArr, strArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(strArr, strArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(strArr, strArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (16)");
       okay := FALSE;
     end if;
-    strArr := strArr[intExpr(3) .. 5];
+    strArr := strArr[2 .. intExpr(6)];
+    if length(strArr) <> 5 or strArr[1] <> "three" or strArr[2] <> "four" or strArr[3] <> "five" or
+                              strArr[4] <> "six"   or strArr[5] <> "seven" then
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (17)");
+      okay := FALSE;
+    end if;
+    strArr := strArr[2 .. 4];
     if length(strArr) <> 3 or strArr[1] <> "four" or strArr[2] <> "five" or strArr[3] <> "six" then
-      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5806,19 +5887,28 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (12)");
       okay := FALSE;
     end if;
+    bstArr := bstArr[1 .. intExpr(9)];
+    if length(bstArr) <> 9 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")   or
+                              bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four")  or
+                              bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")   or
+                              bstArr[7] <> bstring("seven") or bstArr[8] <> bstring("eight") or
+                              bstArr[9] <> bstring("nine")  then
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (13)");
+      okay := FALSE;
+    end if;
     bstArr := bstArr[intExpr(1) .. 8];
     if length(bstArr) <> 8 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")   or
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four")  or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")   or
                               bstArr[7] <> bstring("seven") or bstArr[8] <> bstring("eight") then
-      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (14)");
       okay := FALSE;
     end if;
-    bstArr := bstArr[intExpr(2) .. 7];
+    bstArr := bstArr[intExpr(2) .. intExpr(7)];
     if length(bstArr) <> 6 or bstArr[1] <> bstring("two")  or bstArr[2] <> bstring("three") or
                               bstArr[3] <> bstring("four") or bstArr[4] <> bstring("five")  or
                               bstArr[5] <> bstring("six")  or bstArr[6] <> bstring("seven") then
-      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(bstArr, bstArr[1 .. 3], 1, 3) and checkRange(bstArr, bstArr[1 .. 4], 1, 4) and
@@ -5856,13 +5946,20 @@ const proc: testRange is func
             checkRange(bstArr, bstArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(bstArr, bstArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(bstArr, bstArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (16)");
       okay := FALSE;
     end if;
-    bstArr := bstArr[intExpr(3) .. 5];
+    bstArr := bstArr[2 .. intExpr(6)];
+    if length(bstArr) <> 5 or bstArr[1] <> bstring("three") or bstArr[2] <> bstring("four") or
+                              bstArr[3] <> bstring("five")  or bstArr[4] <> bstring("six")  or
+                              bstArr[5] <> bstring("seven") then
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (17)");
+      okay := FALSE;
+    end if;
+    bstArr := bstArr[2 .. 4];
     if length(bstArr) <> 3 or bstArr[1] <> bstring("four") or bstArr[2] <> bstring("five") or
-                              bstArr[3] <> bstring("six") then
-      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (16)");
+                              bstArr[3] <> bstring("six")  then
+      writeln(" ***** ARRAY [ START .. STOP ] for bstring array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -5938,17 +6035,24 @@ const proc: testRange is func
       writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (12)");
       okay := FALSE;
     end if;
+    setArr := setArr[1 .. intExpr(9)];
+    if length(setArr) <> 9 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} or setArr[9] <> {9} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (13)");
+      okay := FALSE;
+    end if;
     setArr := setArr[intExpr(1) .. 8];
     if length(setArr) <> 8 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
                               setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
                               setArr[7] <> {7} or setArr[8] <> {8} then
-      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (13)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (14)");
       okay := FALSE;
     end if;
-    setArr := setArr[intExpr(2) .. 7];
+    setArr := setArr[intExpr(2) .. intExpr(7)];
     if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
                               setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
-      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (14)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkRange(setArr, setArr[1 .. 3], 1, 3) and checkRange(setArr, setArr[1 .. 4], 1, 4) and
@@ -5986,12 +6090,18 @@ const proc: testRange is func
             checkRange(setArr, setArr[intExpr(6) .. intExpr(7)], 6, 1) and
             checkRange(setArr, setArr[intExpr(7) .. intExpr(6)], 7, 0) and
             checkRange(setArr, setArr[intExpr(7) .. intExpr(7)], 7, 0)) then
-      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (15)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (16)");
       okay := FALSE;
     end if;
-    setArr := setArr[intExpr(3) .. 5];
+    setArr := setArr[2 .. intExpr(6)];
+    if length(setArr) <> 5 or setArr[1] <> {3} or setArr[2] <> {4} or setArr[3] <> {5} or
+                              setArr[4] <> {6} or setArr[5] <> {7} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (17)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[2 .. 4];
     if length(setArr) <> 3 or setArr[1] <> {4} or setArr[2] <> {5} or setArr[3] <> {6} then
-      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (16)");
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -6530,17 +6640,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (12)");
       okay := FALSE;
     end if;
+    intArr := intArr[1 len intExpr(9)];
+    if length(intArr) <> 9 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
+            intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 or
+            intArr[8] <> 8 or intArr[9] <> 9 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (13)");
+      okay := FALSE;
+    end if;
     intArr := intArr[intExpr(1) len 8];
     if length(intArr) <> 8 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 or
             intArr[8] <> 8 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (14)");
       okay := FALSE;
     end if;
-    intArr := intArr[intExpr(2) len 6];
+    intArr := intArr[intExpr(2) len intExpr(6)];
     if length(intArr) <> 6 or intArr[1] <> 2 or intArr[2] <> 3 or intArr[3] <> 4 or
                               intArr[4] <> 5 or intArr[5] <> 6 or intArr[6] <> 7 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(intArr, intArr[1 len 3], 1, 3) and checkSubarr(intArr, intArr[1 len 4], 1, 4) and
@@ -6578,12 +6695,18 @@ const proc: testSubarr is func
             checkSubarr(intArr, intArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(intArr, intArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(intArr, intArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (16)");
       okay := FALSE;
     end if;
-    intArr := intArr[intExpr(3) len 3];
+    intArr := intArr[2 len intExpr(5)];
+    if length(intArr) <> 5 or intArr[1] <> 3 or intArr[2] <> 4 or intArr[3] <> 5 or
+            intArr[4] <> 6 or intArr[5] <> 7 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (17)");
+      okay := FALSE;
+    end if;
+    intArr := intArr[2 len 3];
     if length(intArr) <> 3 or intArr[1] <> 4 or intArr[2] <> 5 or intArr[3] <> 6 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -6654,17 +6777,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (12)");
       okay := FALSE;
     end if;
+    bigArr := bigArr[1 len intExpr(9)];
+    if length(bigArr) <> 9 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
+           bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ or
+           bigArr[8] <> 8_ or bigArr[9] <> 9_ then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (13)");
+      okay := FALSE;
+    end if;
     bigArr := bigArr[intExpr(1) len 8];
     if length(bigArr) <> 8 or bigArr[1] <> 1_ or bigArr[2] <> 2_ or bigArr[3] <> 3_ or
            bigArr[4] <> 4_ or bigArr[5] <> 5_ or bigArr[6] <> 6_ or bigArr[7] <> 7_ or
            bigArr[8] <> 8_ then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (14)");
       okay := FALSE;
     end if;
-    bigArr := bigArr[intExpr(2) len 6];
+    bigArr := bigArr[intExpr(2) len intExpr(6)];
     if length(bigArr) <> 6 or bigArr[1] <> 2_ or bigArr[2] <> 3_ or bigArr[3] <> 4_ or
                               bigArr[4] <> 5_ or bigArr[5] <> 6_ or bigArr[6] <> 7_ then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(bigArr, bigArr[1 len 3], 1, 3) and checkSubarr(bigArr, bigArr[1 len 4], 1, 4) and
@@ -6702,12 +6832,18 @@ const proc: testSubarr is func
             checkSubarr(bigArr, bigArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(bigArr, bigArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(bigArr, bigArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (16)");
       okay := FALSE;
     end if;
-    bigArr := bigArr[intExpr(3) len 3];
+    bigArr := bigArr[2 len intExpr(5)];
+    if length(bigArr) <> 5 or bigArr[1] <> 3_ or bigArr[2] <> 4_ or bigArr[3] <> 5_ or
+           bigArr[4] <> 6_ or bigArr[5] <> 7_ then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (17)");
+      okay := FALSE;
+    end if;
+    bigArr := bigArr[2 len 3];
     if length(bigArr) <> 3 or bigArr[1] <> 4_ or bigArr[2] <> 5_ or bigArr[3] <> 6_ then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -6778,17 +6914,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (12)");
       okay := FALSE;
     end if;
+    fltArr := fltArr[1 len intExpr(9)];
+    if length(fltArr) <> 9 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
+          fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 or
+          fltArr[8] <> 8.0 or fltArr[9] <> 9.0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (13)");
+      okay := FALSE;
+    end if;
     fltArr := fltArr[intExpr(1) len 8];
     if length(fltArr) <> 8 or fltArr[1] <> 1.0 or fltArr[2] <> 2.0 or fltArr[3] <> 3.0 or
           fltArr[4] <> 4.0 or fltArr[5] <> 5.0 or fltArr[6] <> 6.0 or fltArr[7] <> 7.0 or
           fltArr[8] <> 8.0 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (14)");
       okay := FALSE;
     end if;
-    fltArr := fltArr[intExpr(2) len 6];
+    fltArr := fltArr[intExpr(2) len intExpr(6)];
     if length(fltArr) <> 6 or fltArr[1] <> 2.0 or fltArr[2] <> 3.0 or fltArr[3] <> 4.0 or
                               fltArr[4] <> 5.0 or fltArr[5] <> 6.0 or fltArr[6] <> 7.0 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(fltArr, fltArr[1 len 3], 1, 3) and checkSubarr(fltArr, fltArr[1 len 4], 1, 4) and
@@ -6826,12 +6969,18 @@ const proc: testSubarr is func
             checkSubarr(fltArr, fltArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(fltArr, fltArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(fltArr, fltArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (16)");
       okay := FALSE;
     end if;
-    fltArr := fltArr[intExpr(3) len 3];
+    fltArr := fltArr[2 len intExpr(5)];
+    if length(fltArr) <> 5 or fltArr[1] <> 3.0 or fltArr[2] <> 4.0 or fltArr[3] <> 5.0 or
+          fltArr[4] <> 6.0 or fltArr[5] <> 7.0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (17)");
+      okay := FALSE;
+    end if;
+    fltArr := fltArr[2 len 3];
     if length(fltArr) <> 3 or fltArr[1] <> 4.0 or fltArr[2] <> 5.0 or fltArr[3] <> 6.0 then
-      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -6909,19 +7058,28 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (12)");
       okay := FALSE;
     end if;
+    cpxArr := cpxArr[1 len intExpr(9)];
+    if length(cpxArr) <> 9 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
+                              cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
+                              cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
+                              cpxArr[7] <> complex(7.0, 7.0) or cpxArr[8] <> complex(8.0, 8.0) or
+                              cpxArr[9] <> complex(9.0, 9.0) then
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (13)");
+      okay := FALSE;
+    end if;
     cpxArr := cpxArr[intExpr(1) len 8];
     if length(cpxArr) <> 8 or cpxArr[1] <> complex(1.0, 1.0) or cpxArr[2] <> complex(2.0, 2.0) or
                               cpxArr[3] <> complex(3.0, 3.0) or cpxArr[4] <> complex(4.0, 4.0) or
                               cpxArr[5] <> complex(5.0, 5.0) or cpxArr[6] <> complex(6.0, 6.0) or
                               cpxArr[7] <> complex(7.0, 7.0) or cpxArr[8] <> complex(8.0, 8.0) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (14)");
       okay := FALSE;
     end if;
-    cpxArr := cpxArr[intExpr(2) len 6];
+    cpxArr := cpxArr[intExpr(2) len intExpr(6)];
     if length(cpxArr) <> 6 or cpxArr[1] <> complex(2.0, 2.0) or cpxArr[2] <> complex(3.0, 3.0) or
                               cpxArr[3] <> complex(4.0, 4.0) or cpxArr[4] <> complex(5.0, 5.0) or
                               cpxArr[5] <> complex(6.0, 6.0) or cpxArr[6] <> complex(7.0, 7.0) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(cpxArr, cpxArr[1 len 3], 1, 3) and checkSubarr(cpxArr, cpxArr[1 len 4], 1, 4) and
@@ -6959,13 +7117,20 @@ const proc: testSubarr is func
             checkSubarr(cpxArr, cpxArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(cpxArr, cpxArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(cpxArr, cpxArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (16)");
       okay := FALSE;
     end if;
-    cpxArr := cpxArr[intExpr(3) len 3];
+    cpxArr := cpxArr[2 len intExpr(5)];
+    if length(cpxArr) <> 5 or cpxArr[1] <> complex(3.0, 3.0) or cpxArr[2] <> complex(4.0, 4.0) or
+                              cpxArr[3] <> complex(5.0, 5.0) or cpxArr[4] <> complex(6.0, 6.0) or
+                              cpxArr[5] <> complex(7.0, 7.0) then
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (17)");
+      okay := FALSE;
+    end if;
+    cpxArr := cpxArr[2 len 3];
     if length(cpxArr) <> 3 or cpxArr[1] <> complex(4.0, 4.0) or cpxArr[2] <> complex(5.0, 5.0) or
                               cpxArr[3] <> complex(6.0, 6.0) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -7036,17 +7201,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (12)");
       okay := FALSE;
     end if;
+    chrArr := chrArr[1 len intExpr(9)];
+    if length(chrArr) <> 9 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
+            chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' or
+            chrArr[8] <> 'h' or chrArr[9] <> 'i' then
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (13)");
+      okay := FALSE;
+    end if;
     chrArr := chrArr[intExpr(1) len 8];
     if length(chrArr) <> 8 or chrArr[1] <> 'a' or chrArr[2] <> 'b' or chrArr[3] <> 'c' or
             chrArr[4] <> 'd' or chrArr[5] <> 'e' or chrArr[6] <> 'f' or chrArr[7] <> 'g' or
             chrArr[8] <> 'h' then
-      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (14)");
       okay := FALSE;
     end if;
-    chrArr := chrArr[intExpr(2) len 6];
+    chrArr := chrArr[intExpr(2) len intExpr(6)];
     if length(chrArr) <> 6 or chrArr[1] <> 'b' or chrArr[2] <> 'c' or chrArr[3] <> 'd' or
                               chrArr[4] <> 'e' or chrArr[5] <> 'f' or chrArr[6] <> 'g' then
-      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(chrArr, chrArr[1 len 3], 1, 3) and checkSubarr(chrArr, chrArr[1 len 4], 1, 4) and
@@ -7084,12 +7256,18 @@ const proc: testSubarr is func
             checkSubarr(chrArr, chrArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(chrArr, chrArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(chrArr, chrArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (16)");
       okay := FALSE;
     end if;
-    chrArr := chrArr[intExpr(3) len 3];
+    chrArr := chrArr[2 len intExpr(5)];
+    if length(chrArr) <> 5 or chrArr[1] <> 'c' or chrArr[2] <> 'd' or chrArr[3] <> 'e' or
+          chrArr[4] <> 'f' or chrArr[5] <> 'g' then
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (17)");
+      okay := FALSE;
+    end if;
+    chrArr := chrArr[2 len 3];
     if length(chrArr) <> 3 or chrArr[1] <> 'd' or chrArr[2] <> 'e' or chrArr[3] <> 'f' then
-      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -7165,17 +7343,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (12)");
       okay := FALSE;
     end if;
+    strArr := strArr[1 len intExpr(9)];
+    if length(strArr) <> 9 or strArr[1] <> "one"   or strArr[2] <> "two"   or strArr[3] <> "three" or
+                              strArr[4] <> "four"  or strArr[5] <> "five"  or strArr[6] <> "six"   or
+                              strArr[7] <> "seven" or strArr[8] <> "eight" or strArr[9] <> "nine"  then
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (13)");
+      okay := FALSE;
+    end if;
     strArr := strArr[intExpr(1) len 8];
     if length(strArr) <> 8 or strArr[1] <> "one"   or strArr[2] <> "two"   or strArr[3] <> "three" or
                               strArr[4] <> "four"  or strArr[5] <> "five"  or strArr[6] <> "six"   or
                               strArr[7] <> "seven" or strArr[8] <> "eight" then
-      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (14)");
       okay := FALSE;
     end if;
-    strArr := strArr[intExpr(2) len 6];
+    strArr := strArr[intExpr(2) len intExpr(6)];
     if length(strArr) <> 6 or strArr[1] <> "two"  or strArr[2] <> "three" or strArr[3] <> "four"  or
                               strArr[4] <> "five" or strArr[5] <> "six"   or strArr[6] <> "seven" then
-      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(strArr, strArr[1 len 3], 1, 3) and checkSubarr(strArr, strArr[1 len 4], 1, 4) and
@@ -7213,12 +7398,18 @@ const proc: testSubarr is func
             checkSubarr(strArr, strArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(strArr, strArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(strArr, strArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (16)");
       okay := FALSE;
     end if;
-    strArr := strArr[intExpr(3) len 3];
+    strArr := strArr[2 len intExpr(5)];
+    if length(strArr) <> 5 or strArr[1] <> "three" or strArr[2] <> "four" or strArr[3] <> "five" or
+        strArr[4] <> "six" or strArr[5] <> "seven" then
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (17)");
+      okay := FALSE;
+    end if;
+    strArr := strArr[2 len 3];
     if length(strArr) <> 3 or strArr[1] <> "four" or strArr[2] <> "five" or strArr[3] <> "six" then
-      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -7296,19 +7487,28 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (12)");
       okay := FALSE;
     end if;
+    bstArr := bstArr[1 len intExpr(9)];
+    if length(bstArr) <> 9 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")   or
+                              bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four")  or
+                              bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")   or
+                              bstArr[7] <> bstring("seven") or bstArr[8] <> bstring("eight") or
+                              bstArr[9] <> bstring("nine") then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (13)");
+      okay := FALSE;
+    end if;
     bstArr := bstArr[intExpr(1) len 8];
     if length(bstArr) <> 8 or bstArr[1] <> bstring("one")   or bstArr[2] <> bstring("two")   or
                               bstArr[3] <> bstring("three") or bstArr[4] <> bstring("four")  or
                               bstArr[5] <> bstring("five")  or bstArr[6] <> bstring("six")   or
                               bstArr[7] <> bstring("seven") or bstArr[8] <> bstring("eight") then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (14)");
       okay := FALSE;
     end if;
-    bstArr := bstArr[intExpr(2) len 6];
+    bstArr := bstArr[intExpr(2) len intExpr(6)];
     if length(bstArr) <> 6 or bstArr[1] <> bstring("two")  or bstArr[2] <> bstring("three") or
                               bstArr[3] <> bstring("four") or bstArr[4] <> bstring("five")  or
                               bstArr[5] <> bstring("six")  or bstArr[6] <> bstring("seven") then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(bstArr, bstArr[1 len 3], 1, 3) and checkSubarr(bstArr, bstArr[1 len 4], 1, 4) and
@@ -7346,13 +7546,20 @@ const proc: testSubarr is func
             checkSubarr(bstArr, bstArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(bstArr, bstArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(bstArr, bstArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (16)");
       okay := FALSE;
     end if;
-    bstArr := bstArr[intExpr(3) len 3];
+    bstArr := bstArr[2 len intExpr(5)];
+    if length(bstArr) <> 5 or bstArr[1] <> bstring("three") or bstArr[2] <> bstring("four") or
+                              bstArr[3] <> bstring("five")  or bstArr[4] <> bstring("six")  or
+                              bstArr[5] <> bstring("seven") then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (17)");
+      okay := FALSE;
+    end if;
+    bstArr := bstArr[2 len 3];
     if length(bstArr) <> 3 or bstArr[1] <> bstring("four") or bstArr[2] <> bstring("five") or
                               bstArr[3] <> bstring("six") then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (18)");
       okay := FALSE;
     end if;
 
@@ -7428,17 +7635,24 @@ const proc: testSubarr is func
       writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (12)");
       okay := FALSE;
     end if;
+    setArr := setArr[1 len intExpr(9)];
+    if length(setArr) <> 9 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} or setArr[9] <> {9} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (13)");
+      okay := FALSE;
+    end if;
     setArr := setArr[intExpr(1) len 8];
     if length(setArr) <> 8 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
                               setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
                               setArr[7] <> {7} or setArr[8] <> {8} then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (13)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (14)");
       okay := FALSE;
     end if;
-    setArr := setArr[intExpr(2) len 6];
+    setArr := setArr[intExpr(2) len intExpr(6)];
     if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
                               setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (14)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (15)");
       okay := FALSE;
     end if;
     if not (checkSubarr(setArr, setArr[1 len 3], 1, 3) and checkSubarr(setArr, setArr[1 len 4], 1, 4) and
@@ -7476,12 +7690,18 @@ const proc: testSubarr is func
             checkSubarr(setArr, setArr[intExpr(6) len intExpr(1)], 6, 1) and
             checkSubarr(setArr, setArr[intExpr(7) len intExpr(0)], 7, 0) and
             checkSubarr(setArr, setArr[intExpr(7) len intExpr(0)], 7, 0)) then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (15)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (16)");
       okay := FALSE;
     end if;
-    setArr := setArr[intExpr(3) len 3];
+    setArr := setArr[2 len intExpr(5)];
+    if length(setArr) <> 5 or setArr[1] <> {3} or setArr[2] <> {4} or setArr[3] <> {5} or
+          setArr[4] <> {6} or setArr[5] <> {7} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (17)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[2 len 3];
     if length(setArr) <> 3 or setArr[1] <> {4} or setArr[2] <> {5} or setArr[3] <> {6} then
-      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (16)");
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (18)");
       okay := FALSE;
     end if;
 
