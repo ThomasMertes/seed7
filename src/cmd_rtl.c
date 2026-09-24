@@ -2972,6 +2972,8 @@ striType cmdConfigValue (const const_striType name)
       opt = ALLOW_STRITYPE_SLICES ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {
       opt = ALLOW_BSTRITYPE_SLICES ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "ALLOW_RTL_ARRAY_SLICES") == 0) {
+      opt = ALLOW_RTL_ARRAY_SLICES ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
       opt = RSHIFT_DOES_SIGN_EXTEND ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
