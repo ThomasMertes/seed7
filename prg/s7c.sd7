@@ -651,6 +651,12 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_assigns &:= " == NULL) ? ";
         c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
         c_declaration.temp_assigns &:= ": 0), ";
+        if ccConf.ALLOW_RTL_ARRAY_SLICES then
+          c_declaration.temp_assigns &:= variableName;
+          c_declaration.temp_assigns &:= "->arr = ";
+          c_declaration.temp_assigns &:= variableName;
+          c_declaration.temp_assigns &:= "->arr1, ";
+        end if;
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= "->min_position = ";
         c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
@@ -694,6 +700,12 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
           c_declaration.temp_assigns &:= " == NULL) ? ";
           c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
           c_declaration.temp_assigns &:= ": 0), ";
+          if ccConf.ALLOW_RTL_ARRAY_SLICES then
+            c_declaration.temp_assigns &:= variableName;
+            c_declaration.temp_assigns &:= "->arr = ";
+            c_declaration.temp_assigns &:= variableName;
+            c_declaration.temp_assigns &:= "->arr1, ";
+          end if;
           c_declaration.temp_assigns &:= variableName;
           c_declaration.temp_assigns &:= "->min_position = ";
           c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
@@ -5821,7 +5833,12 @@ const proc: write_file_head is func
     if ccConf.WITH_RTL_ARRAY_CAPACITY then
       writeln(c_prog, "  memSizeType capacity;");
     end if;
-    writeln(c_prog, "  rtlObjectType arr[1];");
+    if ccConf.ALLOW_RTL_ARRAY_SLICES then
+      writeln(c_prog, "  rtlObjectType *arr;");
+      writeln(c_prog, "  rtlObjectType  arr1[1];");
+    else
+      writeln(c_prog, "  rtlObjectType arr[1];");
+    end if;
     writeln(c_prog, "};");
     writeln(c_prog, "struct rtlStructStruct {\n\
                     \  memSizeType usage_count;\n\
