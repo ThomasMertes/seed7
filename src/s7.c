@@ -495,7 +495,7 @@ int main (int argc, char **argv)
       freeNameCache();
       drawClose();
       closeBig();
-      /* heapStatistic(); */
+      heapStatistic();
 #endif
 #if SHOW_OBJECT_MEMORY_LEAKS
       listAllObjects();
