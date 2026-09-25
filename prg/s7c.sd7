@@ -9068,6 +9068,9 @@ const proc: main is func
         end if;
         pass_2(sourcePath, prog, okay);
         pass_3(sourcePath, sourceExtension, prog, compilerOptions, okay);
+        if not okay then
+          exit(1);
+        end if;
       end if;
     end if;
   end func;
