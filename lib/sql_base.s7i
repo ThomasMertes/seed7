@@ -663,6 +663,15 @@ const proc: execute (inout sqlStatement: statement)                             
 
 
 (**
+ *  Determine how many rows were affected by the last query.
+ *  @param statement Statement which was executed.
+ *  @return Number of rows affected or
+ *          0, if the statement was never executed.
+ *)
+const func integer: impact (in sqlStatement: statement)                                is action "SQL_AFFECTED_ROWS";
+
+
+(**
  *  Fetch a row from the result data of an executed ''statement''.
  *  After the ''statement'' has been executed successfully the
  *  function ''fetch'' can be used to get the first and further
