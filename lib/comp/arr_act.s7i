@@ -71,6 +71,7 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        arrFree (arrayType);");
     declareExtern(c_prog, "arrayType   arrGen (const rtlValueUnion, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrHead (const const_arrayType, intType);");
+    declareExtern(c_prog, "void        arrHeadSlice (const const_arrayType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrHeadTemp (arrayType *, intType);");
     declareExtern(c_prog, "rtlValueUnion arrIdxTemp (arrayType *, intType);");
     declareExtern(c_prog, "void        arrInsert (arrayType *, intType, rtlValueUnion);");
@@ -79,6 +80,7 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrMalloc (intType, intType);");
     declareExtern(c_prog, "void        arrPush (arrayType *const, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrRange (const const_arrayType, intType, intType);");
+    declareExtern(c_prog, "void        arrRangeSlice (const const_arrayType, intType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrRangeTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrRealloc (arrayType, memSizeType, memSizeType);");
     declareExtern(c_prog, "rtlValueUnion arrRemove (arrayType *, intType);");
@@ -86,11 +88,37 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrSort (arrayType, const compareFuncType);");
     declareExtern(c_prog, "arrayType   arrSortReverse (arrayType, const compareFuncType);");
     declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
+    declareExtern(c_prog, "void        arrSubarrSlice (const const_arrayType, intType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");
+    declareExtern(c_prog, "void        arrTailSlice (const const_arrayType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrTailTemp (arrayType *, intType);");
     declareExtern(c_prog, "arrayType   arrTimes (intType, intType, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrTimes0 (intType, intType);");
+  end func;
+
+
+const func boolean: isArraySlice (in var reference: aParam) is func
+
+  result
+    var boolean: isArraySlice is FALSE;
+  local
+    const set of string: sliceActions is
+        {"ARR_HEAD", "ARR_TAIL", "ARR_RANGE", "ARR_SUBARR"};
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    if ccConf.ALLOW_RTL_ARRAY_SLICES then
+      if isInlineParam(aParam) then
+        aParam := inlineParam[aParam][1].actualParam;
+      end if;
+      if category(aParam) = CALLOBJECT then
+        params := getValue(aParam, ref_list);
+        if category(params[1]) = ACTOBJECT and
+            str(getValue(params[1], ACTION)) in sliceActions then
+          isArraySlice := TRUE;
+        end if;
+      end if;
+    end if;
   end func;
 
 
@@ -189,13 +217,33 @@ const proc: process (ARR_ARRLIT, in reference: function,
 const proc: process (ARR_ARRLIT2, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param is expr_type.value;
   begin
-    prepare_typed_result(getExprResultType(params[4]), c_expr);
-    c_expr.result_expr := "arrArrlit2(";
-    getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ", ";
-    getTemporaryToResultExpr(params[4], c_expr);
-    c_expr.result_expr &:= ")";
+    if isArraySlice(params[4]) then
+      prepareAnyParamTemporarys(params[4], c_param, c_expr);
+      if c_param.result_expr <> "" then
+        prepare_typed_result(getExprResultType(params[4]), c_expr);
+        c_expr.result_expr := "arrArrlit2(";
+        getStdParamToResultExpr(params[2], c_expr);
+        c_expr.result_expr &:= ", ";
+        c_expr.result_expr &:= c_param.result_expr;
+        c_expr.result_expr &:= ")";
+      else
+        c_expr.expr &:= "arrArrlit2(";
+        process_expr(params[2], c_expr);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= c_param.expr;
+        c_expr.expr &:= ")";
+      end if;
+    else
+      prepare_typed_result(getExprResultType(params[4]), c_expr);
+      c_expr.result_expr := "arrArrlit2(";
+      getStdParamToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ", ";
+      getTemporaryToResultExpr(params[4], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -725,6 +773,7 @@ const proc: process (ARR_HEAD, in reference: function,
   local
     var type: param_type is void;
     var expr_type: c_param is expr_type.value;
+    var string: slice_name is "";
     var string: array_name is "";
   begin
     param_type := getExprResultType(params[1]);
@@ -743,6 +792,23 @@ const proc: process (ARR_HEAD, in reference: function,
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[4], c_expr);
       c_expr.result_expr &:= "))";
+    elsif ccConf.ALLOW_RTL_ARRAY_SLICES and c_expr.demand < REQUIRE_RESULT then
+      c_expr.expr &:= "(";
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct rtlArrayStruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "arrHeadSlice(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[4], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
     elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
@@ -1576,6 +1642,7 @@ const proc: process (ARR_RANGE, in reference: function,
   local
     var type: param_type is void;
     var expr_type: c_param is expr_type.value;
+    var string: slice_name is "";
     var string: array_name is "";
   begin
     param_type := getExprResultType(params[1]);
@@ -1596,6 +1663,25 @@ const proc: process (ARR_RANGE, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "))";
+    elsif ccConf.ALLOW_RTL_ARRAY_SLICES and c_expr.demand < REQUIRE_RESULT then
+      c_expr.expr &:= "(";
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct rtlArrayStruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "arrRangeSlice(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
     elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
@@ -1716,6 +1802,7 @@ const proc: process (ARR_SUBARR, in reference: function,
   local
     var type: param_type is void;
     var expr_type: c_param is expr_type.value;
+    var string: slice_name is "";
     var string: array_name is "";
   begin
     param_type := getExprResultType(params[1]);
@@ -1736,6 +1823,25 @@ const proc: process (ARR_SUBARR, in reference: function,
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[5], c_expr);
       c_expr.result_expr &:= "))";
+    elsif ccConf.ALLOW_RTL_ARRAY_SLICES and c_expr.demand < REQUIRE_RESULT then
+      c_expr.expr &:= "(";
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct rtlArrayStruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "arrSubarrSlice(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
     elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);
@@ -1780,6 +1886,7 @@ const proc: process (ARR_TAIL, in reference: function,
   local
     var type: param_type is void;
     var expr_type: c_param is expr_type.value;
+    var string: slice_name is "";
     var string: array_name is "";
   begin
     param_type := getExprResultType(params[1]);
@@ -1798,6 +1905,23 @@ const proc: process (ARR_TAIL, in reference: function,
       c_expr.result_expr &:= "), ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= "))";
+    elsif ccConf.ALLOW_RTL_ARRAY_SLICES and c_expr.demand < REQUIRE_RESULT then
+      c_expr.expr &:= "(";
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct rtlArrayStruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "arrTailSlice(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
     elsif valueIsAtHeap(typeData.array_element[param_type]) then
       incr(c_expr.temp_num);
       array_name := "tmp_" & str(c_expr.temp_num);

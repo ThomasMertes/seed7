@@ -36,6 +36,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "setjmp.h"
+#include "limits.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -515,6 +516,11 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                                 errorFile != &nullFileRecord;
       resultProg->errorFile = filCreate(errorFile);
       resultProg->error_count = 0;
+      if (options & NO_ERROR_LIMIT) {
+        resultProg->error_maximum = UINT_MAX;
+      } else {
+        resultProg->error_maximum = 10;
+      } /* if */
       resultProg->literals = NULL;
       resultProg->arg0         = strCreate(sourceFileArgument);
       resultProg->program_name = getProgramName(sourceFileArgument);

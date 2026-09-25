@@ -11290,6 +11290,9 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     int offset_to_count;
     char macro_buffer[BUFFER_SIZE];
     char buffer[2 * BUFFER_SIZE];
+    char *get_stream_buffer_pointers_prototype = "";
+    int defineReadBufferEmptyFunction = 0;
+    char *readBufferEmptyFunction = "";
 
   /* writeReadBufferEmptyMacro */
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
@@ -11363,13 +11366,9 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
+        defineReadBufferEmptyFunction = 1;
         sprintf(macro_buffer,
-                "int read_buffer_empty (FILE *fp)\n"
-                "{\n"
-                "  int *cnt_ptr = NULL;\n"
-                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
-                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
-                "}\n");
+                "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
       } else {
         define_read_buffer_empty = NULL;
@@ -11382,14 +11381,12 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                                 "_get_stream_buffer_pointers(stdin,&base,&pointer,&count);\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       if (doTest() == 1) {
+        get_stream_buffer_pointers_prototype =
+            "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n";
+        fprintf(versionFile, "#define define_get_stream_buffer_pointers_prototype\n");
+        defineReadBufferEmptyFunction = 1;
         sprintf(macro_buffer,
-                "void __cdecl _get_stream_buffer_pointers(FILE*,char***,char***,int**);\n"
-                "int read_buffer_empty (FILE *fp)\n"
-                "{\n"
-                "  int *cnt_ptr = NULL;\n"
-                "  _get_stream_buffer_pointers(fp, NULL, NULL, &cnt_ptr);\n"
-                "  return cnt_ptr == NULL || *cnt_ptr <= 0;\n"
-                "}\n");
+                "#define read_buffer_empty(fp) readBufferEmpty(fp)");
         define_read_buffer_empty = macro_buffer;
       } else {
         define_read_buffer_empty = NULL;
@@ -11414,9 +11411,15 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
 #endif
     } /* if */
     if (define_read_buffer_empty != NULL) {
+      if (defineReadBufferEmptyFunction) {
+        readBufferEmptyFunction = "int readBufferEmpty (FILE *fp) {\n"
+                                  "int *countPtr = NULL;\n"
+                                  "_get_stream_buffer_pointers(fp, NULL, NULL, &countPtr);\n"
+                                  "return countPtr == NULL || *countPtr <= 0;}\n";
+      } /* if */
       sprintf(buffer,
               "#include<stdio.h>\n"
-              "%s\n"
+              "%s\n%s\n%s\n"
               "int main(int argc,char *argv[]){\n"
               "FILE *aFile;\n"
               "aFile = fopen(\"ctstfile.txt\", \"w\");\n"
@@ -11435,7 +11438,10 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
               "  printf(\"%%d\\n\", read_buffer_empty(aFile)?0:1);\n"
               "  fclose(aFile);\n"
               "}\n"
-              "return 0;}\n", define_read_buffer_empty);
+              "return 0;}\n",
+              get_stream_buffer_pointers_prototype,
+              readBufferEmptyFunction,
+              define_read_buffer_empty);
       if (!compileAndLinkOk(buffer) || doTest() != 1) {
         fprintf(logFile, "\n *** %s does not work.\n",
                 define_read_buffer_empty);
@@ -11445,6 +11451,7 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
     } else {
       fprintf(logFile, "\n *** Could not define macro read_buffer_empty.\n");
     } /* if */
+    fprintf(versionFile, "#define defineReadBufferEmptyFunction %d\n", defineReadBufferEmptyFunction);
     if (define_read_buffer_empty != NULL) {
       fprintf(versionFile, "%s\n", define_read_buffer_empty);
       fprintf(logFile, "\rMacro read_buffer_empty defined.\n");

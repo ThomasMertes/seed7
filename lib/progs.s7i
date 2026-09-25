@@ -116,10 +116,13 @@ const type: singleParseOption is new enum
     TRACE_HEAP_SIZE,       # Trace heap size
     TRACE_MATCH,           # Trace matching expressions
     TRACE_EXECUTIL,        # Trace exec utility functions
+    TRACE_SIGNALS,         # Trace signals
+    HANDLE_SIGNALS,        # Do signal handling
     WRITE_LIBRARY_NAMES,   # Write a list of include libraries
     WRITE_LINE_NUMBERS,    # Write line numbers, while analyzing
     SHOW_IDENT_TABLE,      # Show the identifier table after the analyzing phase
-    SHOW_STATISTICS        # Show compilation statistics
+    SHOW_STATISTICS,       # Show compilation statistics
+    NO_ERROR_LIMIT         # No limit for showing parser errors
   end enum;
 
 const type: parseOptions is set of singleParseOption;

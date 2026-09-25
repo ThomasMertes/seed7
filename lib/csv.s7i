@@ -36,6 +36,7 @@
  *  @param data String array to be converted.
  *  @param separator Separator character to be used in the CSV line.
  *  @return the CSV line created from ta data array.
+ *  @exception RANGE_ERROR If ''separator'' is in {' ', '\n', '\r', '\"'}.
  *)
 const func string: toCsvLine (in array string: data, in char: separator) is func
   result
@@ -44,6 +45,9 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
     var string: field is "";
     var integer: index is 0;
   begin
+    if separator in {' ', '\n', '\r', '\"'} then
+      raise RANGE_ERROR;
+    end if;
     for field key index range data do
       if index <> 1 then
         csvLine &:= separator;
@@ -71,12 +75,13 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
  *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] should be used
  *  instead of a combination of [[file#getln(inout_file)|getln]] and
  *  [[#fromCsvLine(in_string,in_char)|fromCsvLine]]. The function
- *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] allows to read
- *  CSV fields, which contain linefeed characters.
+ *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] supports reading
+ *  CSV fields, which contain linefeed characters (inside a quoted field).
  *  @param csvLine CSV line to be converted.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.
- *  @exception RANGE_ERROR If ''csvLine'' is not in CSV format.
+ *  @exception RANGE_ERROR If ''csvLine'' is not in CSV format, or
+ *                         ''separator'' is in {' ', '\n', '\r', '\"'}.
  *)
 const func array string: fromCsvLine (in string: csvLine, in char: separator) is func
   result
@@ -85,6 +90,9 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
     var integer: pos is 0;
     var string: field is "";
   begin
+    if separator in {' ', '\n', '\r', '\"'} then
+      raise RANGE_ERROR;
+    end if;
     repeat
       field := "";
       incr(pos);
@@ -138,6 +146,8 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  ''separator'' characters, double quotes (") or linefeed characters.
  *  Double quotes inside a double quoted field are represented by doubling
  *  them (e.g.: The double quoted field "a""b" has the value a"b ).
+ *  The function readCsvLine supports reading CSV fields, which contain
+ *  linefeed characters (inside a quoted field).
  *  For UTF-8 encoded CSV files there are two possibilities:
  *  * If the CSV file has been opened with [[utf8#openUtf8(in_string,in_string)|openUtf8]] \
  *    the CSV fields will contain Unicode data.
@@ -148,7 +158,8 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  @param inFile File from which the CSV line is read.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.
- *  @exception RANGE_ERROR If the CSV line is not in CSV format.
+ *  @exception RANGE_ERROR If the CSV line is not in CSV format, or
+ *                         ''separator'' is in {' ', '\n', '\r', '\"'}.
  *)
 const func array string: readCsvLine (inout file: inFile, in char: separator) is func
   result
@@ -157,6 +168,9 @@ const func array string: readCsvLine (inout file: inFile, in char: separator) is
     var char: ch is ' ';
     var string: field is "";
   begin
+    if separator in {' ', '\n', '\r', '\"'} then
+      raise RANGE_ERROR;
+    end if;
     repeat
       ch := getc(inFile);
       field := "";

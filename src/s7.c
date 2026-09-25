@@ -118,6 +118,7 @@ static void writeHelp (void)
     printf("  -d   Equivalent to -da\n");
     printf("  -i   Show the identifier table after the analysis phase.\n");
     printf("  -l   Add a directory to the include library search path (e.g.: -l ../lib).\n");
+    printf("  -n   No limit on the number of errors displayed (default: 10).\n");
     printf("  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
     printf("       statistics are suppressed.\n");
@@ -243,6 +244,23 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
             case 'i':
               option->parserOptions |= SHOW_IDENT_TABLE;
               break;
+            case 'l':
+              if (position < arg_v->max_position - 1) {
+                arg_v->arr[position].value.striValue = NULL;
+                FREE_STRI(opt);
+                position++;
+                opt = arg_v->arr[position].value.striValue;
+                pathObj.value.striValue = stri_to_standard_path(opt);
+                if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
+                  arrPush(&libraryDirs, pathObj.value);
+                } /* if */
+                arg_v->arr[position].value.striValue = NULL;
+                opt = NULL;
+              } /* if */
+              break;
+            case 'n':
+              option->parserOptions |= NO_ERROR_LIMIT;
+              break;
             case 'p':
               if (position < arg_v->max_position - 1) {
                 arg_v->arr[position].value.striValue = NULL;
@@ -273,20 +291,6 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
               break;
             case 'x':
               option->executeAlways = TRUE;
-              break;
-            case 'l':
-              if (position < arg_v->max_position - 1) {
-                arg_v->arr[position].value.striValue = NULL;
-                FREE_STRI(opt);
-                position++;
-                opt = arg_v->arr[position].value.striValue;
-                pathObj.value.striValue = stri_to_standard_path(opt);
-                if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
-                  arrPush(&libraryDirs, pathObj.value);
-                } /* if */
-                arg_v->arr[position].value.striValue = NULL;
-                opt = NULL;
-              } /* if */
               break;
             default:
               if (!error) {
@@ -471,6 +475,8 @@ int main (int argc, char **argv)
                     FREE_STRI(message);
                   } /* if */
                 } /* if */
+              } else if (currentProg == NULL || currentProg->error_count != 0) {
+                returnCode = 1;
               } /* if */
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
               prgDestr(currentProg);

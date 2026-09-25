@@ -446,14 +446,25 @@ static void writeError (fileType errorFile, parseErrorType error)
 
 static void finalizeError (parseErrorType error)
 
-  { /* finalizeError */
+  {
+    striType message;
+
+  /* finalizeError */
     logFunction(printf("finalizeError()\n"););
     appendErrorToProg(error);
     if (prog == NULL) {
       writeError(&stderrFileRecord, error);
       freeError(error);
     } else if (prog->writeErrors) {
-      writeError(prog->errorFile, error);
+      if (prog->error_count <= prog->error_maximum) {
+        writeError(prog->errorFile, error);
+        if (prog->error_count == prog->error_maximum) {
+          copyCStri(&message, "*** Further errors are not shown. Use -n to see all errors.");
+          writeString(prog->errorFile, message);
+          FREE_STRI(message);
+          writeNewline(prog->errorFile);
+        } /* if */
+      } /* if */
     } /* if */
     logFunction(printf("finalizeError() -->\n"););
   } /* finalizeError */

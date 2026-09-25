@@ -63,6 +63,12 @@ const type: ccConfigType is new struct
     var boolean: ALLOW_BSTRITYPE_SLICES       is FALSE;
 
     (**
+     *  TRUE if the actual elements of an array can be stored elsewhere.
+     *  This allows array slices without the need to copy elements.
+     *)
+    var boolean: ALLOW_RTL_ARRAY_SLICES       is FALSE;
+
+    (**
      *  TRUE if right shifts preserve the sign of negative signed integers.
      *  The C standard specifies that the right shift of signed integers is
      *  implementation defined, if the shifted values are negative.
@@ -966,6 +972,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.WITH_RTL_ARRAY_CAPACITY          := boolean(configValue("WITH_RTL_ARRAY_CAPACITY"));
     conf.ALLOW_STRITYPE_SLICES            := boolean(configValue("ALLOW_STRITYPE_SLICES"));
     conf.ALLOW_BSTRITYPE_SLICES           := boolean(configValue("ALLOW_BSTRITYPE_SLICES"));
+    conf.ALLOW_RTL_ARRAY_SLICES           := boolean(configValue("ALLOW_RTL_ARRAY_SLICES"));
     conf.RSHIFT_DOES_SIGN_EXTEND          := boolean(configValue("RSHIFT_DOES_SIGN_EXTEND"));
     conf.TWOS_COMPLEMENT_INTTYPE          := boolean(configValue("TWOS_COMPLEMENT_INTTYPE"));
     conf.LITTLE_ENDIAN_INTTYPE            := boolean(configValue("LITTLE_ENDIAN_INTTYPE"));
@@ -1132,6 +1139,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"WITH_RTL_ARRAY_CAPACITY"}:          conf.WITH_RTL_ARRAY_CAPACITY          := boolean(value);
       when {"ALLOW_STRITYPE_SLICES"}:            conf.ALLOW_STRITYPE_SLICES            := boolean(value);
       when {"ALLOW_BSTRITYPE_SLICES"}:           conf.ALLOW_BSTRITYPE_SLICES           := boolean(value);
+      when {"ALLOW_RTL_ARRAY_SLICES"}:           conf.ALLOW_RTL_ARRAY_SLICES           := boolean(value);
       when {"RSHIFT_DOES_SIGN_EXTEND"}:          conf.RSHIFT_DOES_SIGN_EXTEND          := boolean(value);
       when {"TWOS_COMPLEMENT_INTTYPE"}:          conf.TWOS_COMPLEMENT_INTTYPE          := boolean(value);
       when {"LITTLE_ENDIAN_INTTYPE"}:            conf.LITTLE_ENDIAN_INTTYPE            := boolean(value);

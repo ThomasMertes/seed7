@@ -188,13 +188,14 @@ const func string: applyInternalMacros (in ruleType: rule, in string: stri) is f
 
 const proc: processCommands (in makeDataType: makeData, in ruleType: rule) is func
   local
+    var string: ruleCommand is "";
     var string: command is "";
     var integer: commandStatus is 0;
     var boolean: printCommand is TRUE;
     var boolean: ignoreError is FALSE;
   begin
-    for command range rule.commands do
-      command := applyInternalMacros(rule, command);
+    for ruleCommand range rule.commands do
+      command := applyInternalMacros(rule, ruleCommand);
       printCommand := TRUE;
       ignoreError := FALSE;
       if startsWith(command, "@-") or startsWith(command, "-@") then

@@ -154,7 +154,12 @@ typedef struct rtlArrayStruct {
 #if WITH_RTL_ARRAY_CAPACITY
     memSizeType capacity;
 #endif
+#if ALLOW_RTL_ARRAY_SLICES
+    rtlObjectType *arr;
+    rtlObjectType  arr1[1];
+#else
     rtlObjectType arr[1];
+#endif
   } rtlArrayRecord;
 
 typedef struct rtlStructStruct {

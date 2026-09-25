@@ -45,6 +45,7 @@ const proc: main is func
     writeln("WITH_RTL_ARRAY_CAPACITY:          " <& ccConf.WITH_RTL_ARRAY_CAPACITY);
     writeln("ALLOW_STRITYPE_SLICES:            " <& ccConf.ALLOW_STRITYPE_SLICES);
     writeln("ALLOW_BSTRITYPE_SLICES:           " <& ccConf.ALLOW_BSTRITYPE_SLICES);
+    writeln("ALLOW_RTL_ARRAY_SLICES:           " <& ccConf.ALLOW_RTL_ARRAY_SLICES);
     writeln("RSHIFT_DOES_SIGN_EXTEND:          " <& ccConf.RSHIFT_DOES_SIGN_EXTEND);
     writeln("TWOS_COMPLEMENT_INTTYPE:          " <& ccConf.TWOS_COMPLEMENT_INTTYPE);
     writeln("LITTLE_ENDIAN_INTTYPE:            " <& ccConf.LITTLE_ENDIAN_INTTYPE);

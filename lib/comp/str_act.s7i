@@ -943,6 +943,7 @@ const proc: process (STR_CPY, in reference: function,
     var expr_type: statement is expr_type.value;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
+    var reference: evaluatedParam is NIL;
     var boolean: codeGenerated is FALSE;
   begin
     checkGlobalVariableChange(params[1], c_expr);
@@ -975,12 +976,18 @@ const proc: process (STR_CPY, in reference: function,
         elsif isActionExpression(params[3], "STR_TAIL") and
             getActionParameter(params[3], 1) = params[1] then
           incr(count.optimizations);
-          statement.expr &:= c_param1.expr;
-          statement.expr &:= "=strTailAssign(";
-          statement.expr &:= c_param1.expr;
-          statement.expr &:= ", ";
-          process_expr(getActionParameter(params[3], 3), statement);
-          statement.expr &:= ");\n";
+          if getConstant(getActionParameter(params[3], 3),
+                         INTOBJECT, evaluatedParam) and
+              getValue(evaluatedParam, integer) = 1 then
+            statement.expr &:= "/* Assignment to itself */\n";
+          else
+            statement.expr &:= c_param1.expr;
+            statement.expr &:= "=strTailAssign(";
+            statement.expr &:= c_param1.expr;
+            statement.expr &:= ", ";
+            process_expr(getActionParameter(params[3], 3), statement);
+            statement.expr &:= ");\n";
+          end if;
           codeGenerated := TRUE;
         elsif isActionExpression(params[3], "STR_LOW") and
             getActionParameter(params[3], 1) = params[1] then
@@ -5334,6 +5341,9 @@ const proc: process (STR_TAIL, in reference: function,
       end if;
       c_expr.expr &:= stringLiteral("");
       c_expr.expr &:= ")";
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) and
+          getValue(evaluatedParam, integer) = 1 then
+      process_expr(params[1], c_expr);
     elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);

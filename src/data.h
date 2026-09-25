@@ -453,6 +453,7 @@ typedef struct progStruct {
     boolType writeErrors;
     fileType errorFile;
     unsigned int error_count;
+    unsigned int error_maximum;
     parseErrorType errorList;
     parseErrorType errorListEnd;
     void *includeFileHash;

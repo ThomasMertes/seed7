@@ -38,6 +38,7 @@
 #define WRITE_LINE_NUMBERS    1024
 #define SHOW_IDENT_TABLE      2048
 #define SHOW_STATISTICS       4096
+#define NO_ERROR_LIMIT        8192
 
 typedef struct optionStruct {
     striType          sourceFileArgument;

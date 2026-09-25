@@ -627,30 +627,31 @@ const proc: tarXtract (in string: inFileName) is func
 const proc: tarCreate (inout file: outFile, in string: basePath,
     in string: pathFromBase, in array string: fileList, in boolean: doView) is func
   local
-    var string: name is "";
+    var string: fileName is "";
+    var string: path is "";
     var array string: dirContent is 0 times "";
     var file: aFile is STD_NULL;
     var integer: bytesCopied is 0;
     var tarHeader: header is tarHeader.value;
   begin
-    for name range fileList do
-      name := pathFromBase & name;
-      if fileType(basePath & name) = FILE_ABSENT then
-        writeln("*** The file " <& literal(basePath & name) <& " does not exist.");
+    for fileName range fileList do
+      path := pathFromBase & fileName;
+      if fileType(basePath & path) = FILE_ABSENT then
+        writeln("*** The file " <& literal(basePath & path) <& " does not exist.");
       else
         if doView then
           write("c ");
-          writeln(name);
+          writeln(path);
         end if;
-        if fileType(basePath & name) = FILE_DIR then
-          dirContent := readDir(basePath & name);
-          setUpHead(basePath, name, "/", header);
+        if fileType(basePath & path) = FILE_DIR then
+          dirContent := readDir(basePath & path);
+          setUpHead(basePath, path, "/", header);
           header.typeflag := DIRTYPE;
           writeHead(outFile, header);
-          tarCreate(outFile, basePath, name & "/", dirContent, doView);
+          tarCreate(outFile, basePath, path & "/", dirContent, doView);
         else
-          setUpHead(basePath, name, "", header);
-          aFile := open(basePath & name, "r");
+          setUpHead(basePath, path, "", header);
+          aFile := open(basePath & path, "r");
           if aFile <> STD_NULL then
             header.fileSize := length(aFile);
             writeHead(outFile, header);
@@ -671,45 +672,46 @@ const proc: tarCreate (inout file: outFile, in string: basePath,
 const proc: archiveCreate (inout fileSys: archive, in string: basePath,
     in string: pathFromBase, in array string: fileList, in boolean: doView) is func
   local
-    var string: name is "";
+    var string: fileName is "";
+    var string: path is "";
     var array string: dirContent is 0 times "";
     var boolean: setProperties is FALSE;
     var file: aFile is STD_NULL;
   begin
-    for name range fileList do
-      name := pathFromBase & name;
-      if fileType(basePath & name) = FILE_ABSENT then
-        writeln("*** The file " <& literal(basePath & name) <& " does not exist.");
+    for fileName range fileList do
+      path := pathFromBase & fileName;
+      if fileType(basePath & path) = FILE_ABSENT then
+        writeln("*** The file " <& literal(basePath & path) <& " does not exist.");
       else
         if doView then
           write("c ");
-          writeln(name);
+          writeln(path);
         end if;
         setProperties := TRUE;
-        if fileType(basePath & name) = FILE_DIR then
-          dirContent := readDir(basePath & name);
-          makeDir(archive, name);
-          archiveCreate(archive, basePath, name & "/", dirContent, doView);
+        if fileType(basePath & path) = FILE_DIR then
+          dirContent := readDir(basePath & path);
+          makeDir(archive, path);
+          archiveCreate(archive, basePath, path & "/", dirContent, doView);
         else
-          aFile := open(basePath & name, "r");
+          aFile := open(basePath & path, "r");
           if aFile <> STD_NULL then
-            putFile(archive, name, gets(aFile, integer.last));
+            putFile(archive, path, gets(aFile, integer.last));
             close(aFile);
           else
-            writeln("*** The file " <& literal(basePath & name) <& " is not a regular file.");
+            writeln("*** The file " <& literal(basePath & path) <& " is not a regular file.");
             setProperties := FALSE;
           end if;
         end if;
         if setProperties then
-          setFileMode(archive, name, getFileMode(basePath & name));
-          setMTime(archive, name, getMTime(basePath & name));
+          setFileMode(archive, path, getFileMode(basePath & path));
+          setMTime(archive, path, getMTime(basePath & path));
           block
-            setOwner(archive, name, getOwner(basePath & name));
+            setOwner(archive, path, getOwner(basePath & path));
           exception
             catch RANGE_ERROR: noop;
           end block;
           block
-            setGroup(archive, name, getGroup(basePath & name));
+            setGroup(archive, path, getGroup(basePath & path));
           exception
             catch RANGE_ERROR: noop;
           end block;
