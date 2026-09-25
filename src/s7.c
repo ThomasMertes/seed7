@@ -475,6 +475,8 @@ int main (int argc, char **argv)
                     FREE_STRI(message);
                   } /* if */
                 } /* if */
+              } else if (currentProg == NULL || currentProg->error_count != 0) {
+                returnCode = 1;
               } /* if */
 #if HEAP_STATISTIC_AT_PROGRAM_EXIT
               prgDestr(currentProg);
