@@ -1902,6 +1902,11 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
                   (size_t) ((arr1_size - stop_idx - 1) * sizeof(rtlObjectType)));
           if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
+            /* A realloc, which shrinks memory, usually succeeds. */
+            /* The probability that this code path is executed is */
+            /* probably zero. In case of a failed realloc the     */
+            /* data of arr1 is still intact. The code below       */
+            /* restores the old value of arr1.                    */
             memcpy(&arr1->arr[arr1_size - result_size], result->arr,
                    (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
@@ -2040,8 +2045,9 @@ rtlValueUnion arrRemove (rtlArrayType *arr_to, intType position)
       if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - 1))) {
         /* A realloc, which shrinks memory, usually succeeds. */
         /* The probability that this code path is executed is */
-        /* probably zero. The code below restores the old     */
-        /* value of arr1.                                     */
+        /* probably zero. In case of a failed realloc the     */
+        /* data of arr1 is still intact. The code below       */
+        /* restores the old value of arr1.                    */
         memmove(&array_pointer[position - arr1->min_position + 1],
             &array_pointer[position - arr1->min_position],
             (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
@@ -2133,8 +2139,9 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
         if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
           /* A realloc, which shrinks memory, usually succeeds. */
           /* The probability that this code path is executed is */
-          /* probably zero. The code below restores the old     */
-          /* value of arr1.                                     */
+          /* probably zero. In case of a failed realloc the     */
+          /* data of arr1 is still intact. The code below       */
+          /* restores the old value of arr1.                    */
           memmove(&array_pointer[arrayIndex(arr1, position) + result_size],
                   &array_pointer[arrayIndex(arr1, position)],
                   (arraySize2(position, arr1->max_position) - result_size) * sizeof(rtlObjectType));
