@@ -68,6 +68,8 @@ rtlArrayType arrSort (rtlArrayType arr1, const compareFuncType cmp_func);
 rtlArrayType arrSortReverse (rtlArrayType arr1, const compareFuncType cmp_func);
 rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len);
 rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len);
+rtlArrayType arrSubarrFixLen (const const_rtlArrayType arr1, intType start, intType length);
+rtlArrayType arrSubarrFixLenTemp (rtlArrayType *arr_temp, intType start, intType length);
 rtlArrayType arrTail (const const_rtlArrayType arr1, intType start);
 rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start);
 rtlArrayType arrTimes (intType minPosition, intType maxPosition,

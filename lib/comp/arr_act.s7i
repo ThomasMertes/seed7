@@ -25,36 +25,37 @@
 (********************************************************************)
 
 
-const ACTION: ARR_APPEND       is action "ARR_APPEND";
-const ACTION: ARR_ARRLIT       is action "ARR_ARRLIT";
-const ACTION: ARR_ARRLIT2      is action "ARR_ARRLIT2";
-const ACTION: ARR_ARRLIT3      is action "ARR_ARRLIT3";
-const ACTION: ARR_BASELIT      is action "ARR_BASELIT";
-const ACTION: ARR_BASELIT2     is action "ARR_BASELIT2";
-const ACTION: ARR_BASELIT3     is action "ARR_BASELIT3";
-const ACTION: ARR_CAT          is action "ARR_CAT";
-const ACTION: ARR_CONV         is action "ARR_CONV";
-const ACTION: ARR_CPY          is action "ARR_CPY";
-const ACTION: ARR_CREATE       is action "ARR_CREATE";
-const ACTION: ARR_DESTR        is action "ARR_DESTR";
-const ACTION: ARR_EXTEND       is action "ARR_EXTEND";
-const ACTION: ARR_GEN          is action "ARR_GEN";
-const ACTION: ARR_HEAD         is action "ARR_HEAD";
-const ACTION: ARR_IDX          is action "ARR_IDX";
-const ACTION: ARR_INSERT       is action "ARR_INSERT";
-const ACTION: ARR_INSERT_ARRAY is action "ARR_INSERT_ARRAY";
-const ACTION: ARR_LNG          is action "ARR_LNG";
-const ACTION: ARR_MAXIDX       is action "ARR_MAXIDX";
-const ACTION: ARR_MINIDX       is action "ARR_MINIDX";
-const ACTION: ARR_PUSH         is action "ARR_PUSH";
-const ACTION: ARR_RANGE        is action "ARR_RANGE";
-const ACTION: ARR_REMOVE       is action "ARR_REMOVE";
-const ACTION: ARR_REMOVE_ARRAY is action "ARR_REMOVE_ARRAY";
-const ACTION: ARR_SORT         is action "ARR_SORT";
-const ACTION: ARR_SORT_REVERSE is action "ARR_SORT_REVERSE";
-const ACTION: ARR_SUBARR       is action "ARR_SUBARR";
-const ACTION: ARR_TAIL         is action "ARR_TAIL";
-const ACTION: ARR_TIMES        is action "ARR_TIMES";
+const ACTION: ARR_APPEND        is action "ARR_APPEND";
+const ACTION: ARR_ARRLIT        is action "ARR_ARRLIT";
+const ACTION: ARR_ARRLIT2       is action "ARR_ARRLIT2";
+const ACTION: ARR_ARRLIT3       is action "ARR_ARRLIT3";
+const ACTION: ARR_BASELIT       is action "ARR_BASELIT";
+const ACTION: ARR_BASELIT2      is action "ARR_BASELIT2";
+const ACTION: ARR_BASELIT3      is action "ARR_BASELIT3";
+const ACTION: ARR_CAT           is action "ARR_CAT";
+const ACTION: ARR_CONV          is action "ARR_CONV";
+const ACTION: ARR_CPY           is action "ARR_CPY";
+const ACTION: ARR_CREATE        is action "ARR_CREATE";
+const ACTION: ARR_DESTR         is action "ARR_DESTR";
+const ACTION: ARR_EXTEND        is action "ARR_EXTEND";
+const ACTION: ARR_GEN           is action "ARR_GEN";
+const ACTION: ARR_HEAD          is action "ARR_HEAD";
+const ACTION: ARR_IDX           is action "ARR_IDX";
+const ACTION: ARR_INSERT        is action "ARR_INSERT";
+const ACTION: ARR_INSERT_ARRAY  is action "ARR_INSERT_ARRAY";
+const ACTION: ARR_LNG           is action "ARR_LNG";
+const ACTION: ARR_MAXIDX        is action "ARR_MAXIDX";
+const ACTION: ARR_MINIDX        is action "ARR_MINIDX";
+const ACTION: ARR_PUSH          is action "ARR_PUSH";
+const ACTION: ARR_RANGE         is action "ARR_RANGE";
+const ACTION: ARR_REMOVE        is action "ARR_REMOVE";
+const ACTION: ARR_REMOVE_ARRAY  is action "ARR_REMOVE_ARRAY";
+const ACTION: ARR_SORT          is action "ARR_SORT";
+const ACTION: ARR_SORT_REVERSE  is action "ARR_SORT_REVERSE";
+const ACTION: ARR_SUBARR        is action "ARR_SUBARR";
+const ACTION: ARR_SUBARR_FIXLEN is action "ARR_SUBARR";
+const ACTION: ARR_TAIL          is action "ARR_TAIL";
+const ACTION: ARR_TIMES         is action "ARR_TIMES";
 
 
 const proc: arr_prototypes (inout file: c_prog) is func
@@ -90,6 +91,9 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "void        arrSubarrSlice (const const_arrayType, intType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
+    declareExtern(c_prog, "arrayType   arrSubarrFixLen (const const_arrayType, intType, intType);");
+    declareExtern(c_prog, "void        arrSubarrFixLenSlice (const const_arrayType, intType, intType, arrayType);");
+    declareExtern(c_prog, "arrayType   arrSubarrFixLenTemp (arrayType *, intType, intType);");
     declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");
     declareExtern(c_prog, "void        arrTailSlice (const const_arrayType, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrTailTemp (arrayType *, intType);");
@@ -1870,6 +1874,90 @@ const proc: process (ARR_SUBARR, in reference: function,
       c_expr.result_expr &:= ")";
     else
       c_expr.result_expr := "arrSubarr(";
+      c_expr.result_expr &:= c_param.expr;
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (ARR_SUBARR_FIXLEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param is expr_type.value;
+    var string: slice_name is "";
+    var string: array_name is "";
+  begin
+    param_type := getExprResultType(params[1]);
+    prepare_typed_result(param_type, c_expr);
+    prepareAnyParamTemporarys(params[1], c_param, c_expr);
+    if c_param.result_expr <> "" then
+      c_expr.temp_decls &:= c_param.result_decl;
+      c_expr.temp_frees &:= c_param.result_free;
+      c_expr.temp_to_null &:= c_param.result_to_null;
+      c_expr.result_expr := "(";
+      c_expr.result_expr &:= c_param.result_intro;
+      c_expr.result_expr &:= c_param.result_expr;
+      c_expr.result_expr &:= c_param.result_finish;
+      c_expr.result_expr &:= ", arrSubarrFixLenTemp(&(";
+      c_expr.result_expr &:= c_param.result_name;
+      c_expr.result_expr &:= "), ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "))";
+    elsif ccConf.ALLOW_RTL_ARRAY_SLICES and c_expr.demand < REQUIRE_RESULT then
+      c_expr.expr &:= "(";
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct rtlArrayStruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "arrSubarrFixLenSlice(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+    elsif valueIsAtHeap(typeData.array_element[param_type]) then
+      incr(c_expr.temp_num);
+      array_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "arrayType ";
+      c_expr.temp_decls &:= array_name;
+      c_expr.temp_decls &:= "=NULL;\n";
+      c_expr.temp_frees &:= "if (";
+      c_expr.temp_frees &:= array_name;
+      c_expr.temp_frees &:= " != NULL) {arrFree(";
+      c_expr.temp_frees &:= array_name;
+      c_expr.temp_frees &:= ");}\n";
+      c_expr.temp_to_null &:= array_name;
+      c_expr.temp_to_null &:= "=NULL;\n";
+      c_expr.result_expr := "(";
+      c_expr.result_expr &:= array_name;
+      c_expr.result_expr &:= "=arrSubarrFixLen(";
+      c_expr.result_expr &:= c_param.expr;
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "), ";
+      typeData.typeCategory @:= [param_type] ARRAYOBJECT;
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type, array_name, c_expr.result_expr);
+      c_expr.result_expr &:= ")";
+    else
+      c_expr.result_expr := "arrSubarrFixLen(";
       c_expr.result_expr &:= c_param.expr;
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[3], c_expr);
