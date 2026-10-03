@@ -97,6 +97,11 @@ end struct;
 
 var typeDataStruct: typeData is typeDataStruct.value;
 
+const set of category: simpleValueType is {
+    BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
+    REFOBJECT, STRUCTELEMOBJECT, TYPEOBJECT, ACTENTRYOBJECT,
+    BLOCKOBJECT};
+
 var program: prog is program.EMPTY;
 
 
