@@ -145,6 +145,17 @@ const func type: array (in type: baseType) is func
                                                   (in integer: length) ]      is action "ARR_SUBARR";
 
       (**
+       *  Get a sub array from a ''start'' position with a guaranteed ''length''.
+       *  @return the sub array from the ''start'' position with ''length'' elements.
+       *  @exception INDEX_ERROR The ''length'' is negative, or the ''start'' position
+       *                         is outside of the array, or the sub array from the
+       *                         ''start'' position has less than ''length'' elements.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) fixLen
+                                                  (in integer: length) ]      is action "ARR_SUBARR_FIXLEN";
+
+      (**
        *  Insert ''element'' at ''index'' into ''arr''.
        *  Elements are moved backward to create space for the element to be
        *  inserted. This function is tuned for performance and the movement
