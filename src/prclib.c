@@ -1528,6 +1528,7 @@ objectType prc_local_noop (listType arguments)
       return raise_with_obj_and_args(prog->sys_var[err_info],
                                      proc_exec_object, arguments);
     } else {
+      logFunction(printf("prc_local_noop -->\n"););
       return bld_action_temp(prc_noop);
     } /* if */
   } /* prc_local_noop */
