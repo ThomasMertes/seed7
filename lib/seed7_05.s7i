@@ -80,10 +80,13 @@ const destroyer: destroy (ref type: aValue)                     is action "TYP_D
 const proc: (inout type: dest) := (ref type: source)             is action "TYP_CPY";
 const creator: (ref func proc: dest) ::= (ref ACTION: source)    is action "ACT_CREATE";
 const creator: (ref varfunc proc: dest) ::= (ref ACTION: source) is action "ACT_CREATE";
-const func proc: func begin (ref expr: statements) end func      is action "PRC_BEGIN";
-const func proc: func begin end func                             is action "PRC_BEGIN_NOOP";
+
+const func proc: func begin (ref expr: statements) end func   is action "PRC_BEGIN";
+const func proc: func begin end func                          is action "PRC_BEGIN_NOOP";
 const func proc: func local (ref proc: localDefinitions)
                  begin (ref expr: statements) end func        is action "PRC_LOCAL";
+const func proc: func local (ref proc: localDefinitions)
+                 begin end func                               is action "PRC_LOCAL_NOOP";
 const func proc: return (ref void: statement)                 is action "PRC_RETURN";
 const func proc: return (ref proc: statement)                 is action "PRC_RETURN";
 const creator: (ref creator: dest) ::= (ref proc: source)     is action "PRC_CREATE";
