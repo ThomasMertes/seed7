@@ -685,6 +685,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_SORT",                     arr_sort,                     ARRAYOBJECT,       par_arr},
     { "ARR_SORT_REVERSE",             arr_sort_reverse,             ARRAYOBJECT,       par_arr},
     { "ARR_SUBARR",                   arr_subarr,                   ARRAYOBJECT,       par_arr_op_int_op_int},
+    { "ARR_SUBARR_FIXLEN",            arr_subarr_fixlen,            ARRAYOBJECT,       par_arr_op_int_op_int},
     { "ARR_TAIL",                     arr_tail,                     ARRAYOBJECT,       par_arr_op_int},
     { "ARR_TIMES",                    arr_times,                    ARRAYOBJECT,       par_int_op_any},
 

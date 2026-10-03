@@ -2070,6 +2070,123 @@ objectType arr_subarr (listType arguments)
 
 
 /**
+ *  Get a sub array from a 'start/arg_3' position with a guaranteed 'length/arg_5'.
+ *  @return the sub array from the 'start/arg_3' position with 'length/arg_5' elements.
+ *  @exception INDEX_ERROR The 'length/arg_5' is negative, or the 'start/arg_3' position
+ *                         is outside of the array, or the sub array from the
+ *                         'start/arg_3' position has less than 'length/arg_5' elements.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType arr_subarr_fixlen (listType arguments)
+
+  {
+    arrayType arr1;
+    intType start;
+    intType length;
+    memSizeType arr1_size;
+    memSizeType result_size;
+    memSizeType start_idx;
+    memSizeType stop_idx;
+    objectType array_exec_object;
+    arrayType result;
+
+  /* arr_subarr_fixlen */
+    isit_array(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_5(arguments));
+    arr1 = take_array(arg_1(arguments));
+    start = take_int(arg_3(arguments));
+    length = take_int(arg_5(arguments));
+    logFunction(printf("arr_subarr_fixlen(arr1 (array[" FMT_D " .. "
+                       FMT_D "]), " FMT_D ", " FMT_D ")\n",
+                       arr1->min_position, arr1->max_position,
+                       start, length););
+    if (unlikely(start < arr1->min_position || length < 0 ||
+                 start > arr1->max_position ||
+                 (uintType) length > arraySize2(start, arr1->max_position))) {
+      logError(printf("arr_subarr_fixlen(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
+                      "Start outside of array or not length elements after start.\n",
+                      arr1->min_position, arr1->max_position,
+                      start, length););
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if (length != 0) {
+      arr1_size = arraySize(arr1);
+      start_idx = arrayIndex(arr1, start);
+      result_size = (memSizeType) (uintType) (length);
+      if (start_idx == 0 && TEMP_OBJECT(arg_1(arguments))) {
+        if (result_size == arr1_size) {
+          result = arr1;
+          arg_1(arguments)->value.arrayValue = NULL;
+        } else {
+          array_exec_object = curr_exec_object;
+          destr_array(&arr1->arr[result_size], arr1_size - result_size);
+          if (unlikely(!REALLOC_ARRAY(result, arr1, result_size))) {
+            logError(printf("arr_subarr_fixlen: REALLOC_ARRAY() failed.\n"););
+            return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                           array_exec_object,
+                                           arguments);
+          } else {
+            COUNT3_ARRAY(arr1_size, result_size);
+            result->max_position -= (intType) (arr1_size - result_size);
+            arg_1(arguments)->value.arrayValue = NULL;
+          } /* if */
+        } /* if */
+      } else {
+        if (unlikely(!ALLOC_ARRAY(result, result_size))) {
+          logError(printf("arr_subarr_fixlen: ALLOC_ARRAY() failed.\n"););
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result->min_position = arr1->min_position;
+          result->max_position = arrayMaxPos(arr1->min_position, result_size);
+          stop_idx = arrayIndex(arr1, start + length - 1);
+          if (TEMP_OBJECT(arg_1(arguments))) {
+            memcpy(result->arr, &arr1->arr[start_idx],
+                   (size_t) (result_size * sizeof(objectRecord)));
+            destr_array(arr1->arr, start_idx);
+            destr_array(&arr1->arr[stop_idx + 1], arr1_size - stop_idx - 1);
+            FREE_ARRAY(arr1, arr1_size);
+            arg_1(arguments)->value.arrayValue = NULL;
+          } else {
+            array_exec_object = curr_exec_object;
+            if (unlikely(!crea_array(result->arr,
+                                     &arr1->arr[start_idx],
+                                     result_size))) {
+              logError(printf("arr_subarr_fixlen: crea_array() failed.\n"););
+              FREE_ARRAY(result, result_size);
+              return raise_with_obj_and_args(SYS_MEM_EXCEPTION,
+                                             array_exec_object,
+                                             arguments);
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+      logError(printf("arr_subarr_fixlen(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimum index.\n",
+                      arr1->min_position, arr1->max_position,
+                      start, length););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      emptyArrayType emptyArray;
+
+      if (unlikely(!ALLOC_EMPTY_ARRAY(emptyArray))) {
+        logError(printf("arr_subarr_fixlen: ALLOC_EMPTY_ARRAY() failed.\n"););
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        emptyArray->min_position = arr1->min_position;
+        emptyArray->max_position = arr1->min_position - 1;
+      } /* if */
+      result = (arrayType) emptyArray;
+    } /* if */
+    logFunction(printf("arr_subarr_fixlen -->\n"););
+    return bld_array_temp(result);
+  } /* arr_subarr_fixlen */
+
+
+
+/**
  *  Get a sub array beginning at the position 'start'.
  *  @return the sub array beginning at the start position.
  *  @exception INDEX_ERROR The start position is less than minIdx(arr1).
