@@ -1492,6 +1492,48 @@ objectType prc_local (listType arguments)
 
 
 
+objectType prc_local_noop (listType arguments)
+
+  {
+    objectType local_decls;
+    listType *local_object_insert_place;
+    locListType local_vars;
+    listType local_consts;
+    objectType decl_res;
+    objectType proc_exec_object;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* prc_local_noop */
+    logFunction(printf("prc_local_noop\n"););
+    local_decls = arg_3(arguments);
+    proc_exec_object = curr_exec_object;
+    push_stack();
+    local_object_insert_place = get_local_object_insert_place();
+    decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
+    if (decl_res != SYS_EMPTY_OBJECT) {
+      /* printf("eval local decls --> ");
+      trace1(decl_res);
+      printf("\n");
+      trace1(SYS_EMPTY_OBJECT);
+      printf("\n"); */
+      err_object(PROC_EXPECTED, decl_res);
+    } /* if */
+    local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+    local_consts = get_local_const_list(*local_object_insert_place, &err_info);
+    pop_stack();
+    free_local_consts(local_consts);
+    free_loclist(local_vars);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("prc_local_noop: error - err_info: %d\n", err_info););
+      return raise_with_obj_and_args(prog->sys_var[err_info],
+                                     proc_exec_object, arguments);
+    } else {
+      return bld_action_temp(prc_noop);
+    } /* if */
+  } /* prc_local_noop */
+
+
+
 objectType prc_noop (listType arguments)
 
   { /* prc_noop */

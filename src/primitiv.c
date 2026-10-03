@@ -206,6 +206,7 @@ static const objectCategory p_op_prc_op_bln[]        = {SYMBOLOBJECT, BLOCKOBJEC
 static const objectCategory p_op_prc_op_op_op_prc[]  = {SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_any_op_prc[]        = {SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_op_exp[]            = {SYMBOLOBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_op_prc[]            = {SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_op_prc_op_exp[]     = {SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, EXPROBJECT};
 static const objectCategory p_prg[]                  = {PROGOBJECT};
 static const objectCategory p_prg_prg[]              = {PROGOBJECT, PROGOBJECT};
@@ -491,6 +492,7 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_op_prc_op_op_op_prc  argCountAndArgs(p_op_prc_op_op_op_prc)
 #define par_op_any_op_prc        argCountAndArgs(p_op_any_op_prc)
 #define par_op_op_exp            argCountAndArgs(p_op_op_exp)
+#define par_op_op_prc            argCountAndArgs(p_op_op_prc)
 #define par_op_op_prc_op_exp     argCountAndArgs(p_op_op_prc_op_exp)
 #define par_prg                  argCountAndArgs(p_prg)
 #define par_prg_prg              argCountAndArgs(p_prg_prg)
@@ -1298,6 +1300,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_INCLUDE",                  prc_include,                  VOIDOBJECT,        par_op_str},
     { "PRC_LINE",                     prc_line,                     INTOBJECT,         par_no_args},
     { "PRC_LOCAL",                    prc_local,                    BLOCKOBJECT,       par_op_op_prc_op_exp},
+    { "PRC_LOCAL_NOOP",               prc_local_noop,               BLOCKOBJECT,       par_op_op_prc},
     { "PRC_NOOP",                     prc_noop,                     VOIDOBJECT,        par_no_args},
     { "PRC_RAISE",                    prc_raise,                    VOIDOBJECT,        par_op_enu},
     { "PRC_REPEAT",                   prc_repeat,                   VOIDOBJECT,        par_op_prc_op_bln},
