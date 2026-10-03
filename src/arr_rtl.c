@@ -1704,7 +1704,6 @@ void arrRangeSlice (const const_rtlArrayType arr1, intType start, intType stop,
   {
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
 
   /* arrRangeSlice */
     logFunction(printf("arrRangeSlice(" FMT_U_MEM " (array[" FMT_D " .. "
@@ -1729,8 +1728,7 @@ void arrRangeSlice (const const_rtlArrayType arr1, intType start, intType stop,
       SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
       slice->min_position = arr1->min_position;
       slice->max_position = arrayMaxPos(arr1->min_position, result_size);
-      start_idx = arrayIndex(arr1, start);
-      slice->arr = &arr1->arr[start_idx];
+      slice->arr = &arr1->arr[arrayIndex(arr1, start)];
     } else if (unlikely(stop < start - 1)) {
       logError(printf("arrRangeSlice(arr1 (min_position=" FMT_D "), "
                       FMT_D ", " FMT_D "): "
@@ -1772,7 +1770,6 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
   {
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
     rtlArrayType result;
 
   /* arrRange */
@@ -1801,8 +1798,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
       } else {
         result->min_position = arr1->min_position;
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
-        start_idx = arrayIndex(arr1, start);
-        memcpy(result->arr, &arr1->arr[start_idx],
+        memcpy(result->arr, &arr1->arr[arrayIndex(arr1, start)],
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(stop < start - 1)) {
@@ -2218,7 +2214,6 @@ void arrSubarrSlice (const const_rtlArrayType arr1, intType start, intType lengt
 
   {
     memSizeType arr1_size;
-    memSizeType start_idx;
 
   /* arrSubarrSlice */
     logFunction(printf("arrSubarrSlice(" FMT_U_MEM " (array[" FMT_D " .. "
@@ -2242,13 +2237,13 @@ void arrSubarrSlice (const const_rtlArrayType arr1, intType start, intType lengt
         SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
         slice->min_position = arr1->min_position;
         slice->max_position = arrayMaxPos(arr1->min_position, length);
-        start_idx = arrayIndex(arr1, start);
-        slice->arr = &arr1->arr[start_idx];
+        slice->arr = &arr1->arr[arrayIndex(arr1, start)];
       } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-        logError(printf("arrSubarrSlice(arr1 (size=" FMT_U_MEM "), "
-                        FMT_D ", " FMT_D "): "
+        logError(printf("arrSubarrSlice(arr1 (array[" FMT_D " .. "
+                        FMT_D "]), " FMT_D ", " FMT_D "): "
                         "Cannot create empty array with minimum index.\n",
-                        arr1_size, start, length););
+                        arr1->min_position, arr1->max_position,
+                        start, length););
         raise_error(RANGE_ERROR);
       } else {
         SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
@@ -2280,7 +2275,6 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
   {
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
     rtlArrayType result;
 
   /* arrSubarr */
@@ -2309,15 +2303,15 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
         } else {
           result->min_position = arr1->min_position;
           result->max_position = arrayMaxPos(arr1->min_position, result_size);
-          start_idx = arrayIndex(arr1, start);
-          memcpy(result->arr, &arr1->arr[start_idx],
+          memcpy(result->arr, &arr1->arr[arrayIndex(arr1, start)],
                  (size_t) (result_size * sizeof(rtlObjectType)));
         } /* if */
       } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-        logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), "
-                        FMT_D ", " FMT_D "): "
+        logError(printf("arrSubarr(arr1 (array[" FMT_D " .. "
+                        FMT_D "]), " FMT_D ", " FMT_D "): "
                         "Cannot create empty array with minimum index.\n",
-                        arr1_size, start, length););
+                        arr1->min_position, arr1->max_position,
+                        start, length););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -2419,10 +2413,11 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType lengt
           } /* if */
         } /* if */
       } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-        logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), "
-                        FMT_D ", " FMT_D "): "
+        logError(printf("arrSubarrTemp(arr1 (array[" FMT_D " .. "
+                        FMT_D "]), " FMT_D ", " FMT_D "): "
                         "Cannot create empty array with minimum index.\n",
-                        arr1_size, start, length););
+                        arr1->min_position, arr1->max_position,
+                        start, length););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -2464,7 +2459,6 @@ void arrTailSlice (const const_rtlArrayType arr1, intType start,
   {
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
 
   /* arrTailSlice */
     logFunction(printf("arrTailSlice(" FMT_U_MEM " (array[" FMT_D
@@ -2484,8 +2478,7 @@ void arrTailSlice (const const_rtlArrayType arr1, intType start,
       SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
       slice->min_position = arr1->min_position;
       slice->max_position = arrayMaxPos(arr1->min_position, result_size);
-      start_idx = arrayIndex(arr1, start);
-      slice->arr = &arr1->arr[start_idx];
+      slice->arr = &arr1->arr[arrayIndex(arr1, start)];
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTailSlice(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
@@ -2519,7 +2512,6 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
   {
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
     rtlArrayType result;
 
   /* arrTail */
@@ -2543,8 +2535,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
       } else {
         result->min_position = arr1->min_position;
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
-        start_idx = arrayIndex(arr1, start);
-        memcpy(result->arr, &arr1->arr[start_idx],
+        memcpy(result->arr, &arr1->arr[arrayIndex(arr1, start)],
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
@@ -2587,7 +2578,6 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
     rtlArrayType arr1;
     memSizeType arr1_size;
     memSizeType result_size;
-    memSizeType start_idx;
     rtlArrayType resized_arr1;
     rtlArrayType result;
 
@@ -2623,8 +2613,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
       } else {
         result->min_position = arr1->min_position;
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
-        start_idx = arrayIndex(arr1, start);
-        memcpy(result->arr, &arr1->arr[start_idx],
+        memcpy(result->arr, &arr1->arr[arrayIndex(arr1, start)],
                (size_t) (result_size * sizeof(rtlObjectType)));
         if (unlikely(!REALLOC_RTL_ARRAY(resized_arr1, arr1, arr1_size - result_size))) {
           FREE_RTL_ARRAY(result, result_size);
