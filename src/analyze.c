@@ -342,6 +342,7 @@ static inline void declAny (nodeType objects)
     logFunction(printf("declAny\n"););
     scan_symbol();
     while (symbol.sycategory != STOPSYMBOL && okay) {
+      logMessage(printf("%s:", symbol.name));
       if (current_ident == prog->id_for.dollar) {
         err_info = OKAY_NO_ERROR;
         scan_symbol();
@@ -387,13 +388,7 @@ static inline void declAny (nodeType objects)
             err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
             skip_char(';');
           } /* if */
-          if (match_result != NULL &&
-              (prog->error_count == 0 ||
-               (CATEGORY_OF_OBJ(match_result) == MATCHOBJECT &&
-                match_result->value.listValue != NULL &&
-                match_result->value.listValue->obj != NULL &&
-                CATEGORY_OF_OBJ(match_result->value.listValue->obj) == ACTOBJECT &&
-                match_result->value.listValue->obj->value.actValue == dcl_const))) {
+          if (match_result != NULL) {
             set_fail_flag(FALSE);
             curr_exec_object = NULL;
             evaluate(match_result);
@@ -408,6 +403,7 @@ static inline void declAny (nodeType objects)
           scan_symbol();
         } /* if */
       } /* if */
+      logMessage(printf(" %d\n", fail_flag););
     } /* while */
     logFunction(printf("declAny -->\n"););
   } /* declAny */
