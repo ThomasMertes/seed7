@@ -780,9 +780,11 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
                  (result_size != 0 &&
                   start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
                  (result_size == 0 && start_position == MIN_MEM_INDEX))) {
-      logError(printf("arrArrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
+      logError(printf("arrArrlit2(" FMT_D ", arr1 (array[" FMT_D " .. "
+                      FMT_D "])): "
                       "Minimum or maximum index out of range.\n",
-                      start_position, result_size););
+                      start_position,
+                      arr1->min_position, arr1->max_position););
       raise_error(RANGE_ERROR);
       arr1 = NULL;
     } else {
@@ -818,9 +820,10 @@ rtlArrayType arrArrlit3 (intType minIdx, intType maxIdx, rtlArrayType arr1)
                  maxIdx < minIdx ||
                  result_size != arraySize2(minIdx, maxIdx))) {
       logError(printf("arrArrlit3(" FMT_D ", " FMT_D
-                      ", arr1 (size=" FMT_U_MEM ")): "
+                      ", arr1 (array[" FMT_D " .. " FMT_D "])): "
                       "Minimum or maximum index out of range.\n",
-                      minIdx, maxIdx, result_size););
+                      minIdx, maxIdx,
+                      arr1->min_position, arr1->max_position););
       raise_error(RANGE_ERROR);
       arr1 = NULL;
     } else {
@@ -1131,14 +1134,16 @@ void arrHeadSlice (const const_rtlArrayType arr1, intType stop,
       slice->max_position = stop;
       slice->arr = arr1->arr;
     } else if (unlikely(stop < arr1->min_position - 1)) {
-      logError(printf("arrHeadSlice(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+      logError(printf("arrHeadSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Stop less than pred(minIdx(arr1)).\n",
-                      arr1->min_position, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(INDEX_ERROR);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrHeadSlice(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrHeadSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(RANGE_ERROR);
     } else {
       SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
@@ -1192,15 +1197,17 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(stop < arr1->min_position - 1)) {
-      logError(printf("arrHead(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+      logError(printf("arrHead(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Stop less than pred(minIdx(arr1)).\n",
-                      arr1->min_position, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrHead(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1279,15 +1286,17 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
         } /* if */
       } /* if */
     } else if (unlikely(stop < arr1->min_position - 1)) {
-      logError(printf("arrHeadTemp(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+      logError(printf("arrHeadTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Stop less than pred(minIdx(arr1)).\n",
-                      arr1->min_position, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrHeadTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrHeadTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, stop););
+                      arr1->min_position, arr1->max_position, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1714,10 +1723,11 @@ void arrRangeSlice (const const_rtlArrayType arr1, intType start, intType stop,
                        start, stop););
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
-      logError(printf("arrRangeSlice(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
     } else if (stop >= start && start <= arr1->max_position &&
         stop >= arr1->min_position && arr1_size >= 1) {
@@ -1730,16 +1740,18 @@ void arrRangeSlice (const const_rtlArrayType arr1, intType start, intType stop,
       slice->max_position = arrayMaxPos(arr1->min_position, result_size);
       slice->arr = &arr1->arr[arrayIndex(arr1, start)];
     } else if (unlikely(stop < start - 1)) {
-      logError(printf("arrRangeSlice(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Stop less than start - 1.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrRangeSlice(arr1 (size=" FMT_U_MEM "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(RANGE_ERROR);
     } else {
       SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
@@ -1781,10 +1793,11 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
                        start, stop););
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
-      logError(printf("arrRange(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRange(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (stop >= start && start <= arr1->max_position &&
@@ -1802,17 +1815,19 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(stop < start - 1)) {
-      logError(printf("arrRange(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRange(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Stop less than start - 1.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRange(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1871,10 +1886,11 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
     arr1 = *arr_temp;
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
-      logError(printf("arrRangeTemp(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (stop >= start && start <= arr1->max_position && arr1_size >= 1) {
@@ -1917,17 +1933,19 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
         } /* if */
       } /* if */
     } else if (unlikely(stop < start - 1)) {
-      logError(printf("arrRangeTemp(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Stop less than start - 1.\n",
-                      arr1->min_position, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrRangeTemp(arr1 (size=" FMT_U_MEM "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrRangeTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start, stop););
+                      arr1->min_position, arr1->max_position,
+                      start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -2223,10 +2241,11 @@ void arrSubarrSlice (const const_rtlArrayType arr1, intType start, intType lengt
                        arr1 != NULL ? arr1->max_position : (intType) 0,
                        start, length););
     if (unlikely(start < arr1->min_position || length < 0)) {
-      logError(printf("arrSubarrSlice(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrSubarrSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index or length negative.\n",
-                      arr1->min_position, start, length););
+                      arr1->min_position, arr1->max_position,
+                      start, length););
       raise_error(INDEX_ERROR);
     } else {
       arr1_size = arraySize(arr1);
@@ -2285,10 +2304,11 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
                        arr1 != NULL ? arr1->max_position : (intType) 0,
                        start, length););
     if (unlikely(start < arr1->min_position || length < 0)) {
-      logError(printf("arrSubarr(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrSubarr(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index or length negative.\n",
-                      arr1->min_position, start, length););
+                      arr1->min_position, arr1->max_position,
+                      start, length););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else {
@@ -2370,10 +2390,11 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType lengt
                        start, length););
     arr1 = *arr_temp;
     if (unlikely(start < arr1->min_position || length < 0)) {
-      logError(printf("arrSubarrTemp(arr1 (min_position=" FMT_D "), "
-                      FMT_D ", " FMT_D "): "
+      logError(printf("arrSubarrTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D ", " FMT_D "): "
                       "Start less than minimum array index or length negative.\n",
-                      arr1->min_position, start, length););
+                      arr1->min_position, arr1->max_position,
+                      start, length););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else {
@@ -2469,9 +2490,10 @@ void arrTailSlice (const const_rtlArrayType arr1, intType start,
                        start););
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
-      logError(printf("arrTailSlice(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+      logError(printf("arrTailSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Start less than minIdx(arr1).\n",
-                      arr1->min_position, start););
+                      arr1->min_position, arr1->max_position, start););
       raise_error(INDEX_ERROR);
     } else if (start <= arr1->max_position && arr1_size >= 1) {
       result_size = arraySize2(start, arr1->max_position);
@@ -2480,9 +2502,10 @@ void arrTailSlice (const const_rtlArrayType arr1, intType start,
       slice->max_position = arrayMaxPos(arr1->min_position, result_size);
       slice->arr = &arr1->arr[arrayIndex(arr1, start)];
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrTailSlice(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrTailSlice(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start););
+                      arr1->min_position, arr1->max_position, start););
       raise_error(RANGE_ERROR);
     } else {
       SET_RTL_ARRAY_SLICE_CAPACITY(slice, 0);
@@ -2523,9 +2546,10 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
                        start););
     arr1_size = arraySize(arr1);
     if (unlikely(start < arr1->min_position)) {
-      logError(printf("arrTail(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+      logError(printf("arrTail(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Start less than minIdx(arr1).\n",
-                      arr1->min_position, start););
+                      arr1->min_position, arr1->max_position, start););
       raise_error(INDEX_ERROR);
       result = NULL;
     } else if (start <= arr1->max_position && arr1_size >= 1) {
@@ -2539,9 +2563,10 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrTail(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start););
+                      arr1->min_position, arr1->max_position, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -2597,9 +2622,10 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
     arr1_size = arraySize(arr1);
     if (start <= arr1->min_position) {
       if (unlikely(start < arr1->min_position)) {
-        logError(printf("arrTailTemp(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+        logError(printf("arrTailTemp(arr1 (array[" FMT_D " .. "
+                        FMT_D "]), " FMT_D "): "
                         "Start less than minIdx(arr1).\n",
-                        arr1->min_position, start););
+                        arr1->min_position, arr1->max_position, start););
         raise_error(INDEX_ERROR);
         result = NULL;
       } else {
@@ -2626,9 +2652,10 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
         } /* if */
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrTailTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrTailTemp(arr1 (array[" FMT_D " .. "
+                      FMT_D "]), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      arr1_size, start););
+                      arr1->min_position, arr1->max_position, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
