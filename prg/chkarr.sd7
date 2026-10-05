@@ -7424,39 +7424,39 @@ const func boolean: testSubarr1 is func
     end if;
     if not (checkSubarr(intArr, intArr[1 len 3], 1, 3) and checkSubarr(intArr, intArr[1 len 4], 1, 4) and
             checkSubarr(intArr, intArr[2 len 2], 2, 2) and checkSubarr(intArr, intArr[2 len 3], 2, 3) and
-            checkSubarr(intArr, intArr[5 len 2], 5, 2) and checkSubarr(intArr, intArr[5 len 2], 5, 2) and
-            checkSubarr(intArr, intArr[6 len 1], 6, 1) and checkSubarr(intArr, intArr[6 len 1], 6, 1) and
-            checkSubarr(intArr, intArr[7 len 0], 7, 0) and checkSubarr(intArr, intArr[7 len 0], 7, 0) and
+            checkSubarr(intArr, intArr[5 len 2], 5, 2) and checkSubarr(intArr, intArr[5 len 3], 5, 2) and
+            checkSubarr(intArr, intArr[6 len 1], 6, 1) and checkSubarr(intArr, intArr[6 len 2], 6, 1) and
+            checkSubarr(intArr, intArr[7 len 0], 7, 0) and checkSubarr(intArr, intArr[7 len 1], 7, 0) and
             checkSubarr(intArr, intArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(intArr, intArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(intArr, intArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(intArr, intArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(intArr, intArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(intArr, intArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(intArr, intArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(intArr, intArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(intArr, intArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(intArr, intArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(intArr, intArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(intArr, intArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(intArr, intArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(intArr, intArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(intArr, intArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(intArr, intArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(intArr, intArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(intArr, intArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(intArr, intArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(intArr, intArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(intArr, intArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(intArr, intArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(intArr, intArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(intArr, intArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(intArr, intArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(intArr, intArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(intArr, intArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(intArr, intArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(intArr, intArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(intArr, intArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(intArr, intArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(intArr, intArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(intArr, intArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(intArr, intArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(intArr, intArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(intArr, intArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(intArr, intArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(intArr, intArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(intArr, intArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for integer array failed. (16)");
       okay := FALSE;
     end if;
@@ -7561,39 +7561,39 @@ const func boolean: testSubarr1 is func
     end if;
     if not (checkSubarr(bigArr, bigArr[1 len 3], 1, 3) and checkSubarr(bigArr, bigArr[1 len 4], 1, 4) and
             checkSubarr(bigArr, bigArr[2 len 2], 2, 2) and checkSubarr(bigArr, bigArr[2 len 3], 2, 3) and
-            checkSubarr(bigArr, bigArr[5 len 2], 5, 2) and checkSubarr(bigArr, bigArr[5 len 2], 5, 2) and
-            checkSubarr(bigArr, bigArr[6 len 1], 6, 1) and checkSubarr(bigArr, bigArr[6 len 1], 6, 1) and
-            checkSubarr(bigArr, bigArr[7 len 0], 7, 0) and checkSubarr(bigArr, bigArr[7 len 0], 7, 0) and
+            checkSubarr(bigArr, bigArr[5 len 2], 5, 2) and checkSubarr(bigArr, bigArr[5 len 3], 5, 2) and
+            checkSubarr(bigArr, bigArr[6 len 1], 6, 1) and checkSubarr(bigArr, bigArr[6 len 2], 6, 1) and
+            checkSubarr(bigArr, bigArr[7 len 0], 7, 0) and checkSubarr(bigArr, bigArr[7 len 1], 7, 0) and
             checkSubarr(bigArr, bigArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(bigArr, bigArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(bigArr, bigArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(bigArr, bigArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(bigArr, bigArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(bigArr, bigArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(bigArr, bigArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(bigArr, bigArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(bigArr, bigArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(bigArr, bigArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(bigArr, bigArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(bigArr, bigArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(bigArr, bigArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(bigArr, bigArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(bigArr, bigArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(bigArr, bigArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(bigArr, bigArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(bigArr, bigArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(bigArr, bigArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(bigArr, bigArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(bigArr, bigArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(bigArr, bigArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(bigArr, bigArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(bigArr, bigArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(bigArr, bigArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(bigArr, bigArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(bigArr, bigArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(bigArr, bigArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(bigArr, bigArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(bigArr, bigArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(bigArr, bigArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(bigArr, bigArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(bigArr, bigArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(bigArr, bigArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(bigArr, bigArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(bigArr, bigArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(bigArr, bigArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(bigArr, bigArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(bigArr, bigArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for bigInteger array failed. (16)");
       okay := FALSE;
     end if;
@@ -7711,39 +7711,39 @@ const func boolean: testSubarr2 is func
     end if;
     if not (checkSubarr(fltArr, fltArr[1 len 3], 1, 3) and checkSubarr(fltArr, fltArr[1 len 4], 1, 4) and
             checkSubarr(fltArr, fltArr[2 len 2], 2, 2) and checkSubarr(fltArr, fltArr[2 len 3], 2, 3) and
-            checkSubarr(fltArr, fltArr[5 len 2], 5, 2) and checkSubarr(fltArr, fltArr[5 len 2], 5, 2) and
-            checkSubarr(fltArr, fltArr[6 len 1], 6, 1) and checkSubarr(fltArr, fltArr[6 len 1], 6, 1) and
-            checkSubarr(fltArr, fltArr[7 len 0], 7, 0) and checkSubarr(fltArr, fltArr[7 len 0], 7, 0) and
+            checkSubarr(fltArr, fltArr[5 len 2], 5, 2) and checkSubarr(fltArr, fltArr[5 len 3], 5, 2) and
+            checkSubarr(fltArr, fltArr[6 len 1], 6, 1) and checkSubarr(fltArr, fltArr[6 len 2], 6, 1) and
+            checkSubarr(fltArr, fltArr[7 len 0], 7, 0) and checkSubarr(fltArr, fltArr[7 len 1], 7, 0) and
             checkSubarr(fltArr, fltArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(fltArr, fltArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(fltArr, fltArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(fltArr, fltArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(fltArr, fltArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(fltArr, fltArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(fltArr, fltArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(fltArr, fltArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(fltArr, fltArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(fltArr, fltArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(fltArr, fltArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(fltArr, fltArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(fltArr, fltArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(fltArr, fltArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(fltArr, fltArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(fltArr, fltArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(fltArr, fltArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(fltArr, fltArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(fltArr, fltArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(fltArr, fltArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(fltArr, fltArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(fltArr, fltArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(fltArr, fltArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(fltArr, fltArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(fltArr, fltArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(fltArr, fltArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(fltArr, fltArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(fltArr, fltArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(fltArr, fltArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(fltArr, fltArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(fltArr, fltArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(fltArr, fltArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(fltArr, fltArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(fltArr, fltArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(fltArr, fltArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(fltArr, fltArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(fltArr, fltArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(fltArr, fltArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(fltArr, fltArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for float array failed. (16)");
       okay := FALSE;
     end if;
@@ -7859,39 +7859,39 @@ const func boolean: testSubarr2 is func
     end if;
     if not (checkSubarr(cpxArr, cpxArr[1 len 3], 1, 3) and checkSubarr(cpxArr, cpxArr[1 len 4], 1, 4) and
             checkSubarr(cpxArr, cpxArr[2 len 2], 2, 2) and checkSubarr(cpxArr, cpxArr[2 len 3], 2, 3) and
-            checkSubarr(cpxArr, cpxArr[5 len 2], 5, 2) and checkSubarr(cpxArr, cpxArr[5 len 2], 5, 2) and
-            checkSubarr(cpxArr, cpxArr[6 len 1], 6, 1) and checkSubarr(cpxArr, cpxArr[6 len 1], 6, 1) and
-            checkSubarr(cpxArr, cpxArr[7 len 0], 7, 0) and checkSubarr(cpxArr, cpxArr[7 len 0], 7, 0) and
+            checkSubarr(cpxArr, cpxArr[5 len 2], 5, 2) and checkSubarr(cpxArr, cpxArr[5 len 3], 5, 2) and
+            checkSubarr(cpxArr, cpxArr[6 len 1], 6, 1) and checkSubarr(cpxArr, cpxArr[6 len 2], 6, 1) and
+            checkSubarr(cpxArr, cpxArr[7 len 0], 7, 0) and checkSubarr(cpxArr, cpxArr[7 len 1], 7, 0) and
             checkSubarr(cpxArr, cpxArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(cpxArr, cpxArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(cpxArr, cpxArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(cpxArr, cpxArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(cpxArr, cpxArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(cpxArr, cpxArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(cpxArr, cpxArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(cpxArr, cpxArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(cpxArr, cpxArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(cpxArr, cpxArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(cpxArr, cpxArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(cpxArr, cpxArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(cpxArr, cpxArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(cpxArr, cpxArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(cpxArr, cpxArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(cpxArr, cpxArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(cpxArr, cpxArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(cpxArr, cpxArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(cpxArr, cpxArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(cpxArr, cpxArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(cpxArr, cpxArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(cpxArr, cpxArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(cpxArr, cpxArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(cpxArr, cpxArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(cpxArr, cpxArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(cpxArr, cpxArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(cpxArr, cpxArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(cpxArr, cpxArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(cpxArr, cpxArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(cpxArr, cpxArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(cpxArr, cpxArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(cpxArr, cpxArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(cpxArr, cpxArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(cpxArr, cpxArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(cpxArr, cpxArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(cpxArr, cpxArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(cpxArr, cpxArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(cpxArr, cpxArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(cpxArr, cpxArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for complex array failed. (16)");
       okay := FALSE;
     end if;
@@ -8010,39 +8010,39 @@ const func boolean: testSubarr3 is func
     end if;
     if not (checkSubarr(chrArr, chrArr[1 len 3], 1, 3) and checkSubarr(chrArr, chrArr[1 len 4], 1, 4) and
             checkSubarr(chrArr, chrArr[2 len 2], 2, 2) and checkSubarr(chrArr, chrArr[2 len 3], 2, 3) and
-            checkSubarr(chrArr, chrArr[5 len 2], 5, 2) and checkSubarr(chrArr, chrArr[5 len 2], 5, 2) and
-            checkSubarr(chrArr, chrArr[6 len 1], 6, 1) and checkSubarr(chrArr, chrArr[6 len 1], 6, 1) and
-            checkSubarr(chrArr, chrArr[7 len 0], 7, 0) and checkSubarr(chrArr, chrArr[7 len 0], 7, 0) and
+            checkSubarr(chrArr, chrArr[5 len 2], 5, 2) and checkSubarr(chrArr, chrArr[5 len 3], 5, 2) and
+            checkSubarr(chrArr, chrArr[6 len 1], 6, 1) and checkSubarr(chrArr, chrArr[6 len 2], 6, 1) and
+            checkSubarr(chrArr, chrArr[7 len 0], 7, 0) and checkSubarr(chrArr, chrArr[7 len 1], 7, 0) and
             checkSubarr(chrArr, chrArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(chrArr, chrArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(chrArr, chrArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(chrArr, chrArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(chrArr, chrArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(chrArr, chrArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(chrArr, chrArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(chrArr, chrArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(chrArr, chrArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(chrArr, chrArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(chrArr, chrArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(chrArr, chrArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(chrArr, chrArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(chrArr, chrArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(chrArr, chrArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(chrArr, chrArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(chrArr, chrArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(chrArr, chrArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(chrArr, chrArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(chrArr, chrArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(chrArr, chrArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(chrArr, chrArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(chrArr, chrArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(chrArr, chrArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(chrArr, chrArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(chrArr, chrArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(chrArr, chrArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(chrArr, chrArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(chrArr, chrArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(chrArr, chrArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(chrArr, chrArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(chrArr, chrArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(chrArr, chrArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(chrArr, chrArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(chrArr, chrArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(chrArr, chrArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(chrArr, chrArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(chrArr, chrArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(chrArr, chrArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for char array failed. (16)");
       okay := FALSE;
     end if;
@@ -8152,39 +8152,39 @@ const func boolean: testSubarr3 is func
     end if;
     if not (checkSubarr(strArr, strArr[1 len 3], 1, 3) and checkSubarr(strArr, strArr[1 len 4], 1, 4) and
             checkSubarr(strArr, strArr[2 len 2], 2, 2) and checkSubarr(strArr, strArr[2 len 3], 2, 3) and
-            checkSubarr(strArr, strArr[5 len 2], 5, 2) and checkSubarr(strArr, strArr[5 len 2], 5, 2) and
-            checkSubarr(strArr, strArr[6 len 1], 6, 1) and checkSubarr(strArr, strArr[6 len 1], 6, 1) and
-            checkSubarr(strArr, strArr[7 len 0], 7, 0) and checkSubarr(strArr, strArr[7 len 0], 7, 0) and
+            checkSubarr(strArr, strArr[5 len 2], 5, 2) and checkSubarr(strArr, strArr[5 len 3], 5, 2) and
+            checkSubarr(strArr, strArr[6 len 1], 6, 1) and checkSubarr(strArr, strArr[6 len 2], 6, 1) and
+            checkSubarr(strArr, strArr[7 len 0], 7, 0) and checkSubarr(strArr, strArr[7 len 1], 7, 0) and
             checkSubarr(strArr, strArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(strArr, strArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(strArr, strArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(strArr, strArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(strArr, strArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(strArr, strArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(strArr, strArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(strArr, strArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(strArr, strArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(strArr, strArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(strArr, strArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(strArr, strArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(strArr, strArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(strArr, strArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(strArr, strArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(strArr, strArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(strArr, strArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(strArr, strArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(strArr, strArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(strArr, strArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(strArr, strArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(strArr, strArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(strArr, strArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(strArr, strArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(strArr, strArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(strArr, strArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(strArr, strArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(strArr, strArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(strArr, strArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(strArr, strArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(strArr, strArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(strArr, strArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(strArr, strArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(strArr, strArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(strArr, strArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(strArr, strArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(strArr, strArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(strArr, strArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(strArr, strArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for string array failed. (16)");
       okay := FALSE;
     end if;
@@ -8313,39 +8313,39 @@ const func boolean: testSubarr4 is func
     end if;
     if not (checkSubarr(bstArr, bstArr[1 len 3], 1, 3) and checkSubarr(bstArr, bstArr[1 len 4], 1, 4) and
             checkSubarr(bstArr, bstArr[2 len 2], 2, 2) and checkSubarr(bstArr, bstArr[2 len 3], 2, 3) and
-            checkSubarr(bstArr, bstArr[5 len 2], 5, 2) and checkSubarr(bstArr, bstArr[5 len 2], 5, 2) and
-            checkSubarr(bstArr, bstArr[6 len 1], 6, 1) and checkSubarr(bstArr, bstArr[6 len 1], 6, 1) and
-            checkSubarr(bstArr, bstArr[7 len 0], 7, 0) and checkSubarr(bstArr, bstArr[7 len 0], 7, 0) and
+            checkSubarr(bstArr, bstArr[5 len 2], 5, 2) and checkSubarr(bstArr, bstArr[5 len 3], 5, 2) and
+            checkSubarr(bstArr, bstArr[6 len 1], 6, 1) and checkSubarr(bstArr, bstArr[6 len 2], 6, 1) and
+            checkSubarr(bstArr, bstArr[7 len 0], 7, 0) and checkSubarr(bstArr, bstArr[7 len 1], 7, 0) and
             checkSubarr(bstArr, bstArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(bstArr, bstArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(bstArr, bstArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(bstArr, bstArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(bstArr, bstArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(bstArr, bstArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(bstArr, bstArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(bstArr, bstArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(bstArr, bstArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(bstArr, bstArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(bstArr, bstArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(bstArr, bstArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(bstArr, bstArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(bstArr, bstArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(bstArr, bstArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(bstArr, bstArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(bstArr, bstArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(bstArr, bstArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(bstArr, bstArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(bstArr, bstArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(bstArr, bstArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(bstArr, bstArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(bstArr, bstArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(bstArr, bstArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(bstArr, bstArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(bstArr, bstArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(bstArr, bstArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(bstArr, bstArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(bstArr, bstArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(bstArr, bstArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(bstArr, bstArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(bstArr, bstArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(bstArr, bstArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(bstArr, bstArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(bstArr, bstArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(bstArr, bstArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(bstArr, bstArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(bstArr, bstArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(bstArr, bstArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for bstring array failed. (16)");
       okay := FALSE;
     end if;
@@ -8457,39 +8457,39 @@ const func boolean: testSubarr4 is func
     end if;
     if not (checkSubarr(setArr, setArr[1 len 3], 1, 3) and checkSubarr(setArr, setArr[1 len 4], 1, 4) and
             checkSubarr(setArr, setArr[2 len 2], 2, 2) and checkSubarr(setArr, setArr[2 len 3], 2, 3) and
-            checkSubarr(setArr, setArr[5 len 2], 5, 2) and checkSubarr(setArr, setArr[5 len 2], 5, 2) and
-            checkSubarr(setArr, setArr[6 len 1], 6, 1) and checkSubarr(setArr, setArr[6 len 1], 6, 1) and
-            checkSubarr(setArr, setArr[7 len 0], 7, 0) and checkSubarr(setArr, setArr[7 len 0], 7, 0) and
+            checkSubarr(setArr, setArr[5 len 2], 5, 2) and checkSubarr(setArr, setArr[5 len 3], 5, 2) and
+            checkSubarr(setArr, setArr[6 len 1], 6, 1) and checkSubarr(setArr, setArr[6 len 2], 6, 1) and
+            checkSubarr(setArr, setArr[7 len 0], 7, 0) and checkSubarr(setArr, setArr[7 len 1], 7, 0) and
             checkSubarr(setArr, setArr[1 len intExpr(3)], 1, 3) and
             checkSubarr(setArr, setArr[1 len intExpr(4)], 1, 4) and
             checkSubarr(setArr, setArr[2 len intExpr(2)], 2, 2) and
             checkSubarr(setArr, setArr[2 len intExpr(3)], 2, 3) and
             checkSubarr(setArr, setArr[5 len intExpr(2)], 5, 2) and
-            checkSubarr(setArr, setArr[5 len intExpr(2)], 5, 2) and
+            checkSubarr(setArr, setArr[5 len intExpr(3)], 5, 2) and
             checkSubarr(setArr, setArr[6 len intExpr(1)], 6, 1) and
-            checkSubarr(setArr, setArr[6 len intExpr(1)], 6, 1) and
+            checkSubarr(setArr, setArr[6 len intExpr(2)], 6, 1) and
             checkSubarr(setArr, setArr[7 len intExpr(0)], 7, 0) and
-            checkSubarr(setArr, setArr[7 len intExpr(0)], 7, 0) and
+            checkSubarr(setArr, setArr[7 len intExpr(1)], 7, 0) and
             checkSubarr(setArr, setArr[intExpr(1) len 3], 1, 3) and
             checkSubarr(setArr, setArr[intExpr(1) len 4], 1, 4) and
             checkSubarr(setArr, setArr[intExpr(2) len 2], 2, 2) and
             checkSubarr(setArr, setArr[intExpr(2) len 3], 2, 3) and
             checkSubarr(setArr, setArr[intExpr(5) len 2], 5, 2) and
-            checkSubarr(setArr, setArr[intExpr(5) len 2], 5, 2) and
+            checkSubarr(setArr, setArr[intExpr(5) len 3], 5, 2) and
             checkSubarr(setArr, setArr[intExpr(6) len 1], 6, 1) and
-            checkSubarr(setArr, setArr[intExpr(6) len 1], 6, 1) and
+            checkSubarr(setArr, setArr[intExpr(6) len 2], 6, 1) and
             checkSubarr(setArr, setArr[intExpr(7) len 0], 7, 0) and
-            checkSubarr(setArr, setArr[intExpr(7) len 0], 7, 0) and
+            checkSubarr(setArr, setArr[intExpr(7) len 1], 7, 0) and
             checkSubarr(setArr, setArr[intExpr(1) len intExpr(3)], 1, 3) and
             checkSubarr(setArr, setArr[intExpr(1) len intExpr(4)], 1, 4) and
             checkSubarr(setArr, setArr[intExpr(2) len intExpr(2)], 2, 2) and
             checkSubarr(setArr, setArr[intExpr(2) len intExpr(3)], 2, 3) and
             checkSubarr(setArr, setArr[intExpr(5) len intExpr(2)], 5, 2) and
-            checkSubarr(setArr, setArr[intExpr(5) len intExpr(2)], 5, 2) and
+            checkSubarr(setArr, setArr[intExpr(5) len intExpr(3)], 5, 2) and
             checkSubarr(setArr, setArr[intExpr(6) len intExpr(1)], 6, 1) and
-            checkSubarr(setArr, setArr[intExpr(6) len intExpr(1)], 6, 1) and
+            checkSubarr(setArr, setArr[intExpr(6) len intExpr(2)], 6, 1) and
             checkSubarr(setArr, setArr[intExpr(7) len intExpr(0)], 7, 0) and
-            checkSubarr(setArr, setArr[intExpr(7) len intExpr(0)], 7, 0)) then
+            checkSubarr(setArr, setArr[intExpr(7) len intExpr(1)], 7, 0)) then
       writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (16)");
       okay := FALSE;
     end if;
