@@ -9027,6 +9027,7 @@ const func boolean: testSubarrFixLen1 is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for integer array failed. (13)");
       okay := FALSE;
     end if;
+    intArr := intArr[1 fixLen intExpr(9)];
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7, 8, 9) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for integer array failed. (14)");
       okay := FALSE;
@@ -9522,6 +9523,7 @@ const func boolean: testSubarrFixLen2 is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for bigInteger array failed. (13)");
       okay := FALSE;
     end if;
+    bigArr := bigArr[1 fixLen intExpr(9)];
     if bigArr <> [] (1_, 2_, 3_, 4_, 5_, 6_, 7_, 8_, 9_) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for bigInteger array failed. (14)");
       okay := FALSE;
@@ -10017,6 +10019,7 @@ const func boolean: testSubarrFixLen3 is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for float array failed. (13)");
       okay := FALSE;
     end if;
+    fltArr := fltArr[1 fixLen intExpr(9)];
     if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for float array failed. (14)");
       okay := FALSE;
