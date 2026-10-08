@@ -76,6 +76,37 @@ typedef struct preparedStmtStruct {
 
 
 /**
+ *  Determine the number of rows affected by the last query.
+ *  @param sqlStatement Statement which was executed.
+ *  @return the number of rows affected.
+ */
+intType sqlAffectedRows (sqlStmtType sqlStatement)
+
+  {
+    intType value;
+
+  /* sqlAffectedRows */
+    logFunction(printf("sqlAffectedRows(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    if (unlikely(sqlStatement == NULL)) {
+      value = 0;
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlAffectedRows == NULL)) {
+      dbNoFuncPtr("sqlAffectedRows");
+      logError(printf("sqlAffectedRows(" FMT_U_MEM "): "
+                      "Function pointer missing.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
+      value = 0;
+    } else {
+      value = ((preparedStmtType) sqlStatement)->sqlFunc->sqlAffectedRows(sqlStatement);
+    } /* if */
+    logFunction(printf("sqlAffectedRows --> " FMT_D "\n", value););
+    return value;
+  } /* sqlAffectedRows */
+
+
+/**
  *  Bind a bigInteger parameter to a prepared SQL statement.
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).

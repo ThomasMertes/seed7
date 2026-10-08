@@ -25,6 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
+objectType sql_affected_rows     (listType arguments);
 objectType sql_bind_bigint       (listType arguments);
 objectType sql_bind_bigrat       (listType arguments);
 objectType sql_bind_bool         (listType arguments);
