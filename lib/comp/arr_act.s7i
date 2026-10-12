@@ -46,6 +46,7 @@ const ACTION: ARR_INSERT_ARRAY  is action "ARR_INSERT_ARRAY";
 const ACTION: ARR_LNG           is action "ARR_LNG";
 const ACTION: ARR_MAXIDX        is action "ARR_MAXIDX";
 const ACTION: ARR_MINIDX        is action "ARR_MINIDX";
+const ACTION: ARR_POSCPY        is action "ARR_POSCPY";
 const ACTION: ARR_PUSH          is action "ARR_PUSH";
 const ACTION: ARR_RANGE         is action "ARR_RANGE";
 const ACTION: ARR_REMOVE        is action "ARR_REMOVE";
@@ -79,6 +80,7 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        arrInsertArray (arrayType *, intType, arrayType);");
     declareExtern(c_prog, "void        arrInsertArrayTemp (arrayType *, intType, arrayType);");
     declareExtern(c_prog, "arrayType   arrMalloc (intType, intType);");
+    declareExtern(c_prog, "void        arrPoscpy (const arrayType, intType, const const_arrayType);");
     declareExtern(c_prog, "void        arrPush (arrayType *const, const rtlValueUnion);");
     declareExtern(c_prog, "arrayType   arrRange (const const_arrayType, intType, intType);");
     declareExtern(c_prog, "void        arrRangeSlice (const const_arrayType, intType, intType, arrayType);");
@@ -1600,6 +1602,748 @@ const proc: process (ARR_MINIDX, in reference: function,
         getAnyParamToExpr(params[1], c_expr);
         c_expr.expr &:= ")->min_position";
       end if;
+    end if;
+  end func;
+
+
+const func string: checkDestPos0 (in string: destName, in string: destPosName,
+    in intRange: destPosRange, in type: destArrayType) is func
+
+  result
+    var string: checkExpr is "";
+  local
+    var integer: MAX_MEM_INDEX is integer.last;
+  begin
+    if ccConf.POINTER_SIZE = 32 then
+      MAX_MEM_INDEX := 2 ** 31 - 1;
+    end if;
+    if destArrayType not in typeData.array_minIdx or
+        destPosRange.minValue < typeData.array_minIdx[destArrayType] then
+      checkExpr &:= destPosName;
+      checkExpr &:= "<";
+      if destArrayType in typeData.array_minIdx then
+        checkExpr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+      else
+        checkExpr &:= destName;
+        checkExpr &:= "->min_position";
+      end if;
+    end if;
+    if destArrayType not in typeData.array_maxIdx or
+        (typeData.array_maxIdx[destArrayType] <> integer.last and
+         destPosRange.maxValue > succ(typeData.array_maxIdx[destArrayType]))  then
+      if checkExpr <> "" then
+        checkExpr &:= " || ";
+      end if;
+      if destArrayType in typeData.array_maxIdx then
+        checkExpr &:= destPosName;
+        checkExpr &:= ">";
+        checkExpr &:= integerLiteral(succ(typeData.array_maxIdx[destArrayType]));
+      else
+        checkExpr &:= "(";
+        checkExpr &:= destName;
+        checkExpr &:= "->max_position";
+        checkExpr &:= " != ";
+        checkExpr &:= integerLiteral(integer.last);
+        checkExpr &:= " && ";
+        checkExpr &:= destPosName;
+        checkExpr &:= ">";
+        checkExpr &:= destName;
+        checkExpr &:= "->max_position";
+        checkExpr &:= " + 1)";
+      end if;
+    end if;
+  end func;
+
+
+const func string: checkDestPos (in string: destName, in string: destPosName,
+    in intRange: destPosRange, in type: destArrayType) is func
+
+  result
+    var string: checkExpr is "";
+  begin
+    if destArrayType not in typeData.array_minIdx or
+        destPosRange.minValue < typeData.array_minIdx[destArrayType] then
+      checkExpr &:= destPosName;
+      checkExpr &:= "<";
+      if destArrayType in typeData.array_minIdx then
+        checkExpr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+      else
+        checkExpr &:= destName;
+        checkExpr &:= "->min_position";
+      end if;
+    end if;
+    if destArrayType not in typeData.array_maxIdx or
+        destPosRange.maxValue > typeData.array_maxIdx[destArrayType] then
+      if checkExpr <> "" then
+        checkExpr &:= " || ";
+      end if;
+      checkExpr &:= destPosName;
+      checkExpr &:= ">";
+      if destArrayType in typeData.array_maxIdx then
+        checkExpr &:= integerLiteral(typeData.array_maxIdx[destArrayType]);
+      else
+        checkExpr &:= destName;
+        checkExpr &:= "->max_position";
+      end if;
+    end if;
+  end func;
+
+
+const func string: checkDestPos (in string: destName,
+    in boolean: sourceLenIsVariable, in integer: sourceLenValue,
+    in string: sourceLenName, in boolean: destPosIsVariable,
+    in integer: destPosValue, in string: destPosName,
+    in type: destArrayType) is func
+
+  result
+    var string: checkExpr is "";
+  begin
+    if not sourceLenIsVariable and not destPosIsVariable and
+        destPosValue <= integer.last - sourceLenValue and
+        destPosValue <> integer.first then
+      checkExpr &:= integerLiteral(pred(sourceLenValue + destPosValue));
+      checkExpr &:= ">";
+      if destArrayType in typeData.array_maxIdx then
+        checkExpr &:= integerLiteral(typeData.array_maxIdx[destArrayType]);
+      else
+        checkExpr &:= destName;
+        checkExpr &:= "->max_position";
+      end if;
+    else
+      if not sourceLenIsVariable then
+        checkExpr &:= integerLiteral(pred(sourceLenValue));
+      else
+        checkExpr &:= sourceLenName;
+        checkExpr &:= "-1";
+      end if;
+      checkExpr &:= ">";
+      if destArrayType in typeData.array_maxIdx then
+        checkExpr &:= integerLiteral(typeData.array_maxIdx[destArrayType]);
+      else
+        checkExpr &:= destName;
+        checkExpr &:= "->max_position";
+      end if;
+      checkExpr &:= " - ";
+      checkExpr &:= destPosName;
+    end if;
+  end func;
+
+
+const func string: checkDestPos (in string: destName, in string: destPosName,
+    in intRange: destPosRange, in type: destArrayType, in integer: sourceLen) is func
+
+  result
+    var string: checkExpr is "";
+  begin
+    checkExpr :=  checkDestPos(destName, destPosName, destPosRange, destArrayType);
+    if checkExpr <> "" then
+      checkExpr &:= " || ";
+    end if;
+    checkExpr &:= integerLiteral(pred(sourceLen));
+    checkExpr &:= ">";
+    if destArrayType in typeData.array_maxIdx then
+      checkExpr &:= integerLiteral(typeData.array_maxIdx[destArrayType]);
+    else
+      checkExpr &:= destName;
+      checkExpr &:= "->max_position";
+    end if;
+    checkExpr &:= " - ";
+    checkExpr &:= destPosName;
+  end func;
+
+
+const func string: checkDestPos (in string: destName, in string: destPosName,
+    in intRange: destPosRange, in type: destArrayType, in string: sourceLenName) is func
+
+  result
+    var string: checkExpr is "";
+  begin
+    checkExpr :=  checkDestPos(destName, destPosName, destPosRange, destArrayType);
+    if checkExpr <> "" then
+      checkExpr &:= " || ";
+    end if;
+    checkExpr &:= sourceLenName;
+    checkExpr &:= "-1>";
+    if destArrayType in typeData.array_maxIdx then
+      checkExpr &:= integerLiteral(typeData.array_maxIdx[destArrayType]);
+    else
+      checkExpr &:= destName;
+      checkExpr &:= "->max_position";
+    end if;
+    checkExpr &:= " - ";
+    checkExpr &:= destPosName;
+  end func;
+
+
+const func string: defineSourceLenName (in string: sourceName,
+    in type: sourceArrayType, inout expr_type: c_expr) is func
+
+  result
+    var string: sourceLenName is "";
+  begin
+    incr(c_expr.temp_num);
+    sourceLenName := "sourceLen_" <& c_expr.temp_num;
+    c_expr.temp_decls &:= "memSizeType ";
+    c_expr.temp_decls &:= sourceLenName;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= sourceLenName;
+    c_expr.expr &:= "= (memSizeType) ((uintType) ";
+    if sourceArrayType in typeData.array_maxIdx then
+      c_expr.expr &:= integerLiteral(typeData.array_maxIdx[sourceArrayType]);
+    else
+      c_expr.expr &:= sourceName;
+      c_expr.expr &:= "->max_position";
+    end if;
+    c_expr.expr &:= " - (uintType) ";
+    if sourceArrayType in typeData.array_minIdx then
+      c_expr.expr &:= integerLiteral(typeData.array_minIdx[sourceArrayType]);
+    else
+      c_expr.expr &:= sourceName;
+      c_expr.expr &:= "->min_position";
+    end if;
+    c_expr.expr &:= " + 1);\n";
+  end func;
+
+
+const proc: process_inline_arr_poscpy_subarr_fixlen (in reference: dest,
+    in reference: destPos, in reference: source, in reference: sourcePos,
+    in reference: sourceLen, in type: destArrayType, inout expr_type: c_expr) is func
+
+  local
+    var type: sourceArrayType is void;
+    var intRange: destPosRange is intRange.value;
+    var intRange: sourcePosRange is intRange.value;
+    var intRange: sourceLenRange is intRange.value;
+    var string: destName is "";
+    var string: sourceName is "";
+    var reference: evaluatedParam is NIL;
+    var boolean: destPosIsVariable is TRUE;
+    var integer: destPosValue is 0;
+    var string: destPosName is "";
+    var boolean: sourcePosIsVariable is TRUE;
+    var integer: sourcePosValue is 0;
+    var string: sourcePosName is "";
+    var boolean: sourceLenIsVariable is TRUE;
+    var integer: sourceLenValue is 0;
+    var string: sourceLenName is "";
+    var boolean: sourceLenMightBe0 is FALSE;
+    var expr_type: statement is expr_type.value;
+    var string: checkExpr is "";
+    var string: checkExpr1 is "";
+  begin
+    sourceArrayType := getExprResultType(source);
+    destPosRange := getIntRange(destPos);
+    sourcePosRange := getIntRange(sourcePos);
+    sourceLenRange := getIntRange(sourceLen);
+    if destArrayType in typeData.array_minIdx and
+        destPosRange.maxValue < typeData.array_minIdx[destArrayType] then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+    elsif sourceArrayType in typeData.array_minIdx and
+        sourcePosRange.maxValue < typeData.array_minIdx[sourceArrayType] then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+    elsif sourceArrayType in typeData.array_maxIdx and
+        sourcePosRange.minValue > typeData.array_maxIdx[sourceArrayType] then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+    elsif sourceLenRange.maxValue < 0 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+    else
+      statement.temp_num := c_expr.temp_num;
+      destName := getParameterAsReference(type_name(destArrayType),
+                                          "dest_", dest, statement);
+      sourceName := defineParameterAsVariable(type_name(sourceArrayType),
+                                              "src_", source, statement);
+
+      if getConstant(destPos, INTOBJECT, evaluatedParam) then
+        destPosIsVariable := FALSE;
+        destPosValue := getValue(evaluatedParam, integer);
+        destPosName := integerLiteral(destPosValue);
+      else
+        destPosName := defineParameterAsVariable("intType", "destPos_",
+                                                   destPos, statement);
+      end if;
+      if getConstant(sourcePos, INTOBJECT, evaluatedParam) then
+        sourcePosIsVariable := FALSE;
+        sourcePosValue := getValue(evaluatedParam, integer);
+        sourcePosName := integerLiteral(sourcePosValue);
+      else
+        sourcePosName := defineParameterAsVariable("intType", "sourcePos_",
+                                                   sourcePos, statement);
+      end if;
+      if getConstant(sourceLen, INTOBJECT, evaluatedParam) then
+        sourceLenIsVariable := FALSE;
+        sourceLenValue := getValue(evaluatedParam, integer);
+        sourceLenName := integerLiteral(sourceLenValue);
+      else
+        sourceLenName := defineParameterAsVariable("intType", "sourceLen_",
+                                                   sourceLen, statement);
+      end if;
+
+      if config.array_index_check then
+        if sourceLenIsVariable and sourceLenRange.minValue < 0 then
+          checkExpr &:= sourceLenName;
+          checkExpr &:= " < 0";
+        end if;
+        if not sourceLenIsVariable then
+          if sourceLenValue = 0 then
+            checkExpr1 := checkDestPos0(destName, destPosName,
+                                        destPosRange, destArrayType);
+            if checkExpr1 <> "" then
+              if checkExpr <> "" then
+                checkExpr &:= " || ";
+              end if;
+              checkExpr &:= checkExpr1;
+            end if;
+          else
+            checkExpr1 :=  checkDestPos(destName, destPosName, destPosRange, destArrayType);
+            if checkExpr1 <> "" then
+              if checkExpr <> "" then
+                checkExpr &:= " || ";
+              end if;
+              checkExpr &:= checkExpr1;
+            end if;
+            if checkExpr <> "" then
+              checkExpr &:= " || ";
+            end if;
+            checkExpr &:= checkDestPos(destName, sourceLenIsVariable, sourceLenValue,
+                                       sourceLenName, destPosIsVariable, destPosValue, destPosName, destArrayType);
+          end if;
+        else
+          if sourceLenRange.minValue <= 0 and
+              sourceLenRange.maxValue >= 0 then
+            if checkExpr <> "" then
+              checkExpr &:= " || ";
+            end if;
+            checkExpr &:= "(";
+            checkExpr &:= sourceLenName;
+            checkExpr &:= " == 0 ? ";
+            checkExpr1 := checkDestPos0(destName, destPosName,
+                                        destPosRange, destArrayType);
+            if checkExpr1 <> "" then
+              checkExpr &:= "(";
+              checkExpr &:= checkExpr1;
+              checkExpr &:= ") : (";
+            else
+              checkExpr &:= "0 : (";
+            end if;
+            sourceLenMightBe0 := TRUE;
+          end if;
+          checkExpr1 :=  checkDestPos(destName, destPosName, destPosRange, destArrayType);
+          if checkExpr1 <> "" then
+            if checkExpr <> "" and not sourceLenMightBe0 then
+              checkExpr &:= " || ";
+            end if;
+            checkExpr &:= checkExpr1;
+            if checkExpr <> "" then
+              checkExpr &:= " || ";
+            end if;
+          end if;
+          checkExpr &:= checkDestPos(destName, sourceLenIsVariable, sourceLenValue,
+                                     sourceLenName, destPosIsVariable, destPosValue, destPosName, destArrayType);
+          if sourceLenMightBe0 then
+            checkExpr &:= "))";
+          end if;
+        end if;
+        if sourceArrayType not in typeData.array_minIdx or
+           sourcePosRange.minValue < typeData.array_minIdx[sourceArrayType] then
+          if checkExpr <> "" then
+            checkExpr &:= " || ";
+          end if;
+          checkExpr &:= sourcePosName;
+          checkExpr &:= "<";
+          if sourceArrayType in typeData.array_minIdx then
+            checkExpr &:= integerLiteral(typeData.array_minIdx[sourceArrayType]);
+          else
+            checkExpr &:= sourceName;
+            checkExpr &:= "->min_position";
+          end if;
+        end if;
+        if sourceArrayType not in typeData.array_maxIdx or
+            sourcePosRange.maxValue > typeData.array_maxIdx[sourceArrayType] then
+          if checkExpr <> "" then
+            checkExpr &:= " || ";
+          end if;
+          checkExpr &:= sourcePosName;
+          checkExpr &:= ">";
+          if sourceArrayType in typeData.array_maxIdx then
+            checkExpr &:= integerLiteral(typeData.array_maxIdx[sourceArrayType]);
+          else
+            checkExpr &:= sourceName;
+            checkExpr &:= "->max_position";
+          end if;
+        end if;
+        if checkExpr <> "" then
+          checkExpr &:= " || ";
+        end if;
+        if not sourceLenIsVariable and not sourcePosIsVariable and
+            sourcePosValue <= integer.last - sourceLenValue and
+            sourcePosValue <> integer.first then
+          checkExpr &:= integerLiteral(pred(sourceLenValue + sourcePosValue));
+          checkExpr &:= ">";
+          if sourceArrayType in typeData.array_maxIdx then
+            checkExpr &:= integerLiteral(typeData.array_maxIdx[sourceArrayType]);
+          else
+            checkExpr &:= sourceName;
+            checkExpr &:= "->max_position";
+          end if;
+        else
+          checkExpr &:= "(uintType) ";
+          checkExpr &:= sourceLenName;
+          checkExpr &:= " > (memSizeType) ((uintType) (";
+          if sourceArrayType in typeData.array_maxIdx then
+            checkExpr &:= integerLiteral(typeData.array_maxIdx[sourceArrayType]);
+          else
+            checkExpr &:= sourceName;
+            checkExpr &:= "->max_position";
+          end if;
+          checkExpr &:= ") - (uintType) ";
+          if not sourcePosIsVariable then
+            checkExpr &:= integerLiteral(pred(sourcePosValue));
+          else
+            checkExpr &:= sourcePosName;
+            checkExpr &:= " + 1";
+          end if;
+          checkExpr &:= ")";
+        end if;
+
+        statement.expr &:= "if (idxChk(";
+        statement.expr &:= checkExpr;
+        statement.expr &:= ")) {\n";
+        statement.expr &:= raiseError("INDEX_ERROR");
+        statement.expr &:= "} else {\n";
+      end if;
+
+      statement.expr &:= "memmove(&";
+      statement.expr &:= destName;
+      statement.expr &:= "->arr[";
+      statement.expr &:= destPosName;
+      if destArrayType in typeData.array_minIdx then
+        if typeData.array_minIdx[destArrayType] <> 0 then
+          statement.expr &:= "- ";
+          statement.expr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+        end if;
+      else
+        statement.expr &:= "- ";
+        statement.expr &:= destName;
+        statement.expr &:= "->min_position";
+      end if;
+      statement.expr &:= "], &";
+      statement.expr &:= sourceName;
+      statement.expr &:= "->arr[";
+      statement.expr &:= sourcePosName;
+      if sourceArrayType in typeData.array_minIdx then
+        if typeData.array_minIdx[sourceArrayType] <> 0 then
+          statement.expr &:= "- ";
+          statement.expr &:= integerLiteral(typeData.array_minIdx[sourceArrayType]);
+        end if;
+      else
+        statement.expr &:= "- ";
+        statement.expr &:= sourceName;
+        statement.expr &:= "->min_position";
+      end if;
+      statement.expr &:= "], ";
+      statement.expr &:= sourceLenName;
+      statement.expr &:= "  * sizeof(rtlObjectType));\n";
+
+      if config.array_index_check then
+        statement.expr &:= "}\n";
+      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process_inline_arr_poscpy_const_source_len (in string: destName,
+    in string: destPosName, in string: sourceName, in type: destArrayType,
+    in type: sourceArrayType, in intRange: positionRange,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: sourceLen is 0;
+  begin
+    sourceLen := succ(typeData.array_maxIdx[sourceArrayType] -
+                       typeData.array_minIdx[sourceArrayType]);
+    if sourceLen = 0 then
+      if  (destArrayType not in typeData.array_minIdx or
+           positionRange.minValue < typeData.array_minIdx[destArrayType]) and
+          (destArrayType not in typeData.array_maxIdx or
+           positionRange.maxValue > typeData.array_maxIdx[destArrayType]) then
+        c_expr.expr &:= "if (idxChk(";
+        c_expr.expr &:= checkDestPos0(destName, destPosName,
+                                      positionRange, destArrayType);
+        c_expr.expr &:= ")) {\n";
+        c_expr.expr &:= raiseError("INDEX_ERROR");
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      c_expr.expr &:= "if (idxChk(";
+      c_expr.expr &:= checkDestPos(destName, destPosName,
+                                   positionRange, destArrayType, sourceLen);
+      c_expr.expr &:= ")) {\n";
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+      c_expr.expr &:= "} else {\n";
+      c_expr.expr &:= "memmove(&";
+      c_expr.expr &:= destName;
+      c_expr.expr &:= "->arr[";
+      c_expr.expr &:= destPosName;
+      if destArrayType in typeData.array_minIdx then
+        if typeData.array_minIdx[destArrayType] <> 0 then
+          c_expr.expr &:= "- ";
+          c_expr.expr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+        end if;
+      else
+        c_expr.expr &:= "- ";
+        c_expr.expr &:= destName;
+        c_expr.expr &:= "->min_position";
+      end if;
+      c_expr.expr &:= "], ";
+      c_expr.expr &:= sourceName;
+      c_expr.expr &:= "->arr, ";
+      c_expr.expr &:= integerLiteral(sourceLen);
+      c_expr.expr &:= "  * sizeof(rtlObjectType));\n";
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_inline_arr_poscpy (in string: destName,
+    in string: destPosName, in string: sourceName, in type: destArrayType,
+    in type: sourceArrayType, in intRange: positionRange,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: sourceLenName is "";
+  begin
+    sourceLenName := defineSourceLenName(sourceName, sourceArrayType, c_expr);
+    c_expr.expr &:= "if (";
+    c_expr.expr &:= sourceLenName;
+    c_expr.expr &:= " == 0) {\n";
+    if  (destArrayType not in typeData.array_minIdx or
+         positionRange.minValue < typeData.array_minIdx[destArrayType]) and
+        (destArrayType not in typeData.array_maxIdx or
+         positionRange.maxValue > typeData.array_maxIdx[destArrayType]) then
+      c_expr.expr &:= "if (idxChk(";
+      c_expr.expr &:= checkDestPos0(destName, destPosName,
+                                    positionRange, destArrayType);
+      c_expr.expr &:= ")) {\n";
+      c_expr.expr &:= raiseError("INDEX_ERROR");
+      c_expr.expr &:= "}\n";
+    end if;
+    c_expr.expr &:= "} else if (idxChk(";
+    c_expr.expr &:= checkDestPos(destName, destPosName,
+                                 positionRange, destArrayType,
+                                 sourceLenName);
+    c_expr.expr &:= ")) {\n";
+    c_expr.expr &:= raiseError("INDEX_ERROR");
+    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= "memmove(&";
+    c_expr.expr &:= destName;
+    c_expr.expr &:= "->arr[";
+    c_expr.expr &:= destPosName;
+    if destArrayType in typeData.array_minIdx then
+      if typeData.array_minIdx[destArrayType] <> 0 then
+        c_expr.expr &:= "- ";
+        c_expr.expr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+      end if;
+    else
+      c_expr.expr &:= "- ";
+      c_expr.expr &:= destName;
+      c_expr.expr &:= "->min_position";
+    end if;
+    c_expr.expr &:= "], ";
+    c_expr.expr &:= sourceName;
+    c_expr.expr &:= "->arr, ";
+    c_expr.expr &:= sourceLenName;
+    c_expr.expr &:= "  * sizeof(rtlObjectType));\n";
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process_inline_arr_poscpy_no_check (in reference: dest,
+    in reference: destPos, in reference: source, in type: destArrayType,
+    in type: sourceArrayType, inout expr_type: c_expr) is func
+  local
+    var string: destName is "";
+    var string: sourceName is "";
+  begin
+    incr(count.suppressedIndexChecks);
+    destName := getParameterAsReference(type_name(destArrayType),
+                                        "dest_", dest, c_expr);
+    sourceName := defineParameterAsVariable(type_name(sourceArrayType),
+                                            "src_", source, c_expr);
+    c_expr.expr &:= "memmove(&";
+    c_expr.expr &:= destName;
+    c_expr.expr &:= "->arr[(";
+    process_expr(destPos, c_expr);
+    c_expr.expr &:= ")";
+    if destArrayType in typeData.array_minIdx then
+      if typeData.array_minIdx[destArrayType] <> 0 then
+        c_expr.expr &:= "- ";
+        c_expr.expr &:= integerLiteral(typeData.array_minIdx[destArrayType]);
+      end if;
+    else
+      c_expr.expr &:= "- ";
+      c_expr.expr &:= destName;
+      c_expr.expr &:= "->min_position";
+    end if;
+    c_expr.expr &:= "], ";
+    c_expr.expr &:= sourceName;
+    c_expr.expr &:= "->arr, (memSizeType) ((uintType) ";
+    if sourceArrayType in typeData.array_maxIdx then
+      c_expr.expr &:= integerLiteral(typeData.array_maxIdx[sourceArrayType]);
+    else
+      c_expr.expr &:= sourceName;
+      c_expr.expr &:= "->max_position";
+    end if;
+    c_expr.expr &:= " - (uintType) ";
+    if sourceArrayType in typeData.array_minIdx then
+      c_expr.expr &:= integerLiteral(typeData.array_minIdx[sourceArrayType]);
+    else
+      c_expr.expr &:= sourceName;
+      c_expr.expr &:= "->min_position";
+    end if;
+    c_expr.expr &:= " + 1) * sizeof(rtlObjectType));\n";
+  end func;
+
+
+const proc: process_inline_arr_poscpy (in reference: dest,
+    in reference: destPos, in reference: source, in type: destArrayType,
+    in type: elementType,  inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var intRange: destPosRange is intRange.value;
+    var string: destName is "";
+    var string: destPosName is "";
+    var string: sourceName is "";
+    var type: sourceArrayType is void;
+  begin
+    if isActionExpression(source, "ARR_SUBARR_FIXLEN") then
+      process_inline_arr_poscpy_subarr_fixlen(dest, destPos,
+          getActionParameter(source, 1), getActionParameter(source, 3),
+          getActionParameter(source, 5), destArrayType, c_expr);
+    else
+      sourceArrayType := getExprResultType(source);
+      statement.temp_num := c_expr.temp_num;
+      if config.array_index_check then
+        destPosRange := getIntRange(destPos);
+        if destArrayType in typeData.array_minIdx and
+            destPosRange.maxValue < typeData.array_minIdx[destArrayType] then
+          warning(DOES_RAISE, "INDEX_ERROR", statement);
+          statement.expr &:= raiseError("INDEX_ERROR");
+        else
+          destName := getParameterAsReference(type_name(destArrayType),
+                                              "dest_", dest, statement);
+          destPosName := defineParameterAsVariable("intType", "pos_",
+                                                   destPos, statement);
+          sourceName := defineParameterAsVariable(type_name(sourceArrayType),
+                                                  "src_", source, statement);
+          if sourceArrayType in typeData.array_minIdx and
+              sourceArrayType in typeData.array_maxIdx then
+            process_inline_arr_poscpy_const_source_len(destName,
+                destPosName, sourceName, destArrayType,
+                sourceArrayType, destPosRange, statement);
+          else
+            process_inline_arr_poscpy(destName, destPosName,
+                sourceName, destArrayType, sourceArrayType,
+                destPosRange, statement);
+          end if;
+        end if;
+      else
+        process_inline_arr_poscpy_no_check(dest, destPos, source,
+            destArrayType, sourceArrayType, statement);
+      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (ARR_POSCPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: arrayType is void;
+    var type: elementType is void;
+    var expr_type: c_param6 is expr_type.value;
+    var expr_type: statement is expr_type.value;
+    var string: destName is "";
+    var string: sourceName is "";
+  begin
+    checkGlobalVariableChange(params[1], c_expr);
+    arrayType := getExprResultType(params[1]);
+    elementType := typeData.array_element[arrayType];
+    if config.inlineFunctions and
+        elementType in typeData.typeCategory and
+        typeData.typeCategory[elementType] in simpleValueType then
+      process_inline_arr_poscpy(params[1], params[4], params[6],
+                                arrayType, elementType, c_expr);
+    else
+      statement.temp_num := c_expr.temp_num;
+      destName := getParameterAsReference(type_name(arrayType),
+                                          "arr_", params[1], statement);
+      prepareAnyParamTemporarys(params[6], c_param6, statement);
+      if c_param6.result_expr <> "" then
+        if elementType in typeData.typeCategory and
+            typeData.typeCategory[elementType] in simpleValueType then
+          incr(statement.temp_num);
+          sourceName := "source_" <& statement.temp_num;
+          statement.temp_decls &:= type_name(arrayType);
+          statement.temp_decls &:= " ";
+          statement.temp_decls &:= sourceName;
+          statement.temp_decls &:= ";\n";
+          statement.expr &:= sourceName;
+          statement.expr &:= "=";
+          statement.expr &:= c_param6.result_expr;
+          statement.expr &:= ";\n";
+          statement.expr &:= "arrPoscpy(";
+          statement.expr &:= destName;
+          statement.expr &:= ", ";
+          process_expr(params[4], statement);
+          statement.expr &:= ", ";
+          statement.expr &:= sourceName;
+          statement.expr &:= ");\n";
+          statement.expr &:= "arrFree((arrayType)(";
+          statement.expr &:= sourceName;
+          statement.expr &:= "));\n";
+        else
+          process_arr_poscpy_temp_declaration(elementType, global_c_expr);
+          statement.expr &:= "poscpy_temp_";
+          statement.expr &:= str(typeNumber(elementType));
+          statement.expr &:= "((arrayType)(";
+          statement.expr &:= destName;
+          statement.expr &:= "), ";
+          process_expr(params[4], statement);
+          statement.expr &:= ", (arrayType)(";
+          statement.expr &:= c_param6.result_expr;
+          statement.expr &:= "));\n";
+        end if;
+      else
+        if elementType in typeData.typeCategory and
+            typeData.typeCategory[elementType] in simpleValueType then
+          statement.expr &:= "arrPoscpy(";
+          statement.expr &:= destName;
+          statement.expr &:= ", ";
+          process_expr(params[4], statement);
+          statement.expr &:= ", ";
+          statement.expr &:= c_param6.expr;
+          statement.expr &:= ");\n";
+        else
+          process_arr_poscpy_declaration(elementType, global_c_expr);
+          statement.expr &:= "poscpy_";
+          statement.expr &:= str(typeNumber(elementType));
+          statement.expr &:= "((arrayType)(";
+          statement.expr &:= destName;
+          statement.expr &:= "), ";
+          process_expr(params[4], statement);
+          statement.expr &:= ", (arrayType)(";
+          statement.expr &:= c_param6.expr;
+          statement.expr &:= "));\n";
+        end if;
+      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 

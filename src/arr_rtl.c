@@ -1651,6 +1651,94 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
 
 
 /**
+ *  Assign array 'source' to the 'position' of the 'destination'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & C & A[B+length(C)..];
+ *  This function is used by the compiler if the element type is
+ *  a simple value type.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(destination) or
+ *                         elements beyond 'destination' would be overwritten.
+ */
+void arrPoscpy (const rtlArrayType destination, intType position,
+    const const_rtlArrayType source)
+
+  {
+    memSizeType sourceSize;
+
+  /* arrPoscpy */
+    logFunction(printf("arrPoscpy(" FMT_U_MEM " (array[" FMT_D " .. "
+                                    FMT_D "]), " FMT_D ", "
+                                    FMT_U_MEM " (array[" FMT_D " .. "
+                                    FMT_D "]))\n",
+                       (memSizeType) destination,
+                       destination != NULL ?
+                           destination->min_position : (intType) 1,
+                       destination != NULL ?
+                           destination->max_position : (intType) 0,
+                       position,  (memSizeType) source,
+                       source != NULL ?
+                           source->min_position : (intType) 1,
+                       source != NULL ?
+                           source->max_position : (intType) 0););
+    sourceSize = arraySize(source);
+    if (sourceSize == 0) {
+      if (unlikely(position < destination->min_position ||
+                   (destination->max_position != INTTYPE_MAX &&
+                    position > destination->max_position + 1))) {
+        logError(printf("arrPoscpy(" FMT_U_MEM " (array[" FMT_D " .. "
+                                     FMT_D "]), " FMT_D ", "
+                                     FMT_U_MEM " (array[" FMT_D " .. "
+                                     FMT_D "])): "
+                                   "Position not in allowed range.\n",
+                        (memSizeType) destination,
+                        destination != NULL ?
+                            destination->min_position : (intType) 1,
+                        destination != NULL ?
+                            destination->max_position : (intType) 0,
+                        position,  (memSizeType) source,
+                        source != NULL ?
+                            source->min_position : (intType) 1,
+                        source != NULL ?
+                            source->max_position : (intType) 0););
+        raise_error(INDEX_ERROR);
+      } /* if */
+    } else {
+      if (unlikely(position < destination->min_position ||
+                   position > destination->max_position ||
+                   sourceSize - 1 >
+                       (uintType) (destination->max_position - position))) {
+        logError(printf("arrPoscpy(" FMT_U_MEM " (array[" FMT_D " .. "
+                                     FMT_D "]), " FMT_D ", "
+                                     FMT_U_MEM " (array[" FMT_D " .. "
+                                     FMT_D "])): "
+                                   "Position not in allowed range.\n",
+                        (memSizeType) destination,
+                        destination != NULL ?
+                            destination->min_position : (intType) 1,
+                        destination != NULL ?
+                            destination->max_position : (intType) 0,
+                        position,  (memSizeType) source,
+                        source != NULL ?
+                            source->min_position : (intType) 1,
+                        source != NULL ?
+                            source->max_position : (intType) 0););
+        raise_error(INDEX_ERROR);
+      } else {
+        /* It is possible that destination and source overlap.      */
+        /* E.g. for the expression: arr @:= [idx1] arr[idx2 len 2]; */
+        /* The behavior of memcpy() is undefined if source          */
+        /* and destination areas overlap (or are identical).        */
+        /* Therefore memmove() is used instead of memcpy().         */
+        memmove(&destination->arr[arrayIndex(destination, position)],
+                source->arr, sourceSize * sizeof(rtlObjectType));
+      } /* if */
+    } /* if */
+  } /* arrPoscpy */
+
+
+
+/**
  *  Append the given 'element' to the array 'arr_variable'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.

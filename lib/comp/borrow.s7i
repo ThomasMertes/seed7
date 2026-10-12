@@ -31,9 +31,6 @@ var globalsInFunctionHash: globalsInFunction is globalsInFunctionHash.value;
 var globalsInFunctionHash: globalsChangedInFunction is globalsInFunctionHash.value;
 var reference: current_function is NIL;
 
-const set of category: localObjectCategory is
-    {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT};
-
 
 const func boolean: isPointerParam (in reference: a_param) is
   return category(a_param) = REFPARAMOBJECT and

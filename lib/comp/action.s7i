@@ -162,6 +162,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_MAXIDX, function, params, c_expr);
       when {"ARR_MINIDX"}:
         process(ARR_MINIDX, function, params, c_expr);
+      when {"ARR_POSCPY"}:
+        process(ARR_POSCPY, function, params, c_expr);
       when {"ARR_PUSH"}:
         process(ARR_PUSH, function, params, c_expr);
       when {"ARR_RANGE"}:
