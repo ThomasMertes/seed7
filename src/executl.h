@@ -30,6 +30,8 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info);
 void do_create (objectType destination, objectType source,
     errInfoType *err_info);
 void do_destroy (objectType old_obj, errInfoType *err_info);
+void do_copy (objectType destination, objectType source,
+    errInfoType *err_info);
 intType do_ord (objectType any_obj, errInfoType *err_info);
 boolType do_in (objectType elem_obj, objectType set_obj,
     errInfoType *err_info);
@@ -56,4 +58,6 @@ void free_array (arrayType old_arr);
 boolType crea_array (objectType elem_to, objectType elem_from,
     memSizeType new_size);
 void cpy_array (objectType elem_to, objectType elem_from,
-    memSizeType new_size);
+    memSizeType array_size);
+void cpy_array_allow_overlap (objectType elem_to, objectType elem_from,
+    memSizeType array_size);
