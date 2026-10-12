@@ -47,6 +47,7 @@ objectType arr_insert_array  (listType arguments);
 objectType arr_lng           (listType arguments);
 objectType arr_maxidx        (listType arguments);
 objectType arr_minidx        (listType arguments);
+objectType arr_poscpy        (listType arguments);
 objectType arr_push          (listType arguments);
 objectType arr_range         (listType arguments);
 objectType arr_remove        (listType arguments);

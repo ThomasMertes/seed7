@@ -89,6 +89,7 @@ static const objectCategory p_arr_op_int[]           = {ARRAYOBJECT, SYMBOLOBJEC
 static const objectCategory p_arr_op_int_op_int[]    = {ARRAYOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT};
 static const objectCategory p_arr_op_any[]           = {ARRAYOBJECT, SYMBOLOBJECT, ILLEGALOBJECT};
 static const objectCategory p_arr_op_op_int[]        = {ARRAYOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT};
+static const objectCategory p_arr_op_op_int_op_arr[] = {ARRAYOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_arr[]               = {SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_op_arr[]            = {SYMBOLOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_int_op_arr[]        = {SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
@@ -375,6 +376,7 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_arr_op_int_op_int    argCountAndArgs(p_arr_op_int_op_int)
 #define par_arr_op_any           argCountAndArgs(p_arr_op_any)
 #define par_arr_op_op_int        argCountAndArgs(p_arr_op_op_int)
+#define par_arr_op_op_int_op_arr argCountAndArgs(p_arr_op_op_int_op_arr)
 #define par_op_arr               argCountAndArgs(p_op_arr)
 #define par_op_op_arr            argCountAndArgs(p_op_op_arr)
 #define par_op_int_op_arr        argCountAndArgs(p_op_int_op_arr)
@@ -680,6 +682,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_LNG",                      arr_lng,                      INTOBJECT,         par_arr},
     { "ARR_MAXIDX",                   arr_maxidx,                   INTOBJECT,         par_arr},
     { "ARR_MINIDX",                   arr_minidx,                   INTOBJECT,         par_arr},
+    { "ARR_POSCPY",                   arr_poscpy,                   VOIDOBJECT,        par_arr_op_op_int_op_arr},
     { "ARR_PUSH",                     arr_push,                     VOIDOBJECT,        par_arr_op_any},
     { "ARR_RANGE",                    arr_range,                    ARRAYOBJECT,       par_arr_op_int_op_int},
     { "ARR_REMOVE",                   arr_remove,                   ILLEGALOBJECT,     par_arr_int},

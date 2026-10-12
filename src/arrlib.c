@@ -1531,6 +1531,83 @@ objectType arr_minidx (listType arguments)
 
 
 /**
+ *  Assign array 'source' to the 'position' of the 'destination'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & C & A[B+length(C)..];
+ *  @exception INDEX_ERROR If 'position' is less than arr_minidx(destination) or
+ *                         elements beyond 'destination' would be overwritten.
+ */
+objectType arr_poscpy (listType arguments)
+
+  {
+    arrayType destArray;
+    objectType source;
+    arrayType sourceArray;
+    memSizeType sourceSize;
+    intType position;
+
+  /* arr_poscpy */
+    isit_array(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    isit_array(arg_6(arguments));
+    is_variable(arg_1(arguments));
+    source = arg_6(arguments);
+    destArray = take_array(arg_1(arguments));
+    position = take_int(arg_4(arguments));
+    sourceArray = take_array(source);
+    sourceSize = arraySize(sourceArray);
+    if (sourceSize == 0) {
+      if (unlikely(position < destArray->min_position ||
+                   (destArray->max_position != INTTYPE_MAX &&
+                    position > destArray->max_position + 1))) {
+        logError(printf("arr_poscpy(" FMT_U_MEM " ",
+                        (memSizeType) arg_1(arguments));
+                 trace1(arg_1(arguments));
+                 printf(", " FMT_D ", " FMT_U_MEM " ",
+                        position, (memSizeType) source);
+                 trace1(source);
+                 printf(": Position not in allowed range.\n"););
+        return raise_exception(SYS_IDX_EXCEPTION);
+      } /* if */
+    } else {
+      if (unlikely(position < destArray->min_position ||
+                   position > destArray->max_position ||
+                   sourceSize - 1 >
+                       (uintType) (destArray->max_position - position))) {
+        logError(printf("arr_poscpy(" FMT_U_MEM " ",
+                        (memSizeType) arg_1(arguments));
+                 trace1(arg_1(arguments));
+                 printf(", " FMT_D ", " FMT_U_MEM " ",
+                        position, (memSizeType) source);
+                 trace1(source);
+                 printf(": Position not in allowed range.\n"););
+        return raise_exception(SYS_IDX_EXCEPTION);
+      } else if (TEMP_OBJECT(source)) {
+        destr_array(&destArray->arr[arrayIndex(destArray, position)],
+                    sourceSize);
+        memcpy(&destArray->arr[arrayIndex(destArray, position)],
+               sourceArray->arr, sourceSize * sizeof(objectRecord));
+        FREE_ARRAY(sourceArray, sourceSize);
+        arg_6(arguments)->value.arrayValue = NULL;
+      } else {
+        /* It is possible that destArray and sourceArray overlap.   */
+        /* E.g. for the expression: arr @:= [idx] arr;              */
+        /* The behavior of cpy_array() could corrupt data if        */
+        /* source and destination areas overlap (or are identical). */
+        /* Therefore cpy_array_allow_overlap() is used instead of   */
+        /* cpy_array().                                             */
+        cpy_array_allow_overlap(
+            &destArray->arr[arrayIndex(destArray, position)],
+            sourceArray->arr, sourceSize);
+      } /* if */
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* arr_poscpy */
+
+
+
+/**
  *  Append the given 'element' to the array 'arr_variable'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
