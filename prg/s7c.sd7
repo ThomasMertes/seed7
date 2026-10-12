@@ -4824,6 +4824,33 @@ const proc: process_arr_poscpy_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_arr_push_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: arrayType is void;
+    var type: elementType is void;
+  begin
+    params := formalParams(current_object);
+    if length(params) >= 3 then
+      arrayType := getType(params[1]);
+      elementType := getType(params[3]);
+      if arrayType not in typeData.array_element then
+        typeData.array_element @:= [arrayType] elementType;
+      end if;
+      if elementType not in typeData.array_type then
+        typeData.array_type @:= [elementType] arrayType;
+      end if;
+      c_expr.expr &:= "/* ACTION ARR_PUSH for type ";
+      c_expr.expr &:= type_name2(arrayType);
+      c_expr.expr &:= " element is ";
+      c_expr.expr &:= type_name2(elementType);
+      c_expr.expr &:= " */\n\n";
+    end if;
+  end func;
+
+
 const proc: process_arr_times_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -5118,6 +5145,9 @@ const proc: process_action_declaration (in reference: current_object,
           count_declarations(c_expr);
         when {"ARR_POSCPY"}:
           process_arr_poscpy_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ARR_PUSH"}:
+          process_arr_push_declaration(current_object, c_expr);
           count_declarations(c_expr);
         when {"ARR_TIMES"}:
           process_arr_times_declaration(current_object, c_expr);
