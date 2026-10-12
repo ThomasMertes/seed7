@@ -7326,7 +7326,7 @@ getCheckSubarr(bstring);
 getCheckSubarr(bitset);
 
 
-const func boolean: testSubarr1 is func
+const func boolean: testSubarr_integer is func
   result
     var boolean: okay is TRUE;
   local
@@ -7935,7 +7935,7 @@ const func boolean: testSubarr1 is func
   end func;
 
 
-const func boolean: testSubarr2 is func
+const func boolean: testSubarr_bigInteger is func
   result
     var boolean: okay is TRUE;
   local
@@ -8544,7 +8544,7 @@ const func boolean: testSubarr2 is func
   end func;
 
 
-const func boolean: testSubarr3 is func
+const func boolean: testSubarr_float is func
   result
     var boolean: okay is TRUE;
   local
@@ -9153,7 +9153,7 @@ const func boolean: testSubarr3 is func
   end func;
 
 
-const func boolean: testSubarr4 is func
+const func boolean: testSubarr_complex is func
   result
     var boolean: okay is TRUE;
   local
@@ -9903,7 +9903,7 @@ const func boolean: testSubarr4 is func
   end func;
 
 
-const func boolean: testSubarr5 is func
+const func boolean: testSubarr_char is func
   result
     var boolean: okay is TRUE;
   local
@@ -10512,7 +10512,7 @@ const func boolean: testSubarr5 is func
   end func;
 
 
-const func boolean: testSubarr6 is func
+const func boolean: testSubarr_string is func
   result
     var boolean: okay is TRUE;
   local
@@ -11122,7 +11122,7 @@ const func boolean: testSubarr6 is func
   end func;
 
 
-const func boolean: testSubarr7 is func
+const func boolean: testSubarr_bstring is func
   result
     var boolean: okay is TRUE;
   local
@@ -11872,7 +11872,7 @@ const func boolean: testSubarr7 is func
   end func;
 
 
-const func boolean: testSubarr8 is func
+const func boolean: testSubarr_bitset is func
   result
     var boolean: okay is TRUE;
   local
@@ -12481,7 +12481,7 @@ const func boolean: testSubarr8 is func
   end func;
 
 
-const func boolean: testSubarr9 is func
+const func boolean: testSubarrExceptions is func
   result
     var boolean: okay is TRUE;
   local
@@ -12907,31 +12907,31 @@ const proc: testSubarr is func
   local
     var boolean: okay is TRUE;
   begin
-    if not testSubarr1 then
+    if not testSubarr_integer then
       okay := FALSE;
     end if;
-    if not testSubarr2 then
+    if not testSubarr_bigInteger then
       okay := FALSE;
     end if;
-    if not testSubarr3 then
+    if not testSubarr_float then
       okay := FALSE;
     end if;
-    if not testSubarr4 then
+    if not testSubarr_complex then
       okay := FALSE;
     end if;
-    if not testSubarr5 then
+    if not testSubarr_char then
       okay := FALSE;
     end if;
-    if not testSubarr6 then
+    if not testSubarr_string then
       okay := FALSE;
     end if;
-    if not testSubarr7 then
+    if not testSubarr_bstring then
       okay := FALSE;
     end if;
-    if not testSubarr8 then
+    if not testSubarr_bitset then
       okay := FALSE;
     end if;
-    if not testSubarr9 then
+    if not testSubarrExceptions then
       okay := FALSE;
     end if;
 
@@ -12941,7 +12941,7 @@ const proc: testSubarr is func
   end func;
 
 
-const func boolean: testSubarrFixLen1 is func
+const func boolean: testSubarrFixLen_integer is func
   result
     var boolean: okay is TRUE;
   local
@@ -13437,7 +13437,7 @@ const func boolean: testSubarrFixLen1 is func
   end func;
 
 
-const func boolean: testSubarrFixLen2 is func
+const func boolean: testSubarrFixLen_bigInteger is func
   result
     var boolean: okay is TRUE;
   local
@@ -13933,7 +13933,7 @@ const func boolean: testSubarrFixLen2 is func
   end func;
 
 
-const func boolean: testSubarrFixLen3 is func
+const func boolean: testSubarrFixLen_float is func
   result
     var boolean: okay is TRUE;
   local
@@ -14429,7 +14429,7 @@ const func boolean: testSubarrFixLen3 is func
   end func;
 
 
-const func boolean: testSubarrFixLen4 is func
+const func boolean: testSubarrFixLen_complex is func
   result
     var boolean: okay is TRUE;
   local
@@ -14944,7 +14944,7 @@ const func boolean: testSubarrFixLen4 is func
   end func;
 
 
-const func boolean: testSubarrFixLen5 is func
+const func boolean: testSubarrFixLen_char is func
   result
     var boolean: okay is TRUE;
   local
@@ -15438,7 +15438,7 @@ const func boolean: testSubarrFixLen5 is func
   end func;
 
 
-const func boolean: testSubarrFixLen6 is func
+const func boolean: testSubarrFixLen_string is func
   result
     var boolean: okay is TRUE;
   local
@@ -15939,7 +15939,7 @@ const func boolean: testSubarrFixLen6 is func
   end func;
 
 
-const func boolean: testSubarrFixLen7 is func
+const func boolean: testSubarrFixLen_bstring is func
   result
     var boolean: okay is TRUE;
   local
@@ -16454,7 +16454,7 @@ const func boolean: testSubarrFixLen7 is func
   end func;
 
 
-const func boolean: testSubarrFixLen8 is func
+const func boolean: testSubarrFixLen_bitset is func
   result
     var boolean: okay is TRUE;
   local
@@ -16954,28 +16954,28 @@ const proc: testSubarrFixLen is func
   local
     var boolean: okay is TRUE;
   begin
-    if not testSubarrFixLen1 then
+    if not testSubarrFixLen_integer then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen2 then
+    if not testSubarrFixLen_bigInteger then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen3 then
+    if not testSubarrFixLen_float then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen4 then
+    if not testSubarrFixLen_complex then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen5 then
+    if not testSubarrFixLen_char then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen6 then
+    if not testSubarrFixLen_string then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen7 then
+    if not testSubarrFixLen_bstring then
       okay := FALSE;
     end if;
-    if not testSubarrFixLen8 then
+    if not testSubarrFixLen_bitset then
       okay := FALSE;
     end if;
 
