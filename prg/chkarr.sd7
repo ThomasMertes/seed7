@@ -1491,12 +1491,12 @@ const func boolean: testAssign3 is func
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (2)");
       okay := FALSE;
     end if;
-    setArr2 := setArr & []({8});
+    setArr2 := setArr & [] ({8});
     if setArr2 <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (3)");
       okay := FALSE;
     end if;
-    setArrArr[1] := setArr & []({8});
+    setArrArr[1] := setArr & [] ({8});
     if setArrArr[1] <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (4)");
       okay := FALSE;
@@ -1506,12 +1506,12 @@ const func boolean: testAssign3 is func
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (5)");
       okay := FALSE;
     end if;
-    setArr := setArr & []({8});
+    setArr := setArr & [] ({8});
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (6)");
       okay := FALSE;
     end if;
-    setArr := setArr & []({9}, {10});
+    setArr := setArr & [] ({9}, {10});
     if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}) then
       writeln(" ***** array assignment for 'array bitset' does not work correctly. (7)");
       okay := FALSE;
@@ -4226,12 +4226,12 @@ const func boolean: testHead1 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array integer' failed. (7)");
       okay := FALSE;
     end if;
-    intHead := (intHead & [](3, 4))[.. 3];
+    intHead := (intHead & [] (3, 4))[.. 3];
     if length(intHead) <> 3 or intHead[1] <> 1 or intHead[2] <> 2 or intHead[3] <> 3 then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array integer' failed. (8)");
       okay := FALSE;
     end if;
-    intHead := ([](1, 2) & [](3, 4))[.. 3];
+    intHead := ([] (1, 2) & [] (3, 4))[.. 3];
     if length(intHead) <> 3 or intHead[1] <> 1 or intHead[2] <> 2 or intHead[3] <> 3 then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array integer' failed. (9)");
       okay := FALSE;
@@ -4304,12 +4304,12 @@ const func boolean: testHead1 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bigInteger' failed. (7)");
       okay := FALSE;
     end if;
-    bigHead := (bigHead & [](3_, 4_))[.. 3];
+    bigHead := (bigHead & [] (3_, 4_))[.. 3];
     if length(bigHead) <> 3 or bigHead[1] <> 1_ or bigHead[2] <> 2_ or bigHead[3] <> 3_ then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bigInteger' failed. (8)");
       okay := FALSE;
     end if;
-    bigHead := ([](1_, 2_) & [](3_, 4_))[.. 3];
+    bigHead := ([] (1_, 2_) & [] (3_, 4_))[.. 3];
     if length(bigHead) <> 3 or bigHead[1] <> 1_ or bigHead[2] <> 2_ or bigHead[3] <> 3_ then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bigInteger' failed. (9)");
       okay := FALSE;
@@ -4382,12 +4382,12 @@ const func boolean: testHead1 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array float' failed. (7)");
       okay := FALSE;
     end if;
-    fltHead := (fltHead & [](3.0, 4.0))[.. 3];
+    fltHead := (fltHead & [] (3.0, 4.0))[.. 3];
     if length(fltHead) <> 3 or fltHead[1] <> 1.0 or fltHead[2] <> 2.0 or fltHead[3] <> 3.0 then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array float' failed. (8)");
       okay := FALSE;
     end if;
-    fltHead := ([](1.0, 2.0) & [](3.0, 4.0))[.. 3];
+    fltHead := ([] (1.0, 2.0) & [] (3.0, 4.0))[.. 3];
     if length(fltHead) <> 3 or fltHead[1] <> 1.0 or fltHead[2] <> 2.0 or fltHead[3] <> 3.0 then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array float' failed. (9)");
       okay := FALSE;
@@ -4465,14 +4465,14 @@ const func boolean: testHead1 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array complex' failed. (7)");
       okay := FALSE;
     end if;
-    cpxHead := (cpxHead & [](complex(3.0, 3.0), complex(4.0, 4.0)))[.. 3];
+    cpxHead := (cpxHead & [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. 3];
     if length(cpxHead) <> 3 or cpxHead[1] <> complex(1.0, 1.0) or cpxHead[2] <> complex(2.0, 2.0) or
                                cpxHead[3] <> complex(3.0, 3.0) then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array complex' failed. (8)");
       okay := FALSE;
     end if;
-    cpxHead := ([](complex(1.0, 1.0), complex(2.0, 2.0)) &
-                [](complex(3.0, 3.0), complex(4.0, 4.0)))[.. 3];
+    cpxHead := ([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
+                [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. 3];
     if length(cpxHead) <> 3 or cpxHead[1] <> complex(1.0, 1.0) or cpxHead[2] <> complex(2.0, 2.0) or
                                cpxHead[3] <> complex(3.0, 3.0) then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array complex' failed. (9)");
@@ -4567,12 +4567,12 @@ const func boolean: testHead2 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array char' failed. (7)");
       okay := FALSE;
     end if;
-    chrHead := (chrHead & []('c', 'd'))[.. 3];
+    chrHead := (chrHead & [] ('c', 'd'))[.. 3];
     if length(chrHead) <> 3 or chrHead[1] <> 'a' or chrHead[2] <> 'b' or chrHead[3] <> 'c' then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array char' failed. (8)");
       okay := FALSE;
     end if;
-    chrHead := ([]('a', 'b') & []('c', 'd'))[.. 3];
+    chrHead := ([] ('a', 'b') & [] ('c', 'd'))[.. 3];
     if length(chrHead) <> 3 or chrHead[1] <> 'a' or chrHead[2] <> 'b' or chrHead[3] <> 'c' then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array char' failed. (9)");
       okay := FALSE;
@@ -4645,12 +4645,12 @@ const func boolean: testHead2 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array string' failed. (7)");
       okay := FALSE;
     end if;
-    strHead := ([]("one", "two") & []("three", "four"))[.. 3];
+    strHead := ([] ("one", "two") & [] ("three", "four"))[.. 3];
     if length(strHead) <> 3 or strHead[1] <> "one" or strHead[2] <> "two" or strHead[3] <> "three" then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array string' failed. (8)");
       okay := FALSE;
     end if;
-    strHead := (strHead & []("three", "four"))[.. 3];
+    strHead := (strHead & [] ("three", "four"))[.. 3];
     if length(strHead) <> 3 or strHead[1] <> "one" or strHead[2] <> "two" or strHead[3] <> "three" then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array string' failed. (9)");
       okay := FALSE;
@@ -4728,13 +4728,13 @@ const func boolean: testHead2 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bstring' failed. (7)");
       okay := FALSE;
     end if;
-    bstHead := ([](bstring("one"), bstring("two")) & [](bstring("three"), bstring("four")))[.. 3];
+    bstHead := ([] (bstring("one"), bstring("two")) & [] (bstring("three"), bstring("four")))[.. 3];
     if length(bstHead) <> 3 or bstHead[1] <> bstring("one") or bstHead[2] <> bstring("two") or
                                bstHead[3] <> bstring("three") then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bstring' failed. (8)");
       okay := FALSE;
     end if;
-    bstHead := (bstHead & [](bstring("three"), bstring("four")))[.. 3];
+    bstHead := (bstHead & [] (bstring("three"), bstring("four")))[.. 3];
     if length(bstHead) <> 3 or bstHead[1] <> bstring("one") or bstHead[2] <> bstring("two") or
                                bstHead[3] <> bstring("three") then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bstring' failed. (9)");
@@ -4813,12 +4813,12 @@ const func boolean: testHead2 is func
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bitset' failed. (7)");
       okay := FALSE;
     end if;
-    setHead := ([]({1}, {2}) & []({3}, {4}))[.. 3];
+    setHead := ([] ({1}, {2}) & [] ({3}, {4}))[.. 3];
     if length(setHead) <> 3 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bitset' failed. (8)");
       okay := FALSE;
     end if;
-    setHead := (setHead & []({3}, {4}))[.. 3];
+    setHead := (setHead & [] ({3}, {4}))[.. 3];
     if length(setHead) <> 3 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} then
       writeln(" ***** ARRAY [ INDEX .. ] for 'array bitset' failed. (9)");
       okay := FALSE;
@@ -5696,22 +5696,22 @@ const func boolean: testRange1 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array integer' failed. (4)");
       okay := FALSE;
     end if;
-    intRange := ([](1, 2) & intRange)[2 .. 3];
+    intRange := ([] (1, 2) & intRange)[2 .. 3];
     if length(intRange) <> 2 or intRange[1] <> 2 or intRange[2] <> 3 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array integer' failed. (5)");
       okay := FALSE;
     end if;
-    intRange := ([](1) & intRange)[intExpr(1) .. 3];
+    intRange := ([] (1) & intRange)[intExpr(1) .. 3];
     if length(intRange) <> 3 or intRange[1] <> 1 or intRange[2] <> 2 or intRange[3] <> 3 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array integer' failed. (6)");
       okay := FALSE;
     end if;
-    intRange := (intRange & [](1))[4 .. intExpr(3)];
+    intRange := (intRange & [] (1))[4 .. intExpr(3)];
     if length(intRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array integer' failed. (7)");
       okay := FALSE;
     end if;
-    intRange := (intRange & [](1))[1 .. 0];
+    intRange := (intRange & [] (1))[1 .. 0];
     if length(intRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array integer' failed. (8)");
       okay := FALSE;
@@ -5833,22 +5833,22 @@ const func boolean: testRange1 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bigInteger' failed. (4)");
       okay := FALSE;
     end if;
-    bigRange := ([](1_, 2_) & bigRange)[2 .. 3];
+    bigRange := ([] (1_, 2_) & bigRange)[2 .. 3];
     if length(bigRange) <> 2 or bigRange[1] <> 2_ or bigRange[2] <> 3_ then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bigInteger' failed. (5)");
       okay := FALSE;
     end if;
-    bigRange := ([](1_) & bigRange)[intExpr(1) .. 3];
+    bigRange := ([] (1_) & bigRange)[intExpr(1) .. 3];
     if length(bigRange) <> 3 or bigRange[1] <> 1_ or bigRange[2] <> 2_ or bigRange[3] <> 3_ then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bigInteger' failed. (6)");
       okay := FALSE;
     end if;
-    bigRange := (bigRange & [](1_))[4 .. intExpr(3)];
+    bigRange := (bigRange & [] (1_))[4 .. intExpr(3)];
     if length(bigRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bigInteger' failed. (7)");
       okay := FALSE;
     end if;
-    bigRange := (bigRange & [](1_))[1 .. 0];
+    bigRange := (bigRange & [] (1_))[1 .. 0];
     if length(bigRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bigInteger' failed. (8)");
       okay := FALSE;
@@ -5983,22 +5983,22 @@ const func boolean: testRange2 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array float' failed. (4)");
       okay := FALSE;
     end if;
-    fltRange := ([](1.0, 2.0) & fltRange)[2 .. 3];
+    fltRange := ([] (1.0, 2.0) & fltRange)[2 .. 3];
     if length(fltRange) <> 2 or fltRange[1] <> 2.0 or fltRange[2] <> 3.0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array float' failed. (5)");
       okay := FALSE;
     end if;
-    fltRange := ([](1.0) & fltRange)[intExpr(1) .. 3];
+    fltRange := ([] (1.0) & fltRange)[intExpr(1) .. 3];
     if length(fltRange) <> 3 or fltRange[1] <> 1.0 or fltRange[2] <> 2.0 or fltRange[3] <> 3.0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array float' failed. (6)");
       okay := FALSE;
     end if;
-    fltRange := (fltRange & [](1.0))[4 .. intExpr(3)];
+    fltRange := (fltRange & [] (1.0))[4 .. intExpr(3)];
     if length(fltRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array float' failed. (7)");
       okay := FALSE;
     end if;
-    fltRange := (fltRange & [](1.0))[1 .. 0];
+    fltRange := (fltRange & [] (1.0))[1 .. 0];
     if length(fltRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array float' failed. (8)");
       okay := FALSE;
@@ -6124,23 +6124,23 @@ const func boolean: testRange2 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array complex' failed. (4)");
       okay := FALSE;
     end if;
-    cpxRange := ([](complex(1.0, 1.0), complex(2.0, 2.0)) & cpxRange)[2 .. 3];
+    cpxRange := ([] (complex(1.0, 1.0), complex(2.0, 2.0)) & cpxRange)[2 .. 3];
     if length(cpxRange) <> 2 or cpxRange[1] <> complex(2.0, 2.0) or cpxRange[2] <> complex(3.0, 3.0) then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array complex' failed. (5)");
       okay := FALSE;
     end if;
-    cpxRange := ([](complex(1.0, 1.0)) & cpxRange)[intExpr(1) .. 3];
+    cpxRange := ([] (complex(1.0, 1.0)) & cpxRange)[intExpr(1) .. 3];
     if length(cpxRange) <> 3 or cpxRange[1] <> complex(1.0, 1.0) or cpxRange[2] <> complex(2.0, 2.0) or
                                  cpxRange[3] <> complex(3.0, 3.0) then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array complex' failed. (6)");
       okay := FALSE;
     end if;
-    cpxRange := (cpxRange & [](complex(1.0, 1.0)))[4 .. intExpr(3)];
+    cpxRange := (cpxRange & [] (complex(1.0, 1.0)))[4 .. intExpr(3)];
     if length(cpxRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array complex' failed. (7)");
       okay := FALSE;
     end if;
-    cpxRange := (cpxRange & [](complex(1.0, 1.0)))[1 .. 0];
+    cpxRange := (cpxRange & [] (complex(1.0, 1.0)))[1 .. 0];
     if length(cpxRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array complex' failed. (8)");
       okay := FALSE;
@@ -6282,22 +6282,22 @@ const func boolean: testRange3 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array char' failed. (4)");
       okay := FALSE;
     end if;
-    chrRange := ([]('a', 'b') & chrRange)[2 .. 3];
+    chrRange := ([] ('a', 'b') & chrRange)[2 .. 3];
     if length(chrRange) <> 2 or chrRange[1] <> 'b' or chrRange[2] <> 'c' then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array char' failed. (5)");
       okay := FALSE;
     end if;
-    chrRange := ([]('a') & chrRange)[intExpr(1) .. 3];
+    chrRange := ([] ('a') & chrRange)[intExpr(1) .. 3];
     if length(chrRange) <> 3 or chrRange[1] <> 'a' or chrRange[2] <> 'b' or chrRange[3] <> 'c' then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array char' failed. (6)");
       okay := FALSE;
     end if;
-    chrRange := (chrRange & []('a'))[4 .. intExpr(3)];
+    chrRange := (chrRange & [] ('a'))[4 .. intExpr(3)];
     if length(chrRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array char' failed. (7)");
       okay := FALSE;
     end if;
-    chrRange := (chrRange & []('a'))[1 .. 0];
+    chrRange := (chrRange & [] ('a'))[1 .. 0];
     if length(chrRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array char' failed. (8)");
       okay := FALSE;
@@ -6423,23 +6423,23 @@ const func boolean: testRange3 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array string' failed. (4)");
       okay := FALSE;
     end if;
-    strRange := ([]("one", "two") & strRange)[2 .. 3];
+    strRange := ([] ("one", "two") & strRange)[2 .. 3];
     if length(strRange) <> 2 or strRange[1] <> "two" or strRange[2] <> "three" then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array string' failed. (5)");
       okay := FALSE;
     end if;
-    strRange := ([]("one") & strRange)[intExpr(1) .. 3];
+    strRange := ([] ("one") & strRange)[intExpr(1) .. 3];
     if length(strRange) <> 3 or strRange[1] <> "one" or strRange[2] <> "two" or
                                 strRange[3] <> "three" then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array string' failed. (6)");
       okay := FALSE;
     end if;
-    strRange := (strRange & []("one"))[4 .. intExpr(3)];
+    strRange := (strRange & [] ("one"))[4 .. intExpr(3)];
     if length(strRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array string' failed. (7)");
       okay := FALSE;
     end if;
-    strRange := (strRange & []("one"))[1 .. 0];
+    strRange := (strRange & [] ("one"))[1 .. 0];
     if length(strRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array string' failed. (8)");
       okay := FALSE;
@@ -6578,23 +6578,23 @@ const func boolean: testRange4 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bstring' failed. (4)");
       okay := FALSE;
     end if;
-    bstRange := ([](bstring("one"), bstring("two")) & bstRange)[2 .. 3];
+    bstRange := ([] (bstring("one"), bstring("two")) & bstRange)[2 .. 3];
     if length(bstRange) <> 2 or bstRange[1] <> bstring("two") or bstRange[2] <> bstring("three") then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bstring' failed. (5)");
       okay := FALSE;
     end if;
-    bstRange := ([](bstring("one")) & bstRange)[intExpr(1) .. 3];
+    bstRange := ([] (bstring("one")) & bstRange)[intExpr(1) .. 3];
     if length(bstRange) <> 3 or bstRange[1] <> bstring("one") or bstRange[2] <> bstring("two") or
                                 bstRange[3] <> bstring("three") then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bstring' failed. (6)");
       okay := FALSE;
     end if;
-    bstRange := (bstRange & [](bstring("one")))[4 .. intExpr(3)];
+    bstRange := (bstRange & [] (bstring("one")))[4 .. intExpr(3)];
     if length(bstRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bstring' failed. (7)");
       okay := FALSE;
     end if;
-    bstRange := (bstRange & [](bstring("one")))[1 .. 0];
+    bstRange := (bstRange & [] (bstring("one")))[1 .. 0];
     if length(bstRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bstring' failed. (8)");
       okay := FALSE;
@@ -6728,23 +6728,23 @@ const func boolean: testRange4 is func
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bitset' failed. (4)");
       okay := FALSE;
     end if;
-    setRange := ([]({1}, {2}) & setRange)[2 .. 3];
+    setRange := ([] ({1}, {2}) & setRange)[2 .. 3];
     if length(setRange) <> 2 or setRange[1] <> {2} or setRange[2] <> {3} then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bitset' failed. (5)");
       okay := FALSE;
     end if;
-    setRange := ([]({1}) & setRange)[intExpr(1) .. 3];
+    setRange := ([] ({1}) & setRange)[intExpr(1) .. 3];
     if length(setRange) <> 3 or setRange[1] <> {1} or setRange[2] <> {2} or
                                  setRange[3] <> {3} then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bitset' failed. (6)");
       okay := FALSE;
     end if;
-    setRange := (setRange & []({1}))[4 .. intExpr(3)];
+    setRange := (setRange & [] ({1}))[4 .. intExpr(3)];
     if length(setRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bitset' failed. (7)");
       okay := FALSE;
     end if;
-    setRange := (setRange & []({1}))[1 .. 0];
+    setRange := (setRange & [] ({1}))[1 .. 0];
     if length(setRange) <> 0 then
       writeln(" ***** ARRAY [ START .. STOP ] for 'array bitset' failed. (8)");
       okay := FALSE;
@@ -12968,12 +12968,12 @@ const func boolean: testSubarrFixLen_integer is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (4)");
       okay := FALSE;
     end if;
-    intSubarr := ([](1, 2) & intSubarr)[2 fixLen 2];
+    intSubarr := ([] (1, 2) & intSubarr)[2 fixLen 2];
     if intSubarr <> [] (2, 3) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (5)");
       okay := FALSE;
     end if;
-    intSubarr := ([](1) & intSubarr)[intExpr(1) fixLen 3];
+    intSubarr := ([] (1) & intSubarr)[intExpr(1) fixLen 3];
     if intSubarr <> [] (1, 2, 3) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (6)");
       okay := FALSE;
@@ -12988,12 +12988,12 @@ const func boolean: testSubarrFixLen_integer is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (8)");
       okay := FALSE;
     end if;
-    intSubarr := (intSubarr & [](1))[4 fixLen intExpr(0)];
+    intSubarr := (intSubarr & [] (1))[4 fixLen intExpr(0)];
     if length(intSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (9)");
       okay := FALSE;
     end if;
-    intSubarr := (intSubarr & [](1))[1 fixLen 0];
+    intSubarr := (intSubarr & [] (1))[1 fixLen 0];
     if length(intSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array integer' failed. (10)");
       okay := FALSE;
@@ -13464,12 +13464,12 @@ const func boolean: testSubarrFixLen_bigInteger is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (4)");
       okay := FALSE;
     end if;
-    bigSubarr := ([](1_, 2_) & bigSubarr)[2 fixLen 2];
+    bigSubarr := ([] (1_, 2_) & bigSubarr)[2 fixLen 2];
     if bigSubarr <> [] (2_, 3_) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (5)");
       okay := FALSE;
     end if;
-    bigSubarr := ([](1_) & bigSubarr)[intExpr(1) fixLen 3];
+    bigSubarr := ([] (1_) & bigSubarr)[intExpr(1) fixLen 3];
     if bigSubarr <> [] (1_, 2_, 3_) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (6)");
       okay := FALSE;
@@ -13484,12 +13484,12 @@ const func boolean: testSubarrFixLen_bigInteger is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (8)");
       okay := FALSE;
     end if;
-    bigSubarr := (bigSubarr & [](1_))[4 fixLen intExpr(0)];
+    bigSubarr := (bigSubarr & [] (1_))[4 fixLen intExpr(0)];
     if length(bigSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (9)");
       okay := FALSE;
     end if;
-    bigSubarr := (bigSubarr & [](1_))[1 fixLen 0];
+    bigSubarr := (bigSubarr & [] (1_))[1 fixLen 0];
     if length(bigSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bigInteger' failed. (10)");
       okay := FALSE;
@@ -13960,12 +13960,12 @@ const func boolean: testSubarrFixLen_float is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (4)");
       okay := FALSE;
     end if;
-    fltSubarr := ([](1.0, 2.0) & fltSubarr)[2 fixLen 2];
+    fltSubarr := ([] (1.0, 2.0) & fltSubarr)[2 fixLen 2];
     if fltSubarr <> [] (2.0, 3.0) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (5)");
       okay := FALSE;
     end if;
-    fltSubarr := ([](1.0) & fltSubarr)[intExpr(1) fixLen 3];
+    fltSubarr := ([] (1.0) & fltSubarr)[intExpr(1) fixLen 3];
     if fltSubarr <> [] (1.0, 2.0, 3.0) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (6)");
       okay := FALSE;
@@ -13980,12 +13980,12 @@ const func boolean: testSubarrFixLen_float is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (8)");
       okay := FALSE;
     end if;
-    fltSubarr := (fltSubarr & [](1.0))[4 fixLen intExpr(0)];
+    fltSubarr := (fltSubarr & [] (1.0))[4 fixLen intExpr(0)];
     if length(fltSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (9)");
       okay := FALSE;
     end if;
-    fltSubarr := (fltSubarr & [](1.0))[1 fixLen 0];
+    fltSubarr := (fltSubarr & [] (1.0))[1 fixLen 0];
     if length(fltSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array float' failed. (10)");
       okay := FALSE;
@@ -14463,12 +14463,12 @@ const func boolean: testSubarrFixLen_complex is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (4)");
       okay := FALSE;
     end if;
-    cpxSubarr := ([](complex(1.0, 1.0), complex(2.0, 2.0)) & cpxSubarr)[2 fixLen 2];
+    cpxSubarr := ([] (complex(1.0, 1.0), complex(2.0, 2.0)) & cpxSubarr)[2 fixLen 2];
     if cpxSubarr <> [] (complex(2.0, 2.0), complex(3.0, 3.0)) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (5)");
       okay := FALSE;
     end if;
-    cpxSubarr := ([](complex(1.0, 1.0)) & cpxSubarr)[intExpr(1) fixLen 3];
+    cpxSubarr := ([] (complex(1.0, 1.0)) & cpxSubarr)[intExpr(1) fixLen 3];
     if cpxSubarr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0)) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (6)");
       okay := FALSE;
@@ -14485,12 +14485,12 @@ const func boolean: testSubarrFixLen_complex is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (8)");
       okay := FALSE;
     end if;
-    cpxSubarr := (cpxSubarr & [](complex(1.0, 1.0)))[4 fixLen intExpr(0)];
+    cpxSubarr := (cpxSubarr & [] (complex(1.0, 1.0)))[4 fixLen intExpr(0)];
     if length(cpxSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (9)");
       okay := FALSE;
     end if;
-    cpxSubarr := (cpxSubarr & [](complex(1.0, 1.0)))[1 fixLen 0];
+    cpxSubarr := (cpxSubarr & [] (complex(1.0, 1.0)))[1 fixLen 0];
     if length(cpxSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array complex' failed. (10)");
       okay := FALSE;
@@ -14971,12 +14971,12 @@ const func boolean: testSubarrFixLen_char is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (4)");
       okay := FALSE;
     end if;
-    chrSubarr := ([]('a', 'b') & chrSubarr)[2 fixLen 2];
+    chrSubarr := ([] ('a', 'b') & chrSubarr)[2 fixLen 2];
     if chrSubarr <> [] ('b', 'c') then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (5)");
       okay := FALSE;
     end if;
-    chrSubarr := ([]('a') & chrSubarr)[intExpr(1) fixLen 3];
+    chrSubarr := ([] ('a') & chrSubarr)[intExpr(1) fixLen 3];
     if chrSubarr <> [] ('a', 'b', 'c') then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (6)");
       okay := FALSE;
@@ -14991,12 +14991,12 @@ const func boolean: testSubarrFixLen_char is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (8)");
       okay := FALSE;
     end if;
-    chrSubarr := (chrSubarr & []('a'))[4 fixLen intExpr(0)];
+    chrSubarr := (chrSubarr & [] ('a'))[4 fixLen intExpr(0)];
     if length(chrSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (9)");
       okay := FALSE;
     end if;
-    chrSubarr := (chrSubarr & []('a'))[1 fixLen 0];
+    chrSubarr := (chrSubarr & [] ('a'))[1 fixLen 0];
     if length(chrSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array char' failed. (10)");
       okay := FALSE;
@@ -15468,12 +15468,12 @@ const func boolean: testSubarrFixLen_string is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (4)");
       okay := FALSE;
     end if;
-    strSubarr := ([]("one", "two") & strSubarr)[2 fixLen 2];
+    strSubarr := ([] ("one", "two") & strSubarr)[2 fixLen 2];
     if strSubarr <> [] ("two", "three") then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (5)");
       okay := FALSE;
     end if;
-    strSubarr := ([]("one") & strSubarr)[intExpr(1) fixLen 3];
+    strSubarr := ([] ("one") & strSubarr)[intExpr(1) fixLen 3];
     if strSubarr <> [] ("one", "two", "three") then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (6)");
       okay := FALSE;
@@ -15488,12 +15488,12 @@ const func boolean: testSubarrFixLen_string is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (8)");
       okay := FALSE;
     end if;
-    strSubarr := (strSubarr & []("one"))[4 fixLen intExpr(0)];
+    strSubarr := (strSubarr & [] ("one"))[4 fixLen intExpr(0)];
     if length(strSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (9)");
       okay := FALSE;
     end if;
-    strSubarr := (strSubarr & []("one"))[1 fixLen 0];
+    strSubarr := (strSubarr & [] ("one"))[1 fixLen 0];
     if length(strSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array string' failed. (10)");
       okay := FALSE;
@@ -15973,12 +15973,12 @@ const func boolean: testSubarrFixLen_bstring is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (4)");
       okay := FALSE;
     end if;
-    bstSubarr := ([](bstring("one"), bstring("two")) & bstSubarr)[2 fixLen 2];
+    bstSubarr := ([] (bstring("one"), bstring("two")) & bstSubarr)[2 fixLen 2];
     if bstSubarr <> [] (bstring("two"),  bstring("three")) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (5)");
       okay := FALSE;
     end if;
-    bstSubarr := ([](bstring("one")) & bstSubarr)[intExpr(1) fixLen 3];
+    bstSubarr := ([] (bstring("one")) & bstSubarr)[intExpr(1) fixLen 3];
     if bstSubarr <> [] (bstring("one"),   bstring("two"),   bstring("three")) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (6)");
       okay := FALSE;
@@ -15995,12 +15995,12 @@ const func boolean: testSubarrFixLen_bstring is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (8)");
       okay := FALSE;
     end if;
-    bstSubarr := (bstSubarr & [](bstring("one")))[4 fixLen intExpr(0)];
+    bstSubarr := (bstSubarr & [] (bstring("one")))[4 fixLen intExpr(0)];
     if length(bstSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (9)");
       okay := FALSE;
     end if;
-    bstSubarr := (bstSubarr & [](bstring("one")))[1 fixLen 0];
+    bstSubarr := (bstSubarr & [] (bstring("one")))[1 fixLen 0];
     if length(bstSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bstring' failed. (10)");
       okay := FALSE;
@@ -16481,12 +16481,12 @@ const func boolean: testSubarrFixLen_bitset is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (4)");
       okay := FALSE;
     end if;
-    setSubarr := ([]({1}, {2}) & setSubarr)[2 fixLen 2];
+    setSubarr := ([] ({1}, {2}) & setSubarr)[2 fixLen 2];
     if setSubarr <> [] ({2}, {3}) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (5)");
       okay := FALSE;
     end if;
-    setSubarr := ([]({1}) & setSubarr)[intExpr(1) fixLen 3];
+    setSubarr := ([] ({1}) & setSubarr)[intExpr(1) fixLen 3];
     if setSubarr <> [] ({1}, {2}, {3}) then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (6)");
       okay := FALSE;
@@ -16501,12 +16501,12 @@ const func boolean: testSubarrFixLen_bitset is func
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (8)");
       okay := FALSE;
     end if;
-    setSubarr := (setSubarr & []({1}))[4 fixLen intExpr(0)];
+    setSubarr := (setSubarr & [] ({1}))[4 fixLen intExpr(0)];
     if length(setSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (9)");
       okay := FALSE;
     end if;
-    setSubarr := (setSubarr & []({1}))[1 fixLen 0];
+    setSubarr := (setSubarr & [] ({1}))[1 fixLen 0];
     if length(setSubarr) <> 0 then
       writeln(" ***** ARRAY [ START fixLen LENGTH ] for 'array bitset' failed. (10)");
       okay := FALSE;
