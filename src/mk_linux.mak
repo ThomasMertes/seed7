@@ -1,7 +1,7 @@
 # Makefile for linux/bsd/unix and gcc. Commands executed by: bash
 # To compile use a command shell and call:
-#   make -f mk_linux.mak depend
-#   make -f mk_linux.mak
+#   make depend
+#   make
 # If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
 # CFLAGS =
@@ -99,6 +99,8 @@ DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_ifx.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
+makefile_name := $(firstword $(MAKEFILE_LIST))
+
 s7: ../bin/s7 ../prg/s7
 	../bin/s7 -l ../lib level
 	@echo
@@ -150,9 +152,7 @@ sql_srv.o: sql_srv.c sql_cli.c sql_log.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS_NO_FLTO) $< $(SQL_SERVER_LIBS) $(SQL_SERVER_CC_OPTION) -o $@
 	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
-all: depend
-	$(MAKE) -f mk_linux.mak s7
-	$(MAKE) -f mk_linux.mak s7c
+all: depend s7 s7c
 
 .PHONY: clean s7 s7c test check install all next_lvl strip clean_utils distclean uninstall
 
@@ -260,7 +260,7 @@ base.h:
 
 settings.h:
 	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
-	echo "#define MAKEFILE_NAME \"mk_linux.mak\"" >> settings.h
+	echo "#define MAKEFILE_NAME \"$(makefile_name)\"" >> settings.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> settings.h
 	echo "#define AWAIT_WITH_SELECT" >> settings.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> settings.h
