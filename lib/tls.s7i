@@ -263,7 +263,7 @@ const type: tlsParseState is new struct
   end struct;
 
 (**
- *  [[file|File]] implementation type for TLS.
+ *  [[file|File]] implementation type for Transport Layer Security (TLS).
  *  This type supports communication TLS. A ''tlsFile'' is
  *  not seekable. The functions [[null_file#length(in_null_file)|length]],
  *  [[null_file#seek(in_null_file,in_integer)|seek]] and
