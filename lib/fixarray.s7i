@@ -45,11 +45,13 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
     var type: arrayType is void;
   local
     var type: tupleType is void;
+    var type: sliceType is void;
   begin
     global
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
       tupleType := tuple(baseType);
+      sliceType := newtype;
 
       const creator: (ref arrayType: dest) ::= (in arrayType: source)         is action "ARR_CREATE";
       const destroyer: destroy (ref arrayType: aValue)                        is action "ARR_DESTR";
@@ -134,6 +136,34 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
 
       const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
+
+      const creator: (ref sliceType: dest) ::= (ref sliceType: source)        is action "ARR_CREATE";
+      const destroyer: destroy (ref sliceType: aValue)                        is action "ARR_DESTR";
+      const proc: (inout sliceType: dest) := (ref sliceType: source)          is action "ARR_CPY";
+
+      (**
+       *  Assign array 'source' to the 'position' of the 'destination'.
+       *   A @:= [B] C;
+       *  is equivalent to
+       *   A := A[..pred(B)] & C & A[B+length(C)..];
+       *  @exception INDEX_ERROR If 'position' is less than [[#minIdx(in_arrayType)|minIdx]](destination) or
+       *                         elements beyond 'destination' would be overwritten.
+       *)
+      const proc: (inout arrayType: destination) @:=
+                   [ (in integer: position) ] (ref sliceType: source)         is action "ARR_POSCPY";
+
+      const func sliceType: (in arrayType: arr) [ (in integer: start) .. ]    is action "ARR_TAIL";
+
+      const func sliceType: (in arrayType: arr) [ .. (in integer: stop) ]     is action "ARR_HEAD";
+
+      const func sliceType: (in arrayType: arr) [ (in integer: start) ..
+                                                  (in integer: length) ]      is action "ARR_RANGE";
+
+      const func sliceType: (in arrayType: arr) [ (in integer: start) len
+                                                  (in integer: length) ]      is action "ARR_SUBARR";
+
+      const func sliceType: (in arrayType: arr) [ (in integer: start) fixLen
+                                                  (in integer: length) ]      is action "ARR_SUBARR_FIXLEN";
 
       (**
        *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
@@ -297,6 +327,37 @@ const func type: array [ (in integer: minIdx) .. (in integer: maxIdx) ] (in type
             end while;
           end if;
         end func;
+
+      if getobj((in baseType: element1) = (in baseType: element2)) <> NIL and
+          getobj((in baseType: element1) <> (in baseType: element2)) <> NIL then
+
+        const func boolean: (in arrayType: arr1) = (in arrayType: arr2) is func
+          result
+            var boolean: isEqual is TRUE;
+          local
+            var integer: number is 1;
+          begin
+            number := minIdx;
+            while number <= maxIdx and isEqual do
+              isEqual := arr1[number] = arr2[number];
+              incr(number);
+            end while;
+          end func;
+
+        const func boolean: (in arrayType: arr1) <> (in arrayType: arr2) is func
+          result
+            var boolean: isNotEqual is FALSE;
+          local
+            var integer: number is 1;
+          begin
+            number := minIdx;
+            while number <= maxIdx and not isNotEqual do
+              isNotEqual := arr1[number] <> arr2[number];
+              incr(number);
+            end while;
+          end func;
+
+      end if;
 
     end global;
   end func;

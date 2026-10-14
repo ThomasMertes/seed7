@@ -88,6 +88,17 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
       const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
 
       (**
+       *  Assign array 'source' to the 'position' of the 'destination'.
+       *   A @:= [B] C;
+       *  is equivalent to
+       *   A := A[..pred(B)] & C & A[B+length(C)..];
+       *  @exception INDEX_ERROR If 'position' is less than [[#minIdx(in_arrayType)|minIdx]](destination) or
+       *                         elements beyond 'destination' would be overwritten.
+       *)
+      const proc: (inout arrayType: destination) @:=
+                   [ (in integer: position) ] (in arrayType: source)         is action "ARR_POSCPY";
+
+      (**
        *  Get a sub array beginning at the position ''start''.
        *  @return the sub array beginning at the start position.
        *  @exception INDEX_ERROR The start position is less than [[#minIdx(in_arrayType)|minIdx]](arr).
@@ -122,6 +133,17 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
        *)
       const func arrayType: (in arrayType: arr) [ (in integer: start) len
                                                   (in integer: length) ]      is action "ARR_SUBARR";
+
+      (**
+       *  Get a sub array from a ''start'' position with a guaranteed ''length''.
+       *  @return the sub array from the ''start'' position with ''length'' elements.
+       *  @exception INDEX_ERROR The ''length'' is negative, or the ''start'' position
+       *                         is outside of the array, or the sub array from the
+       *                         ''start'' position has less than ''length'' elements.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) fixLen
+                                                  (in integer: length) ]      is action "ARR_SUBARR_FIXLEN";
 
       (**
        *  Insert ''element'' at ''index'' into ''arr''.

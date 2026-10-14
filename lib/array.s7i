@@ -87,6 +87,17 @@ const func type: array (in type: baseType) is func
        *)
       const proc: (inout arrayType: arr) &:= (in baseType: element)           is action "ARR_PUSH";
 
+      (**
+       *  Assign array 'source' to the 'position' of the 'destination'.
+       *   A @:= [B] C;
+       *  is equivalent to
+       *   A := A[..pred(B)] & C & A[B+length(C)..];
+       *  @exception INDEX_ERROR If 'position' is less than [[#minIdx(in_arrayType)|minIdx]](destination) or
+       *                         elements beyond 'destination' would be overwritten.
+       *)
+      const proc: (inout arrayType: destination) @:=
+                   [ (in integer: position) ] (in arrayType: source)          is action "ARR_POSCPY";
+
       const func arrayType: [] (in tupleType: aTuple)                         is action "ARR_ARRLIT";
       const func arrayType: [] (in baseType: anElement)                       is action "ARR_BASELIT";
       const func arrayType: [ (in integer: start) ] (in tupleType: aTuple)    is action "ARR_ARRLIT2";
