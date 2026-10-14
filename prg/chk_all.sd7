@@ -232,6 +232,7 @@ const string: chkarr_output is "\n\
   \Array initialization works correctly.\n\
   \Array comparison works correctly.\n\
   \Array assignment works correctly.\n\
+  \Array assignment at position ( @:= ) works correctly.\n\
   \Array append ( &:= ) works correctly.\n\
   \Array push ( &:= ) works correctly.\n\
   \Index access of array element works correctly.\n\
