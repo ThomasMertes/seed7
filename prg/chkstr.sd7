@@ -24623,6 +24623,36 @@ const func string: peelFirstChar (inout string: stri) is func
   end func;
 
 
+const func string: peelFirstChar2 (inout string: stri) is func
+  result
+    var string: part is "";
+  begin
+    part := stri[.. 2];
+    # To check the implementation this must change the address of 'stri':
+    stri := stri[3 ..];
+  end func;
+
+
+const func string: peelLastChar (inout string: stri) is func
+  result
+    var string: part is "";
+  begin
+    part := stri[length(stri) ..];
+    # To check the implementation this must change the address of 'stri':
+    stri := stri[.. pred(length(stri))];
+  end func;
+
+
+const func string: peelLastChar2 (inout string: stri) is func
+  result
+    var string: part is "";
+  begin
+    part := stri[pred(length(stri)) ..];
+    # To check the implementation this must change the address of 'stri':
+    stri := stri[.. length(stri) - 2];
+  end func;
+
+
 const proc: check_string_assign is func
   local
     var boolean: okay is TRUE;
@@ -24682,6 +24712,12 @@ const proc: check_string_assign is func
     stri := stringFromChar('Z');  ok &:= stri = "Z";
     stri := "ab";                 ok &:= stri = "ab";
     stri := peelFirstChar(stri);  ok &:= stri = "a";
+    stri := "abc";
+    stri := peelFirstChar2(stri); ok &:= stri = "ab";
+    stri := "ab";
+    stri := peelLastChar(stri);   ok &:= stri = "b";
+    stri := "abc";
+    stri := peelLastChar2(stri);  ok &:= stri = "bc";
     striArr[1] := "asdfghjkl";               ok &:= striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1];                ok &:= striArr[1] = "asdfghjkl";
     striArr[1] := striArr[1][1 ..];          ok &:= striArr[1] = "asdfghjkl";
@@ -24701,6 +24737,12 @@ const proc: check_string_assign is func
     striArr[1] := striArr[intExpr(1)][2 .. 6];        ok &:= striArr[1] = "dfghj";
     striArr[1] := striArr[intExpr(1)][2 len 3];       ok &:= striArr[1] = "fgh";
     striArr[1] := peelFirstChar(striArr[1]);          ok &:= striArr[1] = "f";
+    striArr[1] := "fgh";
+    striArr[1] := peelFirstChar2(striArr[1]);         ok &:= striArr[1] = "fg";
+    striArr[1] := "fgh";
+    striArr[1] := peelLastChar(striArr[1]);           ok &:= striArr[1] = "h";
+    striArr[1] := "fgh";
+    striArr[1] := peelLastChar2(striArr[1]);          ok &:= striArr[1] = "gh";
     striArr[intExpr(1)] := "asdfghjkl";               ok &:= striArr[1] = "asdfghjkl";
     striArr[intExpr(1)] := striArr[1];                ok &:= striArr[1] = "asdfghjkl";
     striArr[intExpr(1)] := striArr[1][1 ..];          ok &:= striArr[1] = "asdfghjkl";
@@ -24711,15 +24753,21 @@ const proc: check_string_assign is func
     striArr[intExpr(1)] := striArr[1][2 .. 6];        ok &:= striArr[1] = "dfghj";
     striArr[intExpr(1)] := striArr[1][2 len 3];       ok &:= striArr[1] = "fgh";
     striArr[intExpr(1)] := "asdfghjkl";               ok &:= striArr[1] = "asdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)];                ok &:= striArr[1] = "asdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)][1 ..];          ok &:= striArr[1] = "asdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)][intExpr(1) ..]; ok &:= striArr[1] = "asdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)][2 ..];          ok &:= striArr[1] = "sdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)][.. 8];          ok &:= striArr[1] = "sdfghjkl";
-    striArr[intExpr(1)] := striArr[intExpr(1)][.. 7];          ok &:= striArr[1] = "sdfghjk";
-    striArr[intExpr(1)] := striArr[intExpr(1)][2 .. 6];        ok &:= striArr[1] = "dfghj";
-    striArr[intExpr(1)] := striArr[intExpr(1)][2 len 3];       ok &:= striArr[1] = "fgh";
-    striArr[intExpr(1)] := peelFirstChar(striArr[intExpr(1)]); ok &:= striArr[1] = "f";
+    striArr[intExpr(1)] := striArr[intExpr(1)];                 ok &:= striArr[1] = "asdfghjkl";
+    striArr[intExpr(1)] := striArr[intExpr(1)][1 ..];           ok &:= striArr[1] = "asdfghjkl";
+    striArr[intExpr(1)] := striArr[intExpr(1)][intExpr(1) ..];  ok &:= striArr[1] = "asdfghjkl";
+    striArr[intExpr(1)] := striArr[intExpr(1)][2 ..];           ok &:= striArr[1] = "sdfghjkl";
+    striArr[intExpr(1)] := striArr[intExpr(1)][.. 8];           ok &:= striArr[1] = "sdfghjkl";
+    striArr[intExpr(1)] := striArr[intExpr(1)][.. 7];           ok &:= striArr[1] = "sdfghjk";
+    striArr[intExpr(1)] := striArr[intExpr(1)][2 .. 6];         ok &:= striArr[1] = "dfghj";
+    striArr[intExpr(1)] := striArr[intExpr(1)][2 len 3];        ok &:= striArr[1] = "fgh";
+    striArr[intExpr(1)] := peelFirstChar(striArr[intExpr(1)]);  ok &:= striArr[1] = "f";
+    striArr[1] := "fgh";
+    striArr[intExpr(1)] := peelFirstChar2(striArr[intExpr(1)]); ok &:= striArr[1] = "fg";
+    striArr[1] := "fgh";
+    striArr[intExpr(1)] := peelLastChar(striArr[intExpr(1)]);   ok &:= striArr[1] = "h";
+    striArr[1] := "fgh";
+    striArr[intExpr(1)] := peelLastChar2(striArr[intExpr(1)]);  ok &:= striArr[1] = "gh";
     if not ok then
       writeln(" ***** String assignment does not work correctly.");
       okay := FALSE;
