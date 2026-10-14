@@ -294,7 +294,7 @@ const func boolean: valueIsAtHeap (in type: aType) is func
         SOCKETOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT,
         PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
         ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT,
-        REFLISTOBJECT};
+        REFLISTOBJECT, POLLOBJECT};
   begin
     if aType in typeData.typeCategory and
         typeData.typeCategory[aType] in heapCategories then
