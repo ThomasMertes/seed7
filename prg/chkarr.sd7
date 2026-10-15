@@ -13848,6 +13848,10 @@ const proc: testIndex is func
   end func;
 
 
+const type: baseCharArray0 is array [0 ..] char;
+const type: baseCharArray1 is array [1 ..] char;
+
+
 const proc: testTimes is func
   local
     var boolean: okay is TRUE;
@@ -14083,6 +14087,14 @@ const proc: testTimes is func
     end if;
     if [0 len 2] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
       writeln(" ***** array times operator for 'array bitset' does not work correctly. (6)");
+      okay := FALSE;
+    end if;
+
+    if  baseCharArray0 [.. 2] times 'x'  <> baseCharArray0 [] ('x', 'x', 'x') or
+        baseCharArray0 [len 2] times 'x' <> baseCharArray0 [] ('x', 'x') or
+        baseCharArray1 [.. 3] times 'x'  <> baseCharArray1 [] ('x', 'x', 'x') or
+        baseCharArray1 [len 2] times 'x' <> baseCharArray1 [] ('x', 'x') then
+      writeln(" ***** array times operator for 'array [.. n] char' does not work correctly.");
       okay := FALSE;
     end if;
 
