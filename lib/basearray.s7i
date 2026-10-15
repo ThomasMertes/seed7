@@ -246,6 +246,21 @@ const func type: array [ (in integer: minIdx) .. ] (in type: baseType) is func
       const func maxIndexType: (attr arrayType) [ .. (in integer: maxIdx) ] is
           return maxIndexType conv maxIdx;
 
+      const func maxIndexType: (attr arrayType) [ len (in integer: length) ] is
+          return maxIndexType conv pred(minIdx + length);
+
+      (**
+       *  Generate a base index array by specifying ''maxIndex'' and ''element''.
+       *   const type: baseCharArray0 is array [0 ..] char;
+       *   const type: baseCharArray1 is array [1 ..] char;
+       *   baseCharArray0 [.. 2] times 'x'   returns  baseCharArray0 [] ('x', 'x', 'x')
+       *   baseCharArray0 [len 2] times 'x'  returns  baseCharArray0 [] ('x', 'x')
+       *   baseCharArray1 [.. 3] times 'x'   returns  baseCharArray1 [] ('x', 'x', 'x')
+       *   baseCharArray1 [len 2] times 'x'  returns  baseCharArray1 [] ('x', 'x')
+       *  @return an array with succ(maxIndex - minIdx) ''elements''.
+       *  @exception RANGE_ERROR If ''maxIndex'' is less than pred(minIdx).
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
       const func arrayType: (in maxIndexType: maxIndex) times (in baseType: element) is
           return SET_MIN_IDX(paren1, minIdx, paren2,
                              TIMES(succ(ord(maxIndex) - minIdx), times, element, arrayType));
