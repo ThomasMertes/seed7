@@ -29,6 +29,9 @@
 include "draw.s7i";
 
 
+(**
+ *  One dimensional array of pixels.
+ *)
 const type: pixelArray is array [1 ..] pixel;
 
 
