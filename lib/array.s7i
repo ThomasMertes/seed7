@@ -247,7 +247,7 @@ const func type: array (in type: baseType) is func
       const func integer: maxIdx (in arrayType: arr)                          is action "ARR_MAXIDX";
 
       (**
-       *  Generate an array by using ''factor'' ''elements''.
+       *  Generate an array by using ''factor'' and ''element''.
        *    5 times 'x'    returns  [] ('x', 'x', 'x', 'x', 'x')
        *    0 times FALSE  returns  (array boolean).value
        *   -1 times 5      raises   RANGE_ERROR
