@@ -2713,6 +2713,9 @@ const proc: process_main_declaration (in reference: current_object,
         main_prolog &:= ");\n";
       end if;
     end if;
+    if ccConf.HAS_PRCTL then
+      main_prolog &:= "prctl(PR_SET_DUMPABLE, 0);\n";
+    end if;
     if config.profile_function then
       main_prolog &:= "initProfile();\n";
       profiledFunctions @:= [objNumber(main_object)] main_object;
@@ -5602,6 +5605,10 @@ const proc: write_file_head is func
                     \#include <math.h>\n\
                     \#include <setjmp.h>\n\
                     \#include <signal.h>");
+    if ccConf.HAS_PRCTL then
+      writeln(c_prog, "#include <linux/prctl.h>\n\
+                      \#include <sys/prctl.h>");
+    end if;
     writeln(c_prog, "typedef short int          int16Type;");
     writeln(c_prog, "typedef unsigned short int uint16Type;");
     writeln(c_prog, "typedef " <& ccConf.INT32TYPE <& " int32Type;");
