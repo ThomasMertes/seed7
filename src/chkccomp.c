@@ -12135,6 +12135,12 @@ int main (int argc, char **argv)
                          "int main(int argc,char *argv[])\n"
                          "{mmap(NULL, 12345, PROT_READ, MAP_PRIVATE, 3, 0);\n"
                          "return 0;}\n"));
+    fprintf(versionFile, "#define HAS_PRCTL %d\n",
+        compileAndLinkOk("#include <linux/prctl.h>\n"
+                         "#include <sys/prctl.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{prctl(PR_SET_DUMPABLE, 0);\n"
+                         "return 0;}\n"));
     fprintf(logFile, " determined\n");
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
