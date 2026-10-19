@@ -3098,16 +3098,7 @@ const proc: process (INT_CEIL_DIV, in reference: function,
                 countDivisionOptimizations(c_expr);
               end if;
             end if;
-            if dividend_range.minValue > 0 then
-              # No check for integer overflow necessary.
-              # Formula used: b>0?(a-1)/b+1:a/b
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= ">0?(";
-              c_expr.expr &:= dividend_name;
-              c_expr.expr &:= "-1)/";
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "+1:";
-            elsif dividend_range.maxValue < 0 then
+            if config.evaluate_const_expr >= 3 then
               if config.check_int_division_overflow and
                   dividend_range.minValue = integer.first then
                 # Check for integer overflow.
@@ -3123,50 +3114,90 @@ const proc: process (INT_CEIL_DIV, in reference: function,
                 c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
                 c_expr.expr &:= ":";
               end if;
-              # Formula used: b<0?(a+1)/b+1:a/b
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "<0?(";
+              # Formula used: a/b+(a%b!=0&&(a^b)>=0)
               c_expr.expr &:= dividend_name;
-              c_expr.expr &:= "+1)/";
+              c_expr.expr &:= "/";
               c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "+1:";
+              c_expr.expr &:= "+(";
+              c_expr.expr &:= dividend_name;
+              c_expr.expr &:= "%";
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= "!=0&&(";
+              c_expr.expr &:= dividend_name;
+              c_expr.expr &:= "^";
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= ")>=0)";
             else
-              # Formula used: a>0&&b>0?(a-1)/b+1:a<0&&b<0?(a+1)/b+1:a/b
-              c_expr.expr &:= dividend_name;
-              c_expr.expr &:= ">0&&";
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= ">0?(";
-              c_expr.expr &:= dividend_name;
-              c_expr.expr &:= "-1)/";
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "+1:";
-              if config.check_int_division_overflow and
-                  dividend_range.minValue = integer.first then
-                # Check for integer overflow.
-                c_expr.expr &:= "ovfChk(";
-                c_expr.expr &:= dividend_name;
-                c_expr.expr &:= "==";
-                c_expr.expr &:= integerLiteral(integer.first);
-                c_expr.expr &:= "&&";
+              if dividend_range.minValue > 0 then
+                # No check for integer overflow necessary.
+                # Formula used: b>0?(a-1)/b+1:a/b
                 c_expr.expr &:= divisor_name;
-                c_expr.expr &:= "==";
-                c_expr.expr &:= integerLiteral(-1);
-                c_expr.expr &:= ")?";
-                c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-                c_expr.expr &:= ":";
+                c_expr.expr &:= ">0?(";
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= "-1)/";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "+1:";
+              elsif dividend_range.maxValue < 0 then
+                if config.check_int_division_overflow and
+                    dividend_range.minValue = integer.first then
+                  # Check for integer overflow.
+                  c_expr.expr &:= "ovfChk(";
+                  c_expr.expr &:= dividend_name;
+                  c_expr.expr &:= "==";
+                  c_expr.expr &:= integerLiteral(integer.first);
+                  c_expr.expr &:= "&&";
+                  c_expr.expr &:= divisor_name;
+                  c_expr.expr &:= "==";
+                  c_expr.expr &:= integerLiteral(-1);
+                  c_expr.expr &:= ")?";
+                  c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+                  c_expr.expr &:= ":";
+                end if;
+                # Formula used: b<0?(a+1)/b+1:a/b
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "<0?(";
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= "+1)/";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "+1:";
+              else
+                # Formula used: a>0&&b>0?(a-1)/b+1:a<0&&b<0?(a+1)/b+1:a/b
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= ">0&&";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= ">0?(";
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= "-1)/";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "+1:";
+                if config.check_int_division_overflow and
+                    dividend_range.minValue = integer.first then
+                  # Check for integer overflow.
+                  c_expr.expr &:= "ovfChk(";
+                  c_expr.expr &:= dividend_name;
+                  c_expr.expr &:= "==";
+                  c_expr.expr &:= integerLiteral(integer.first);
+                  c_expr.expr &:= "&&";
+                  c_expr.expr &:= divisor_name;
+                  c_expr.expr &:= "==";
+                  c_expr.expr &:= integerLiteral(-1);
+                  c_expr.expr &:= ")?";
+                  c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+                  c_expr.expr &:= ":";
+                end if;
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= "<0&&";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "<0?(";
+                c_expr.expr &:= dividend_name;
+                c_expr.expr &:= "+1)/";
+                c_expr.expr &:= divisor_name;
+                c_expr.expr &:= "+1:";
               end if;
               c_expr.expr &:= dividend_name;
-              c_expr.expr &:= "<0&&";
+              c_expr.expr &:= "/";
               c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "<0?(";
-              c_expr.expr &:= dividend_name;
-              c_expr.expr &:= "+1)/";
-              c_expr.expr &:= divisor_name;
-              c_expr.expr &:= "+1:";
             end if;
-            c_expr.expr &:= dividend_name;
-            c_expr.expr &:= "/";
-            c_expr.expr &:= divisor_name;
           end if;
           c_expr.expr &:= ")";
         end if;
