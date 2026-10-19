@@ -3027,8 +3027,8 @@ const proc: process (INT_CEIL_DIV, in reference: function,
             end if;
           elsif divisor_range.maxValue < 0 then
             # No check for division by zero necessary.
-            # Formula used: a==integer.first&&b==-1?OVERFLOW_ERROR:a/b+(a%b<0)
             if config.evaluate_const_expr >= 3 then
+              # Formula used: a==integer.first&&b==-1?OVERFLOW_ERROR:a/b+(a%b<0)
               if config.check_int_division_overflow and
                   divisor_range.maxValue = -1 then
                 # Check for integer overflow.
