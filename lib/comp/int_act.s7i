@@ -37,6 +37,7 @@ const ACTION: INT_BYTES_LE_2_INT      is action "INT_BYTES_LE_2_INT";
 const ACTION: INT_BYTES_LE_2_UINT     is action "INT_BYTES_LE_2_UINT";
 const ACTION: INT_BYTES_LE_SIGNED     is action "INT_BYTES_LE_SIGNED";
 const ACTION: INT_BYTES_LE_UNSIGNED   is action "INT_BYTES_LE_UNSIGNED";
+const ACTION: INT_CEIL_DIV            is action "INT_CEIL_DIV";
 const ACTION: INT_CMP                 is action "INT_CMP";
 const ACTION: INT_CPY                 is action "INT_CPY";
 const ACTION: INT_DECR                is action "INT_DECR";
