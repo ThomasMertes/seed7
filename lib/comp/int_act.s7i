@@ -2649,32 +2649,56 @@ const proc: process_const_int_ceilDiv (in reference: dividend, in integer: divis
         c_expr.expr &:= ") / ";
         c_expr.expr &:= integerLiteral(divisor);
       elsif divisor > 0 then
-        # Formula used: a>0?(a-1)/b+1:a/b
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= ">0?(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "-1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "+1:";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= integerLiteral(divisor);
+        if config.evaluate_const_expr >= 3 then
+          # Formula used: a/b+(a%b>0)
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "+(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "%";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= ">0)";
+        else
+          # Formula used: a>0?(a-1)/b+1:a/b
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= ">0?(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "-1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "+1:";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+        end if;
         c_expr.expr &:= ")";
       else  # divisor < 0
-        # Formula used: a<0?(a+1)/b+1:a/b
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "dividend_", dividend, c_expr);
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "<0?(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "+1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "+1:";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= integerLiteral(divisor);
+        if config.evaluate_const_expr >= 3 then
+          # Formula used: a/b+(a%b>0)
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "+(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "%";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= ">0)";
+        else
+          # Formula used: a<0?(a+1)/b+1:a/b
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "<0?(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "+1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "+1:";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+        end if;
         c_expr.expr &:= ")";
       end if;
     end if;
