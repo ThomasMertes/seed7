@@ -2642,6 +2642,7 @@ const proc: process_const_int_ceilDiv (in reference: dividend, in integer: divis
         end if;
       elsif dividend_range.minValue > 0 and divisor < 0 or
           dividend_range.maxValue < 0 and divisor > 0 then
+        # Dividend and divisor have not the same sign.
         # Formula used: a/b
         c_expr.expr &:= "(";
         process_expr(dividend, c_expr);
@@ -2790,6 +2791,7 @@ const proc: process_const_int_ceilDiv (in integer: dividend, in reference: divis
         c_expr.expr &:= ") + 1";
       elsif dividend > 0 and divisor_range.maxValue < 0 or
           dividend < 0 and divisor_range.minValue > 0 then
+        # Dividend and divisor have not the same sign.
         # Formula used: a/b
         c_expr.expr &:= integerLiteral(dividend);
         c_expr.expr &:= " / (";
