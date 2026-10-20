@@ -33,7 +33,9 @@ include "http_request.s7i";
  *  Get data specified by a ''location'' using the HTTP protocol.
  *   getHttp("example.com")
  *   getHttp("www.example.com/index.html")
- *  @param location Url without http:// at the beginning.
+ *  Note that ''location'' is not prefixed with "http://", since
+ *  the protocol used is specified by the function name ''getHttp''.
+ *  @param location URL without http:// at the beginning.
  *  @return the string of data found, or "" if nothing was found.
  *)
 const func string: getHttp (in string: location) is
