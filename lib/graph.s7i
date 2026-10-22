@@ -102,10 +102,6 @@ const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,
     in pixel: col)                                  is action "DRW_PFELLIPSE";
-const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
-    ref integer: xPos, ref integer: yPos,
-    ref integer: width, ref integer: height,
-    ref string: window_name)                        is action "DRW_OPEN";
 
 
 (**
@@ -117,7 +113,24 @@ const proc: flushGraphic                            is action "DRW_FLUSH";
 
 
 (**
- *  Create a sub window inside of ''parent_window''.
+ *  Open a top-level window with the name ''windowName''.
+ *  The created window has window decorations such as title bar and
+ *  border and it is managed by the window manager.
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @param windowName Name of the window (usually displayed in title bar).
+ *  @return the new generated window.
+ *)
+const func PRIMITIVE_WINDOW: openWindow (
+    ref integer: xPos, ref integer: yPos,
+    ref integer: width, ref integer: height,
+    ref string: windowName)                         is action "DRW_OPEN";
+
+
+(**
+ *  Open a sub window inside of ''parent_window''.
  *  The new sub window has no window decorations and is not managed by
  *  the window manager. If the empty window is used as ''parent_window''
  *  an unmanaged top level window without window decorations is generated.
