@@ -344,7 +344,7 @@ const proc: setColumn (inout graph_file: aGraphFile, in integer: column) is func
 const proc: write (inout graph_file: aGraphFile, in string: stri) is func
   begin
     DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, stri,
-        colorPixel(aGraphFile.foreground), colorPixel(aGraphFile.background));
+        pixel(aGraphFile.foreground), pixel(aGraphFile.background));
     aGraphFile.column +:= length(stri);
     aGraphFile.curr_x +:= aGraphFile.column_delta * length(stri);
   end func;
@@ -374,7 +374,7 @@ const proc: moveLeft (inout graph_file: aGraphFile, in string: stri) is func
 const proc: erase (inout graph_file: aGraphFile, in string: stri) is func
   begin
     DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, "" lpad length(stri),
-        colorPixel(aGraphFile.foreground), colorPixel(aGraphFile.background));
+        pixel(aGraphFile.foreground), pixel(aGraphFile.background));
     aGraphFile.column +:= length(stri);
     aGraphFile.curr_x +:= aGraphFile.column_delta * length(stri);
   end func;
@@ -383,14 +383,14 @@ const proc: erase (inout graph_file: aGraphFile, in string: stri) is func
 const proc: cursorOn (inout graph_file: aGraphFile, in char: cursorChar) is func
   begin
     DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, str(cursorChar),
-        colorPixel(aGraphFile.background), colorPixel(aGraphFile.foreground));
+        pixel(aGraphFile.background), pixel(aGraphFile.foreground));
   end func;
 
 
 const proc: cursorOff (inout graph_file: aGraphFile, in char: cursorChar) is func
   begin
     DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, str(cursorChar),
-        colorPixel(aGraphFile.foreground), colorPixel(aGraphFile.background));
+        pixel(aGraphFile.foreground), pixel(aGraphFile.background));
   end func;
 
 

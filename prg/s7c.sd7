@@ -6602,35 +6602,35 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
 
 
 const func boolean: pixelEncodingIdentical is
-  return ord(colorPixel(color(65535,     0,     0))) =
+  return ord(pixel(color(65535,     0,     0))) =
              ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0, 65535,     0))) =
+         ord(pixel(color(    0, 65535,     0))) =
              ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) =
+         ord(pixel(color(    0,     0, 65535))) =
              ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK;
 
 
 const func boolean: pixelEncodingWithoutAlphaChannel is
   return ccConf.PIXEL_ALPHA_MASK <> 0 and
-         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_RED_MASK   and
-         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_BLUE_MASK;
+         ord(pixel(color(65535,     0,     0))) = ccConf.PIXEL_RED_MASK   and
+         ord(pixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(pixel(color(    0,     0, 65535))) = ccConf.PIXEL_BLUE_MASK;
 
 
 const func boolean: pixelEncodingWithRedAndBlueSwapped is
-  return ord(colorPixel(color(65535,     0,     0))) =
+  return ord(pixel(color(65535,     0,     0))) =
              ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0, 65535,     0))) =
+         ord(pixel(color(    0, 65535,     0))) =
              ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) =
+         ord(pixel(color(    0,     0, 65535))) =
              ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK;
 
 
 const func boolean: pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel is
   return ccConf.PIXEL_ALPHA_MASK <> 0 and
-         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_BLUE_MASK  and
-         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_RED_MASK;
+         ord(pixel(color(65535,     0,     0))) = ccConf.PIXEL_BLUE_MASK  and
+         ord(pixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(pixel(color(    0,     0, 65535))) = ccConf.PIXEL_RED_MASK;
 
 
 const func bstring: swapRedAndBlue (in bstring: bImage) is func
