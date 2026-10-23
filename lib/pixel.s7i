@@ -31,8 +31,8 @@
  *  A pixel value uses the same color encoding as the graphics library
  *  of the operating system. The function rgbPixel(red, green, blue)
  *  creates a pixel from red, green and blue values in the range 0 to 65535.
- *  A color can be converted to a pixel with pixel()
- *  and a pixel can be converted back to a color with pixelToColor().
+ *  A pixel can be converted back to red, green and blue values with
+ *  the function pixelToRgb(pix).
  *)
 const type: pixel is newtype;
 
