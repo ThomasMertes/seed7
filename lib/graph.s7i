@@ -28,6 +28,7 @@
 (********************************************************************)
 
 
+include "pixel.s7i";
 include "float.s7i";
 include "bstring.s7i";
 
@@ -44,24 +45,6 @@ const func boolean: (in PRIMITIVE_WINDOW: win1) <> (in PRIMITIVE_WINDOW: win2) i
 const func PRIMITIVE_WINDOW: _GENERATE_EMPTY_WINDOW                            is action "DRW_EMPTY";
 const PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) . value                        is _GENERATE_EMPTY_WINDOW;
 
-const type: pixel is newtype;
-
-IN_PARAM_IS_VALUE(pixel);
-
-const creator: (ref pixel: dest) ::= (in pixel: source)          is action "INT_CREATE";
-const destroyer: destroy (ref pixel: aValue)                     is action "GEN_DESTR";
-const proc: (inout pixel: dest) := (in pixel: source)            is action "INT_CPY";
-const func boolean: (in pixel: pix1) = (in pixel: pix2)          is action "INT_EQ";
-const func boolean: (in pixel: pix1) <> (in pixel: pix2)         is action "INT_NE";
-const func pixel: (attr pixel) conv (in integer: num)            is action "INT_ICONV3";
-const func pixel: pixel (in integer: num)                        is action "INT_ICONV1";
-const func integer: (attr integer) conv (in pixel: aPixel)       is action "INT_ICONV3";
-const func integer: ord (in pixel: aPixel)                       is action "INT_ICONV1";
-const func integer: compare (in pixel: pixel1, in pixel: pixel2) is action "INT_CMP";
-const func integer: hashCode (in pixel: aPixel)                  is action "INT_HASHCODE";
-const pixel: (attr pixel) . value                                is pixel conv 0;
-
-const type: colorLookupTable is array [0 ..] pixel;
 
 const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
@@ -184,8 +167,6 @@ const func PRIMITIVE_WINDOW: capturePixmap (
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_CAPTURE";
 
-const type: pixelArray2d is array array pixel;
-
 const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
 const func bstring: getPixelData (
@@ -226,17 +207,6 @@ const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
     in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SET_CONTENT";
 
 
-(**
- *  Create a pixel from the ''red'', ''green'' and ''blue'' colors of light.
- *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
- *)
-const func pixel: rgbPixel (ref integer: red,
-    ref integer: green, ref integer: blue)          is action "DRW_RGB_COLOR";
-
-
-const proc: DRAW_PIXEL_TO_RGB (
-    in pixel: col, inout integer: red,
-    inout integer: green, inout integer: blue)      is action "DRW_PIXEL_TO_RGB";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y, in string: stri,
     ref pixel: col, ref pixel: bkcol)               is action "DRW_TEXT";

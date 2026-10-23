@@ -1,0 +1,104 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pixel.s7i     Pixel support library.                            *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Describes the color of a pixel.
+ *  A pixel value uses the same color encoding as the graphics library
+ *  of the operating system. The function rgbPixel(red, green, blue)
+ *  creates a pixel from red, green and blue values in the range 0 to 65535.
+ *  A color can be converted to a pixel with pixel()
+ *  and a pixel can be converted back to a color with pixelToColor().
+ *)
+const type: pixel is newtype;
+
+
+IN_PARAM_IS_VALUE(pixel);
+
+const creator: (ref pixel: dest) ::= (in pixel: source)          is action "INT_CREATE";
+const destroyer: destroy (ref pixel: aValue)                     is action "GEN_DESTR";
+const proc: (inout pixel: dest) := (in pixel: source)            is action "INT_CPY";
+
+
+(**
+ *  Check if two pixel values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in pixel: pix1) = (in pixel: pix2)          is action "INT_EQ";
+
+
+(**
+ *  Check if two pixel values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in pixel: pix1) <> (in pixel: pix2)         is action "INT_NE";
+
+
+const func pixel: (attr pixel) conv (in integer: num)            is action "INT_ICONV3";
+const func pixel: pixel (in integer: num)                        is action "INT_ICONV1";
+const func integer: (attr integer) conv (in pixel: aPixel)       is action "INT_ICONV3";
+const func integer: ord (in pixel: aPixel)                       is action "INT_ICONV1";
+const pixel: (attr pixel) . value                                is pixel conv 0;
+
+
+(**
+ *  Compares two pixels.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in pixel: pixel1, in pixel: pixel2) is action "INT_CMP";
+
+
+(**
+ *  Compute the hash value of a pixel.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in pixel: aPixel)                  is action "INT_HASHCODE";
+
+
+(**
+ *  Create a pixel from the ''red'', ''green'' and ''blue'' colors of light.
+ *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
+ *)
+const func pixel: rgbPixel (ref integer: red,
+    ref integer: green, ref integer: blue)                       is action "DRW_RGB_COLOR";
+
+
+(**
+ *  Convert a pixel to ''red'', ''green'' and ''blue'' values.
+ *  The ''red'', ''green'' and ''blue'' are in the range from 0 to 65535.
+ *)
+const proc: pixelToRgb (
+    in pixel: col, inout integer: red,
+    inout integer: green, inout integer: blue)                   is action "DRW_PIXEL_TO_RGB";
+
+
+(**
+ *  Type describing a color lookup table, which maps integers to pixels.
+ *)
+const type: colorLookupTable is array [0 ..] pixel;

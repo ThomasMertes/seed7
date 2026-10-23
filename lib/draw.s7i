@@ -57,7 +57,7 @@ const func color: pixelToColor (in pixel: pix) is func
   result
     var color: col is color.value;
   begin
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -824,7 +824,7 @@ const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(aWindow, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -836,7 +836,7 @@ const func color: getPixelColor (in bstring: bImage, in integer: width,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(bImage, width, height, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
