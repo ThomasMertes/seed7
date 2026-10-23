@@ -199,7 +199,7 @@ const func PRIMITIVE_WINDOW: readPpm (in string: ppmFileName) is func
 (**
  *  Converts a pixmap into a string in PPM format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in PPM format.
+ *  @return A string with data in PPM format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   result
@@ -227,6 +227,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''ppmFileName'' in PPM format.
+ *  @param ppmFileName Name of the PPM file to be created.
+ *  @param pixmap The pixmap to be written in PPM format.
+ *)
 const proc: writePpm (in string: ppmFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: ppmFile is STD_NULL;

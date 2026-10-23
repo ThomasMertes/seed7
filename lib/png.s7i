@@ -1023,7 +1023,7 @@ const func string: genPngChunk (in string: chunkType, in string: chunkData) is
 (**
  *  Converts a pixmap into a string in PNG format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in PNG format.
+ *  @return A string with data in PNG format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PNG) is func
   result
@@ -1051,6 +1051,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PNG) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''pngFileName'' in PNG format.
+ *  @param pngFileName Name of the PNG file to be created.
+ *  @param pixmap The pixmap to be written in PNG format.
+ *)
 const proc: writePng (in string: pngFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: pngFile is STD_NULL;
