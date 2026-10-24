@@ -227,7 +227,8 @@ const func string: gzcompress (in string: uncompressed) is func
     write(compressedStream, GZ_MAGIC);
     deflate(uncompressed, compressedStream);
     flush(compressedStream);
-    compressed := getBytes(compressedStream);
+    compressed := getBytes(compressedStream) &
+                  bytes(adler32(uncompressed), BE, 4);
   end func;
 
 
