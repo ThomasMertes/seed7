@@ -61,7 +61,7 @@ const proc: setPixels (inout pixelArray: imageLine, in integer: startColumn,
  *  @param image Pixel array with lines from top downward and columns from left to right.
  *  @return the created pixmap.
  *)
-const func PRIMITIVE_WINDOW: getPixmap (ref pixelImage: image) is action "DRW_GET_PIXMAP_FROM_PIXELS";
+const func PRIMITIVE_WINDOW: getPixmap (in pixelImage: image) is action "DRW_GET_PIXMAP_FROM_PIXELS";
 
 
 (**
