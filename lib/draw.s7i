@@ -477,6 +477,19 @@ const proc: chord (in integer: x, in integer: y, in integer: radius,
 
 
 (**
+ *  Draws a filled sector with color ''col'' to the window ''win''.
+ *  The sector has the given ''radius'' and its center is at (x, y).
+ *  The sector begins at ''startAngle'' and spans over ''sweepAngle''.
+ *)
+const proc: pieslice (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    FILL_ARCPIESLICE(win, x, y, radius, startAngle, sweepAngle, pixel(col));
+  end func;
+
+
+(**
  *  Draws a filled sector with color ''col'' to ''curr_win''.
  *  The sector has the given ''radius'' and its center is at (x, y).
  *  The sector begins at ''startAngle'' and spans over ''sweepAngle''.
