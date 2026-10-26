@@ -1,0 +1,126 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pointlist.s7i  Support for pointList, a list of 2-D points.     *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Describes a list of 2-D point coordinates.
+ *)
+const type: pointList is newtype;
+
+
+IN_PARAM_IS_REFERENCE(pointList);
+
+const creator: (ref pointList: dest) ::= (in pointList: source)   is action "PLT_CREATE";
+const destroyer: destroy (ref pointList: aValue)                  is action "PLT_DESTR";
+const proc: (inout pointList: dest) := (in pointList: source)     is action "PLT_CPY";
+
+const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "PLT_EMPTY";
+const pointList: (attr pointList) . value                         is _GENERATE_EMPTY_POINT_LIST;
+
+
+(**
+ *  Converts a pointList value to a bstring value.
+ *  @return the converted value as pointList.
+ *)
+const func bstring: bstring (in pointList: aPointList)            is action "PLT_BSTRING";
+
+
+(**
+ *  Converts a bstring value to  a pointList value.
+ *  @return the converted value as bstring.
+ *)
+const func pointList: pointList (in bstring: bstri)               is action "PLT_POINT_LIST";
+
+
+(**
+ *  Checks if two pointList values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in pointList: pointList1) = (in pointList: pointList2)   is action "PLT_EQ";
+
+
+(**
+ *  Checks if two pointList values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in pointList: pointList1) <> (in pointList: pointList2)  is action "PLT_NE";
+
+
+(**
+ *  Compares two pointList values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in pointList: pointList1,
+                             in pointList: pointList2)            is action "PLT_CMP";
+
+
+(**
+ *  Computes the hash value of a pointList.
+ *  @return The hash value.
+ *)
+const func integer: hashCode (in pointList: aPointList)           is action "PLT_HASHCODE";
+
+
+(**
+ *  The function 'genPointList' creates a 'pointList'.
+ *  It converts an array of alternate x and y values to a 'pointList'.
+ *  @return a pointList with the points from the array.
+ *  @exception RANGE_ERROR If the length of the array is odd.
+ *)
+const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GEN_POINT_LIST";
+
+
+(**
+ *  Converts a 'pointList' to an array of (X,Y) coordinates.
+ *  @return an array of alternate x and y values.
+ *)
+const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONV_POINT_LIST";
+
+
+const func pointList: scale (in pointList: basePoints, in integer: scale) is func
+  result
+    var pointList: scaledPoints is pointList.value;
+  local
+    var array integer: coordinates is 0 times 0;
+    var integer: index is 0;
+  begin
+    coordinates := xyArray(basePoints);
+    for key index range coordinates do
+      coordinates[index] *:= scale;
+    end for;
+    scaledPoints := genPointList(coordinates);
+  end func;
+
+
+const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
+    in integer: x, in integer: y, in pointList: point_list,
+    ref pixel: col)                                               is action "DRW_POLY_LINE";
+const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
+    in integer: x, in integer: y, in pointList: point_list,
+    ref pixel: col)                                               is action "DRW_FPOLY_LINE";
