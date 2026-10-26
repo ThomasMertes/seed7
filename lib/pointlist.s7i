@@ -88,8 +88,7 @@ const func integer: hashCode (in pointList: aPointList)           is action "PLT
 
 
 (**
- *  The function 'genPointList' creates a 'pointList'.
- *  It converts an array of alternate x and y values to a 'pointList'.
+ *  Creates a ''pointList'' from an array with alternate x and y values.
  *  @return a pointList with the points from the array.
  *  @exception RANGE_ERROR If the length of the array is odd.
  *)
@@ -97,7 +96,7 @@ const func pointList: genPointList (ref array integer: coordinates) is action "D
 
 
 (**
- *  Converts a 'pointList' to an array of (X,Y) coordinates.
+ *  Converts a ''pointList'' to an array of (X,Y) coordinates.
  *  @return an array of alternate x and y values.
  *)
 const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONV_POINT_LIST";
