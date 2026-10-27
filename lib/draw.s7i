@@ -29,6 +29,7 @@
 
 include "stdio.s7i";
 include "graph.s7i";
+include "pointlist.s7i";
 include "bytedata.s7i";
 include "color.s7i";
 include "float.s7i";
@@ -501,6 +502,12 @@ const proc: pieslice (in integer: x, in integer: y, in integer: radius,
   end func;
 
 
+(**
+ *  Draws a filled ellipse with the color ''col'' to the window ''win''.
+ *  The ellipse is drawn into a rectangle with the given ''width'' and
+ *  ''height'', and the upper left corner at (x, y). The enclosing
+ *  rectangle is not drawn.
+ *)
 const proc: fellipse (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
@@ -509,6 +516,12 @@ const proc: fellipse (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a filled ellipse with the color ''col'' to ''curr_win''.
+ *  The ellipse is drawn into a rectangle with the given ''width'' and
+ *  ''height'', and the upper left corner at (x, y). The enclosing
+ *  rectangle is not drawn.
+ *)
 const proc: fellipse (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
