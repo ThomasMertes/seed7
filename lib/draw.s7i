@@ -80,8 +80,7 @@ const proc: color (in color: col1, in color: col2) is noop;
 
 
 (**
- *  Draws a point with the color ''col'' to the window ''win'' at the
- *  position (x, y).
+ *  Draws a point with the color ''col'' to the window ''win'' at the position (x, y).
  *)
 const proc: point (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in color: col) is func
@@ -91,8 +90,7 @@ const proc: point (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a point with the color ''col'' to the current window ''curr_win''
- *  at the position (x, y).
+ *  Draws a point with the color ''col'' to ''curr_win'' at the position (x, y).
  *)
 const proc: point (in integer: x, in integer: y, in color: col) is func
   begin
@@ -662,7 +660,7 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
  *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
  *  areas outside of ''sourceWin'' are colored with black.
  *  @return the created pixmap.
- *  @exception RANGE_ERROR If ''height'' or ''width'' are negative or zero.
+ *  @exception RANGE_ERROR If ''height'' or ''width'' is negative or zero.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
     in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET_PIXMAP";
@@ -683,7 +681,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in integer: left, in integer: upper,
 
 (**
  *  Create a new pixmap with the contents of ''sourceWin''.
- *  The content of ''sourceWin'' is copied the new pixmap.
+ *  The content of ''sourceWin'' is copied to the new pixmap.
  *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin) is
@@ -803,7 +801,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
 
 (**
  *  Create a new pixmap from a two-dimensional array of pixels.
- *  The array of pixels might come from a image file.
+ *  The array of pixels might come from an image file.
  *  @param image Pixel array with lines from top downward and columns from left to right.
  *  @return the created pixmap.
  *)
