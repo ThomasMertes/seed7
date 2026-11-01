@@ -105,3 +105,6 @@ footer { margin-top: 12px; color: #8d7c9e; font-size: 12px; }
   h1 { font-size: 48px; }
   .intro { margin: 12px auto; }
 }
+
+/* The driver places the game canvases at the left edge. */
+canvas { left: calc(50% - 180px) !important; }

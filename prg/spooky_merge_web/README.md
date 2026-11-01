@@ -30,7 +30,7 @@ From the repository root, serve the directory over HTTP (opening `index.html` di
 python3 -m http.server 8000 --directory prg/spooky_merge_web
 ```
 
-Open `http://localhost:8000/` and press **Play**. The browser needs JavaScript and WebAssembly enabled. A desktop browser may open the game in a popup; allow it for the local page if prompted. Phones show the game in the page, scaled to the screen width by the `width=360` viewport setting in `index.html`.
+Open `http://localhost:8000/` and press **Play**. The browser needs JavaScript and WebAssembly enabled. The game runs in the page, not in a popup: `launcher.js` sets `seed7InPage`, because a popup can hide the page that runs the program, and browsers throttle the timers of hidden pages. Phones scale the game to the screen width through the `width=360` viewport setting in `index.html`.
 
 ## Native build and rules checks
 
@@ -72,6 +72,8 @@ Build the Seed7 program, then publish the contents of `prg/spooky_merge_web/`, i
 
 Last verified 2026-11-01. The rules program passed all checks, both natively compiled on Windows and under the interpreter. The game compiled to JS/WASM with Seed7 compiler 3.5.18 and emcc 6.0.13. `smoke_test.cjs` passed on that build in headless Playwright 1.64.1 Chromium: desktop, and touch emulation at 412x915 and 320x640. Tier names and game text are present in the WASM and absent from the JS.
 
-These checks ran on an earlier build and were not repeated: Chrome 156 lifecycle freeze/resume, a headed popup minimized and restored, and removing the WASM (HTTP 404, no game canvas).
+Playwright disables background throttling and emulates page focus, so `smoke_test.cjs` cannot detect throttled timers. The in-page mode was checked separately in installed Chrome through the DevTools protocol, with the page visible, hidden in a background tab, and visible again.
 
-Physical-device touch and a real hidden-tab return remain unverified. The lifecycle freeze/resume check is an automation test, not a substitute for switching away from the browser tab.
+Removing the WASM (HTTP 404, no game canvas) was checked on an earlier build and not repeated.
+
+Physical-device touch and a human return to a hidden tab remain unverified.

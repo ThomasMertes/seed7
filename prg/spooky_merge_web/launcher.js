@@ -3,6 +3,10 @@
 const button = document.getElementById("start");
 const status = document.getElementById("status");
 
+// Keep the game in this page. A popup would hide this page, and the browser
+// would then throttle the timers of the game.
+window.seed7InPage = true;
+
 // src/pre_js.js passes standard output of the Seed7 program to this hook.
 window.seed7Print = (text) => {
   const match = /^SPOOKY_BEST=(\d+)$/.exec(String(text));

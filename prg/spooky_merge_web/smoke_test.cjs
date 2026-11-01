@@ -133,6 +133,12 @@ async function desktop(browser, url) {
 
   const page = await startGame(context, launcher, url);
   check(wasmStatus === 200, "the WASM file loads over HTTP");
+  check(page === launcher && context.pages().length === 1, "the game runs in the page, not a popup");
+  const left = await page.evaluate(() => {
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 360).pop();
+    return canvas.getBoundingClientRect().left;
+  });
+  check(Math.abs(left - 460) <= 1, `the field is centered (left=${left})`);
   await page.keyboard.press("Space");
   await sleep(300);
   check(Math.abs((await guideX(page)) - 180) <= 2, "the aim starts centered without a mouse");
@@ -157,11 +163,11 @@ async function desktop(browser, url) {
   seen.delete(undefined);
   check(seen.size >= 3, `spawns vary (tiers ${[...seen].sort().join(", ")})`);
 
-  await page.mouse.move(100, 300);
+  await page.mouse.move(left + 100, 300);
   await sleep(200);
   check(Math.abs((await guideX(page)) - 100) <= 16, "the mouse moves the aim");
 
-  const best = await waitForBest(launcher, () => page.mouse.click(100, 300));
+  const best = await waitForBest(launcher, () => page.mouse.click(left + 100, 300));
   check(best !== null && Number(best) > 0, `a merge saves the best score (${best})`);
   check(errors.length === 0, `no page errors ${errors.join("; ")}`);
   await context.close();
