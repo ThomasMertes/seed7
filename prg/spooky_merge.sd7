@@ -7,10 +7,13 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "environment.s7i";
+  include "pixelimage.s7i";
   include "stdfont14.s7i";
+  include "stdfont24.s7i";
 
-const color: NIGHT is color(1100, 900, 4100);
-const color: NIGHT_LIGHT is color(3600, 1900, 7200);
+(* Text paints its own background, so NIGHT is also the top of background.svg. *)
+const color: NIGHT is color(2827, 2056, 8224);
+const color: NIGHT_LIGHT is color(10280, 6682, 21588);
 const color: ORANGE is color(65535, 24500, 2400);
 const color: GOLD is color(65535, 49000, 9000);
 const color: LIME is color(27000, 65535, 13000);
@@ -19,18 +22,23 @@ const color: PALE is color(56000, 53000, 65535);
 const color: PINK is color(65535, 12000, 36000);
 const color: INK is color(1500, 1200, 3500);
 const color: TEAL is color(5000, 50000, 49000);
-const color: RED is color(65535, 6000, 5000);
 
 const array color: TIER_COLOR is [] (
     GOLD, PINK, LIME, VIOLET, PALE, color(45000, 49000, 48000),
     TEAL, color(10000, 41000, 27000), ORANGE, color(65535, 42000, 3000));
-const array string: TIER_LABEL is [] (
-    "Corn", "Eye", "Web", "Bat", "Ghost", "Skull", "Brew", "Pot", "Jack", "King");
+const array string: ART_NAME is [] (
+    "candy_corn", "eyeball", "spider", "bat", "ghost", "skull",
+    "potion", "cauldron", "jack_o_lantern", "pumpkin_king");
 const integer: KEY_AIM_STEP is 12;
+const integer: WEB_SCALE is 2;
 
 var game_state: game is game_state.value;
 var PRIMITIVE_WINDOW: main_window is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: background is PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: tier_art is TIER_COUNT times PRIMITIVE_WINDOW.value;
 var text: labels is STD_NULL;
+var integer: view_scale is 1;
+var integer: display_percent is 100;
 var integer: pointer_x is 180;
 var integer: last_raw_pointer is 0;
 var integer: saved_best is 0;
@@ -44,183 +52,241 @@ var duration: elapsed is duration.value;
 var float: frame_time is 0.0;
 var float: accumulator is 0.0;
 var float: drop_x is 180.0;
-var integer: index is 1;
-var integer: star is 0;
 var array string: startup_arguments is 0 times "";
 
 
-const proc: draw_scene is func
+const func integer: v (in integer: logical) is
+  return logical * view_scale;
 
+
+const proc: v_circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    circle(v(x), v(y), v(radius), col);
+  end func;
+
+
+const proc: v_fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    fcircle(v(x), v(y), v(radius), col);
+  end func;
+
+
+const proc: v_rect (in integer: x, in integer: y, in integer: width, in integer: height,
+    in color: col) is func
+  begin
+    rect(v(x), v(y), v(width), v(height), col);
+  end func;
+
+
+const proc: v_line (in integer: x1, in integer: y1, in integer: x2, in integer: y2,
+    in color: col) is func
+  local
+    var integer: offset is 0;
+  begin
+    for offset range 0 to pred(view_scale) do
+      lineTo(v(x1) + offset, v(y1), v(x2) + offset, v(y2), col);
+      lineTo(v(x1), v(y1) + offset, v(x2), v(y2) + offset, col);
+    end for;
+  end func;
+
+
+const proc: write_at (in integer: x, in integer: y, in string: stri, in color: col,
+    in color: back) is func
+  begin
+    color(labels, col, back);
+    setPosXY(labels, v(x), v(y));
+    write(labels, stri);
+  end func;
+
+
+(* The launcher stores each PNG as a size header followed by RGBA bytes. *)
+const func PRIMITIVE_WINDOW: read_art (in string: name) is func
+  result
+    var PRIMITIVE_WINDOW: art is PRIMITIVE_WINDOW.value;
+  local
+    var file: art_file is STD_NULL;
+    var string: header is "";
+    var string: data is "";
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: pos is 1;
+    var pixelImage: image is pixelImage.value;
+  begin
+    art_file := open("/" <& name <& ".rgba", "r");
+    if art_file <> STD_NULL then
+      header := gets(art_file, 4);
+      if length(header) = 4 then
+        width := ord(header[1]) * 256 + ord(header[2]);
+        height := ord(header[3]) * 256 + ord(header[4]);
+        data := gets(art_file, width * height * 4);
+      end if;
+      close(art_file);
+      if width > 0 and height > 0 and length(data) = width * height * 4 then
+        image := pixelImage[.. height] times pixelArray[.. width] times pixel.value;
+        for line range 1 to height do
+          for column range 1 to width do
+            image[line][column] := pixel(ord(data[pos + 3]) * 16777216 +
+                ord(data[pos]) * 65536 + ord(data[pos + 1]) * 256 +
+                ord(data[pos + 2]));
+            pos +:= 4;
+          end for;
+        end for;
+        art := getPixmap(image);
+      end if;
+    end if;
+  end func;
+
+
+const proc: load_art is func
+  local
+    var integer: tier is 1;
+  begin
+    background := read_art("background");
+    for tier range 1 to TIER_COUNT do
+      tier_art[tier] := read_art(ART_NAME[tier]);
+    end for;
+  end func;
+
+
+(* Simple shapes, used when there is no painted art for a tier. *)
+const proc: draw_plain_piece (in integer: tier, in integer: x, in integer: y,
+    in integer: radius) is func
+  begin
+    v_fcircle(x, y, radius, TIER_COLOR[tier]);
+    v_circle(x, y, radius, GOLD);
+    if radius = round(radius_of(tier)) then
+      case tier of
+        when {1}: (* candy corn stripes *)
+          v_line(x - radius div 2, y + 2, x + radius div 2, y + 2, PALE);
+          v_line(x - radius div 3, y + 6, x + radius div 3, y + 6, ORANGE);
+        when {2}: (* eyeball *)
+          v_fcircle(x, y, radius div 2, PALE);
+          v_fcircle(x + 2, y, radius div 4, INK);
+          v_fcircle(x + 3, y - 2, 2, PALE);
+        when {3}: (* spider body and legs *)
+          v_fcircle(x, y, radius div 3, INK);
+          v_line(x - 4, y - 4, x - radius + 4, y - radius div 2, INK);
+          v_line(x - 4, y, x - radius + 2, y, INK);
+          v_line(x - 4, y + 4, x - radius + 4, y + radius div 2, INK);
+          v_line(x + 4, y - 4, x + radius - 4, y - radius div 2, INK);
+          v_line(x + 4, y, x + radius - 2, y, INK);
+          v_line(x + 4, y + 4, x + radius - 4, y + radius div 2, INK);
+        when {4}: (* bat wings *)
+          v_line(x - radius + 4, y, x - 4, y + 5, INK);
+          v_line(x - 4, y + 5, x, y - 5, INK);
+          v_line(x, y - 5, x + 4, y + 5, INK);
+          v_line(x + 4, y + 5, x + radius - 4, y, INK);
+        when {5}: (* ghost eyes *)
+          v_fcircle(x - 5, y - 2, 2, INK);
+          v_fcircle(x + 5, y - 2, 2, INK);
+          v_line(x - 4, y + 6, x + 4, y + 6, PALE);
+        when {6}: (* skull eyes *)
+          v_fcircle(x - 6, y - 2, 4, INK);
+          v_fcircle(x + 6, y - 2, 4, INK);
+          v_line(x - 4, y + 7, x + 4, y + 7, INK);
+        when {7}: (* potion stopper *)
+          v_rect(x - 4, y - radius + 3, 8, 5, GOLD);
+          v_fcircle(x, y + 3, radius div 3, PALE);
+        when {8}: (* cauldron rim *)
+          v_rect(x - radius div 2, y - 5, radius, 6, INK);
+          v_fcircle(x, y - radius div 2, 4, LIME);
+        when {9}: (* pumpkin ribs *)
+          v_line(x - radius div 3, y - radius + 4,
+              x - radius div 3, y + radius - 4, GOLD);
+          v_line(x + radius div 3, y - radius + 4,
+              x + radius div 3, y + radius - 4, GOLD);
+          v_fcircle(x, y, 3, INK);
+        when {10}: (* crown *)
+          v_line(x - 12, y - radius + 9, x - 9, y - radius - 3, GOLD);
+          v_line(x - 9, y - radius - 3, x, y - radius + 4, GOLD);
+          v_line(x, y - radius + 4, x + 9, y - radius - 3, GOLD);
+          v_line(x + 9, y - radius - 3, x + 12, y - radius + 9, GOLD);
+        otherwise: noop;
+      end case;
+    end if;
+  end func;
+
+
+const proc: draw_piece (in integer: tier, in integer: x, in integer: y,
+    in integer: radius) is func
+  begin
+    if tier_art[tier] <> PRIMITIVE_WINDOW.value then
+      put(curr_win, v(x - radius), v(y - radius), v(2 * radius), v(2 * radius),
+          tier_art[tier]);
+    else
+      draw_plain_piece(tier, x, y, radius);
+    end if;
+  end func;
+
+
+const proc: draw_hud is func
+  local
+    var integer: tier is 1;
+  begin
+    write_at(22, 32, "SCORE " <& game.score, PALE, NIGHT);
+    write_at(22, 62, "BEST " <& game.best_score, PALE, NIGHT);
+    if started and not game.game_over then
+      write_at(232, 50, "NEXT", PALE, NIGHT);
+      draw_piece(game.next_tier, 310, 42, 24);
+    end if;
+    for tier range 1 to TIER_COUNT do
+      draw_piece(tier, 36 + pred(tier) * 32, 102, 14);
+    end for;
+  end func;
+
+
+const proc: draw_aim is func
+  begin
+    drop_x := float(pointer_x);
+    if drop_x < float(FIELD_LEFT) + radius_of(game.current_tier) then
+      drop_x := float(FIELD_LEFT) + radius_of(game.current_tier);
+    elsif drop_x > float(FIELD_RIGHT) - radius_of(game.current_tier) then
+      drop_x := float(FIELD_RIGHT) - radius_of(game.current_tier);
+    end if;
+    v_line(round(drop_x), FIELD_TOP - 3, round(drop_x), FIELD_TOP + 22, PALE);
+    draw_piece(game.current_tier, round(drop_x), FIELD_TOP + 26,
+        round(radius_of(game.current_tier) * 0.55));
+  end func;
+
+
+const proc: draw_scene is func
   local
     var integer: ball_index is 1;
-    var integer: ball_tier is 1;
-    var integer: ball_radius is 1;
-    var integer: x is 0;
-    var integer: y is 0;
-    var color: accent is NIGHT_LIGHT;
   begin
-    clear(NIGHT);
-    (* Moon and fixed stars. *)
-    fcircle(306, 58, 24, GOLD);
-    fcircle(317, 51, 22, NIGHT);
-    for star range 1 to 9 do
-      fcircle((star * 43 + 17) mod 350 + 5,
-          (star * 67 + 11) mod 88 + 8, 1, PALE);
-    end for;
-    color(labels, PALE, NIGHT);
-    setPosXY(labels, 22, 18);
-    write(labels, "SPOOKY MERGE");
-    setPosXY(labels, 22, 42);
-    write(labels, "SCORE " <& game.score);
-    setPosXY(labels, 236, 42);
-    write(labels, "BEST " <& game.best_score);
-    for index range 1 to TIER_COUNT do
-      x := 30 + ((index - 1) mod 5) * 64;
-      if index <= 5 then
-        y := 105;
-      else
-        y := 123;
-      end if;
-      fcircle(x, y, 4, TIER_COLOR[index]);
-      circle(x, y, 4, GOLD);
-      color(labels, TIER_COLOR[index], NIGHT);
-      setPosXY(labels, x + 7, y + 5);
-      write(labels, TIER_LABEL[index]);
-    end for;
-
-    (* Main glass container and overflow marker. *)
-    rect(18, FIELD_TOP - 2, 324, FIELD_FLOOR - FIELD_TOP + 8, VIOLET);
-    rect(22, FIELD_TOP + 2, 316, FIELD_FLOOR - FIELD_TOP, NIGHT);
-    lineTo(24, WARNING_LINE, 336, WARNING_LINE, PINK);
-    color(labels, PINK, NIGHT);
-    setPosXY(labels, 27, WARNING_LINE - 15);
-    write(labels, "DANGER");
-
-    (* Aiming guide and next fruit preview. *)
-    if started and not game.game_over then
-      drop_x := float(pointer_x);
-      if drop_x < float(FIELD_LEFT) + radius_of(game.current_tier) then
-        drop_x := float(FIELD_LEFT) + radius_of(game.current_tier);
-      elsif drop_x > float(FIELD_RIGHT) - radius_of(game.current_tier) then
-        drop_x := float(FIELD_RIGHT) - radius_of(game.current_tier);
-      end if;
-      lineTo(round(drop_x), FIELD_TOP - 3, round(drop_x), FIELD_TOP + 22, PALE);
-      fcircle(round(drop_x), FIELD_TOP + 26,
-          round(radius_of(game.current_tier) * 0.55), TIER_COLOR[game.current_tier]);
-      color(labels, PALE, NIGHT);
-      setPosXY(labels, 22, 68);
-      write(labels, "DROP");
-      fcircle(90, 65, round(radius_of(game.current_tier) * 0.42),
-          TIER_COLOR[game.current_tier]);
-      circle(90, 65, round(radius_of(game.current_tier) * 0.42), GOLD);
-      color(labels, PALE, NIGHT);
-      setPosXY(labels, 108, 69);
-      write(labels, TIER_NAME[game.current_tier]);
-      setPosXY(labels, 22, 92);
-      write(labels, "NEXT");
-      fcircle(90, 89, round(radius_of(game.next_tier) * 0.42),
-          TIER_COLOR[game.next_tier]);
-      circle(90, 89, round(radius_of(game.next_tier) * 0.42), GOLD);
-      color(labels, PALE, NIGHT);
-      setPosXY(labels, 108, 93);
-      write(labels, TIER_NAME[game.next_tier]);
+    if background <> PRIMITIVE_WINDOW.value then
+      put(curr_win, 0, 0, background);
+    else
+      clear(NIGHT);
+      v_rect(18, FIELD_TOP - 2, 324, FIELD_FLOOR - FIELD_TOP + 8, VIOLET);
+      v_rect(22, FIELD_TOP + 2, 316, FIELD_FLOOR - FIELD_TOP, NIGHT);
     end if;
-
-    (* Halloween silhouettes behind the playfield. *)
-    lineTo(4, 616, 356, 616, NIGHT_LIGHT);
-    fcircle(8, 623, 27, INK);
-    fcircle(351, 625, 31, INK);
-    lineTo(18, 615, 30, 588, INK);
-    lineTo(30, 588, 43, 615, INK);
-    lineTo(43, 615, 55, 591, INK);
-    lineTo(55, 591, 68, 615, INK);
-    lineTo(314, 617, 325, 590, INK);
-    lineTo(325, 590, 338, 618, INK);
+    draw_hud;
+    v_line(24, WARNING_LINE, 336, WARNING_LINE, PINK);
+    if started and not game.game_over then
+      draw_aim;
+    end if;
 
     for ball_index range 1 to MAX_OBJECTS do
       if game.balls[ball_index].active then
-        ball_tier := game.balls[ball_index].tier;
-        x := round(game.balls[ball_index].x);
-        y := round(game.balls[ball_index].y);
-        ball_radius := round(radius_of(ball_tier));
-        accent := TIER_COLOR[ball_tier];
-        fcircle(x, y, ball_radius, accent);
-        circle(x, y, ball_radius, GOLD);
-        case ball_tier of
-          when {1}: (* candy corn stripes *)
-            lineTo(x - ball_radius div 2, y + 2, x + ball_radius div 2, y + 2, PALE);
-            lineTo(x - ball_radius div 3, y + 6, x + ball_radius div 3, y + 6, ORANGE);
-          when {2}: (* eyeball *)
-            fcircle(x, y, ball_radius div 2, PALE);
-            fcircle(x + 2, y, ball_radius div 4, INK);
-            fcircle(x + 3, y - 2, 2, PALE);
-          when {3}: (* spider body and legs *)
-            fcircle(x, y, ball_radius div 3, INK);
-            lineTo(x - 4, y - 4, x - ball_radius + 4, y - ball_radius div 2, INK);
-            lineTo(x - 4, y, x - ball_radius + 2, y, INK);
-            lineTo(x - 4, y + 4, x - ball_radius + 4, y + ball_radius div 2, INK);
-            lineTo(x + 4, y - 4, x + ball_radius - 4, y - ball_radius div 2, INK);
-            lineTo(x + 4, y, x + ball_radius - 2, y, INK);
-            lineTo(x + 4, y + 4, x + ball_radius - 4, y + ball_radius div 2, INK);
-          when {4}: (* bat wings *)
-            lineTo(x - ball_radius + 4, y, x - 4, y + 5, INK);
-            lineTo(x - 4, y + 5, x, y - 5, INK);
-            lineTo(x, y - 5, x + 4, y + 5, INK);
-            lineTo(x + 4, y + 5, x + ball_radius - 4, y, INK);
-          when {5}: (* ghost eyes *)
-            fcircle(x - 5, y - 2, 2, INK);
-            fcircle(x + 5, y - 2, 2, INK);
-            lineTo(x - 4, y + 6, x + 4, y + 6, PALE);
-          when {6}: (* skull eyes *)
-            fcircle(x - 6, y - 2, 4, INK);
-            fcircle(x + 6, y - 2, 4, INK);
-            lineTo(x - 4, y + 7, x + 4, y + 7, INK);
-          when {7}: (* potion stopper *)
-            rect(x - 4, y - ball_radius + 3, 8, 5, GOLD);
-            fcircle(x, y + 3, ball_radius div 3, PALE);
-          when {8}: (* cauldron rim *)
-            rect(x - ball_radius div 2, y - 5, ball_radius, 6, INK);
-            fcircle(x, y - ball_radius div 2, 4, LIME);
-          when {9}: (* pumpkin ribs *)
-            lineTo(x - ball_radius div 3, y - ball_radius + 4,
-                x - ball_radius div 3, y + ball_radius - 4, GOLD);
-            lineTo(x + ball_radius div 3, y - ball_radius + 4,
-                x + ball_radius div 3, y + ball_radius - 4, GOLD);
-            fcircle(x, y, 3, INK);
-          when {10}: (* crown *)
-            lineTo(x - 12, y - ball_radius + 9, x - 9, y - ball_radius - 3, GOLD);
-            lineTo(x - 9, y - ball_radius - 3, x, y - ball_radius + 4, GOLD);
-            lineTo(x, y - ball_radius + 4, x + 9, y - ball_radius - 3, GOLD);
-            lineTo(x + 9, y - ball_radius - 3, x + 12, y - ball_radius + 9, GOLD);
-          otherwise: noop;
-        end case;
+        draw_piece(game.balls[ball_index].tier,
+            round(game.balls[ball_index].x), round(game.balls[ball_index].y),
+            round(radius_of(game.balls[ball_index].tier)));
       end if;
     end for;
 
     if not started then
-      rect(40, 282, 280, 174, NIGHT_LIGHT);
-      color(labels, GOLD, NIGHT_LIGHT);
-      setPosXY(labels, 69, 304);
-      write(labels, "SPOOKY MERGE");
-      color(labels, PALE, NIGHT_LIGHT);
-      setPosXY(labels, 99, 336);
-      write(labels, "Match two spirits");
-      setPosXY(labels, 94, 364);
-      write(labels, "to make a new one");
-      setPosXY(labels, 96, 392);
-      write(labels, "SPACE starts and drops");
-      setPosXY(labels, 104, 420);
-      write(labels, "A / D or arrows aim");
+      v_rect(40, 282, 280, 174, NIGHT_LIGHT);
+      write_at(92, 316, "SPOOKY MERGE", GOLD, NIGHT_LIGHT);
+      write_at(84, 352, "Match two spirits", PALE, NIGHT_LIGHT);
+      write_at(84, 380, "to make a new one", PALE, NIGHT_LIGHT);
+      write_at(56, 416, "Tap, click or press SPACE", PALE, NIGHT_LIGHT);
     elsif game.game_over then
-      rect(48, 314, 264, 110, NIGHT_LIGHT);
-      color(labels, GOLD, NIGHT_LIGHT);
-      setPosXY(labels, 120, 337);
-      write(labels, "GAME OVER");
-      color(labels, PALE, NIGHT_LIGHT);
-      setPosXY(labels, 94, 367);
-      write(labels, "FINAL SCORE " <& game.score);
-      setPosXY(labels, 62, 396);
-      write(labels, "Press R or click to play again");
+      v_rect(48, 314, 264, 110, NIGHT_LIGHT);
+      write_at(120, 346, "GAME OVER", GOLD, NIGHT_LIGHT);
+      write_at(84, 376, "FINAL SCORE " <& game.score, PALE, NIGHT_LIGHT);
+      write_at(84, 404, "Tap or press R", PALE, NIGHT_LIGHT);
     end if;
     flushGraphic;
   end func;
@@ -251,7 +317,7 @@ const proc: process_input is func
   local
     var integer: raw_pointer is 0;
   begin
-    raw_pointer := pointerXPos(curr_win);
+    raw_pointer := pointerXPos(curr_win) * 100 div display_percent;
     if raw_pointer <> last_raw_pointer then
       last_raw_pointer := raw_pointer;
       pointer_x := raw_pointer;
@@ -294,20 +360,9 @@ const proc: process_input is func
   end func;
 
 
-const proc: main is func
-
-  local
-    var integer: simulation_step is 0;
+(* The browser launcher passes the best score and the display size in percent. *)
+const proc: read_arguments is func
   begin
-    screen(PLAY_WIDTH, PLAY_HEIGHT);
-    selectInput(curr_win, KEY_CLOSE, TRUE);
-    # The Emscripten driver reports touch drags only inside a sub window.
-    main_window := curr_win;
-    curr_win := openSubWindow(main_window, 0, 0, PLAY_WIDTH, PLAY_HEIGHT);
-    KEYBOARD := GRAPH_KEYBOARD;
-    labels := openPixmapFontFile(curr_win);
-    setFont(labels, stdFont14);
-    color(labels, PALE, NIGHT);
     startup_arguments := argv(PROGRAM);
     if length(startup_arguments) >= 1 then
       block
@@ -317,11 +372,45 @@ const proc: main is func
           game.best_score := 0;
       end block;
     end if;
+    if length(startup_arguments) >= 2 then
+      view_scale := WEB_SCALE;
+      block
+        display_percent := integer(startup_arguments[2]);
+      exception
+        catch RANGE_ERROR:
+          display_percent := 100;
+      end block;
+      if display_percent < 1 then
+        display_percent := 100;
+      end if;
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  local
+    var integer: simulation_step is 0;
+  begin
+    read_arguments;
+    screen(v(PLAY_WIDTH), v(PLAY_HEIGHT));
+    selectInput(curr_win, KEY_CLOSE, TRUE);
+    # The Emscripten driver reports touch drags only inside a sub window.
+    main_window := curr_win;
+    curr_win := openSubWindow(main_window, 0, 0, v(PLAY_WIDTH), v(PLAY_HEIGHT));
+    KEYBOARD := GRAPH_KEYBOARD;
+    labels := openPixmapFontFile(curr_win);
+    if view_scale = WEB_SCALE then
+      setFont(labels, stdFont24);
+      load_art;
+    else
+      setFont(labels, stdFont14);
+    end if;
     saved_best := game.best_score;
     reset_game(game, round_seed);
     started := FALSE;
     running := TRUE;
-    last_raw_pointer := pointerXPos(curr_win);
+    last_raw_pointer := pointerXPos(curr_win) * 100 div display_percent;
     last_time := time(NOW);
     while running do
       process_input;

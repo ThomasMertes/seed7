@@ -13,14 +13,8 @@ const MIME = {
   ".css": "text/css",
   ".wasm": "application/wasm",
 };
-const GUIDE_ROW = 136;
-const PREVIEW = { x: 90, y: 65 };
-const SPAWN_COLORS = {
-  "255,191,35": 1,
-  "255,46,140": 2,
-  "105,255,50": 3,
-  "164,70,255": 4,
-};
+const GUIDE_ROW = 272;
+const PREVIEW = { x: 572, y: 36, size: 96 };
 
 let failures = 0;
 
@@ -57,7 +51,7 @@ async function findGamePage(context) {
   for (let attempt = 0; attempt < 100; attempt += 1) {
     for (const page of context.pages()) {
       const found = await page
-        .evaluate(() => [...document.querySelectorAll("canvas")].some((c) => c.width === 360))
+        .evaluate(() => [...document.querySelectorAll("canvas")].some((c) => c.width === 720))
         .catch(() => false);
       if (found) {
         return page;
@@ -68,34 +62,36 @@ async function findGamePage(context) {
   throw new Error("The game canvas did not appear.");
 }
 
-function pixel(page, x, y) {
-  return page.evaluate(([px, py]) => {
-    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 360).pop();
-    return Array.from(canvas.getContext("2d").getImageData(px, py, 1, 1).data).slice(0, 3);
-  }, [x, y]);
-}
-
 // The aim guide is the brightest column in this row of the empty upper field.
 // Canvas lines are anti-aliased, so the guide is dimmer than its nominal color.
 function guideX(page) {
   return page.evaluate((row) => {
-    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 360).pop();
-    const data = canvas.getContext("2d").getImageData(0, row, 360, 1).data;
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 720).pop();
+    const data = canvas.getContext("2d").getImageData(0, row, 720, 1).data;
     let brightest = -1;
-    let level = 120;
-    for (let x = 24; x < 336; x += 1) {
+    let level = 300;
+    for (let x = 48; x < 672; x += 1) {
       const sum = data[x * 4] + data[x * 4 + 1] + data[x * 4 + 2];
       if (sum > level) {
         level = sum;
         brightest = x;
       }
     }
-    return brightest;
+    return brightest === -1 ? -1 : brightest / 2;
   }, GUIDE_ROW);
 }
 
-async function previewTier(page) {
-  return SPAWN_COLORS[(await pixel(page, PREVIEW.x, PREVIEW.y)).join(",")];
+// A hash of the NEXT preview, which differs per tier.
+function previewHash(page) {
+  return page.evaluate(({ x, y, size }) => {
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 720).pop();
+    const data = canvas.getContext("2d").getImageData(x, y, size, size).data;
+    let hash = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      hash = (hash * 31 + data[i] + data[i + 1] * 7 + data[i + 2] * 13) | 0;
+    }
+    return hash;
+  }, PREVIEW);
 }
 
 async function startGame(context, launcher, url) {
@@ -135,7 +131,7 @@ async function desktop(browser, url) {
   check(wasmStatus === 200, "the WASM file loads over HTTP");
   check(page === launcher && context.pages().length === 1, "the game runs in the page, not a popup");
   const left = await page.evaluate(() => {
-    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 360).pop();
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 720).pop();
     return canvas.getBoundingClientRect().left;
   });
   check(Math.abs(left - 460) <= 1, `the field is centered (left=${left})`);
@@ -155,13 +151,12 @@ async function desktop(browser, url) {
 
   const seen = new Set();
   for (let drop = 0; drop < 14; drop += 1) {
-    seen.add(await previewTier(page));
+    seen.add(await previewHash(page));
     await page.keyboard.press("a");
     await page.keyboard.press("Space");
     await sleep(420);
   }
-  seen.delete(undefined);
-  check(seen.size >= 3, `spawns vary (tiers ${[...seen].sort().join(", ")})`);
+  check(seen.size >= 3, `spawns vary (${seen.size} different previews)`);
 
   await page.mouse.move(left + 100, 300);
   await sleep(200);
@@ -170,6 +165,40 @@ async function desktop(browser, url) {
   const best = await waitForBest(launcher, () => page.mouse.click(left + 100, 300));
   check(best !== null && Number(best) > 0, `a merge saves the best score (${best})`);
   check(errors.length === 0, `no page errors ${errors.join("; ")}`);
+  await context.close();
+}
+
+async function shortWindow(browser, url) {
+  console.log("Short desktop window 1000x500");
+  const context = await browser.newContext({ viewport: { width: 1000, height: 500 } });
+  const launcher = await context.newPage();
+  const page = await startGame(context, launcher, url);
+  await page.keyboard.press("Space");
+  const box = await page.evaluate(() => {
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 720).pop();
+    const rect = canvas.getBoundingClientRect();
+    return { left: rect.left, width: rect.width, bottom: rect.bottom };
+  });
+  check(box.bottom <= 500.5, `the field fits a short window (bottom=${box.bottom})`);
+  await page.mouse.move(box.left + 100 * box.width / 360, 250);
+  await sleep(300);
+  const aimed = await guideX(page);
+  check(Math.abs(aimed - 100) <= 16, `the mouse aims in a scaled field (x=${aimed})`);
+  await context.close();
+}
+
+async function missingArt(browser, url) {
+  console.log("Missing art");
+  const context = await browser.newContext({ viewport: { width: 1000, height: 800 } });
+  await context.route("**/art/*.png", (route) => route.abort());
+  const launcher = await context.newPage();
+  const errors = [];
+  launcher.on("pageerror", (error) => errors.push(error.message));
+  const page = await startGame(context, launcher, url);
+  await page.keyboard.press("Space");
+  await sleep(300);
+  check(Math.abs((await guideX(page)) - 180) <= 2, "the game runs with simple shapes");
+  check(errors.length === 0, `no page errors without art ${errors.join("; ")}`);
   await context.close();
 }
 
@@ -185,7 +214,7 @@ async function phone(browser, url, width, height) {
   const page = await findGamePage(context);
   const client = await context.newCDPSession(page);
   const fit = await page.evaluate(() => {
-    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 360).pop();
+    const canvas = [...document.querySelectorAll("canvas")].filter((c) => c.width === 720).pop();
     const box = canvas.getBoundingClientRect();
     return { right: box.right, layout: document.documentElement.clientWidth,
       scale: window.visualViewport.scale, visible: window.visualViewport.width };
@@ -221,7 +250,8 @@ async function phone(browser, url, width, height) {
 
   await launcher.reload();
   const saved = await launcher.evaluate(() => localStorage.getItem("spooky-merge-best"));
-  check(saved === best, "the best score survives a reload");
+  // Pieces can still merge after the score was read, so it may have grown.
+  check(Number(saved) >= Number(best), `the best score survives a reload (${best} -> ${saved})`);
   await context.close();
 }
 
@@ -234,6 +264,8 @@ async function main() {
   });
   try {
     await desktop(browser, url);
+    await shortWindow(browser, url);
+    await missingArt(browser, url);
     await phone(browser, url, 412, 915);
     await phone(browser, url, 320, 640);
   } finally {

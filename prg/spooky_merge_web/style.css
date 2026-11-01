@@ -106,5 +106,11 @@ footer { margin-top: 12px; color: #8d7c9e; font-size: 12px; }
   .intro { margin: 12px auto; }
 }
 
-/* The driver places the game canvases at the left edge. */
-canvas { left: calc(50% - 180px) !important; }
+/* The driver places the game canvases at the left edge. They have twice the
+   pixels of their display size, and --game-scale fits them to short windows. */
+canvas {
+  left: calc(50% - 180px * var(--game-scale, 1)) !important;
+  top: max(0px, calc(50vh - 320px * var(--game-scale, 1))) !important;
+  width: calc(360px * var(--game-scale, 1));
+  height: calc(640px * var(--game-scale, 1));
+}

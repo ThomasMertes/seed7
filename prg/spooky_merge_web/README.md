@@ -1,6 +1,8 @@
 ﻿# Spooky Merge browser build
 
-The game and its physics are written in Seed7. `launcher.js` only starts the generated program, passes the saved best score as a startup argument, and stores the program's `SPOOKY_BEST=<score>` output in browser `localStorage`. It receives that output through the optional `seed7Print` hook in `src/pre_js.js`.
+The game and its physics are written in Seed7. `launcher.js` only loads the art, starts the generated program, passes the saved best score and display size as startup arguments, and stores the program's `SPOOKY_BEST=<score>` output in browser `localStorage`. It uses the optional `seed7Print` and `seed7PreRun` hooks in `src/pre_js.js`.
+
+The browser game draws at 720x1280 and displays at 360x640 CSS pixels, so it stays sharp on high-density screens. The native build has no art: it draws simple shapes at 360x640.
 
 ## Build
 
@@ -59,7 +61,13 @@ It reads the game canvas to check loading, keyboard and mouse aim, varied spawns
 
 ## Static hosting
 
-Build the Seed7 program, then publish the contents of `prg/spooky_merge_web/`, including the generated `spooky_merge.js` and `spooky_merge.wasm`. Keep both generated files beside `index.html`; the game files are intentionally ignored by Git. The host must serve `.wasm` with an `application/wasm` content type for streaming instantiation, although Emscripten may fall back to array-buffer loading.
+Build the Seed7 program, then publish the contents of `prg/spooky_merge_web/`, including `art/*.png` and the generated `spooky_merge.js` and `spooky_merge.wasm`. Keep both generated files beside `index.html`; the game files are intentionally ignored by Git. The host must serve `.wasm` with an `application/wasm` content type for streaming instantiation, although Emscripten may fall back to array-buffer loading.
+
+## Art
+
+Each tier and the background has an SVG source and a rendered PNG in `art/`. After changing an SVG, run `node art/render.cjs` from this folder, with Playwright installed as described above.
+
+To use other artwork, replace a PNG and keep its file name. Tier images are square with a transparent background, and the game scales them to the size of the tier. For the sharpest result use the sizes in `render.cjs`. The top 110 CSS pixels of `background.png` (220 image pixels) must stay the flat color `#0b0820`, because the score text paints its own background. If a PNG cannot be loaded, the game draws a simple shape instead.
 
 ## Controls
 
@@ -70,7 +78,7 @@ Build the Seed7 program, then publish the contents of `prg/spooky_merge_web/`, i
 
 ## Verification record
 
-Last verified 2026-11-01. The rules program passed all checks, both natively compiled on Windows and under the interpreter. The game compiled to JS/WASM with Seed7 compiler 3.5.18 and emcc 6.0.13. `smoke_test.cjs` passed on that build in headless Playwright 1.64.1 Chromium: desktop, and touch emulation at 412x915 and 320x640. Tier names and game text are present in the WASM and absent from the JS.
+Last verified 2026-11-01. The rules program passed all checks, both natively compiled on Windows and under the interpreter. The game compiled to JS/WASM with Seed7 compiler 3.5.18 and emcc 6.0.13. `smoke_test.cjs` passed on that build in headless Playwright 1.64.1 Chromium: desktop, a short window, missing art, and touch emulation at 412x915 and 320x640. Tier names and game text are present in the WASM and absent from the JS.
 
 Playwright disables background throttling and emulates page focus, so `smoke_test.cjs` cannot detect throttled timers. The in-page mode was checked separately in installed Chrome through the DevTools protocol, with the page visible, hidden in a background tab, and visible again.
 
