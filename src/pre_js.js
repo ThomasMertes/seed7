@@ -84,6 +84,9 @@ if (typeof document !== "undefined") {
     'thisProgram': programPath,
     'arguments': arguments
   }
+  if (typeof seed7Print === "function") {
+    Module['print'] = seed7Print;
+  }
 } else if (typeof Module !== "undefined") {
   // console.log('Module exists');
   // var Module = {
