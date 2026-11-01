@@ -69,7 +69,7 @@ Build the Seed7 program, then publish the contents of `prg/spooky_merge_web/`, i
 
 Each tier and the background has an SVG source and a rendered PNG in `art/`. After changing an SVG, run `node art/render.cjs` from this folder, with Playwright installed as described above.
 
-To use other artwork, replace a PNG and keep its file name. Tier images are square with a transparent background, and the game scales them to the size of the tier. For the sharpest result use the sizes in `render.cjs`. The top 110 CSS pixels of `background.png` (220 image pixels) must stay the flat color `#0b0820`, because the score text paints its own background. If a PNG cannot be loaded, the game draws a simple shape instead.
+To use other artwork, replace a PNG and keep its file name. Tier images are square with a transparent background, and the game scales them to the size of the tier. The physics treats every piece as a circle, which fills the inner 80% of the image width. So place the art on the center of the image, let it fill that inner circle, and keep only thin tips outside of it. `render.cjs` does this for the SVG art. For the sharpest result use the sizes that it prints. The top 110 CSS pixels of `background.png` (220 image pixels) must stay the flat color `#0b0820`, because the score text paints its own background. If a PNG cannot be loaded, the game draws a simple shape instead.
 
 ## Controls
 

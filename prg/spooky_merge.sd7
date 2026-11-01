@@ -31,6 +31,8 @@ const array string: ART_NAME is [] (
     "potion", "cauldron", "jack_o_lantern", "pumpkin_king");
 const integer: KEY_AIM_STEP is 12;
 const integer: WEB_SCALE is 2;
+(* Tier images are larger than the circle, so that their art can fill it. *)
+const integer: ART_PERCENT is 125;
 
 var game_state: game is game_state.value;
 var PRIMITIVE_WINDOW: main_window is PRIMITIVE_WINDOW.value;
@@ -233,10 +235,12 @@ const proc: draw_piece (in integer: tier, in integer: x, in integer: y,
     in integer: radius, in float: angle) is func
   local
     var integer: count is 0;
+    var integer: half is 0;
   begin
     count := length(tier_art[tier]);
     if count >= 1 then
-      put(curr_win, v(x - radius), v(y - radius), v(2 * radius), v(2 * radius),
+      half := v(radius) * ART_PERCENT div 100;
+      put(curr_win, v(x) - half, v(y) - half, 2 * half, 2 * half,
           tier_art[tier][1 + round(angle * float(count) / (2.0 * PI)) mod count]);
     else
       draw_plain_piece(tier, x, y, radius);
