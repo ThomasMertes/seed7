@@ -240,7 +240,7 @@ const func string: gzcompress (in string: uncompressed) is func
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
-const func string: gunzip (in string: compressed) is func
+const func string: gzipDecompress (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
@@ -265,6 +265,11 @@ const func string: gunzip (in string: compressed) is func
       end if;
     end if;
   end func;
+
+
+# The function gunzip() is deprecated. Use gzipDecompress() instead.
+const func string: gunzip (in string: compressed) is
+  return gzipDecompress(compressed);
 
 
 (**
