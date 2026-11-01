@@ -1,0 +1,392 @@
+(* Spooky Merge game rules and circle physics. *)
+
+include "float.s7i";
+include "math.s7i";
+
+const integer: PLAY_WIDTH is 360;
+const integer: PLAY_HEIGHT is 640;
+const integer: FIELD_LEFT is 20;
+const integer: FIELD_RIGHT is 340;
+const integer: FIELD_TOP is 132;
+const integer: FIELD_FLOOR is 606;
+const integer: WARNING_LINE is 192;
+const integer: TIER_COUNT is 10;
+const integer: MAX_OBJECTS is 90;
+const float: FIXED_STEP is 1.0 / 60.0;
+const float: GRAVITY is 1500.0;
+const float: RESTITUTION is 0.12;
+const float: WALL_RESTITUTION is 0.18;
+const float: AIR_DAMPING is 0.999;
+const float: SETTLE_FRICTION is 0.985;
+const float: DROP_COOLDOWN is 0.35;
+const float: DROP_GRACE is 0.75;
+const float: OVERFLOW_DELAY is 1.5;
+const float: MAX_FRAME_TIME is 0.25;
+const integer: SOLVER_PASSES is 4;
+const integer: MAX_CATCHUP_STEPS is 4;
+const integer: SPAWN_TIERS is 4;
+const integer: TOP_TIER_BONUS is 2048;
+const integer: DEFAULT_SEED is 246353424;
+const integer: RANDOM_MODULUS is 2147483647;
+const integer: RANDOM_MULTIPLIER is 48271;
+
+const array float: TIER_RADIUS is [] (
+    14.0, 18.0, 23.0, 29.0, 36.0, 44.0, 53.0, 63.0, 74.0, 86.0);
+const array string: TIER_NAME is [] (
+    "Candy Corn", "Eyeball", "Spider", "Bat", "Ghost", "Skull",
+    "Potion", "Cauldron", "Jack-o'-Lantern", "Pumpkin King");
+
+const type: merge_ball is new struct
+    var boolean: active is FALSE;
+    var integer: tier is 1;
+    var float: x is 0.0;
+    var float: y is 0.0;
+    var float: vx is 0.0;
+    var float: vy is 0.0;
+    var float: age is 0.0;
+    var boolean: fresh is TRUE;
+  end struct;
+
+const type: game_state is new struct
+    var array merge_ball: balls is MAX_OBJECTS times merge_ball.value;
+    var integer: score is 0;
+    var integer: best_score is 0;
+    var integer: current_tier is 1;
+    var integer: next_tier is 2;
+    var float: drop_cooldown is 0.0;
+    var float: overflow_time is 0.0;
+    var boolean: game_over is FALSE;
+    var integer: random_state is DEFAULT_SEED;
+  end struct;
+
+const func integer: next_random (inout game_state: game) is func
+  result
+    var integer: number is 0;
+  begin
+    game.random_state := game.random_state * RANDOM_MULTIPLIER mod RANDOM_MODULUS;
+    number := game.random_state;
+  end func;
+
+const func float: radius_of (in integer: tier) is func
+  result
+    var float: radius is 0.0;
+  begin
+    radius := TIER_RADIUS[tier];
+  end func;
+
+const func float: mass_of (in integer: tier) is func
+  result
+    var float: mass is 0.0;
+  begin
+    mass := radius_of(tier) * radius_of(tier);
+  end func;
+
+const func integer: next_spawn_tier (inout game_state: game) is
+  return 1 + next_random(game) mod SPAWN_TIERS;
+
+const proc: reset_game (inout game_state: game, in integer: seed) is func
+  local
+    var integer: index is 1;
+  begin
+    game.random_state := seed mod RANDOM_MODULUS;
+    if game.random_state = 0 then
+      game.random_state := DEFAULT_SEED;
+    end if;
+    for index range 1 to MAX_OBJECTS do
+      game.balls[index].active := FALSE;
+      game.balls[index].fresh := TRUE;
+      game.balls[index].age := 0.0;
+      game.balls[index].x := 0.0;
+      game.balls[index].y := 0.0;
+      game.balls[index].vx := 0.0;
+      game.balls[index].vy := 0.0;
+    end for;
+    game.score := 0;
+    game.current_tier := next_spawn_tier(game);
+    game.next_tier := next_spawn_tier(game);
+    game.drop_cooldown := 0.0;
+    game.overflow_time := 0.0;
+    game.game_over := FALSE;
+  end func;
+
+const func integer: free_slot (in game_state: game) is func
+  result
+    var integer: slot is 0;
+  local
+    var integer: index is 1;
+  begin
+    for index range 1 to MAX_OBJECTS until slot <> 0 do
+      if not game.balls[index].active then
+        slot := index;
+      end if;
+    end for;
+  end func;
+
+const func integer: active_count (in game_state: game) is func
+  result
+    var integer: count is 0;
+  local
+    var integer: index is 1;
+  begin
+    for index range 1 to MAX_OBJECTS do
+      if game.balls[index].active then
+        incr(count);
+      end if;
+    end for;
+  end func;
+
+const proc: spawn_ball (inout game_state: game, in integer: tier,
+    in float: x, in float: y, in float: vx, in float: vy,
+    in boolean: drop_grace, inout integer: slot) is func
+  begin
+    slot := free_slot(game);
+    if slot <> 0 then
+      game.balls[slot].active := TRUE;
+      game.balls[slot].fresh := drop_grace;
+      game.balls[slot].tier := tier;
+      game.balls[slot].x := x;
+      game.balls[slot].y := y;
+      game.balls[slot].vx := vx;
+      game.balls[slot].vy := vy;
+      game.balls[slot].age := 0.0;
+    end if;
+  end func;
+
+const proc: spawn_ball (inout game_state: game, in integer: tier,
+    in float: x, in float: y, in float: vx, in float: vy,
+    in boolean: drop_grace) is func
+  local
+    var integer: slot is 0;
+  begin
+    spawn_ball(game, tier, x, y, vx, vy, drop_grace, slot);
+  end func;
+
+const proc: award_score (inout game_state: game, in integer: points) is func
+  begin
+    game.score +:= points;
+    if game.score > game.best_score then
+      game.best_score := game.score;
+    end if;
+  end func;
+
+const proc: drop_current (inout game_state: game, in float: x) is func
+  local
+    var float: safe_x is 0.0;
+  begin
+    if not game.game_over and game.drop_cooldown <= 0.0 and
+        active_count(game) < MAX_OBJECTS then
+      safe_x := x;
+      if safe_x < float(FIELD_LEFT) + radius_of(game.current_tier) then
+        safe_x := float(FIELD_LEFT) + radius_of(game.current_tier);
+      elsif safe_x > float(FIELD_RIGHT) - radius_of(game.current_tier) then
+        safe_x := float(FIELD_RIGHT) - radius_of(game.current_tier);
+      end if;
+      spawn_ball(game, game.current_tier, safe_x,
+          float(FIELD_TOP) + radius_of(game.current_tier), 0.0, 0.0, TRUE);
+      game.current_tier := game.next_tier;
+      game.next_tier := next_spawn_tier(game);
+      game.drop_cooldown := DROP_COOLDOWN;
+    end if;
+  end func;
+
+const proc: merge_pair (inout game_state: game, in integer: first,
+    in integer: second, inout integer: spawned) is func
+  local
+    var float: x is 0.0;
+    var float: y is 0.0;
+    var float: vx is 0.0;
+    var float: vy is 0.0;
+    var float: first_mass is 0.0;
+    var float: second_mass is 0.0;
+    var integer: tier is 1;
+  begin
+    if game.balls[first].active and game.balls[second].active and
+        game.balls[first].tier = game.balls[second].tier then
+      tier := game.balls[first].tier;
+      first_mass := mass_of(game.balls[first].tier);
+      second_mass := mass_of(game.balls[second].tier);
+      x := (game.balls[first].x * first_mass +
+          game.balls[second].x * second_mass) / (first_mass + second_mass);
+      y := (game.balls[first].y * first_mass +
+          game.balls[second].y * second_mass) / (first_mass + second_mass);
+      vx := (game.balls[first].vx + game.balls[second].vx) / 2.0;
+      vy := (game.balls[first].vy + game.balls[second].vy) / 2.0;
+      game.balls[first].active := FALSE;
+      game.balls[second].active := FALSE;
+      if tier < TIER_COUNT then
+        incr(tier);
+        award_score(game, 2 ** tier);
+        spawn_ball(game, tier, x, y, vx, vy, FALSE, spawned);
+      else
+        award_score(game, TOP_TIER_BONUS);
+      end if;
+    end if;
+  end func;
+
+const proc: solve_pair (inout game_state: game, in integer: first,
+    in integer: second, in boolean: may_merge, inout boolean: merged,
+    inout integer: spawned) is func
+  local
+    var float: dx is 0.0;
+    var float: dy is 0.0;
+    var float: distance is 0.0;
+    var float: sum_radius is 0.0;
+    var float: nx is 0.0;
+    var float: ny is 0.0;
+    var float: overlap is 0.0;
+    var float: relative_speed is 0.0;
+    var float: impulse is 0.0;
+    var float: first_mass is 0.0;
+    var float: second_mass is 0.0;
+  begin
+    merged := FALSE;
+    spawned := 0;
+    if game.balls[first].active and game.balls[second].active then
+      dx := game.balls[second].x - game.balls[first].x;
+      dy := game.balls[second].y - game.balls[first].y;
+      distance := sqrt(dx * dx + dy * dy);
+      sum_radius := radius_of(game.balls[first].tier) +
+          radius_of(game.balls[second].tier);
+      if distance < sum_radius then
+        if game.balls[first].tier = game.balls[second].tier then
+          (* A locked matching pair stays in contact to merge next step. *)
+          if may_merge then
+            merge_pair(game, first, second, spawned);
+            merged := TRUE;
+          end if;
+        else
+          if distance < 0.001 then
+            dx := 1.0;
+            dy := 0.0;
+            distance := 1.0;
+          end if;
+          nx := dx / distance;
+          ny := dy / distance;
+          overlap := sum_radius - distance;
+          first_mass := mass_of(game.balls[first].tier);
+          second_mass := mass_of(game.balls[second].tier);
+          game.balls[first].x -:= nx * overlap *
+              second_mass / (first_mass + second_mass);
+          game.balls[first].y -:= ny * overlap *
+              second_mass / (first_mass + second_mass);
+          game.balls[second].x +:= nx * overlap *
+              first_mass / (first_mass + second_mass);
+          game.balls[second].y +:= ny * overlap *
+              first_mass / (first_mass + second_mass);
+          relative_speed := (game.balls[second].vx - game.balls[first].vx) * nx +
+              (game.balls[second].vy - game.balls[first].vy) * ny;
+          if relative_speed < 0.0 then
+            impulse := -(1.0 + RESTITUTION) * relative_speed /
+                (1.0 / first_mass + 1.0 / second_mass);
+            game.balls[first].vx -:= impulse * nx / first_mass;
+            game.balls[first].vy -:= impulse * ny / first_mass;
+            game.balls[second].vx +:= impulse * nx / second_mass;
+            game.balls[second].vy +:= impulse * ny / second_mass;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+const proc: keep_inside (inout game_state: game, in integer: index) is func
+  local
+    var float: radius is 0.0;
+  begin
+    radius := radius_of(game.balls[index].tier);
+    if game.balls[index].x - radius < float(FIELD_LEFT) then
+      game.balls[index].x := float(FIELD_LEFT) + radius;
+      if game.balls[index].vx < 0.0 then
+        game.balls[index].vx := -game.balls[index].vx * WALL_RESTITUTION;
+      end if;
+    elsif game.balls[index].x + radius > float(FIELD_RIGHT) then
+      game.balls[index].x := float(FIELD_RIGHT) - radius;
+      if game.balls[index].vx > 0.0 then
+        game.balls[index].vx := -game.balls[index].vx * WALL_RESTITUTION;
+      end if;
+    end if;
+    if game.balls[index].y + radius > float(FIELD_FLOOR) then
+      game.balls[index].y := float(FIELD_FLOOR) - radius;
+      if game.balls[index].vy > 0.0 then
+        game.balls[index].vy := -game.balls[index].vy * WALL_RESTITUTION;
+      end if;
+    end if;
+  end func;
+
+const proc: step_game (inout game_state: game, in float: delta) is func
+  local
+    var integer: pass is 0;
+    var integer: first is 1;
+    var integer: second is 1;
+    var boolean: merged is FALSE;
+    var integer: spawned is 0;
+    var array boolean: merge_locked is MAX_OBJECTS times FALSE;
+    var boolean: over_line is FALSE;
+  begin
+    if not game.game_over then
+      for first range 1 to MAX_OBJECTS do
+        merge_locked[first] := FALSE;
+      end for;
+      game.drop_cooldown -:= delta;
+      if game.drop_cooldown < 0.0 then
+        game.drop_cooldown := 0.0;
+      end if;
+      for first range 1 to MAX_OBJECTS do
+        if game.balls[first].active then
+          game.balls[first].age +:= delta;
+          if game.balls[first].fresh and game.balls[first].age >= DROP_GRACE then
+            game.balls[first].fresh := FALSE;
+          end if;
+          game.balls[first].vy +:= GRAVITY * delta;
+          game.balls[first].x +:= game.balls[first].vx * delta;
+          game.balls[first].y +:= game.balls[first].vy * delta;
+          game.balls[first].vx *:= AIR_DAMPING;
+          game.balls[first].vy *:= AIR_DAMPING;
+          keep_inside(game, first);
+          if game.balls[first].y + radius_of(game.balls[first].tier) >=
+              float(FIELD_FLOOR) then
+            game.balls[first].vx *:= SETTLE_FRICTION;
+          end if;
+        end if;
+      end for;
+      for pass range 1 to SOLVER_PASSES do
+        for first range 1 to MAX_OBJECTS do
+          if game.balls[first].active then
+            for second range succ(first) to MAX_OBJECTS do
+              if game.balls[second].active then
+                solve_pair(game, first, second,
+                    not merge_locked[first] and not merge_locked[second],
+                    merged, spawned);
+                if merged then
+                  merge_locked[first] := TRUE;
+                  merge_locked[second] := TRUE;
+                  if spawned <> 0 then
+                    merge_locked[spawned] := TRUE;
+                  end if;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+        for first range 1 to MAX_OBJECTS do
+          if game.balls[first].active then
+            keep_inside(game, first);
+          end if;
+        end for;
+      end for;
+      over_line := FALSE;
+      for first range 1 to MAX_OBJECTS do
+        if game.balls[first].active and not game.balls[first].fresh and
+            game.balls[first].y - radius_of(game.balls[first].tier) < float(WARNING_LINE) then
+          over_line := TRUE;
+        end if;
+      end for;
+      if over_line then
+        game.overflow_time +:= delta;
+        if game.overflow_time >= OVERFLOW_DELAY then
+          game.game_over := TRUE;
+        end if;
+      else
+        game.overflow_time := 0.0;
+      end if;
+    end if;
+  end func;
