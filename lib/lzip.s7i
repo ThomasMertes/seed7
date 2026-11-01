@@ -1,0 +1,342 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  lzip.s7i      Lzip compression support library                  *)
+(*  Copyright (C) 2026  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "lzma.s7i";
+include "bin32.s7i";
+include "crc32.s7i";
+
+
+const string: LZIP_MAGIC is "LZIP";
+
+const integer: LZIP_HEADER_SIZE  is  6;
+const integer: LZIP_TRAILER_SIZE is 20;
+
+
+const type: lzipHeader is new struct
+    var integer: version is 0;
+    var integer: dictionarySize is 0;
+  end struct;
+
+
+const proc: readHeader (inout lzipHeader: header, in string: headerStri) is func
+  local
+    var integer: dictionaryByte is 0;
+    var integer: exponent is 0;
+    var integer: numerator is 0;
+  begin
+    header.version := ord(headerStri[5]);
+    dictionaryByte := ord(headerStri[6]);
+    exponent := dictionaryByte mod 32;
+    numerator := (dictionaryByte >> 5) mod 8;
+    header.dictionarySize := 1 << exponent - (numerator * (1 << (exponent - 4)));
+    if header.version not in {0, 1} then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: lzipTrailer is new struct
+    var bin32: crc32 is bin32.value;
+    var integer: uncompressedSize is 0;
+    var integer: memberSize is 0;
+  end struct;
+
+
+const proc: readTrailer (inout lzipTrailer: trailer, in string: trailerStri) is func
+  begin
+    if length(trailerStri) <> LZIP_TRAILER_SIZE then
+      raise RANGE_ERROR;
+    else
+      trailer.crc32            :=     bin32(trailerStri[ 1 fixLen 4], LE);
+      trailer.uncompressedSize := bytes2Int(trailerStri[ 5 fixLen 8], UNSIGNED, LE);
+      trailer.memberSize       := bytes2Int(trailerStri[13 fixLen 8], UNSIGNED, LE);
+    end if;
+  end func;
+
+
+(**
+ *  Decompress a file that was compressed with Lzip.
+ *  Lzip is a file format used for compression.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in Lzip format.
+ *)
+const func string: lzipDecompress (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: startPos is 0;
+    var string: headerStri is "";
+    var lzipHeader: header is lzipHeader.value;
+    var lzipTrailer: trailer is lzipTrailer.value;
+    var lzmaDecoder: lzmaDec is lzmaDecoder.value;
+    var integer: decodeResult is LZMA_RES_ONGOING;
+  begin
+    startPos := tell(compressed);
+    headerStri := gets(compressed, LZIP_HEADER_SIZE);
+    if length(headerStri) = LZIP_HEADER_SIZE and
+        startsWith(headerStri, LZIP_MAGIC) then
+      readHeader(header, headerStri);
+      lzmaDec.dictSize := header.dictionarySize;
+      lzmaDec.rangeDec.compressed := compressed;
+      lzmaDec.lc := 3;
+      lzmaDec.pb := 2;
+      lzmaDec.lp := 0;
+      resetDictionary(lzmaDec);
+      resetRangeDecoder(lzmaDec.rangeDec);
+      if lzmaDec.rangeDec.corrupted then
+        raise RANGE_ERROR;
+      else
+        resetPropabilities(lzmaDec);
+        repeat
+          decodeResult := decodePacket(lzmaDec, TRUE, integer.last);
+        until decodeResult <> LZMA_RES_ONGOING;
+        readTrailer(trailer, gets(lzmaDec.rangeDec, LZIP_TRAILER_SIZE));
+        if trailer.crc32 <> crc32(lzmaDec.uncompressed) or
+           trailer.uncompressedSize <> length(lzmaDec.uncompressed) or
+           trailer.memberSize <> tell(lzmaDec.rangeDec) - startPos then
+          raise RANGE_ERROR;
+        else
+          close(lzmaDec.rangeDec);
+        end if;
+      end if;
+      uncompressed := lzmaDec.uncompressed;
+    end if;
+  end func;
+
+
+(**
+ *  [[file|File]] implementation type to decompress a Lzip file.
+ *  Lzip is a file format used for compression.
+ *)
+const type: lzipFile is sub null_file struct
+    var lzmaDecoder: lzmaDec is lzmaDecoder.value;
+    var integer: decodeResult is LZMA_RES_ONGOING;
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(lzipFile, file);
+
+
+(**
+ *  Open a Lzip file for reading (decompression).
+ *  Lzip is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  Lzip uses the DEFLATE compression algorithm. DEFLATE
+ *  uses a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE Lzip uses a magic number and a header.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in Lzip format.
+ *)
+const func file: openLzipFile (inout file: compressed, READ) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var string: headerStri is "";
+    var lzipHeader: header is lzipHeader.value;
+    var lzipFile: new_lzipFile is lzipFile.value;
+  begin
+    headerStri := gets(compressed, LZIP_HEADER_SIZE);
+    if length(headerStri) = LZIP_HEADER_SIZE and
+        startsWith(headerStri, LZIP_MAGIC) then
+      readHeader(header, headerStri);
+      new_lzipFile.lzmaDec.dictSize := header.dictionarySize;
+      new_lzipFile.lzmaDec.rangeDec.compressed := compressed;
+      new_lzipFile.lzmaDec.lc := 3;
+      new_lzipFile.lzmaDec.pb := 2;
+      new_lzipFile.lzmaDec.lp := 0;
+      resetDictionary(new_lzipFile.lzmaDec);
+      resetRangeDecoder(new_lzipFile.lzmaDec.rangeDec);
+      if new_lzipFile.lzmaDec.rangeDec.corrupted then
+        raise RANGE_ERROR;
+      else
+        resetPropabilities(new_lzipFile.lzmaDec);
+        newFile := toInterface(new_lzipFile);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Close a ''lzipFile''.
+ *)
+const proc: close (in lzipFile: aFile) is noop;
+
+
+(**
+ *  Read a character from a ''lzipFile''.
+ *  @return the character read.
+ *)
+const func char: getc (inout lzipFile: inFile) is func
+  result
+    var char: charRead is ' ';
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: missing is integer.last;
+  begin
+    if inFile.position > length(inFile.lzmaDec.uncompressed) and
+        inFile.decodeResult = LZMA_RES_ONGOING then
+      if inFile.position - length(inFile.lzmaDec.uncompressed) <=
+          integer.last - BUFFER_SIZE then
+        # The number of missing characters can be computed without integer overflow.
+        missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
+      end if;
+      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
+    end if;
+    if inFile.position <= length(inFile.lzmaDec.uncompressed) then
+      charRead := inFile.lzmaDec.uncompressed[inFile.position];
+      incr(inFile.position);
+    else
+      charRead := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a string with maximum length from a ''lzipFile''.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout lzipFile: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: charsPresent is 0;
+    var integer: missing is integer.last;
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      charsPresent := succ(length(inFile.lzmaDec.uncompressed) - inFile.position);
+      if maxLength > charsPresent and inFile.decodeResult = LZMA_RES_ONGOING then
+        if (charsPresent >= 0 and maxLength - charsPresent <= integer.last - BUFFER_SIZE) or
+            (charsPresent < 0 and maxLength - integer.last + BUFFER_SIZE <= charsPresent) then
+          # The number of missing characters can be computed without integer overflow.
+          missing := maxLength - charsPresent + BUFFER_SIZE;
+        end if;
+        inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
+      end if;
+      if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
+        striRead := inFile.lzmaDec.uncompressed[inFile.position fixLen maxLength];
+        inFile.position +:= maxLength;
+      else
+        striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in lzipFile: inFile) is
+  return inFile.position > length(inFile.lzmaDec.uncompressed) and
+      (inFile.decodeResult = LZMA_RES_FINISHED_WITH_MARKER or
+       inFile.decodeResult = LZMA_RES_FINISHED_WITHOUT_MARKER);
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *)
+const func boolean: hasNext (inout lzipFile: inFile) is func
+  result
+    var boolean: hasNext is FALSE;
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: missing is integer.last;
+  begin
+    if inFile.position > length(inFile.lzmaDec.uncompressed) and
+        inFile.decodeResult = LZMA_RES_ONGOING then
+      if inFile.position - length(inFile.lzmaDec.uncompressed) <=
+          integer.last - BUFFER_SIZE then
+        # The number of missing characters can be computed without integer overflow.
+        missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
+      end if;
+      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
+    end if;
+    hasNext := inFile.position <= length(inFile.lzmaDec.uncompressed);
+  end func;
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *)
+const func integer: length (inout lzipFile: aFile) is func
+  result
+    var integer: length is 0;
+  begin
+    if aFile.decodeResult = LZMA_RES_ONGOING then
+      aFile.decodeResult := decodePacket(aFile.lzmaDec, TRUE, integer.last);
+    end if;
+    length := length(aFile.lzmaDec.uncompressed);
+  end func;
+
+
+(**
+ *  Determine if the file ''aFile'' is seekable.
+ *  If a file is seekable the functions ''seek'' and ''tell''
+ *  can be used to set and and obtain the current file position.
+ *  @return TRUE, since a ''lzipFile'' is seekable.
+ *)
+const boolean: seekable (in lzipFile: aFile) is TRUE;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *)
+const proc: seek (inout lzipFile: aFile, in integer: position) is func
+  begin
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      aFile.position := position;
+    end if;
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in lzipFile: aFile) is
+  return aFile.position;
