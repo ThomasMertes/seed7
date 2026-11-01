@@ -273,6 +273,40 @@ const func string: gunzip (in string: compressed) is
 
 
 (**
+ *  Decompress a file that was compressed with gzip (RFC 1952).
+ *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
+ *)
+const func string: gzipDecompress (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var gzipHeader: header is gzipHeader.value;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
+    var boolean: bfinal is FALSE;
+    var string: trailer is "";
+  begin
+    header := readGzipHeader(compressed);
+    if header.magic = GZIP_MAGIC then
+      compressedStream := openLsbInBitStream(compressed);
+      repeat
+        processCompressedBlock(compressedStream, uncompressed, bfinal);
+      until bfinal;
+      trailer := gets(compressedStream, 8);
+      if length(trailer) <> 8 or
+          bytes2Int(trailer[1 fixLen 4], UNSIGNED, LE) <> ord(crc32(uncompressed)) or
+          bytes2Int(trailer[5 fixLen 4], UNSIGNED, LE) <> length(uncompressed) mod 2 ** 32 then
+        raise RANGE_ERROR;
+      end if;
+      close(compressedStream);
+    end if;
+  end func;
+
+
+(**
  *  [[file|File]] implementation type to decompress a GZIP file.
  *  GZIP is a file format used for compression.
  *)
