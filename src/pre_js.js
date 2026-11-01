@@ -87,6 +87,9 @@ if (typeof document !== "undefined") {
   if (typeof seed7Print === "function") {
     Module['print'] = seed7Print;
   }
+  if (typeof seed7PreRun === "function") {
+    Module['preRun'] = seed7PreRun;
+  }
 } else if (typeof Module !== "undefined") {
   // console.log('Module exists');
   // var Module = {
