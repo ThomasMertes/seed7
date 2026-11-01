@@ -43,8 +43,23 @@ const func boolean: same_balls (in game_state: first, in game_state: second) is 
           first.balls[ball].active and
           (first.balls[ball].tier <> second.balls[ball].tier or
            first.balls[ball].x <> second.balls[ball].x or
-           first.balls[ball].y <> second.balls[ball].y) then
+           first.balls[ball].y <> second.balls[ball].y or
+           first.balls[ball].angle <> second.balls[ball].angle) then
         same := FALSE;
+      end if;
+    end for;
+  end func;
+
+
+const func float: fastest_spin (in game_state: game) is func
+  result
+    var float: fastest is 0.0;
+  local
+    var integer: ball is 1;
+  begin
+    for ball range 1 to MAX_OBJECTS do
+      if game.balls[ball].active and abs(game.balls[ball].spin) > fastest then
+        fastest := abs(game.balls[ball].spin);
       end if;
     end for;
   end func;
@@ -239,5 +254,60 @@ const proc: main is func
     check(active_count(game) = 0 and game.score = 0 and not game.game_over,
         "restart clears the active round");
     check(game.best_score = 123, "restart preserves the best score");
+    reset_game(game, 50);
+    spawn_ball(game, 3, 100.0, float(FIELD_FLOOR) - radius_of(3), 300.0, 0.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin > 0.0, "a ball moving right rolls clockwise");
+    check(game.balls[1].angle > 0.0, "the spin turns the ball");
+    check(abs(game.balls[1].vx - game.balls[1].spin * radius_of(3)) < 10.0,
+        "floor friction leads to rolling without slipping");
+
+    reset_game(game, 51);
+    spawn_ball(game, 3, 300.0, float(FIELD_FLOOR) - radius_of(3), -300.0, 0.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin < 0.0, "a ball moving left rolls counterclockwise");
+
+    reset_game(game, 52);
+    spawn_ball(game, 3, 180.0, 300.0, 0.0, 0.0, FALSE);
+    for tick range 1 to 90 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin = 0.0 and game.balls[1].angle = 0.0,
+        "a straight drop does not start to spin");
+
+    reset_game(game, 53);
+    spawn_ball(game, 5, 180.0, float(FIELD_FLOOR) - radius_of(5), 0.0, 0.0, FALSE);
+    spawn_ball(game, 2, 200.0, 460.0, 0.0, 300.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[2].spin <> 0.0, "an off-center hit spins the ball");
+
+    reset_game(game, 54);
+    spawn_ball(game, 4, float(FIELD_LEFT) + radius_of(4), 300.0, -200.0, 400.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(game.balls[1].spin <> 0.0, "sliding along a wall spins the ball");
+
+    reset_game(game, 55);
+    for index range 1 to 24 do
+      spawn_ball(game, 3 + index mod 4, float(40 + (index * 37) mod 280),
+          float(250 + (index * 53) mod 300), float(index mod 5 - 2) * 40.0, 0.0, FALSE);
+    end for;
+    for tick range 1 to 600 do
+      step_game(game, FIXED_STEP);
+      check(all_inside(game) and fastest_spin(game) <= MAX_SPIN,
+          "a spinning pile stays inside the limits");
+    end for;
+    check(fastest_spin(game) = 0.0, "a resting pile does not spin");
+    same_game := game;
+    for tick range 1 to 60 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(same_balls(game, same_game), "a resting pile keeps its angles");
+
     writeln("Spooky Merge rules: all checks passed.");
   end func;

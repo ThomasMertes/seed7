@@ -23,6 +23,11 @@ const float: DROP_GRACE is 0.75;
 const float: OVERFLOW_DELAY is 1.5;
 const float: MAX_FRAME_TIME is 0.25;
 const integer: SOLVER_PASSES is 4;
+const float: CONTACT_FRICTION is 0.4;
+const float: SPIN_DAMPING is 0.995;
+const float: MAX_SPIN is 20.0;
+const float: UPRIGHT_PULL is 0.0;
+const float: REST_SPEED is 3.0;
 const integer: MAX_CATCHUP_STEPS is 4;
 const integer: SPAWN_TIERS is 4;
 const integer: TOP_TIER_BONUS is 2048;
@@ -44,6 +49,8 @@ const type: merge_ball is new struct
     var float: vx is 0.0;
     var float: vy is 0.0;
     var float: age is 0.0;
+    var float: angle is 0.0;
+    var float: spin is 0.0;
     var boolean: fresh is TRUE;
   end struct;
 
@@ -100,6 +107,8 @@ const proc: reset_game (inout game_state: game, in integer: seed) is func
       game.balls[index].y := 0.0;
       game.balls[index].vx := 0.0;
       game.balls[index].vy := 0.0;
+      game.balls[index].angle := 0.0;
+      game.balls[index].spin := 0.0;
     end for;
     game.score := 0;
     game.current_tier := next_spawn_tier(game);
@@ -149,6 +158,8 @@ const proc: spawn_ball (inout game_state: game, in integer: tier,
       game.balls[slot].vx := vx;
       game.balls[slot].vy := vy;
       game.balls[slot].age := 0.0;
+      game.balls[slot].angle := 0.0;
+      game.balls[slot].spin := 0.0;
     end if;
   end func;
 
@@ -196,6 +207,7 @@ const proc: merge_pair (inout game_state: game, in integer: first,
     var float: y is 0.0;
     var float: vx is 0.0;
     var float: vy is 0.0;
+    var float: spin is 0.0;
     var float: first_mass is 0.0;
     var float: second_mass is 0.0;
     var integer: tier is 1;
@@ -211,16 +223,65 @@ const proc: merge_pair (inout game_state: game, in integer: first,
           game.balls[second].y * second_mass) / (first_mass + second_mass);
       vx := (game.balls[first].vx + game.balls[second].vx) / 2.0;
       vy := (game.balls[first].vy + game.balls[second].vy) / 2.0;
+      spin := (game.balls[first].spin + game.balls[second].spin) / 2.0;
       game.balls[first].active := FALSE;
       game.balls[second].active := FALSE;
       if tier < TIER_COUNT then
         incr(tier);
         award_score(game, 2 ** tier);
         spawn_ball(game, tier, x, y, vx, vy, FALSE, spawned);
+        if spawned <> 0 then
+          game.balls[spawned].spin := spin;
+        end if;
       else
         award_score(game, TOP_TIER_BONUS);
       end if;
     end if;
+  end func;
+
+const func float: limited (in float: value, in float: limit) is func
+  result
+    var float: result_value is 0.0;
+  begin
+    result_value := value;
+    if result_value > limit then
+      result_value := limit;
+    elsif result_value < -limit then
+      result_value := -limit;
+    end if;
+  end func;
+
+(* Friction at a contact. A solid disc gives the factor 3.0, as 1 + 2 from its inertia. *)
+const proc: contact_friction (inout game_state: game, in integer: first,
+    in integer: second, in float: nx, in float: ny, in float: normal_impulse) is func
+  local
+    var float: tx is 0.0;
+    var float: ty is 0.0;
+    var float: first_radius is 0.0;
+    var float: second_radius is 0.0;
+    var float: first_mass is 0.0;
+    var float: second_mass is 0.0;
+    var float: slip is 0.0;
+    var float: impulse is 0.0;
+  begin
+    tx := -ny;
+    ty := nx;
+    first_radius := radius_of(game.balls[first].tier);
+    second_radius := radius_of(game.balls[second].tier);
+    first_mass := mass_of(game.balls[first].tier);
+    second_mass := mass_of(game.balls[second].tier);
+    slip := (game.balls[second].vx - game.balls[first].vx) * tx +
+        (game.balls[second].vy - game.balls[first].vy) * ty -
+        game.balls[first].spin * first_radius -
+        game.balls[second].spin * second_radius;
+    impulse := limited(-slip / (3.0 / first_mass + 3.0 / second_mass),
+        CONTACT_FRICTION * normal_impulse);
+    game.balls[first].vx -:= impulse * tx / first_mass;
+    game.balls[first].vy -:= impulse * ty / first_mass;
+    game.balls[second].vx +:= impulse * tx / second_mass;
+    game.balls[second].vy +:= impulse * ty / second_mass;
+    game.balls[first].spin -:= 2.0 * impulse / (first_mass * first_radius);
+    game.balls[second].spin -:= 2.0 * impulse / (second_mass * second_radius);
   end func;
 
 const proc: solve_pair (inout game_state: game, in integer: first,
@@ -282,6 +343,7 @@ const proc: solve_pair (inout game_state: game, in integer: first,
             game.balls[first].vy -:= impulse * ny / first_mass;
             game.balls[second].vx +:= impulse * nx / second_mass;
             game.balls[second].vy +:= impulse * ny / second_mass;
+            contact_friction(game, first, second, nx, ny, impulse);
           end if;
         end if;
       end if;
@@ -291,22 +353,35 @@ const proc: solve_pair (inout game_state: game, in integer: first,
 const proc: keep_inside (inout game_state: game, in integer: index) is func
   local
     var float: radius is 0.0;
+    var float: change is 0.0;
   begin
     radius := radius_of(game.balls[index].tier);
     if game.balls[index].x - radius < float(FIELD_LEFT) then
       game.balls[index].x := float(FIELD_LEFT) + radius;
       if game.balls[index].vx < 0.0 then
+        change := limited((game.balls[index].vy - game.balls[index].spin * radius) / 3.0,
+            CONTACT_FRICTION * (1.0 + WALL_RESTITUTION) * -game.balls[index].vx);
+        game.balls[index].vy -:= change;
+        game.balls[index].spin +:= 2.0 * change / radius;
         game.balls[index].vx := -game.balls[index].vx * WALL_RESTITUTION;
       end if;
     elsif game.balls[index].x + radius > float(FIELD_RIGHT) then
       game.balls[index].x := float(FIELD_RIGHT) - radius;
       if game.balls[index].vx > 0.0 then
+        change := limited((game.balls[index].vy + game.balls[index].spin * radius) / 3.0,
+            CONTACT_FRICTION * (1.0 + WALL_RESTITUTION) * game.balls[index].vx);
+        game.balls[index].vy -:= change;
+        game.balls[index].spin -:= 2.0 * change / radius;
         game.balls[index].vx := -game.balls[index].vx * WALL_RESTITUTION;
       end if;
     end if;
     if game.balls[index].y + radius > float(FIELD_FLOOR) then
       game.balls[index].y := float(FIELD_FLOOR) - radius;
       if game.balls[index].vy > 0.0 then
+        change := limited((game.balls[index].vx - game.balls[index].spin * radius) / 3.0,
+            CONTACT_FRICTION * (1.0 + WALL_RESTITUTION) * game.balls[index].vy);
+        game.balls[index].vx -:= change;
+        game.balls[index].spin +:= 2.0 * change / radius;
         game.balls[index].vy := -game.balls[index].vy * WALL_RESTITUTION;
       end if;
     end if;
@@ -319,12 +394,16 @@ const proc: step_game (inout game_state: game, in float: delta) is func
     var integer: second is 1;
     var boolean: merged is FALSE;
     var integer: spawned is 0;
+    var array float: start_x is MAX_OBJECTS times 0.0;
+    var array float: start_y is MAX_OBJECTS times 0.0;
     var array boolean: merge_locked is MAX_OBJECTS times FALSE;
     var boolean: over_line is FALSE;
   begin
     if not game.game_over then
       for first range 1 to MAX_OBJECTS do
         merge_locked[first] := FALSE;
+        start_x[first] := game.balls[first].x;
+        start_y[first] := game.balls[first].y;
       end for;
       game.drop_cooldown -:= delta;
       if game.drop_cooldown < 0.0 then
@@ -341,10 +420,14 @@ const proc: step_game (inout game_state: game, in float: delta) is func
           game.balls[first].y +:= game.balls[first].vy * delta;
           game.balls[first].vx *:= AIR_DAMPING;
           game.balls[first].vy *:= AIR_DAMPING;
+          game.balls[first].spin -:= UPRIGHT_PULL * sin(game.balls[first].angle) * delta;
+          game.balls[first].spin := limited(game.balls[first].spin * SPIN_DAMPING, MAX_SPIN);
+          game.balls[first].angle +:= game.balls[first].spin * delta;
           keep_inside(game, first);
           if game.balls[first].y + radius_of(game.balls[first].tier) >=
               float(FIELD_FLOOR) then
             game.balls[first].vx *:= SETTLE_FRICTION;
+            game.balls[first].spin *:= SETTLE_FRICTION;
           end if;
         end if;
       end for;
@@ -372,6 +455,14 @@ const proc: step_game (inout game_state: game, in float: delta) is func
             keep_inside(game, first);
           end if;
         end for;
+      end for;
+      (* Contacts of a resting ball create spin without any movement. *)
+      for first range 1 to MAX_OBJECTS do
+        if game.balls[first].active and
+            sqrt((game.balls[first].x - start_x[first]) ** 2 +
+                (game.balls[first].y - start_y[first]) ** 2) < REST_SPEED * delta then
+          game.balls[first].spin := 0.0;
+        end if;
       end for;
       over_line := FALSE;
       for first range 1 to MAX_OBJECTS do

@@ -35,7 +35,7 @@ const integer: WEB_SCALE is 2;
 var game_state: game is game_state.value;
 var PRIMITIVE_WINDOW: main_window is PRIMITIVE_WINDOW.value;
 var PRIMITIVE_WINDOW: background is PRIMITIVE_WINDOW.value;
-var array PRIMITIVE_WINDOW: tier_art is TIER_COUNT times PRIMITIVE_WINDOW.value;
+var array array PRIMITIVE_WINDOW: tier_art is TIER_COUNT times 0 times PRIMITIVE_WINDOW.value;
 var text: labels is STD_NULL;
 var integer: view_scale is 1;
 var integer: display_percent is 100;
@@ -99,42 +99,58 @@ const proc: write_at (in integer: x, in integer: y, in string: stri, in color: c
   end func;
 
 
-(* The launcher stores each PNG as a size header followed by RGBA bytes. *)
-const func PRIMITIVE_WINDOW: read_art (in string: name) is func
+const func PRIMITIVE_WINDOW: rgba_to_pixmap (in string: data, in integer: width,
+    in integer: height) is func
   result
-    var PRIMITIVE_WINDOW: art is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: pos is 1;
+    var pixelImage: image is pixelImage.value;
+  begin
+    image := pixelImage[.. height] times pixelArray[.. width] times pixel.value;
+    for line range 1 to height do
+      for column range 1 to width do
+        image[line][column] := pixel(ord(data[pos + 3]) * 16777216 +
+            ord(data[pos]) * 65536 + ord(data[pos + 1]) * 256 +
+            ord(data[pos + 2]));
+        pos +:= 4;
+      end for;
+    end for;
+    pixmap := getPixmap(image);
+  end func;
+
+
+(* The launcher stores a PNG as a header with the width, height and number of  *)
+(* rotation frames, followed by the RGBA bytes of the frames.                  *)
+const func array PRIMITIVE_WINDOW: read_art (in string: name) is func
+  result
+    var array PRIMITIVE_WINDOW: frames is 0 times PRIMITIVE_WINDOW.value;
   local
     var file: art_file is STD_NULL;
     var string: header is "";
     var string: data is "";
     var integer: width is 0;
     var integer: height is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: pos is 1;
-    var pixelImage: image is pixelImage.value;
+    var integer: count is 0;
+    var integer: frame is 0;
   begin
     art_file := open("/" <& name <& ".rgba", "r");
     if art_file <> STD_NULL then
-      header := gets(art_file, 4);
-      if length(header) = 4 then
+      header := gets(art_file, 6);
+      if length(header) = 6 then
         width := ord(header[1]) * 256 + ord(header[2]);
         height := ord(header[3]) * 256 + ord(header[4]);
-        data := gets(art_file, width * height * 4);
+        count := ord(header[5]) * 256 + ord(header[6]);
+        for frame range 1 to count do
+          data := gets(art_file, width * height * 4);
+          if width > 0 and height > 0 and length(data) = width * height * 4 then
+            frames &:= rgba_to_pixmap(data, width, height);
+          end if;
+        end for;
       end if;
       close(art_file);
-      if width > 0 and height > 0 and length(data) = width * height * 4 then
-        image := pixelImage[.. height] times pixelArray[.. width] times pixel.value;
-        for line range 1 to height do
-          for column range 1 to width do
-            image[line][column] := pixel(ord(data[pos + 3]) * 16777216 +
-                ord(data[pos]) * 65536 + ord(data[pos + 1]) * 256 +
-                ord(data[pos + 2]));
-            pos +:= 4;
-          end for;
-        end for;
-        art := getPixmap(image);
-      end if;
     end if;
   end func;
 
@@ -142,8 +158,12 @@ const func PRIMITIVE_WINDOW: read_art (in string: name) is func
 const proc: load_art is func
   local
     var integer: tier is 1;
+    var array PRIMITIVE_WINDOW: frames is 0 times PRIMITIVE_WINDOW.value;
   begin
-    background := read_art("background");
+    frames := read_art("background");
+    if length(frames) >= 1 then
+      background := frames[1];
+    end if;
     for tier range 1 to TIER_COUNT do
       tier_art[tier] := read_art(ART_NAME[tier]);
     end for;
@@ -210,11 +230,14 @@ const proc: draw_plain_piece (in integer: tier, in integer: x, in integer: y,
 
 
 const proc: draw_piece (in integer: tier, in integer: x, in integer: y,
-    in integer: radius) is func
+    in integer: radius, in float: angle) is func
+  local
+    var integer: count is 0;
   begin
-    if tier_art[tier] <> PRIMITIVE_WINDOW.value then
+    count := length(tier_art[tier]);
+    if count >= 1 then
       put(curr_win, v(x - radius), v(y - radius), v(2 * radius), v(2 * radius),
-          tier_art[tier]);
+          tier_art[tier][1 + round(angle * float(count) / (2.0 * PI)) mod count]);
     else
       draw_plain_piece(tier, x, y, radius);
     end if;
@@ -229,10 +252,10 @@ const proc: draw_hud is func
     write_at(22, 62, "BEST " <& game.best_score, PALE, NIGHT);
     if started and not game.game_over then
       write_at(232, 50, "NEXT", PALE, NIGHT);
-      draw_piece(game.next_tier, 310, 42, 24);
+      draw_piece(game.next_tier, 310, 42, 24, 0.0);
     end if;
     for tier range 1 to TIER_COUNT do
-      draw_piece(tier, 36 + pred(tier) * 32, 102, 14);
+      draw_piece(tier, 36 + pred(tier) * 32, 102, 14, 0.0);
     end for;
   end func;
 
@@ -247,7 +270,7 @@ const proc: draw_aim is func
     end if;
     v_line(round(drop_x), FIELD_TOP - 3, round(drop_x), FIELD_TOP + 22, PALE);
     draw_piece(game.current_tier, round(drop_x), FIELD_TOP + 26,
-        round(radius_of(game.current_tier) * 0.55));
+        round(radius_of(game.current_tier) * 0.55), 0.0);
   end func;
 
 
@@ -272,7 +295,8 @@ const proc: draw_scene is func
       if game.balls[ball_index].active then
         draw_piece(game.balls[ball_index].tier,
             round(game.balls[ball_index].x), round(game.balls[ball_index].y),
-            round(radius_of(game.balls[ball_index].tier)));
+            round(radius_of(game.balls[ball_index].tier)),
+            game.balls[ball_index].angle);
       end if;
     end for;
 
@@ -402,6 +426,11 @@ const proc: main is func
     labels := openPixmapFontFile(curr_win);
     if view_scale = WEB_SCALE then
       setFont(labels, stdFont24);
+      clear(NIGHT);
+      write_at(132, 320, "Loading...", PALE, NIGHT);
+      flushGraphic;
+      # Let the browser show the message, because loading the art blocks it.
+      await(time(NOW) + 50000 . MICRO_SECONDS);
       load_art;
     else
       setFont(labels, stdFont14);

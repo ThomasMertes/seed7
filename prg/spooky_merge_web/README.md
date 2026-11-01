@@ -2,7 +2,9 @@
 
 The game and its physics are written in Seed7. `launcher.js` only loads the art, starts the generated program, passes the saved best score and display size as startup arguments, and stores the program's `SPOOKY_BEST=<score>` output in browser `localStorage`. It uses the optional `seed7Print` and `seed7PreRun` hooks in `src/pre_js.js`.
 
-The browser game draws at 720x1280 and displays at 360x640 CSS pixels, so it stays sharp on high-density screens. The native build has no art: it draws simple shapes at 360x640.
+The browser game draws at 720x1280 and displays at 360x640 CSS pixels, so it stays sharp on high-density screens. The native build has no art: it draws simple shapes at 360x640, and they do not turn.
+
+Seed7 has no drawing call for rotated images, so `launcher.js` prepares 36 rotated frames of each tier and the game picks the nearest one. `UPRIGHT_PULL` in `spooky_merge_core.s7i` is 0.0, so pieces can rest in any position. A positive value makes them turn back to upright.
 
 ## Build
 

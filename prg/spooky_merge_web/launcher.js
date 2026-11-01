@@ -3,6 +3,7 @@
 const button = document.getElementById("start");
 const status = document.getElementById("status");
 const GAME_HEIGHT = 640;
+const ROTATION_FRAMES = 36;
 const ART = ["background", "candy_corn", "eyeball", "spider", "bat", "ghost", "skull",
   "potion", "cauldron", "jack_o_lantern", "pumpkin_king"];
 
@@ -24,21 +25,31 @@ window.seed7Print = (text) => {
   }
 };
 
-// Loads a PNG as a size header followed by RGBA bytes for the Seed7 program.
+// Loads a PNG for the Seed7 program as a header with the width, height and
+// number of frames, followed by the RGBA bytes of the rotated frames.
 // A missing image is skipped: the game then draws simple shapes.
 async function loadArt(name) {
   const image = new Image();
   image.src = `art/${name}.png`;
   await image.decode();
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+  const frames = name === "background" ? 1 : ROTATION_FRAMES;
   const canvas = document.createElement("canvas");
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext("2d", { willReadFrequently: true });
-  context.drawImage(image, 0, 0);
-  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-  const bytes = new Uint8Array(pixels.length + 4);
-  bytes.set([canvas.width >> 8, canvas.width & 255, canvas.height >> 8, canvas.height & 255]);
-  bytes.set(pixels, 4);
+  context.imageSmoothingQuality = "high";
+  const bytes = new Uint8Array(6 + frames * width * height * 4);
+  bytes.set([width >> 8, width & 255, height >> 8, height & 255, frames >> 8, frames & 255]);
+  for (let frame = 0; frame < frames; frame += 1) {
+    context.clearRect(0, 0, width, height);
+    context.setTransform(1, 0, 0, 1, width / 2, height / 2);
+    context.rotate(2 * Math.PI * frame / frames);
+    context.drawImage(image, -width / 2, -height / 2);
+    context.resetTransform();
+    bytes.set(context.getImageData(0, 0, width, height).data, 6 + frame * width * height * 4);
+  }
   return [name, bytes];
 }
 
