@@ -84,4 +84,4 @@ Playwright disables background throttling and emulates page focus, so `smoke_tes
 
 Removing the WASM (HTTP 404, no game canvas) was checked on an earlier build and not repeated.
 
-Physical-device touch and a human return to a hidden tab remain unverified.
+The target is a desktop browser. Touch works in emulation, but phones are not a target and no physical device was tested. A human return to a hidden tab remains unverified. In headed Chrome at 1280x800 a nearly full field ran at about 44 frames per second.
