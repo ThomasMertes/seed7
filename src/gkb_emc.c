@@ -200,9 +200,9 @@ winType find_window (int windowId)
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      windowKey.genericValue = (genericType) (memSizeType) windowId;
       window = hshIdxDefault0(window_hash, windowKey,
-                              (intType) ((memSizeType) sys_window) >> 6,
+                              (intType) ((memSizeType) windowId) >> 6,
                               (compareFuncType) &valueCmp).winValue;
     } /* if */
     logFunction0(printf("find_window(%d) --> " FMT_X_MEM "\n",
@@ -224,10 +224,10 @@ void enter_window (winType curr_window, int windowId)
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    windowKey.genericValue = (genericType) (memSizeType) sys_window;
+    windowKey.genericValue = (genericType) (memSizeType) windowId;
     windowData.winValue = curr_window;
     hshIncl(window_hash, windowKey, windowData,
-            (intType) ((memSizeType) sys_window) >> 6,
+            (intType) ((memSizeType) windowId) >> 6,
             (compareFuncType) &valueCmp,
             (createFuncType) &valueCreate,
             (createFuncType) &ptrCreateValue,
@@ -244,9 +244,9 @@ void remove_window (int windowId)
   /* remove_window */
     logFunction(printf("remove_window(%d)\n", windowId););
     if (window_hash != NULL) {
-      windowKey.genericValue = (genericType) (memSizeType) sys_window;
+      windowKey.genericValue = (genericType) (memSizeType) windowId;
       hshExcl(window_hash, windowKey,
-              (intType) ((memSizeType) sys_window) >> 6,
+              (intType) ((memSizeType) windowId) >> 6,
               (compareFuncType) &valueCmp,
               (destrFuncType) &valueDestr,
               (destrFuncType) &valueDestr);

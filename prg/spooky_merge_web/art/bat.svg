@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <radialGradient id="moon" cx="40%" cy="34%" r="76%"><stop offset="0" stop-color="#fff0b8"/><stop offset=".7" stop-color="#f9c95c"/><stop offset="1" stop-color="#e29a34"/></radialGradient>
+  <g id="wing"><path d="M450 420 C360 300 230 240 44 290 C100 360 110 430 92 520 C150 480 210 490 250 560 C290 510 340 520 380 590 C410 550 440 550 460 570 Z" fill="#231a42"/></g>
+</defs>
+<circle cx="512" cy="512" r="456" fill="url(#moon)"/>
+<circle cx="360" cy="230" r="44" fill="#e8ad4a" opacity=".6"/><circle cx="716" cy="760" r="70" fill="#e8ad4a" opacity=".55"/><circle cx="660" cy="170" r="26" fill="#e8ad4a" opacity=".6"/>
+<use href="#wing"/><use href="#wing" transform="matrix(-1 0 0 1 1024 0)"/>
+<path d="M430 330 L420 230 L486 290 L538 290 L604 230 L594 330 C640 470 600 680 512 720 C424 680 384 470 430 330 Z" fill="#231a42"/>
+<circle cx="462" cy="376" r="26" fill="#ff5a3c"/><circle cx="562" cy="376" r="26" fill="#ff5a3c"/>
+<path d="M470 450 L488 500 L506 456 Z M518 456 L536 500 L554 450 Z" fill="#fff8e6"/>
+</svg>
