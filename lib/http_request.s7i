@@ -34,6 +34,9 @@ include "charsets.s7i";
 include "encoding.s7i";
 
 
+const type: headerType is hash [string] string;
+
+
 var string: proxyServer is "";
 var integer: proxyHttpPort is 0;
 const integer: httpDefaultPort is 80;
@@ -131,10 +134,10 @@ const proc: show (in httpLocation: location) is func
   end func;
 
 
-const type: httpBody is new struct
+(*const type: httpBody is new struct
     var string: contentType is "";
     var string: content is "";
-  end struct;
+  end struct;*)
 
 
 const type: httpCreds is new struct
@@ -168,7 +171,8 @@ const func httpCreds: bearerAuth (in string: token) is func
 const type: httpRequest is new struct
     var string: method is "";
     var httpLocation: location is httpLocation.value;
-    var httpBody: body is httpBody.value;
+    var headerType: headers is headerType.value;
+    var string: body is "";
     var httpCreds: creds is httpCreds.value;
   end struct;
 
@@ -191,8 +195,12 @@ const type: httpResponse is new struct
   end struct;
 
 
+const func boolean: successful (in httpResponse: response) is
+  return response.status >= "200" and response.status < "300";
+
+
 (**
- *  Set the proxy server to be used for getHttp.
+ *  Set the proxy server to be used for HTTP requests.
  *)
 const proc: setProxy (in string: serverName, in integer: portNumber) is func
   begin
@@ -290,6 +298,7 @@ const proc: sendHttp (inout file: sock, in httpRequest: request) is func
   local
     var string: address is "";
     var string: plain is "";
+    var string: value is "";
     var integer: index is 0;
   begin
     address := "/" & request.location.path;
@@ -298,27 +307,30 @@ const proc: sendHttp (inout file: sock, in httpRequest: request) is func
     end if;
     if request.method <> "" then
       plain &:= request.method <& " " <& address <& " HTTP/1.1\r\n";
-    elsif request.body.content = "" then
+    elsif request.body = "" then
       plain &:= "GET " <& address <& " HTTP/1.1\r\n";
     else
       plain &:= "POST " <& address <& " HTTP/1.1\r\n";
     end if;
-    plain &:= "Host: " <& request.location.hostName <& "\r\n";
-    plain &:= "User-Agent: BlackHole" <& "\r\n";
+    if "host" not in request.headers then
+      plain &:= "host: " <& request.location.hostName <& "\r\n";
+    end if;
+    if "user-agent" not in request.headers then
+      plain &:= "user-agent: BlackHole" <& "\r\n";
+    end if;
     if request.creds.username <> "" then
       # Basic auth doesn't accept colons in the username.
       if pos(request.creds.username,':') = 0 then
-        plain &:= "Authorization: Basic " &
-                  toBase64(request.creds.username & ":" & request.creds.password) & "\r\n";
+        plain &:= "authorization: Basic " & toBase64(request.creds.username & ":" & request.creds.password) & "\r\n";
       else
         raise RANGE_ERROR;
       end if;
     # Password only? Assume a bearer token.
     elsif request.creds.password <> "" then
-      plain &:= "Authorization: Bearer " & request.creds.password & "\r\n";
+      plain &:= "authorization: Bearer " & request.creds.password & "\r\n";
     end if;
     if length(request.location.cookies) <> 0 then
-      plain &:= "Cookie: ";
+      plain &:= "cookie: ";
       for key index range request.location.cookies do
         plain &:= request.location.cookies[index];
         if index < length(request.location.cookies) then
@@ -327,10 +339,13 @@ const proc: sendHttp (inout file: sock, in httpRequest: request) is func
       end for;
       plain &:= "\r\n";
     end if;
-    if request.body.contentType <> "" then
-      plain &:= "Content-Type: " & request.body.contentType & "\r\n";
-      plain &:= "Content-Length: " <& length(request.body.content) <& "\r\n";
-      plain &:= "\r\n" & request.body.content;
+    for value key address range request.headers do
+      plain &:= address & ": " & value & "\r\n";
+    end for;
+    if request.body <> "" then
+      # plain &:= "Content-Type: " & request.body.contentType & "\r\n";
+      plain &:= "content-length: " <& length(request.body) <& "\r\n";
+      plain &:= "\r\n" & request.body;
     else
       plain &:= "\r\n";
     end if;
@@ -686,9 +701,9 @@ const func httpResponse: http (DELETE, in string: location) is
 
 
 (**
- *  Send a custom POST request (i.e. one with a preformatted body).
+ *  Send a custom POST request (i.e. one with preformatted haders and body).
  *)
-const func httpResponse: http (POST, in string: location, in httpBody: body, in httpCreds: creds) is func
+const func httpResponse: http (POST, in string: location, in headerType: headers, in string: body, in httpCreds: creds) is func
   result
     var httpResponse: response is httpResponse.value;
   local
@@ -696,14 +711,15 @@ const func httpResponse: http (POST, in string: location, in httpBody: body, in 
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpDefaultPort);
+    request.headers := headers;
     request.body := body;
     request.creds := creds;
     response := sendHttp(request, TRUE);
   end func;
 
 
-const func httpResponse: http (POST, in string: location, in httpBody: body) is
-  return http(POST, location, body, httpCreds.value);
+const func httpResponse: http (POST, in string: location, in headerType: headers, in string: body) is
+  return http(POST, location, headers, body, httpCreds.value);
 
 
 (**
@@ -717,8 +733,8 @@ const func httpResponse: http (POST, in string: location, in string: body, in ht
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpDefaultPort);
-    request.body.content := body;
-    request.body.contentType := "text/plain";
+    request.body := body;
+    incl(request.headers, "content-type", "text/plain");
     request.creds := creds;
     response := sendHttp(request, TRUE);
   end func;
@@ -741,12 +757,12 @@ const func httpResponse: http (POST, in string: location, in hash [string] strin
   begin
     request.method := "POST";
     request.location := getHttpLocation(location, httpDefaultPort);
-    request.body.contentType := "application/x-www-form-urlencoded";
+    incl(request.headers, "content-type", "application/x-www-form-urlencoded");
     for value key name range fields do
-      request.body.content &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
+      request.body &:= toHttpAscii(name) & "=" & toHttpAscii(value) & "&";
     end for;
-    if endsWith(request.body.content, "&") then
-      request.body.content := request.body.content[.. length(request.body.content)-1];
+    if endsWith(request.body, "&") then
+      request.body := request.body[.. length(request.body)-1];
     end if;
     request.creds := creds;
     response := sendHttp(request, TRUE);
@@ -755,3 +771,25 @@ const func httpResponse: http (POST, in string: location, in hash [string] strin
 
 const func httpResponse: http (POST, in string: location, in hash [string] string: fields) is
   return http(POST, location, fields, httpCreds.value);
+
+
+(**
+ *  Send a custom request using the HTTP protocol.
+ *)
+const func httpResponse: http (in string: method, in string: location, in headerType: headers, in string: body, in httpCreds: creds) is func
+  result
+    var httpResponse: response is httpResponse.value;
+  local
+    var httpRequest: request is httpRequest.value;
+  begin
+    request.method := method;
+    request.location := getHttpLocation(location, httpsDefaultPort);
+    request.headers := headers;
+    request.body := body;
+    request.creds := creds;
+    response := sendHttp(request, TRUE);
+  end func;
+
+
+const func httpResponse: http (in string: method, in string: location, in headerType: headers, in string: body) is
+  return http(method, location, headers, body, httpCreds.value);
