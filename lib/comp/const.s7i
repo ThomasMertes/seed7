@@ -514,8 +514,6 @@ const func boolean: isPureExpression (in reference: currExpr) is func
   result
     var boolean: isPureExpression is FALSE;
   local
-    const set of category: localsAndParameters is
-        {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT};
     var category: exprCategory is category.value;
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
@@ -524,7 +522,7 @@ const func boolean: isPureExpression (in reference: currExpr) is func
     exprCategory := category(currExpr);
     if exprCategory in basicExpressionCategories then
       isPureExpression := TRUE;
-    elsif exprCategory in localsAndParameters then
+    elsif exprCategory in localObjectCategory then
       isPureExpression := TRUE;
     elsif exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
       params := getValue(currExpr, ref_list);

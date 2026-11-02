@@ -2944,6 +2944,8 @@ striType cmdConfigValue (const const_striType name)
       opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
       opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_PRCTL") == 0) {
+      opt = HAS_PRCTL ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
       opt = CHECK_INT_DIV_BY_ZERO ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_INT_DIV_ZERO_BY_ZERO") == 0) {

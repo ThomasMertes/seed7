@@ -232,6 +232,7 @@ const string: chkarr_output is "\n\
   \Array initialization works correctly.\n\
   \Array comparison works correctly.\n\
   \Array assignment works correctly.\n\
+  \Array assignment at position ( @:= ) works correctly.\n\
   \Array append ( &:= ) works correctly.\n\
   \Array push ( &:= ) works correctly.\n\
   \Index access of array element works correctly.\n\
@@ -241,6 +242,7 @@ const string: chkarr_output is "\n\
   \Tail of array works correctly.\n\
   \Range of array works correctly.\n\
   \Sub array of array works correctly.\n\
+  \Fixed length sub array of array works correctly.\n\
   \Insert element into array works correctly.\n\
   \Insert array into array works correctly.\n\
   \Remove element from array works correctly.\n\

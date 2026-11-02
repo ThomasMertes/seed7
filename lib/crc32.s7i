@@ -160,3 +160,24 @@ const func bin32: bzip2Crc32 (in string: stri, in bin32: interimCrc) is func
     end for;
     crc ><:= bin32(16#ffffffff);
   end func;
+
+
+(**
+ *  Compute the Adler-32 checksum of the given ''stri''.
+ *   adler32("123456789")  returns bin32(16#91e01de)
+ *)
+const func bin32: adler32 (in string: stri) is func
+  result
+    var bin32: adler32 is bin32(0);
+  local
+    const integer: MOD_ADLER is 65521;
+    var char: ch is ' ';
+    var integer: a is 1;
+    var integer: b is 0;
+  begin
+    for ch range stri do
+      a := (a + ord(ch)) rem MOD_ADLER;
+      b := (b + a) rem MOD_ADLER;
+    end for;
+    adler32 := bin32((b << 16) + a);
+  end func;

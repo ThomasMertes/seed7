@@ -43,6 +43,8 @@ type_implements_interface(striFile, file);
 
 (**
  *  Open a ''striFile'' with the given string content.
+ *   aFile := openStriFile("Line one\nLine two");
+ *   writeln(getln(aFile));    # Writes: Line one
  *  @return the file opened.
  *)
 const func file: openStriFile (in string: content) is func
@@ -58,6 +60,8 @@ const func file: openStriFile (in string: content) is func
 
 (**
  *  Open a ''striFile'' with an empty string content.
+ *   aFile := openStriFile;
+ *   writeln(length(aFile));    # Writes: 0
  *  @return the file opened.
  *)
 const func file: openStriFile is func

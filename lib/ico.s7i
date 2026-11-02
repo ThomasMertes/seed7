@@ -80,11 +80,11 @@ const proc: readDirEntry (inout file: icoFile, inout icoDirEntry: dirEntry) is f
 
 
 (**
- *  Reads a ICO file into a pixmap.
- *  @param icoFile File that contains a ICO image.
+ *  Reads an ICO file into a pixmap.
+ *  @param icoFile File that contains an ICO image.
  *  @return A pixmap with the ICO image, or
  *          PRIMITIVE_WINDOW.value if the file does
- *          not contain a ICO magic number.
+ *          not contain an ICO magic number.
  *  @exception RANGE_ERROR The file is not in the ICO file format.
  *)
 const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
@@ -119,11 +119,11 @@ const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
 
 
 (**
- *  Reads a ICO file with the given ''icoFileName'' into a pixmap.
+ *  Reads an ICO file with the given ''icoFileName'' into a pixmap.
  *  @param icoFileName Name of the ICO file.
  *  @return A pixmap with the ICO image, or
  *          PRIMITIVE_WINDOW.value if the file cannot be opened or
- *          does not contain a ICO magic number.
+ *          does not contain an ICO magic number.
  *  @exception RANGE_ERROR The file is not in the ICO file format.
  *)
 const func PRIMITIVE_WINDOW: readIco (in string: icoFileName) is func
@@ -143,8 +143,8 @@ const func PRIMITIVE_WINDOW: readIco (in string: icoFileName) is func
 (**
  *  Converts a pixmap into a string in ICO format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in ICO format.
- *  @exception RANGE_ERROR The pixmap is too large vor the ICO format.
+ *  @return A string with data in ICO format.
+ *  @exception RANGE_ERROR The pixmap is too large for the ICO format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
   result
@@ -208,6 +208,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''icoFileName'' in ICO format.
+ *  @param icoFileName Name of the ICO file to be created.
+ *  @param pixmap The pixmap to be written in ICO format.
+ *)
 const proc: writeIco (in string: icoFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: icoFile is STD_NULL;

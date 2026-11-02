@@ -865,7 +865,7 @@ const func PRIMITIVE_WINDOW: readBmp (in string: bmpFileName) is func
 (**
  *  Converts a pixmap into a string in BMP format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in BMP format.
+ *  @return A string with data in BMP format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
   result
@@ -911,6 +911,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''bmpFileName'' in BMP format.
+ *  @param bmpFileName Name of the BMP file to be created.
+ *  @param pixmap The pixmap to be written in BMP format.
+ *)
 const proc: writeBmp (in string: bmpFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: bmpFile is STD_NULL;

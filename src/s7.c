@@ -35,6 +35,10 @@
 #include "stdio.h"
 #include "string.h"
 #include "setjmp.h"
+#if HAS_PRCTL
+#include "linux/prctl.h"
+#include "sys/prctl.h"
+#endif
 
 #include "common.h"
 #include "sigutl.h"
@@ -406,6 +410,9 @@ int main (int argc, char **argv)
 
   /* main */
     logFunction(printf("main\n"););
+#if HAS_PRCTL
+    prctl(PR_SET_DUMPABLE, 0);
+#endif
     setupStack(DEFAULT_STACK_SIZE);
     if (likely(catch_stack != NULL &&
                do_setjmp(catch_stack[catch_stack_pos]) == 0)) {

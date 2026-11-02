@@ -171,7 +171,7 @@ const func PRIMITIVE_WINDOW: readPbm (in string: pbmFileName) is func
 (**
  *  Converts a pixmap into a string in PBM format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in PBM format.
+ *  @return A string with data in PBM format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PBM) is func
   result
@@ -217,6 +217,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PBM) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''pbmFileName'' in PBM format.
+ *  @param pbmFileName Name of the PBM file to be created.
+ *  @param pixmap The pixmap to be written in PBM format.
+ *)
 const proc: writePbm (in string: pbmFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: pbmFile is STD_NULL;

@@ -528,7 +528,7 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
     end if;
     # writeln(length(data));
     if header.contentEncoding = "gzip" then
-      data := gunzip(data);
+      data := gzipDecompress(data);
     end if;
     block
       conv2unicodeByName(data, header.charset);

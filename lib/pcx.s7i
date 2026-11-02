@@ -582,8 +582,8 @@ const func PRIMITIVE_WINDOW: readPcx (inout file: pcxFile) is func
         if header.planes = 1 then
           if header.version = PCX_2_8_NO_PALETTE then
             header.palette := colorLookupTable[.. 1] times pixel.value;
-            header.palette[0] := colorPixel(black);
-            header.palette[1] := colorPixel(white);
+            header.palette[0] := pixel(black);
+            header.palette[1] := pixel(white);
           else
             readPcxEgaPalette(header.egaPalette, header.palette);
             if  abs(pixelToColor(header.palette[1]).redLight -
@@ -592,8 +592,8 @@ const func PRIMITIVE_WINDOW: readPcx (inout file: pcxFile) is func
                     pixelToColor(header.palette[0]).greenLight) <= 1024 and
                 abs(pixelToColor(header.palette[1]).blueLight -
                     pixelToColor(header.palette[0]).blueLight) <= 1024 then
-              header.palette[0] := colorPixel(black);
-              header.palette[1] := colorPixel(white);
+              header.palette[0] := pixel(black);
+              header.palette[1] := pixel(white);
             end if;
           end if;
           readPcxImageCga2(image, header, pixelData);

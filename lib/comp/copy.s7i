@@ -404,3 +404,179 @@ const proc: process_cpy_call (in type: object_type,
       expr &:= " */";
     end if;
   end func;
+
+
+const proc: process_arr_poscpy_declaration (in type: elementType,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+  begin
+    if elementType in typeData.typeCategory and
+        typeData.typeCategory[elementType] not in simpleValueType then
+      if elementType not in typeData.posCpyFunction then
+        typeData.posCpyFunction @:= [elementType] TRUE;
+        process_cpy_declaration(elementType, c_expr);
+        process_destr_declaration(elementType, c_expr);
+        if elementType in typeData.posCpyDiagnosticLine then
+          diagnosticLine := typeData.posCpyDiagnosticLine[elementType];
+        else
+          diagnosticLine := noDiagnosticLine;
+        end if;
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "static void poscpy_";
+        c_expr.expr &:= str(typeNumber(elementType));
+        c_expr.expr &:= " (arrayType a, intType position, arrayType b)\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType i;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType j;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType size_b = (uintType)(b->max_position - b->min_position + 1);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  if (size_b == 0) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    if (idxChk(position < a->min_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "               (a->max_position != MAX_MEM_INDEX &&\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                position > a->max_position + 1))) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      raiseError(INDEX_ERROR);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  } else if (idxChk(position < a->min_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                    position > a->max_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                    size_b - 1 > (uintType) (a->max_position - position))) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    raiseError(INDEX_ERROR);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  } else {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    j = position - a->min_position;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    if (&a->arr[j] < b->arr) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      for (i = 0; i < size_b; i++, j++) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "        ";
+        process_cpy_call(elementType,
+            "a->arr[j]" & select_value_from_rtlObjectStruct(elementType),
+            "b->arr[i]" & select_value_from_rtlObjectStruct(elementType),
+            c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    } else if (&a->arr[j] > b->arr) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      j += size_b;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      while (size_b > 0) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "        j--;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "        size_b--;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "        ";
+        process_cpy_call(elementType,
+            "a->arr[j]" & select_value_from_rtlObjectStruct(elementType),
+            "b->arr[size_b]" & select_value_from_rtlObjectStruct(elementType),
+            c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= noDiagnosticLine;
+        c_expr.expr &:= "\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_arr_poscpy_temp_declaration (in type: elementType,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+  begin
+    if elementType in typeData.typeCategory and
+        typeData.typeCategory[elementType] not in simpleValueType then
+      if elementType not in typeData.posCpyTempFunction then
+        typeData.posCpyTempFunction @:= [elementType] TRUE;
+        process_cpy_declaration(elementType, c_expr);
+        process_destr_declaration(elementType, c_expr);
+        if elementType in typeData.posCpyDiagnosticLine then
+          diagnosticLine := typeData.posCpyDiagnosticLine[elementType];
+        else
+          diagnosticLine := noDiagnosticLine;
+        end if;
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "static void poscpy_temp_";
+        c_expr.expr &:= str(typeNumber(elementType));
+        c_expr.expr &:= " (arrayType a, intType position, arrayType b)\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType i;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType max;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  memSizeType size_b = (uintType)(b->max_position - b->min_position + 1);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  if (size_b == 0) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    if (idxChk(position < a->min_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "               (a->max_position != MAX_MEM_INDEX &&\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                position > a->max_position + 1))) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      raiseError(INDEX_ERROR);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  } else if (idxChk(position < a->min_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                    position > a->max_position ||\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "                    size_b - 1 > (uintType) (a->max_position - position))) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    raiseError(INDEX_ERROR);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  } else {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    max = position - a->min_position + size_b;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    for (i = position - a->min_position; i < max; i++) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "      ";
+        process_destr_call(elementType,
+            "a->arr[i]" & select_value_from_rtlObjectStruct(elementType),
+            c_expr.expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    memcpy(&a->arr[position - a->min_position], b->arr, size_b * sizeof(rtlObjectType));\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "    arrFree((arrayType)(b));\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "  }\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= noDiagnosticLine;
+        c_expr.expr &:= "\n";
+      end if;
+    end if;
+  end func;

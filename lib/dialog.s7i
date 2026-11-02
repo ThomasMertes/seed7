@@ -105,7 +105,7 @@ const func boolean: isOkay (in array string: messageText) is func
       windowXPos := (screenWidth() - windowWidth) mdiv 2;
       windowYPos := (screenHeight() - windowHeight) mdiv 2;
     end if;
-    popupWindow := PRIMITIVE_GRAPHIC_OPEN(windowXPos, windowYPos, windowWidth, windowHeight, "Yes or No");
+    popupWindow := openWindow(windowXPos, windowYPos, windowWidth, windowHeight, "Yes or No");
     selectInput(popupWindow, KEY_CLOSE, TRUE);
     clear(popupWindow, light_gray);
     if odd(length(messageText)) then
@@ -219,7 +219,7 @@ const proc: messageWindow (in array string: messageText) is func
       windowXPos := (screenWidth() - windowWidth) mdiv 2;
       windowYPos := (screenHeight() - windowHeight) mdiv 2;
     end if;
-    popupWindow := PRIMITIVE_GRAPHIC_OPEN(windowXPos, windowYPos, windowWidth, windowHeight, "Message");
+    popupWindow := openWindow(windowXPos, windowYPos, windowWidth, windowHeight, "Message");
     selectInput(popupWindow, KEY_CLOSE, TRUE);
     clear(popupWindow, light_gray);
     if odd(length(messageText)) then

@@ -46,6 +46,7 @@ const string: MAGIC_GIF_89           is "GIF89a";
 const string: MAGIC_GZIP             is "\31;\139;";
 const string: MAGIC_ICO              is "\0;\0;\1;\0;";
 const string: MAGIC_JPEG             is "\16#ff;\16#d8;\16#ff;";
+const string: MAGIC_LZIP             is "LZIP";
 const string: MAGIC_MACH_O_32_BIT_LE is "\16#fe;\16#ed;\16#fa;\16#ce;";
 const string: MAGIC_MACH_O_64_BIT_LE is "\16#fe;\16#ed;\16#fa;\16#cf;";
 const string: MAGIC_MACH_O_32_BIT_BE is "\16#ce;\16#fa;\16#ed;\16#fe;";
@@ -139,6 +140,7 @@ const func string: getMagic (in string: data) is func
         elsif length(data) >= 4 then
           magicBytes := data[.. 4];
           if  magicBytes = MAGIC_ICO              or
+              magicBytes = MAGIC_LZIP             or
               magicBytes = MAGIC_MACH_O_32_BIT_LE or
               magicBytes = MAGIC_MACH_O_64_BIT_LE or
               magicBytes = MAGIC_MACH_O_32_BIT_BE or
@@ -260,6 +262,7 @@ const func string: getMagic (inout file: inFile) is func
             magicBytes &:= gets(inFile, 1);
             if length(magicBytes) = 4 then
               if  magicBytes = MAGIC_ICO              or
+                  magicBytes = MAGIC_LZIP             or
                   magicBytes = MAGIC_MACH_O_32_BIT_LE or
                   magicBytes = MAGIC_MACH_O_64_BIT_LE or
                   magicBytes = MAGIC_MACH_O_32_BIT_BE or
@@ -362,6 +365,7 @@ const func string: magicDescription (in string: magic) is func
       when {MAGIC_GZIP}:             description := "gzip compressed data";
       when {MAGIC_ICO}:              description := "MS Windows icon resource";
       when {MAGIC_JPEG}:             description := "JPEG image data";
+      when {MAGIC_LZIP}:             description := "lzip compressed data";
       when {MAGIC_MACH_O_32_BIT_LE}: description := "Mach-O 32-bit LSB executable";
       when {MAGIC_MACH_O_64_BIT_LE}: description := "Mach-O 64-bit LSB executable";
       when {MAGIC_MACH_O_32_BIT_BE}: description := "Mach-O 32-bit MSB executable";

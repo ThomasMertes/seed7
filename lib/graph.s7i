@@ -28,6 +28,7 @@
 (********************************************************************)
 
 
+include "pixel.s7i";
 include "float.s7i";
 include "bstring.s7i";
 
@@ -44,24 +45,6 @@ const func boolean: (in PRIMITIVE_WINDOW: win1) <> (in PRIMITIVE_WINDOW: win2) i
 const func PRIMITIVE_WINDOW: _GENERATE_EMPTY_WINDOW                            is action "DRW_EMPTY";
 const PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) . value                        is _GENERATE_EMPTY_WINDOW;
 
-const type: pixel is newtype;
-
-IN_PARAM_IS_VALUE(pixel);
-
-const creator: (ref pixel: dest) ::= (in pixel: source)          is action "INT_CREATE";
-const destroyer: destroy (ref pixel: aValue)                     is action "GEN_DESTR";
-const proc: (inout pixel: dest) := (in pixel: source)            is action "INT_CPY";
-const func boolean: (in pixel: pix1) = (in pixel: pix2)          is action "INT_EQ";
-const func boolean: (in pixel: pix1) <> (in pixel: pix2)         is action "INT_NE";
-const func pixel: (attr pixel) conv (in integer: num)            is action "INT_ICONV3";
-const func pixel: pixel (in integer: num)                        is action "INT_ICONV1";
-const func integer: (attr integer) conv (in pixel: aPixel)       is action "INT_ICONV3";
-const func integer: ord (in pixel: aPixel)                       is action "INT_ICONV1";
-const func integer: compare (in pixel: pixel1, in pixel: pixel2) is action "INT_CMP";
-const func integer: hashCode (in pixel: aPixel)                  is action "INT_HASHCODE";
-const pixel: (attr pixel) . value                                is pixel conv 0;
-
-const type: colorLookupTable is array [0 ..] pixel;
 
 const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
@@ -102,10 +85,6 @@ const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,
     in pixel: col)                                  is action "DRW_PFELLIPSE";
-const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
-    ref integer: xPos, ref integer: yPos,
-    ref integer: width, ref integer: height,
-    ref string: window_name)                        is action "DRW_OPEN";
 
 
 (**
@@ -117,7 +96,24 @@ const proc: flushGraphic                            is action "DRW_FLUSH";
 
 
 (**
- *  Create a sub window inside of ''parent_window''.
+ *  Open a top-level window with the name ''windowName''.
+ *  The created window has window decorations such as title bar and
+ *  border and it is managed by the window manager.
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @param windowName Name of the window (usually displayed in title bar).
+ *  @return the new generated window.
+ *)
+const func PRIMITIVE_WINDOW: openWindow (
+    ref integer: xPos, ref integer: yPos,
+    ref integer: width, ref integer: height,
+    ref string: windowName)                         is action "DRW_OPEN";
+
+
+(**
+ *  Open a sub window inside of ''parent_window''.
  *  The new sub window has no window decorations and is not managed by
  *  the window manager. If the empty window is used as ''parent_window''
  *  an unmanaged top level window without window decorations is generated.
@@ -171,8 +167,6 @@ const func PRIMITIVE_WINDOW: capturePixmap (
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_CAPTURE";
 
-const type: pixelArray2d is array array pixel;
-
 const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
 const func bstring: getPixelData (
@@ -213,17 +207,6 @@ const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
     in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SET_CONTENT";
 
 
-(**
- *  Create a pixel from the ''red'', ''green'' and ''blue'' colors of light.
- *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
- *)
-const func pixel: rgbPixel (ref integer: red,
-    ref integer: green, ref integer: blue)          is action "DRW_RGB_COLOR";
-
-
-const proc: DRAW_PIXEL_TO_RGB (
-    in pixel: col, inout integer: red,
-    inout integer: green, inout integer: blue)      is action "DRW_PIXEL_TO_RGB";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y, in string: stri,
     ref pixel: col, ref pixel: bkcol)               is action "DRW_TEXT";
@@ -355,60 +338,3 @@ const proc: setPointerPos (in PRIMITIVE_WINDOW: aWindow,
  *)
 const proc: selectInput (in PRIMITIVE_WINDOW: aWindow, in char: aKey,
                          in boolean: active)                      is action "GKB_SELECT_INPUT";
-
-
-const type: pointList is newtype;
-
-IN_PARAM_IS_REFERENCE(pointList);
-
-const creator: (ref pointList: dest) ::= (in pointList: source)   is action "PLT_CREATE";
-const destroyer: destroy (ref pointList: aValue)                  is action "PLT_DESTR";
-const proc: (inout pointList: dest) := (in pointList: source)     is action "PLT_CPY";
-
-const func pointList: _GENERATE_EMPTY_POINT_LIST                  is action "PLT_EMPTY";
-const pointList: (attr pointList) . value                         is _GENERATE_EMPTY_POINT_LIST;
-
-const func bstring: bstring (in pointList: aPointList)            is action "PLT_BSTRING";
-const func pointList: pointList (in bstring: bstri)               is action "PLT_POINT_LIST";
-
-const func boolean: (in pointList: pointList1) = (in pointList: pointList2)   is action "PLT_EQ";
-const func boolean: (in pointList: pointList1) <> (in pointList: pointList2)  is action "PLT_NE";
-
-const func integer: hashCode (in pointList: aPointList)           is action "PLT_HASHCODE";
-const func integer: compare (in pointList: pointList1,
-                             in pointList: pointList2)            is action "PLT_CMP";
-
-(**
- *  The function 'genPointList' creates a 'pointList'.
- *  It converts an array of alternate x and y values to a 'pointList'.
- *  @return a pointList with the points from the array.
- *  @exception RANGE_ERROR If the length of the array is odd.
- *)
-const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GEN_POINT_LIST";
-
-(**
- *  Converts a 'pointList' to an array of (X,Y) coordinates.
- *  @return an array of alternate x and y values.
- *)
-const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONV_POINT_LIST";
-
-const func pointList: scale (in pointList: basePoints, in integer: scale) is func
-  result
-    var pointList: scaledPoints is pointList.value;
-  local
-    var array integer: coordinates is 0 times 0;
-    var integer: index is 0;
-  begin
-    coordinates := xyArray(basePoints);
-    for key index range coordinates do
-      coordinates[index] *:= scale;
-    end for;
-    scaledPoints := genPointList(coordinates);
-  end func;
-
-const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y, in pointList: point_list,
-    ref pixel: col)                                               is action "DRW_POLY_LINE";
-const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
-    in integer: x, in integer: y, in pointList: point_list,
-    ref pixel: col)                                               is action "DRW_FPOLY_LINE";

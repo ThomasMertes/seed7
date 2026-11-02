@@ -193,7 +193,7 @@ const func PRIMITIVE_WINDOW: readPgm (in string: pgmFileName) is func
 (**
  *  Converts a pixmap into a string in PGM format.
  *  @param pixmap Pixmap to be converted.
- *  @return a string with data in PGM format.
+ *  @return A string with data in PGM format.
  *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PGM) is func
   result
@@ -225,6 +225,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PGM) is func
   end func;
 
 
+(**
+ *  Writes the ''pixmap'' to the file with the given ''pgmFileName'' in PGM format.
+ *  @param pgmFileName Name of the PGM file to be created.
+ *  @param pixmap The pixmap to be written in PGM format.
+ *)
 const proc: writePgm (in string: pgmFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: pgmFile is STD_NULL;

@@ -312,6 +312,11 @@ const type: ccConfigType is new struct
     var boolean: HAS_VECTORED_EXCEPTION_HANDLER is FALSE;
 
     (**
+     *  TRUE if the function prctl() is available.
+     *)
+    var boolean: HAS_PRCTL                    is FALSE;
+
+    (**
      *  TRUE if #line directives can use UTF-8 encoded file names.
      *  The file names from #line directives are used by the debugger to
      *  allow source code debugging.
@@ -1004,6 +1009,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(configValue("SWITCH_WORKS_FOR_INT64TYPE"));
     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(configValue("STMT_BLOCK_IN_PARENTHESES_OK"));
     conf.HAS_VECTORED_EXCEPTION_HANDLER   := boolean(configValue("HAS_VECTORED_EXCEPTION_HANDLER"));
+    conf.HAS_PRCTL                        := boolean(configValue("HAS_PRCTL"));
     conf.CC_SOURCE_UTF8                   := boolean(configValue("CC_SOURCE_UTF8"));
     conf.USE_WMAIN                        := boolean(configValue("USE_WMAIN"));
     conf.USE_WINMAIN                      := boolean(configValue("USE_WINMAIN"));
@@ -1171,6 +1177,7 @@ const proc: assignConfigValue (inout ccConfigType: conf, in string: name, in str
       when {"SWITCH_WORKS_FOR_INT64TYPE"}:       conf.SWITCH_WORKS_FOR_INT64TYPE       := boolean(value);
       when {"STMT_BLOCK_IN_PARENTHESES_OK"}:     conf.STMT_BLOCK_IN_PARENTHESES_OK     := boolean(value);
       when {"HAS_VECTORED_EXCEPTION_HANDLER"}:   conf.HAS_VECTORED_EXCEPTION_HANDLER   := boolean(value);
+      when {"HAS_PRCTL"}:                        conf.HAS_PRCTL                        := boolean(value);
       when {"CC_SOURCE_UTF8"}:                   conf.CC_SOURCE_UTF8                   := boolean(value);
       when {"USE_WMAIN"}:                        conf.USE_WMAIN                        := boolean(value);
       when {"USE_WINMAIN"}:                      conf.USE_WINMAIN                      := boolean(value);

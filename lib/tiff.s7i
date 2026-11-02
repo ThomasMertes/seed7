@@ -1126,11 +1126,11 @@ const proc: processCcittModifiedGroup3Fax (in tiffHeader: header, in string: str
     var pixel: blackPixel is pixel.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      whitePixel := colorPixel(white);
-      blackPixel := colorPixel(black);
+      whitePixel := pixel(white);
+      blackPixel := pixel(black);
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      whitePixel := colorPixel(black);
-      blackPixel := colorPixel(white);
+      whitePixel := pixel(black);
+      blackPixel := pixel(white);
     else
       raise RANGE_ERROR;
     end if;
@@ -1153,9 +1153,9 @@ const proc: processCcittT6Fax (in tiffHeader: header, in string: stripData,
     var colorLookupTable: blackOrWhite is colorLookupTable.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      blackOrWhite := colorLookupTable[] (colorPixel(black), colorPixel(white));
+      blackOrWhite := colorLookupTable[] (pixel(black), pixel(white));
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      blackOrWhite := colorLookupTable[] (colorPixel(white), colorPixel(black));
+      blackOrWhite := colorLookupTable[] (pixel(white), pixel(black));
     else
       raise RANGE_ERROR;
     end if;
@@ -1179,11 +1179,11 @@ const proc: processCcittT4Fax1d (in tiffHeader: header, in string: stripData,
     var pixel: blackPixel is pixel.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      whitePixel := colorPixel(white);
-      blackPixel := colorPixel(black);
+      whitePixel := pixel(white);
+      blackPixel := pixel(black);
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      whitePixel := colorPixel(black);
-      blackPixel := colorPixel(white);
+      whitePixel := pixel(black);
+      blackPixel := pixel(white);
     else
       raise RANGE_ERROR;
     end if;
@@ -1206,9 +1206,9 @@ const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
     var colorLookupTable: blackOrWhite is colorLookupTable.value;
   begin
     if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-      blackOrWhite := colorLookupTable[] (colorPixel(black), colorPixel(white));
+      blackOrWhite := colorLookupTable[] (pixel(black), pixel(white));
     elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
-      blackOrWhite := colorLookupTable[] (colorPixel(white), colorPixel(black));
+      blackOrWhite := colorLookupTable[] (pixel(white), pixel(black));
     else
       raise RANGE_ERROR;
     end if;
@@ -1248,11 +1248,11 @@ const proc: processRow (in tiffHeader: header,
         elsif bitsPerSample1 = 1 then
           if header.photometricInterpretation =
               TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
-            whitePixel := colorPixel(white);
-            blackPixel := colorPixel(black);
+            whitePixel := pixel(white);
+            blackPixel := pixel(black);
           else
-            whitePixel := colorPixel(black);
-            blackPixel := colorPixel(white);
+            whitePixel := pixel(black);
+            blackPixel := pixel(white);
           end if;
           for column range startColumn to endColumn do
             if getBit(stripDataStream) = 0 then

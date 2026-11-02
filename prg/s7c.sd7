@@ -2713,6 +2713,9 @@ const proc: process_main_declaration (in reference: current_object,
         main_prolog &:= ");\n";
       end if;
     end if;
+    if ccConf.HAS_PRCTL then
+      main_prolog &:= "prctl(PR_SET_DUMPABLE, 0);\n";
+    end if;
     if config.profile_function then
       main_prolog &:= "initProfile();\n";
       profiledFunctions @:= [objNumber(main_object)] main_object;
@@ -4804,6 +4807,53 @@ const proc: process_arr_idx_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_arr_poscpy_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: arrayType is void;
+    var type: elementType is void;
+    var string: diagnosticLine is "";
+  begin
+    params := formalParams(current_object);
+    if length(params) >= 6 then
+      arrayType := getType(params[1]);
+      elementType := typeData.array_element[arrayType];
+      diagnosticLine := diagnosticLine(current_object);
+      # writeln(type_name(elementType) <& ": " <& diagnosticLine);
+      typeData.posCpyDiagnosticLine @:= [elementType] diagnosticLine;
+    end if;
+  end func;
+
+
+const proc: process_arr_push_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: arrayType is void;
+    var type: elementType is void;
+  begin
+    params := formalParams(current_object);
+    if length(params) >= 3 then
+      arrayType := getType(params[1]);
+      elementType := getType(params[3]);
+      if arrayType not in typeData.array_element then
+        typeData.array_element @:= [arrayType] elementType;
+      end if;
+      if elementType not in typeData.array_type then
+        typeData.array_type @:= [elementType] arrayType;
+      end if;
+      c_expr.expr &:= "/* ACTION ARR_PUSH for type ";
+      c_expr.expr &:= type_name2(arrayType);
+      c_expr.expr &:= " element is ";
+      c_expr.expr &:= type_name2(elementType);
+      c_expr.expr &:= " */\n\n";
+    end if;
+  end func;
+
+
 const proc: process_arr_times_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -5095,6 +5145,12 @@ const proc: process_action_declaration (in reference: current_object,
           count_declarations(c_expr);
         when {"ARR_IDX"}:
           process_arr_idx_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ARR_POSCPY"}:
+          process_arr_poscpy_declaration(current_object, c_expr);
+          count_declarations(c_expr);
+        when {"ARR_PUSH"}:
+          process_arr_push_declaration(current_object, c_expr);
           count_declarations(c_expr);
         when {"ARR_TIMES"}:
           process_arr_times_declaration(current_object, c_expr);
@@ -5549,6 +5605,10 @@ const proc: write_file_head is func
                     \#include <math.h>\n\
                     \#include <setjmp.h>\n\
                     \#include <signal.h>");
+    if ccConf.HAS_PRCTL then
+      writeln(c_prog, "#include <linux/prctl.h>\n\
+                      \#include <sys/prctl.h>");
+    end if;
     writeln(c_prog, "typedef short int          int16Type;");
     writeln(c_prog, "typedef unsigned short int uint16Type;");
     writeln(c_prog, "typedef " <& ccConf.INT32TYPE <& " int32Type;");
@@ -5584,6 +5644,13 @@ const proc: write_file_head is func
       writeln(c_prog, "typedef int64Type doubleIntType;");
       writeln(c_prog, "typedef uint64Type doubleUintType;");
       writeln(c_prog, "#define inIntTypeRange(num) ((doubleIntType) (intType) (num) == (num))");
+    end if;
+    if ccConf.POINTER_SIZE = 32 then
+      writeln(c_prog, "#define MIN_MEM_INDEX INT32TYPE_MIN");
+      writeln(c_prog, "#define MAX_MEM_INDEX INT32TYPE_MAX");
+    elsif ccConf.POINTER_SIZE = 64 then
+      writeln(c_prog, "#define MIN_MEM_INDEX " <& integerLiteral(integer.first));
+      writeln(c_prog, "#define MAX_MEM_INDEX " <& integerLiteral(integer.last));
     end if;
     writeln(c_prog, "typedef " <& ccConf.BOOLTYPE <& " boolType;");
     writeln(c_prog, "typedef int enumType;");
@@ -6535,35 +6602,35 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
 
 
 const func boolean: pixelEncodingIdentical is
-  return ord(colorPixel(color(65535,     0,     0))) =
+  return ord(pixel(color(65535,     0,     0))) =
              ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0, 65535,     0))) =
+         ord(pixel(color(    0, 65535,     0))) =
              ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) =
+         ord(pixel(color(    0,     0, 65535))) =
              ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK;
 
 
 const func boolean: pixelEncodingWithoutAlphaChannel is
   return ccConf.PIXEL_ALPHA_MASK <> 0 and
-         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_RED_MASK   and
-         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_BLUE_MASK;
+         ord(pixel(color(65535,     0,     0))) = ccConf.PIXEL_RED_MASK   and
+         ord(pixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(pixel(color(    0,     0, 65535))) = ccConf.PIXEL_BLUE_MASK;
 
 
 const func boolean: pixelEncodingWithRedAndBlueSwapped is
-  return ord(colorPixel(color(65535,     0,     0))) =
+  return ord(pixel(color(65535,     0,     0))) =
              ccConf.PIXEL_BLUE_MASK  + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0, 65535,     0))) =
+         ord(pixel(color(    0, 65535,     0))) =
              ccConf.PIXEL_GREEN_MASK + ccConf.PIXEL_ALPHA_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) =
+         ord(pixel(color(    0,     0, 65535))) =
              ccConf.PIXEL_RED_MASK   + ccConf.PIXEL_ALPHA_MASK;
 
 
 const func boolean: pixelEncodingWithRedAndBlueSwappedWithoutAlphaChannel is
   return ccConf.PIXEL_ALPHA_MASK <> 0 and
-         ord(colorPixel(color(65535,     0,     0))) = ccConf.PIXEL_BLUE_MASK  and
-         ord(colorPixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
-         ord(colorPixel(color(    0,     0, 65535))) = ccConf.PIXEL_RED_MASK;
+         ord(pixel(color(65535,     0,     0))) = ccConf.PIXEL_BLUE_MASK  and
+         ord(pixel(color(    0, 65535,     0))) = ccConf.PIXEL_GREEN_MASK and
+         ord(pixel(color(    0,     0, 65535))) = ccConf.PIXEL_RED_MASK;
 
 
 const func bstring: swapRedAndBlue (in bstring: bImage) is func

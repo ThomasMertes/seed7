@@ -89,6 +89,7 @@ static const objectCategory p_arr_op_int[]           = {ARRAYOBJECT, SYMBOLOBJEC
 static const objectCategory p_arr_op_int_op_int[]    = {ARRAYOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, INTOBJECT};
 static const objectCategory p_arr_op_any[]           = {ARRAYOBJECT, SYMBOLOBJECT, ILLEGALOBJECT};
 static const objectCategory p_arr_op_op_int[]        = {ARRAYOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT};
+static const objectCategory p_arr_op_op_int_op_arr[] = {ARRAYOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_arr[]               = {SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_op_arr[]            = {SYMBOLOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
 static const objectCategory p_op_int_op_arr[]        = {SYMBOLOBJECT, INTOBJECT, SYMBOLOBJECT, ARRAYOBJECT};
@@ -206,6 +207,7 @@ static const objectCategory p_op_prc_op_bln[]        = {SYMBOLOBJECT, BLOCKOBJEC
 static const objectCategory p_op_prc_op_op_op_prc[]  = {SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_any_op_prc[]        = {SYMBOLOBJECT, ILLEGALOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_op_exp[]            = {SYMBOLOBJECT, SYMBOLOBJECT, EXPROBJECT};
+static const objectCategory p_op_op_prc[]            = {SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT};
 static const objectCategory p_op_op_prc_op_exp[]     = {SYMBOLOBJECT, SYMBOLOBJECT, BLOCKOBJECT, SYMBOLOBJECT, EXPROBJECT};
 static const objectCategory p_prg[]                  = {PROGOBJECT};
 static const objectCategory p_prg_prg[]              = {PROGOBJECT, PROGOBJECT};
@@ -374,6 +376,7 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_arr_op_int_op_int    argCountAndArgs(p_arr_op_int_op_int)
 #define par_arr_op_any           argCountAndArgs(p_arr_op_any)
 #define par_arr_op_op_int        argCountAndArgs(p_arr_op_op_int)
+#define par_arr_op_op_int_op_arr argCountAndArgs(p_arr_op_op_int_op_arr)
 #define par_op_arr               argCountAndArgs(p_op_arr)
 #define par_op_op_arr            argCountAndArgs(p_op_op_arr)
 #define par_op_int_op_arr        argCountAndArgs(p_op_int_op_arr)
@@ -491,6 +494,7 @@ static const objectCategory p_op_op_op_typ_op_exp_op_any_op_prc_op_exp[] = {SYMB
 #define par_op_prc_op_op_op_prc  argCountAndArgs(p_op_prc_op_op_op_prc)
 #define par_op_any_op_prc        argCountAndArgs(p_op_any_op_prc)
 #define par_op_op_exp            argCountAndArgs(p_op_op_exp)
+#define par_op_op_prc            argCountAndArgs(p_op_op_prc)
 #define par_op_op_prc_op_exp     argCountAndArgs(p_op_op_prc_op_exp)
 #define par_prg                  argCountAndArgs(p_prg)
 #define par_prg_prg              argCountAndArgs(p_prg_prg)
@@ -678,6 +682,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_LNG",                      arr_lng,                      INTOBJECT,         par_arr},
     { "ARR_MAXIDX",                   arr_maxidx,                   INTOBJECT,         par_arr},
     { "ARR_MINIDX",                   arr_minidx,                   INTOBJECT,         par_arr},
+    { "ARR_POSCPY",                   arr_poscpy,                   VOIDOBJECT,        par_arr_op_op_int_op_arr},
     { "ARR_PUSH",                     arr_push,                     VOIDOBJECT,        par_arr_op_any},
     { "ARR_RANGE",                    arr_range,                    ARRAYOBJECT,       par_arr_op_int_op_int},
     { "ARR_REMOVE",                   arr_remove,                   ILLEGALOBJECT,     par_arr_int},
@@ -685,6 +690,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_SORT",                     arr_sort,                     ARRAYOBJECT,       par_arr},
     { "ARR_SORT_REVERSE",             arr_sort_reverse,             ARRAYOBJECT,       par_arr},
     { "ARR_SUBARR",                   arr_subarr,                   ARRAYOBJECT,       par_arr_op_int_op_int},
+    { "ARR_SUBARR_FIXLEN",            arr_subarr_fixlen,            ARRAYOBJECT,       par_arr_op_int_op_int},
     { "ARR_TAIL",                     arr_tail,                     ARRAYOBJECT,       par_arr_op_int},
     { "ARR_TIMES",                    arr_times,                    ARRAYOBJECT,       par_int_op_any},
 
@@ -1297,6 +1303,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_INCLUDE",                  prc_include,                  VOIDOBJECT,        par_op_str},
     { "PRC_LINE",                     prc_line,                     INTOBJECT,         par_no_args},
     { "PRC_LOCAL",                    prc_local,                    BLOCKOBJECT,       par_op_op_prc_op_exp},
+    { "PRC_LOCAL_NOOP",               prc_local_noop,               BLOCKOBJECT,       par_op_op_prc},
     { "PRC_NOOP",                     prc_noop,                     VOIDOBJECT,        par_no_args},
     { "PRC_RAISE",                    prc_raise,                    VOIDOBJECT,        par_op_enu},
     { "PRC_REPEAT",                   prc_repeat,                   VOIDOBJECT,        par_op_prc_op_bln},

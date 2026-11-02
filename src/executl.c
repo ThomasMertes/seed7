@@ -716,7 +716,7 @@ void old_do_copy (objectType destination, objectType source,
 
 
 
-static void do_copy (objectType destination, objectType source,
+void do_copy (objectType destination, objectType source,
     errInfoType *err_info)
 
   {
@@ -1573,18 +1573,38 @@ boolType crea_array (objectType elem_to, objectType elem_from,
 
 
 void cpy_array (objectType elem_to, objectType elem_from,
-    memSizeType new_size)
+    memSizeType array_size)
 
   {
-    memSizeType position;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cpy_array */
-    /* prot_cstri("cpy_array");
-       prot_nl(); */
-    for (position = new_size; position > 0; position--) {
+    for (; array_size > 0; array_size--) {
       do_copy(elem_to, elem_from, &err_info);
       elem_to++;
       elem_from++;
     } /* for */
   } /* cpy_array */
+
+
+
+void cpy_array_allow_overlap (objectType elem_to, objectType elem_from,
+    memSizeType array_size)
+
+  {
+    memSizeType position;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cpy_array_allow_overlap */
+    if (elem_to < elem_from) {
+      cpy_array(elem_to, elem_from, array_size);
+    } else {
+      elem_to += array_size;
+      elem_from += array_size;
+      for (; array_size > 0; array_size--) {
+        elem_to--;
+        elem_from--;
+        do_copy(elem_to, elem_from, &err_info);
+      } /* for */
+    } /* if */
+  } /* cpy_array_allow_overlap */

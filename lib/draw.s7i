@@ -29,6 +29,7 @@
 
 include "stdio.s7i";
 include "graph.s7i";
+include "pointlist.s7i";
 include "bytedata.s7i";
 include "color.s7i";
 include "float.s7i";
@@ -41,6 +42,11 @@ var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 (**
  *  Convert a [[color]] to a pixel.
  *)
+const func pixel: pixel (in color: col) is
+  return rgbPixel(col.redLight, col.greenLight, col.blueLight);
+
+
+# The function colorPixel(col) is deprecated. Use pixel(col) instead.
 const func pixel: colorPixel (in color: col) is
   return rgbPixel(col.redLight, col.greenLight, col.blueLight);
 
@@ -52,7 +58,7 @@ const func color: pixelToColor (in pixel: pix) is func
   result
     var color: col is color.value;
   begin
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -61,7 +67,7 @@ const func color: pixelToColor (in pixel: pix) is func
  *)
 const proc: screen (in integer: width, in integer: height) is func
   begin
-    curr_win := PRIMITIVE_GRAPHIC_OPEN(0, 0, width, height, name(PROGRAM));
+    curr_win := openWindow(0, 0, width, height, name(PROGRAM));
   end func;
 
 
@@ -74,23 +80,21 @@ const proc: color (in color: col1, in color: col2) is noop;
 
 
 (**
- *  Draws a point with the color ''col'' to the window ''win'' at the
- *  position (x, y).
+ *  Draws a point with the color ''col'' to the window ''win'' at the position (x, y).
  *)
 const proc: point (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in color: col) is func
   begin
-    DRAW_PPOINT(win, x, y, colorPixel(col));
+    DRAW_PPOINT(win, x, y, pixel(col));
   end func;
 
 
 (**
- *  Draws a point with the color ''col'' to the current window ''curr_win''
- *  at the position (x, y).
+ *  Draws a point with the color ''col'' to ''curr_win'' at the position (x, y).
  *)
 const proc: point (in integer: x, in integer: y, in color: col) is func
   begin
-    DRAW_PPOINT(curr_win, x, y, colorPixel(col));
+    DRAW_PPOINT(curr_win, x, y, pixel(col));
   end func;
 
 
@@ -103,7 +107,7 @@ const proc: line (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    DRAW_PLINE(win, x, y, x + delta_x, y + delta_y, colorPixel(col));
+    DRAW_PLINE(win, x, y, x + delta_x, y + delta_y, pixel(col));
   end func;
 
 
@@ -115,7 +119,7 @@ const proc: line (inout PRIMITIVE_WINDOW: win,
 const proc: line (in integer: x, in integer: y,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x, y, x + delta_x, y + delta_y, colorPixel(col));
+    DRAW_PLINE(curr_win, x, y, x + delta_x, y + delta_y, pixel(col));
   end func;
 
 
@@ -129,7 +133,7 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    DRAW_PLINE(win, x1, y1, x2, y2, colorPixel(col));
+    DRAW_PLINE(win, x1, y1, x2, y2, pixel(col));
   end func;
 
 
@@ -142,7 +146,7 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
 const proc: lineTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x1, y1, x2, y2, colorPixel(col));
+    DRAW_PLINE(curr_win, x1, y1, x2, y2, pixel(col));
   end func;
 
 
@@ -157,7 +161,7 @@ const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
   begin
     DRAW_PLINE(win, x, y,
         x + round(float(length) * sin(angle)),
-        y + round(float(length) * -cos(angle)), colorPixel(col));
+        y + round(float(length) * -cos(angle)), pixel(col));
   end func;
 
 
@@ -171,7 +175,7 @@ const proc: lineToAngle (in integer: x, in integer: y,
   begin
     DRAW_PLINE(curr_win, x, y,
         x + round(float(length) * sin(angle)),
-        y + round(float(length) * -cos(angle)), colorPixel(col));
+        y + round(float(length) * -cos(angle)), pixel(col));
   end func;
 
 
@@ -179,14 +183,14 @@ const proc: hline (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in color: col) is func
   begin
-    DRAW_PLINE(win, x1, y1, x2, y1, colorPixel(col));
+    DRAW_PLINE(win, x1, y1, x2, y1, pixel(col));
   end func;
 
 
 const proc: hline (in integer: x1, in integer: y1,
     in integer: x2, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x1, y1, x2, y1, colorPixel(col));
+    DRAW_PLINE(curr_win, x1, y1, x2, y1, pixel(col));
   end func;
 
 
@@ -194,14 +198,14 @@ const proc: vline (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: y2, in color: col) is func
   begin
-    DRAW_PLINE(win, x1, y1, x1, y2, colorPixel(col));
+    DRAW_PLINE(win, x1, y1, x1, y2, pixel(col));
   end func;
 
 
 const proc: vline (in integer: x1, in integer: y1,
     in integer: y2, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x1, y1, x1, y2, colorPixel(col));
+    DRAW_PLINE(curr_win, x1, y1, x1, y2, pixel(col));
   end func;
 
 
@@ -214,7 +218,7 @@ const proc: rect (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: width, in integer: height, in color: col) is func
   begin
-    DRAW_PRECT(win, x1, y1, width, height, colorPixel(col));
+    DRAW_PRECT(win, x1, y1, width, height, pixel(col));
   end func;
 
 
@@ -226,7 +230,7 @@ const proc: rect (inout PRIMITIVE_WINDOW: win,
 const proc: rect (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    DRAW_PRECT(curr_win, x, y, width, height, colorPixel(col));
+    DRAW_PRECT(curr_win, x, y, width, height, pixel(col));
   end func;
 
 
@@ -238,7 +242,7 @@ const proc: rect (inout array array pixel: image,
     var integer: line is 0;
     var integer: column is 0;
   begin
-    pix := colorPixel(col);
+    pix := pixel(col);
     for line range 1 to height do
       for column range 1 to width do
         image[y1 + line][x1 + column] := pix;
@@ -258,15 +262,15 @@ const proc: rectTo (inout PRIMITIVE_WINDOW: win,
   begin
     if x1 <= x2 then
       if y1 <= y2 then
-        DRAW_PRECT(win, x1, y1, succ(x2 - x1), succ(y2 - y1), colorPixel(col));
+        DRAW_PRECT(win, x1, y1, succ(x2 - x1), succ(y2 - y1), pixel(col));
       else
-        DRAW_PRECT(win, x1, y2, succ(x2 - x1), succ(y1 - y2), colorPixel(col));
+        DRAW_PRECT(win, x1, y2, succ(x2 - x1), succ(y1 - y2), pixel(col));
       end if;
     else
       if y1 <= y2 then
-        DRAW_PRECT(win, x2, y1, succ(x1 - x1), succ(y2 - y1), colorPixel(col));
+        DRAW_PRECT(win, x2, y1, succ(x1 - x1), succ(y2 - y1), pixel(col));
       else
-        DRAW_PRECT(win, x2, y2, succ(x1 - x2), succ(y1 - y2), colorPixel(col));
+        DRAW_PRECT(win, x2, y2, succ(x1 - x2), succ(y1 - y2), pixel(col));
       end if;
     end if;
   end func;
@@ -282,15 +286,15 @@ const proc: rectTo (in integer: x1, in integer: y1,
   begin
     if x1 <= x2 then
       if y1 <= y2 then
-        DRAW_PRECT(curr_win, x1, y1, succ(x2 - x1), succ(y2 - y1), colorPixel(col));
+        DRAW_PRECT(curr_win, x1, y1, succ(x2 - x1), succ(y2 - y1), pixel(col));
       else
-        DRAW_PRECT(curr_win, x1, y2, succ(x2 - x1), succ(y1 - y2), colorPixel(col));
+        DRAW_PRECT(curr_win, x1, y2, succ(x2 - x1), succ(y1 - y2), pixel(col));
       end if;
     else
       if y1 <= y2 then
-        DRAW_PRECT(curr_win, x2, y1, succ(x1 - x2), succ(y2 - y1), colorPixel(col));
+        DRAW_PRECT(curr_win, x2, y1, succ(x1 - x2), succ(y2 - y1), pixel(col));
       else
-        DRAW_PRECT(curr_win, x2, y2, succ(x1 - x2), succ(y1 - y2), colorPixel(col));
+        DRAW_PRECT(curr_win, x2, y2, succ(x1 - x2), succ(y1 - y2), pixel(col));
       end if;
     end if;
   end func;
@@ -307,7 +311,7 @@ const proc: box (inout PRIMITIVE_WINDOW: win,
   local
     var pixel: pix is pixel.value;
   begin
-    pix := colorPixel(col);
+    pix := pixel(col);
     DRAW_PLINE(win, x, y, pred(x + width), y, pix);
     DRAW_PLINE(win, pred(x + width), y, pred(x + width), pred(y + height), pix);
     DRAW_PLINE(win, pred(x + width), pred(y + height), x, pred(y + height), pix);
@@ -325,7 +329,7 @@ const proc: box (in integer: x, in integer: y,
   local
     var pixel: pix is pixel.value;
   begin
-    pix := colorPixel(col);
+    pix := pixel(col);
     DRAW_PLINE(curr_win, x, y, pred(x + width), y, pix);
     DRAW_PLINE(curr_win, pred(x + width), y, pred(x + width), pred(y + height), pix);
     DRAW_PLINE(curr_win, pred(x + width), pred(y + height), x, pred(y + height), pix);
@@ -344,7 +348,7 @@ const proc: boxTo (inout PRIMITIVE_WINDOW: win,
   local
     var pixel: pix is pixel.value;
   begin
-    pix := colorPixel(col);
+    pix := pixel(col);
     DRAW_PLINE(win, x1, y1, x2, y1, pix);
     DRAW_PLINE(win, x2, y1, x2, y2, pix);
     DRAW_PLINE(win, x2, y2, x1, y2, pix);
@@ -362,7 +366,7 @@ const proc: boxTo (in integer: x1, in integer: y1,
   local
     var pixel: pix is pixel.value;
   begin
-    pix := colorPixel(col);
+    pix := pixel(col);
     DRAW_PLINE(curr_win, x1, y1, x2, y1, pix);
     DRAW_PLINE(curr_win, x2, y1, x2, y2, pix);
     DRAW_PLINE(curr_win, x2, y2, x1, y2, pix);
@@ -377,7 +381,7 @@ const proc: boxTo (in integer: x1, in integer: y1,
 const proc: circle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    DRAW_CIRCLE(win, x, y, radius, colorPixel(col));
+    DRAW_CIRCLE(win, x, y, radius, pixel(col));
   end func;
 
 
@@ -387,7 +391,7 @@ const proc: circle (inout PRIMITIVE_WINDOW: win,
  *)
 const proc: circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    DRAW_CIRCLE(curr_win, x, y, radius, colorPixel(col));
+    DRAW_CIRCLE(curr_win, x, y, radius, pixel(col));
   end func;
 
 
@@ -398,7 +402,7 @@ const proc: circle (in integer: x, in integer: y, in integer: radius, in color: 
 const proc: fcircle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    FILL_CIRCLE(win, x, y, radius, colorPixel(col));
+    FILL_CIRCLE(win, x, y, radius, pixel(col));
   end func;
 
 
@@ -408,7 +412,7 @@ const proc: fcircle (inout PRIMITIVE_WINDOW: win,
  *)
 const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    FILL_CIRCLE(curr_win, x, y, radius, colorPixel(col));
+    FILL_CIRCLE(curr_win, x, y, radius, pixel(col));
   end func;
 
 
@@ -421,7 +425,7 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, pixel(col));
   end func;
 
 
@@ -433,7 +437,7 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
 const proc: arc (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, pixel(col));
   end func;
 
 
@@ -447,7 +451,7 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
     in float: startAngle, in float: sweepAngle, in integer: width,
     in color: col) is func
   begin
-    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, width, colorPixel(col));
+    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, width, pixel(col));
   end func;
 
 
@@ -460,14 +464,27 @@ const proc: arc (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in integer: width,
     in color: col) is func
   begin
-    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, width, colorPixel(col));
+    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, width, pixel(col));
   end func;
 
 
 const proc: chord (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    FILL_ARCCHORD(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+    FILL_ARCCHORD(curr_win, x, y, radius, startAngle, sweepAngle, pixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled sector with color ''col'' to the window ''win''.
+ *  The sector has the given ''radius'' and its center is at (x, y).
+ *  The sector begins at ''startAngle'' and spans over ''sweepAngle''.
+ *)
+const proc: pieslice (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    FILL_ARCPIESLICE(win, x, y, radius, startAngle, sweepAngle, pixel(col));
   end func;
 
 
@@ -479,22 +496,34 @@ const proc: chord (in integer: x, in integer: y, in integer: radius,
 const proc: pieslice (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin
-    FILL_ARCPIESLICE(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+    FILL_ARCPIESLICE(curr_win, x, y, radius, startAngle, sweepAngle, pixel(col));
   end func;
 
 
+(**
+ *  Draws a filled ellipse with the color ''col'' to the window ''win''.
+ *  The ellipse is drawn into a rectangle with the given ''width'' and
+ *  ''height'', and the upper left corner at (x, y). The enclosing
+ *  rectangle is not drawn.
+ *)
 const proc: fellipse (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    FILL_ELLIPSE(win, x, y, width, height, colorPixel(col));
+    FILL_ELLIPSE(win, x, y, width, height, pixel(col));
   end func;
 
 
+(**
+ *  Draws a filled ellipse with the color ''col'' to ''curr_win''.
+ *  The ellipse is drawn into a rectangle with the given ''width'' and
+ *  ''height'', and the upper left corner at (x, y). The enclosing
+ *  rectangle is not drawn.
+ *)
 const proc: fellipse (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    FILL_ELLIPSE(curr_win, x, y, width, height, colorPixel(col));
+    FILL_ELLIPSE(curr_win, x, y, width, height, pixel(col));
   end func;
 
 
@@ -503,7 +532,7 @@ const proc: fellipse (in integer: x, in integer: y,
  *)
 const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
   begin
-    DRAW_CLEAR(win, colorPixel(col));
+    DRAW_CLEAR(win, pixel(col));
   end func;
 
 
@@ -512,7 +541,7 @@ const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
  *)
 const proc: clear (inout PRIMITIVE_WINDOW: win) is func
   begin
-    DRAW_CLEAR(win, colorPixel(black));
+    DRAW_CLEAR(win, pixel(black));
   end func;
 
 
@@ -521,7 +550,7 @@ const proc: clear (inout PRIMITIVE_WINDOW: win) is func
  *)
 const proc: clear (in color: col) is func
   begin
-    DRAW_CLEAR(curr_win, colorPixel(col));
+    DRAW_CLEAR(curr_win, pixel(col));
   end func;
 
 
@@ -532,7 +561,7 @@ const proc: clear (in color: col) is func
 const proc: polyLine (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
-    DRAW_POLYLINE(win, x, y, points, colorPixel(col));
+    DRAW_POLYLINE(win, x, y, points, pixel(col));
   end func;
 
 
@@ -542,7 +571,7 @@ const proc: polyLine (inout PRIMITIVE_WINDOW: win,
  *)
 const proc: polyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
-    DRAW_POLYLINE(curr_win, x, y, points, colorPixel(col));
+    DRAW_POLYLINE(curr_win, x, y, points, pixel(col));
   end func;
 
 
@@ -554,7 +583,7 @@ const proc: polyLine (in integer: x, in integer: y, in pointList: points, in col
 const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
-    FILL_POLYLINE(win, x, y, points, colorPixel(col));
+    FILL_POLYLINE(win, x, y, points, pixel(col));
   end func;
 
 
@@ -565,7 +594,7 @@ const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
  *)
 const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
-    FILL_POLYLINE(curr_win, x, y, points, colorPixel(col));
+    FILL_POLYLINE(curr_win, x, y, points, pixel(col));
   end func;
 
 
@@ -631,7 +660,7 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
  *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
  *  areas outside of ''sourceWin'' are colored with black.
  *  @return the created pixmap.
- *  @exception RANGE_ERROR If ''height'' or ''width'' are negative or zero.
+ *  @exception RANGE_ERROR If ''height'' or ''width'' is negative or zero.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
     in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET_PIXMAP";
@@ -652,7 +681,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in integer: left, in integer: upper,
 
 (**
  *  Create a new pixmap with the contents of ''sourceWin''.
- *  The content of ''sourceWin'' is copied the new pixmap.
+ *  The content of ''sourceWin'' is copied to the new pixmap.
  *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin) is
@@ -772,7 +801,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
 
 (**
  *  Create a new pixmap from a two-dimensional array of pixels.
- *  The array of pixels might come from a image file.
+ *  The array of pixels might come from an image file.
  *  @param image Pixel array with lines from top downward and columns from left to right.
  *  @return the created pixmap.
  *)
@@ -803,7 +832,7 @@ const func array array pixel: getPixelArray (in PRIMITIVE_WINDOW: aWindow) is ac
  *)
 const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
   begin
-    SET_TRANSPARENTCOLOR(pixmap, colorPixel(col));
+    SET_TRANSPARENTCOLOR(pixmap, pixel(col));
   end func;
 
 
@@ -819,7 +848,7 @@ const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(aWindow, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -831,7 +860,7 @@ const func color: getPixelColor (in bstring: bImage, in integer: width,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(bImage, width, height, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+    pixelToRgb(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 

@@ -75,6 +75,10 @@ const type: typeDataStruct is new struct
   var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
   var string_type_hash: parametersOfHshCpy is string_type_hash.EMPTY_HASH;
 
+  var string_type_hash: posCpyDiagnosticLine is string_type_hash.EMPTY_HASH;
+  var boolean_type_hash: posCpyFunction is boolean_type_hash.EMPTY_HASH;
+  var boolean_type_hash: posCpyTempFunction is boolean_type_hash.EMPTY_HASH;
+
   var boolean_type_hash: times_prototype_declared is boolean_type_hash.EMPTY_HASH;
 
   var boolean_type_hash: value_hashCode_declared is boolean_type_hash.EMPTY_HASH;
@@ -97,7 +101,15 @@ end struct;
 
 var typeDataStruct: typeData is typeDataStruct.value;
 
+const set of category: simpleValueType is {
+    BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
+    REFOBJECT, STRUCTELEMOBJECT, TYPEOBJECT, ACTENTRYOBJECT,
+    BLOCKOBJECT};
+
 var program: prog is program.EMPTY;
+
+const set of category: localObjectCategory is
+    {LOCALVOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT, RESULTOBJECT};
 
 
 const func string: raw_type_name (in type: object_type) is func
@@ -282,7 +294,7 @@ const func boolean: valueIsAtHeap (in type: aType) is func
         SOCKETOBJECT, WINOBJECT, POINTLISTOBJECT, PROCESSOBJECT,
         PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
         ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT,
-        REFLISTOBJECT};
+        REFLISTOBJECT, POLLOBJECT};
   begin
     if aType in typeData.typeCategory and
         typeData.typeCategory[aType] in heapCategories then
