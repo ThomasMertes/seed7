@@ -86,6 +86,12 @@ const func integer: tell (in lzmaRangeDecoderState: decoderState) is
          decoderState.inBufferPos - 1;
 
 
+const proc: close (inout lzmaRangeDecoderState: decoderState) is func
+  begin
+    seek(decoderState.compressed, tell(decoderState));
+  end func;
+
+
 const proc: resetRangeDecoder (inout lzmaRangeDecoderState: decoderState) is func
   local
     var char: ch is ' ';
