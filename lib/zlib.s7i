@@ -1,0 +1,91 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  zlib.s7i      Zlib (RFC 1950) compression support library       *)
+(*  Copyright (C) 2015, 2024, 2026  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bitdata.s7i";
+include "inflate.s7i";
+include "deflate.s7i";
+include "crc32.s7i";
+
+
+(**
+ *  Decompress a string that was compressed with zlib (RFC 1950).
+ *  Zlib uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE zlib uses a small header.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in zlib format.
+ *)
+const func string: zlibDecompress (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: compressionMethod is 0;
+    var integer: cinfo is 0;
+    var integer: flags is 0;
+    var lsbInBitStream: compressedStream is lsbInBitStream.value;
+    var boolean: bfinal is FALSE;
+  begin
+    if (ord(compressed[1]) * 256 + ord(compressed[2])) mod 31 = 0 then
+      compressionMethod := ord(compressed[1]) mod 16;
+      cinfo := (ord(compressed[1]) >> 4) mod 16;
+      flags := ord(compressed[2]);
+      if compressionMethod = 8 then
+        compressedStream := openLsbInBitStream(compressed);
+        if odd(flags >> 5) then
+          skipBits(compressedStream, 48);
+        else
+          skipBits(compressedStream, 16);
+        end if;
+        repeat
+          processCompressedBlock(compressedStream, uncompressed, bfinal);
+        until bfinal;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Compress a string with the zlib (RFC 1950). compression method.
+ *  Zlib uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE zlib uses a small header.
+ *  @return the compressed string.
+ *)
+const func string: zlibCompress (in string: uncompressed) is func
+  result
+    var string: compressed is "";
+  local
+    const string: GZ_MAGIC is "x\156;";
+    var lsbOutBitStream: compressedStream is lsbOutBitStream.value;
+  begin
+    write(compressedStream, GZ_MAGIC);
+    deflate(uncompressed, compressedStream);
+    flush(compressedStream);
+    compressed := getBytes(compressedStream) &
+                  bytes(adler32(uncompressed), BE, 4);
+  end func;

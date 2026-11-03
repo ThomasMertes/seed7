@@ -32,7 +32,7 @@ include "ccittfax.s7i";
 include "lzw.s7i";
 include "jpeg.s7i";
 include "strifile.s7i";
-include "gzip.s7i";
+include "zlib.s7i";
 include "compress.s7i";
 include "bitdata.s7i";
 include "bin16.s7i";
@@ -2033,7 +2033,7 @@ const proc: decompressStripOrTile (in tiffHeader: header,
       when {TIFF_COMPRESSION_DEFLATE,
             TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
             TIFF_COMPRESSION_PIXTIFF_DEFLATE}:
-        stripData := gzuncompress(stripData);
+        stripData := zlibDecompress(stripData);
       otherwise:
         raise RANGE_ERROR;
     end case;

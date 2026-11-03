@@ -30,7 +30,7 @@ include "bytedata.s7i";
 include "bin32.s7i";
 include "crc32.s7i";
 include "draw.s7i";
-include "gzip.s7i";
+include "zlib.s7i";
 include "pixelimage.s7i";
 include "exif.s7i";
 
@@ -718,7 +718,7 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
       if isOkay(header) then
         computeBytesPerPixel(header);
         computeBytesPerScanline(header);
-        uncompressed := gzuncompress(compressed);
+        uncompressed := zlibDecompress(compressed);
         if header.interlaceMethod = 0 then
           filterPngData(header, uncompressed);
           image := pixelDataToImage(header, uncompressed, palette);
@@ -1046,7 +1046,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PNG) is func
     pixelData := imageToPixelData(image);
     setPngFilter(header, pixelData);
     stri &:= genPngChunk("IHDR", str(header)) &
-             genPngChunk("IDAT", gzcompress(pixelData)) &
+             genPngChunk("IDAT", zlibCompress(pixelData)) &
              genPngChunk("IEND", "");
   end func;
 
