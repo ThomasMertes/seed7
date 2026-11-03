@@ -457,7 +457,6 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
   local
     var string: line is "";
     var integer: chunkSize is 0;
-    var integer: contentLength is 0;
     var string: buffer is "";
   begin
     if header.transferEncoding = "chunked" then
@@ -490,11 +489,9 @@ const func string: getHttpBody (inout file: sock, in httpHeader: header) is func
     elsif header.transferEncoding = "identity" or
           header.transferEncoding = "" then
       if header.contentLength > 0 then
-        contentLength := header.contentLength;
-        while contentLength <> 0 and not eof(sock) do
-          buffer := gets(sock, contentLength);
-          contentLength -:= length(buffer);
-          data &:= buffer;
+        data := gets(sock, header.contentLength);
+        while length(data) < header.contentLength and not eof(sock) do
+          data &:= gets(sock, header.contentLength - length(data));
         end while;
       else
         buffer := gets(sock, 10000000);
