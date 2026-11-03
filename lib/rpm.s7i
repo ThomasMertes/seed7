@@ -2135,7 +2135,7 @@ const proc: close (inout rpmArchive: rpm) is func
       if rpm.archive <> fileSys.value then
         # writeln("size payloadFile: " <& length(rpm.payloadFile));
         seek(rpm.payloadFile, 1);
-        payload := gzip(gets(rpm.payloadFile, integer.last));
+        payload := gzipCompress(gets(rpm.payloadFile, integer.last));
         # writeln("size payload: " <& length(payload));
       end if;
 

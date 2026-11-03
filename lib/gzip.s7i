@@ -321,7 +321,7 @@ type_implements_interface(gzipFile, file);
 
 
 (**
- *  Open a GZIP file for reading (decompression).
+ *  Open a GZIP (RFC 1952) file for reading (decompression).
  *  GZIP is a file format used for compression. Reading from
  *  the file delivers decompressed data. Writing is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
@@ -484,13 +484,13 @@ const func integer: tell (in gzipFile: aFile) is
 
 
 (**
- *  Compress a string to the gzip format.
+ *  Compress a string with the gzip (RFC 1952) compression method.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  Additionally to DEFLATE gzip uses a magic number and a header.
  *  @return the compressed string.
  *)
-const func string: gzip (in string: uncompressed) is func
+const func string: gzipCompress (in string: uncompressed) is func
   result
     var string: compressed is "";
   local
@@ -511,6 +511,11 @@ const func string: gzip (in string: uncompressed) is func
   end func;
 
 
+# The function gzip() is deprecated. Use gzipCompress() instead.
+const func string: gzip (in string: uncompressed) is
+  return gzipCompress(uncompressed);
+
+
 (**
  *  [[file|File]] implementation type to compress data with the GZIP format.
  *)
@@ -527,7 +532,7 @@ type_implements_interface(gzipWriteFile, file);
 
 
 (**
- *  Open a GZIP file for writing (compression)
+ *  Open a GZIP (RFC 1952) file for writing (compression)
  *  GZIP is a file format used for compression. Writing to the file
  *  compresses the data to ''destFile''. Reading is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
