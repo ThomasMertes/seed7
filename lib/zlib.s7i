@@ -57,13 +57,13 @@ const func string: zlibDecompress (in string: compressed) is func
       if compressionMethod = 8 then
         compressedStream := openLsbInBitStream(compressed);
         if odd(flags >> 5) then
-          skipBits(compressedStream, 48);
+          raise RANGE_ERROR;
         else
           skipBits(compressedStream, 16);
+          repeat
+            processCompressedBlock(compressedStream, uncompressed, bfinal);
+          until bfinal;
         end if;
-        repeat
-          processCompressedBlock(compressedStream, uncompressed, bfinal);
-        until bfinal;
       end if;
     end if;
   end func;
