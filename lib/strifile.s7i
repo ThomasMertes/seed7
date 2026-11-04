@@ -315,7 +315,7 @@ const proc: truncate (inout striFile: aStriFile, in integer: length) is func
 
 (**
  *  Determine if the file ''aFile'' is seekable.
- *  If a file is seekable the functions ''seek'' and ''tell''
+ *  If a file is seekable, the functions ''seek'' and ''tell''
  *  can be used to set and and obtain the current file position.
  *  @return TRUE, since a ''striFile'' is seekable.
  *)
