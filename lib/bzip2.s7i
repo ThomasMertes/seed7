@@ -854,7 +854,7 @@ const func integer: length (inout bzip2File: aFile) is func
 (**
  *  Determine if the file ''aFile'' is seekable.
  *  If a file is seekable, the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
+ *  can be used to set and obtain the current file position.
  *  @return TRUE, since a ''bzip2File'' is seekable.
  *)
 const boolean: seekable (in bzip2File: aFile) is TRUE;

@@ -266,7 +266,7 @@ const proc: truncate (in clib_file: aFile, in integer: length)       is action "
 (**
  *  Determine if the file ''aFile'' is seekable.
  *  If a file is seekable, the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
+ *  can be used to set and obtain the current file position.
  *  @return TRUE, if ''aFile'' is seekable, FALSE otherwise.
  *)
 const func boolean: seekable (in clib_file: aFile)                   is action "FIL_SEEKABLE";
