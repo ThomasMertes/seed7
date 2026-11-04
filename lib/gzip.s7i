@@ -185,7 +185,7 @@ const func gzipHeader: readGzipHeader (inout file: compressed) is func
  *  Decompress a string that was compressed with gzip (RFC 1952).
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
- *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  In addition to DEFLATE, gzip uses a magic number and a header.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
@@ -225,7 +225,7 @@ const func string: gunzip (in string: compressed) is
  *  Decompress a file that was compressed with gzip (RFC 1952).
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
- *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  In addition to DEFLATE, gzip uses a magic number and a header.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
@@ -275,7 +275,7 @@ type_implements_interface(gzipFile, file);
  *  the file delivers decompressed data. Writing is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
  *  uses a combination of the LZ77 algorithm and Huffman coding.
- *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  In addition to DEFLATE, gzip uses a magic number and a header.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if the file is not in GZIP format.
  *)
@@ -400,7 +400,7 @@ const func integer: length (inout gzipFile: aFile) is func
 (**
  *  Determine if the file ''aFile'' is seekable.
  *  If a file is seekable the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
+ *  can be used to set and obtain the current file position.
  *  @return TRUE, since a ''gzipFile'' is seekable.
  *)
 const boolean: seekable (in gzipFile: aFile) is TRUE;
@@ -436,7 +436,7 @@ const func integer: tell (in gzipFile: aFile) is
  *  Compress a string with the gzip (RFC 1952) compression method.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
- *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  In addition to DEFLATE, gzip uses a magic number and a header.
  *  @return the compressed string.
  *)
 const func string: gzipCompress (in string: uncompressed) is func
@@ -481,12 +481,12 @@ type_implements_interface(gzipWriteFile, file);
 
 
 (**
- *  Open a GZIP (RFC 1952) file for writing (compression)
+ *  Open a GZIP (RFC 1952) file for writing (compression).
  *  GZIP is a file format used for compression. Writing to the file
  *  compresses the data to ''destFile''. Reading is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
  *  uses a combination of the LZ77 algorithm and Huffman coding.
- *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  In addition to DEFLATE, gzip uses a magic number and a header.
  *  @return the file opened.
  *)
 const func file: openGzipFile (inout file: destFile, WRITE) is func
