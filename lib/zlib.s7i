@@ -58,6 +58,7 @@ const func string: zlibDecompress (in string: compressed) is func
       if compressionMethod = 8 then
         compressedStream := openLsbInBitStream(compressed);
         if odd(flags >> 5) then
+          # Decompressing with a provided dictionary is not supported.
           raise RANGE_ERROR;
         else
           skipBits(compressedStream, 16);

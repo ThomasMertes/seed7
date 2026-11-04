@@ -191,6 +191,7 @@ const func string: gzuncompress (in string: compressed) is func
     var integer: flags is 0;
     var lsbInBitStream: compressedStream is lsbInBitStream.value;
     var boolean: bfinal is FALSE;
+    var string: adler32 is "";
   begin
     if (ord(compressed[1]) * 256 + ord(compressed[2])) mod 31 = 0 then
       compressionMethod := ord(compressed[1]) mod 16;
@@ -199,13 +200,20 @@ const func string: gzuncompress (in string: compressed) is func
       if compressionMethod = 8 then
         compressedStream := openLsbInBitStream(compressed);
         if odd(flags >> 5) then
-          skipBits(compressedStream, 48);
+          # Decompressing with a provided dictionary is not supported.
+          raise RANGE_ERROR;
         else
           skipBits(compressedStream, 16);
+          repeat
+            processCompressedBlock(compressedStream, uncompressed, bfinal);
+          until bfinal;
+          adler32 := gets(compressedStream, 4);
+          if length(adler32) <> 4 or
+              bytes2Int(adler32, UNSIGNED, BE) <> ord(adler32(uncompressed)) then
+            raise RANGE_ERROR;
+          end if;
         end if;
-        repeat
-          processCompressedBlock(compressedStream, uncompressed, bfinal);
-        until bfinal;
+        close(compressedStream);
       end if;
     end if;
   end func;
