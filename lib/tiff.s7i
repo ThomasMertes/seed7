@@ -33,6 +33,7 @@ include "lzw.s7i";
 include "jpeg.s7i";
 include "strifile.s7i";
 include "zlib.s7i";
+include "zstd.s7i";
 include "compress.s7i";
 include "bitdata.s7i";
 include "bin16.s7i";
@@ -128,6 +129,7 @@ const integer: TIFF_COMPRESSION_DEFLATE                is     8;
 const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
 const integer: TIFF_COMPRESSION_THUNDERSCAN            is 32809;
 const integer: TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE is 32946;
+const integer: TIFF_COMPRESSION_ZSTD                   is 50000;
 const integer: TIFF_COMPRESSION_PIXTIFF_DEFLATE        is 50013;
 
 const integer: TIFF_PREDICTOR_NONE         is 1;
@@ -2011,6 +2013,7 @@ const proc: decompressStripOrTile (in tiffHeader: header,
     var integer: bytesPerLine is 0;
     var integer: bytesPerTileLine is 0;
     var integer: requestedLength is 0;
+    var file: zstdFile is STD_NULL;
   begin
     bytesPerLine := (width * header.bitsPerPixel) ceilDiv 8;
     bytesPerTileLine := (tileWidth * header.bitsPerPixel) ceilDiv 8;
@@ -2034,6 +2037,9 @@ const proc: decompressStripOrTile (in tiffHeader: header,
             TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
             TIFF_COMPRESSION_PIXTIFF_DEFLATE}:
         stripData := zlibDecompress(stripData);
+      when {TIFF_COMPRESSION_ZSTD}:
+        zstdFile := openStriFile(stripData);
+        stripData := zstdDecompress(zstdFile);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -2241,7 +2247,8 @@ const proc: readStripOrTile (inout file: tiffFile,
               TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
               TIFF_COMPRESSION_DEFLATE,
               TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
-              TIFF_COMPRESSION_PIXTIFF_DEFLATE}:
+              TIFF_COMPRESSION_PIXTIFF_DEFLATE,
+              TIFF_COMPRESSION_ZSTD}:
           decompressStripOrTile(header, stripData, rowsInCurrentStrip,
                                 succ(tileEndColumn - tileStartColumn),
                                 tileWidth);
@@ -2729,7 +2736,8 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
                 TIFF_COMPRESSION_DEFLATE,
                 TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE,
                 TIFF_COMPRESSION_PIXTIFF_DEFLATE,
-                TIFF_COMPRESSION_THUNDERSCAN}:
+                TIFF_COMPRESSION_THUNDERSCAN,
+                TIFF_COMPRESSION_ZSTD}:
             if header.planarConfiguration = TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT then
               pixmap := readTiff(tiffFile, header);
             else
