@@ -1866,6 +1866,14 @@ winType drwOpen (intType xPos, intType yPos,
             myhint.height = (int) height;
             myhint.flags = PPosition | PSize;
 
+            logMessage(printf("XCreateSimpleWindow(" FMT_U_MEM
+                              ", %lu, %d, %d, %u, %u, 5, %lu, %lu)\n",
+                              (memSizeType) mydisplay,
+                              DefaultRootWindow(mydisplay),
+                              myhint.x, myhint.y,
+                              (unsigned int) myhint.width,
+                              (unsigned int) myhint.height,
+                              myforeground, mybackground););
             result->window = XCreateSimpleWindow(mydisplay,
                 DefaultRootWindow(mydisplay),
                 myhint.x, myhint.y,
