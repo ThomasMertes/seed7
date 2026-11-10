@@ -116,7 +116,7 @@ const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
  *  If a ''terminator'' is found, the string before the ''terminator'' is
  *  returned and the ''terminator'' character is assigned to inFile.bufferChar.
  *  The file position is advanced after the ''terminator'' character.
- *  If no ''terminator'' is found the rest of ''inFile'' is returned and
+ *  If no ''terminator'' is found, the rest of ''inFile'' is returned and
  *  [[char#EOF|EOF]] is assigned to the inFile.bufferChar. When the function
  *  is left inFile.bufferChar contains either ''terminator'' or [[char#EOF|EOF]].
  *  @param inFile File from which the string is read.
