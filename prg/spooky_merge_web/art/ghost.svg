@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="sheet" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".65" stop-color="#e4def9"/><stop offset="1" stop-color="#ac9fe3"/></linearGradient>
+  <filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><feGaussianBlur stdDeviation="30"/></filter>
+</defs>
+<ellipse cx="512" cy="500" rx="370" ry="400" fill="#b9a8ff" opacity=".4" filter="url(#soft)"/>
+<path d="M512 70 C270 70 164 260 164 480 L164 880 C164 950 240 960 276 906 C310 860 366 860 396 910 C426 956 482 956 512 910 C542 956 598 956 628 910 C658 860 714 860 748 906 C784 960 860 950 860 880 L860 480 C860 260 754 70 512 70 Z" fill="url(#sheet)"/>
+<ellipse cx="392" cy="404" rx="66" ry="88" fill="#241c3f"/><ellipse cx="632" cy="404" rx="66" ry="88" fill="#241c3f"/>
+<circle cx="412" cy="372" r="22" fill="#fff"/><circle cx="652" cy="372" r="22" fill="#fff"/>
+<ellipse cx="512" cy="590" rx="58" ry="74" fill="#241c3f"/>
+<circle cx="300" cy="520" r="52" fill="#ff8fb4" opacity=".4"/><circle cx="724" cy="520" r="52" fill="#ff8fb4" opacity=".4"/>
+<path d="M262 400 C270 300 322 216 402 178" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round"/>
+</svg>

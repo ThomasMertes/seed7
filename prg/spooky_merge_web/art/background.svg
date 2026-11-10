@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1280" viewBox="0 0 720 1280">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0820"/><stop offset=".62" stop-color="#2c1b5a"/><stop offset="1" stop-color="#4a2a6e"/></linearGradient>
+  <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e78d8"/><stop offset="1" stop-color="#5a4aa0"/></linearGradient>
+  <radialGradient id="moon" cx="42%" cy="38%" r="70%"><stop offset="0" stop-color="#fff2c4"/><stop offset="1" stop-color="#f3c566"/></radialGradient>
+  <filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="720" height="1280"><feGaussianBlur stdDeviation="46"/></filter>
+</defs>
+<rect width="720" height="1280" fill="#0b0820"/>
+<rect y="220" width="720" height="1060" fill="url(#sky)"/>
+<circle cx="500" cy="660" r="150" fill="#f3c566" opacity=".36" filter="url(#soft)"/>
+<circle cx="500" cy="660" r="104" fill="url(#moon)"/>
+<g fill="#ffffff" opacity=".6">
+  <circle cx="120" cy="420" r="3"/><circle cx="240" cy="540" r="2"/><circle cx="600" cy="400" r="3"/><circle cx="330" cy="460" r="2"/>
+  <circle cx="110" cy="700" r="2"/><circle cx="260" cy="780" r="3"/><circle cx="640" cy="860" r="2"/><circle cx="420" cy="880" r="2"/>
+</g>
+<path d="M0 1120 C120 1060 260 1100 380 1140 C500 1180 620 1110 720 1090 L720 1280 L0 1280 Z" fill="#170f33"/>
+<g fill="#0e0924">
+  <path d="M100 1212 L100 1090 C100 1050 180 1050 180 1090 L180 1212 Z"/>
+  <path d="M260 1212 L260 1110 L290 1110 L290 1080 L316 1080 L316 1110 L346 1110 L346 1212 Z"/>
+  <path d="M520 1212 L520 1130 C520 1100 590 1100 590 1130 L590 1212 Z"/>
+</g>
+<path d="M0 1220 L720 1220 L720 1280 L0 1280 Z" fill="#0e0924"/>
+<rect x="40" y="264" width="640" height="948" fill="#0b0820" opacity=".42"/>
+<path d="M36 258 L36 1216 L684 1216 L684 258" fill="none" stroke="url(#frame)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
