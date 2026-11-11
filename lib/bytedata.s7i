@@ -34,9 +34,9 @@ include "bstring.s7i";
 
 (**
  *  Enumeration of signedness values.
- *  Signedness defines if negative values can be represented.
+ *  Signedness defines whether negative values can be represented.
  *  Defines: UNSIGNED and SIGNED.
- *  Signed values use the twos-complement representation.
+ *  Signed values use the two's-complement representation.
  *)
 const type: signedness is new enum
     UNSIGNED, SIGNED
@@ -45,7 +45,7 @@ const type: signedness is new enum
 
 (**
  *  Enumeration of endianness values.
- *  Endianness defines how the bytes of a data are ordered within memory.
+ *  Endianness defines how the bytes of data are ordered within memory.
  *  Defines: LE (little-endian) and BE (big-endian).
  *  A little-endian representation starts with the least significant byte.
  *  A big-endian representation starts with the most significant byte.
@@ -56,10 +56,10 @@ const type: endianness is new enum
 
 
 (**
- *  Get a null terminated string from ''stri'' starting from ''startPos''.
- *  @param stri string of bytes from which the result is obtained.
- *  @param startPos Start position of the null terminated string.
- *  @return the null terminated string without the null ('\0;') character.
+ *  Get a null-terminated string from ''stri'' starting from ''startPos''.
+ *  @param stri String of bytes from which the result is obtained.
+ *  @param startPos Start position of the null-terminated string.
+ *  @return the null-terminated string without the null ('\0;') character.
  *)
 const func string: fromAsciiz (in string: stri, in integer: startPos) is func
   result
@@ -77,15 +77,15 @@ const func string: fromAsciiz (in string: stri, in integer: startPos) is func
 
 
 (**
- *  Read a null terminated string from ''stri'' starting from ''currPos''.
- *  CurrPos is advanced after the null ('\0;') character. When there is
- *  no null character the string is assumed to extend to the end of ''stri''.
- *  In this case ''currPos'' is advanced beyond the length of ''stri''.
- *  @param stri string of bytes from which the result is obtained.
- *  @param currPos Start position of the null terminated string.
+ *  Read a null-terminated string from ''stri'' starting from ''currPos''.
+ *  ''CurrPos'' is advanced after the null ('\0;') character. When there is
+ *  no null character, the string is assumed to extend to the end of ''stri''.
+ *  In this case, ''currPos'' is advanced beyond the length of ''stri''.
+ *  @param stri String of bytes from which the result is obtained.
+ *  @param currPos Start position of the null-terminated string.
  *                 The function advances ''currPos'' to refer to the position
  *                 behind the terminating null ('\0;') character.
- *  @return the null terminated string without the null ('\0;') character.
+ *  @return the null-terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (in string: stri, inout integer: currPos) is func
   result
@@ -105,10 +105,10 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 
 
 (**
- *  Read a null terminated string from ''inFile''.
+ *  Read a null-terminated string from ''inFile''.
  *  The file position is advanced after the null ('\0;') character.
  *  @param inFile File from which the result is obtained.
- *  @return the null terminated string without the null ('\0;') character.
+ *  @return the null-terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (inout file: inFile) is func
   result
@@ -149,12 +149,12 @@ const func string: hex (in string: stri) is func
 (**
  *  Convert a [[string]] with hexadecimal digits to a string of bytes.
  *  Each byte in the result is represented by two hexadecimal digits in ''hex''.
- *   hexToBytes("6d")        returns "m"
- *   hexToBytes("213b4d6e")  returns "!;Mn"
+ *   hex2Bytes("6d")        returns "m"
+ *   hex2Bytes("213b4d6e")  returns "!;Mn"
  *  @return the byte [[string]] that corresponds to the given
  *          hexadecimal string ''hex''.
  *  @exception RANGE_ERROR If the length of ''hex'' is odd or
- *             if ''hex'' contains other characters than hexadecimal digits.
+ *             if ''hex'' contains characters other than hexadecimal digits.
  *)
 const func string: hex2Bytes (in string: hex) is func
   result
@@ -184,15 +184,15 @@ const func string: bytes (in integer: number, SIGNED, LE) is action "INT_BYTES_L
 
 (**
  *  Convert an [[integer]] into a [[string]] of bytes.
- *  The result uses binary representation with a base of 256.
+ *  The result uses a binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *   bytes(1413829460, SIGNED, BE)  returns "TEST"
  *   bytes(1497451343, SIGNED, LE)  returns "OKAY"
  *  @param number Integer number to be converted.
  *  @param signed Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         the result is encoded with the twos-complement representation.
- *         In this case a negative ''number'' is converted to a result
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         the result is encoded with the two's-complement representation.
+ *         In this case, a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
@@ -215,7 +215,7 @@ const func string: bytes (in integer: number, SIGNED, LE, in integer: length) is
 
 (**
  *  Convert an [[integer]] into a [[string]] of bytes with the given ''length''.
- *  The result uses binary representation with a base of 256.
+ *  The result uses a binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *   bytes(1413829460, SIGNED, BE, 5)  returns "\0;TEST"
  *   bytes(1413829460, SIGNED, BE, 4)  returns "TEST"
@@ -234,9 +234,9 @@ const func string: bytes (in integer: number, SIGNED, LE, in integer: length) is
  *   bytes(3048584629, UNSIGNED, LE, 6)  returns "µµµµ\0;\0;"
  *  @param number Integer number to be converted.
  *  @param signed Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         the result is encoded with the twos-complement representation.
- *         In this case a negative ''number'' is converted to a result
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         the result is encoded with the two's-complement representation.
+ *         In this case, a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
@@ -266,7 +266,7 @@ const func string: bytes (in bigInteger: number, SIGNED, LE) is
 
 (**
  *  Convert a [[bigint|bigInteger]] into a [[string]] of bytes.
- *  The result uses binary representation with a base of 256.
+ *  The result uses a binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *   bytes(1413829460_, SIGNED, BE)                        returns "TEST"
  *   bytes(1497451343_, SIGNED, LE)                        returns "OKAY"
@@ -277,9 +277,9 @@ const func string: bytes (in bigInteger: number, SIGNED, LE) is
  *   bytes(-24410099243900992862068771469_, UNSIGNED, LE)  raises RANGE_ERROR
  *  @param number BigInteger number to be converted.
  *  @param signed Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         the result is encoded with the twos-complement representation.
- *         In this case a negative ''number'' is converted to a result
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         the result is encoded with the two's-complement representation.
+ *         In this case, a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
@@ -352,8 +352,8 @@ const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length)
 
 
 (**
- *  Convert a [[bigint|bigInteger]] to a [[string]] of bytes with a ''length''.
- *  The result uses binary representation with a base of 256.
+ *  Convert a [[bigint|bigInteger]] into a [[string]] of bytes with the given ''length''.
+ *  The result uses a binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *   bytes(1413829460_, SIGNED, BE, 5)    returns "\0;TEST"
  *   bytes(1413829460_, SIGNED, BE, 4)    returns "TEST"
@@ -366,9 +366,9 @@ const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length)
  *   bytes(3048584629_, UNSIGNED, LE, 6)  returns "µµµµ\0;\0;"
  *  @param number BigInteger number to be converted.
  *  @param signed Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         the result is encoded with the twos-complement representation.
- *         In this case a negative ''number'' is converted to a result
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         the result is encoded with the two's-complement representation.
+ *         In this case, a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
@@ -397,17 +397,17 @@ const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is action "INT_B
  *   bytes2Int("\210;\2;\150;I", UNSIGNED, LE)  returns  1234567890
  *   bytes2Int(":\222;h\177;", UNSIGNED, BE)    returns   987654321
  *  @param byteStri String of bytes to be converted. The bytes are
- *         interpreted as binary representation with a base of 256.
+ *         interpreted as a binary representation with a base of 256.
  *  @param signed Determines the [[#signedness|signedness]] of ''byteStri''.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         ''bstri'' is interpreted as signed value in the twos-complement
- *         representation. In this case the result is negative if
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         ''byteStri'' is interpreted as a signed value in the two's-complement
+ *         representation. In this case, the result is negative if
  *         the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return an integer created from ''byteStri''.
- *  @exception RANGE_ERROR If ''byteStri'' is empty or
- *             if characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If ''byteStri'' is empty, or
+ *             if characters beyond '\255;' are present, or
  *             if the result value cannot be represented with an integer.
  *)
 const func integer: bytes2Int (in string: byteStri,
@@ -436,11 +436,11 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
  *   bytes2BigInt("\139;\208;\3;\152;", SIGNED, BE)    returns -1949301864_
  *   bytes2BigInt("\152;\3;\208;\139;", UNSIGNED, LE)  returns  2345665432_
  *  @param byteStri String of bytes to be converted. The bytes are
- *         interpreted as binary representation with a base of 256.
+ *         interpreted as a binary representation with a base of 256.
  *  @param signed Determines the [[#signedness|signedness]] of ''byteStri''.
- *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
- *         ''bstri'' is interpreted as signed value in the twos-complement
- *         representation. In this case the result is negative if
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED,
+ *         ''byteStri'' is interpreted as a signed value in the two's-complement
+ *         representation. In this case, the result is negative if
  *         the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.

@@ -141,7 +141,8 @@ const func string: reverseByteBits (in string: stri) is func
  *  Lempel-Ziv-Welch compression used for GIF files.
  *  In a ''lsbInBitStream'' the read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
- *  For the bit position in a byte holds: 0 = LSB, 7 = MSB.
+ *  The following holds for the bit position in a byte (bitPos):
+ *  0 = LSB, 7 = MSB.
  *)
 const type: lsbInBitStream is new struct
     var integer: buffer is 0;
@@ -276,7 +277,7 @@ const proc: close (inout lsbInBitStream: inBitStream) is func
  *   #                      ^
  *   #                   current
  *   #                  position
- *  @param inBitStream LSB orderd bit stream from which the bit is read.
+ *  @param inBitStream LSB ordered bit stream from which the bit is read.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
 const func integer: getBit (inout lsbInBitStream: inBitStream) is func
@@ -302,7 +303,7 @@ const func integer: getBit (inout lsbInBitStream: inBitStream) is func
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  If bits from the next byte(s) are read a byte order of little-endian
+ *  If bits from the next byte(s) are read, a byte order of little-endian
  *  is used.
  *   aBitStream := openLsbInBitStream("\2#01101011;\2#11001110;");
  *   skipBits(aBitStream, 5);
@@ -320,7 +321,7 @@ const func integer: getBit (inout lsbInBitStream: inBitStream) is func
  *   #                                      ^
  *   #                                   current
  *   #                                   position
- *  @param inBitStream LSB orderd bit stream from which the bits are read.
+ *  @param inBitStream LSB ordered bit stream from which the bits are read.
  *  @param bitWidth Number of bits requested (between 1 and 32).
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
@@ -357,7 +358,7 @@ const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitW
  *  The bits are read at the current byte and bit position. Byte
  *  and bit position remain unchanged. The read direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
- *  If bits from the next byte(s) are read a byte order of little-endian
+ *  If bits from the next byte(s) are read, a byte order of little-endian
  *  is used.
  *   aBitStream := openLsbInBitStream("\2#01101011;\2#10101101;");
  *   skipBits(aBitStream, 5);
@@ -371,7 +372,7 @@ const func integer: getBits (inout lsbInBitStream: inBitStream, in integer: bitW
  *   #                 lower bits        higher bits
  *   #                  of result         of result
  *   # BytePos and bitPos of aBitStream have not changed.
- *  @param inBitStream LSB orderd bit stream from which the bits are peeked.
+ *  @param inBitStream LSB ordered bit stream from which the bits are peeked.
  *  @param bitWidth Number of bits requested (between 1 and 32).
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
@@ -393,7 +394,7 @@ const func integer: peekBits (inout lsbInBitStream: inBitStream, in integer: bit
  *   #                       ^
  *   #                    current
  *   #                   position
- *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
+ *  @param inBitStream LSB ordered bit stream from which the bits are skipped.
  *  @param bitWidth Number of bits to be skipped (between 1 and 32).
  *)
 const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) is func
@@ -425,7 +426,7 @@ const proc: skipBits (inout lsbInBitStream: inBitStream, in integer: bitWidth) i
  *  Determine if at least one bit beyond the bit stream has been read.
  *  The EOF condition is also met if skipBits() skips at least one bit
  *  beyond the bit stream.
- *  @param inBitStream MSB orderd bit stream which is checked for EOF.
+ *  @param inBitStream LSB ordered bit stream which is checked for EOF.
  *)
 const func boolean: eof (in lsbInBitStream: inBitStream) is func
   result
@@ -456,7 +457,7 @@ const func boolean: eof (in lsbInBitStream: inBitStream) is func
  *   #                    current
  *   #                   position
  *   gets(aBitStream, 2)  returns "\2#1001111;\2#1001011;" (="OK")
- *  @param inBitStream LSB orderd bit stream from which the bytes are read.
+ *  @param inBitStream LSB ordered bit stream from which the bytes are read.
  *  @param maxLength The maximum number of bytes to be read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
@@ -495,7 +496,8 @@ const func string: gets (inout lsbInBitStream: inBitStream, in integer: maxLengt
  *  This is used by the Huffman compression used for JPEG files.
  *  In a ''msbInBitStream'' the read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
- *  For the bit position in a byte holds: 0 = MSB, 7 = LSB.
+ *  The following holds for the bit position in a byte (bitPos):
+ *  0 = MSB, 7 = LSB.
  *)
 const type: msbInBitStream is new struct
     var integer: buffer is 0;
@@ -611,11 +613,9 @@ const proc: close (inout msbInBitStream: inBitStream) is func
 
 (**
  *  Get one bit in MSB-First order from ''inBitStream''.
- *  The bits are read at the current byte and bit position. Afterwards
- *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  The bit is read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by one bit. The read
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  If bits from the next byte(s) are read a byte order of big-endian
- *  is used.
  *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
  *   # Original data:  "\2#01011100;\2#11010110;";
@@ -632,7 +632,7 @@ const proc: close (inout msbInBitStream: inBitStream) is func
  *   #                           ^
  *   #                        current
  *   #                       position
- *  @param inBitStream MSB orderd bit stream from which the bits are peeked.
+ *  @param inBitStream MSB ordered bit stream from which the bit is read.
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
 const func integer: getBit (inout msbInBitStream: inBitStream) is func
@@ -658,7 +658,7 @@ const func integer: getBit (inout msbInBitStream: inBitStream) is func
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  If bits from the next byte(s) are read a byte order of big-endian
+ *  If bits from the next byte(s) are read, a byte order of big-endian
  *  is used.
  *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
@@ -676,7 +676,7 @@ const func integer: getBit (inout msbInBitStream: inBitStream) is func
  *   #                                   ^
  *   #                                current
  *   #                                position
- *  @param inBitStream MSB orderd bit stream from which the bits are peeked.
+ *  @param inBitStream MSB ordered bit stream from which the bits are read.
  *  @param bitWidth Number of bits requested (between 1 and 32).
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
@@ -705,7 +705,7 @@ const func integer: getBits (inout msbInBitStream: inBitStream, in integer: bitW
  *  The bits are read at the current byte and bit position. Byte
  *  and bit position remain unchanged. The read direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
- *  If bits from the next byte(s) are read a byte order of big-endian
+ *  If bits from the next byte(s) are read, a byte order of big-endian
  *  is used.
  *   aBitStream := openMsbInBitStream("\2#01011100;\2#11010110;");
  *   skipBits(aBitStream, 5);
@@ -719,7 +719,7 @@ const func integer: getBits (inout msbInBitStream: inBitStream, in integer: bitW
  *   #                   higher bits  lower bits
  *   #                    of result    of result
  *   # BytePos and bitPos of aBitStream have not changed.
- *  @param inBitStream MSB orderd bit stream from which the bits are read.
+ *  @param inBitStream MSB ordered bit stream from which the bits are read.
  *  @param bitWidth Number of bits requested (between 1 and 32).
  *  @exception RANGE_ERROR If the end of ''inBitStream'' has been reached.
  *)
@@ -741,7 +741,7 @@ const func integer: peekBits (inout msbInBitStream: inBitStream, in integer: bit
  *   #                          ^
  *   #                       current
  *   #                      position
- *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
+ *  @param inBitStream MSB ordered bit stream from which the bits are skipped.
  *  @param bitWidth Number of bits to be skipped (between 1 and 32).
  *)
 const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) is func
@@ -770,7 +770,7 @@ const proc: skipBits (inout msbInBitStream: inBitStream, in integer: bitWidth) i
  *  Determine if at least one bit beyond the bit stream has been read.
  *  The EOF condition is also met if skipBits() skips at least one bit
  *  beyond the bit stream.
- *  @param inBitStream MSB orderd bit stream which is checked for EOF.
+ *  @param inBitStream MSB ordered bit stream which is checked for EOF.
  *)
 const func boolean: eof (in msbInBitStream: inBitStream) is func
   result
@@ -801,7 +801,7 @@ const func boolean: eof (in msbInBitStream: inBitStream) is func
  *   #                    current
  *   #                   position
  *   gets(aBitStream, 2)  returns "\2#1001111;\2#1001011;" (="OK")
- *  @param inBitStream MSB orderd bit stream from which the bytes are read.
+ *  @param inBitStream MSB ordered bit stream from which the bytes are read.
  *  @param maxLength The maximum number of bytes to be read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
@@ -839,7 +839,8 @@ const func string: gets (inout msbInBitStream: inBitStream, in integer: maxLengt
  *  Type to write bitwise data starting with the least significant bit.
  *  In a ''lsbOutBitStream'' the write direction is from
  *  LSB (least significant bit) to MSB (most significant bit).
- *  For the bit position in a byte (bitPos) holds: 0 = LSB, 7 = MSB.
+ *  The following holds for the bit position in a byte (bitPos):
+ *  0 = LSB, 7 = MSB.
  *  The bits are stored in a string of bytes. The byte string can
  *  be obtained with the function getBytes(). The function flush()
  *  can be used to add a partially filled byte to the byte string.
@@ -981,8 +982,8 @@ const proc: truncate (inout lsbOutBitStream: outBitStream, in integer: length) i
 (**
  *  Complete a partially filled byte and add it to the byte string.
  *  If ''outBitStream'' has a partially filled byte it is filled with zero
- *  bits and added to the byte string. If ''outBitStream'' has not a
- *  partially filled byte nothing is done.
+ *  bits and added to the byte string. If ''outBitStream'' does not have
+ *  a partially filled byte, nothing is done.
  *  @param outBitStream Bit stream where the partially filled byte is added.
  *)
 const proc: flush (inout lsbOutBitStream: outBitStream) is func
@@ -1030,7 +1031,8 @@ const proc: write (inout lsbOutBitStream: outBitStream, in string: stri) is func
  *  Type to write bitwise data starting with the most significant bit.
  *  In a ''msbOutBitStream'' the write direction is from
  *  MSB (most significant bit) to LSB (least significant bit).
- *  For the bit position in a byte (bitPos) holds: 0 = MSB, 7 = LSB.
+ *  The following holds for the bit position in a byte (bitPos):
+ *  0 = MSB, 7 = LSB.
  *  The bits are stored in a string of bytes. The byte string can
  *  be obtained with the function getBytes(). The function flush()
  *  can be used to add a partially filled byte to the byte string.
@@ -1181,8 +1183,8 @@ const proc: truncate (inout msbOutBitStream: outBitStream, in integer: length) i
 (**
  *  Complete a partially filled byte and add it to the byte string.
  *  If ''outBitStream'' has a partially filled byte it is filled with zero
- *  bits and added to the byte string. If ''outBitStream'' has not a
- *  partially filled byte nothing is done.
+ *  bits and added to the byte string. If ''outBitStream'' does not have
+ *  a partially filled byte, nothing is done.
  *  @param outBitStream Bit stream where the partially filled byte is added.
  *)
 const proc: flush (inout msbOutBitStream: outBitStream) is func
@@ -1251,7 +1253,7 @@ const func reverseBitStream: reverseBitStream (inout file: inFile, in integer: l
 
 (**
  *  Return the number of bits still present in the given reverse ''inBitStream''.
- *  Note that it is possible to read beyond the end fo the stream. In this
+ *  Note that it is possible to read beyond the end of the stream. In this
  *  case negative values are returned.
  *)
 const func integer: bitsStillInStream (in reverseBitStream: inBitStream) is
@@ -1260,7 +1262,7 @@ const func integer: bitsStillInStream (in reverseBitStream: inBitStream) is
 
 (**
  *  Return the number of bits read from the given reverse ''inBitStream''.
- *  Note that it is possible to read beyond the end fo the stream.
+ *  Note that it is possible to read beyond the end of the stream.
  *  So the function might return more bits than actually present.
  *)
 const func integer: bitsRead (in reverseBitStream: inBitStream) is
