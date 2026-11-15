@@ -50,7 +50,7 @@ const func string: getf (in string: file_name) is func
 
 (**
  *  Write the string 'stri' to the file with the name 'file_name'.
- *  If the file exists already, it is overwritten.
+ *  If the file already exists, it is overwritten.
  *)
 const proc: putf (in string: file_name, in string: stri) is func
   local
@@ -94,7 +94,7 @@ const func array string: readf (in string: file_name) is func
  *  Write the string array 'data' to the file with the name 'file_name'.
  *  The elements of the array are written as lines to the file. The
  *  function uses LF as line ending and the last line is also
- *  terminated with a LF. If the file exists already, it is
+ *  terminated with a LF. If the file already exists, it is
  *  overwritten.
  *)
 const proc: writef (in string: file_name, in array string: data) is func

@@ -702,7 +702,7 @@ const proc: deflateBlock (inout deflateData: deflateState,
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
  *  @param uncompressed String to be compressed with DEFLATE.
- *  @param compressedStream LSB orderd bit stream to which the deflated data written.
+ *  @param compressedStream LSB-ordered bit stream to which the deflated data is written.
  *)
 const proc: deflate (in string: uncompressed,
     inout lsbOutBitStream: compressedStream) is func

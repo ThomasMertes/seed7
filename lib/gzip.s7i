@@ -224,6 +224,7 @@ const func string: gzuncompress (in string: compressed) is func
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, gzip uses a magic number and a header.
+ *  @param compressed String with gzip (RFC 1952) compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
@@ -264,6 +265,7 @@ const func string: gunzip (in string: compressed) is
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, gzip uses a magic number and a header.
+ *  @param compressed File with gzip (RFC 1952) compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
@@ -294,8 +296,8 @@ const func string: gzipDecompress (inout file: compressed) is func
 
 
 (**
- *  [[file|File]] implementation type to decompress a GZIP file.
- *  GZIP is a file format used for compression.
+ *  [[file|File]] implementation type to decompress a gzip file.
+ *  Gzip is a file format used for compression.
  *)
 const type: gzipFile is sub null_file struct
     var lsbInBitStream: compressedStream is lsbInBitStream.value;
@@ -308,14 +310,15 @@ type_implements_interface(gzipFile, file);
 
 
 (**
- *  Open a GZIP (RFC 1952) file for reading (decompression).
- *  GZIP is a file format used for compression. Reading from
+ *  Open a gzip (RFC 1952) file for reading (decompression).
+ *  Gzip is a file format used for compression. Reading from
  *  the file delivers decompressed data. Writing is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
  *  uses a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, gzip uses a magic number and a header.
+ *  @param compressed File with gzip (RFC 1952) compressed data.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if the file is not in GZIP format.
+ *          if the file is not in gzip format.
  *)
 const func file: openGzipFile (inout file: compressed, READ) is func
   result
@@ -475,6 +478,7 @@ const func integer: tell (in gzipFile: aFile) is
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, gzip uses a magic number and a header.
+ *  @param uncompressed String to be compressed with gzip (RFC 1952).
  *  @return the compressed string.
  *)
 const func string: gzipCompress (in string: uncompressed) is func
@@ -504,7 +508,7 @@ const func string: gzip (in string: uncompressed) is
 
 
 (**
- *  [[file|File]] implementation type to compress data with the GZIP format.
+ *  [[file|File]] implementation type to compress data with the gzip format.
  *)
 const type: gzipWriteFile is sub null_file struct
     var file: destFile is STD_NULL;
@@ -519,12 +523,13 @@ type_implements_interface(gzipWriteFile, file);
 
 
 (**
- *  Open a GZIP (RFC 1952) file for writing (compression).
- *  GZIP is a file format used for compression. Writing to the file
+ *  Open a gzip (RFC 1952) file for writing (compression).
+ *  Gzip is a file format used for compression. Writing to the file
  *  compresses the data to ''destFile''. Reading is not supported.
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE
  *  uses a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, gzip uses a magic number and a header.
+ *  @param destFile File to which gzip (RFC 1952) compressed data is written.
  *  @return the file opened.
  *)
 const func file: openGzipFile (inout file: destFile, WRITE) is func
@@ -587,7 +592,7 @@ const proc: write (inout gzipWriteFile: outFile, in string: stri) is func
 
 (**
  *  Obtain the length of a file.
- *  The number of uncompressed characters written to the file.
+ *  The file length is the number of bytes written to the file.
  *  @return the length of a file.
  *)
 const func integer: length (in gzipWriteFile: outFile) is

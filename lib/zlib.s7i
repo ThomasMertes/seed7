@@ -37,6 +37,7 @@ include "crc32.s7i";
  *  Zlib uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, zlib uses a small header.
+ *  @param compressed String with zlib (RFC 1950) compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in zlib format.
  *)
@@ -82,6 +83,7 @@ const func string: zlibDecompress (in string: compressed) is func
  *  Zlib uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  In addition to DEFLATE, zlib uses a small header.
+ *  @param uncompressed String to be compressed with zlib (RFC 1950).
  *  @return the compressed string.
  *)
 const func string: zlibCompress (in string: uncompressed) is func

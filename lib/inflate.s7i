@@ -308,6 +308,7 @@ const proc: processCompressedBlock (inout lsbInBitStream: compressedStream,
  *  Decompress a file that was compressed with DEFLATE.
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
+ *  @param compressed File with DEFLATE-compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE format.
  *)
@@ -330,6 +331,7 @@ const func string: inflate (inout file: compressed) is func
  *  Decompress a string that was compressed with DEFLATE.
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
+ *  @param compressed String with DEFLATE-compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE format.
  *)
@@ -371,6 +373,7 @@ const proc: processCompressedBlock64 (inout lsbInBitStream: compressedStream,
  *  Decompress a file that was compressed with DEFLATE64.
  *  DEFLATE64 is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
+ *  @param compressed File with DEFLATE64-compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE64 format.
  *)
@@ -393,6 +396,7 @@ const func string: inflate64 (inout file: compressed) is func
  *  Decompress a string that was compressed with DEFLATE64.
  *  DEFLATE64 is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
+ *  @param compressed String with DEFLATE64-compressed data.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE64 format.
  *)

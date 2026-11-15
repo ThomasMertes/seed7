@@ -416,17 +416,17 @@ const type: cpioCatalogType is hash [string] cpioHeader;
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a CPIO archive.
  *  File paths in a CPIO archive can be absolute (they start with a slash)
- *  or relative (they do not start with a slash). The cpio file system does
+ *  or relative (they do not start with a slash). The CPIO file system does
  *  not support the concept of a current working directory. The functions
- *  chdir and getcwd are not supported by the cpio file system. Absolute
+ *  chdir and getcwd are not supported by the CPIO file system. Absolute
  *  and relative paths in a CPIO archive can be accessed directly.
- *  Since "/" is just a normal path in a CPIO archive the root path of a
- *  cpio file system is "". Possible usages of cpio file system functions are:
+ *  Since "/" is just a normal path in a CPIO archive, the root path of a
+ *  CPIO file system is "". Possible usages of CPIO file system functions are:
  *    getMTime(aCpioArchive, "src/drivers")   # Relative path in the archive.
  *    fileType(aCpioArchive, "/usr/include")  # Absolute path in the archive.
  *    fileSize(aCpioArchive, "/image")        # Absolute path in the archive.
- *    readDir(aCpioArchive, "")               # Return e.g.: "src" and "/"
- *    readDir(aCpioArchive, "/")              # Return e.g.: "usr" and "image"
+ *    readDir(aCpioArchive, "")               # Returns e.g.: "src" and "/"
+ *    readDir(aCpioArchive, "/")              # Returns e.g.: "usr" and "image"
  *)
 const type: cpioArchive is sub emptyFileSys struct
     var file: cpioFile is STD_NULL;
@@ -441,7 +441,7 @@ const type: cpioArchive is sub emptyFileSys struct
 
 
 (**
- *  Open a CPIO archive with the given cpioFile.
+ *  Open a CPIO archive with the given ''cpioFile''.
  *  @param cpioFile File that contains a CPIO archive.
  *  @return a file system that accesses the CPIO archive, or
  *          fileSys.value if it could not be opened.
@@ -490,7 +490,7 @@ const func fileSys: openCpio (inout file: cpioFile) is func
 
 
 (**
- *  Open a CPIO archive with the given cpioFileName.
+ *  Open a CPIO archive with the given ''cpioFileName''.
  *  @param cpioFileName Name of the CPIO archive to be opened.
  *  @return a file system that accesses the CPIO archive, or
  *          fileSys.value if it could not be opened.
@@ -507,7 +507,7 @@ const func fileSys: openCpio (in string: cpioFileName) is func
 
 
 (**
- *  Close a CPIO archive. The CPIO file below stays open.
+ *  Close a CPIO archive. The underlying ''cpioFile'' stays open.
  *)
 const proc: close (inout cpioArchive: cpio) is func
   begin
@@ -649,10 +649,12 @@ const func array string: readDir (inout cpioArchive: cpio, RECURSIVE) is
 (**
  *  Determine the type of a file in a CPIO archive.
  *  The function follows symbolic links. If the chain of
- *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  symbolic links is too long, the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  invalid file names cause also ''FILE_ABSENT''.
+ *  invalid file names also cause ''FILE_ABSENT''.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -710,10 +712,12 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
 
 (**
  *  Determine the type of a file in a CPIO archive.
- *  The function does not follow symbolic links. Therefore it may
+ *  The function does not follow symbolic links. Therefore, it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and invalid file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names also cause ''FILE_ABSENT''.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -758,6 +762,8 @@ const func fileType: fileTypeSL (inout cpioArchive: cpio, in string: filePath) i
 (**
  *  Determine the file mode (permissions) of a file in a CPIO archive.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -779,6 +785,9 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath) 
 (**
  *  Change the file mode (permissions) of a file in a CPIO archive.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param mode File mode (permissions) to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
@@ -808,8 +817,10 @@ const proc: setFileMode (inout cpioArchive: cpio, in string: filePath,
 (**
  *  Determine the size of a file in a CPIO archive.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -831,6 +842,8 @@ const func integer: fileSize (inout cpioArchive: cpio, in string: filePath) is f
 (**
  *  Determine the modification time of a file in a CPIO archive.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -853,6 +866,9 @@ const func time: getMTime (inout cpioArchive: cpio, in string: filePath) is func
 (**
  *  Set the modification time of a file in a CPIO archive.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param modificationTime Modification time to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
@@ -887,7 +903,9 @@ const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
 (**
  *  Determine the name of the owner (UID) of a file in a CPIO archive.
  *  The function follows symbolic links.
- *  @return the name of the file owner.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @return the numeric UID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
@@ -910,6 +928,9 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath) is fu
  *  The function follows symbolic links. The CPIO archive format allows
  *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
  *  ''owner'' names raise a RANGE_ERROR.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param owner Numeric UID or "root" to which the file owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''owner'' cannot be mapped to a UID.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
@@ -945,7 +966,9 @@ const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
 (**
  *  Determine the name of the group (GID) of a file in a CPIO archive.
  *  The function follows symbolic links.
- *  @return the name of the file group.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @return the numeric GID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
@@ -968,6 +991,9 @@ const func string: getGroup (inout cpioArchive: cpio, in string: filePath) is fu
  *  The function follows symbolic links. The CPIO archive format allows
  *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
  *  ''group'' names raise a RANGE_ERROR.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param group Numeric GID or "root" to which the file group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''group'' cannot be mapped to a GID.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
@@ -1002,13 +1028,14 @@ const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
 
 (**
  *  Determine the file mode (permissions) of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
@@ -1040,13 +1067,14 @@ const func fileMode: getFileMode (inout cpioArchive: cpio, in string: filePath, 
 
 (**
  *  Determine the modification time of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
  *  @return the modification time of the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
@@ -1078,14 +1106,16 @@ const func time: getMTime (inout cpioArchive: cpio, in string: filePath, SYMLINK
 
 (**
  *  Set the modification time of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @param modificationTime Modification time to be set for the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
     in time: modificationTime, SYMLINK) is func
@@ -1121,13 +1151,14 @@ const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
 
 (**
  *  Determine the name of the owner (UID) of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file owner.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @return the numeric UID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
@@ -1159,14 +1190,17 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath, SYMLI
 
 (**
  *  Set the owner of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link. The CPIO archive format allows only a numeric UID.
+ *  The function only works for symbolic links and does not follow them.
+ *  The CPIO archive format allows only a numeric UID.
  *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
  *  raise a RANGE_ERROR.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @param owner Numeric UID or "root" to which the symbolic link owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''owner'' cannot be mapped to a UID.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
     in string: owner, SYMLINK) is func
@@ -1205,13 +1239,14 @@ const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
 
 (**
  *  Determine the name of the group (GID) of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file group.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @return the numeric GID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getGroup (inout cpioArchive: cpio, in string: filePath, SYMLINK) is func
   result
@@ -1243,14 +1278,17 @@ const func string: getGroup (inout cpioArchive: cpio, in string: filePath, SYMLI
 
 (**
  *  Set the group of a symbolic link in a CPIO archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link. The CPIO archive format allows only a numeric GID.
+ *  The function only works for symbolic links and does not follow them.
+ *  The CPIO archive format allows only a numeric GID.
  *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
  *  raise a RANGE_ERROR.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @param group Numeric GID or "root" to which the symbolic link group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''group'' cannot be mapped to a GID.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the CPIO archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
     in string: group, SYMLINK) is func
@@ -1288,12 +1326,14 @@ const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
 
 
 (**
- *  Reads the destination of a symbolic link in a CPIO archive.
- *  @return The destination referred by the symbolic link.
+ *  Read the destination of a symbolic link in a CPIO archive.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a symbolic link in the CPIO archive.
+ *  @return the destination referred to by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive,
- *             or is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             it is not a symbolic link.
  *)
 const func string: readLink (inout cpioArchive: cpio, in string: filePath) is func
   result
@@ -1331,9 +1371,9 @@ const func string: readLink (inout cpioArchive: cpio, in string: filePath) is fu
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  The function does not follow symbolic links.
  *  @param cpio Open CPIO archive.
- *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param symlinkPath Path of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
- *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *  @exception RANGE_ERROR ''symlinkPath'' or ''targetPath'' does not use the
  *             standard path representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
@@ -1405,11 +1445,13 @@ const proc: makeLink (inout cpioArchive: cpio, in string: symlinkPath,
 (**
  *  Get the contents of a file in a CPIO archive.
  *  The function follows symbolic links.
- *  @return the specified file as string.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @return the specified file as a string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive,
- *             or is not a regular file, or
+ *             or it is not a regular file, or
  *             the chain of symbolic links is too long.
  *)
 const func string: getFile (inout cpioArchive: cpio, in string: filePath) is func
@@ -1434,8 +1476,11 @@ const func string: getFile (inout cpioArchive: cpio, in string: filePath) is fun
 
 (**
  *  Write ''data'' to a CPIO archive with the given ''filePath''.
- *  If the file exists already, it is overwritten.
+ *  If the file already exists, it is overwritten.
  *  The function follows symbolic links.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param data The new contents of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The file exists, but it is not a regular file.
@@ -1537,7 +1582,7 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
  *  Create a new directory in a CPIO archive.
  *  The function does not follow symbolic links.
  *  @param cpio Open CPIO archive.
- *  @param dirPath Name of the directory to be created.
+ *  @param dirPath Path of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The file ''dirPath'' already exists.
@@ -1613,10 +1658,10 @@ const proc: makeDir (inout cpioArchive: cpio, in string: dirPath) is func
  *  The function does not follow symbolic links. An attempt to remove a
  *  directory that is not empty triggers FILE_ERROR.
  *  @param cpio Open CPIO archive.
- *  @param filePath Name of the file to be removed.
+ *  @param filePath Path of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory
+ *  @exception FILE_ERROR The file does not exist, or it is a directory
  *             that is not empty.
  *)
 const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
@@ -1664,7 +1709,7 @@ const proc: removeFile (inout cpioArchive: cpio, in string: filePath) is func
 
 
 (**
- *  For-loop which loops recursively over the paths in a CPIO archive.
+ *  For-loop that loops recursively over the paths in a CPIO archive.
  *)
 const proc: for (inout string: filePath) range (inout cpioArchive: cpio) do
               (in proc: statements)
@@ -1700,7 +1745,15 @@ const func file: openFileInCpio (inout cpioArchive: cpio, in string: filePath,
 
 
 (**
- *  Open a file with ''filePath'' and ''mode'' in in a CPIO archive.
+ *  Open a file with ''filePath'' and ''mode'' in a CPIO archive.
+ *  @param cpio Open CPIO archive.
+ *  @param filePath Path of a file in the CPIO archive.
+ *  @param mode Mode of the file to be opened. Only "r" is supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened, or if ''filePath'' refers to
+ *          a directory.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
  *)
 const func file: open (inout cpioArchive: cpio, in string: filePath,
     in string: mode) is
