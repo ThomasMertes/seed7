@@ -3629,7 +3629,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
       fileName8Length += extension_length;
     } /* if */
     if (unlikely(fileName8Length > 255)) {
-      err_info = MEMORY_ERROR;
+      err_info = RANGE_ERROR;
     } else {
       if (loginData->hostName8Length == 0) {
         if (loginData->portNameLength != 0) {
@@ -3740,6 +3740,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
     unsigned int idx;
     char portNameBuffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     loginRecord loginData;
+    cstriType resizedHostName8;
     isc_db_handle db_handle;
     isc_tr_handle trans_handle = 0; /* Set to zero for isc_start_transaction(). */
     ISC_STATUS status_vector[20];
@@ -3756,6 +3757,9 @@ databaseType sqlOpenFire (const const_striType host, intType port,
       logError(printf("sqlOpenFire: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
     } else {
       if (host->size == 0) {
         loginData.hostName8Length = 0;
@@ -3765,6 +3769,22 @@ databaseType sqlOpenFire (const const_striType host, intType port,
         if (unlikely(loginData.hostName8 == NULL)) {
           err_info = MEMORY_ERROR;
           database = NULL;
+        } else if (memchr(loginData.hostName8, ':', loginData.hostName8Length) != NULL &&
+                   loginData.hostName8[0] != '[') {
+          resizedHostName8 = REALLOC_CSTRI(loginData.hostName8,
+                                           loginData.hostName8Length + 2);
+          if (unlikely(resizedHostName8 == NULL)) {
+            free_cstri8(loginData.hostName8, host);
+            err_info = MEMORY_ERROR;
+            database = NULL;
+          } else {
+            memmove(&loginData.hostName8[1], loginData.hostName8,
+                    loginData.hostName8Length);
+            loginData.hostName8[0] = '[';
+            loginData.hostName8[loginData.hostName8Length + 1] = ']';
+            loginData.hostName8[loginData.hostName8Length + 2] = '\0';
+            loginData.hostName8Length += 2;
+          } /* if */
         } /* if */
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
