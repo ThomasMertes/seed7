@@ -3601,7 +3601,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
                        "file=\"%s\", user=\"%s\"], "
                        "\"%s\", *)\n",
                        loginData->hostName8 != NULL ?
-                           loginData->hostName8 : localhost.
+                           loginData->hostName8 : localhost,
                        loginData->portName != NULL ?
                            loginData->portName : "0",
                        loginData->fileName8, loginData->user8,
@@ -3720,8 +3720,13 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         UNALLOC_CSTRI(dpb_buffer, dpb_buffer_length);
       } /* if */
     } /* if */
-    logFunction(printf("doAttach([file=\"%s\", user=\"%s\"], "
+    logFunction(printf("doAttach([host=\"%s\", port=%s, "
+                       "file=\"%s\", user=\"%s\"], "
                        "\"%s\", " FMT_U32 ") --> %d\n",
+                       loginData->hostName8 != NULL ?
+                           loginData->hostName8 : localhost,
+                       loginData->portName != NULL ?
+                           loginData->portName : "0",
                        loginData->fileName8, loginData->user8,
                        extension, (uint32Type) *db_handle,
                        err_info););
@@ -3778,6 +3783,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
             err_info = MEMORY_ERROR;
             database = NULL;
           } else {
+            loginData.hostName8 = resizedHostName8;
             memmove(&loginData.hostName8[1], loginData.hostName8,
                     loginData.hostName8Length);
             loginData.hostName8[0] = '[';
@@ -3799,6 +3805,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
         } /* if */
         fileName = cmdToOsPath(dbName);
         if (fileName == NULL) {
+          /* cmdToOsPath() already raises MEMORY_ERROR or RANGE_ERROR internally. */
           database = NULL;
         } else {
           loginData.fileName8 = stri_to_cstri8_buf(fileName, &loginData.fileName8Length);
