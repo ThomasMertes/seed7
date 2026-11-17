@@ -3778,10 +3778,12 @@ databaseType sqlOpenFire (const const_striType host, intType port,
           if (loginData.hostName8[0] == '[') {
 	    if (memchr(loginData.hostName8, ']', loginData.hostName8Length) !=
                 &loginData.hostName8[loginData.hostName8Length - 1]) {
+              free_cstri8(loginData.hostName8, host);
               err_info = RANGE_ERROR;
               database = NULL;
             } /* if */
           } else if (memchr(loginData.hostName8, ']', loginData.hostName8Length) != NULL) {
+            free_cstri8(loginData.hostName8, host);
             err_info = RANGE_ERROR;
             database = NULL;
           } else {
