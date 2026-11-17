@@ -3745,7 +3745,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
     unsigned int idx;
     char portNameBuffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     loginRecord loginData;
-    cstriType resizedHostName8;
+    cstriType resizedHostName8 = NULL;
     isc_db_handle db_handle;
     isc_tr_handle trans_handle = 0; /* Set to zero for isc_start_transaction(). */
     ISC_STATUS status_vector[20];
@@ -3887,7 +3887,9 @@ databaseType sqlOpenFire (const const_striType host, intType port,
           } /* if */
           strDestr(fileName);
         } /* if */
-        if (loginData.hostName8 != NULL) {
+        if (resizedHostName8 != NULL) {
+          UNALLOC_CSTRI(resizedHostName8, loginData.hostName8Length);
+        } else if (loginData.hostName8 != NULL) {
           free_cstri8(loginData.hostName8, host);
         } /* if */
       } /* if */
