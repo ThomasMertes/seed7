@@ -3600,7 +3600,8 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     logFunction(printf("doAttach([host=\"%s\", port=%s, "
                        "file=\"%s\", user=\"%s\"], "
                        "\"%s\", *)\n",
-                       loginData->hostName8,
+                       loginData->hostName8 != NULL ?
+                           loginData->hostName8 : localhost.
                        loginData->portName != NULL ?
                            loginData->portName : "0",
                        loginData->fileName8, loginData->user8,
@@ -3621,8 +3622,8 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
       fileName8Length += loginData->hostName8Length + 1;
     } /* if */
     extension_length = strlen(extension);
-    if (fileName8Length < extension_length ||
-        memcmp(&loginData->fileName8[fileName8Length - extension_length],
+    if (loginData->fileName8Length < extension_length ||
+        memcmp(&loginData->fileName8[loginData->fileName8Length - extension_length],
                extension, extension_length) != 0) {
       appendExtension = TRUE;
       fileName8Length += extension_length;
@@ -3858,6 +3859,9 @@ databaseType sqlOpenFire (const const_striType host, intType port,
             free_cstri8(loginData.fileName8, fileName);
           } /* if */
           strDestr(fileName);
+        } /* if */
+        if (loginData.hostName8 != NULL) {
+          free_cstri8(loginData.hostName8, host);
         } /* if */
       } /* if */
     } /* if */
