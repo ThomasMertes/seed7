@@ -3707,10 +3707,10 @@ static boolType getLocale (dbType database, errInfoType *err_info)
 
   {
     PGresult *execResult;
-    char *locale;
+    const char *locale;
     memSizeType localeLen;
     char *savedLocale;
-    char *databaseLocale;
+    const char *databaseLocale;
     struct lconv* lc;
 
   /* getLocale */
@@ -3783,6 +3783,54 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                        *err_info == OKAY_NO_ERROR, *err_info););
     return *err_info == OKAY_NO_ERROR;
   } /* getLocale */
+
+
+
+static boolType getMoneyDenominator (dbType database, errInfoType *err_info)
+  {
+    PGresult *execResult;
+    const char *moneyText;
+    const char *separatorPos;
+    unsigned int fracDigits = 0;
+
+  /* getMoneyDenominator */
+    logFunction(printf("getMoneyDenominator(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, *err_info););
+    execResult = PQexec(database->connection, "SELECT 0::money::text");
+    if (unlikely(execResult == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else if (PQresultStatus(execResult) == PGRES_TUPLES_OK) {
+      moneyText = PQgetvalue(execResult, 0, 0);
+      /* Find decimal separator ('.' or ',') */
+      separatorPos = strpbrk(moneyText, ".,");
+      if (separatorPos != NULL) {
+        separatorPos++;
+        while (isdigit((unsigned char) *separatorPos)) {
+          fracDigits++;
+          separatorPos++;
+        } /* while */
+      } /* if */
+      if (unlikely(fracDigits > DECIMAL_DIGITS_IN_INTTYPE)) {
+        logError(printf("getMoneyDenominator: fracDigits %d too big.\n"
+                        fracDigits););
+        *err_info = NUMERIC_ERROR;
+      } else {
+        database->moneyDenominator = intPow(10, fracDigits);
+        /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+        logMessage(printf("getLocale: Money precision of %d, "
+                          "resulting in a denominator of " FMT_D64 "\n",
+                          fracDigits, database->moneyDenominator););
+      } /* if */
+      PQclear(execResult);
+    } else {
+      /* Fallback for PostgreSQL < 8.3 where money::text is unsupported */
+      PQclear(execResult);
+      return getLocale(database, err_info);
+    } /* if */
+    logFunction(printf("getMoneyDenominator --> %d (err_info=%d)\n",
+                       *err_info == OKAY_NO_ERROR, *err_info););
+    return *err_info == OKAY_NO_ERROR;
+  } /* getMoneyDenominator */
 
 
 
@@ -3903,7 +3951,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 err_info = DATABASE_ERROR;
                 PQfinish(db.connection);
                 database = NULL;
-              } else if (unlikely(!getLocale(&db, &err_info))) {
+              } else if (unlikely(!getMoneyDenominator(&db, &err_info))) {
                 PQfinish(db.connection);
                 database = NULL;
               } else if (unlikely(!setupFuncTable() ||
