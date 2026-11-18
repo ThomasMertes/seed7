@@ -3811,13 +3811,13 @@ static boolType getMoneyDenominator (dbType database, errInfoType *err_info)
         } /* while */
       } /* if */
       if (unlikely(fracDigits > DECIMAL_DIGITS_IN_INTTYPE)) {
-        logError(printf("getMoneyDenominator: fracDigits %d too big.\n"
+        logError(printf("getMoneyDenominator: fracDigits %d too big.\n",
                         fracDigits););
         *err_info = NUMERIC_ERROR;
       } else {
         database->moneyDenominator = intPow(10, fracDigits);
         /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
-        logMessage(printf("getLocale: Money precision of %d, "
+        logMessage(printf("getMoneyDenominator: Money precision of %d, "
                           "resulting in a denominator of " FMT_D64 "\n",
                           fracDigits, database->moneyDenominator););
       } /* if */
