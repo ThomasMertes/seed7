@@ -2981,7 +2981,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
       logError(printf("sqlOpenMy: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
-    } else if (unlikely(port < 0 || port > UINT_MAX)) {
+    } else if (unlikely(port < 0 || port > 65535)) {
       err_info = RANGE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {

@@ -381,6 +381,9 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
       logError(printf("sqlOpenInformix: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
     } else {
       memset(&connectData, 0, sizeof(connectDataRecordIfx));
       connectData.port = port;
