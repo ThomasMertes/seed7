@@ -169,7 +169,7 @@ typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt,
                                               const char *query,
                                               unsigned long length);
 typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
-typedef int *(STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
+typedef int (STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
 
 static tp_mysql_autocommit           ptr_mysql_autocommit;
 static tp_mysql_close                ptr_mysql_close;
@@ -867,6 +867,8 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
         /* An exception has already been raised. */
       } else if (bigEqSignedDigit(mantissaValue, 0)) {
         memcpy((char *) buffer, "0.0", 3);
+        length = 3;
+        bigDestr(mantissaValue);
       } else {
         stri = bigStrDecimal(mantissaValue);
         if (unlikely(stri == NULL)) {
@@ -2934,12 +2936,15 @@ static boolType determineIfBackslashEscapes (dbType database)
         sqlExecute(preparedStmt);
         if (likely(sqlFetch(preparedStmt))) {
           data = sqlColumnStri(preparedStmt, 1);
-          if (data->size == 1 && data->mem[0] == '\\') {
-            /* A select for two backslashes returns just one backslash. */
-            /* This happens if the database uses backslash as escape char. */
-            backslashEscapes = TRUE;
+          if (likely(data != NULL)) {
+            /* No exception has been raised. */
+            if (data->size == 1 && data->mem[0] == '\\') {
+              /* A select for two backslashes returns just one backslash. */
+              /* This happens if the database uses backslash as escape char. */
+              backslashEscapes = TRUE;
+            } /* if */
+            FREE_STRI(data);
           } /* if */
-          FREE_STRI(data);
         } /* if */
         freePreparedStmt(preparedStmt);
       } /* if */
