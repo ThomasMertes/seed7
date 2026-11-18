@@ -3730,9 +3730,9 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                         dbError.message););
         *err_info = DATABASE_ERROR;
       } else {
-        locale = setlocale(LC_ALL, NULL);
+        locale = setlocale(LC_MONETARY, NULL);
         if (unlikely(locale == NULL)) {
-          logError(printf("getLocale: setlocale(LC_ALL, NULL) failed.\n"););
+          logError(printf("getLocale: setlocale(LC_MONETARY, NULL) failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
           localeLen = strlen(locale);
@@ -3742,32 +3742,37 @@ static boolType getLocale (dbType database, errInfoType *err_info)
             memcpy(savedLocale, locale, localeLen + 1);
             databaseLocale = PQgetvalue(execResult, 0, 0);
             logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
-            setlocale(LC_ALL, databaseLocale);
-            lc = localeconv();
-            if (lc->frac_digits == UCHAR_MAX ||
-                lc->frac_digits == SCHAR_MAX) {
-              /* In the "C" locale frac_digits == CHAR_MAX.       */
-              /* Unfortunately some libraries don't follow this   */
-              /* specification. To be on the safe side the        */
-              /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
+            if (setlocale(LC_MONETARY, databaseLocale) == NULL) {
+              logMessage(printf("getLocale: setlocale(LC_MONETARY, \"%s\") failed.\n",
+                                databaseLocale););
               database->moneyDenominator = 100;
-              logMessage(printf("getLocale: Money precision of %d not defined, "
-                                "using a denominator of " FMT_D64 "\n",
-                                lc->frac_digits, database->moneyDenominator););
-            } else if (unlikely(lc->frac_digits < 0 ||
-                                lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
-              logError(printf("getLocale: frac_digits %d negative or too big.\n"
-                              "Database locale: \"%s\"\n",
-                              lc->frac_digits, databaseLocale););
-              *err_info = NUMERIC_ERROR;
             } else {
-              database->moneyDenominator = intPow(10, lc->frac_digits);
-              /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
-              logMessage(printf("getLocale: Money precision of %d, "
-                                "resulting in a denominator of " FMT_D64 "\n",
-                                lc->frac_digits, database->moneyDenominator););
+              lc = localeconv();
+              if (lc->frac_digits == UCHAR_MAX ||
+                  lc->frac_digits == SCHAR_MAX) {
+                /* In the "C" locale frac_digits == CHAR_MAX.       */
+                /* Unfortunately some libraries don't follow this   */
+                /* specification. To be on the safe side the        */
+                /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
+                database->moneyDenominator = 100;
+                logMessage(printf("getLocale: Money precision of %d not defined, "
+                                  "using a denominator of " FMT_D64 "\n",
+                                  lc->frac_digits, database->moneyDenominator););
+              } else if (unlikely(lc->frac_digits < 0 ||
+                                  lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
+                logError(printf("getLocale: frac_digits %d negative or too big.\n"
+                                "Database locale: \"%s\"\n",
+                                lc->frac_digits, databaseLocale););
+                *err_info = NUMERIC_ERROR;
+              } else {
+                database->moneyDenominator = intPow(10, lc->frac_digits);
+                /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+                logMessage(printf("getLocale: Money precision of %d, "
+                                  "resulting in a denominator of " FMT_D64 "\n",
+                                  lc->frac_digits, database->moneyDenominator););
+              } /* if */
+              setlocale(LC_MONETARY, savedLocale); /* Restore previous locale value */
             } /* if */
-            setlocale(LC_ALL, savedLocale); /* Restore previous locale value */
             UNALLOC_CSTRI(savedLocale, localeLen);
           } /* if */
         } /* if */
@@ -3806,6 +3811,9 @@ databaseType sqlOpenPost (const const_striType host, intType port,
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = DATABASE_ERROR;
+      database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
