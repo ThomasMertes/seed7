@@ -3774,34 +3774,32 @@ databaseType sqlOpenFire (const const_striType host, intType port,
         if (unlikely(loginData.hostName8 == NULL)) {
           err_info = MEMORY_ERROR;
           database = NULL;
+        } else if (unlikely(
+            memchr(loginData.hostName8, '[', loginData.hostName8Length) != NULL ||
+            memchr(loginData.hostName8, ']', loginData.hostName8Length) != NULL ||
+            memchr(loginData.hostName8, '/', loginData.hostName8Length) != NULL)) {
+          /* Enclosing a host in brackets is not allowed.   */
+          /* A slash seperates host and port in doAttach(). */
+          free_cstri8(loginData.hostName8, host);
+          err_info = RANGE_ERROR;
+          database = NULL;
         } else if (memchr(loginData.hostName8, ':', loginData.hostName8Length) != NULL) {
-          if (loginData.hostName8[0] == '[') {
-	    if (memchr(loginData.hostName8, ']', loginData.hostName8Length) !=
-                &loginData.hostName8[loginData.hostName8Length - 1]) {
-              free_cstri8(loginData.hostName8, host);
-              err_info = RANGE_ERROR;
-              database = NULL;
-            } /* if */
-          } else if (memchr(loginData.hostName8, ']', loginData.hostName8Length) != NULL) {
+          /* Enclose IPv6 addresses in brackets. Necessary, because */
+          /* doAttach() separates address and file name with ':'.   */
+          resizedHostName8 = REALLOC_CSTRI(loginData.hostName8,
+                                           loginData.hostName8Length + 2);
+          if (unlikely(resizedHostName8 == NULL)) {
             free_cstri8(loginData.hostName8, host);
-            err_info = RANGE_ERROR;
+            err_info = MEMORY_ERROR;
             database = NULL;
           } else {
-            resizedHostName8 = REALLOC_CSTRI(loginData.hostName8,
-                                             loginData.hostName8Length + 2);
-            if (unlikely(resizedHostName8 == NULL)) {
-              free_cstri8(loginData.hostName8, host);
-              err_info = MEMORY_ERROR;
-              database = NULL;
-            } else {
-              loginData.hostName8 = resizedHostName8;
-              memmove(&loginData.hostName8[1], loginData.hostName8,
-                      loginData.hostName8Length);
-              loginData.hostName8[0] = '[';
-              loginData.hostName8[loginData.hostName8Length + 1] = ']';
-              loginData.hostName8[loginData.hostName8Length + 2] = '\0';
-              loginData.hostName8Length += 2;
-            } /* if */
+            loginData.hostName8 = resizedHostName8;
+            memmove(&loginData.hostName8[1], loginData.hostName8,
+                    loginData.hostName8Length);
+            loginData.hostName8[0] = '[';
+            loginData.hostName8[loginData.hostName8Length + 1] = ']';
+            loginData.hostName8[loginData.hostName8Length + 2] = '\0';
+            loginData.hostName8Length += 2;
           } /* if */
         } /* if */
       } /* if */
