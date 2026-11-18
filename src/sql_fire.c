@@ -3743,7 +3743,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
     striType fileName;
     const const_cstriType extensions[] = {".fdb", ".gdb", ""};
     unsigned int idx;
-    char portNameBuffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    char portName[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     loginRecord loginData;
     cstriType resizedHostName8 = NULL;
     isc_db_handle db_handle;
@@ -3809,9 +3809,8 @@ databaseType sqlOpenFire (const const_striType host, intType port,
           loginData.portNameLength = 0;
           loginData.portName = NULL;
         } else {
-          sprintf(portNameBuffer, FMT_D, port);
-          loginData.portNameLength = strlen(portNameBuffer);
-          loginData.portName = portNameBuffer;
+          loginData.portNameLength = (memSizeType) sprintf(portName, FMT_D, port);
+          loginData.portName = portName;
         } /* if */
         fileName = cmdToOsPath(dbName);
         if (fileName == NULL) {
