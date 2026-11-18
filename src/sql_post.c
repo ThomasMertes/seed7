@@ -1105,7 +1105,7 @@ static void showNumeric (const unsigned char *buffer)
   /* showNumeric */
     printf("NUMERICOID: %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7],
-           buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[15], buffer[15]);
+           buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]);
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
@@ -2047,7 +2047,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
           break;
         case BYTEAOID:
           if (unlikely(stri->size > INT_MAX ||
-                       (cstri = (cstriType) malloc(stri->size)) == NULL)) {
+                       (cstri = (cstriType) malloc(
+                           stri->size + NULL_TERMINATION_LEN)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else if (unlikely(memcpy_from_strelem((ustriType) cstri,
                                                   stri->mem, stri->size))) {
@@ -2055,6 +2056,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
           } else {
             free(param->buffer);
+            cstri[stri->size] = '\0';
             param->buffer = cstri;
             preparedStmt->paramValues[pos - 1] = cstri;
             preparedStmt->paramLengths[pos - 1] = (int) stri->size;
@@ -2166,7 +2168,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           } /* if */
           /* printf("zone: " FMT_D32 "\n", (int32Type) (-time_zone * 60)); */
           zone = (int32Type) htonl((uint32Type) (-time_zone * 60));
-          *(int64Type *) &param->buffer[8] = zone;
+          *(int32Type *) &param->buffer[8] = zone;
           break;
         case TIMESTAMPOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
