@@ -391,6 +391,7 @@ static void freeStmtParts (striType *stmtPartArray, memSizeType partArraySize)
     for (pos = 0; pos < partArraySize; pos++) {
       FREE_STRI(stmtPartArray[pos]);
     } /* for */
+    FREE_TABLE(stmtPartArray, striType, partArraySize);
   } /* freeStmtParts */
 
 
@@ -727,8 +728,7 @@ static errInfoType setStmtPartArrayCharCount (preparedStmtType preparedStmt,
     for (partIndex = 0; partIndex <= numBindParameters; partIndex++) {
       if (unlikely(stmtPartArrayCharCount > MAX_STRI_LEN -
                    preparedStmt->stmtPartArray[partIndex]->size)) {
-        err_info = MEMORY_ERROR;
-        return 0;
+        return MEMORY_ERROR;
       } else {
         stmtPartArrayCharCount += preparedStmt->stmtPartArray[partIndex]->size;
       } /* if */
