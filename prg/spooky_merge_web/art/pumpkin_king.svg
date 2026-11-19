@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <radialGradient id="skin" cx="40%" cy="30%" r="82%"><stop offset="0" stop-color="#f5832a"/><stop offset=".6" stop-color="#c94a10"/><stop offset="1" stop-color="#7e2a08"/></radialGradient>
+  <radialGradient id="skin2" cx="42%" cy="28%" r="84%"><stop offset="0" stop-color="#ffa63a"/><stop offset=".6" stop-color="#f5832a"/><stop offset="1" stop-color="#c94a10"/></radialGradient>
+  <linearGradient id="light" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff29a"/><stop offset="1" stop-color="#ffb52e"/></linearGradient>
+<filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><feGaussianBlur stdDeviation="30"/></filter>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a0"/><stop offset=".6" stop-color="#ffc83c"/><stop offset="1" stop-color="#d98a12"/></linearGradient>
+</defs>
+<ellipse cx="512" cy="500" rx="420" ry="420" fill="#ffc83c" opacity=".3" filter="url(#soft)"/>
+<ellipse cx="282" cy="632" rx="216" ry="306" fill="url(#skin)"/><ellipse cx="742" cy="632" rx="216" ry="306" fill="url(#skin)"/>
+<ellipse cx="392" cy="628" rx="190" ry="330" fill="url(#skin2)"/><ellipse cx="632" cy="628" rx="190" ry="330" fill="url(#skin2)"/>
+<ellipse cx="512" cy="626" rx="146" ry="338" fill="url(#skin2)"/>
+<path d="M286 340 L254 110 L388 214 L512 62 L636 214 L770 110 L738 340 Z" fill="url(#gold)"/>
+<rect x="280" y="306" width="464" height="52" rx="20" fill="#d98a12"/>
+<circle cx="512" cy="228" r="40" fill="#ff3d6e"/><circle cx="360" cy="270" r="26" fill="#39d0ff"/><circle cx="664" cy="270" r="26" fill="#39d0ff"/>
+<circle cx="500" cy="214" r="12" fill="#fff" opacity=".9"/>
+<path d="M240 500 L440 576 L300 610 Z M784 500 L584 576 L724 610 Z" fill="url(#light)"/>
+<path d="M512 610 L552 680 L472 680 Z" fill="url(#light)"/>
+<path d="M222 700 C290 742 340 752 370 750 L396 700 L440 756 L472 756 L512 708 L552 756 L584 756 L628 700 L654 750 C684 752 734 742 802 700 C770 850 630 900 512 900 C394 900 254 850 222 700 Z" fill="url(#light)"/>
+<path d="M160 560 C168 490 200 440 250 400" fill="none" stroke="#ffc98a" stroke-width="26" stroke-linecap="round" opacity=".6"/>
+</svg>

@@ -381,12 +381,14 @@ intType getWindowLeftPos (const const_winType aWindow)
       xPos = 0;
     } else if (is_tab(aWindow)) {
       xPos = EM_ASM_INT({
-        if (typeof document.scrollingElement != "undefined") {
+        if (typeof mapIdToCanvas[$0] !== "undefined") {
+          return Math.round(mapIdToCanvas[$0].getBoundingClientRect().left);
+        } else if (typeof document.scrollingElement != "undefined") {
           return -document.scrollingElement.scrollLeft;
         } else {
           return 0;
         }
-      });
+      }, to_window(aWindow));
     } else if (is_subwindow(aWindow)) {
       xPos = EM_ASM_INT({
         if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
@@ -1951,6 +1953,11 @@ winType drwOpen (intType xPos, intType yPos,
             let windowTitle = Module.UTF8ToString($5);
             let firstWindowOpen = $6;
             let leftTopZero = 0;
+            // A page can stay in its document tab, to avoid that a popup hides
+            // the page which runs the program and its timers are throttled.
+            if (firstWindowOpen && typeof seed7InPage !== "undefined" && seed7InPage) {
+              return 4;
+            }
             if (left === 0 && top === 0) {
               left = 1;
               top = 1;

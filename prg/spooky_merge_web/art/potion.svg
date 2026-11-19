@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="brew" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6ec4"/><stop offset="1" stop-color="#8a2be2"/></linearGradient>
+  <linearGradient id="cork" x1="0" x2="1"><stop offset="0" stop-color="#d9a56c"/><stop offset="1" stop-color="#9a6a3c"/></linearGradient>
+  <radialGradient id="glass" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#cfe0ff" stop-opacity=".5"/><stop offset="1" stop-color="#6f86d6" stop-opacity=".36"/></radialGradient>
+  <clipPath id="flask"><circle cx="512" cy="610" r="316"/></clipPath>
+  <filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024"><feGaussianBlur stdDeviation="30"/></filter>
+</defs>
+<ellipse cx="512" cy="680" rx="340" ry="240" fill="#d94fe0" opacity=".34" filter="url(#soft)"/>
+<rect x="430" y="60" width="164" height="120" rx="30" fill="url(#cork)"/>
+<rect x="424" y="160" width="176" height="200" fill="url(#glass)"/>
+<circle cx="512" cy="610" r="344" fill="url(#glass)"/>
+<g clip-path="url(#flask)">
+  <path d="M100 560 C240 500 340 620 512 560 C680 500 780 610 924 550 L924 1000 L100 1000 Z" fill="url(#brew)"/>
+  <circle cx="420" cy="760" r="46" fill="#ffc4ea"/><circle cx="600" cy="680" r="62" fill="#ffc4ea" opacity=".85"/><circle cx="530" cy="840" r="30" fill="#ffc4ea"/>
+</g>
+<rect x="392" y="150" width="240" height="48" rx="24" fill="#dce6ff"/>
+<path d="M254 620 C256 520 312 440 390 400" fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" opacity=".85"/>
+</svg>

@@ -1,0 +1,313 @@
+(* Deterministic rule checks for Spooky Merge. *)
+
+$ include "seed7_05.s7i";
+  include "spooky_merge_core.s7i";
+
+var game_state: game is game_state.value;
+var game_state: same_game is game_state.value;
+var boolean: merged is FALSE;
+var integer: index is 1;
+var integer: tick is 0;
+var array integer: tier_count is SPAWN_TIERS times 0;
+var array float: pile_x is [] (40.0, 80.0, 120.0, 160.0, 200.0, 240.0, 280.0, 320.0);
+
+
+const func boolean: all_inside (in game_state: game) is func
+  result
+    var boolean: inside is TRUE;
+  local
+    var integer: ball is 1;
+    var float: radius is 0.0;
+  begin
+    for ball range 1 to MAX_OBJECTS do
+      if game.balls[ball].active then
+        radius := radius_of(game.balls[ball].tier);
+        if game.balls[ball].x - radius < float(FIELD_LEFT) or
+            game.balls[ball].x + radius > float(FIELD_RIGHT) or
+            game.balls[ball].y + radius > float(FIELD_FLOOR) then
+          inside := FALSE;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: same_balls (in game_state: first, in game_state: second) is func
+  result
+    var boolean: same is TRUE;
+  local
+    var integer: ball is 1;
+  begin
+    for ball range 1 to MAX_OBJECTS do
+      if first.balls[ball].active <> second.balls[ball].active or
+          first.balls[ball].active and
+          (first.balls[ball].tier <> second.balls[ball].tier or
+           first.balls[ball].x <> second.balls[ball].x or
+           first.balls[ball].y <> second.balls[ball].y or
+           first.balls[ball].angle <> second.balls[ball].angle) then
+        same := FALSE;
+      end if;
+    end for;
+  end func;
+
+
+const func float: fastest_spin (in game_state: game) is func
+  result
+    var float: fastest is 0.0;
+  local
+    var integer: ball is 1;
+  begin
+    for ball range 1 to MAX_OBJECTS do
+      if game.balls[ball].active and abs(game.balls[ball].spin) > fastest then
+        fastest := abs(game.balls[ball].spin);
+      end if;
+    end for;
+  end func;
+
+
+const proc: check (in boolean: condition, in string: description) is func
+  begin
+    if not condition then
+      writeln(STD_ERR, "FAIL: " <& description);
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    reset_game(game, 1234567);
+    reset_game(same_game, 1234567);
+    check(game.current_tier = same_game.current_tier and
+        game.next_tier = same_game.next_tier,
+        "fixed seed produces a repeatable sequence");
+    reset_game(game, 246353424);
+    for index range 1 to 1000 do
+      incr(tier_count[next_spawn_tier(game)]);
+    end for;
+    for index range 1 to SPAWN_TIERS do
+      check(tier_count[index] >= 150, "spawns use every starting tier");
+    end for;
+
+    reset_game(game, 1234567);
+    reset_game(same_game, 1234567);
+    for tick range 1 to 600 do
+      if tick mod 30 = 1 then
+        drop_current(game, float(tick mod 300 + 30));
+        drop_current(same_game, float(tick mod 300 + 30));
+      end if;
+      step_game(game, FIXED_STEP);
+      step_game(same_game, FIXED_STEP);
+    end for;
+    check(active_count(game) > 0 and game.score = same_game.score and
+        same_balls(game, same_game),
+        "a fixed seed replays the same simulation");
+
+    check(radius_of(1) = 14.0 and radius_of(10) = 86.0,
+        "tier radii match the configured endpoints");
+    check(mass_of(2) > mass_of(1), "larger tiers have larger mass");
+
+    reset_game(game, 1234567);
+    game.current_tier := 1;
+    game.next_tier := 2;
+    drop_current(game, -100.0);
+    check(active_count(game) = 1, "drop creates one ball");
+    check(game.balls[1].x = float(FIELD_LEFT) + radius_of(1),
+        "drop position is clamped inside the wall");
+    check(game.balls[1].y = float(FIELD_TOP) + radius_of(1),
+        "ball begins below the top of the container");
+    check(game.balls[1].fresh, "a manual drop receives its overflow grace");
+    drop_current(game, 180.0);
+    check(active_count(game) = 1, "the cooldown blocks an immediate second drop");
+    for index range 1 to round(DROP_COOLDOWN / FIXED_STEP) + 1 do
+      step_game(game, FIXED_STEP);
+    end for;
+    drop_current(game, 180.0);
+    check(active_count(game) = 2, "a drop is allowed after the cooldown");
+
+    reset_game(game, 43);
+    spawn_ball(game, 2, 180.0, float(WARNING_LINE) - 40.0, 0.0, 0.0, TRUE);
+    game.overflow_time := 0.0;
+    step_game(game, FIXED_STEP);
+    check(game.overflow_time = 0.0, "a new drop is excluded from the overflow check");
+    game.balls[1].age := DROP_GRACE;
+    game.balls[1].y := float(WARNING_LINE) - 40.0;
+    step_game(game, FIXED_STEP);
+    check(game.overflow_time > 0.0, "the overflow check resumes after the grace");
+
+    reset_game(game, 45);
+    for index range 1 to length(pile_x) do
+      spawn_ball(game, 9 + index mod 2, pile_x[index], 560.0, 0.0, 0.0, FALSE);
+      spawn_ball(game, 7 + index mod 2, pile_x[index], 440.0, 0.0, 0.0, FALSE);
+    end for;
+    for tick range 1 to 60 do
+      step_game(game, FIXED_STEP);
+      check(all_inside(game), "a crowded pile stays inside the container");
+    end for;
+
+    reset_game(game, 17);
+    spawn_ball(game, 1, 100.0, 300.0, -10.0, 0.0, FALSE);
+    spawn_ball(game, 2, 125.0, 300.0, 10.0, 0.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(game.balls[1].active and game.balls[2].active,
+        "different tiers do not merge");
+    check(sqrt((game.balls[2].x - game.balls[1].x) ** 2 +
+        (game.balls[2].y - game.balls[1].y) ** 2) >=
+        radius_of(1) + radius_of(2) - 0.01,
+        "overlapping circles are separated");
+
+    reset_game(game, 29);
+    game.best_score := 0;
+    spawn_ball(game, 1, 100.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 1, 120.0, 300.0, 0.0, 0.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(active_count(game) = 1, "matching pair merges exactly once");
+    check(game.balls[1].tier = 2, "merge advances one tier");
+    check(not game.balls[1].fresh,
+        "a merged ball does not restart the new-drop overflow grace");
+    check(game.score = 4, "score is two to the resulting tier");
+    check(game.best_score = game.score, "best score tracks the session high");
+
+    reset_game(game, 30);
+    spawn_ball(game, 1, 100.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 1, 120.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 2, 110.0, 300.0, 0.0, 0.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(active_count(game) = 2 and game.score = 4,
+        "a spawned ball waits until the next step before another merge");
+    step_game(game, FIXED_STEP);
+    check(active_count(game) = 1 and game.balls[1].tier = 3,
+        "a nearby matching tier merges on the next step");
+    check(game.score = 12, "chain merges score each resulting tier");
+
+    reset_game(game, 32);
+    spawn_ball(game, 3, 40.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 1, 100.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 1, 120.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 2, 110.0, 300.0, 0.0, 0.0, FALSE);
+    game.balls[1].active := FALSE;
+    step_game(game, FIXED_STEP);
+    check(active_count(game) = 2 and game.score = 4,
+        "a ball spawned into a lower slot also waits for the next step");
+
+    reset_game(game, 33);
+    spawn_ball(game, 1, 100.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 1, 120.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 4, 125.0, 300.0, 0.0, 0.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(sqrt((game.balls[3].x - game.balls[1].x) ** 2 +
+        (game.balls[3].y - game.balls[1].y) ** 2) >=
+        radius_of(2) + radius_of(4) - 0.01,
+        "a merged ball still collides during its merge step");
+
+    reset_game(game, 31);
+    spawn_ball(game, 10, 100.0, 300.0, 0.0, 0.0, FALSE);
+    spawn_ball(game, 10, 120.0, 300.0, 0.0, 0.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(active_count(game) = 0, "maximum pair clears from the board");
+    check(game.score = 2048, "maximum pair receives the bonus");
+
+    reset_game(game, 41);
+    game.balls[1].active := TRUE;
+    game.balls[1].tier := 2;
+    game.balls[1].x := 180.0;
+    game.balls[1].y := float(FIELD_FLOOR) - radius_of(2) + 20.0;
+    game.balls[1].vy := 300.0;
+    game.balls[1].fresh := FALSE;
+    step_game(game, FIXED_STEP);
+    check(game.balls[1].y <= float(FIELD_FLOOR) - radius_of(2),
+        "floor collision keeps the circle inside");
+    check(game.balls[1].vy < 0.0, "floor collision bounces downward velocity");
+
+    reset_game(game, 42);
+    game.balls[1].active := TRUE;
+    game.balls[1].tier := 1;
+    game.balls[1].x := float(FIELD_LEFT) + radius_of(1) - 2.0;
+    game.balls[1].y := 300.0;
+    game.balls[1].vx := -200.0;
+    step_game(game, FIXED_STEP);
+    check(game.balls[1].x >= float(FIELD_LEFT) + radius_of(1),
+        "side-wall collision keeps the circle inside");
+    check(game.balls[1].vx > 0.0, "side-wall collision reflects horizontal velocity");
+
+    reset_game(game, 44);
+    for index range 1 to MAX_OBJECTS do
+      spawn_ball(game, 1, 180.0, 250.0, 0.0, 0.0, FALSE);
+    end for;
+    drop_current(game, 180.0);
+    check(active_count(game) = MAX_OBJECTS,
+        "the active-object limit prevents additional drops");
+
+    reset_game(game, 43);
+    game.balls[1].active := TRUE;
+    game.balls[1].tier := 2;
+    game.balls[1].x := 180.0;
+    game.balls[1].y := float(WARNING_LINE) - radius_of(2) - 2.0;
+    game.balls[1].fresh := FALSE;
+    game.overflow_time := OVERFLOW_DELAY - FIXED_STEP;
+    step_game(game, FIXED_STEP);
+    check(game.game_over, "sustained warning-line occupancy ends the game");
+
+    game.best_score := 123;
+    game.score := 20;
+    reset_game(game, 47);
+    check(active_count(game) = 0 and game.score = 0 and not game.game_over,
+        "restart clears the active round");
+    check(game.best_score = 123, "restart preserves the best score");
+    reset_game(game, 50);
+    spawn_ball(game, 3, 100.0, float(FIELD_FLOOR) - radius_of(3), 300.0, 0.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin > 0.0, "a ball moving right rolls clockwise");
+    check(game.balls[1].angle > 0.0, "the spin turns the ball");
+    check(abs(game.balls[1].vx - game.balls[1].spin * radius_of(3)) < 10.0,
+        "floor friction leads to rolling without slipping");
+
+    reset_game(game, 51);
+    spawn_ball(game, 3, 300.0, float(FIELD_FLOOR) - radius_of(3), -300.0, 0.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin < 0.0, "a ball moving left rolls counterclockwise");
+
+    reset_game(game, 52);
+    spawn_ball(game, 3, 180.0, 300.0, 0.0, 0.0, FALSE);
+    for tick range 1 to 90 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[1].spin = 0.0 and game.balls[1].angle = 0.0,
+        "a straight drop does not start to spin");
+
+    reset_game(game, 53);
+    spawn_ball(game, 5, 180.0, float(FIELD_FLOOR) - radius_of(5), 0.0, 0.0, FALSE);
+    spawn_ball(game, 2, 200.0, 460.0, 0.0, 300.0, FALSE);
+    for tick range 1 to 30 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(game.balls[2].spin <> 0.0, "an off-center hit spins the ball");
+
+    reset_game(game, 54);
+    spawn_ball(game, 4, float(FIELD_LEFT) + radius_of(4), 300.0, -200.0, 400.0, FALSE);
+    step_game(game, FIXED_STEP);
+    check(game.balls[1].spin <> 0.0, "sliding along a wall spins the ball");
+
+    reset_game(game, 55);
+    for index range 1 to 24 do
+      spawn_ball(game, 3 + index mod 4, float(40 + (index * 37) mod 280),
+          float(250 + (index * 53) mod 300), float(index mod 5 - 2) * 40.0, 0.0, FALSE);
+    end for;
+    for tick range 1 to 600 do
+      step_game(game, FIXED_STEP);
+      check(all_inside(game) and fastest_spin(game) <= MAX_SPIN,
+          "a spinning pile stays inside the limits");
+    end for;
+    check(fastest_spin(game) = 0.0, "a resting pile does not spin");
+    same_game := game;
+    for tick range 1 to 60 do
+      step_game(game, FIXED_STEP);
+    end for;
+    check(same_balls(game, same_game), "a resting pile keeps its angles");
+
+    writeln("Spooky Merge rules: all checks passed.");
+  end func;

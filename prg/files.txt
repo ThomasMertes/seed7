@@ -109,6 +109,7 @@ sl.sd7       Game of Life
 snake.sd7    Snake eats apple game
 sokoban.sd7  Sokoban puzzle game
 spigotpi.sd7 Write digits of PI with a spigot algorithm.
+spooky_merge.sd7 Halloween circle-merge puzzle game
 sql7.sd7     Sql command line tool
 startrek.sd7 Classical startrek game
 sudoku7.sd7  Sudoku program
