@@ -846,7 +846,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           } /* if */
         } else if (ch == '$') {
           logError(printf("processStatementStri: Dollar not allowed "
-	                  "for quoting and positional parameters.\n"););
+                          "for quoting and positional parameters.\n"););
           *err_info = RANGE_ERROR;
           FREE_STRI2(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
           processed = NULL;
@@ -855,10 +855,12 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           pos++;
         } /* if */
       } /* while */
-      processed->size = destPos;
+      if (processed != NULL) {
+        processed->size = destPos;
+      } /* if */
     } /* if */
-    logFunction(printf("processStatementStri --> \"%s\"\n",
-                       striAsUnquotedCStri(processed)););
+    logFunction(printf("processStatementStri --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(processed), *err_info););
     return processed;
   } /* processStatementStri */
 
