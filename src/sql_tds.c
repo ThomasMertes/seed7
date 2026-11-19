@@ -2747,14 +2747,17 @@ databaseType sqlOpenTds (const const_striType host, intType port,
     const const_striType password)
 
   {
+    const char localhost[] = "localhost";
     const_cstriType host8;
     memSizeType host8Length;
+    const_cstriType serverHost8;
     const_cstriType dbName8;
     const_cstriType user8;
     const_cstriType password8;
     char portName[1 + INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     memSizeType portNameLength;
     cstriType hostAndPort = NULL;
+    memSizeType hostAndPortLength;
     const_cstriType server;
     LOGINREC *login;
     DBPROCESS *dbproc;
@@ -2778,19 +2781,46 @@ databaseType sqlOpenTds (const const_striType host, intType port,
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
     } else {
-      if (port == 0) {
+      host8Length = strlen(host8);
+      if (unlikely(memchr(host8, '[', host8Length) != NULL ||
+                   memchr(host8, ']', host8Length) != NULL)) {
+        /* Enclosing a host in brackets is not allowed. */
+        err_info = RANGE_ERROR;
+        database = NULL;
+      } else if (port == 0) {
         server = host8;
       } else {
-        host8Length = strlen(host8);
         portNameLength = (memSizeType) sprintf(portName, ":" FMT_D, port);
-        if (unlikely(!ALLOC_CSTRI(hostAndPort, host8Length + portNameLength))) {
-          err_info = MEMORY_ERROR;
-          database = NULL;
-        } else {
-          memcpy(hostAndPort, host8, host8Length);
-          memcpy(&hostAndPort[host8Length], portName,
-                 portNameLength + NULL_TERMINATION_LEN);
-          server = hostAndPort;
+	if (memchr(host8, ':', host8Length) != NULL) {
+          hostAndPortLength = host8Length + portNameLength + 2;
+          if (unlikely(!ALLOC_CSTRI(hostAndPort, hostAndPortLength))) {
+            err_info = MEMORY_ERROR;
+            database = NULL;
+          } else {
+            hostAndPort[0] = '[';
+            memcpy(&hostAndPort[1], host8, host8Length);
+            hostAndPort[host8Length + 1] = ']';
+            memcpy(&hostAndPort[host8Length + 2], portName,
+                   portNameLength + NULL_TERMINATION_LEN);
+            server = hostAndPort;
+          } /* if */
+	} else {
+          if (host8Length == 0) {
+            serverHost8 = localhost;
+            host8Length = STRLEN(localhost);
+	  } else {
+            serverHost8 = host8;
+          } /* if */
+          hostAndPortLength = host8Length + portNameLength;
+          if (unlikely(!ALLOC_CSTRI(hostAndPort, hostAndPortLength))) {
+            err_info = MEMORY_ERROR;
+            database = NULL;
+          } else {
+            memcpy(hostAndPort, serverHost8, host8Length);
+            memcpy(&hostAndPort[host8Length], portName,
+                   portNameLength + NULL_TERMINATION_LEN);
+            server = hostAndPort;
+          } /* if */
         } /* if */
       } /* if */
       if (likely(err_info == OKAY_NO_ERROR)) {
@@ -2897,7 +2927,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
         } /* if */
       } /* if */
       if (hostAndPort != NULL) {
-        UNALLOC_CSTRI(hostAndPort, host8Length + portNameLength);
+        UNALLOC_CSTRI(hostAndPort, hostAndPortLength);
       } /* if */
       free_cstri8(host8, host);
     } /* if */
