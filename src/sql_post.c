@@ -844,6 +844,12 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             } /* while */
             /* The final newline replaces the comment. */
           } /* if */
+        } else if (ch == '$') {
+          logError(printf("processStatementStri: Dollar not allowed "
+	                  "for quoting and positional parameters.\n"););
+          *err_info = RANGE_ERROR;
+          FREE_STRI2(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+          processed = NULL;
         } else {
           processed->mem[destPos++] = ch;
           pos++;
