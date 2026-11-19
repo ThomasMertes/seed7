@@ -136,7 +136,8 @@ unsigned int precisionToBytes[] = {0, /* not used */
 
 #define DEFAULT_DECIMAL_SCALE 1000
 #define INITIAL_ARRAY_SIZE 256
-#define STMT_TABLE_SIZE_INCREMENT 256
+#define STMT_TABLE_SIZE_INCREMENT_LD2 8
+#define STMT_TABLE_SIZE_INCREMENT (1 << STMT_TABLE_SIZE_INCREMENT_LD2)
 #define QUOTE_IN_STRING_LEN 2
 #define MAX_TIME_LITERAL_LENGTH 34
 
@@ -382,16 +383,21 @@ static void freeDatabase (databaseType database)
 
 
 
-static void freeStmtParts (striType *stmtPartArray, memSizeType partArraySize)
+static void freeStmtParts (striType *stmtPartArray, memSizeType usedArraySize,
+    memSizeType partArraySize)
 
   {
     memSizeType pos;
 
   /* freeStmtParts */
-    for (pos = 0; pos < partArraySize; pos++) {
+    for (pos = 0; pos < usedArraySize; pos++) {
       FREE_STRI(stmtPartArray[pos]);
     } /* for */
-    FREE_TABLE(stmtPartArray, striType, partArraySize);
+    if (partArraySize != 0) {
+      FREE_TABLE(stmtPartArray, striType,
+                 (((partArraySize - 1) >> STMT_TABLE_SIZE_INCREMENT_LD2) + 1) *
+		 STMT_TABLE_SIZE_INCREMENT);
+    } /* if */
   } /* freeStmtParts */
 
 
@@ -409,7 +415,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    freeStmtParts(preparedStmt->stmtPartArray, preparedStmt->param_array_size + 1);
+    freeStmtParts(preparedStmt->stmtPartArray, preparedStmt->param_array_size + 1,
+                  preparedStmt->param_array_size + 1);
     if (preparedStmt->param_array != NULL) {
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         strDestr(preparedStmt->param_array[pos].buffer);
@@ -509,7 +516,7 @@ static striType *storeStmtPart (striType *stmtPartArray, memSizeType partIndex,
                                            partIndex + STMT_TABLE_SIZE_INCREMENT);
       if (unlikely(resizedStmtPartArray == NULL)) {
         if (stmtPartArray != NULL) {
-          freeStmtParts(stmtPartArray, partIndex);
+          freeStmtParts(stmtPartArray, partIndex, partIndex);
           stmtPartArray = NULL;
         } /* if */
       } else {
@@ -519,7 +526,7 @@ static striType *storeStmtPart (striType *stmtPartArray, memSizeType partIndex,
     } /* if */
     if (likely(stmtPartArray != NULL)) {
       if (unlikely(!ALLOC_STRI_SIZE_OK(copiedStmtPart, stmtPartLength))) {
-        freeStmtParts(stmtPartArray, partIndex);
+        freeStmtParts(stmtPartArray, partIndex, partIndex + 1);
         stmtPartArray = NULL;
       } else {
         copiedStmtPart->size = stmtPartLength;
