@@ -2776,7 +2776,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") --> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
                                             FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
