@@ -2857,12 +2857,14 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                 } /* if */
               } /* if */
               if (likely(err_info == OKAY_NO_ERROR)) {
-                activeTdsConnections++;
                 if ((login = dblogin()) == NULL) {
                   setDbErrorMsg("sqlOpenTds", "dblogin");
                   logError(printf("sqlOpenTds: dblogin() failed.\n%s\n",
                                   dbError.message););
                   err_info = MEMORY_ERROR;
+                  if (activeTdsConnections == 0) {
+                    dbexit();
+                  } /* if */
                   database = NULL;
                 } else {
                   if (server[0] != '\0') {
@@ -2876,7 +2878,6 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     logError(printf("sqlOpenTds: dbopen(\"%s\"/*, \"%s\"):\n%s\n",
                                     user8, server, dbError.message););
                     err_info = DATABASE_ERROR;
-                    activeTdsConnections--;
                     if (activeTdsConnections == 0) {
                       dbexit();
                     } /* if */
@@ -2887,7 +2888,6 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                                     dbName8, dbError.message););
                     err_info = DATABASE_ERROR;
                     dbclose(dbproc);
-                    activeTdsConnections--;
                     if (activeTdsConnections == 0) {
                       dbexit();
                     } /* if */
@@ -2915,7 +2915,6 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     doExecute(dbproc, "SET TEXTSIZE -1", &err_info);
                     if (unlikely(err_info != OKAY_NO_ERROR)) {
                       dbclose(dbproc);
-                      activeTdsConnections--;
                       if (activeTdsConnections == 0) {
                         dbexit();
                       } /* if */
@@ -2926,12 +2925,12 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                                                        count.database_bytes))) {
                       err_info = MEMORY_ERROR;
                       dbclose(dbproc);
-                      activeTdsConnections--;
                       if (activeTdsConnections == 0) {
                         dbexit();
                       } /* if */
                       database = NULL;
                     } else {
+                      activeTdsConnections++;
                       memset(database, 0, sizeof(dbRecordTds));
                       database->usage_count = 1;
                       database->isOpen = TRUE;
