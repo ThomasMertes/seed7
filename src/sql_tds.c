@@ -120,7 +120,8 @@ typedef struct {
 typedef const numericRecord *const_numericType;
 
 static sqlFuncType sqlFunc = NULL;
-static striType quoteQuote = NULL;
+
+static unsigned int activeTdsConnections = 0;
 
 unsigned int precisionToBytes[] = {0, /* not used */
                                    1,  1,  2,  2,  3,  3,  3,  4,  4,  5,
@@ -859,7 +860,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           buffer_length = dbcollen(preparedStmt->dbproc, column_num);
           break;
         default:
-          logError(printf("setupResultColumn: Column %hd has the unknown type %s.\n",
+          logError(printf("setupResultColumn: Column %d has the unknown type %s.\n",
                           column_num, nameOfBufferType(columnData->buffer_type)););
           err_info = RANGE_ERROR;
           break;
@@ -1605,6 +1606,10 @@ static void sqlClose (databaseType database)
     if (db->dbproc != NULL) {
       dbclose(db->dbproc);
       db->dbproc = NULL;
+      activeTdsConnections--;
+      if (activeTdsConnections == 0) {
+        dbexit();
+      } /* if */
     } /* if */
     db->isOpen = FALSE;
     logFunction(printf("sqlClose -->\n"););
@@ -2201,7 +2206,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case SYBCHAR:
             while (length > 0 && data[length - 1] == ' ') {
               length--;
-            } /* if */
+            } /* while */
             columnValue = cstri8_buf_to_stri((const_cstriType) data,
                 (memSizeType) length, &err_info);
             if (unlikely(columnValue == NULL)) {
@@ -2741,9 +2746,6 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
     } /* if */
-    if (quoteQuote == NULL) {
-      quoteQuote = CSTRI_LITERAL_TO_STRI("''");
-    } /* if */
     return sqlFunc != NULL;
   } /* setupFuncTable */
 
@@ -2843,14 +2845,19 @@ databaseType sqlOpenTds (const const_striType host, intType port,
             if (unlikely(password8 == NULL)) {
               database = NULL;
             } else {
-              if (dbinit() == FAIL) {
-                dbLibError("sqlOpenTds", "dbinit", "dbinit() failed.\n");
-                logError(printf("sqlOpenTds: dbinit() failed.\n"););
-                err_info = DATABASE_ERROR;
-                database = NULL;
-              } else {
-                dberrhandle(err_handler);
-                dbmsghandle(msg_handler);
+              if (activeTdsConnections == 0) {
+                if (dbinit() == FAIL) {
+                  dbLibError("sqlOpenTds", "dbinit", "dbinit() failed.\n");
+                  logError(printf("sqlOpenTds: dbinit() failed.\n"););
+                  err_info = DATABASE_ERROR;
+                  database = NULL;
+                } else {
+                  dberrhandle(err_handler);
+                  dbmsghandle(msg_handler);
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                activeTdsConnections++;
                 if ((login = dblogin()) == NULL) {
                   setDbErrorMsg("sqlOpenTds", "dblogin");
                   logError(printf("sqlOpenTds: dblogin() failed.\n%s\n",
@@ -2869,7 +2876,10 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     logError(printf("sqlOpenTds: dbopen(\"%s\"/*, \"%s\"):\n%s\n",
                                     user8, server, dbError.message););
                     err_info = DATABASE_ERROR;
-                    dbexit();
+                    activeTdsConnections--;
+                    if (activeTdsConnections == 0) {
+                      dbexit();
+                    } /* if */
                     database = NULL;
                   } else if ((erc = dbuse(dbproc, dbName8)) == FAIL) {
                     setDbErrorMsg("sqlOpenTds", "dbuse");
@@ -2877,7 +2887,10 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                                     dbName8, dbError.message););
                     err_info = DATABASE_ERROR;
                     dbclose(dbproc);
-                    dbexit();
+                    activeTdsConnections--;
+                    if (activeTdsConnections == 0) {
+                      dbexit();
+                    } /* if */
                     database = NULL;
                   } else {
                     /* CHAR fields are padded with spaces up to the field  */
@@ -2902,7 +2915,10 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                     doExecute(dbproc, "SET TEXTSIZE -1", &err_info);
                     if (unlikely(err_info != OKAY_NO_ERROR)) {
                       dbclose(dbproc);
-                      dbexit();
+                      activeTdsConnections--;
+                      if (activeTdsConnections == 0) {
+                        dbexit();
+                      } /* if */
                       database = NULL;
                     } else if (unlikely(!setupFuncTable() ||
                                         !ALLOC_RECORD2(database, dbRecordTds,
@@ -2910,7 +2926,10 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                                                        count.database_bytes))) {
                       err_info = MEMORY_ERROR;
                       dbclose(dbproc);
-                      dbexit();
+                      activeTdsConnections--;
+                      if (activeTdsConnections == 0) {
+                        dbexit();
+                      } /* if */
                       database = NULL;
                     } else {
                       memset(database, 0, sizeof(dbRecordTds));
