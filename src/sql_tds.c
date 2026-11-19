@@ -1399,7 +1399,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
