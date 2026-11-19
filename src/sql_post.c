@@ -621,17 +621,20 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     if (preparedStmt->execute_result != NULL) {
       PQclear(preparedStmt->execute_result);
     } /* if */
-    deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
-    if (unlikely(deallocate_result != NULL)) {
-      /* Ignore possible errors. */
-      PQclear(deallocate_result);
-    } /* if */
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
-      preparedStmt->db->usage_count--;
-      if (preparedStmt->db->usage_count == 0) {
-        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
-        freeDatabase((databaseType) preparedStmt->db);
+    if (preparedStmt->db != NULL) {
+      if (preparedStmt->db->connection != NULL) {
+        deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
+        if (unlikely(deallocate_result != NULL)) {
+          /* Ignore possible errors. */
+          PQclear(deallocate_result);
+        } /* if */
+      } /* if */
+      if (preparedStmt->db->usage_count != 0) {
+        preparedStmt->db->usage_count--;
+        if (preparedStmt->db->usage_count == 0) {
+          logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+          freeDatabase((databaseType) preparedStmt->db);
+        } /* if */
       } /* if */
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
