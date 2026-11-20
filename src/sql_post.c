@@ -888,6 +888,9 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
 
   /* setupParameterColumn */
     switch (preparedStmt->paramTypes[param_index]) {
+      case BOOLOID:
+        paramLength = sizeof(char);
+        break;
       case INT2OID:
         paramLength = sizeof(int16Type);
         break;
@@ -1700,6 +1703,10 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       logMessage(printf("paramType: %s\n",
                         nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
+        case BOOLOID:
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          param->buffer[0] = (char) (value != 0);
+          break;
         case INT2OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
           *(int16Type *) param->buffer =
@@ -2571,6 +2578,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
           logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
+            case BOOLOID:
+              columnValue = buffer[0];
+              break;
             case INT2OID:
               columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
               break;
@@ -2595,9 +2605,6 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
               } else {
                 columnValue = buffer[0] != '0';
               } /* if */
-              break;
-            case BOOLOID:
-              columnValue = buffer[0];
               break;
             default:
               logError(printf("sqlColumnBool: Column " FMT_D " has the unknown type %s.\n",
