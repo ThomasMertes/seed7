@@ -1912,13 +1912,9 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           *(double *) param->buffer = htond(value);
           break;
         case CASHOID:
-          free(param->buffer);
-          if (unlikely((param->buffer = (cstriType) malloc(
-                            DOUBLE_TO_CHAR_BUFFER_SIZE)) == NULL)) {
-            err_info = MEMORY_ERROR;
-          } else if (unlikely(os_isnan(value) ||
-                              value == POSITIVE_INFINITY ||
-                              value == NEGATIVE_INFINITY)) {
+          if (unlikely(os_isnan(value) ||
+                       value == POSITIVE_INFINITY ||
+                       value == NEGATIVE_INFINITY)) {
             logError(printf("sqlBindFloat: Parameter " FMT_D ": "
                             "%s does not fit into a CASHOID field.\n",
                             pos, os_isnan(value) ? "NaN" :
@@ -1926,10 +1922,16 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
                             "Infinity" : "-Infinity"));
             err_info = RANGE_ERROR;
           } else {
-            preparedStmt->paramValues[pos - 1] = param->buffer;
-            preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "%f", value);
-            preparedStmt->paramFormats[pos - 1] = 0;
+            free(param->buffer);
+            if (unlikely((param->buffer = (cstriType) malloc(
+                              DOUBLE_TO_CHAR_BUFFER_SIZE)) == NULL)) {
+              err_info = MEMORY_ERROR;
+            } else {
+              preparedStmt->paramValues[pos - 1] = param->buffer;
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "%f", value);
+              preparedStmt->paramFormats[pos - 1] = 0;
+            } /* if */
           } /* if */
           break;
         case NUMERICOID:
@@ -1940,14 +1942,14 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           } else {
             preparedStmt->paramValues[pos - 1] = param->buffer;
             if (os_isnan(value)) {
-	      preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "NaN");
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "NaN");
             } else if (value == POSITIVE_INFINITY) {
-	      preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "Infinity");
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "Infinity");
             } else if (value == NEGATIVE_INFINITY) {
-	      preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "-Infinity");
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "-Infinity");
             } else {
               preparedStmt->paramLengths[pos - 1] =
                   (int) sprintf(param->buffer, FMT_E, value);
