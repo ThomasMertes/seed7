@@ -1705,7 +1705,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BOOLOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
-          param->buffer[0] = (char) (value != 0);
+          param->buffer[0] = (char) value;
           break;
         case INT2OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
