@@ -1851,7 +1851,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                         nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
-	  if (unlikely(year < (INT32TYPE_MIN + 12) / 12 ||
+          if (unlikely(year < (INT32TYPE_MIN + 12) / 12 ||
                        year > (INT32TYPE_MAX - 12) / 12)) {
             logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
             raise_error(RANGE_ERROR);
