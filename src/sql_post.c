@@ -1432,6 +1432,11 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
           *denominator = bigIPowSignedDigit(10,
               (intType) (4 * (numStruct.ndigits - 1 - numStruct.weight)));
         } /* if */
+        if (unlikely(*denominator == NULL)) {
+          /* An exception has been raised. */
+          bigDestr(numerator);
+          numerator = NULL;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("getNumericAsBigRat --> %s",
