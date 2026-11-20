@@ -1156,57 +1156,80 @@ static cstriType getNumericAsCStri (numeric *numStruct)
     unsigned int fourDigits;
     unsigned int digitNum;
     unsigned int scale;
+    memSizeType decimalSize;
     cstriType decimal;
 
    /* getNumericAsCStri */
     if (numStruct->weight < numStruct->ndigits - 1) {
-      scale = 4 * (unsigned int) (numStruct->ndigits - 1 - numStruct->weight);
-      /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
-      /* Provide space for sign, decimal point and a possible leading zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
-        /* printf("length: %u\n", length); */
-        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
-          for (digitNum = 4; digitNum >= 1; digitNum--) {
-            decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
-            fourDigits /= 10;
-          } /* for */
-        } /* for */
-        if (scale >= length - 1) {
-          memmove(&decimal[scale - length + 4], &decimal[1], length - 1);
-          decimal[1] = '0';
-          decimal[2] = '.';
-          memset(&decimal[3], '0', scale - length + 1);
-          decimal[scale + 3] = '\0';
+      scale = (unsigned int) (numStruct->ndigits - 1 - numStruct->weight);
+      if (unlikely(scale > UINT_MAX / 4)) {
+        decimal = NULL;
+      } else {
+        scale *= 4;
+        /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
+        if (unlikely(scale > MAX_CSTRI_LEN - 3 ||
+                     numStruct->ndigits > (MAX_CSTRI_LEN - scale - 3) / 4)) {
+          decimal = NULL;
         } else {
-          memmove(&decimal[length - scale + 1], &decimal[length - scale], scale);
-          decimal[length - scale] = '.';
-          decimal[length + 1] = '\0';
+          /* Provide space for sign, decimal point and a possible leading zero. */
+          decimalSize = 4 * (memSizeType) numStruct->ndigits + 3 + scale;
+	  if (likely(ALLOC_CSTRI(decimal, decimalSize))) {
+            length = 4 * (unsigned int) numStruct->ndigits + 1;
+            /* printf("length: %u\n", length); */
+            decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+            for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
+              fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                                 (unsigned int) numStruct->digits[2 * idx + 1];
+              for (digitNum = 4; digitNum >= 1; digitNum--) {
+                decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+                fourDigits /= 10;
+              } /* for */
+            } /* for */
+            if (scale >= length - 1) {
+              memmove(&decimal[scale - length + 4], &decimal[1], length - 1);
+              decimal[1] = '0';
+              decimal[2] = '.';
+              memset(&decimal[3], '0', scale - length + 1);
+              decimal[scale + 3] = '\0';
+            } else {
+              memmove(&decimal[length - scale + 1], &decimal[length - scale], scale);
+              decimal[length - scale] = '.';
+              decimal[length + 1] = '\0';
+            } /* if */
+          } /* if */
         } /* if */
       } /* if */
     } else {
-      scale = 4 * (unsigned int) (numStruct->weight - (numStruct->ndigits - 1));
-      /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
-      /* Provide space for sign, decimal point and a possible trailing zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
-        /* printf("length: %u\n", length); */
-        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
-          for (digitNum = 4; digitNum >= 1; digitNum--) {
-            decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
-            fourDigits /= 10;
-          } /* for */
-        } /* for */
-        memset(&decimal[length], '0', scale);
-        decimal[length + scale] = '.';
-        decimal[length + scale + 1] = '0';
-        decimal[length + scale + 2] = '\0';
+      scale = (unsigned int) (numStruct->weight - (numStruct->ndigits - 1));
+      if (unlikely(scale > UINT_MAX / 4)) {
+        decimal = NULL;
+      } else {
+        scale *= 4;
+        /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
+        if (unlikely(scale > MAX_CSTRI_LEN - 3 ||
+                     numStruct->ndigits > (MAX_CSTRI_LEN - scale - 3) / 4)) {
+          decimal = NULL;
+        } else {
+          /* Provide space for sign, decimal point and a possible trailing zero. */
+          decimalSize = 4 * (memSizeType) numStruct->ndigits + 3 + scale;
+	  if (likely(ALLOC_CSTRI(decimal, decimalSize))) {
+            length = 4 * (unsigned int) numStruct->ndigits + 1;
+            /* printf("length: %u\n", length); */
+            decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+            for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
+              fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                                 (unsigned int) numStruct->digits[2 * idx + 1];
+              for (digitNum = 4; digitNum >= 1; digitNum--) {
+                decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+                fourDigits /= 10;
+              } /* for */
+            } /* for */
+            memset(&decimal[length], '0', scale);
+            decimal[length + scale] = '.';
+            decimal[length + scale + 1] = '0';
+            decimal[length + scale + 2] = '\0';
+          } /* if */
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("getNumericAsCStri --> %s\n",
@@ -1222,21 +1245,27 @@ static striType getNumericAsStri (numeric *numStruct)
     unsigned int idx;
     unsigned int fourDigits;
     unsigned int digitNum;
+    memSizeType striSize;
     striType stri;
 
    /* getNumericAsStri */
-    /* Provide space for sign. */
-    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
-      stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
-      stri->mem[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-      for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-        fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                           (unsigned int) numStruct->digits[2 * idx + 1];
-        for (digitNum = 4; digitNum >= 1; digitNum--) {
-          stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
-          fourDigits /= 10;
+    if (unlikely(numStruct->ndigits > (MAX_STRI_LEN - 1) / 4)) {
+      stri = NULL;
+    } else {
+      /* Provide space for sign. */
+      striSize = 4 * (memSizeType) numStruct->ndigits + 1;
+      if (likely(ALLOC_STRI_SIZE_OK(stri, striSize))) {
+        stri->size = striSize;
+        stri->mem[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                             (unsigned int) numStruct->digits[2 * idx + 1];
+          for (digitNum = 4; digitNum >= 1; digitNum--) {
+            stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
+            fourDigits /= 10;
+          } /* for */
         } /* for */
-      } /* for */
+      } /* if */
     } /* if */
     logFunction(printf("getNumericAsStri --> %s\n",
                        striAsUnquotedCStri(stri)));
