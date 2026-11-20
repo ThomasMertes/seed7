@@ -817,7 +817,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           } /* if */
           pos++;
         } else if (ch == '\'' || ch == '"') {
-          /* Doubled quotes ('' and "") is handled implicitly by the outer loop. */
+          /* Doubled quotes ('' and "") are handled implicitly by the outer loop. */
           delimiter = ch;
           processed->mem[destPos++] = delimiter;
           pos++;
@@ -1844,27 +1844,33 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                         nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
-          preparedStmt->paramValues[pos - 1] = param->buffer;
-          microsecDuration = ((((int64Type) hour) * 60 +
-                                (int64Type) minute) * 60 +
-                                (int64Type) second) * 1000000 +
-                                (int64Type) micro_second;
-          /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
-          /* The interval is either an int64Type representing       */
-          /* microseconds, or a double representing seconds.        */
-          /* PQparameterStatus(connection, "integer_datetimes") is  */
-          /* used to determine if an int64Type or a double is used. */
-          if (preparedStmt->integerDatetimes) {
-            *(int64Type *) param->buffer =
-                (int64Type) htonll((uint64Type) microsecDuration);
+	  if (unlikely(year < (INT32TYPE_MIN + 12) / 12 ||
+                       year > (INT32TYPE_MAX - 12) / 12)) {
+            logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
+            raise_error(RANGE_ERROR);
           } else {
-            *(double *) param->buffer =
-                htond((double) microsecDuration / 1000000.0);
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            microsecDuration = ((((int64Type) hour) * 60 +
+                                  (int64Type) minute) * 60 +
+                                  (int64Type) second) * 1000000 +
+                                  (int64Type) micro_second;
+            /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+            /* The interval is either an int64Type representing       */
+            /* microseconds, or a double representing seconds.        */
+            /* PQparameterStatus(connection, "integer_datetimes") is  */
+            /* used to determine if an int64Type or a double is used. */
+            if (preparedStmt->integerDatetimes) {
+              *(int64Type *) param->buffer =
+                  (int64Type) htonll((uint64Type) microsecDuration);
+            } else {
+              *(double *) param->buffer =
+                  htond((double) microsecDuration / 1000000.0);
+            } /* if */
+            *(int32Type *) &param->buffer[8] =
+                (int32Type) htonl((uint32Type) day);
+            *(int32Type *) &param->buffer[12] =
+                (int32Type) htonl((uint32Type) (12 * year + month));
           } /* if */
-          *(int32Type *) &param->buffer[8] =
-              (int32Type) htonl((uint32Type) day);
-          *(int32Type *) &param->buffer[12] =
-              (int32Type) htonl((uint32Type) (12 * year + month));
           break;
         default:
           logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
