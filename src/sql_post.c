@@ -1128,7 +1128,7 @@ static void showNumeric (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = buffer[4] & 0xc0;
+    numStruct.sign    = buffer[4] & 0xf0;
 
     printf("ndigits: %d\n",  numStruct.ndigits);
     printf("weight: %d\n",   numStruct.weight);
@@ -1260,7 +1260,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = buffer[4] & 0xc0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
     if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
       logError(printf("getNumericAsInt: Number is NaN or Infinity\n"););
@@ -1335,7 +1335,7 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = buffer[4] & 0xc0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
     if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
       logError(printf("getNumericAsBigInt: Number is NaN or Infinity\n"););
@@ -1387,7 +1387,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = buffer[4] & 0xc0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
     if (numStruct.sign == PG_NUMERIC_NAN) {
       numerator = bigZero();
@@ -1398,6 +1398,11 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     } else if (numStruct.sign == PG_NUMERIC_NINF) {
       numerator = bigFromInt32(-1);
       *denominator = bigZero();
+    } else if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsBigRat: Unknown sign 0x%02X.\n",
+                      numStruct.sign););
+      raise_error(RANGE_ERROR);
+      numerator = NULL;
     } else if (numStruct.ndigits == 0) {
       numerator = bigZero();
       *denominator = bigFromInt32(1);
@@ -1447,7 +1452,7 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = buffer[4] & 0xc0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
     if (numStruct.sign == PG_NUMERIC_NAN) {
       floatValue = NOT_A_NUMBER;
@@ -1455,6 +1460,11 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
       floatValue = POSITIVE_INFINITY;
     } else if (numStruct.sign == PG_NUMERIC_NINF) {
       floatValue = NEGATIVE_INFINITY;
+    } else if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsFloat: Unknown sign 0x%02X.\n",
+                      numStruct.sign););
+      raise_error(RANGE_ERROR);
+      floatValue = 0.0;
     } else if (numStruct.ndigits == 0) {
       floatValue = 0.0;
     } else if (unlikely((decimal = getNumericAsCStri(&numStruct)) == NULL)) {
