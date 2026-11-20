@@ -1430,9 +1430,11 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
       } /* if */
     } /* if */
     logFunction(printf("getNumericAsBigRat --> %s",
-                       striAsUnquotedCStri(bigStr(numerator)));
+                       bigHexCStri(numerator));
                 printf(" (denominator = %s)\n",
-                       striAsUnquotedCStri(bigStr(*denominator))););
+                       numerator != NULL ?
+                           bigHexCStri(*denominator) :
+                           " *NULL_BIGINT* "););
     return numerator;
   } /* getNumericAsBigRat */
 
