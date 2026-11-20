@@ -2714,6 +2714,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    double doubleDuration;
     int64Type microsecDuration;
     int32Type dayDuration;
     int32Type monthDuration;
@@ -2770,8 +2771,10 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 microsecDuration = (int64Type) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleDuration = ntohd(*(const double *) buffer);
                 microsecDuration = (int64Type)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleDuration +
+                     (doubleDuration >= 0.0 ? 0.5 : -0.5));
               } /* if */
               dayDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[8]);
               monthDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[12]);
@@ -3137,6 +3140,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    double doubleTimestamp;
     timeStampType timestamp;
     intType dummy_micro_second;
 
@@ -3205,8 +3209,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3227,8 +3233,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3251,8 +3259,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3270,8 +3280,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
