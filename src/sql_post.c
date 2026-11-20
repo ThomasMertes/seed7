@@ -107,8 +107,8 @@ typedef struct {
   } bindDataRecordPost, *bindDataType;
 
 #define STMT_NAME_PREFIX "prepstat_"
-#define STMT_NAME_BUFFER_SIZE STRLEN(STMT_NAME_PREFIX) + \
-                              UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN
+#define STMT_NAME_BUFFER_SIZE (STRLEN(STMT_NAME_PREFIX) + \
+                               UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
 
 #define USE_IMPLICIT_COMMIT_MECHANISM 0
 
@@ -1022,7 +1022,7 @@ static errInfoType setupParameters (PGresult *describe_result, preparedStmtType 
              nameOfBufferType(preparedStmt->paramTypes[param_index])); */
           err_info = setupParameterColumn(preparedStmt, param_index,
               &preparedStmt->param_array[param_index]);
-        } /* if */
+        } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setupParameters --> %d\n", err_info););
@@ -2681,7 +2681,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
-                } /* if */
+                } /* while */
                 columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -3085,7 +3085,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
-                } /* if */
+                } /* while */
                 columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -3382,7 +3382,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
             raise_error(DATABASE_ERROR);
           } else {
             preparedStmt->num_tuples = num_tuples;
-            /* printf("Number of tubles: %d\n", preparedStmt->num_tuples);
+            /* printf("Number of tuples: %d\n", preparedStmt->num_tuples);
               printf("Number of columns: %d\n", PQnfields(preparedStmt->execute_result));
               printf("Result_column_count: " FMT_U_MEM "\n", preparedStmt->result_column_count);
               { int idx;
@@ -3965,12 +3965,12 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               database = NULL;
             } else if (PQstatus(db.connection) != CONNECTION_OK &&
                        host8[0] == '\0') {
-              /* The attemt to connect with host set to NULL failed. */
-              /* If PQsetdbLogin() is called with the host set to    */
-              /* NULL the connection uses Unix domain sockets. Now   */
-              /* try internet sockets with "localhost" as host. This */
-              /* might succeed if PostgreSQL is installed in a local */
-              /* container and the port has been made accessible.    */
+              /* The attempt to connect with host set to NULL failed. */
+              /* If PQsetdbLogin() is called with the host set to     */
+              /* NULL the connection uses Unix domain sockets. Now    */
+              /* try internet sockets with "localhost" as host. This  */
+              /* might succeed if PostgreSQL is installed in a local  */
+              /* container and the port has been made accessible.     */
               PQfinish(db.connection);
               db.connection = PQsetdbLogin("localhost",
                                            pgport, NULL /* pgoptions */,
