@@ -25,7 +25,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_post.c                                      */
-/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2022, 2024 - 2026  Thomas Mertes    */
 /*  Content: Database access functions for PostgreSQL.              */
 /*                                                                  */
 /********************************************************************/
