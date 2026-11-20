@@ -817,6 +817,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           } /* if */
           pos++;
         } else if (ch == '\'' || ch == '"') {
+          /* Doubled quotes ('' and "") is handled implicitly by the outer loop. */
           delimiter = ch;
           processed->mem[destPos++] = delimiter;
           pos++;
