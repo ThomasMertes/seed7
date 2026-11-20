@@ -72,12 +72,19 @@
 #ifdef POSTGRESQL_INCLUDE
 
 
+#define PG_NUMERIC_POS       0x00
+#define PG_NUMERIC_NEG       0x40
+#define PG_NUMERIC_NAN       0xC0
+#define PG_NUMERIC_PINF      0xD0
+#define PG_NUMERIC_NINF      0xF0
+#define PG_NAN_INFINITY_MASK 0x80
+
 typedef struct {
     int ndigits; /* number of digits in digits[] - can be 0! */
     int weight;  /* weight of first digit */
     int rscale;  /* result scale */
     int dscale;  /* display scale */
-    int sign;    /* NUMERIC_POS, NUMERIC_NEG, or NUMERIC_NAN */
+    int sign;    /* a PG_NUMERIC_* value */
     const unsigned char *digits; /* decimal digits */
   } numeric;
 
@@ -1121,13 +1128,13 @@ static void showNumeric (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xc0;
 
-    printf("ndigits: %d\n", numStruct.ndigits);
-    printf("weight: %d\n",  numStruct.weight);
-    printf("rscale: %d\n",  numStruct.rscale);
-    printf("dscale: %d\n",  numStruct.dscale);
-    printf("sign: %d\n",    numStruct.sign);
+    printf("ndigits: %d\n",  numStruct.ndigits);
+    printf("weight: %d\n",   numStruct.weight);
+    printf("rscale: %d\n",   numStruct.rscale);
+    printf("dscale: %d\n",   numStruct.dscale);
+    printf("sign: 0x%02X\n", numStruct.sign);
 
     for (idx = 0; idx < numStruct.ndigits; idx++) {
       printf("digit %d: %u\n", idx, 256 * buffer[8 + 2 * idx] + buffer[9 + 2 * idx]);
@@ -1159,7 +1166,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
       if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
         length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = numStruct->sign ? '-' : '+';
+        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
         for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
           fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                              (unsigned int) numStruct->digits[2 * idx + 1];
@@ -1187,7 +1194,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
       if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
         length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = numStruct->sign ? '-' : '+';
+        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
         for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
           fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                              (unsigned int) numStruct->digits[2 * idx + 1];
@@ -1221,7 +1228,7 @@ static striType getNumericAsStri (numeric *numStruct)
     /* Provide space for sign. */
     if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
       stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
-      stri->mem[0] = numStruct->sign ? '-' : '+';
+      stri->mem[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
       for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
         fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                            (unsigned int) numStruct->digits[2 * idx + 1];
@@ -1253,9 +1260,13 @@ static intType getNumericAsInt (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xc0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsInt: Number is NaN or Infinity\n"););
+      raise_error(RANGE_ERROR);
+      intValue = 0;
+    } else if (numStruct.ndigits == 0) {
       intValue = 0;
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
                         numStruct.rscale != 0 ||
@@ -1324,9 +1335,13 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xc0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsBigInt: Number is NaN or Infinity\n"););
+      raise_error(RANGE_ERROR);
+      bigIntValue = NULL;
+    } else if (numStruct.ndigits == 0) {
       bigIntValue = bigZero();
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
                         numStruct.rscale != 0 ||
@@ -1372,9 +1387,18 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xc0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (numStruct.sign == PG_NUMERIC_NAN) {
+      numerator = bigZero();
+      *denominator = bigZero();
+    } else if (numStruct.sign == PG_NUMERIC_PINF) {
+      numerator = bigFromInt32(1);
+      *denominator = bigZero();
+    } else if (numStruct.sign == PG_NUMERIC_NINF) {
+      numerator = bigFromInt32(-1);
+      *denominator = bigZero();
+    } else if (numStruct.ndigits == 0) {
       numerator = bigZero();
       *denominator = bigFromInt32(1);
     } else if (unlikely((stri = getNumericAsStri(&numStruct)) == NULL)) {
@@ -1423,9 +1447,15 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xc0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (numStruct.sign == PG_NUMERIC_NAN) {
+      floatValue = NOT_A_NUMBER;
+    } else if (numStruct.sign == PG_NUMERIC_PINF) {
+      floatValue = POSITIVE_INFINITY;
+    } else if (numStruct.sign == PG_NUMERIC_NINF) {
+      floatValue = NEGATIVE_INFINITY;
+    } else if (numStruct.ndigits == 0) {
       floatValue = 0.0;
     } else if (unlikely((decimal = getNumericAsCStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
