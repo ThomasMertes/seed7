@@ -1657,7 +1657,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       if (err_info == OKAY_NO_ERROR) {
         if (strategy == USE_DESCRIPTOR) {
           column_size = 0;
-          value_size = sizeof(void *);
+          value_size = 0;
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
                                  &resultData->descriptor,
                                  descriptor_type,
