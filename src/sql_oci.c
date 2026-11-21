@@ -1583,48 +1583,39 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           break;
         case SQLT_RDD: /* ROWID */
           descriptor_type = OCI_DTYPE_ROWID;  /* ROWID */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_BLOB: /* Binary LOB */
         case SQLT_CLOB: /* Character LOB  */
           descriptor_type = OCI_DTYPE_LOB;  /* Binary LOB or Character LOB */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_FILE: /* Binary FILE */
           descriptor_type = OCI_DTYPE_FILE;  /* Binary FILE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_DATE:
           descriptor_type = OCI_DTYPE_DATE;  /* ANSI DATE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP:
           descriptor_type = OCI_DTYPE_TIMESTAMP;  /* TIMESTAMP */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP_TZ:
           descriptor_type = OCI_DTYPE_TIMESTAMP_TZ;  /* TIMESTAMP WITH TIME ZONE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP_LTZ:
           descriptor_type = OCI_DTYPE_TIMESTAMP_LTZ;  /* TIMESTAMP WITH LOCAL TIME ZONE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_INTERVAL_YM:
           descriptor_type = OCI_DTYPE_INTERVAL_YM;  /* INTERVAL YEAR TO MONTH descriptor */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_INTERVAL_DS:
           descriptor_type = OCI_DTYPE_INTERVAL_DS;  /* INTERVAL DAY TO SECOND descriptor */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_REF: /* REF */
@@ -1665,6 +1656,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       } /* switch */
       if (err_info == OKAY_NO_ERROR) {
         if (strategy == USE_DESCRIPTOR) {
+          column_size = 0;
+          value_size = sizeof(void *);
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
                                  &resultData->descriptor,
                                  descriptor_type,
