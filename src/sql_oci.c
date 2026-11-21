@@ -1252,7 +1252,7 @@ static const char *nameOfBufferType (uint16Type buffer_type)
       "180",         "181",         "182",         "183",         "SQLT_DATE",
       "SQLT_TIME",   "SQLT_TIME_TZ","SQLT_TIMESTAMP", "SQLT_TIMESTAMP_TZ", "SQLT_INTERVAL_YM",
       "SQLT_INTERVAL_DS", "191",    "192",         "193",         "194",
-      "195", "196",  "197", "198",  "199", "200",  "201", "202",  "203", "204"
+      "195", "196",  "197", "198",  "199", "200",  "201", "202",  "203", "204",
       "205", "206",  "207", "208",  "209", "210",  "211", "212",  "213", "214",
       "215", "216",  "217", "218",  "219", "220",  "221", "222",  "223", "224",
       "225", "226",  "227", "228",  "229", "230",  "231", "SQLT_TIMESTAMP_LTZ",
@@ -4855,9 +4855,10 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 sqlClose((databaseType) &db);
                 err_info = DATABASE_ERROR;
                 database = NULL;
-              } else if (OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
-                                         NULL, NULL, NULL, NULL, 0, NULL,
-                                         db.charSetId, db.charSetId) != OCI_SUCCESS) {
+              } else if ((db.oci_environment = NULL,
+			  OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
+                                          NULL, NULL, NULL, NULL, 0, NULL,
+                                          db.charSetId, db.charSetId) != OCI_SUCCESS)) {
                 dbLibError("sqlOpenOci", "OCIEnvNlsCreate",
                            "OCIEnvNlsCreate failed.\n");
                 logError(printf("sqlOpenOci: OCIEnvNlsCreate failed\n"););
