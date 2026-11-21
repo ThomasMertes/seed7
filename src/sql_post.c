@@ -83,9 +83,9 @@
 
 typedef struct {
     int ndigits; /* number of two-byte digits in digits[], range 0 .. 65535 */
-    int weight;  /* weight of first digit, range -32768 .. 32767 */
-    int rscale;  /* result scale,          range 0 .. 16383 */
-    int dscale;  /* display scale,         range 0 .. 16383 */
+    int weight;  /* weight of first two-byte digit, range -32768 .. 32767 */
+    int rscale;  /* result scale,                   range 0 .. 16383 */
+    int dscale;  /* display scale,                  range 0 .. 16383 */
     int sign;    /* a PG_NUMERIC_* value */
     const unsigned char *digits; /* array of size ndigits with two-byte digits */
     /* Each two-byte digit encodes 4 decimal digits in big endian. */
