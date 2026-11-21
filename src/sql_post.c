@@ -84,7 +84,7 @@
 typedef struct {
     int ndigits; /* number of two-byte digits in digits[], range 0 .. 65535 */
     int weight;  /* weight of first two-byte digit, range -32768 .. 32767 */
-    int rscale;  /* result scale,                   range 0 .. 16383 */
+    /* int rscale;  result scale (unused),          range 0 .. 16383 */
     int dscale;  /* display scale,                  range 0 .. 16383 */
     int sign;    /* a PG_NUMERIC_* value */
     const unsigned char *digits; /* array of size ndigits with two-byte digits */
@@ -1135,13 +1135,13 @@ static void showNumeric (const unsigned char *buffer)
            buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]);
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = buffer[4] & 0xf0;
 
     printf("ndigits: %d\n",  numStruct.ndigits);
     printf("weight: %d\n",   numStruct.weight);
-    printf("rscale: %d\n",   numStruct.rscale);
+    /* printf("rscale: %d\n",   numStruct.rscale); */
     printf("dscale: %d\n",   numStruct.dscale);
     printf("sign: 0x%02X\n", numStruct.sign);
 
@@ -1272,7 +1272,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
@@ -1283,7 +1283,6 @@ static intType getNumericAsInt (const unsigned char *buffer)
     } else if (numStruct.ndigits == 0) {
       intValue = 0;
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
-                        numStruct.rscale != 0 ||
                         numStruct.dscale != 0)) {
       logError(printf("getNumericAsInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
@@ -1347,7 +1346,7 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
@@ -1358,7 +1357,6 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
     } else if (numStruct.ndigits == 0) {
       bigIntValue = bigZero();
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
-                        numStruct.rscale != 0 ||
                         numStruct.dscale != 0)) {
       logError(printf("getNumericAsBigInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
@@ -1399,7 +1397,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
@@ -1471,7 +1469,7 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
