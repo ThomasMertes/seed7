@@ -82,13 +82,16 @@
 #define PG_NAN_INFINITY_MASK 0x80
 
 typedef struct {
-    int ndigits; /* number of digits in digits[] - can be 0! */
-    int weight;  /* weight of first digit */
-    int rscale;  /* result scale */
-    int dscale;  /* display scale */
+    int ndigits; /* number of two-byte digits in digits[], range 0 .. 65535 */
+    int weight;  /* weight of first digit, range -32768 .. 32767 */
+    int rscale;  /* result scale,          range 0 .. 16383 */
+    int dscale;  /* display scale,         range 0 .. 16383 */
     int sign;    /* a PG_NUMERIC_* value */
-    const unsigned char *digits; /* decimal digits */
-  } numeric;
+    const unsigned char *digits; /* array of size ndigits with two-byte digits */
+    /* Each two-byte digit encodes 4 decimal digits in big endian. */
+  } pgNumericStruct, *pgNumericType;
+
+typedef const pgNumericStruct *const_pgNumericType;
 
 typedef struct {
     uintType     usage_count;
@@ -1123,7 +1126,7 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 static void showNumeric (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     int idx;
 
   /* showNumeric */
@@ -1154,7 +1157,7 @@ static void showNumeric (const unsigned char *buffer)
 
 
 
-static cstriType getNumericAsCStri (numeric *numStruct)
+static cstriType getNumericAsCStri (const const_pgNumericType numValue)
 
   {
     unsigned int length;
@@ -1165,20 +1168,20 @@ static cstriType getNumericAsCStri (numeric *numStruct)
     cstriType decimal;
 
    /* getNumericAsCStri */
-    /* numStruct->weight is in the range -32768 .. 32767 */
-    /* numStruct->ndigits is in the range 0 .. 65535 */
+    /* numValue->weight is in the range -32768 .. 32767 */
+    /* numValue->ndigits is in the range 0 .. 65535 */
     /* In the computations below integer overflow is not possible. */
-    if (numStruct->weight < numStruct->ndigits - 1) {
-      scale = 4 * (unsigned int) (numStruct->ndigits - 1 - numStruct->weight);
+    if (numValue->weight < numValue->ndigits - 1) {
+      scale = 4 * (unsigned int) (numValue->ndigits - 1 - numValue->weight);
       /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
       /* Provide space for sign, decimal point and a possible leading zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numValue->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numValue->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
+        decimal[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+        for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                             (unsigned int) numValue->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
             decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
@@ -1197,16 +1200,16 @@ static cstriType getNumericAsCStri (numeric *numStruct)
         } /* if */
       } /* if */
     } else {
-      scale = 4 * (unsigned int) (numStruct->weight - (numStruct->ndigits - 1));
+      scale = 4 * (unsigned int) (numValue->weight - (numValue->ndigits - 1));
       /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
       /* Provide space for sign, decimal point and a possible trailing zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numValue->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numValue->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
+        decimal[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+        for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                             (unsigned int) numValue->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
             decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
@@ -1225,7 +1228,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
 
 
 
-static striType getNumericAsStri (numeric *numStruct)
+static striType getNumericAsStri (const const_pgNumericType numValue)
 
   {
     unsigned int idx;
@@ -1234,15 +1237,15 @@ static striType getNumericAsStri (numeric *numStruct)
     striType stri;
 
    /* getNumericAsStri */
-    /* numStruct->ndigits is in the range 0 .. 65535 */
+    /* numValue->ndigits is in the range 0 .. 65535 */
     /* In the computations below integer overflow is not possible. */
     /* Provide space for sign. */
-    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
-      stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
-      stri->mem[0] = (numStruct->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
-      for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-        fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                           (unsigned int) numStruct->digits[2 * idx + 1];
+    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numValue->ndigits + 1))) {
+      stri->size = 4 * (memSizeType) numValue->ndigits + 1;
+      stri->mem[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+      for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+        fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                           (unsigned int) numValue->digits[2 * idx + 1];
         for (digitNum = 4; digitNum >= 1; digitNum--) {
           stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
           fourDigits /= 10;
@@ -1259,7 +1262,7 @@ static striType getNumericAsStri (numeric *numStruct)
 static intType getNumericAsInt (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     intType factor;
     intType intValue;
@@ -1334,7 +1337,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
 static bigIntType getNumericAsBigInt (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     bigIntType powerOfTen;
     bigIntType bigIntValue;
@@ -1386,7 +1389,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     bigIntType *denominator)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     bigIntType powerOfTen;
     bigIntType numerator;
@@ -1459,7 +1462,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
 static floatType getNumericAsFloat (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     cstriType decimal;
     floatType floatValue;
 
