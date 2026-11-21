@@ -504,8 +504,8 @@ static errInfoType doExecSql (PGconn *connection, const char *query,
  *  In other databases CREATE and other DDL statements are executed
  *  without a need to be committed. The implicitCommit mechanism tries
  *  to adjust the PostgreSQL behavior to what other databases do.
- *  Instead of using a list of DDL statements it uses a list of
- *  DML and TCS statements which need an explicit commit.
+ *  Instead of using a list of DDL statements, it uses a list of
+ *  DML and TCS statements that need an explicit commit.
  */
 static boolType implicitCommit (const_cstriType query)
 
@@ -1174,7 +1174,7 @@ static cstriType getNumericAsCStri (const const_pgNumericType numValue)
     if (numValue->weight < numValue->ndigits - 1) {
       scale = 4 * (unsigned int) (numValue->ndigits - 1 - numValue->weight);
       /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
-      /* Provide space for sign, decimal point and a possible leading zero. */
+      /* Provide space for sign, decimal point, and a possible leading zero. */
       if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numValue->ndigits + 3 + scale))) {
         length = 4 * (unsigned int) numValue->ndigits + 1;
         /* printf("length: %u\n", length); */
@@ -2133,13 +2133,13 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
         case BPCHAROID:
         case VARCHAROID:
         case TEXTOID:
-          /* PostgreSQL doesn't support storing Null characters     */
-          /* ('\0;') in text fields. PQexecPrepared() returns a     */
-          /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080   */
-          /* (the overlong UTF-8 encoding for the Null character)   */
-          /* are seen as invalid byte sequence for encoding "UTF8". */
-          /* Therefore binding of strings with a Null character     */
-          /* ('\0;') inside will fail later with sqlExecute().      */
+          /* PostgreSQL doesn't support storing Null characters      */
+          /* ('\0;') in text fields. PQexecPrepared() returns a      */
+          /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080    */
+          /* (the overlong UTF-8 encoding for the Null character)    */
+          /* are seen as an invalid byte sequence for the encoding   */
+          /* "UTF8". Therefore, binding of strings with an empedded  */
+          /* Null character ('\0;') will fail later in sqlExecute(). */
           stri8 = stri_to_cstri8_buf(stri, &length);
           if (unlikely(stri8 == NULL)) {
             err_info = MEMORY_ERROR;
@@ -3428,7 +3428,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                                                     preparedStmt->paramFormats,
                                                     1);
       if (unlikely(preparedStmt->execute_result == NULL)) {
-        logError(printf("sqlExecute: PQexecPrepared returns NULL\n"););
+        logError(printf("sqlExecute: PQexecPrepared returns NULL.\n"););
         preparedStmt->executeSuccessful = FALSE;
         raise_error(MEMORY_ERROR);
       } else {
@@ -4031,7 +4031,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                               (memSizeType) db.connection););
             if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
-                              "\"%s\", \"%s\", *) returns NULL\n",
+                              "\"%s\", \"%s\", *) returns NULL.\n",
                               host8[0] == '\0' ? "NULL" : host8,
                               dbName8, user8););
               err_info = MEMORY_ERROR;
@@ -4040,7 +4040,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                        host8[0] == '\0') {
               /* The attempt to connect with host set to NULL failed. */
               /* If PQsetdbLogin() is called with the host set to     */
-              /* NULL the connection uses Unix domain sockets. Now    */
+              /* NULL, the connection uses Unix domain sockets. Now,  */
               /* try internet sockets with "localhost" as host. This  */
               /* might succeed if PostgreSQL is installed in a local  */
               /* container and the port has been made accessible.     */
