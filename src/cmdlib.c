@@ -1045,7 +1045,8 @@ objectType cmd_remove_file (listType arguments)
 
 
 /**
- *  Remove a file of any type inclusive a directory tree.
+ *  Remove a file of any type, including a directory tree.
+ *  The function does not follow symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path

@@ -356,9 +356,10 @@ static void printParameters (const const_rtlArrayType parameters)
 
 
 
-static void remove_any_file (const const_os_striType file_name, errInfoType *);
+static void remove_any_file (const const_os_striType file_name,
+    errInfoType *err_info);
 static void copy_any_file (const const_os_striType from_name,
-    const const_os_striType to_name, int, errInfoType *err_info);
+    const const_os_striType to_name, int flags, errInfoType *err_info);
 
 
 
@@ -4639,7 +4640,8 @@ void cmdRemoveFile (const const_striType filePath)
 
 
 /**
- *  Remove a file of any type inclusive a directory tree.
+ *  Remove a file of any type, including a directory tree.
+ *  The function does not follow symbolic links.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
  *             the system path type.
  *  @exception RANGE_ERROR 'filePath' does not use the standard path

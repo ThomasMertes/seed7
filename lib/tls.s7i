@@ -264,7 +264,7 @@ const type: tlsParseState is new struct
 
 (**
  *  [[file|File]] implementation type for Transport Layer Security (TLS).
- *  This type supports communication TLS. A ''tlsFile'' is
+ *  This type supports communication via TLS. A ''tlsFile'' is
  *  not seekable. The functions [[null_file#length(in_null_file)|length]],
  *  [[null_file#seek(in_null_file,in_integer)|seek]] and
  *  [[null_file#tell(in_null_file)|tell]] raise FILE_ERROR.
@@ -1976,6 +1976,8 @@ const func file: openTlsSocket (inout file: sock) is
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
+ *  @param hostName The server host name.
+ *  @param portNumber Port number at the server.
  *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -2119,7 +2121,9 @@ const func file: openServerTls (inout file: sock, in certAndKey: certificateAndK
 
 
 (**
- *  Close a tlsFile. This closes also the socket below.
+ *  Close the given TLS file ''aFile''.
+ *  This function also closes the underlying socket.
+ *  @param aFile TLS file to be closed.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: close (inout tlsFile: aFile) is func
@@ -2134,6 +2138,7 @@ const proc: close (inout tlsFile: aFile) is func
  *  from the socket failed. The socket functions ''getc'', ''gets'',
  *  ''getln'' and ''getwd'' indicate the end-of-file situation by
  *  setting ''bufferChar'' to [[char#EOF|EOF]].
+ *  @param inFile TLS file.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
 const func boolean: eof (in tlsFile: inFile) is
@@ -2171,7 +2176,9 @@ const func string: getApplicationData (inout tlsFile: inFile) is func
 
 
 (**
- *  Write a [[string]] to a tlsFile.
+ *  Write a [[string]] to the given TLS file ''outFile''.
+ *  @param outFile TLS file to which ''stri'' is written.
+ *  @param stri A string of bytes to be written to ''outFile''.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
@@ -2199,8 +2206,13 @@ const proc: write (inout tlsFile: outFile, in string: stri) is func
 
 
 (**
- *  Write a [[string]] followed by end-of-line to ''outSocket''.
- *  This function assures that string and '\n' are sent together.
+ *  Write a [[string]] followed by end-of-line to ''outFile''.
+ *  This function assures that ''stri'' and '\n' are sent together.
+ *  @param outFile TLS file to which ''stri'' and '\n' are written.
+ *  @param stri A string of bytes to be written to ''outFile''.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
  *)
 const proc: writeln (inout tlsFile: outFile, in string: stri) is func
   begin
@@ -2210,8 +2222,10 @@ const proc: writeln (inout tlsFile: outFile, in string: stri) is func
 
 
 (**
- *  Read a [[string]] with a maximum length from a tlsFile.
- *  @return the string read.
+ *  Read a [[string]] of bytes with a maximum length from ''inFile''.
+ *  @param inFile TLS file from which the string is read.
+ *  @param maxLength The maximum number of bytes to be read.
+ *  @return the string of bytes read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -2245,13 +2259,14 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
 
 
 (**
- *  Read a line from a tlsFile.
+ *  Read a line from the given TLS file ''inFile''.
  *  The function accepts lines ending with '\n', "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the '\r' of a "\r\n" sequence is silently removed.
- *  When the function is left inFile.bufferChar contains '\n' or
+ *  When the function returns, inFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
- *  @return the line read.
+ *  @param inFile TLS file from which the line is read.
+ *  @return the line read as a string of bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: getln (inout tlsFile: inFile) is func
