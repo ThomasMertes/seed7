@@ -275,6 +275,7 @@ typedef sword (*tp_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
 typedef sword (*tp_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
                                     ub4 stmt_len, ub4 language, ub4 mode);
 typedef oratext *(*tp_OCIStringPtr) (OCIEnv *env, const OCIString *vs);
+typedef sword (*tp_OCIStringResize) (OCIEnv *env, OCIError *err, ub4 new_size, OCIString **str);
 typedef ub4 (*tp_OCIStringSize) (OCIEnv *env, const OCIString *vs);
 typedef sword (*tp_OCITransCommit) (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
 typedef sword (*tp_OCITransRollback) (dvoid *svchp,  OCIError *errhp, ub4 flags);
@@ -321,6 +322,7 @@ static tp_OCIStmtExecute               ptr_OCIStmtExecute;
 static tp_OCIStmtFetch2                ptr_OCIStmtFetch2;
 static tp_OCIStmtPrepare               ptr_OCIStmtPrepare;
 static tp_OCIStringPtr                 ptr_OCIStringPtr;
+static tp_OCIStringResize              ptr_OCIStringResize;
 static tp_OCIStringSize                ptr_OCIStringSize;
 static tp_OCITransCommit               ptr_OCITransCommit;
 static tp_OCITransRollback             ptr_OCITransRollback;
@@ -367,6 +369,7 @@ static tp_OCITransRollback             ptr_OCITransRollback;
 #define OCIStmtFetch2                ptr_OCIStmtFetch2
 #define OCIStmtPrepare               ptr_OCIStmtPrepare
 #define OCIStringPtr                 ptr_OCIStringPtr
+#define OCIStringResize              ptr_OCIStringResize
 #define OCIStringSize                ptr_OCIStringSize
 #define OCITransCommit               ptr_OCITransCommit
 #define OCITransRollback             ptr_OCITransRollback
@@ -425,6 +428,7 @@ static boolType setupDll (const char *dllName)
             (OCIStmtFetch2                = (tp_OCIStmtFetch2)                dllFunc(dbDll, "OCIStmtFetch2"))                == NULL ||
             (OCIStmtPrepare               = (tp_OCIStmtPrepare)               dllFunc(dbDll, "OCIStmtPrepare"))               == NULL ||
             (OCIStringPtr                 = (tp_OCIStringPtr)                 dllFunc(dbDll, "OCIStringPtr"))                 == NULL ||
+            (OCIStringResize              = (tp_OCIStringResize)              dllFunc(dbDll, "OCIStringResize"))              == NULL ||
             (OCIStringSize                = (tp_OCIStringSize)                dllFunc(dbDll, "OCIStringSize"))                == NULL ||
             (OCITransCommit               = (tp_OCITransCommit)               dllFunc(dbDll, "OCITransCommit"))               == NULL ||
             (OCITransRollback             = (tp_OCITransRollback)             dllFunc(dbDll, "OCITransRollback"))             == NULL) {
@@ -617,6 +621,14 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
     } /* if */
     /* It seems that the define_handle is implicitly freed with the statement handle. */
     if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
+      if (resultData->buffer_type == SQLT_VST &&
+          resultData->buffer != NULL &&
+          *(OCIString **) resultData->buffer != NULL) {
+        OCIStringResize(preparedStmt->oci_environment,
+                        preparedStmt->oci_error,
+                        0,
+                        (OCIString **) resultData->buffer);
+      } /* if */
       free(resultData->buffer);
     } /* if */
     if (resultData->descriptor != NULL) {
@@ -1671,7 +1683,11 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQLT_LVB: /* LONG VARRAW */
         case SQLT_AFC: /* CHAR */
         case SQLT_AVC: /* CHARZ */
+          strategy = USE_BUFFER;
+          break;
         case SQLT_VST: /* OCI STRING type */
+          column_size = sizeof(OCIString *);
+          value_size = sizeof(OCIString *);
           strategy = USE_BUFFER;
           break;
         case SQLT_IBFLOAT:  /* BINARY_FLOAT */
@@ -4029,7 +4045,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             break;
           case SQLT_VST: /* OCI STRING type */
             stri8 = (cstriType) OCIStringPtr(preparedStmt->oci_environment,
-                                             (OCIString *) columnData->buffer);
+                                             *(OCIString **) columnData->buffer);
             if (unlikely(stri8 == NULL)) {
               dbInconsistent("sqlColumnStri", "OCIStringPtr");
               logError(printf("sqlColumnStri: Column " FMT_D ": "
@@ -4038,7 +4054,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               columnValue = NULL;
             } else {
               length = OCIStringSize(preparedStmt->oci_environment,
-                                     (OCIString *) columnData->buffer);
+                                     *(OCIString **) columnData->buffer);
               columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
               if (unlikely(columnValue == NULL)) {
                 raise_error(err_info);

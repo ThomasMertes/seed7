@@ -291,6 +291,7 @@ sword OCIStmtFetch2 (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
 sword OCIStmtPrepare (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
                       ub4 stmt_len, ub4 language, ub4 mode);
 oratext *OCIStringPtr (OCIEnv *env, const OCIString *vs);
+sword OCIStringResize (OCIEnv *env, OCIError *err, ub4 new_size, OCIString **str);
 ub4 OCIStringSize (OCIEnv *env, const OCIString *vs);
 sword OCITransCommit (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
 sword OCITransRollback (dvoid *svchp,  OCIError *errhp, ub4 flags);
