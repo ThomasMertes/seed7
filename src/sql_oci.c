@@ -2729,6 +2729,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     } else {
       param = &preparedStmt->param_array[pos - 1];
       if (param->buffer_capacity < 1) {
+        free(param->buffer);
         if ((param->buffer = malloc(1)) == NULL) {
           param->buffer_capacity = 0;
           err_info = MEMORY_ERROR;
