@@ -4193,41 +4193,62 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           case SQLT_TIMESTAMP:
           case SQLT_TIMESTAMP_TZ:
           case SQLT_TIMESTAMP_LTZ:
-            OCIDateTimeGetDate(preparedStmt->oci_environment,
-                               preparedStmt->oci_error,
-                               (OCIDateTime *) columnData->descriptor,
-                               &ociYear,
-                               &ociMonth,
-                               &ociDay);
-            if (ociYear <= -1) {
-              /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
-              ociYear++;
+            if (unlikely(OCIDateTimeGetDate(preparedStmt->oci_environment,
+                                            preparedStmt->oci_error,
+                                            (OCIDateTime *) columnData->descriptor,
+                                            &ociYear,
+                                            &ociMonth,
+                                            &ociDay) != OCI_SUCCESS)) {
+              setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetDate",
+                            preparedStmt->oci_error);
+              logError(printf("sqlColumnTime: OCIDateTimeGetDate:\n%s\n",
+                              dbError.message););
+              err_info = DATABASE_ERROR;
+            } else if (unlikely(OCIDateTimeGetTime(preparedStmt->oci_environment,
+                                                   preparedStmt->oci_error,
+                                                   (OCIDateTime *) columnData->descriptor,
+                                                   &ociHour,
+                                                   &ociMinute,
+                                                   &ociSecond,
+                                                   &ociFsec) != OCI_SUCCESS)) {
+              setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetTime",
+                            preparedStmt->oci_error);
+              logError(printf("sqlColumnTime: OCIDateTimeGetTime:\n%s\n",
+                              dbError.message););
+              err_info = DATABASE_ERROR;
+            } else if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
+              if (unlikely(OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
+                                                        preparedStmt->oci_error,
+                                                        (OCIDateTime *) columnData->descriptor,
+                                                        &tzHour,
+                                                        &tzMinute) != OCI_SUCCESS)) {
+                setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetTimeZoneOffset",
+                              preparedStmt->oci_error);
+                logError(printf("sqlColumnTime: OCIDateTimeGetTimeZoneOffset:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+              } /* if */
             } /* if */
-            *year  = ociYear;
-            *month = ociMonth;
-            *day   = ociDay;
-            OCIDateTimeGetTime(preparedStmt->oci_environment,
-                               preparedStmt->oci_error,
-                               (OCIDateTime *) columnData->descriptor,
-                               &ociHour,
-                               &ociMinute,
-                               &ociSecond,
-                               &ociFsec);
-            *hour   = ociHour;
-            *minute = ociMinute;
-            *second = ociSecond;
-            *micro_second = ociFsec / 1000;
-            if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
-              OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
-                                           preparedStmt->oci_error,
-                                           (OCIDateTime *) columnData->descriptor,
-                                           &tzHour, &tzMinute);
-              /* printf(F_D16(02) ":" F_D16(02) "\n", tzHour, tzMinute); */
-              *time_zone = tzHour * 60 + tzMinute;
-              *is_dst = FALSE;
-            } else {
-              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
-                            time_zone, is_dst);
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              if (ociYear <= -1) {
+                /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
+                ociYear++;
+              } /* if */
+              *year   = ociYear;
+              *month  = ociMonth;
+              *day    = ociDay;
+              *hour   = ociHour;
+              *minute = ociMinute;
+              *second = ociSecond;
+              *micro_second = ociFsec / 1000;
+              if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
+                /* printf(F_D16(02) ":" F_D16(02) "\n", tzHour, tzMinute); */
+                *time_zone = tzHour * 60 + tzMinute;
+                *is_dst = FALSE;
+              } else {
+                timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                              time_zone, is_dst);
+              } /* if */
             } /* if */
             break;
           default:
