@@ -103,12 +103,13 @@ typedef sb4 (*OCICallbackLobWrite2) (void  *ctxp, void  *bufp, oraub8 *lenp,
 #define OCI_HTYPE_SERVER   8
 #define OCI_HTYPE_SESSION  9
 
-#define OCI_ATTR_SERVER       6
-#define OCI_ATTR_SESSION      7
-#define OCI_ATTR_PARAM_COUNT 18
-#define OCI_ATTR_USERNAME    22
-#define OCI_ATTR_PASSWORD    23
-#define OCI_ATTR_STMT_TYPE   24
+#define OCI_ATTR_SERVER          6
+#define OCI_ATTR_SESSION         7
+#define OCI_ATTR_PARAM_COUNT    18
+#define OCI_ATTR_USERNAME       22
+#define OCI_ATTR_PASSWORD       23
+#define OCI_ATTR_STMT_TYPE      24
+#define OCI_ATTR_SERVER_STATUS 143
 
 #define OCI_ATTR_DATA_SIZE  1
 #define OCI_ATTR_DATA_TYPE  2
@@ -148,6 +149,9 @@ typedef sb4 (*OCICallbackLobWrite2) (void  *ctxp, void  *bufp, oraub8 *lenp,
 #define OCI_DEFAULT 0x00
 
 #define OCI_OBJECT 0x02
+
+#define OCI_SERVER_NOT_CONNECTED 0x01
+#define OCI_SERVER_NORMAL        0x02
 
 #define SQLT_CHR             1
 #define SQLT_NUM             2

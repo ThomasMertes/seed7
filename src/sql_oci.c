@@ -3391,6 +3391,8 @@ static void sqlClose (databaseType database)
 
   {
     dbType db;
+    OCISession *session = NULL;
+    ub4 serverStatus = OCI_SERVER_NOT_CONNECTED;
 
   /* sqlClose */
     logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
@@ -3398,12 +3400,20 @@ static void sqlClose (databaseType database)
     db = (dbType) database;
     if (db->oci_service_context != NULL &&
         db->oci_error != NULL &&
-        db->oci_session != NULL) {
+        db->oci_session != NULL &&
+        OCIAttrGet(db->oci_service_context, OCI_HTYPE_SVCCTX,
+                   &session, NULL, OCI_ATTR_SESSION,
+                   db->oci_error) == OCI_SUCCESS &&
+        session == db->oci_session) {
       OCISessionEnd(db->oci_service_context, db->oci_error,
                     db->oci_session, OCI_DEFAULT);
     } /* if */
     if (db->oci_server != NULL &&
-        db->oci_error != NULL) {
+        db->oci_error != NULL &&
+        OCIAttrGet(db->oci_server, OCI_HTYPE_SERVER,
+                   &serverStatus, NULL, OCI_ATTR_SERVER_STATUS,
+                   db->oci_error) == OCI_SUCCESS &&
+        serverStatus == OCI_SERVER_NORMAL) {
       OCIServerDetach(db->oci_server, db->oci_error,
                       OCI_DEFAULT);
     } /* if */
