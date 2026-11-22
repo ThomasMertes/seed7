@@ -4200,7 +4200,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             *minute = ociMinute;
             *second = ociSecond;
             *micro_second = ociFsec / 1000;
-            if (columnData->buffer_type == SQLT_TIMESTAMP_TZ || columnData->buffer_type == SQLT_DATE) {
+            if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
               OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
                                            preparedStmt->oci_error,
                                            (OCIDateTime *) columnData->descriptor,
