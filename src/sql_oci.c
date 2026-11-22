@@ -2193,6 +2193,15 @@ static bstriType getBlob (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       bstri = NULL;
+    } else if (lobLength == 0) {
+      emptyBStriType emptyBStri;
+
+      if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyBStri->size = 0;
+      } /* if */
+      bstri = (bstriType) emptyBStri;
     } else if (unlikely(lobLength > MAX_BSTRI_LEN ||
                         !ALLOC_BSTRI_SIZE_OK(bstri, (memSizeType) lobLength))) {
       *err_info = MEMORY_ERROR;
@@ -2248,6 +2257,15 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       stri = NULL;
+    } else if (lobLength == 0) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyStri->size = 0;
+      } /* if */
+      stri = (striType) emptyStri;
     } else if (unlikely(lobLength > MAX_STRI_LEN ||
                         !ALLOC_STRI_SIZE_OK(stri, (memSizeType) lobLength))) {
       *err_info = MEMORY_ERROR;
@@ -2307,6 +2325,15 @@ static striType getClob (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       stri = NULL;
+    } else if (lobLength == 0) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyStri->size = 0;
+      } /* if */
+      stri = (striType) emptyStri;
     } else if (unlikely(lobLength > MAX_MEMSIZETYPE / MAX_UTF8_EXPANSION_FACTOR)) {
       *err_info = MEMORY_ERROR;
       stri = NULL;
