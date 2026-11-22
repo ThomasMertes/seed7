@@ -969,6 +969,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
     char mantissa[MANTISSA_LEN + 1];
     int startIdx = 1;
     int idx = 1;
+    int roundIdx;
     int length = 0;
 
   /* sqltNumberFromDecimalInt */
@@ -985,27 +986,60 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
         pos++;
       } /* while */
       /* Read decimal integer */
-      while (pos < decimal->size && decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9' && idx <= MANTISSA_LEN) {
+      while (pos < decimal->size &&
+             decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9' &&
+             idx <= MANTISSA_LEN) {
         mantissa[idx] = (char) ((char) decimal->mem[pos] - '0');
         idx++;
         pos++;
       } /* while */
-      while (pos < decimal->size && decimal->mem[pos] == '0') {
+      if (pos < decimal->size &&
+          decimal->mem[pos] >= '5' && decimal->mem[pos] <= '9') {
+        /* Round up the 40-digit mantissa */
+        roundIdx = idx - 1;
+        while (roundIdx >= 1 && mantissa[roundIdx] == 9) {
+          mantissa[roundIdx] = 0;
+          roundIdx--;
+        } /* while */
+        if (roundIdx >= 1) {
+          mantissa[roundIdx]++;
+        } else {
+          /* Carried out of 999...9 (40 nines) -> 1000...0 */
+          mantissa[1] = 1;
+          scale--;
+        } /* if */
+      } /* if */
+      while (pos < decimal->size &&
+             decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9') {
         idx++;
         pos++;
       } /* while */
       if (pos != decimal->size) {
-        logError(printf("sqltNumberFromDecimalInt: Mantissa too long or trailing nondigit chars found\n"););
+        logError(printf("sqltNumberFromDecimalInt: Trailing nondigit chars found\n"););
         *err_info = RANGE_ERROR;
       } else {
         decimalExponent = -scale + idx - 2;
         if (decimalExponent % 2 == 0) {
-          if (idx <= MANTISSA_LEN || mantissa[MANTISSA_LEN] == 0) {
+          if (idx > MANTISSA_LEN) {
+            /* Only 39 significant digits fit when decimalExponent is even. */
+            if (mantissa[MANTISSA_LEN] >= 5) {
+              roundIdx = MANTISSA_LEN - 1;
+              while (roundIdx >= 1 && mantissa[roundIdx] == 9) {
+                mantissa[roundIdx] = 0;
+                roundIdx--;
+              } /* while */
+              if (roundIdx >= 1) {
+                mantissa[roundIdx]++;
+              } else {
+                mantissa[1] = 1;
+                decimalExponent++;
+              } /* if */
+            } /* if */
+            idx = MANTISSA_LEN;
+          } /* if */
+          if (decimalExponent % 2 == 0) {
             startIdx = 0;
             mantissa[0] = 0;
-          } else {
-            logError(printf("sqltNumberFromDecimalInt: Mantissa too long\n"););
-            *err_info = RANGE_ERROR;
           } /* if */
         } /* if */
         if (*err_info == OKAY_NO_ERROR) {
@@ -4849,7 +4883,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 err_info = DATABASE_ERROR;
                 database = NULL;
               } else if ((db.oci_environment = NULL,
-			  OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
+                          OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
                                           NULL, NULL, NULL, NULL, 0, NULL,
                                           db.charSetId, db.charSetId) != OCI_SUCCESS)) {
                 dbLibError("sqlOpenOci", "OCIEnvNlsCreate",
