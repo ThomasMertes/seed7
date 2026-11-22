@@ -1125,7 +1125,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
  *               left (negative) of the decimal point.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the decimal integer + scale
- *                  cannot be converted to a SQLT_NUM number.
+ *                  cannot be converted to an OCINumber.
  */
 static void ociNumberFromDecimalInt (OCINumber *ociNumber, const const_striType decimal,
     int scale, errInfoType *err_info)
@@ -4310,7 +4310,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
