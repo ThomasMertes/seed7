@@ -2791,42 +2791,65 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
                                  0, NULL) != OCI_SUCCESS) {
             logError(printf("sqlBindBStri: OCIDescriptorAlloc: Out of memory.\n"););
             err_info = MEMORY_ERROR;
+          } else if (OCILobCreateTemporary(preparedStmt->oci_service_context,
+                                           preparedStmt->oci_error,
+                                           (OCILobLocator *) param->descriptor,
+                                           OCI_DEFAULT,
+                                           OCI_DEFAULT,
+                                           OCI_TEMP_BLOB,
+                                           FALSE,
+                                           OCI_DURATION_SESSION) != OCI_SUCCESS) {
+            setDbErrorMsg("sqlBindBStri", "OCILobCreateTemporary",
+                          preparedStmt->oci_error);
+            logError(printf("sqlBindBStri: OCILobCreateTemporary:\n%s\n",
+                            dbError.message););
+            OCIDescriptorFree(param->descriptor, OCI_DTYPE_LOB);
+            param->descriptor = NULL;
+            err_info = DATABASE_ERROR;
           } /* if */
-        } /* if */
-      } /* if */
-      if (likely(err_info == OKAY_NO_ERROR)) {
-        if (OCILobCreateTemporary(preparedStmt->oci_service_context,
-                                  preparedStmt->oci_error,
-                                  (OCILobLocator *) param->descriptor,
-                                  OCI_DEFAULT,
-                                  OCI_DEFAULT,
-                                  OCI_TEMP_BLOB,
-                                  FALSE,
-                                  OCI_DURATION_SESSION) != OCI_SUCCESS) {
-          setDbErrorMsg("sqlBindBStri", "OCILobCreateTemporary",
-                        preparedStmt->oci_error);
-          logError(printf("sqlBindBStri: OCILobCreateTemporary:\n%s\n",
-                          dbError.message););
-          err_info = DATABASE_ERROR;
-        } else {
-          *(void **) param->buffer = param->descriptor;
-          param->buffer_type   = SQLT_BLOB;
-          param->buffer_length = 0;
         } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else if (bstri->size == 0) {
-        param->indicator = -1;
-        if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
-                                  &param->bind_handle,
-                                  preparedStmt->oci_error,
-                                  (ub4) pos,
-                                  param->buffer,
-                                  (sb4) param->buffer_length,
-                                  SQLT_BLOB,
-                                  &param->indicator,
-                                  NULL, NULL, 0, NULL, OCI_DEFAULT) != OCI_SUCCESS))  {
+      } else {
+        *(void **) param->buffer = param->descriptor;
+        param->buffer_type = SQLT_BLOB;
+        param->buffer_length = 0;
+        if (bstri->size == 0) {
+          param->indicator = -1;
+          if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
+                                    &param->bind_handle,
+                                    preparedStmt->oci_error,
+                                    (ub4) pos,
+                                    param->buffer,
+                                    (sb4) param->buffer_length,
+                                    SQLT_BLOB,
+                                    &param->indicator,
+                                    NULL, NULL, 0, NULL,
+                                    OCI_DEFAULT) != OCI_SUCCESS))  {
+            setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
+                          preparedStmt->oci_error);
+            logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
+          } else {
+            preparedStmt->executeSuccessful = FALSE;
+            preparedStmt->fetchOkay = FALSE;
+            param->bound = TRUE;
+          } /* if */
+        } else if (unlikely(!setBlob(preparedStmt,
+                                     (OCILobLocator *) param->descriptor,
+                                     bstri, &err_info))) {
+          raise_error(err_info);
+        } else if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
+                                         &param->bind_handle,
+                                         preparedStmt->oci_error,
+                                         (ub4) pos,
+                                         param->buffer,
+                                         (sb4) param->buffer_length,
+                                         SQLT_BLOB,
+                                         NULL, NULL, NULL, 0, NULL,
+                                         OCI_DEFAULT) != OCI_SUCCESS))  {
           setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
                         preparedStmt->oci_error);
           logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
@@ -2837,28 +2860,6 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
           preparedStmt->fetchOkay = FALSE;
           param->bound = TRUE;
         } /* if */
-      } else if (unlikely(!setBlob(preparedStmt,
-                                   (OCILobLocator *) param->descriptor,
-                                   bstri, &err_info))) {
-        raise_error(err_info);
-      } else if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
-                                       &param->bind_handle,
-                                       preparedStmt->oci_error,
-                                       (ub4) pos,
-                                       param->buffer,
-                                       (sb4) param->buffer_length,
-                                       SQLT_BLOB,
-                                       NULL, NULL, NULL, 0, NULL,
-                                       OCI_DEFAULT) != OCI_SUCCESS))  {
-        setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
-                      preparedStmt->oci_error);
-        logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
-                        dbError.message););
-        raise_error(DATABASE_ERROR);
-      } else {
-        preparedStmt->executeSuccessful = FALSE;
-        preparedStmt->fetchOkay = FALSE;
-        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBStri */
