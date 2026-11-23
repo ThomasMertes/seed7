@@ -622,7 +622,6 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
     /* It seems that the define_handle is implicitly freed with the statement handle. */
     if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
       if (resultData->buffer_type == SQLT_VST &&
-          resultData->buffer != NULL &&
           *(OCIString **) resultData->buffer != NULL) {
         OCIStringResize(preparedStmt->oci_environment,
                         preparedStmt->oci_error,
@@ -814,7 +813,7 @@ static void ociNumberToDecimalInt (const OCINumber *ociNumber, striType stri,
  *              (Needs a capacity of at least 127 characters).
  *  @return the scale of the number. The scale is the number of digits
  *          to the right (positive) or left (negative) of the decimal point.
- *          For finite values the scale is greater or equal 0.
+ *          For finite values the scale is greater than or equal to 0.
  *          For positive and negative infinite values the scale is -1.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the number cannot be converted
@@ -943,7 +942,7 @@ static int sqltNumberToDecimalFraction (memSizeType dataLen,
  *              (Needs a capacity of at least 127 characters).
  *  @return the scale of the number. The scale is the number of digits
  *          to the right (positive) or left (negative) of the decimal point.
- *          For finite values the scale is greater or equal 0.
+ *          For finite values the scale is greater than or equal to 0.
  *          For positive and negative infinite values the scale is -1.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the number cannot be converted
@@ -3395,10 +3394,10 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                      (hour + (-time_zone) / 60 > 23 ||
                      (hour + (-time_zone) / 60 == 23 &&
                      minute + (-time_zone) % 60 > 59)))) {
-          /* When the time_zone would move the year from 1 BC to 1 AD the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by    */
-          /* setting time_zone to zero. Luckily all time values at the    */
-          /* default date 0-1-1 are not affected by this special case.    */
+          /* When time_zone would move the year from 1 BC to 1 AD, the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by */
+          /* setting time_zone to zero. Luckily all time values at the */
+          /* default date 0-1-1 are not affected by this special case. */
           time_zone = 0;
           /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
@@ -3411,11 +3410,11 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         if (unlikely((year == 1 || year == -4712) && month == 1 && day == 1 &&
                      (time_zone / 60 > hour ||
                      (time_zone / 60 == hour && time_zone % 60 > minute)))) {
-          /* When the time_zone would move the year from 1 AD to 1 BC the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by    */
-          /* setting time_zone to zero. For the minimum allowed time      */
-          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not    */
-          /* work correctly, if the time_zone is greater than zero.       */
+          /* When time_zone would move the year from 1 AD to 1 BC, the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by */
+          /* setting time_zone to zero. For the minimum allowed time   */
+          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not */
+          /* work correctly, if the time_zone is greater than zero.    */
           time_zone = 0;
           /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
@@ -4071,7 +4070,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                printf("\"\n"); */
             while (length > 0 && stri8[length - 1] == ' ') {
               length--;
-            } /* if */
+            } /* while */
             columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
@@ -4232,7 +4231,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             sqltDat = (unsigned char *) columnData->buffer;
             ociYear = (sb2) ((sqltDat[0] - 101) * 100 + sqltDat[1]);
             if (ociYear <= -1) {
-              /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
+              /* In the proleptic Gregorian calendar, the year preceding 1 is 0. */
               ociYear++;
             } /* if */
             *year   = ociYear;
@@ -4441,8 +4440,8 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
       } else {
-        /* OCI_SUCCESS_WITH_INFO is used e.g., when data is truncated. */
-        /* In that case data has been lost which is a DATABASE_ERROR.  */
+        /* OCI_SUCCESS_WITH_INFO is used, e.g., when data is truncated. */
+        /* In that case, data has been lost, which is a DATABASE_ERROR. */
         setDbErrorMsg("sqlFetch", "OCIStmtFetch2",
                       preparedStmt->oci_error);
         logError(printf("sqlFetch: OCIStmtFetch2 fetch_result: %d:\n%s\n",
@@ -4562,7 +4561,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                                OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS) {
               dbLibError("sqlPrepare", "OCIHandleAlloc",
                          "OCIHandleAlloc failed.\n");
-              logError(printf("sqlPrepare: OCIHandleAlloc failed\n"););
+              logError(printf("sqlPrepare: OCIHandleAlloc failed.\n"););
               FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                            count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = DATABASE_ERROR;
@@ -5059,12 +5058,12 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                                         OCI_HTYPE_SESSION, 0, NULL) != OCI_SUCCESS) {
                 dbLibError("sqlOpenOci", "OCIHandleAlloc",
                            "OCIHandleAlloc failed.\n");
-                logError(printf("sqlOpenOci: OCIHandleAlloc failed\n"););
+                logError(printf("sqlOpenOci: OCIHandleAlloc failed.\n"););
                 err_info = DATABASE_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if ((connectData.tnsName == NULL ||
-                          /* Possible TNS name: No host and no port has been specified. */
+                          /* Possible TNS name: No host and no port have been specified. */
                           OCIServerAttach(db.oci_server, db.oci_error,
                                           (OraText *) connectData.tnsName,
                                           (sb4) connectData.tnsNameLength,
