@@ -1480,13 +1480,18 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *defnp, ub4 iter,
     printf("long_data_piece_size: " FMT_U32 "\n", resultData->long_data_piece_size);
 #endif
     switch (*piecep) {
+      case OCI_ONE_PIECE:
+      case OCI_FIRST_PIECE:
+        resultData->long_data_length = 0;
+        break;
       case OCI_NEXT_PIECE:
       case OCI_LAST_PIECE:
         /* Add the size of the previous piece. */
         resultData->long_data_length += resultData->long_data_piece_size;
         break;
     } /* switch */
-    if (resultData->buffer_length >= resultData->long_data_length &&
+    if (resultData->buffer != NULL &&
+        resultData->buffer_length >= resultData->long_data_length &&
         resultData->buffer_length - resultData->long_data_length >= MIN_LONG_DATA_PIECE_SIZE) {
       if (resultData->buffer_length - resultData->long_data_length <= UINT32TYPE_MAX) {
         resultData->long_data_piece_size = (uint32Type)
@@ -1503,9 +1508,18 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *defnp, ub4 iter,
         resultData->long_data_return_code = OCI_NO_DATA;
         returnCode = OCI_NO_DATA;
       } else {
-        newBufferLength = resultData->buffer_length * 2;
+        if (resultData->buffer_length == 0) {
+          newBufferLength = MIN_LONG_DATA_PIECE_SIZE;
+        } else {
+          newBufferLength = resultData->buffer_length * 2;
+        } /* if */
         resizedBuffer = realloc(resultData->buffer, newBufferLength);
-        if (resizedBuffer != NULL) {
+        if (unlikely(resizedBuffer == NULL)) {
+          resultData->long_data_piece_size = 0;
+          *bufpp = NULL;
+          resultData->long_data_return_code = OCI_NO_DATA;
+          returnCode = OCI_NO_DATA;
+        } else {
           resultData->buffer_length = newBufferLength;
           resultData->buffer = resizedBuffer;
           if (newBufferLength - resultData->long_data_length <= UINT32TYPE_MAX) {
@@ -1516,11 +1530,6 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *defnp, ub4 iter,
           } /* if */
           *bufpp = &((char *) resultData->buffer)[resultData->long_data_length];
           resultData->long_data_return_code = OCI_SUCCESS;
-        } else {
-          resultData->long_data_piece_size = 0;
-          *bufpp = NULL;
-          resultData->long_data_return_code = OCI_NO_DATA;
-          returnCode = OCI_NO_DATA;
         } /* if */
       } /* if */
     } /* if */
