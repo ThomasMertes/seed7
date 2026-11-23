@@ -97,7 +97,7 @@ typedef struct {
     memSizeType  buffer_length;
     void        *buffer;
     uint16Type   length;
-    memSizeType  long_data_buf_usage;
+    memSizeType  long_data_length;
     uint32Type   long_data_piece_size;
     uint16Type   long_data_return_code;
     void        *descriptor;
@@ -148,7 +148,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SIZEOF_SQLT_NUM 22
 #define SIZEOF_SQLT_TIMESTAMP_TZ 13
 #define MANTISSA_LEN 40
-#define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
+#define MIN_LONG_DATA_PIECE_SIZE 4096
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
 #define DEBUG_LONG_CALLBACK 0
 #define SHOW_DETAILS 0
@@ -1415,8 +1415,19 @@ static striType processStatementStri (const const_striType sqlStatementStri,
 
 
 
-static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
-    dvoid **bufpp, ub4 **alenp, ub1 *piecep, dvoid **indp, ub2 **rcodep)
+/**
+ *  Callback function used for SQLT_LNG and SQLT_LBI fields.
+ *  @param octxp   [IN] Your user-defined context pointer
+ *  @param defnp   [IN] The define handle requesting data
+ *  @param iter    [IN] Current row iteration (0-based; always 0 for LONGs)
+ *  @param bufpp   [OUT] Pointer to the buffer OCI should write into
+ *  @param alenpp  [IN/OUT] Pointer to the buffer size (IN) and bytes read (OUT)
+ *  @param piecep  [IN/OUT] Piece indicator (OCI_ONE_PIECE, OCI_FIRST_PIECE, etc.)
+ *  @param indpp   [OUT] Pointer to your indicator variable (sb2)
+ *  @param rcodepp [OUT] Pointer to your column return code variable (ub2)
+ */
+static sb4 longCallback (dvoid *octxp, OCIDefine *defnp, ub4 iter,
+    dvoid **bufpp, ub4 **alenpp, ub1 *piecep, dvoid **indpp, ub2 **rcodepp)
 
   {
     resultDataType resultData;
@@ -1440,12 +1451,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("IN bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
-    if (alenp == NULL) {
+    if (alenpp == NULL) {
       printf("IN alen: NULL\n");
-    } else if (*alenp == NULL) {
+    } else if (*alenpp == NULL) {
       printf("IN alen: *NULL*\n");
     } else {
-      printf("IN alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
+      printf("IN alen: " FMT_U_MEM "\n", (memSizeType) **alenpp);
     } /* if */
     if (piecep == NULL) {
       printf("IN piecep: NULL\n");
@@ -1458,60 +1469,64 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("IN piecep: %u\n", *piecep);
     } /* if */
-    if (indp == NULL) {
+    if (indpp == NULL) {
       printf("IN ind: NULL\n");
-    } else if (*indp == NULL) {
+    } else if (*indpp == NULL) {
       printf("IN ind: *NULL*\n");
     } else {
-      printf("IN ind: %lu\n", *(unsigned long *) *indp);
+      printf("IN ind: %lu\n", *(unsigned long *) *indpp);
     } /* if */
-    printf("buffer: " FMT_U_MEM "\n", (memSizeType) resultData->buffer);
-    fwrite(resultData->buffer, 1, resultData->long_data_buf_usage, stdout);
-    printf("\n");
-    printf("long_data_buf_usage: " FMT_U_MEM "\n", resultData->long_data_buf_usage);
+    printf("long_data_length: " FMT_U_MEM "\n", resultData->long_data_length);
+    printf("long_data_piece_size: " FMT_U32 "\n", resultData->long_data_piece_size);
 #endif
     switch (*piecep) {
-      case OCI_ONE_PIECE:
-        /* OCI_ONE_PIECE */
-        resultData->long_data_buf_usage = 0;
-        break;
-      case OCI_FIRST_PIECE:
-        /* OCI_ONE_PIECE or OCI_FIRST_PIECE */
-        resultData->long_data_buf_usage = 0;
-        *piecep = OCI_FIRST_PIECE;
-        break;
       case OCI_NEXT_PIECE:
-        /* OCI_NEXT_PIECE or OCI_LAST_PIECE */
-        *piecep = OCI_NEXT_PIECE;
+      case OCI_LAST_PIECE:
+        /* Add the size of the previous piece. */
+        resultData->long_data_length += resultData->long_data_piece_size;
         break;
     } /* switch */
-    if (resultData->buffer_length > resultData->long_data_buf_usage) {
-      resultData->long_data_piece_size = (uint32Type)
-          (resultData->buffer_length - resultData->long_data_buf_usage);
-      *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
-      resultData->long_data_buf_usage = resultData->buffer_length;
-      resultData->long_data_return_code = OCI_SUCCESS;
-    } else if (resultData->buffer_length == resultData->long_data_buf_usage) {
-      newBufferLength = resultData->buffer_length + LONG_DATA_BUFFER_SIZE_INCREMENT;
-      resizedBuffer = realloc(resultData->buffer, newBufferLength);
-      if (resizedBuffer != NULL) {
-        resultData->buffer_length = newBufferLength;
-        resultData->buffer = resizedBuffer;
+    if (resultData->buffer_length >= resultData->long_data_length &&
+        resultData->buffer_length - resultData->long_data_length >= MIN_LONG_DATA_PIECE_SIZE) {
+      if (resultData->buffer_length - resultData->long_data_length <= UINT32TYPE_MAX) {
         resultData->long_data_piece_size = (uint32Type)
-            (resultData->buffer_length - resultData->long_data_buf_usage);
-        *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
-        resultData->long_data_buf_usage = resultData->buffer_length;
-        resultData->long_data_return_code = OCI_SUCCESS;
+            (resultData->buffer_length - resultData->long_data_length);
       } else {
+        resultData->long_data_piece_size = UINT32TYPE_MAX;
+      } /* if */
+      *bufpp = &((char *) resultData->buffer)[resultData->long_data_length];
+      resultData->long_data_return_code = OCI_SUCCESS;
+    } else {
+      if (unlikely(resultData->buffer_length > MAX_MEMSIZETYPE / 2)) {
         resultData->long_data_piece_size = 0;
         *bufpp = NULL;
         resultData->long_data_return_code = OCI_NO_DATA;
         returnCode = OCI_NO_DATA;
+      } else {
+        newBufferLength = resultData->buffer_length * 2;
+        resizedBuffer = realloc(resultData->buffer, newBufferLength);
+        if (resizedBuffer != NULL) {
+          resultData->buffer_length = newBufferLength;
+          resultData->buffer = resizedBuffer;
+          if (newBufferLength - resultData->long_data_length <= UINT32TYPE_MAX) {
+            resultData->long_data_piece_size = (uint32Type)
+                (newBufferLength - resultData->long_data_length);
+          } else {
+            resultData->long_data_piece_size = UINT32TYPE_MAX;
+          } /* if */
+          *bufpp = &((char *) resultData->buffer)[resultData->long_data_length];
+          resultData->long_data_return_code = OCI_SUCCESS;
+        } else {
+          resultData->long_data_piece_size = 0;
+          *bufpp = NULL;
+          resultData->long_data_return_code = OCI_NO_DATA;
+          returnCode = OCI_NO_DATA;
+        } /* if */
       } /* if */
     } /* if */
-    *alenp = &resultData->long_data_piece_size;
-    *indp = &resultData->indicator;
-    *rcodep = &resultData->long_data_return_code;
+    *alenpp = &resultData->long_data_piece_size;
+    *indpp = &resultData->indicator;
+    *rcodepp = &resultData->long_data_return_code;
 #if DEBUG_LONG_CALLBACK
     printf("long_data_piece_size: %u\n", resultData->long_data_piece_size);
     printf("buffer_length: " FMT_U_MEM "\n", resultData->buffer_length);
@@ -1522,12 +1537,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("OUT bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
-    if (alenp == NULL) {
+    if (alenpp == NULL) {
       printf("OUT alen: NULL\n");
-    } else if (*alenp == NULL) {
+    } else if (*alenpp == NULL) {
       printf("OUT alen: *NULL*\n");
     } else {
-      printf("OUT alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
+      printf("OUT alen: " FMT_U_MEM "\n", (memSizeType) **alenpp);
     } /* if */
     if (piecep == NULL) {
       printf("OUT piecep: NULL\n");
@@ -1540,12 +1555,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("OUT piecep: %u\n", *piecep);
     } /* if */
-    if (indp == NULL) {
+    if (indpp == NULL) {
       printf("OUT ind: NULL\n");
-    } else if (*indp == NULL) {
+    } else if (*indpp == NULL) {
       printf("OUT ind: *NULL*\n");
     } else {
-      printf("OUT ind: %lu\n", *(unsigned long *) *indp);
+      printf("OUT ind: %lu\n", *(unsigned long *) *indpp);
     } /* if */
 #endif
     return returnCode;
@@ -1586,7 +1601,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     ub4 column_size = 0;
     ub4 value_size;
     ub4 descriptor_type;
-    enum {USE_BUFFER, USE_DESCRIPTOR, USE_REF} strategy = USE_BUFFER;
+    enum {USE_BUFFER, USE_DESCRIPTOR, USE_REF,
+          USE_DYNAMIC_FETCH} strategy = USE_BUFFER;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
@@ -1623,9 +1639,10 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       switch (resultData->buffer_type) {
         case SQLT_LNG: /* LONG */
         case SQLT_LBI: /* LONG RAW */
-          column_size = LONG_DATA_BUFFER_SIZE_INCREMENT;
+          resultData->buffer = NULL;
+          column_size = 0;
           value_size = 2147483647; /* Maximum length of LONG data: 2**31-1 */
-          strategy = USE_BUFFER;
+          strategy = USE_DYNAMIC_FETCH;
           break;
         case SQLT_RDD: /* ROWID */
           descriptor_type = OCI_DTYPE_ROWID;  /* ROWID */
@@ -1742,17 +1759,14 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                            &resultData->indicator,
                            &resultData->length,
                            NULL,
-                           resultData->buffer_type == SQLT_LNG ||
-                           resultData->buffer_type == SQLT_LBI ?
+                           strategy == USE_DYNAMIC_FETCH ?
                            OCI_DYNAMIC_FETCH : OCI_DEFAULT) != OCI_SUCCESS) {
-                           /* OCI_DEFAULT) != OCI_SUCCESS) { */
           setDbErrorMsg("setupResultColumn", "OCIDefineByPos",
                         preparedStmt->oci_error);
           logError(printf("setupResultColumn: OCIDefineByPos:\n%s\n",
                           dbError.message););
           err_info = DATABASE_ERROR;
-        } else if (resultData->buffer_type == SQLT_LNG ||
-                   resultData->buffer_type == SQLT_LBI) {
+        } else if (strategy == USE_DYNAMIC_FETCH) {
           /* printf("OCIDefineDynamic\n"); */
           if (OCIDefineDynamic(resultData->define_handle,
                                preparedStmt->oci_error,
@@ -1764,7 +1778,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                             dbError.message););
             err_info = DATABASE_ERROR;
           } /* if */
-        } else if (resultData->buffer_type == SQLT_REF) {
+        } else if (strategy == USE_REF) {
           /* printf("OCIDefineObject\n"); */
           if (OCIDefineObject(resultData->define_handle,
                               preparedStmt->oci_error,
@@ -3708,9 +3722,19 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         switch (columnData->buffer_type) {
           case SQLT_BIN: /* RAW */
           case SQLT_VBI: /* VARRAW */
-          case SQLT_LBI: /* LONG RAW */
           case SQLT_LVB: /* LONG VARRAW */
             length = columnData->length;
+            if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              columnValue->size = length;
+              memcpy(columnValue->mem, (ustriType) columnData->buffer, length);
+            } /* if */
+            break;
+          case SQLT_LBI: /* LONG RAW */
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LBI length: " FMT_U_MEM "\n", length););
             if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
               raise_error(MEMORY_ERROR);
             } else {
@@ -4004,15 +4028,20 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         switch (columnData->buffer_type) {
           case SQLT_CHR: /* VARCHAR2 */
           case SQLT_VCS: /* VARCHAR */
-          case SQLT_LNG: /* LONG */
           case SQLT_LVC: /* LONG VARCHAR */
             stri8 = (cstriType) columnData->buffer;
             length = columnData->length;
-            /* printf("length: " FMT_U_MEM "\n", length); */
-            /* printf("buffer: \"");
-               fwrite(stri8, 1, length, stdout);
-               printf("\"\n"); */
             columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
+            if (unlikely(columnValue == NULL)) {
+              raise_error(err_info);
+            } /* if */
+            break;
+          case SQLT_LNG: /* LONG */
+            stri8 = (cstriType) columnData->buffer;
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LNG length: " FMT_U_MEM "\n", length););
+            columnValue = cstri8_buf_to_stri(stri8, length, &err_info);
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
             } /* if */
@@ -4072,10 +4101,19 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             break;
           case SQLT_BIN: /* RAW */
           case SQLT_VBI: /* VARRAW */
-          case SQLT_LBI: /* LONG RAW */
           case SQLT_LVB: /* LONG VARRAW */
             columnValue = cstri_buf_to_stri((const_cstriType) columnData->buffer,
                                             columnData->length);
+            if (unlikely(columnValue == NULL)) {
+              raise_error(MEMORY_ERROR);
+            } /* if */
+            break;
+          case SQLT_LBI: /* LONG RAW */
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LBI length: " FMT_U_MEM "\n", length););
+            columnValue = cstri_buf_to_stri((const_cstriType) columnData->buffer,
+                                            length);
             if (unlikely(columnValue == NULL)) {
               raise_error(MEMORY_ERROR);
             } /* if */
