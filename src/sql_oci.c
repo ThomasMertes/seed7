@@ -4435,6 +4435,8 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
       } else {
+        /* OCI_SUCCESS_WITH_INFO is used e.g., when data is truncated. */
+        /* In that case data has been lost which is a DATABASE_ERROR.  */
         setDbErrorMsg("sqlFetch", "OCIStmtFetch2",
                       preparedStmt->oci_error);
         logError(printf("sqlFetch: OCIStmtFetch2 fetch_result: %d:\n%s\n",
