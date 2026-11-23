@@ -4559,13 +4559,21 @@ static sqlStmtType sqlPrepare (databaseType database,
             /* printf("sqlPrepare: query: %s\n", query); */
             memset(preparedStmt, 0, sizeof(preparedStmtRecordOci));
             if (OCIHandleAlloc(db->oci_environment, (void **) &preparedStmt->ppStmt,
-                               OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS ||
-                OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
-                               (OraText *) query, (ub4) queryLength,
-                               OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
+                               OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS) {
+              dbLibError("sqlPrepare", "OCIHandleAlloc",
+                         "OCIHandleAlloc failed.\n");
+              logError(printf("sqlPrepare: OCIHandleAlloc failed\n"););
+              FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
+                           count.prepared_stmt, count.prepared_stmt_bytes);
+              err_info = DATABASE_ERROR;
+              preparedStmt = NULL;
+            } else if (OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
+                                      (OraText *) query, (ub4) queryLength,
+                                      OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
               setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
               logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
                               dbError.message););
+              OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
               FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                            count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = DATABASE_ERROR;
