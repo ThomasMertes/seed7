@@ -4345,9 +4345,15 @@ static void sqlCommit (databaseType database)
       logError(printf("sqlCommit: Database is not open.\n"););
       raise_error(DATABASE_ERROR);
     } else {
-      OCITransCommit(db->oci_service_context,
-                     db->oci_error,
-                     OCI_DEFAULT);
+      if (unlikely(OCITransCommit(db->oci_service_context,
+                                  db->oci_error,
+                                  OCI_DEFAULT) != OCI_SUCCESS)) {
+        setDbErrorMsg("sqlCommit", "OCITransCommit",
+                      db->oci_error);
+        logError(printf("sqlCommit: OCITransCommit:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } /* if */
     } /* if */
     logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
@@ -4621,9 +4627,15 @@ static void sqlRollback (databaseType database)
       logError(printf("sqlRollback: Database is not open.\n"););
       raise_error(DATABASE_ERROR);
     } else {
-      OCITransRollback(db->oci_service_context,
-                       db->oci_error,
-                       OCI_DEFAULT);
+      if (unlikely(OCITransRollback(db->oci_service_context,
+                                    db->oci_error,
+                                    OCI_DEFAULT) != OCI_SUCCESS)) {
+        setDbErrorMsg("sqlRollback", "OCITransRollback",
+                      db->oci_error);
+        logError(printf("sqlRollback: OCITransRollback:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } /* if */
     } /* if */
     logFunction(printf("sqlRollback -->\n"););
   } /* sqlRollback */
