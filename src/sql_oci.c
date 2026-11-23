@@ -4286,7 +4286,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             } /* if */
             if (likely(err_info == OKAY_NO_ERROR)) {
               if (ociYear <= -1) {
-                /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
+                /* In the proleptic Gregorian calendar, the year preceding 1 is 0. */
                 ociYear++;
               } /* if */
               *year   = ociYear;
