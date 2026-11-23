@@ -1745,7 +1745,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } /* if */
         } else if (strategy == USE_BUFFER) {
           /* printf ("column_size: " FMT_U32 "\n", column_size); */
+#if MALLOC_OF_0_RETURNS_NULL
+          if (column_size == 0) {
+            resultData->buffer = malloc(1);
+          } else {
+            resultData->buffer = malloc(column_size);
+          } /* if */
+#else
           resultData->buffer = malloc(column_size);
+#endif
           if (unlikely(resultData->buffer == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
