@@ -38,9 +38,9 @@ const type: file is sub object interface;
 
 (**
  *  Write a [[string]] to a file.
- *  @exception RANGE_ERROR - The string contains a character that
+ *  @exception RANGE_ERROR The string contains a character that
  *             does not fit into the file specific representation
- *             (e.g.: A byte-file allows just chars from '\0;' to '\255;').
+ *             (e.g.: A byte-file allows only chars from '\0;' to '\255;').
  *)
 const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 
@@ -59,9 +59,9 @@ const proc: writeln (inout file: outFile)                    is DYNAMIC;
  *  The implementation function decides how writing end-of-line is
  *  done. It can be done by writing '\n', but other solutions are also
  *  possible.
- *  @exception RANGE_ERROR - The string contains a character that
+ *  @exception RANGE_ERROR The string contains a character that
  *             does not fit into the file specific representation
- *             (e.g.: A byte-file allows just chars from '\0;' to '\255;').
+ *             (e.g.: A byte-file allows only chars from '\0;' to '\255;').
  *)
 const proc: writeln (inout file: outFile, in string: stri)   is DYNAMIC;
 
@@ -113,10 +113,10 @@ const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
 
 (**
  *  Read a [[string]] from ''inFile'' until the ''terminator'' character is found.
- *  If a ''terminator'' is found the string before the ''terminator'' is
+ *  If a ''terminator'' is found, the string before the ''terminator'' is
  *  returned and the ''terminator'' character is assigned to inFile.bufferChar.
  *  The file position is advanced after the ''terminator'' character.
- *  If no ''terminator'' is found the rest of ''inFile'' is returned and
+ *  If no ''terminator'' is found, the rest of ''inFile'' is returned and
  *  [[char#EOF|EOF]] is assigned to the inFile.bufferChar. When the function
  *  is left inFile.bufferChar contains either ''terminator'' or [[char#EOF|EOF]].
  *  @param inFile File from which the string is read.
@@ -213,9 +213,9 @@ const proc: truncate (inout file: aFile, in integer: length) is DYNAMIC;
 
 (**
  *  Determine if the file ''aFile'' is seekable.
- *  If a file is seekable the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
- *  @return TRUE, if ''aFile'' is seekable, FALSE otherwise.
+ *  If a file is seekable, the functions ''seek'' and ''tell''
+ *  can be used to set and obtain the current file position.
+ *  @return TRUE if ''aFile'' is seekable, FALSE otherwise.
  *)
 const func boolean: seekable (in file: aFile)                is DYNAMIC;
 
@@ -249,7 +249,7 @@ const func integer: tell (in file: aFile)                    is DYNAMIC;
 
 (**
  *  Compare two file values.
- *  This function does neither compare file contents nor file names.
+ *  This function neither compares file contents nor file names.
  *  The order of two files is determined by comparing the memory
  *  positions of their internal data representation. Therefore the
  *  result of ''compare'' is arbitrary and may change if the
@@ -354,7 +354,7 @@ const proc: readln (inout file: inFile) is func
 
 (**
  *  Skip ''numChars'' characters from ''inFile''.
- *  When the function is left ''numChars'' have been skipped from
+ *  When the function is left, ''numChars'' have been skipped from
  *  ''inFile'' or [[char#EOF|EOF]] has been reached.
  *  @exception RANGE_ERROR The parameter ''numChars'' is negative.
  *)

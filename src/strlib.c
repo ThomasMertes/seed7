@@ -693,21 +693,53 @@ objectType str_for (listType arguments)
 
   {
     objectType for_variable;
+    objectType stri_object;
     striType stri;
+    memSizeType stri_size;
     objectType statement;
     memSizeType pos;
+#if !WITH_TYPE_CHECK
+    objectType for_exec_object;
+#endif
 
   /* str_for */
+    logFunction(printf("str_for\n"););
     for_variable = arg_2(arguments);
     isit_char(for_variable);
     is_variable(for_variable);
-    isit_stri(arg_4(arguments));
-    stri = take_stri(arg_4(arguments));
+    stri_object = arg_4(arguments);
+    isit_stri(stri_object);
+    stri = take_stri(stri_object);
+    stri_size = stri->size;
     statement = arg_6(arguments);
-    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
-      for_variable->value.charValue = stri->mem[pos];
-      evaluate(statement);
-    } /* for */
+    if (VAR_OBJECT(stri_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(stri_object);
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        evaluate(statement);
+      } /* for */
+      SET_VAR_FLAG(stri_object);
+#else
+      for_exec_object = curr_exec_object;
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        evaluate(statement);
+        if (unlikely(stri != take_stri(stri_object) ||
+                     stri_size != stri->size)) {
+          logError(printf("str_for: The string has been changed\n"););
+          return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         for_exec_object, arguments);
+        } /* if */
+      } /* for */
+#endif
+    } else {
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        evaluate(statement);
+      } /* for */
+    } /* if */
+    logFunction(printf("str_for -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* str_for */
 
@@ -720,21 +752,53 @@ objectType str_for_key (listType arguments)
 
   {
     objectType key_variable;
+    objectType stri_object;
     striType stri;
+    memSizeType stri_size;
     objectType statement;
     memSizeType pos;
+#if !WITH_TYPE_CHECK
+    objectType for_exec_object;
+#endif
 
   /* str_for_key */
+    logFunction(printf("str_for_key\n"););
     key_variable = arg_3(arguments);
     is_variable(key_variable);
     isit_int(key_variable);
-    isit_stri(arg_5(arguments));
-    stri = take_stri(arg_5(arguments));
+    stri_object = arg_5(arguments);
+    isit_stri(stri_object);
+    stri = take_stri(stri_object);
+    stri_size = stri->size;
     statement = arg_7(arguments);
-    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
-      key_variable->value.intValue = (intType) (pos + 1);
-      evaluate(statement);
-    } /* for */
+    if (VAR_OBJECT(stri_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(stri_object);
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+      } /* for */
+      SET_VAR_FLAG(stri_object);
+#else
+      for_exec_object = curr_exec_object;
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+        if (unlikely(stri != take_stri(stri_object) ||
+                     stri_size != stri->size)) {
+          logError(printf("str_for_key: The string has been changed\n"););
+          return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         for_exec_object, arguments);
+        } /* if */
+      } /* for */
+#endif
+    } else {
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+      } /* for */
+    } /* if */
+    logFunction(printf("str_for_key -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* str_for_key */
 
@@ -748,25 +812,59 @@ objectType str_for_var_key (listType arguments)
   {
     objectType for_variable;
     objectType key_variable;
+    objectType stri_object;
     striType stri;
+    memSizeType stri_size;
     objectType statement;
     memSizeType pos;
+#if !WITH_TYPE_CHECK
+    objectType for_exec_object;
+#endif
 
   /* str_for_var_key */
+    logFunction(printf("str_for_var_key\n"););
     for_variable = arg_2(arguments);
     isit_char(for_variable);
     is_variable(for_variable);
     key_variable = arg_4(arguments);
     is_variable(key_variable);
     isit_int(key_variable);
-    isit_stri(arg_6(arguments));
-    stri = take_stri(arg_6(arguments));
+    stri_object = arg_6(arguments);
+    isit_stri(stri_object);
+    stri = take_stri(stri_object);
+    stri_size = stri->size;
     statement = arg_8(arguments);
-    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
-      for_variable->value.charValue = stri->mem[pos];
-      key_variable->value.intValue = (intType) (pos + 1);
-      evaluate(statement);
-    } /* for */
+    if (VAR_OBJECT(stri_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(stri_object);
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+      } /* for */
+      SET_VAR_FLAG(stri_object);
+#else
+      for_exec_object = curr_exec_object;
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+        if (unlikely(stri != take_stri(stri_object) ||
+                     stri_size != stri->size)) {
+          logError(printf("str_for_var_key: The string has been changed\n"););
+          return raise_with_obj_and_args(SYS_ACT_ILLEGAL_EXCEPTION,
+                                         for_exec_object, arguments);
+        } /* if */
+      } /* for */
+#endif
+    } else {
+      for (pos = 0; pos < stri_size && !fail_flag; pos++) {
+        for_variable->value.charValue = stri->mem[pos];
+        key_variable->value.intValue = (intType) (pos + 1);
+        evaluate(statement);
+      } /* for */
+    } /* if */
+    logFunction(printf("str_for_var_key -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* str_for_var_key */
 

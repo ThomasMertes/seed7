@@ -91,6 +91,10 @@ typedef struct {
   } preparedStmtRecordFire, *preparedStmtType;
 
 typedef struct {
+    memSizeType hostName8Length;
+    cstriType hostName8;
+    memSizeType portNameLength;
+    cstriType portName;
     memSizeType fileName8Length;
     cstriType fileName8;
     memSizeType user8Length;
@@ -106,6 +110,8 @@ static char isc_tbp[] = {isc_tpb_version3,
                          isc_tpb_concurrency,
                          isc_tpb_wait};
 static char type_item[] = {isc_info_sql_stmt_type};
+
+#define DEFAULT_PORT 3050
 
 #ifndef SQL_BOOLEAN
 #define SQL_BOOLEAN   32764
@@ -3575,11 +3581,14 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     isc_db_handle *db_handle)
 
   {
-    const const_cstriType charset = "UTF8";
+    const char localhost[] = "localhost";
+    const char charset[] = "UTF8";
     memSizeType charset_length;
     memSizeType extension_length;
+    boolType appendExtension = FALSE;
     memSizeType fileName8Length;
-    cstriType fileName8;
+    char fileName8[255 + NULL_TERMINATION_LEN];
+    memSizeType fileName8Pos;
     memSizeType dpb_buffer_length;
     char *dpb_buffer;
     short dpb_length;
@@ -3588,30 +3597,75 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* doAttach */
-    logFunction(printf("doAttach([file=\"%s\", user=\"%s\"], "
+    logFunction(printf("doAttach([host=\"%s\", port=%s, "
+                       "file=\"%s\", user=\"%s\"], "
                        "\"%s\", *)\n",
+                       loginData->hostName8 != NULL ?
+                           loginData->hostName8 : localhost,
+                       loginData->portName != NULL ?
+                           loginData->portName : "0",
                        loginData->fileName8, loginData->user8,
                        extension););
+    fileName8Length = loginData->fileName8Length;
+    if (loginData->hostName8Length == 0) {
+      if (loginData->portNameLength != 0) {
+        /* Use "localhost/<port>:<fileName>" */
+        fileName8Length += STRLEN(localhost) +
+                           loginData->portNameLength + 2;
+      } /* if */
+    } else if (loginData->portNameLength != 0) {
+      /* Use "<host>/<port>:<fileName>" */
+      fileName8Length += loginData->hostName8Length +
+                         loginData->portNameLength + 2;
+    } else {
+      /* Use "<host>:<fileName>" */
+      fileName8Length += loginData->hostName8Length + 1;
+    } /* if */
     extension_length = strlen(extension);
     if (loginData->fileName8Length < extension_length ||
         memcmp(&loginData->fileName8[loginData->fileName8Length - extension_length],
                extension, extension_length) != 0) {
-      fileName8Length = loginData->fileName8Length + extension_length;
-      if (unlikely(fileName8Length > 255 ||
-                   !ALLOC_CSTRI(fileName8, fileName8Length))) {
-        fileName8 = NULL;
-      } else {
-        memcpy(fileName8, loginData->fileName8, loginData->fileName8Length);
-        memcpy(&fileName8[loginData->fileName8Length], extension, extension_length);
-        fileName8[fileName8Length] = '\0';
-      } /* if */
-    } else {
-      fileName8Length = loginData->fileName8Length;
-      fileName8 = loginData->fileName8;
+      appendExtension = TRUE;
+      fileName8Length += extension_length;
     } /* if */
-    if (unlikely(fileName8 == NULL)) {
-      err_info = MEMORY_ERROR;
+    if (unlikely(fileName8Length > 255)) {
+      err_info = RANGE_ERROR;
     } else {
+      if (loginData->hostName8Length == 0) {
+        if (loginData->portNameLength != 0) {
+          /* Start with "localhost" */
+          memcpy(fileName8, localhost, STRLEN(localhost));
+          fileName8Pos = STRLEN(localhost);
+        } else {
+          fileName8Pos = 0;
+        } /* if */
+      } else {
+        /* Start with "<host>" */
+        memcpy(fileName8, loginData->hostName8,
+               loginData->hostName8Length);
+        fileName8Pos = loginData->hostName8Length;
+      } /* if */
+      if (loginData->portNameLength != 0) {
+        /* Append "/<port>" */
+        fileName8[fileName8Pos] = '/';
+        fileName8Pos++;
+        memcpy(&fileName8[fileName8Pos], loginData->portName,
+               loginData->portNameLength);
+        fileName8Pos += loginData->portNameLength;
+      } /* if */
+      if (fileName8Pos != 0) {
+        fileName8[fileName8Pos] = ':';
+        fileName8Pos++;
+      } /* if */
+      memcpy(&fileName8[fileName8Pos], loginData->fileName8,
+             loginData->fileName8Length);
+      fileName8Pos += loginData->fileName8Length;
+      if (appendExtension) {
+        memcpy(&fileName8[fileName8Pos], extension,
+               extension_length);
+        fileName8Pos += extension_length;
+      } /* if */
+      fileName8[fileName8Length] = '\0';
       logMessage(printf("doAttach: fileName8=\"%s\"\n",
                         cstriAsUnquotedCLiteral(fileName8)););
       charset_length = strlen(charset);
@@ -3665,12 +3719,14 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
         } /* if */
         UNALLOC_CSTRI(dpb_buffer, dpb_buffer_length);
       } /* if */
-      if (fileName8 != loginData->fileName8) {
-        UNALLOC_CSTRI(fileName8, fileName8Length);
-      } /* if */
     } /* if */
-    logFunction(printf("doAttach([file=\"%s\", user=\"%s\"], "
+    logFunction(printf("doAttach([host=\"%s\", port=%s, "
+                       "file=\"%s\", user=\"%s\"], "
                        "\"%s\", " FMT_U32 ") --> %d\n",
+                       loginData->hostName8 != NULL ?
+                           loginData->hostName8 : localhost,
+                       loginData->portName != NULL ?
+                           loginData->portName : "0",
                        loginData->fileName8, loginData->user8,
                        extension, (uint32Type) *db_handle,
                        err_info););
@@ -3687,7 +3743,9 @@ databaseType sqlOpenFire (const const_striType host, intType port,
     striType fileName;
     const const_cstriType extensions[] = {".fdb", ".gdb", ""};
     unsigned int idx;
+    char portName[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     loginRecord loginData;
+    cstriType resizedHostName8 = NULL;
     isc_db_handle db_handle;
     isc_tr_handle trans_handle = 0; /* Set to zero for isc_start_transaction(). */
     ISC_STATUS status_vector[20];
@@ -3704,89 +3762,145 @@ databaseType sqlOpenFire (const const_striType host, intType port,
       logError(printf("sqlOpenFire: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
     } else {
-      fileName = cmdToOsPath(dbName);
-      if (fileName == NULL) {
-        database = NULL;
+      if (host->size == 0) {
+        loginData.hostName8Length = 0;
+        loginData.hostName8 = NULL;
       } else {
-        loginData.fileName8 = stri_to_cstri8_buf(fileName, &loginData.fileName8Length);
-        if (unlikely(loginData.fileName8 == NULL)) {
+        loginData.hostName8 = stri_to_cstri8_buf(host, &loginData.hostName8Length);
+        if (unlikely(loginData.hostName8 == NULL)) {
           err_info = MEMORY_ERROR;
           database = NULL;
-        } else {
-          loginData.user8 = stri_to_cstri8_buf(user, &loginData.user8Length);
-          if (unlikely(loginData.user8 == NULL)) {
+        } else if (unlikely(
+            memchr(loginData.hostName8, '[', loginData.hostName8Length) != NULL ||
+            memchr(loginData.hostName8, ']', loginData.hostName8Length) != NULL ||
+            memchr(loginData.hostName8, '/', loginData.hostName8Length) != NULL)) {
+          /* Enclosing a host in brackets is not allowed.   */
+          /* A slash seperates host and port in doAttach(). */
+          free_cstri8(loginData.hostName8, host);
+          err_info = RANGE_ERROR;
+          database = NULL;
+        } else if (memchr(loginData.hostName8, ':', loginData.hostName8Length) != NULL) {
+          /* Enclose IPv6 addresses in brackets. Necessary, because */
+          /* doAttach() separates address and file name with ':'.   */
+          resizedHostName8 = REALLOC_CSTRI(loginData.hostName8,
+                                           loginData.hostName8Length + 2);
+          if (unlikely(resizedHostName8 == NULL)) {
+            free_cstri8(loginData.hostName8, host);
             err_info = MEMORY_ERROR;
             database = NULL;
           } else {
-            loginData.password8 = stri_to_cstri8_buf(password, &loginData.password8Length);
-            if (unlikely(loginData.password8 == NULL)) {
+            loginData.hostName8 = resizedHostName8;
+            memmove(&loginData.hostName8[1], loginData.hostName8,
+                    loginData.hostName8Length);
+            loginData.hostName8[0] = '[';
+            loginData.hostName8[loginData.hostName8Length + 1] = ']';
+            loginData.hostName8[loginData.hostName8Length + 2] = '\0';
+            loginData.hostName8Length += 2;
+          } /* if */
+        } /* if */
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        if (port == 0) {
+          /* Use the default value for port, which is probably DEFAULT_PORT. */
+          loginData.portNameLength = 0;
+          loginData.portName = NULL;
+        } else {
+          loginData.portNameLength = (memSizeType) sprintf(portName, FMT_D, port);
+          loginData.portName = portName;
+        } /* if */
+        fileName = cmdToOsPath(dbName);
+        if (fileName == NULL) {
+          /* cmdToOsPath() already raises MEMORY_ERROR or RANGE_ERROR internally. */
+          database = NULL;
+        } else {
+          loginData.fileName8 = stri_to_cstri8_buf(fileName, &loginData.fileName8Length);
+          if (unlikely(loginData.fileName8 == NULL)) {
+            err_info = MEMORY_ERROR;
+            database = NULL;
+          } else {
+            loginData.user8 = stri_to_cstri8_buf(user, &loginData.user8Length);
+            if (unlikely(loginData.user8 == NULL)) {
               err_info = MEMORY_ERROR;
               database = NULL;
             } else {
-              if (loginData.fileName8Length > 255 || loginData.user8Length > 255 ||
-                  loginData.password8Length > 255) {
-                logError(printf("sqlOpenFire: File name, user or password too long.\n"););
-                err_info = RANGE_ERROR;
+              loginData.password8 = stri_to_cstri8_buf(password, &loginData.password8Length);
+              if (unlikely(loginData.password8 == NULL)) {
+                err_info = MEMORY_ERROR;
                 database = NULL;
               } else {
-                idx = 0;
-                do {
-                  err_info = doAttach(&loginData, extensions[idx], &db_handle);
-                  idx++;
-                } while (err_info == DATABASE_ERROR &&
-                         idx < sizeof(extensions) / sizeof(cstriType));
-                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                if (loginData.fileName8Length > 255 || loginData.user8Length > 255 ||
+                    loginData.password8Length > 255) {
+                  logError(printf("sqlOpenFire: File name, user or password too long.\n"););
+                  err_info = RANGE_ERROR;
                   database = NULL;
                 } else {
-                  logMessage(printf("sqlOpenFire: isc_start_transaction(*, "
-                                    FMT_U32 ", 1, " FMT_U32 ", " FMT_U_MEM
-                                    ", " FMT_U_MEM ")\n",
-                                    (uint32Type) trans_handle,
-                                    (uint32Type) db_handle,
-                                    sizeof(isc_tbp),
-                                    (memSizeType) isc_tbp););
-                  if ((isc_start_transaction(status_vector,
-                                             &trans_handle,
-                                             1, /* Number of database handles */
-                                             &db_handle,
-                                             (unsigned short) sizeof(isc_tbp),
-                                             isc_tbp),
-                              status_vector[0] == 1 && status_vector[1] != 0)) {
-                    setDbErrorMsg("sqlOpenFire", "isc_start_transaction",
-                                  status_vector);
-                    logError(printf("sqlOpenFire: isc_start_transaction error:\n%s\n",
-                                    dbError.message););
-                    err_info = DATABASE_ERROR;
-                    isc_detach_database(status_vector, &db_handle);
-                    database = NULL;
-                  } else if (unlikely(!setupFuncTable() ||
-                                      !ALLOC_RECORD2(database, dbRecordFire,
-                                                     count.database, count.database_bytes))) {
-                    err_info = MEMORY_ERROR;
-                    isc_rollback_transaction(status_vector, &trans_handle);
-                    isc_detach_database(status_vector, &db_handle);
+                  idx = 0;
+                  do {
+                    err_info = doAttach(&loginData, extensions[idx], &db_handle);
+                    idx++;
+                  } while (err_info == DATABASE_ERROR &&
+                           idx < sizeof(extensions) / sizeof(cstriType));
+                  if (unlikely(err_info != OKAY_NO_ERROR)) {
                     database = NULL;
                   } else {
-                    memset(database, 0, sizeof(dbRecordFire));
-                    database->usage_count = 1;
-                    database->isOpen = TRUE;
-                    database->sqlFunc = sqlFunc;
-                    database->driver       = DB_CATEGORY_FIREBIRD;
-                    database->dbCategory   = DB_CATEGORY_FIREBIRD;
-                    database->connection   = db_handle;
-                    database->trans_handle = trans_handle;
-                    database->autoCommit   = TRUE;
+                    logMessage(printf("sqlOpenFire: isc_start_transaction(*, "
+                                      FMT_U32 ", 1, " FMT_U32 ", " FMT_U_MEM
+                                      ", " FMT_U_MEM ")\n",
+                                      (uint32Type) trans_handle,
+                                      (uint32Type) db_handle,
+                                      sizeof(isc_tbp),
+                                      (memSizeType) isc_tbp););
+                    if ((isc_start_transaction(status_vector,
+                                               &trans_handle,
+                                               1, /* Number of database handles */
+                                               &db_handle,
+                                               (unsigned short) sizeof(isc_tbp),
+                                               isc_tbp),
+                                status_vector[0] == 1 && status_vector[1] != 0)) {
+                      setDbErrorMsg("sqlOpenFire", "isc_start_transaction",
+                                    status_vector);
+                      logError(printf("sqlOpenFire: isc_start_transaction error:\n%s\n",
+                                      dbError.message););
+                      err_info = DATABASE_ERROR;
+                      isc_detach_database(status_vector, &db_handle);
+                      database = NULL;
+                    } else if (unlikely(!setupFuncTable() ||
+                                        !ALLOC_RECORD2(database, dbRecordFire,
+                                                       count.database, count.database_bytes))) {
+                      err_info = MEMORY_ERROR;
+                      isc_rollback_transaction(status_vector, &trans_handle);
+                      isc_detach_database(status_vector, &db_handle);
+                      database = NULL;
+                    } else {
+                      memset(database, 0, sizeof(dbRecordFire));
+                      database->usage_count = 1;
+                      database->isOpen = TRUE;
+                      database->sqlFunc = sqlFunc;
+                      database->driver       = DB_CATEGORY_FIREBIRD;
+                      database->dbCategory   = DB_CATEGORY_FIREBIRD;
+                      database->connection   = db_handle;
+                      database->trans_handle = trans_handle;
+                      database->autoCommit   = TRUE;
+                    } /* if */
                   } /* if */
                 } /* if */
+                free_cstri8(loginData.password8, password);
               } /* if */
-              free_cstri8(loginData.password8, password);
+              free_cstri8(loginData.user8, user);
             } /* if */
-            free_cstri8(loginData.user8, user);
+            free_cstri8(loginData.fileName8, fileName);
           } /* if */
-          free_cstri8(loginData.fileName8, fileName);
+          strDestr(fileName);
         } /* if */
-        strDestr(fileName);
+        if (resizedHostName8 != NULL) {
+          UNALLOC_CSTRI(resizedHostName8, loginData.hostName8Length);
+        } else if (loginData.hostName8 != NULL) {
+          free_cstri8(loginData.hostName8, host);
+        } /* if */
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

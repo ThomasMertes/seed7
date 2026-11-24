@@ -931,19 +931,32 @@ objectType hsh_for (listType arguments)
 
   {
     objectType for_variable;
+    objectType hash_object;
     hashType aHashMap;
     objectType statement;
     objectType data_copy_func;
 
   /* hsh_for */
-    isit_hash(arg_2(arguments));
-    isit_reference(arg_4(arguments));
     for_variable = arg_1(arguments);
-    aHashMap = take_hash(arg_2(arguments));
+    hash_object = arg_2(arguments);
+    isit_hash(hash_object);
+    aHashMap = take_hash(hash_object);
     statement = arg_3(arguments);
+    isit_reference(arg_4(arguments));
     data_copy_func = take_reference(arg_4(arguments));
     isit_not_null(data_copy_func);
-    for_hash(for_variable, aHashMap, statement, data_copy_func);
+    if (VAR_OBJECT(hash_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(hash_object);
+      for_hash(for_variable, aHashMap, statement, data_copy_func);
+      SET_VAR_FLAG(hash_object);
+#else
+      /* The statement might change aHashMap. */
+      for_hash(for_variable, aHashMap, statement, data_copy_func);
+#endif
+    } else {
+      for_hash(for_variable, aHashMap, statement, data_copy_func);
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* hsh_for */
 
@@ -955,27 +968,42 @@ objectType hsh_for (listType arguments)
 objectType hsh_for_data_key (listType arguments)
 
   {
-    objectType key_variable;
     objectType for_variable;
+    objectType key_variable;
+    objectType hash_object;
     hashType aHashMap;
     objectType statement;
     objectType data_copy_func;
     objectType key_copy_func;
 
   /* hsh_for_data_key */
-    isit_hash(arg_3(arguments));
-    isit_reference(arg_5(arguments));
-    isit_reference(arg_6(arguments));
     for_variable = arg_1(arguments);
     key_variable = arg_2(arguments);
+    hash_object = arg_3(arguments);
+    isit_hash(arg_3(arguments));
     aHashMap = take_hash(arg_3(arguments));
     statement = arg_4(arguments);
+    isit_reference(arg_5(arguments));
     data_copy_func = take_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
     key_copy_func = take_reference(arg_6(arguments));
     isit_not_null(data_copy_func);
     isit_not_null(key_copy_func);
-    for_data_key_hash(for_variable, key_variable, aHashMap, statement,
-        data_copy_func, key_copy_func);
+    if (VAR_OBJECT(hash_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(hash_object);
+      for_data_key_hash(for_variable, key_variable, aHashMap, statement,
+          data_copy_func, key_copy_func);
+      SET_VAR_FLAG(hash_object);
+#else
+      /* The statement might change aHashMap. */
+      for_data_key_hash(for_variable, key_variable, aHashMap, statement,
+          data_copy_func, key_copy_func);
+#endif
+    } else {
+      for_data_key_hash(for_variable, key_variable, aHashMap, statement,
+          data_copy_func, key_copy_func);
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_data_key */
 
@@ -988,19 +1016,32 @@ objectType hsh_for_key (listType arguments)
 
   {
     objectType key_variable;
+    objectType hash_object;
     hashType aHashMap;
     objectType statement;
     objectType key_copy_func;
 
   /* hsh_for_key */
-    isit_hash(arg_2(arguments));
-    isit_reference(arg_4(arguments));
     key_variable = arg_1(arguments);
-    aHashMap = take_hash(arg_2(arguments));
+    hash_object = arg_2(arguments);
+    isit_hash(hash_object);
+    aHashMap = take_hash(hash_object);
     statement = arg_3(arguments);
+    isit_reference(arg_4(arguments));
     key_copy_func = take_reference(arg_4(arguments));
     isit_not_null(key_copy_func);
-    for_key_hash(key_variable, aHashMap, statement, key_copy_func);
+    if (VAR_OBJECT(hash_object)) {
+#if WITH_TYPE_CHECK
+      CLEAR_VAR_FLAG(hash_object);
+      for_key_hash(key_variable, aHashMap, statement, key_copy_func);
+      SET_VAR_FLAG(hash_object);
+#else
+      /* The statement might change aHashMap. */
+      for_key_hash(key_variable, aHashMap, statement, key_copy_func);
+#endif
+    } else {
+      for_key_hash(key_variable, aHashMap, statement, key_copy_func);
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_key */
 

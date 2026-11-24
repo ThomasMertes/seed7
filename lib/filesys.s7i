@@ -54,7 +54,7 @@ const integer: MAX_SYMLINK_CHAIN_LENGTH is 5;
 (**
  *  Type to describe one file permission.
  *  Possible values are ''EXEC_OTHER'', ''WRITE_OTHER'', ''READ_OTHER'',
- *  ''EXEC_GROUP'', ''WRITE_GROUP'', ''READ_GROUP'', ''EXEC_USER'' and
+ *  ''EXEC_GROUP'', ''WRITE_GROUP'', ''READ_GROUP'', ''EXEC_USER'',
  *  ''WRITE_USER'' and ''READ_USER''.
  *)
 const type: filePermission is new enum
@@ -72,7 +72,7 @@ const type: filePermission is new enum
 (**
  *  Type to describe the mode (all permissions) of a file.
  *  A ''fileMode'' is a set of [[#filePermission|filePermission]].
- *  A test for a permission is a set mempership test. E.g.:
+ *  A test for a permission is a set membership test. E.g.:
  *   EXEC_USER in aFileMode
  *)
 const type: fileMode is set of filePermission;
@@ -106,7 +106,7 @@ enable_output(fileMode);
 
 
 (**
- *  Removes dot files (. and ..) from a path.
+ *  Remove dot files (. and ..) from a path.
  *   removeDotFiles("/home/myuser/aFile/..")          returns "/home/myuser"
  *   removeDotFiles("/aDir/aFile/../../home/myuser")  returns "/home/myuser"
  *   removeDotFiles("/aDir/aFile/../../..")           returns "/"
@@ -171,7 +171,7 @@ const func string: removeDotFiles (in string: path) is func
  *  relative to their place in the file system and not relative to the
  *  current working directory.
  *  @param symlinkPath Path of the symbolic link.
- *  @param targetPath Relative or absolute target of the symbolic link:
+ *  @param targetPath Relative or absolute target of the symbolic link.
  *  @return an absolute or relative destination of the symbolic link.
  *)
 const func string: symlinkDestination (in string: symlinkPath, in string: targetPath) is func
@@ -215,11 +215,11 @@ const proc: close (inout fileSys: fileSystem) is DYNAMIC;
 
 
 (**
- *  Determine the filenames in a directory of a file system.
+ *  Determine the file names in a directory of a file system.
  *  Note that the function returns only the file names.
  *  Additional information must be obtained with other calls.
- *  @param fileSystem File system in which the directory is searched for.
- *  @param dirPath Path of a directory in the file system.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of a directory in ''fileSystem''.
  *  @return an array with the file names.
  *)
 const func array string: readDir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
@@ -228,8 +228,8 @@ const func array string: readDir (inout fileSys: fileSystem, in string: dirPath)
 (**
  *  Paths of files in a directory and its subdirectories inside a file system.
  *  The function returns the file paths relative to the given directory.
- *  @param fileSystem File system in which the directory is searched for.
- *  @param dirPath Path of a directory in the file system.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of a directory in ''fileSystem''.
  *  @return an array with the file paths.
  *)
 const func array string: readDir (inout fileSys: fileSystem, in string: dirPath,
@@ -238,6 +238,7 @@ const func array string: readDir (inout fileSys: fileSystem, in string: dirPath,
 
 (**
  *  Determine the file names in the top directory of a file system.
+ *  @param fileSystem A file system.
  *  @return an array with the file names.
  *)
 const func array string: readDir (inout fileSys: fileSystem) is
@@ -246,6 +247,7 @@ const func array string: readDir (inout fileSys: fileSystem) is
 
 (**
  *  Determine all file paths in a file system.
+ *  @param fileSystem A file system.
  *  @return an array with the file paths.
  *)
 const func array string: readDir (inout fileSys: fileSystem, RECURSIVE) is DYNAMIC;
@@ -253,10 +255,15 @@ const func array string: readDir (inout fileSys: fileSystem, RECURSIVE) is DYNAM
 
 (**
  *  Determine the type of a file.
- *  The function does follow symbolic links. Therefore it never
- *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
- *  not imply that a file with this name can be created, since missing
- *  directories and invalid file names cause also ''FILE_ABSENT''.
+ *  The function follows symbolic links. If the chain of
+ *  symbolic links is too long, the function returns ''FILE_SYMLINK''.
+ *  If a symbolic link refers to a place where permission
+ *  is denied, the function returns ''FILE_SYMLINK''.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  invalid file names also cause ''FILE_ABSENT''.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the type of the file.
  *)
 const func fileType: fileType (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -264,10 +271,12 @@ const func fileType: fileType (inout fileSys: fileSystem, in string: filePath) i
 
 (**
  *  Determine the type of a file.
- *  The function does not follow symbolic links. Therefore it may
+ *  The function does not follow symbolic links. Therefore, it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and invalid file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names also cause ''FILE_ABSENT''.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the type of the file.
  *)
 const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -276,7 +285,9 @@ const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath)
 (**
  *  Determine the file size of a file.
  *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the size of the file.
  *)
 const func integer: fileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -285,7 +296,9 @@ const func integer: fileSize (inout fileSys: fileSystem, in string: filePath) is
 (**
  *  Determine the file size of a file.
  *  The function follows symbolic links. The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the size of the file.
  *)
 const func bigInteger: bigFileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -294,6 +307,8 @@ const func bigInteger: bigFileSize (inout fileSys: fileSystem, in string: filePa
 (**
  *  Determine the file mode (permissions) of a file.
  *  The function follows symbolic links.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the file mode.
  *)
 const func fileMode: getFileMode (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -308,6 +323,9 @@ const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) i
  *  Change the file mode (permissions) of a file.
  *  The function follows symbolic links.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param mode File mode (permissions) to be set for the file.
  *)
 const proc: setFileMode (inout fileSys: fileSystem, in string: filePath,
     in fileMode: mode) is DYNAMIC;
@@ -316,6 +334,8 @@ const proc: setFileMode (inout fileSys: fileSystem, in string: filePath,
 (**
  *  Determine the modification time of a file.
  *  The function follows symbolic links.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the modification time of the file.
  *)
 const func time: getMTime (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -324,6 +344,9 @@ const func time: getMTime (inout fileSys: fileSystem, in string: filePath) is DY
 (**
  *  Set the modification time of a file.
  *  The function follows symbolic links.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param modificationTime Modification time to be set for the file.
  *)
 const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
     in time: modificationTime) is DYNAMIC;
@@ -332,7 +355,10 @@ const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
 (**
  *  Determine the name of the owner (UID) of a file.
  *  The function follows symbolic links.
- *  @return the name of the file owner.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @return the name of the file owner, or the numeric UID string
+ *          if no name is available.
  *)
 const func string: getOwner (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
@@ -340,6 +366,9 @@ const func string: getOwner (inout fileSys: fileSystem, in string: filePath) is 
 (**
  *  Set the owner of a file.
  *  The function follows symbolic links.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param owner Owner name or numeric UID string to which the file owner is set.
  *)
 const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
     in string: owner) is DYNAMIC;
@@ -348,7 +377,10 @@ const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
 (**
  *  Determine the name of the group (GID) to which a file belongs.
  *  The function follows symbolic links.
- *  @return the name of the file group.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @return the name of the file group, or the numeric GID string
+ *          if no name is available.
  *)
 const func string: getGroup (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
@@ -356,6 +388,9 @@ const func string: getGroup (inout fileSys: fileSystem, in string: filePath) is 
 (**
  *  Set the group of a file.
  *  The function follows symbolic links.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param group Group name or numeric GID string to which the file group is set.
  *)
 const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
     in string: group) is DYNAMIC;
@@ -363,8 +398,9 @@ const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
 
 (**
  *  Determine the file mode (permissions) of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
  *  @return the file mode.
  *)
 const func fileMode: getFileMode (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
@@ -372,8 +408,9 @@ const func fileMode: getFileMode (inout fileSys: fileSystem, in string: filePath
 
 (**
  *  Determine the modification time of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
  *  @return the modification time of the symbolic link.
  *)
 const func time: getMTime (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
@@ -381,8 +418,10 @@ const func time: getMTime (inout fileSys: fileSystem, in string: filePath, SYMLI
 
 (**
  *  Set the modification time of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @param modificationTime Modification time to be set for the symbolic link.
  *)
 const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
     in time: modificationTime, SYMLINK) is DYNAMIC;
@@ -390,17 +429,21 @@ const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
 
 (**
  *  Determine the name of the owner (UID) of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file owner.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @return the name of the symbolic link owner, or the numeric UID string
+ *          if no name is available.
  *)
 const func string: getOwner (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
 
 
 (**
  *  Set the owner of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @param owner Owner name or numeric UID string to which the symbolic link owner is set.
  *)
 const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
     in string: owner, SYMLINK) is DYNAMIC;
@@ -408,48 +451,64 @@ const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
 
 (**
  *  Determine the name of the group (GID) to which a symbolic link belongs.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file group.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @return the name of the symbolic link group, or the numeric GID string
+ *          if no name is available.
  *)
 const func string: getGroup (inout fileSys: fileSystem, in string: filePath, SYMLINK) is DYNAMIC;
 
 
 (**
  *  Set the group of a symbolic link.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @param group Group name or numeric GID string to which the symbolic link group is set.
  *)
 const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
     in string: group, SYMLINK) is DYNAMIC;
 
 
 (**
- *  Open a file with ''filePath'' and ''mode'' in the file system.
+ *  Open a file with ''filePath'' and ''mode'' in the given ''fileSystem''.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *)
 const func file: open (inout fileSys: fileSystem, in string: filePath,
     in string: mode) is DYNAMIC;
 
 
 (**
- *  Get the contents of file ''filePath'' in the file system.
- *  @return the specified file as string.
+ *  Get the contents of the file ''filePath'' in the given ''fileSystem''.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @return the specified file as a string.
  *)
 const func string: getFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
 (**
- *  Write ''stri'' to the file ''filePath'' using the file system.
- *  If the file exists already, it is overwritten.
+ *  Write ''data'' to the file ''filePath'' using the given ''fileSystem''.
+ *  If the file already exists, it is overwritten.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
+ *  @param data The new contents of the file.
  *)
-const proc: putFile (inout fileSys: fileSystem, in string: filePath, in string: stri) is DYNAMIC;
+const proc: putFile (inout fileSys: fileSystem, in string: filePath, in string: data) is DYNAMIC;
 
 
 (**
- *  Reads the destination of a symbolic link.
+ *  Read the destination of a symbolic link.
  *  Not all file systems support this function.
- *  @return The destination referred by the symbolic link.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a symbolic link in ''fileSystem''.
+ *  @return the destination referred to by the symbolic link.
  *)
 const func string: readLink (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
@@ -459,8 +518,8 @@ const func string: readLink (inout fileSys: fileSystem, in string: filePath) is 
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  The function does not follow symbolic links.
  *  Not all file systems support this function.
- *  @param fileSystem Open file system.
- *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param fileSystem A file system.
+ *  @param symlinkPath Path of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
  *)
 const proc: makeLink (inout fileSys: fileSystem, in string: symlinkPath,
@@ -468,18 +527,20 @@ const proc: makeLink (inout fileSys: fileSystem, in string: symlinkPath,
 
 
 (**
- *  Remove a file (except a nonempty directory), from a file system.
+ *  Remove a file (except a non-empty directory) from a file system.
  *  The function does not follow symbolic links.
  *  Not all file systems support this function.
- *  @param fileSystem Open file system.
- *  @param filePath Name of the file to be removed.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of the file to be removed.
  *)
 const proc: removeFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
 (**
- *  Remove a file of any type inclusive a directory tree, from a file system.
+ *  Remove a file of any type, including a directory tree, from a file system.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of the file to be removed.
  *)
 const proc: removeTree (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
@@ -487,16 +548,19 @@ const proc: removeTree (inout fileSys: fileSystem, in string: filePath) is DYNAM
 (**
  *  Move and rename a file or directory tree in a file system.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param sourcePath Path of the file to be renamed.
+ *  @param destPath New path of the file.
  *)
 const proc: moveFile (inout fileSys: fileSystem, in string: sourcePath, in string: destPath) is DYNAMIC;
 
 
 (**
- *  Create a directory in the file system.
+ *  Create a directory in the given ''fileSystem''.
  *  The function does not follow symbolic links.
  *  Not all file systems support this function.
- *  @param fileSystem Open file system.
- *  @param dirPath Name of the directory to be created.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of the directory to be created.
  *)
 const proc: makeDir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
 
@@ -509,23 +573,28 @@ const proc: mkdir (inout fileSys: fileSystem, in string: dirPath) is func
 
 
 (**
- *  Deletes an empty directory in the file system.
+ *  Delete an empty directory in the given ''fileSystem''.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of the empty directory to be removed.
  *)
 const proc: rmdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
 
 
 (**
- *  Determine the current working directory of the file system.
+ *  Determine the current working directory of the given ''fileSystem''.
  *  Not all file systems support this function.
- *  @return the current working directory as absolute path.
+ *  @param fileSystem A file system.
+ *  @return the current working directory as an absolute path.
  *)
 const func string: getcwd (inout fileSys: fileSystem) is DYNAMIC;
 
 
 (**
- *  Change the current working directory of the file system.
+ *  Change the current working directory of the given ''fileSystem''.
  *  Not all file systems support this function.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of a directory in ''fileSystem''.
  *)
 const proc: chdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
 
@@ -549,12 +618,12 @@ const fileSys: (attr fileSys) . value is emptyFileSys.value;
 (**
  *  Paths of files in a directory and its subdirectories inside a file system.
  *  The function returns the file paths relative to the given directory.
- *  @param fileSystem File system in which the directory is searched for.
- *  @param dirPath Path of a directory in the file system.
+ *  @param fileSystem A file system.
+ *  @param dirPath Path of a directory in ''fileSystem''.
  *  @return an array with the file paths.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''dirPath'' is not present in the file system.
+ *  @exception FILE_ERROR ''dirPath'' is not present in ''fileSystem''.
  *)
 const func array string: readDir (inout emptyFileSys: fileSystem,
     in var string: dirPath, RECURSIVE) is func
@@ -593,7 +662,9 @@ const func array string: readDir (inout emptyFileSys: fileSystem,
 (**
  *  Determine the file size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
+ *  @param fileSystem A file system.
+ *  @param filePath Path of a file in ''fileSystem''.
  *  @return the size of the file.
  *)
 const func bigInteger: bigFileSize (inout emptyFileSys: fileSystem, in string: filePath) is

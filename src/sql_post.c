@@ -25,7 +25,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_post.c                                      */
-/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2022, 2024 - 2026  Thomas Mertes    */
 /*  Content: Database access functions for PostgreSQL.              */
 /*                                                                  */
 /********************************************************************/
@@ -40,6 +40,8 @@
 #include "string.h"
 #include "locale.h"
 #include "time.h"
+#include "math.h"
+#include "float.h"
 #include "limits.h"
 #include "ctype.h"
 #if SOCKET_LIB == UNIX_SOCKETS
@@ -72,14 +74,24 @@
 #ifdef POSTGRESQL_INCLUDE
 
 
+#define PG_NUMERIC_POS       0x00
+#define PG_NUMERIC_NEG       0x40
+#define PG_NUMERIC_NAN       0xC0
+#define PG_NUMERIC_PINF      0xD0
+#define PG_NUMERIC_NINF      0xF0
+#define PG_NAN_INFINITY_MASK 0x80
+
 typedef struct {
-    int ndigits; /* number of digits in digits[] - can be 0! */
-    int weight;  /* weight of first digit */
-    int rscale;  /* result scale */
-    int dscale;  /* display scale */
-    int sign;    /* NUMERIC_POS, NUMERIC_NEG, or NUMERIC_NAN */
-    const unsigned char *digits; /* decimal digits */
-  } numeric;
+    int ndigits; /* number of two-byte digits in digits[], range 0 .. 65535 */
+    int weight;  /* weight of first two-byte digit, range -32768 .. 32767 */
+    /* int rscale;  result scale (unused),          range 0 .. 16383 */
+    int dscale;  /* display scale,                  range 0 .. 16383 */
+    int sign;    /* a PG_NUMERIC_* value */
+    const unsigned char *digits; /* array of size ndigits with two-byte digits */
+    /* Each two-byte digit encodes 4 decimal digits in big endian. */
+  } pgNumericStruct, *pgNumericType;
+
+typedef const pgNumericStruct *const_pgNumericType;
 
 typedef struct {
     uintType     usage_count;
@@ -100,8 +112,8 @@ typedef struct {
   } bindDataRecordPost, *bindDataType;
 
 #define STMT_NAME_PREFIX "prepstat_"
-#define STMT_NAME_BUFFER_SIZE STRLEN(STMT_NAME_PREFIX) + \
-                              UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN
+#define STMT_NAME_BUFFER_SIZE (STRLEN(STMT_NAME_PREFIX) + \
+                               UINTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
 
 #define USE_IMPLICIT_COMMIT_MECHANISM 0
 
@@ -497,8 +509,8 @@ static errInfoType doExecSql (PGconn *connection, const char *query,
  *  In other databases CREATE and other DDL statements are executed
  *  without a need to be committed. The implicitCommit mechanism tries
  *  to adjust the PostgreSQL behavior to what other databases do.
- *  Instead of using a list of DDL statements it uses a list of
- *  DML and TCS statements which need an explicit commit.
+ *  Instead of using a list of DDL statements, it uses a list of
+ *  DML and TCS statements that need an explicit commit.
  */
 static boolType implicitCommit (const_cstriType query)
 
@@ -626,17 +638,20 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     if (preparedStmt->execute_result != NULL) {
       PQclear(preparedStmt->execute_result);
     } /* if */
-    deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
-    if (unlikely(deallocate_result != NULL)) {
-      /* Ignore possible errors. */
-      PQclear(deallocate_result);
-    } /* if */
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
-      preparedStmt->db->usage_count--;
-      if (preparedStmt->db->usage_count == 0) {
-        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
-        freeDatabase((databaseType) preparedStmt->db);
+    if (preparedStmt->db != NULL) {
+      if (preparedStmt->db->connection != NULL) {
+        deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
+        if (unlikely(deallocate_result != NULL)) {
+          /* Ignore possible errors. */
+          PQclear(deallocate_result);
+        } /* if */
+      } /* if */
+      if (preparedStmt->db->usage_count != 0) {
+        preparedStmt->db->usage_count--;
+        if (preparedStmt->db->usage_count == 0) {
+          logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+          freeDatabase((databaseType) preparedStmt->db);
+        } /* if */
       } /* if */
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
@@ -810,6 +825,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
           } /* if */
           pos++;
         } else if (ch == '\'' || ch == '"') {
+          /* Doubled quotes ('' and "") are handled implicitly by the outer loop. */
           delimiter = ch;
           processed->mem[destPos++] = delimiter;
           pos++;
@@ -849,15 +865,23 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             } /* while */
             /* The final newline replaces the comment. */
           } /* if */
+        } else if (ch == '$') {
+          logError(printf("processStatementStri: Dollar not allowed "
+                          "for quoting and positional parameters.\n"););
+          *err_info = RANGE_ERROR;
+          FREE_STRI2(processed, sqlStatementStri->size * MAX_BIND_VAR_SIZE);
+          processed = NULL;
         } else {
           processed->mem[destPos++] = ch;
           pos++;
         } /* if */
       } /* while */
-      processed->size = destPos;
+      if (processed != NULL) {
+        processed->size = destPos;
+      } /* if */
     } /* if */
-    logFunction(printf("processStatementStri --> \"%s\"\n",
-                       striAsUnquotedCStri(processed)););
+    logFunction(printf("processStatementStri --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(processed), *err_info););
     return processed;
   } /* processStatementStri */
 
@@ -872,6 +896,9 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
 
   /* setupParameterColumn */
     switch (preparedStmt->paramTypes[param_index]) {
+      case BOOLOID:
+        paramLength = sizeof(char);
+        break;
       case INT2OID:
         paramLength = sizeof(int16Type);
         break;
@@ -1009,7 +1036,7 @@ static errInfoType setupParameters (PGresult *describe_result, preparedStmtType 
              nameOfBufferType(preparedStmt->paramTypes[param_index])); */
           err_info = setupParameterColumn(preparedStmt, param_index,
               &preparedStmt->param_array[param_index]);
-        } /* if */
+        } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setupParameters --> %d\n", err_info););
@@ -1104,24 +1131,24 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 static void showNumeric (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     int idx;
 
   /* showNumeric */
     printf("NUMERICOID: %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7],
-           buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[15], buffer[15]);
+           buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]);
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xf0;
 
-    printf("ndigits: %d\n", numStruct.ndigits);
-    printf("weight: %d\n",  numStruct.weight);
-    printf("rscale: %d\n",  numStruct.rscale);
-    printf("dscale: %d\n",  numStruct.dscale);
-    printf("sign: %d\n",    numStruct.sign);
+    printf("ndigits: %d\n",  numStruct.ndigits);
+    printf("weight: %d\n",   numStruct.weight);
+    /* printf("rscale: %d\n",   numStruct.rscale); */
+    printf("dscale: %d\n",   numStruct.dscale);
+    printf("sign: 0x%02X\n", numStruct.sign);
 
     for (idx = 0; idx < numStruct.ndigits; idx++) {
       printf("digit %d: %u\n", idx, 256 * buffer[8 + 2 * idx] + buffer[9 + 2 * idx]);
@@ -1135,7 +1162,7 @@ static void showNumeric (const unsigned char *buffer)
 
 
 
-static cstriType getNumericAsCStri (numeric *numStruct)
+static cstriType getNumericAsCStri (const const_pgNumericType numValue)
 
   {
     unsigned int length;
@@ -1146,17 +1173,20 @@ static cstriType getNumericAsCStri (numeric *numStruct)
     cstriType decimal;
 
    /* getNumericAsCStri */
-    if (numStruct->weight < numStruct->ndigits - 1) {
-      scale = 4 * (unsigned int) (numStruct->ndigits - 1 - numStruct->weight);
+    /* numValue->weight is in the range -32768 .. 32767 */
+    /* numValue->ndigits is in the range 0 .. 65535 */
+    /* In the computations below integer overflow is not possible. */
+    if (numValue->weight < numValue->ndigits - 1) {
+      scale = 4 * (unsigned int) (numValue->ndigits - 1 - numValue->weight);
       /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
-      /* Provide space for sign, decimal point and a possible leading zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
+      /* Provide space for sign, decimal point, and a possible leading zero. */
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numValue->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numValue->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = numStruct->sign ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
+        decimal[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+        for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                             (unsigned int) numValue->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
             decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
@@ -1175,16 +1205,16 @@ static cstriType getNumericAsCStri (numeric *numStruct)
         } /* if */
       } /* if */
     } else {
-      scale = 4 * (unsigned int) (numStruct->weight - (numStruct->ndigits - 1));
+      scale = 4 * (unsigned int) (numValue->weight - (numValue->ndigits - 1));
       /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
       /* Provide space for sign, decimal point and a possible trailing zero. */
-      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct->ndigits + 1;
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numValue->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numValue->ndigits + 1;
         /* printf("length: %u\n", length); */
-        decimal[0] = numStruct->sign ? '-' : '+';
-        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                             (unsigned int) numStruct->digits[2 * idx + 1];
+        decimal[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+        for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                             (unsigned int) numValue->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
             decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
@@ -1203,7 +1233,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
 
 
 
-static striType getNumericAsStri (numeric *numStruct)
+static striType getNumericAsStri (const const_pgNumericType numValue)
 
   {
     unsigned int idx;
@@ -1212,13 +1242,15 @@ static striType getNumericAsStri (numeric *numStruct)
     striType stri;
 
    /* getNumericAsStri */
+    /* numValue->ndigits is in the range 0 .. 65535 */
+    /* In the computations below integer overflow is not possible. */
     /* Provide space for sign. */
-    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
-      stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
-      stri->mem[0] = numStruct->sign ? '-' : '+';
-      for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
-        fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
-                           (unsigned int) numStruct->digits[2 * idx + 1];
+    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numValue->ndigits + 1))) {
+      stri->size = 4 * (memSizeType) numValue->ndigits + 1;
+      stri->mem[0] = (numValue->sign & PG_NUMERIC_NEG) != 0 ? '-' : '+';
+      for (idx = 0; idx < (unsigned int) numValue->ndigits; idx++) {
+        fourDigits = 256 * (unsigned int) numValue->digits[2 * idx] +
+                           (unsigned int) numValue->digits[2 * idx + 1];
         for (digitNum = 4; digitNum >= 1; digitNum--) {
           stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
           fourDigits /= 10;
@@ -1235,7 +1267,7 @@ static striType getNumericAsStri (numeric *numStruct)
 static intType getNumericAsInt (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     intType factor;
     intType intValue;
@@ -1245,14 +1277,17 @@ static intType getNumericAsInt (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsInt: Number is NaN or Infinity\n"););
+      raise_error(RANGE_ERROR);
+      intValue = 0;
+    } else if (numStruct.ndigits == 0) {
       intValue = 0;
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
-                        numStruct.rscale != 0 ||
                         numStruct.dscale != 0)) {
       logError(printf("getNumericAsInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
@@ -1306,7 +1341,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
 static bigIntType getNumericAsBigInt (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     bigIntType powerOfTen;
     bigIntType bigIntValue;
@@ -1316,14 +1351,17 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsBigInt: Number is NaN or Infinity\n"););
+      raise_error(RANGE_ERROR);
+      bigIntValue = NULL;
+    } else if (numStruct.ndigits == 0) {
       bigIntValue = bigZero();
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
-                        numStruct.rscale != 0 ||
                         numStruct.dscale != 0)) {
       logError(printf("getNumericAsBigInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
@@ -1354,7 +1392,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     bigIntType *denominator)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     striType stri;
     bigIntType powerOfTen;
     bigIntType numerator;
@@ -1364,11 +1402,25 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (numStruct.sign == PG_NUMERIC_NAN) {
+      numerator = bigZero();
+      *denominator = bigZero();
+    } else if (numStruct.sign == PG_NUMERIC_PINF) {
+      numerator = bigFromInt32(1);
+      *denominator = bigZero();
+    } else if (numStruct.sign == PG_NUMERIC_NINF) {
+      numerator = bigFromInt32(-1);
+      *denominator = bigZero();
+    } else if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsBigRat: Unknown sign 0x%02X.\n",
+                      numStruct.sign););
+      raise_error(RANGE_ERROR);
+      numerator = NULL;
+    } else if (numStruct.ndigits == 0) {
       numerator = bigZero();
       *denominator = bigFromInt32(1);
     } else if (unlikely((stri = getNumericAsStri(&numStruct)) == NULL)) {
@@ -1392,12 +1444,19 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
           *denominator = bigIPowSignedDigit(10,
               (intType) (4 * (numStruct.ndigits - 1 - numStruct.weight)));
         } /* if */
+        if (unlikely(*denominator == NULL)) {
+          /* An exception has been raised. */
+          bigDestr(numerator);
+          numerator = NULL;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("getNumericAsBigRat --> %s",
-                       striAsUnquotedCStri(bigStr(numerator)));
+                       bigHexCStri(numerator));
                 printf(" (denominator = %s)\n",
-                       striAsUnquotedCStri(bigStr(*denominator))););
+                       numerator != NULL ?
+                           bigHexCStri(*denominator) :
+                           " *NULL_BIGINT* "););
     return numerator;
   } /* getNumericAsBigRat */
 
@@ -1406,7 +1465,7 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
 static floatType getNumericAsFloat (const unsigned char *buffer)
 
   {
-    numeric numStruct;
+    pgNumericStruct numStruct;
     cstriType decimal;
     floatType floatValue;
 
@@ -1415,11 +1474,22 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
                 showNumeric(buffer););
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    /* numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5]; */
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.sign    = buffer[4] & 0xf0;
     numStruct.digits  = &buffer[8];
-    if (numStruct.ndigits == 0) {
+    if (numStruct.sign == PG_NUMERIC_NAN) {
+      floatValue = NOT_A_NUMBER;
+    } else if (numStruct.sign == PG_NUMERIC_PINF) {
+      floatValue = POSITIVE_INFINITY;
+    } else if (numStruct.sign == PG_NUMERIC_NINF) {
+      floatValue = NEGATIVE_INFINITY;
+    } else if (unlikely((numStruct.sign & PG_NAN_INFINITY_MASK) != 0)) {
+      logError(printf("getNumericAsFloat: Unknown sign 0x%02X.\n",
+                      numStruct.sign););
+      raise_error(RANGE_ERROR);
+      floatValue = 0.0;
+    } else if (numStruct.ndigits == 0) {
       floatValue = 0.0;
     } else if (unlikely((decimal = getNumericAsCStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -1655,6 +1725,10 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       logMessage(printf("paramType: %s\n",
                         nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
+        case BOOLOID:
+          preparedStmt->paramValues[pos - 1] = param->buffer;
+          param->buffer[0] = (char) value;
+          break;
         case INT2OID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
           *(int16Type *) param->buffer =
@@ -1799,27 +1873,33 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                         nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
-          preparedStmt->paramValues[pos - 1] = param->buffer;
-          microsecDuration = ((((int64Type) hour) * 60 +
-                                (int64Type) minute) * 60 +
-                                (int64Type) second) * 1000000 +
-                                (int64Type) micro_second;
-          /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
-          /* The interval is either an int64Type representing       */
-          /* microseconds, or a double representing seconds.        */
-          /* PQparameterStatus(connection, "integer_datetimes") is  */
-          /* used to determine if an int64Type or a double is used. */
-          if (preparedStmt->integerDatetimes) {
-            *(int64Type *) param->buffer =
-                (int64Type) htonll((uint64Type) microsecDuration);
+          if (unlikely(year < (INT32TYPE_MIN + 12) / 12 ||
+                       year > (INT32TYPE_MAX - 12) / 12)) {
+            logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
+            raise_error(RANGE_ERROR);
           } else {
-            *(double *) param->buffer =
-                htond((double) microsecDuration / 1000000.0);
+            preparedStmt->paramValues[pos - 1] = param->buffer;
+            microsecDuration = ((((int64Type) hour) * 60 +
+                                  (int64Type) minute) * 60 +
+                                  (int64Type) second) * 1000000 +
+                                  (int64Type) micro_second;
+            /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+            /* The interval is either an int64Type representing       */
+            /* microseconds, or a double representing seconds.        */
+            /* PQparameterStatus(connection, "integer_datetimes") is  */
+            /* used to determine if an int64Type or a double is used. */
+            if (preparedStmt->integerDatetimes) {
+              *(int64Type *) param->buffer =
+                  (int64Type) htonll((uint64Type) microsecDuration);
+            } else {
+              *(double *) param->buffer =
+                  htond((double) microsecDuration / 1000000.0);
+            } /* if */
+            *(int32Type *) &param->buffer[8] =
+                (int32Type) htonl((uint32Type) day);
+            *(int32Type *) &param->buffer[12] =
+                (int32Type) htonl((uint32Type) (12 * year + month));
           } /* if */
-          *(int32Type *) &param->buffer[8] =
-              (int32Type) htonl((uint32Type) day);
-          *(int32Type *) &param->buffer[12] =
-              (int32Type) htonl((uint32Type) (12 * year + month));
           break;
         default:
           logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
@@ -1868,14 +1948,48 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           *(double *) param->buffer = htond(value);
           break;
         case CASHOID:
+          if (unlikely(os_isnan(value) ||
+                       value == POSITIVE_INFINITY ||
+                       value == NEGATIVE_INFINITY)) {
+            logError(printf("sqlBindFloat: Parameter " FMT_D ": "
+                            "%s does not fit into a CASHOID field.\n",
+                            pos, os_isnan(value) ? "NaN" :
+                            value == POSITIVE_INFINITY ?
+                            "Infinity" : "-Infinity"));
+            err_info = RANGE_ERROR;
+          } else {
+            free(param->buffer);
+            if (unlikely((param->buffer = (cstriType) malloc(
+                              DOUBLE_TO_CHAR_BUFFER_SIZE)) == NULL)) {
+              err_info = MEMORY_ERROR;
+            } else {
+              preparedStmt->paramValues[pos - 1] = param->buffer;
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "%f", value);
+              preparedStmt->paramFormats[pos - 1] = 0;
+            } /* if */
+          } /* if */
+          break;
+        case NUMERICOID:
           free(param->buffer);
           if (unlikely((param->buffer = (cstriType) malloc(
-                            DOUBLE_TO_CHAR_BUFFER_SIZE)) == NULL)) {
+                            FMT_E_BUFFER_SIZE)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
             preparedStmt->paramValues[pos - 1] = param->buffer;
-            preparedStmt->paramLengths[pos - 1] =
-                (int) sprintf(param->buffer, "%f", value);
+            if (os_isnan(value)) {
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "NaN");
+            } else if (value == POSITIVE_INFINITY) {
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "Infinity");
+            } else if (value == NEGATIVE_INFINITY) {
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, "-Infinity");
+            } else {
+              preparedStmt->paramLengths[pos - 1] =
+                  (int) sprintf(param->buffer, FMT_E, value);
+            } /* if */
             preparedStmt->paramFormats[pos - 1] = 0;
           } /* if */
           break;
@@ -2040,13 +2154,13 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
         case BPCHAROID:
         case VARCHAROID:
         case TEXTOID:
-          /* PostgreSQL doesn't support storing Null characters     */
-          /* ('\0;') in text fields. PQexecPrepared() returns a     */
-          /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080   */
-          /* (the overlong UTF-8 encoding for the Null character)   */
-          /* are seen as invalid byte sequence for encoding "UTF8". */
-          /* Therefore binding of strings with a Null character     */
-          /* ('\0;') inside will fail later with sqlExecute().      */
+          /* PostgreSQL doesn't support storing Null characters      */
+          /* ('\0;') in text fields. PQexecPrepared() returns a      */
+          /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080    */
+          /* (the overlong UTF-8 encoding for the Null character)    */
+          /* are seen as an invalid byte sequence for the encoding   */
+          /* "UTF8". Therefore, binding of strings with an empedded  */
+          /* Null character ('\0;') will fail later in sqlExecute(). */
           stri8 = stri_to_cstri8_buf(stri, &length);
           if (unlikely(stri8 == NULL)) {
             err_info = MEMORY_ERROR;
@@ -2068,7 +2182,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
           break;
         case BYTEAOID:
           if (unlikely(stri->size > INT_MAX ||
-                       (cstri = (cstriType) malloc(stri->size)) == NULL)) {
+                       (cstri = (cstriType) malloc(
+                           stri->size + NULL_TERMINATION_LEN)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else if (unlikely(memcpy_from_strelem((ustriType) cstri,
                                                   stri->mem, stri->size))) {
@@ -2076,6 +2191,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
           } else {
             free(param->buffer);
+            cstri[stri->size] = '\0';
             param->buffer = cstri;
             preparedStmt->paramValues[pos - 1] = cstri;
             preparedStmt->paramLengths[pos - 1] = (int) stri->size;
@@ -2187,7 +2303,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           } /* if */
           /* printf("zone: " FMT_D32 "\n", (int32Type) (-time_zone * 60)); */
           zone = (int32Type) htonl((uint32Type) (-time_zone * 60));
-          *(int64Type *) &param->buffer[8] = zone;
+          *(int32Type *) &param->buffer[8] = zone;
           break;
         case TIMESTAMPOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
@@ -2484,6 +2600,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           buffer_type = PQftype(preparedStmt->execute_result, (int) column - 1);
           logMessage(printf("buffer_type: %s\n", nameOfBufferType(buffer_type)););
           switch (buffer_type) {
+            case BOOLOID:
+              columnValue = buffer[0];
+              break;
             case INT2OID:
               columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
               break;
@@ -2508,9 +2627,6 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
               } else {
                 columnValue = buffer[0] != '0';
               } /* if */
-              break;
-            case BOOLOID:
-              columnValue = buffer[0];
               break;
             default:
               logError(printf("sqlColumnBool: Column " FMT_D " has the unknown type %s.\n",
@@ -2647,7 +2763,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
-                } /* if */
+                } /* while */
                 columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -2680,6 +2796,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    double doubleDuration;
     int64Type microsecDuration;
     int32Type dayDuration;
     int32Type monthDuration;
@@ -2736,8 +2853,10 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 microsecDuration = (int64Type) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleDuration = ntohd(*(const double *) buffer);
                 microsecDuration = (int64Type)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleDuration +
+                     (doubleDuration >= 0.0 ? 0.5 : -0.5));
               } /* if */
               dayDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[8]);
               monthDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[12]);
@@ -2784,7 +2903,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") --> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
                                             FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
@@ -3051,7 +3170,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               } else {
                 while (length > 0 && buffer[length - 1] == ' ') {
                   length--;
-                } /* if */
+                } /* while */
                 columnValue = cstri8_buf_to_stri(buffer, (memSizeType) length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -3103,6 +3222,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    double doubleTimestamp;
     timeStampType timestamp;
     intType dummy_micro_second;
 
@@ -3171,8 +3291,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3193,8 +3315,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3217,8 +3341,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3236,8 +3362,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               if (preparedStmt->integerDatetimes) {
                 timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
+                doubleTimestamp = ntohd(*(const double *) buffer);
                 timestamp = (timeStampType)
-                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
+                    (1000000.0 * doubleTimestamp +
+                     (doubleTimestamp >= 0.0 ? 0.5 : -0.5));
               } /* if */
               /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3322,7 +3450,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                                                     preparedStmt->paramFormats,
                                                     1);
       if (unlikely(preparedStmt->execute_result == NULL)) {
-        logError(printf("sqlExecute: PQexecPrepared returns NULL\n"););
+        logError(printf("sqlExecute: PQexecPrepared returns NULL.\n"););
         preparedStmt->executeSuccessful = FALSE;
         raise_error(MEMORY_ERROR);
       } else {
@@ -3359,7 +3487,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
               preparedStmt->affected_rows = strtoul(affected_rows, NULL, 10);
             else
               preparedStmt->affected_rows = 0;
-            /* printf("Number of tubles: %d\n", preparedStmt->num_tuples);
+            /* printf("Number of tuples: %d\n", preparedStmt->num_tuples);
               printf("Number of columns: %d\n", PQnfields(preparedStmt->execute_result));
               printf("Result_column_count: " FMT_U_MEM "\n", preparedStmt->result_column_count);
               { int idx;
@@ -3740,10 +3868,10 @@ static boolType getLocale (dbType database, errInfoType *err_info)
 
   {
     PGresult *execResult;
-    char *locale;
+    const char *locale;
     memSizeType localeLen;
     char *savedLocale;
-    char *databaseLocale;
+    const char *databaseLocale;
     struct lconv* lc;
 
   /* getLocale */
@@ -3763,9 +3891,9 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                         dbError.message););
         *err_info = DATABASE_ERROR;
       } else {
-        locale = setlocale(LC_ALL, NULL);
+        locale = setlocale(LC_MONETARY, NULL);
         if (unlikely(locale == NULL)) {
-          logError(printf("getLocale: setlocale(LC_ALL, NULL) failed.\n"););
+          logError(printf("getLocale: setlocale(LC_MONETARY, NULL) failed.\n"););
           *err_info = MEMORY_ERROR;
         } else {
           localeLen = strlen(locale);
@@ -3775,32 +3903,37 @@ static boolType getLocale (dbType database, errInfoType *err_info)
             memcpy(savedLocale, locale, localeLen + 1);
             databaseLocale = PQgetvalue(execResult, 0, 0);
             logMessage(printf("Database locale: \"%s\"\n", databaseLocale););
-            setlocale(LC_ALL, databaseLocale);
-            lc = localeconv();
-            if (lc->frac_digits == UCHAR_MAX ||
-                lc->frac_digits == SCHAR_MAX) {
-              /* In the "C" locale frac_digits == CHAR_MAX.       */
-              /* Unfortunately some libraries don't follow this   */
-              /* specification. To be on the safe side the        */
-              /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
+            if (setlocale(LC_MONETARY, databaseLocale) == NULL) {
+              logMessage(printf("getLocale: setlocale(LC_MONETARY, \"%s\") failed.\n",
+                                databaseLocale););
               database->moneyDenominator = 100;
-              logMessage(printf("getLocale: Money precision of %d not defined, "
-                                "using a denominator of " FMT_D64 "\n",
-                                lc->frac_digits, database->moneyDenominator););
-            } else if (unlikely(lc->frac_digits < 0 ||
-                                lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
-              logError(printf("getLocale: frac_digits %d negative or too big.\n"
-                              "Database locale: \"%s\"\n",
-                              lc->frac_digits, databaseLocale););
-              *err_info = NUMERIC_ERROR;
             } else {
-              database->moneyDenominator = intPow(10, lc->frac_digits);
-              /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
-              logMessage(printf("getLocale: Money precision of %d, "
-                                "resulting in a denominator of " FMT_D64 "\n",
-                                lc->frac_digits, database->moneyDenominator););
+              lc = localeconv();
+              if (lc->frac_digits == UCHAR_MAX ||
+                  lc->frac_digits == SCHAR_MAX) {
+                /* In the "C" locale frac_digits == CHAR_MAX.       */
+                /* Unfortunately some libraries don't follow this   */
+                /* specification. To be on the safe side the        */
+                /* comparison is done with UCHAR_MAX and SCHAR_MAX. */
+                database->moneyDenominator = 100;
+                logMessage(printf("getLocale: Money precision of %d not defined, "
+                                  "using a denominator of " FMT_D64 "\n",
+                                  lc->frac_digits, database->moneyDenominator););
+              } else if (unlikely(lc->frac_digits < 0 ||
+                                  lc->frac_digits > DECIMAL_DIGITS_IN_INTTYPE)) {
+                logError(printf("getLocale: frac_digits %d negative or too big.\n"
+                                "Database locale: \"%s\"\n",
+                                lc->frac_digits, databaseLocale););
+                *err_info = NUMERIC_ERROR;
+              } else {
+                database->moneyDenominator = intPow(10, lc->frac_digits);
+                /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+                logMessage(printf("getLocale: Money precision of %d, "
+                                  "resulting in a denominator of " FMT_D64 "\n",
+                                  lc->frac_digits, database->moneyDenominator););
+              } /* if */
+              setlocale(LC_MONETARY, savedLocale); /* Restore previous locale value */
             } /* if */
-            setlocale(LC_ALL, savedLocale); /* Restore previous locale value */
             UNALLOC_CSTRI(savedLocale, localeLen);
           } /* if */
         } /* if */
@@ -3811,6 +3944,54 @@ static boolType getLocale (dbType database, errInfoType *err_info)
                        *err_info == OKAY_NO_ERROR, *err_info););
     return *err_info == OKAY_NO_ERROR;
   } /* getLocale */
+
+
+
+static boolType getMoneyDenominator (dbType database, errInfoType *err_info)
+  {
+    PGresult *execResult;
+    const char *moneyText;
+    const char *separatorPos;
+    unsigned int fracDigits = 0;
+
+  /* getMoneyDenominator */
+    logFunction(printf("getMoneyDenominator(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, *err_info););
+    execResult = PQexec(database->connection, "SELECT 0::money::text");
+    if (unlikely(execResult == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else if (PQresultStatus(execResult) == PGRES_TUPLES_OK) {
+      moneyText = PQgetvalue(execResult, 0, 0);
+      /* Find decimal separator ('.' or ',') */
+      separatorPos = strpbrk(moneyText, ".,");
+      if (separatorPos != NULL) {
+        separatorPos++;
+        while (isdigit((unsigned char) *separatorPos)) {
+          fracDigits++;
+          separatorPos++;
+        } /* while */
+      } /* if */
+      if (unlikely(fracDigits > DECIMAL_DIGITS_IN_INTTYPE)) {
+        logError(printf("getMoneyDenominator: fracDigits %d too big.\n",
+                        fracDigits););
+        *err_info = NUMERIC_ERROR;
+      } else {
+        database->moneyDenominator = intPow(10, fracDigits);
+        /* This will be 100 for dollars/pounds (indicating cents/pence precision). */
+        logMessage(printf("getMoneyDenominator: Money precision of %d, "
+                          "resulting in a denominator of " FMT_D64 "\n",
+                          fracDigits, database->moneyDenominator););
+      } /* if */
+      PQclear(execResult);
+    } else {
+      /* Fallback for PostgreSQL < 8.3 where money::text is unsupported */
+      PQclear(execResult);
+      return getLocale(database, err_info);
+    } /* if */
+    logFunction(printf("getMoneyDenominator --> %d (err_info=%d)\n",
+                       *err_info == OKAY_NO_ERROR, *err_info););
+    return *err_info == OKAY_NO_ERROR;
+  } /* getMoneyDenominator */
 
 
 
@@ -3839,6 +4020,9 @@ databaseType sqlOpenPost (const const_striType host, intType port,
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = DATABASE_ERROR;
+      database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
@@ -3880,19 +4064,19 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                               (memSizeType) db.connection););
             if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
-                              "\"%s\", \"%s\", *) returns NULL\n",
+                              "\"%s\", \"%s\", *) returns NULL.\n",
                               host8[0] == '\0' ? "NULL" : host8,
                               dbName8, user8););
               err_info = MEMORY_ERROR;
               database = NULL;
             } else if (PQstatus(db.connection) != CONNECTION_OK &&
                        host8[0] == '\0') {
-              /* The attemt to connect with host set to NULL failed. */
-              /* If PQsetdbLogin() is called with the host set to    */
-              /* NULL the connection uses Unix domain sockets. Now   */
-              /* try internet sockets with "localhost" as host. This */
-              /* might succeed if PostgreSQL is installed in a local */
-              /* container and the port has been made accessible.    */
+              /* The attempt to connect with host set to NULL failed. */
+              /* If PQsetdbLogin() is called with the host set to     */
+              /* NULL, the connection uses Unix domain sockets. Now,  */
+              /* try internet sockets with "localhost" as host. This  */
+              /* might succeed if PostgreSQL is installed in a local  */
+              /* container and the port has been made accessible.     */
               PQfinish(db.connection);
               db.connection = PQsetdbLogin("localhost",
                                            pgport, NULL /* pgoptions */,
@@ -3928,7 +4112,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 err_info = DATABASE_ERROR;
                 PQfinish(db.connection);
                 database = NULL;
-              } else if (unlikely(!getLocale(&db, &err_info))) {
+              } else if (unlikely(!getMoneyDenominator(&db, &err_info))) {
                 PQfinish(db.connection);
                 database = NULL;
               } else if (unlikely(!setupFuncTable() ||

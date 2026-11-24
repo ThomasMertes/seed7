@@ -97,7 +97,7 @@ typedef struct {
     memSizeType  buffer_length;
     void        *buffer;
     uint16Type   length;
-    memSizeType  long_data_buf_usage;
+    memSizeType  long_data_length;
     uint32Type   long_data_piece_size;
     uint16Type   long_data_return_code;
     void        *descriptor;
@@ -148,7 +148,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SIZEOF_SQLT_NUM 22
 #define SIZEOF_SQLT_TIMESTAMP_TZ 13
 #define MANTISSA_LEN 40
-#define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
+#define MIN_LONG_DATA_PIECE_SIZE 4096
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
 #define DEBUG_LONG_CALLBACK 0
 #define SHOW_DETAILS 0
@@ -275,6 +275,7 @@ typedef sword (*tp_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
 typedef sword (*tp_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
                                     ub4 stmt_len, ub4 language, ub4 mode);
 typedef oratext *(*tp_OCIStringPtr) (OCIEnv *env, const OCIString *vs);
+typedef sword (*tp_OCIStringResize) (OCIEnv *env, OCIError *err, ub4 new_size, OCIString **str);
 typedef ub4 (*tp_OCIStringSize) (OCIEnv *env, const OCIString *vs);
 typedef sword (*tp_OCITransCommit) (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
 typedef sword (*tp_OCITransRollback) (dvoid *svchp,  OCIError *errhp, ub4 flags);
@@ -321,6 +322,7 @@ static tp_OCIStmtExecute               ptr_OCIStmtExecute;
 static tp_OCIStmtFetch2                ptr_OCIStmtFetch2;
 static tp_OCIStmtPrepare               ptr_OCIStmtPrepare;
 static tp_OCIStringPtr                 ptr_OCIStringPtr;
+static tp_OCIStringResize              ptr_OCIStringResize;
 static tp_OCIStringSize                ptr_OCIStringSize;
 static tp_OCITransCommit               ptr_OCITransCommit;
 static tp_OCITransRollback             ptr_OCITransRollback;
@@ -367,6 +369,7 @@ static tp_OCITransRollback             ptr_OCITransRollback;
 #define OCIStmtFetch2                ptr_OCIStmtFetch2
 #define OCIStmtPrepare               ptr_OCIStmtPrepare
 #define OCIStringPtr                 ptr_OCIStringPtr
+#define OCIStringResize              ptr_OCIStringResize
 #define OCIStringSize                ptr_OCIStringSize
 #define OCITransCommit               ptr_OCITransCommit
 #define OCITransRollback             ptr_OCITransRollback
@@ -425,6 +428,7 @@ static boolType setupDll (const char *dllName)
             (OCIStmtFetch2                = (tp_OCIStmtFetch2)                dllFunc(dbDll, "OCIStmtFetch2"))                == NULL ||
             (OCIStmtPrepare               = (tp_OCIStmtPrepare)               dllFunc(dbDll, "OCIStmtPrepare"))               == NULL ||
             (OCIStringPtr                 = (tp_OCIStringPtr)                 dllFunc(dbDll, "OCIStringPtr"))                 == NULL ||
+            (OCIStringResize              = (tp_OCIStringResize)              dllFunc(dbDll, "OCIStringResize"))              == NULL ||
             (OCIStringSize                = (tp_OCIStringSize)                dllFunc(dbDll, "OCIStringSize"))                == NULL ||
             (OCITransCommit               = (tp_OCITransCommit)               dllFunc(dbDll, "OCITransCommit"))               == NULL ||
             (OCITransRollback             = (tp_OCITransRollback)             dllFunc(dbDll, "OCITransRollback"))             == NULL) {
@@ -617,6 +621,13 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
     } /* if */
     /* It seems that the define_handle is implicitly freed with the statement handle. */
     if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
+      if (resultData->buffer_type == SQLT_VST &&
+          *(OCIString **) resultData->buffer != NULL) {
+        OCIStringResize(preparedStmt->oci_environment,
+                        preparedStmt->oci_error,
+                        0,
+                        (OCIString **) resultData->buffer);
+      } /* if */
       free(resultData->buffer);
     } /* if */
     if (resultData->descriptor != NULL) {
@@ -802,7 +813,7 @@ static void ociNumberToDecimalInt (const OCINumber *ociNumber, striType stri,
  *              (Needs a capacity of at least 127 characters).
  *  @return the scale of the number. The scale is the number of digits
  *          to the right (positive) or left (negative) of the decimal point.
- *          For finite values the scale is greater or equal 0.
+ *          For finite values the scale is greater than or equal to 0.
  *          For positive and negative infinite values the scale is -1.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the number cannot be converted
@@ -931,7 +942,7 @@ static int sqltNumberToDecimalFraction (memSizeType dataLen,
  *              (Needs a capacity of at least 127 characters).
  *  @return the scale of the number. The scale is the number of digits
  *          to the right (positive) or left (negative) of the decimal point.
- *          For finite values the scale is greater or equal 0.
+ *          For finite values the scale is greater than or equal to 0.
  *          For positive and negative infinite values the scale is -1.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the number cannot be converted
@@ -969,6 +980,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
     char mantissa[MANTISSA_LEN + 1];
     int startIdx = 1;
     int idx = 1;
+    int roundIdx;
     int length = 0;
 
   /* sqltNumberFromDecimalInt */
@@ -985,27 +997,60 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
         pos++;
       } /* while */
       /* Read decimal integer */
-      while (pos < decimal->size && decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9' && idx <= MANTISSA_LEN) {
+      while (pos < decimal->size &&
+             decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9' &&
+             idx <= MANTISSA_LEN) {
         mantissa[idx] = (char) ((char) decimal->mem[pos] - '0');
         idx++;
         pos++;
       } /* while */
-      while (pos < decimal->size && decimal->mem[pos] == '0') {
+      if (pos < decimal->size &&
+          decimal->mem[pos] >= '5' && decimal->mem[pos] <= '9') {
+        /* Round up the 40-digit mantissa */
+        roundIdx = idx - 1;
+        while (roundIdx >= 1 && mantissa[roundIdx] == 9) {
+          mantissa[roundIdx] = 0;
+          roundIdx--;
+        } /* while */
+        if (roundIdx >= 1) {
+          mantissa[roundIdx]++;
+        } else {
+          /* Carried out of 999...9 (40 nines) -> 1000...0 */
+          mantissa[1] = 1;
+          scale--;
+        } /* if */
+      } /* if */
+      while (pos < decimal->size &&
+             decimal->mem[pos] >= '0' && decimal->mem[pos] <= '9') {
         idx++;
         pos++;
       } /* while */
       if (pos != decimal->size) {
-        logError(printf("sqltNumberFromDecimalInt: Mantissa too long or trailing nondigit chars found\n"););
+        logError(printf("sqltNumberFromDecimalInt: Trailing nondigit chars found\n"););
         *err_info = RANGE_ERROR;
       } else {
         decimalExponent = -scale + idx - 2;
         if (decimalExponent % 2 == 0) {
-          if (idx <= MANTISSA_LEN || mantissa[MANTISSA_LEN] == 0) {
+          if (idx > MANTISSA_LEN) {
+            /* Only 39 significant digits fit when decimalExponent is even. */
+            if (mantissa[MANTISSA_LEN] >= 5) {
+              roundIdx = MANTISSA_LEN - 1;
+              while (roundIdx >= 1 && mantissa[roundIdx] == 9) {
+                mantissa[roundIdx] = 0;
+                roundIdx--;
+              } /* while */
+              if (roundIdx >= 1) {
+                mantissa[roundIdx]++;
+              } else {
+                mantissa[1] = 1;
+                decimalExponent++;
+              } /* if */
+            } /* if */
+            idx = MANTISSA_LEN;
+          } /* if */
+          if (decimalExponent % 2 == 0) {
             startIdx = 0;
             mantissa[0] = 0;
-          } else {
-            logError(printf("sqltNumberFromDecimalInt: Mantissa too long\n"););
-            *err_info = RANGE_ERROR;
           } /* if */
         } /* if */
         if (*err_info == OKAY_NO_ERROR) {
@@ -1079,7 +1124,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
  *               left (negative) of the decimal point.
  *  @param err_info Unchanged if the function succeeds, and
  *                  RANGE_ERROR if the decimal integer + scale
- *                  cannot be converted to a SQLT_NUM number.
+ *                  cannot be converted to an OCINumber.
  */
 static void ociNumberFromDecimalInt (OCINumber *ociNumber, const const_striType decimal,
     int scale, errInfoType *err_info)
@@ -1252,7 +1297,7 @@ static const char *nameOfBufferType (uint16Type buffer_type)
       "180",         "181",         "182",         "183",         "SQLT_DATE",
       "SQLT_TIME",   "SQLT_TIME_TZ","SQLT_TIMESTAMP", "SQLT_TIMESTAMP_TZ", "SQLT_INTERVAL_YM",
       "SQLT_INTERVAL_DS", "191",    "192",         "193",         "194",
-      "195", "196",  "197", "198",  "199", "200",  "201", "202",  "203", "204"
+      "195", "196",  "197", "198",  "199", "200",  "201", "202",  "203", "204",
       "205", "206",  "207", "208",  "209", "210",  "211", "212",  "213", "214",
       "215", "216",  "217", "218",  "219", "220",  "221", "222",  "223", "224",
       "225", "226",  "227", "228",  "229", "230",  "231", "SQLT_TIMESTAMP_LTZ",
@@ -1369,8 +1414,19 @@ static striType processStatementStri (const const_striType sqlStatementStri,
 
 
 
-static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
-    dvoid **bufpp, ub4 **alenp, ub1 *piecep, dvoid **indp, ub2 **rcodep)
+/**
+ *  Callback function used for SQLT_LNG and SQLT_LBI fields.
+ *  @param octxp   [IN] Your user-defined context pointer
+ *  @param defnp   [IN] The define handle requesting data
+ *  @param iter    [IN] Current row iteration (0-based; always 0 for LONGs)
+ *  @param bufpp   [OUT] Pointer to the buffer OCI should write into
+ *  @param alenpp  [IN/OUT] Pointer to the buffer size (IN) and bytes read (OUT)
+ *  @param piecep  [IN/OUT] Piece indicator (OCI_ONE_PIECE, OCI_FIRST_PIECE, etc.)
+ *  @param indpp   [OUT] Pointer to your indicator variable (sb2)
+ *  @param rcodepp [OUT] Pointer to your column return code variable (ub2)
+ */
+static sb4 longCallback (dvoid *octxp, OCIDefine *defnp, ub4 iter,
+    dvoid **bufpp, ub4 **alenpp, ub1 *piecep, dvoid **indpp, ub2 **rcodepp)
 
   {
     resultDataType resultData;
@@ -1394,12 +1450,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("IN bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
-    if (alenp == NULL) {
+    if (alenpp == NULL) {
       printf("IN alen: NULL\n");
-    } else if (*alenp == NULL) {
+    } else if (*alenpp == NULL) {
       printf("IN alen: *NULL*\n");
     } else {
-      printf("IN alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
+      printf("IN alen: " FMT_U_MEM "\n", (memSizeType) **alenpp);
     } /* if */
     if (piecep == NULL) {
       printf("IN piecep: NULL\n");
@@ -1412,60 +1468,73 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("IN piecep: %u\n", *piecep);
     } /* if */
-    if (indp == NULL) {
+    if (indpp == NULL) {
       printf("IN ind: NULL\n");
-    } else if (*indp == NULL) {
+    } else if (*indpp == NULL) {
       printf("IN ind: *NULL*\n");
     } else {
-      printf("IN ind: %lu\n", *(unsigned long *) *indp);
+      printf("IN ind: %lu\n", *(unsigned long *) *indpp);
     } /* if */
-    printf("buffer: " FMT_U_MEM "\n", (memSizeType) resultData->buffer);
-    fwrite(resultData->buffer, 1, resultData->long_data_buf_usage, stdout);
-    printf("\n");
-    printf("long_data_buf_usage: " FMT_U_MEM "\n", resultData->long_data_buf_usage);
+    printf("long_data_length: " FMT_U_MEM "\n", resultData->long_data_length);
+    printf("long_data_piece_size: " FMT_U32 "\n", resultData->long_data_piece_size);
 #endif
     switch (*piecep) {
       case OCI_ONE_PIECE:
-        /* OCI_ONE_PIECE */
-        resultData->long_data_buf_usage = 0;
-        break;
       case OCI_FIRST_PIECE:
-        /* OCI_ONE_PIECE or OCI_FIRST_PIECE */
-        resultData->long_data_buf_usage = 0;
-        *piecep = OCI_FIRST_PIECE;
+        resultData->long_data_length = 0;
         break;
       case OCI_NEXT_PIECE:
-        /* OCI_NEXT_PIECE or OCI_LAST_PIECE */
-        *piecep = OCI_NEXT_PIECE;
+      case OCI_LAST_PIECE:
+        /* Add the size of the previous piece. */
+        resultData->long_data_length += resultData->long_data_piece_size;
         break;
     } /* switch */
-    if (resultData->buffer_length > resultData->long_data_buf_usage) {
-      resultData->long_data_piece_size = (uint32Type)
-          (resultData->buffer_length - resultData->long_data_buf_usage);
-      *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
-      resultData->long_data_buf_usage = resultData->buffer_length;
-      resultData->long_data_return_code = OCI_SUCCESS;
-    } else if (resultData->buffer_length == resultData->long_data_buf_usage) {
-      newBufferLength = resultData->buffer_length + LONG_DATA_BUFFER_SIZE_INCREMENT;
-      resizedBuffer = realloc(resultData->buffer, newBufferLength);
-      if (resizedBuffer != NULL) {
-        resultData->buffer_length = newBufferLength;
-        resultData->buffer = resizedBuffer;
+    if (resultData->buffer != NULL &&
+        resultData->buffer_length >= resultData->long_data_length &&
+        resultData->buffer_length - resultData->long_data_length >= MIN_LONG_DATA_PIECE_SIZE) {
+      if (resultData->buffer_length - resultData->long_data_length <= UINT32TYPE_MAX) {
         resultData->long_data_piece_size = (uint32Type)
-            (resultData->buffer_length - resultData->long_data_buf_usage);
-        *bufpp = &((char *) resultData->buffer)[resultData->long_data_buf_usage];
-        resultData->long_data_buf_usage = resultData->buffer_length;
-        resultData->long_data_return_code = OCI_SUCCESS;
+            (resultData->buffer_length - resultData->long_data_length);
       } else {
+        resultData->long_data_piece_size = UINT32TYPE_MAX;
+      } /* if */
+      *bufpp = &((char *) resultData->buffer)[resultData->long_data_length];
+      resultData->long_data_return_code = OCI_SUCCESS;
+    } else {
+      if (unlikely(resultData->buffer_length > MAX_MEMSIZETYPE / 2)) {
         resultData->long_data_piece_size = 0;
         *bufpp = NULL;
         resultData->long_data_return_code = OCI_NO_DATA;
         returnCode = OCI_NO_DATA;
+      } else {
+        if (resultData->buffer_length == 0) {
+          newBufferLength = MIN_LONG_DATA_PIECE_SIZE;
+        } else {
+          newBufferLength = resultData->buffer_length * 2;
+        } /* if */
+        resizedBuffer = realloc(resultData->buffer, newBufferLength);
+        if (unlikely(resizedBuffer == NULL)) {
+          resultData->long_data_piece_size = 0;
+          *bufpp = NULL;
+          resultData->long_data_return_code = OCI_NO_DATA;
+          returnCode = OCI_NO_DATA;
+        } else {
+          resultData->buffer_length = newBufferLength;
+          resultData->buffer = resizedBuffer;
+          if (newBufferLength - resultData->long_data_length <= UINT32TYPE_MAX) {
+            resultData->long_data_piece_size = (uint32Type)
+                (newBufferLength - resultData->long_data_length);
+          } else {
+            resultData->long_data_piece_size = UINT32TYPE_MAX;
+          } /* if */
+          *bufpp = &((char *) resultData->buffer)[resultData->long_data_length];
+          resultData->long_data_return_code = OCI_SUCCESS;
+        } /* if */
       } /* if */
     } /* if */
-    *alenp = &resultData->long_data_piece_size;
-    *indp = &resultData->indicator;
-    *rcodep = &resultData->long_data_return_code;
+    *alenpp = &resultData->long_data_piece_size;
+    *indpp = &resultData->indicator;
+    *rcodepp = &resultData->long_data_return_code;
 #if DEBUG_LONG_CALLBACK
     printf("long_data_piece_size: %u\n", resultData->long_data_piece_size);
     printf("buffer_length: " FMT_U_MEM "\n", resultData->buffer_length);
@@ -1476,12 +1545,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("OUT bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
-    if (alenp == NULL) {
+    if (alenpp == NULL) {
       printf("OUT alen: NULL\n");
-    } else if (*alenp == NULL) {
+    } else if (*alenpp == NULL) {
       printf("OUT alen: *NULL*\n");
     } else {
-      printf("OUT alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
+      printf("OUT alen: " FMT_U_MEM "\n", (memSizeType) **alenpp);
     } /* if */
     if (piecep == NULL) {
       printf("OUT piecep: NULL\n");
@@ -1494,12 +1563,12 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("OUT piecep: %u\n", *piecep);
     } /* if */
-    if (indp == NULL) {
+    if (indpp == NULL) {
       printf("OUT ind: NULL\n");
-    } else if (*indp == NULL) {
+    } else if (*indpp == NULL) {
       printf("OUT ind: *NULL*\n");
     } else {
-      printf("OUT ind: %lu\n", *(unsigned long *) *indp);
+      printf("OUT ind: %lu\n", *(unsigned long *) *indpp);
     } /* if */
 #endif
     return returnCode;
@@ -1540,7 +1609,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     ub4 column_size = 0;
     ub4 value_size;
     ub4 descriptor_type;
-    enum {USE_BUFFER, USE_DESCRIPTOR, USE_REF} strategy = USE_BUFFER;
+    enum {USE_BUFFER, USE_DESCRIPTOR, USE_REF,
+          USE_DYNAMIC_FETCH} strategy = USE_BUFFER;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
@@ -1577,54 +1647,46 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       switch (resultData->buffer_type) {
         case SQLT_LNG: /* LONG */
         case SQLT_LBI: /* LONG RAW */
-          column_size = LONG_DATA_BUFFER_SIZE_INCREMENT;
+          resultData->buffer = NULL;
+          column_size = 0;
           value_size = 2147483647; /* Maximum length of LONG data: 2**31-1 */
-          strategy = USE_BUFFER;
+          strategy = USE_DYNAMIC_FETCH;
           break;
         case SQLT_RDD: /* ROWID */
           descriptor_type = OCI_DTYPE_ROWID;  /* ROWID */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_BLOB: /* Binary LOB */
         case SQLT_CLOB: /* Character LOB  */
           descriptor_type = OCI_DTYPE_LOB;  /* Binary LOB or Character LOB */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_FILE: /* Binary FILE */
           descriptor_type = OCI_DTYPE_FILE;  /* Binary FILE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_DATE:
           descriptor_type = OCI_DTYPE_DATE;  /* ANSI DATE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP:
           descriptor_type = OCI_DTYPE_TIMESTAMP;  /* TIMESTAMP */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP_TZ:
           descriptor_type = OCI_DTYPE_TIMESTAMP_TZ;  /* TIMESTAMP WITH TIME ZONE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_TIMESTAMP_LTZ:
           descriptor_type = OCI_DTYPE_TIMESTAMP_LTZ;  /* TIMESTAMP WITH LOCAL TIME ZONE */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_INTERVAL_YM:
           descriptor_type = OCI_DTYPE_INTERVAL_YM;  /* INTERVAL YEAR TO MONTH descriptor */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_INTERVAL_DS:
           descriptor_type = OCI_DTYPE_INTERVAL_DS;  /* INTERVAL DAY TO SECOND descriptor */
-          column_size = 0;
           strategy = USE_DESCRIPTOR;
           break;
         case SQLT_REF: /* REF */
@@ -1646,7 +1708,11 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQLT_LVB: /* LONG VARRAW */
         case SQLT_AFC: /* CHAR */
         case SQLT_AVC: /* CHARZ */
+          strategy = USE_BUFFER;
+          break;
         case SQLT_VST: /* OCI STRING type */
+          column_size = sizeof(OCIString *);
+          value_size = sizeof(OCIString *);
           strategy = USE_BUFFER;
           break;
         case SQLT_IBFLOAT:  /* BINARY_FLOAT */
@@ -1665,6 +1731,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       } /* switch */
       if (err_info == OKAY_NO_ERROR) {
         if (strategy == USE_DESCRIPTOR) {
+          column_size = 0;
+          value_size = 0;
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
                                  &resultData->descriptor,
                                  descriptor_type,
@@ -1676,7 +1744,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } /* if */
         } else if (strategy == USE_BUFFER) {
           /* printf ("column_size: " FMT_U32 "\n", column_size); */
+#if MALLOC_OF_0_RETURNS_NULL
+          if (column_size == 0) {
+            resultData->buffer = malloc(1);
+          } else {
+            resultData->buffer = malloc(column_size);
+          } /* if */
+#else
           resultData->buffer = malloc(column_size);
+#endif
           if (unlikely(resultData->buffer == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
@@ -1699,17 +1775,14 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                            &resultData->indicator,
                            &resultData->length,
                            NULL,
-                           resultData->buffer_type == SQLT_LNG ||
-                           resultData->buffer_type == SQLT_LBI ?
+                           strategy == USE_DYNAMIC_FETCH ?
                            OCI_DYNAMIC_FETCH : OCI_DEFAULT) != OCI_SUCCESS) {
-                           /* OCI_DEFAULT) != OCI_SUCCESS) { */
           setDbErrorMsg("setupResultColumn", "OCIDefineByPos",
                         preparedStmt->oci_error);
           logError(printf("setupResultColumn: OCIDefineByPos:\n%s\n",
                           dbError.message););
           err_info = DATABASE_ERROR;
-        } else if (resultData->buffer_type == SQLT_LNG ||
-                   resultData->buffer_type == SQLT_LBI) {
+        } else if (strategy == USE_DYNAMIC_FETCH) {
           /* printf("OCIDefineDynamic\n"); */
           if (OCIDefineDynamic(resultData->define_handle,
                                preparedStmt->oci_error,
@@ -1721,7 +1794,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                             dbError.message););
             err_info = DATABASE_ERROR;
           } /* if */
-        } else if (resultData->buffer_type == SQLT_REF) {
+        } else if (strategy == USE_REF) {
           /* printf("OCIDefineObject\n"); */
           if (OCIDefineObject(resultData->define_handle,
                               preparedStmt->oci_error,
@@ -2166,6 +2239,15 @@ static bstriType getBlob (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       bstri = NULL;
+    } else if (lobLength == 0) {
+      emptyBStriType emptyBStri;
+
+      if (unlikely(!ALLOC_EMPTY_BSTRI(emptyBStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyBStri->size = 0;
+      } /* if */
+      bstri = (bstriType) emptyBStri;
     } else if (unlikely(lobLength > MAX_BSTRI_LEN ||
                         !ALLOC_BSTRI_SIZE_OK(bstri, (memSizeType) lobLength))) {
       *err_info = MEMORY_ERROR;
@@ -2221,6 +2303,15 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       stri = NULL;
+    } else if (lobLength == 0) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyStri->size = 0;
+      } /* if */
+      stri = (striType) emptyStri;
     } else if (unlikely(lobLength > MAX_STRI_LEN ||
                         !ALLOC_STRI_SIZE_OK(stri, (memSizeType) lobLength))) {
       *err_info = MEMORY_ERROR;
@@ -2280,6 +2371,15 @@ static striType getClob (preparedStmtType preparedStmt,
                       dbError.message););
       *err_info = DATABASE_ERROR;
       stri = NULL;
+    } else if (lobLength == 0) {
+      emptyStriType emptyStri;
+
+      if (unlikely(!ALLOC_EMPTY_STRI(emptyStri))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        emptyStri->size = 0;
+      } /* if */
+      stri = (striType) emptyStri;
     } else if (unlikely(lobLength > MAX_MEMSIZETYPE / MAX_UTF8_EXPANSION_FACTOR)) {
       *err_info = MEMORY_ERROR;
       stri = NULL;
@@ -2659,6 +2759,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     } else {
       param = &preparedStmt->param_array[pos - 1];
       if (param->buffer_capacity < 1) {
+        free(param->buffer);
         if ((param->buffer = malloc(1)) == NULL) {
           param->buffer_capacity = 0;
           err_info = MEMORY_ERROR;
@@ -2737,42 +2838,65 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
                                  0, NULL) != OCI_SUCCESS) {
             logError(printf("sqlBindBStri: OCIDescriptorAlloc: Out of memory.\n"););
             err_info = MEMORY_ERROR;
+          } else if (OCILobCreateTemporary(preparedStmt->oci_service_context,
+                                           preparedStmt->oci_error,
+                                           (OCILobLocator *) param->descriptor,
+                                           OCI_DEFAULT,
+                                           OCI_DEFAULT,
+                                           OCI_TEMP_BLOB,
+                                           FALSE,
+                                           OCI_DURATION_SESSION) != OCI_SUCCESS) {
+            setDbErrorMsg("sqlBindBStri", "OCILobCreateTemporary",
+                          preparedStmt->oci_error);
+            logError(printf("sqlBindBStri: OCILobCreateTemporary:\n%s\n",
+                            dbError.message););
+            OCIDescriptorFree(param->descriptor, OCI_DTYPE_LOB);
+            param->descriptor = NULL;
+            err_info = DATABASE_ERROR;
           } /* if */
-        } /* if */
-      } /* if */
-      if (likely(err_info == OKAY_NO_ERROR)) {
-        if (OCILobCreateTemporary(preparedStmt->oci_service_context,
-                                  preparedStmt->oci_error,
-                                  (OCILobLocator *) param->descriptor,
-                                  OCI_DEFAULT,
-                                  OCI_DEFAULT,
-                                  OCI_TEMP_BLOB,
-                                  FALSE,
-                                  OCI_DURATION_SESSION) != OCI_SUCCESS) {
-          setDbErrorMsg("sqlBindBStri", "OCILobCreateTemporary",
-                        preparedStmt->oci_error);
-          logError(printf("sqlBindBStri: OCILobCreateTemporary:\n%s\n",
-                          dbError.message););
-          err_info = DATABASE_ERROR;
-        } else {
-          *(void **) param->buffer = param->descriptor;
-          param->buffer_type   = SQLT_BLOB;
-          param->buffer_length = 0;
         } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else if (bstri->size == 0) {
-        param->indicator = -1;
-        if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
-                                  &param->bind_handle,
-                                  preparedStmt->oci_error,
-                                  (ub4) pos,
-                                  param->buffer,
-                                  (sb4) param->buffer_length,
-                                  SQLT_BLOB,
-                                  &param->indicator,
-                                  NULL, NULL, 0, NULL, OCI_DEFAULT) != OCI_SUCCESS))  {
+      } else {
+        *(void **) param->buffer = param->descriptor;
+        param->buffer_type = SQLT_BLOB;
+        param->buffer_length = 0;
+        if (bstri->size == 0) {
+          param->indicator = -1;
+          if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
+                                    &param->bind_handle,
+                                    preparedStmt->oci_error,
+                                    (ub4) pos,
+                                    param->buffer,
+                                    (sb4) param->buffer_length,
+                                    SQLT_BLOB,
+                                    &param->indicator,
+                                    NULL, NULL, 0, NULL,
+                                    OCI_DEFAULT) != OCI_SUCCESS))  {
+            setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
+                          preparedStmt->oci_error);
+            logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
+                            dbError.message););
+            raise_error(DATABASE_ERROR);
+          } else {
+            preparedStmt->executeSuccessful = FALSE;
+            preparedStmt->fetchOkay = FALSE;
+            param->bound = TRUE;
+          } /* if */
+        } else if (unlikely(!setBlob(preparedStmt,
+                                     (OCILobLocator *) param->descriptor,
+                                     bstri, &err_info))) {
+          raise_error(err_info);
+        } else if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
+                                         &param->bind_handle,
+                                         preparedStmt->oci_error,
+                                         (ub4) pos,
+                                         param->buffer,
+                                         (sb4) param->buffer_length,
+                                         SQLT_BLOB,
+                                         NULL, NULL, NULL, 0, NULL,
+                                         OCI_DEFAULT) != OCI_SUCCESS))  {
           setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
                         preparedStmt->oci_error);
           logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
@@ -2783,28 +2907,6 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
           preparedStmt->fetchOkay = FALSE;
           param->bound = TRUE;
         } /* if */
-      } else if (unlikely(!setBlob(preparedStmt,
-                                   (OCILobLocator *) param->descriptor,
-                                   bstri, &err_info))) {
-        raise_error(err_info);
-      } else if (unlikely(OCIBindByPos(preparedStmt->ppStmt,
-                                       &param->bind_handle,
-                                       preparedStmt->oci_error,
-                                       (ub4) pos,
-                                       param->buffer,
-                                       (sb4) param->buffer_length,
-                                       SQLT_BLOB,
-                                       NULL, NULL, NULL, 0, NULL,
-                                       OCI_DEFAULT) != OCI_SUCCESS))  {
-        setDbErrorMsg("sqlBindBStri", "OCIBindByPos",
-                      preparedStmt->oci_error);
-        logError(printf("sqlBindBStri: OCIBindByPos:\n%s\n",
-                        dbError.message););
-        raise_error(DATABASE_ERROR);
-      } else {
-        preparedStmt->executeSuccessful = FALSE;
-        preparedStmt->fetchOkay = FALSE;
-        param->bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBStri */
@@ -3292,10 +3394,10 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                      (hour + (-time_zone) / 60 > 23 ||
                      (hour + (-time_zone) / 60 == 23 &&
                      minute + (-time_zone) % 60 > 59)))) {
-          /* When the time_zone would move the year from 1 BC to 1 AD the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by    */
-          /* setting time_zone to zero. Luckily all time values at the    */
-          /* default date 0-1-1 are not affected by this special case.    */
+          /* When time_zone would move the year from 1 BC to 1 AD, the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by */
+          /* setting time_zone to zero. Luckily all time values at the */
+          /* default date 0-1-1 are not affected by this special case. */
           time_zone = 0;
           /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
@@ -3308,11 +3410,11 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         if (unlikely((year == 1 || year == -4712) && month == 1 && day == 1 &&
                      (time_zone / 60 > hour ||
                      (time_zone / 60 == hour && time_zone % 60 > minute)))) {
-          /* When the time_zone would move the year from 1 AD to 1 BC the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by    */
-          /* setting time_zone to zero. For the minimum allowed time      */
-          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not    */
-          /* work correctly, if the time_zone is greater than zero.       */
+          /* When time_zone would move the year from 1 AD to 1 BC, the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by */
+          /* setting time_zone to zero. For the minimum allowed time   */
+          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not */
+          /* work correctly, if the time_zone is greater than zero.    */
           time_zone = 0;
           /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
@@ -3364,6 +3466,8 @@ static void sqlClose (databaseType database)
 
   {
     dbType db;
+    OCISession *session = NULL;
+    ub4 serverStatus = OCI_SERVER_NOT_CONNECTED;
 
   /* sqlClose */
     logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
@@ -3371,12 +3475,20 @@ static void sqlClose (databaseType database)
     db = (dbType) database;
     if (db->oci_service_context != NULL &&
         db->oci_error != NULL &&
-        db->oci_session != NULL) {
+        db->oci_session != NULL &&
+        OCIAttrGet(db->oci_service_context, OCI_HTYPE_SVCCTX,
+                   &session, NULL, OCI_ATTR_SESSION,
+                   db->oci_error) == OCI_SUCCESS &&
+        session == db->oci_session) {
       OCISessionEnd(db->oci_service_context, db->oci_error,
                     db->oci_session, OCI_DEFAULT);
     } /* if */
     if (db->oci_server != NULL &&
-        db->oci_error != NULL) {
+        db->oci_error != NULL &&
+        OCIAttrGet(db->oci_server, OCI_HTYPE_SERVER,
+                   &serverStatus, NULL, OCI_ATTR_SERVER_STATUS,
+                   db->oci_error) == OCI_SUCCESS &&
+        serverStatus == OCI_SERVER_NORMAL) {
       OCIServerDetach(db->oci_server, db->oci_error,
                       OCI_DEFAULT);
     } /* if */
@@ -3626,9 +3738,19 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         switch (columnData->buffer_type) {
           case SQLT_BIN: /* RAW */
           case SQLT_VBI: /* VARRAW */
-          case SQLT_LBI: /* LONG RAW */
           case SQLT_LVB: /* LONG VARRAW */
             length = columnData->length;
+            if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              columnValue->size = length;
+              memcpy(columnValue->mem, (ustriType) columnData->buffer, length);
+            } /* if */
+            break;
+          case SQLT_LBI: /* LONG RAW */
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LBI length: " FMT_U_MEM "\n", length););
             if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
               raise_error(MEMORY_ERROR);
             } else {
@@ -3922,15 +4044,20 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         switch (columnData->buffer_type) {
           case SQLT_CHR: /* VARCHAR2 */
           case SQLT_VCS: /* VARCHAR */
-          case SQLT_LNG: /* LONG */
           case SQLT_LVC: /* LONG VARCHAR */
             stri8 = (cstriType) columnData->buffer;
             length = columnData->length;
-            /* printf("length: " FMT_U_MEM "\n", length); */
-            /* printf("buffer: \"");
-               fwrite(stri8, 1, length, stdout);
-               printf("\"\n"); */
             columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
+            if (unlikely(columnValue == NULL)) {
+              raise_error(err_info);
+            } /* if */
+            break;
+          case SQLT_LNG: /* LONG */
+            stri8 = (cstriType) columnData->buffer;
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LNG length: " FMT_U_MEM "\n", length););
+            columnValue = cstri8_buf_to_stri(stri8, length, &err_info);
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
             } /* if */
@@ -3943,7 +4070,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                printf("\"\n"); */
             while (length > 0 && stri8[length - 1] == ' ') {
               length--;
-            } /* if */
+            } /* while */
             columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
@@ -3964,7 +4091,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             break;
           case SQLT_VST: /* OCI STRING type */
             stri8 = (cstriType) OCIStringPtr(preparedStmt->oci_environment,
-                                             (OCIString *) columnData->buffer);
+                                             *(OCIString **) columnData->buffer);
             if (unlikely(stri8 == NULL)) {
               dbInconsistent("sqlColumnStri", "OCIStringPtr");
               logError(printf("sqlColumnStri: Column " FMT_D ": "
@@ -3973,7 +4100,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               columnValue = NULL;
             } else {
               length = OCIStringSize(preparedStmt->oci_environment,
-                                     (OCIString *) columnData->buffer);
+                                     *(OCIString **) columnData->buffer);
               columnValue = cstri8_buf_to_stri(stri8, (memSizeType) length, &err_info);
               if (unlikely(columnValue == NULL)) {
                 raise_error(err_info);
@@ -3990,10 +4117,19 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             break;
           case SQLT_BIN: /* RAW */
           case SQLT_VBI: /* VARRAW */
-          case SQLT_LBI: /* LONG RAW */
           case SQLT_LVB: /* LONG VARRAW */
             columnValue = cstri_buf_to_stri((const_cstriType) columnData->buffer,
                                             columnData->length);
+            if (unlikely(columnValue == NULL)) {
+              raise_error(MEMORY_ERROR);
+            } /* if */
+            break;
+          case SQLT_LBI: /* LONG RAW */
+            /* Add the size of the last piece. */
+            length = columnData->long_data_length + columnData->long_data_piece_size;
+            logMessage(printf("SQLT_LBI length: " FMT_U_MEM "\n", length););
+            columnValue = cstri_buf_to_stri((const_cstriType) columnData->buffer,
+                                            length);
             if (unlikely(columnValue == NULL)) {
               raise_error(MEMORY_ERROR);
             } /* if */
@@ -4095,7 +4231,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             sqltDat = (unsigned char *) columnData->buffer;
             ociYear = (sb2) ((sqltDat[0] - 101) * 100 + sqltDat[1]);
             if (ociYear <= -1) {
-              /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
+              /* In the proleptic Gregorian calendar, the year preceding 1 is 0. */
               ociYear++;
             } /* if */
             *year   = ociYear;
@@ -4112,41 +4248,62 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           case SQLT_TIMESTAMP:
           case SQLT_TIMESTAMP_TZ:
           case SQLT_TIMESTAMP_LTZ:
-            OCIDateTimeGetDate(preparedStmt->oci_environment,
-                               preparedStmt->oci_error,
-                               (OCIDateTime *) columnData->descriptor,
-                               &ociYear,
-                               &ociMonth,
-                               &ociDay);
-            if (ociYear <= -1) {
-              /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
-              ociYear++;
+            if (unlikely(OCIDateTimeGetDate(preparedStmt->oci_environment,
+                                            preparedStmt->oci_error,
+                                            (OCIDateTime *) columnData->descriptor,
+                                            &ociYear,
+                                            &ociMonth,
+                                            &ociDay) != OCI_SUCCESS)) {
+              setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetDate",
+                            preparedStmt->oci_error);
+              logError(printf("sqlColumnTime: OCIDateTimeGetDate:\n%s\n",
+                              dbError.message););
+              err_info = DATABASE_ERROR;
+            } else if (unlikely(OCIDateTimeGetTime(preparedStmt->oci_environment,
+                                                   preparedStmt->oci_error,
+                                                   (OCIDateTime *) columnData->descriptor,
+                                                   &ociHour,
+                                                   &ociMinute,
+                                                   &ociSecond,
+                                                   &ociFsec) != OCI_SUCCESS)) {
+              setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetTime",
+                            preparedStmt->oci_error);
+              logError(printf("sqlColumnTime: OCIDateTimeGetTime:\n%s\n",
+                              dbError.message););
+              err_info = DATABASE_ERROR;
+            } else if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
+              if (unlikely(OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
+                                                        preparedStmt->oci_error,
+                                                        (OCIDateTime *) columnData->descriptor,
+                                                        &tzHour,
+                                                        &tzMinute) != OCI_SUCCESS)) {
+                setDbErrorMsg("sqlColumnTime", "OCIDateTimeGetTimeZoneOffset",
+                              preparedStmt->oci_error);
+                logError(printf("sqlColumnTime: OCIDateTimeGetTimeZoneOffset:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+              } /* if */
             } /* if */
-            *year  = ociYear;
-            *month = ociMonth;
-            *day   = ociDay;
-            OCIDateTimeGetTime(preparedStmt->oci_environment,
-                               preparedStmt->oci_error,
-                               (OCIDateTime *) columnData->descriptor,
-                               &ociHour,
-                               &ociMinute,
-                               &ociSecond,
-                               &ociFsec);
-            *hour   = ociHour;
-            *minute = ociMinute;
-            *second = ociSecond;
-            *micro_second = ociFsec / 1000;
-            if (columnData->buffer_type == SQLT_TIMESTAMP_TZ || columnData->buffer_type == SQLT_DATE) {
-              OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
-                                           preparedStmt->oci_error,
-                                           (OCIDateTime *) columnData->descriptor,
-                                           &tzHour, &tzMinute);
-              /* printf(F_D16(02) ":" F_D16(02) "\n", tzHour, tzMinute); */
-              *time_zone = tzHour * 60 + tzMinute;
-              *is_dst = FALSE;
-            } else {
-              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
-                            time_zone, is_dst);
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              if (ociYear <= -1) {
+                /* In the proleptic Gregorian calendar, the year preceding 1 is 0. */
+                ociYear++;
+              } /* if */
+              *year   = ociYear;
+              *month  = ociMonth;
+              *day    = ociDay;
+              *hour   = ociHour;
+              *minute = ociMinute;
+              *second = ociSecond;
+              *micro_second = ociFsec / 1000;
+              if (columnData->buffer_type == SQLT_TIMESTAMP_TZ) {
+                /* printf(F_D16(02) ":" F_D16(02) "\n", tzHour, tzMinute); */
+                *time_zone = tzHour * 60 + tzMinute;
+                *is_dst = FALSE;
+              } else {
+                timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                              time_zone, is_dst);
+              } /* if */
             } /* if */
             break;
           default:
@@ -4187,9 +4344,15 @@ static void sqlCommit (databaseType database)
       logError(printf("sqlCommit: Database is not open.\n"););
       raise_error(DATABASE_ERROR);
     } else {
-      OCITransCommit(db->oci_service_context,
-                     db->oci_error,
-                     OCI_DEFAULT);
+      if (unlikely(OCITransCommit(db->oci_service_context,
+                                  db->oci_error,
+                                  OCI_DEFAULT) != OCI_SUCCESS)) {
+        setDbErrorMsg("sqlCommit", "OCITransCommit",
+                      db->oci_error);
+        logError(printf("sqlCommit: OCITransCommit:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } /* if */
     } /* if */
     logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
@@ -4207,7 +4370,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
@@ -4277,6 +4440,8 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
       } else {
+        /* OCI_SUCCESS_WITH_INFO is used, e.g., when data is truncated. */
+        /* In that case, data has been lost, which is a DATABASE_ERROR. */
         setDbErrorMsg("sqlFetch", "OCIStmtFetch2",
                       preparedStmt->oci_error);
         logError(printf("sqlFetch: OCIStmtFetch2 fetch_result: %d:\n%s\n",
@@ -4393,13 +4558,21 @@ static sqlStmtType sqlPrepare (databaseType database,
             /* printf("sqlPrepare: query: %s\n", query); */
             memset(preparedStmt, 0, sizeof(preparedStmtRecordOci));
             if (OCIHandleAlloc(db->oci_environment, (void **) &preparedStmt->ppStmt,
-                               OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS ||
-                OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
-                               (OraText *) query, (ub4) queryLength,
-                               OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
+                               OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS) {
+              dbLibError("sqlPrepare", "OCIHandleAlloc",
+                         "OCIHandleAlloc failed.\n");
+              logError(printf("sqlPrepare: OCIHandleAlloc failed.\n"););
+              FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
+                           count.prepared_stmt, count.prepared_stmt_bytes);
+              err_info = DATABASE_ERROR;
+              preparedStmt = NULL;
+            } else if (OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
+                                      (OraText *) query, (ub4) queryLength,
+                                      OCI_NTV_SYNTAX, OCI_DEFAULT) != OCI_SUCCESS) {
               setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
               logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
                               dbError.message););
+              OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
               FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                            count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = DATABASE_ERROR;
@@ -4461,9 +4634,15 @@ static void sqlRollback (databaseType database)
       logError(printf("sqlRollback: Database is not open.\n"););
       raise_error(DATABASE_ERROR);
     } else {
-      OCITransRollback(db->oci_service_context,
-                       db->oci_error,
-                       OCI_DEFAULT);
+      if (unlikely(OCITransRollback(db->oci_service_context,
+                                    db->oci_error,
+                                    OCI_DEFAULT) != OCI_SUCCESS)) {
+        setDbErrorMsg("sqlRollback", "OCITransRollback",
+                      db->oci_error);
+        logError(printf("sqlRollback: OCITransRollback:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } /* if */
     } /* if */
     logFunction(printf("sqlRollback -->\n"););
   } /* sqlRollback */
@@ -4795,6 +4974,9 @@ databaseType sqlOpenOci (const const_striType host, intType port,
       logError(printf("sqlOpenOci: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
     } else {
@@ -4852,9 +5034,10 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 sqlClose((databaseType) &db);
                 err_info = DATABASE_ERROR;
                 database = NULL;
-              } else if (OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
-                                         NULL, NULL, NULL, NULL, 0, NULL,
-                                         db.charSetId, db.charSetId) != OCI_SUCCESS) {
+              } else if ((db.oci_environment = NULL,
+                          OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
+                                          NULL, NULL, NULL, NULL, 0, NULL,
+                                          db.charSetId, db.charSetId) != OCI_SUCCESS)) {
                 dbLibError("sqlOpenOci", "OCIEnvNlsCreate",
                            "OCIEnvNlsCreate failed.\n");
                 logError(printf("sqlOpenOci: OCIEnvNlsCreate failed\n"););
@@ -4875,12 +5058,12 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                                         OCI_HTYPE_SESSION, 0, NULL) != OCI_SUCCESS) {
                 dbLibError("sqlOpenOci", "OCIHandleAlloc",
                            "OCIHandleAlloc failed.\n");
-                logError(printf("sqlOpenOci: OCIHandleAlloc failed\n"););
+                logError(printf("sqlOpenOci: OCIHandleAlloc failed.\n"););
                 err_info = DATABASE_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if ((connectData.tnsName == NULL ||
-                          /* Possible TNS name: No host and no port has been specified. */
+                          /* Possible TNS name: No host and no port have been specified. */
                           OCIServerAttach(db.oci_server, db.oci_error,
                                           (OraText *) connectData.tnsName,
                                           (sb4) connectData.tnsNameLength,

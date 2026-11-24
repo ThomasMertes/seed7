@@ -32,6 +32,11 @@ var globalsInFunctionHash: globalsChangedInFunction is globalsInFunctionHash.val
 var reference: current_function is NIL;
 
 
+const set of string: actionsReferringParam is
+    {"ARR_IDX", "HSH_IDX", "HSH_IDX2", "SCT_SELECT", "STR_HEAD",
+     "STR_RANGE", "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL"};
+
+
 const func boolean: isPointerParam (in reference: a_param) is
   return category(a_param) = REFPARAMOBJECT and
         (not valueIsAtHeap(a_param) or isVar(a_param));
@@ -44,6 +49,10 @@ const func boolean: isCopyParam (in reference: a_param) is
 
 const func boolean: isInOutParam (in reference: a_param) is
   return category(a_param) = REFPARAMOBJECT and isVar(a_param);
+
+
+const func boolean: isNameParam (in reference: a_param) is
+  return category(a_param) = REFPARAMOBJECT and isFunc(getType(a_param));
 
 
 const func placeType: setPlace (in expr_type: c_expr) is func
@@ -78,9 +87,6 @@ const func boolean: referredByExpression (in reference: searched,
   result
     var boolean: found is FALSE;
   local
-    const set of string: actionsReferringParam is
-        {"ARR_IDX", "HSH_IDX", "HSH_IDX2", "SCT_SELECT", "STR_HEAD",
-         "STR_RANGE", "STR_SUBSTR", "STR_SUBSTR_FIXLEN", "STR_TAIL"};
     var category: exprCategory is category.value;
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
@@ -108,6 +114,187 @@ const func boolean: referredByExpression (in reference: searched,
         end if;
       otherwise:
         found := searched = expression;
+    end case;
+  end func;
+
+
+const func boolean: equalReferences (in reference: searched, in reference: actualParam) is func
+
+  result
+    var boolean: equal is FALSE;
+  local
+    var ref_list: paramsA is ref_list.EMPTY;
+    var ref_list: paramsB is ref_list.EMPTY;
+    var integer: index is 0;
+  begin
+    # writeln("X " <& str(category(searched)) <& " " <& str(category(actualParam)));
+    if category(searched) = CALLOBJECT and category(actualParam) = CALLOBJECT then
+      paramsA := getValue(searched, ref_list);
+      paramsB := getValue(actualParam, ref_list);
+      # writeln(length(paramsA) <& " " <& length(paramsB));
+      if length(paramsA) = length(paramsB) then
+        equal := TRUE;
+        for key index range paramsA do
+          if paramsA[index] <> paramsB[index] then
+            equal := FALSE;
+          end if;
+        end for;
+      end if;
+    end if;
+  end func;
+
+
+const set of string: actionsCausingMemoryChange is
+    {"ARR_APPEND", "ARR_CPY", "ARR_INSERT", "ARR_INSERT_ARRAY",
+     "ARR_PUSH", "ARR_REMOVE", "ARR_REMOVE_ARRAY",
+     "BIG_ADD_ASSIGN", "BIG_CPY", "BIG_DECR", "BIG_INCR",
+     "BIG_LSHIFT_ASSIGN", "BIG_MULT_ASSIGN", "BIG_RSHIFT_ASSIGN",
+     "BIG_SBTR_ASSIGN",
+     "BST_APPEND", "BST_CPY",
+     "FIL_CPY",
+     "HSH_CPY", "HSH_EXCL", "HSH_INCL",
+     "ITF_CPY",
+     "PCS_CPY",
+     "POL_ADD_CHECK", "POL_CLEAR", "POL_CPY", "POL_REMOVE_CHECK",
+     "PRC_CPY",
+     "PRG_CPY",
+     "REF_CPY",
+     "RFL_APPEND", "RFL_CPY", "RFL_ELEMCPY", "RFL_INCL",
+     "RFL_SET_VALUE",
+     "SCT_CPY",
+     "SET_CPY", "SET_DIFF_ASSIGN", "SET_EXCL", "SET_INCL",
+     "SET_INTERSECT_ASSIGN", "SET_UNION_ASSIGN",
+     "SOC_CPY",
+     "STR_APPEND", "STR_CPY", "STR_ELEMCPY", "STR_POSCPY", "STR_PUSH",
+     "TYP_CPY"};
+
+
+const func boolean: blockCausingMemoryChange (in reference: function) is func
+
+  result
+    var boolean: blockCausingMemoryChange is TRUE;
+  local
+    var type: function_type is void;
+    var reference: result_object is NIL;
+    var reference: body is NIL;
+    var reference: calledFunction is NIL;
+  begin
+    function_type := getType(function);
+    result_object := resultVar(function);
+    if function_type <> typeData.proctype and result_object = NIL then
+      body := body(function);
+      if category(body) = CALLOBJECT then
+        calledFunction := getValue(body, ref_list)[1];
+        if category(calledFunction) = ACTOBJECT and
+            str(getValue(calledFunction, ACTION)) in actionsCausingMemoryChange then
+          blockCausingMemoryChange := TRUE;
+        end if;
+      end if;
+    else
+      blockCausingMemoryChange := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: isBlockReferringParam (in reference: function) is func
+
+  result
+    var boolean: isBlockReferringParam is FALSE;
+  local
+    var type: function_type is void;
+    var reference: result_object is NIL;
+    var reference: body is NIL;
+    var reference: calledFunction is NIL;
+  begin
+    function_type := getType(function);
+    result_object := resultVar(function);
+    if function_type <> typeData.proctype and result_object = NIL then
+      body := body(function);
+      if category(body) = CALLOBJECT then
+        calledFunction := getValue(body, ref_list)[1];
+        if category(calledFunction) = ACTOBJECT and
+            str(getValue(calledFunction, ACTION)) in actionsReferringParam then
+          isBlockReferringParam := TRUE;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: changedByExpression (in reference: searched,
+    in reference: expression, in boolean: inInoutParam,
+    inout placeType: place) is func
+
+  result
+    var boolean: changesParam is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+    var ref_list: formalParams is ref_list.EMPTY;
+    var reference: formalParam is NIL;
+    var reference: actualParam is NIL;
+    var integer: paramNumber is 0;
+    var boolean: isActionReferringParam is FALSE;
+    var boolean: isBlockReferringParam is FALSE;
+  begin
+    case category(expression) of
+      when {CALLOBJECT, MATCHOBJECT}:
+        params := getValue(expression, ref_list);
+        function := params[1];
+        params := params[2 ..];
+        if category(function) = ACTOBJECT then
+          # Action which returns a reference to existing data.
+          # writeln(" " <& str(getValue(function, ACTION)));
+          formalParams := formalParams(function);
+          for formalParam key paramNumber range formalParams do
+            actualParam := params[paramNumber];
+            # writeln("  " <& str(actualParam));
+            if isInOutParam(formalParam) then
+              # writeln("   inout " <& str(formalParam) <& " " <& str(actualParam) <& " " <& str(searched));
+              # writeln("   " <& str(getValue(function, ACTION)) <& " " <& inInoutParam);
+              isActionReferringParam := str(getValue(function, ACTION)) in actionsReferringParam;
+              if (not isActionReferringParam or inInoutParam) and
+                  (searched = actualParam or equalReferences(searched, actualParam)) and
+                  str(getValue(function, ACTION)) in actionsCausingMemoryChange then
+                changesParam := TRUE;
+                place.currentFile := file(expression);
+                place.currentLine := line(expression);
+              end if;
+              if isActionReferringParam then
+                changesParam |:= changedByExpression(searched, actualParam, inInoutParam, place);
+              else
+                changesParam |:= changedByExpression(searched, actualParam, TRUE, place);
+              end if;
+            else
+              changesParam |:= changedByExpression(searched, actualParam, FALSE, place);
+            end if;
+          end for;
+        elsif category(function) = BLOCKOBJECT then
+          formalParams := formalParams(function);
+          for formalParam key paramNumber range formalParams do
+            actualParam := params[paramNumber];
+            if isInOutParam(formalParam) then
+              # writeln("inout " <& str(formalParam) <& " " <& str(actualParam) <& " " <& str(searched));
+              # writeln(str(function));
+              isBlockReferringParam := isBlockReferringParam(function);
+              # writeln(isBlockReferringParam <& " " <& inInoutParam);
+              if (not isBlockReferringParam or inInoutParam) and
+                  (searched = actualParam or equalReferences(searched, actualParam)) and
+                  blockCausingMemoryChange(function) then
+                changesParam := TRUE;
+                place.currentFile := file(expression);
+                place.currentLine := line(expression);
+              end if;
+              if isBlockReferringParam then
+                changesParam |:= changedByExpression(searched, actualParam, inInoutParam, place);
+              else
+                changesParam |:= changedByExpression(searched, actualParam, TRUE, place);
+              end if;
+            else
+              changesParam |:= changedByExpression(searched, actualParam, FALSE, place);
+            end if;
+          end for;
+        end if;
     end case;
   end func;
 
@@ -163,6 +350,46 @@ const proc: checkInOutParamAliasing (in reference: function,
   end func;
 
 
+const proc: checkNameParamAliasing (in reference: function,
+    in ref_list: formalParams, in ref_list: actualParams,
+    in expr_type: c_expr) is func
+
+  local
+    var integer: checkedParamNumber is 0;
+    var reference: checkedFormalNameParam is NIL;
+    var reference: checkedActualNameParam is NIL;
+    var integer: paramNumber is 0;
+    var reference: actualParam is NIL;
+    var reference: formalParam is NIL;
+    var placeType: place is placeType.value;
+  begin
+    for checkedFormalNameParam key checkedParamNumber range formalParams do
+      if isNameParam(checkedFormalNameParam) then
+        checkedActualNameParam := actualParams[checkedParamNumber];
+        # writeln("nameParam: " <& str(checkedFormalNameParam) <& " " <& str(checkedActualNameParam) <& " " <& checkedParamNumber);
+        for actualParam key paramNumber range actualParams do
+          formalParam := formalParams[paramNumber];
+          # writeln("actualParam: " <& str(actualParam) <& " " <& paramNumber <& " " <& str(category(formalParam)));
+          if paramNumber <> checkedParamNumber and
+              category(formalParam) = REFPARAMOBJECT then
+            # writeln("refParam: " <& str(formalParam) <& " " <& str(actualParam) <& " " <& paramNumber <& " " <& valueIsAtHeap(formalParam));
+            if valueIsAtHeap(formalParam) and
+                changedByExpression(actualParam, checkedActualNameParam, FALSE, place) then
+              error(VARIABLE_USED_AS_REF_PARAMETER_AND_CHANGED_IN_EXPRESSION,
+                    actualParam, formalParam,
+                    checkedFormalNameParam, c_expr);
+              error(PLACE_OF_PARAMETER_CHANGE, place, actualParam);
+              error(PLACE_OF_REF_PARAMETER_DEFINITION, formalParam);
+              error(PLACE_OF_NAME_PARAMETER_DEFINITION,
+                    checkedFormalNameParam);
+            end if;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
 const proc: checkParameterAliasing (in reference: function,
     in ref_list: formalParams, in ref_list: actualParams,
     in expr_type: c_expr) is func
@@ -175,6 +402,7 @@ const proc: checkParameterAliasing (in reference: function,
     var bitset: alreadyComplained is {};
   begin
     checkInOutParamAliasing(function, formalParams, actualParams, c_expr);
+    checkNameParamAliasing(function, formalParams, actualParams, c_expr);
     if function in globalsChangedInFunction then
       for key globalVariable range globalsChangedInFunction[function] do
         for actualParam key paramNumber range actualParams do

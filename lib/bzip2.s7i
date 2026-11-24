@@ -439,7 +439,7 @@ const func integer: decodeMoveToFront (in integer: mtfIndex,
 #  - The RUN_A/RUN_B run-length encoding repeats the last code.
 #  - The code frequencies are computed and stored in codeFrequencies.
 #  @param compressedStream Compressed stream from which data is read.
-#  @param blockHeader BZIP2 block header.
+#  @param blockHeader Bzip2 block header.
 #  @param decoder The Huffman encoders together with the selector information.
 #  @param byteStri Byte string to be used for the inverse BWT transform.
 #  @param codeFrequencies Number of codes used for each possible byte code.
@@ -635,7 +635,14 @@ const func string: decompressBzip2Block (inout msbInBitStream: compressedStream)
   end func;
 
 
-const func string: bzip2Decompress (in string: stri) is func
+(**
+ *  Decompress a string that was compressed with bzip2.
+ *  Bzip2 is a file format used for compression.
+ *  @param compressed String with bzip2-compressed data.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in bzip2 format.
+ *)
+const func string: bzip2Decompress (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
@@ -643,9 +650,9 @@ const func string: bzip2Decompress (in string: stri) is func
     var msbInBitStream: compressedStream is msbInBitStream.value;
     var integer: blockMagic is 0;
   begin
-    header := readBzip2Header(stri);
+    header := readBzip2Header(compressed);
     if header.magic = BZIP2_MAGIC then
-      compressedStream := openMsbInBitStream(stri);
+      compressedStream := openMsbInBitStream(compressed);
       ignore(gets(compressedStream, 4));
       blockMagic := getBits(compressedStream, 32) << 16 +
                     getBits(compressedStream, 16);
@@ -662,10 +669,11 @@ const func string: bzip2Decompress (in string: stri) is func
 
 
 (**
- *  Decompress a file that was compressed with BZIP2.
- *  BZIP2 is a file format used for compression.
+ *  Decompress a file that was compressed with bzip2.
+ *  Bzip2 is a file format used for compression.
+ *  @param compressed File with bzip2-compressed data.
  *  @return the uncompressed string.
- *  @exception RANGE_ERROR If ''compressed'' is not in BZIP2 format.
+ *  @exception RANGE_ERROR If ''compressed'' is not in bzip2 format.
  *)
 const func string: bzip2Decompress (inout file: compressed) is func
   result
@@ -693,8 +701,8 @@ const func string: bzip2Decompress (inout file: compressed) is func
 
 
 (**
- *  [[file|File]] implementation type to decompress a BZIP2 file.
- *  BZIP2 is a file format used for compression.
+ *  [[file|File]] implementation type to decompress a bzip2 file.
+ *  Bzip2 is a file format used for compression.
  *)
 const type: bzip2File is sub null_file struct
     var msbInBitStream: compressedStream is msbInBitStream.value;
@@ -707,11 +715,11 @@ type_implements_interface(bzip2File, file);
 
 
 (**
- *  Open a BZIP2 file for reading (decompression).
- *  BZIP2 is a file format used for compression. Reading from
+ *  Open a bzip2 file for reading (decompression).
+ *  Bzip2 is a file format used for compression. Reading from
  *  the file delivers decompressed data. Writing is not supported.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if the file is not in BZIP2 format.
+ *          if the file is not in bzip2 format.
  *)
 const func file: openBzip2File (inout file: compressed, READ) is func
   result
@@ -853,8 +861,8 @@ const func integer: length (inout bzip2File: aFile) is func
 
 (**
  *  Determine if the file ''aFile'' is seekable.
- *  If a file is seekable the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
+ *  If a file is seekable, the functions ''seek'' and ''tell''
+ *  can be used to set and obtain the current file position.
  *  @return TRUE, since a ''bzip2File'' is seekable.
  *)
 const boolean: seekable (in bzip2File: aFile) is TRUE;

@@ -171,7 +171,7 @@ typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt,
                                               const char *query,
                                               unsigned long length);
 typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
-typedef int *(STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
+typedef int (STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
 
 static tp_mysql_affected_rows        ptr_mysql_affected_rows;
 static tp_mysql_autocommit           ptr_mysql_autocommit;
@@ -437,19 +437,19 @@ static const char *nameOfBufferType (int buffer_type)
 
 /**
  *  Process strings delimited by single quotes (') and double quotes (").
- *  Depending on the parameter backslashEscapes backslashes (\) are
- *  replaced with double backslashes (\\) in strings, that are delimited
- *  by single quotes ('). This way a backslash in a SQL statement has no
- *  special meaning (like it is common practice in other SQL databases).
+ *  Depending on the parameter backslashEscapes, backslashes (\) are
+ *  replaced with double backslashes (\\) in strings that are delimited
+ *  by single quotes ('). This way, a backslash in an SQL statement has no
+ *  special meaning (as is common practice in other SQL databases).
  *  Strings delimited with double quotes (") are converted into
- *  strings, that are delimited with a backtick (`). This way
- *  identifiers in a SQL statement can be enclosed in double
- *  quotes (") (like it is common proctice in other SQL databases).
- *  The function processes (and removes) also comments, to avoid that
- *  a quote (') inside a comment is misinterpreted as literal.
+ *  strings that are delimited with a backtick (`). This way,
+ *  identifiers in an SQL statement can be enclosed in double
+ *  quotes (") (as is common practice in other SQL databases).
+ *  The function also processes (and removes) comments, to avoid
+ *  a quote (') inside a comment being misinterpreted as a literal.
  *  This processing does not prohibit any form of SQL injection.
  *  It is strongly recommended that string literals in SQL statements
- *  are constant and never be constructed with data from outside.
+ *  are constant and never constructed with data from outside.
  */
 static striType processStatementStri (const const_striType sqlStatementStri,
     boolType backslashEscapes)
@@ -605,6 +605,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
   {
     MYSQL_FIELD *column;
     memSizeType buffer_length;
+    boolType isBLOB = FALSE;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
@@ -668,11 +669,12 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_MEDIUM_BLOB:
       case MYSQL_TYPE_LONG_BLOB:
-        /* For BLOB types no buffer is provided (buffer == NULL).   */
-        /* This way mysql_stmt_fetch() will not fetch data. Instead */
-        /* mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED, which   */
-        /* is ignored by sqlFetch(). The actual BLOB data is        */
-        /* fetched with mysql_stmt_fetch_column().                  */
+        /* For BLOB types, no buffer is provided (buffer == NULL).   */
+        /* This way, mysql_stmt_fetch() will not fetch data.         */
+        /* Instead, mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED, */
+        /* which is ignored by sqlFetch(). The actual BLOB data is   */
+        /* fetched with mysql_stmt_fetch_column().                   */
+        isBLOB = TRUE;
         buffer_length = 0;
         resultData->length = &resultData->length_value;
         break;
@@ -684,8 +686,26 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     } /* switch */
     logMessage(printf("buffer_length: " FMT_U_MEM "\n", buffer_length););
     if (err_info == OKAY_NO_ERROR) {
-      if (buffer_length != 0) {
-        resultData->buffer = malloc(buffer_length);
+      if (isBLOB) {
+        /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
+        /* Only BLOBs and CLOBs will have a buffer of NULL. */
+        resultData->buffer = NULL;
+        resultData->buffer_type   = column->type;
+        resultData->buffer_length = 0;
+        resultData->is_unsigned   = 0;
+        resultData->is_null = &resultData->is_null_value;
+        resultData->is_null_value = 0;
+        preparedStmt->result_data_array[column_num - 1].name = column->name;
+        /* A charsetnr value of 63 indicates that the */
+        /* character set is binary. This allows       */
+        /* distinguishing BLOB types from TEXT types. */
+        preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
+      } else {
+        if (buffer_length == 0) {
+          resultData->buffer = malloc(1);
+        } else {
+          resultData->buffer = malloc(buffer_length);
+        } /* if */
         if (unlikely(resultData->buffer == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
@@ -700,20 +720,6 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           /* BINARY from CHAR, and VARBINARY from VARCHAR.       */
           preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
         } /* if */
-      } else {
-        /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
-        /* Only BLOBs and CLOBs will have a buffer of NULL. */
-        resultData->buffer = NULL;
-        resultData->buffer_type   = column->type;
-        resultData->buffer_length = 0;
-        resultData->is_unsigned   = 0;
-        resultData->is_null = &resultData->is_null_value;
-        resultData->is_null_value = 0;
-        preparedStmt->result_data_array[column_num - 1].name = column->name;
-        /* A charsetnr value of 63 indicates that the */
-        /* character set is binary. This allows to    */
-        /* distinguish BLOB types from TEXT types.    */
-        preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } /* if */
     } /* if */
     logFunction(printf("setupResultColumn --> %d\n", err_info););
@@ -818,7 +824,7 @@ static unsigned int setBigInt (void *const buffer, const const_bigIntType bigInt
       } /* if */
       if (unlikely(stri->size - srcIndex > MAX_DECIMAL_PRECISION)) {
         logError(printf("setBigInt: Number of digits (" FMT_U_MEM
-                        ") larger than the allowed maximum (%d)\n.",
+                        ") larger than the allowed maximum (%d).\n",
                         stri->size - srcIndex, MAX_DECIMAL_PRECISION););
         *err_info = RANGE_ERROR;
       } else {
@@ -858,7 +864,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
     if (unlikely(bigEqSignedDigit(denominator, 0))) {
       /* Decimal values do not support Infinity and NaN. */
       logError(printf("setBigRat: Decimal values do not support Infinity and NaN.\n"););
-      raise_error(RANGE_ERROR);
+      *err_info = RANGE_ERROR;
     } else {
       number = bigIPowSignedDigit(10, MAX_DECIMAL_SCALE);
       if (unlikely(number == NULL)) {
@@ -872,6 +878,8 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
         /* An exception has already been raised. */
       } else if (bigEqSignedDigit(mantissaValue, 0)) {
         memcpy((char *) buffer, "0.0", 3);
+        length = 3;
+        bigDestr(mantissaValue);
       } else {
         stri = bigStrDecimal(mantissaValue);
         if (unlikely(stri == NULL)) {
@@ -893,7 +901,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
             /* Add one character for the decimal point. */
             decimalSize += 1;
           } else {
-            /* Add space for sign, zero and decimal point. */
+            /* Add space for sign, zero, and decimal point. */
             decimalSize = (stri->mem[0] == '-') + scale + 2;
           } /* if */
           if (unlikely(decimalSize > MAX_DECIMAL_LENGTH)) {
@@ -1144,6 +1152,15 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
             err_info = MEMORY_ERROR;
           } else {
             preparedStmt->param_data_array[pos - 1].buffer_capacity = bstri->size;
+          } /* if */
+        } else if (bstri->size == 0) {
+          /* buffer_capacity == 0 */
+          free(param->buffer);
+          if (unlikely((param->buffer = malloc(1)) == NULL)) {
+            preparedStmt->param_data_array[pos - 1].buffer_capacity = 0;
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->param_data_array[pos - 1].buffer_capacity = 1;
           } /* if */
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2350,10 +2367,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                   timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
                   timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) &&
                   timeValue->month != 0 && timeValue->day != 0) {
-                /* For 00:00:00 buffer_type is always MYSQL_TYPE_TIME. But */
-                /* for this time time_type might be MYSQL_TIMESTAMP_DATE.  */
-                /* In this case month and day are both zero. The condition */
-                /* above corrects this bug.                                */
+                /* For 00:00:00, buffer_type is always MYSQL_TYPE_TIME. But */
+                /* for this time, time_type might be MYSQL_TIMESTAMP_DATE.  */
+                /* In this case, month and day are both zero. The condition */
+                /* above corrects this bug.                                 */
                 *year  = timeValue->year;
                 *month = timeValue->month;
                 *day   = timeValue->day;
@@ -2764,7 +2781,7 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(preparedStmt->result_array_size > INTTYPE_MAX)) {
       logError(printf("sqlStmtColumnCount: "
-                      "Result_array_size does not fit into an integer.\n"););
+                      "result_array_size does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       columnCount = 0;
     } else {
@@ -2957,12 +2974,16 @@ static boolType determineIfBackslashEscapes (dbType database)
         sqlExecute(preparedStmt);
         if (likely(sqlFetch(preparedStmt))) {
           data = sqlColumnStri(preparedStmt, 1);
-          if (data->size == 1 && data->mem[0] == '\\') {
-            /* A select for two backslashes returns just one backslash. */
-            /* This happens if the database uses backslash as escape char. */
-            backslashEscapes = TRUE;
+          if (likely(data != NULL)) {
+            /* No exception has been raised. */
+            if (data->size == 1 && data->mem[0] == '\\') {
+              /* Selecting two backslashes returns just one */
+              /* backslash. This happens if the database    */
+              /* uses backslash as escape character.        */
+              backslashEscapes = TRUE;
+            } /* if */
+            FREE_STRI(data);
           } /* if */
-          FREE_STRI(data);
         } /* if */
         freePreparedStmt(preparedStmt);
       } /* if */
@@ -2999,7 +3020,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
       logError(printf("sqlOpenMy: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
-    } else if (unlikely(port < 0 || port > UINT_MAX)) {
+    } else if (unlikely(port < 0 || port > 65535)) {
       err_info = RANGE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {

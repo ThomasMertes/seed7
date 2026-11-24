@@ -297,6 +297,9 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
       logError(printf("sqlOpenDb2: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > 65535)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
     } else {
       connectData.port = port;
       connectData.hostname = stri_to_sqlwstri(host, &connectData.hostnameLength, &err_info);

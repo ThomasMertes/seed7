@@ -27,9 +27,9 @@
 
 
 (**
- *  Read a LEB128 encoded number from an ''inFile''.
- *  @param inFile File from which the LEB128 encoded number is read.
- *  @return the LEB128 encoded number as [[string]].
+ *  Read an LEB128-encoded number from ''inFile''.
+ *  @param inFile File from which the LEB128-encoded number is read.
+ *  @return the LEB128-encoded number as a [[string]].
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: getLeb128 (inout file: inFile) is func
@@ -52,11 +52,11 @@ const func string: getLeb128 (inout file: inFile) is func
 
 
 (**
- *  Decode a LEB128 encoded [[integer]] from a [[string]].
- *  @param stri String with an LEB128 encoded integer that starts at
+ *  Decode an LEB128-encoded [[integer]] from a [[string]].
+ *  @param stri String with an LEB128-encoded integer that starts at
  *              position ''pos''.
- *  @param pos When the function is called the LEB128 number starts at ''pos''.
- *             When the function is left ''pos'' refers to the character
+ *  @param pos When the function is called, the LEB128 number starts at ''pos''.
+ *             When the function returns, ''pos'' refers to the character
  *             after the LEB128 number.
  *  @return the decoded LEB128 number.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
@@ -94,8 +94,8 @@ const func integer: leb128ToInt (in string: stri, inout integer: pos) is func
 
 
 (**
- *  Decode a LEB128 encoded [[integer]] from a [[string]].
- *  @param stri String that starts with an LEB128 encoded integer.
+ *  Decode an LEB128-encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an LEB128-encoded integer.
  *  @return the decoded LEB128 number.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception OVERFLOW_ERROR If the result value cannot be represented
@@ -112,11 +112,11 @@ const func integer: leb128ToInt (in string: stri) is func
 
 
 (**
- *  Decode an unsigned LEB128 encoded [[integer]] from a [[string]].
- *  @param stri String with an unsigned LEB128 encoded integer that starts at
- *              position ''pos''..
- *  @param pos When the function is called the LEB128 number starts at ''pos''.
- *             When the function is left ''pos'' refers to the character
+ *  Decode an unsigned LEB128-encoded [[integer]] from a [[string]].
+ *  @param stri String with an unsigned LEB128-encoded integer that starts at
+ *              position ''pos''.
+ *  @param pos When the function is called, the LEB128 number starts at ''pos''.
+ *             When the function returns, ''pos'' refers to the character
  *             after the LEB128 number.
  *  @return the decoded unsigned LEB128 number.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
@@ -147,8 +147,8 @@ const func integer: uLeb128ToInt (in string: stri, inout integer: pos) is func
 
 
 (**
- *  Decode an unsigned LEB128 encoded [[integer]] from a [[string]].
- *  @param stri String that starts with an unsigned LEB128 encoded integer.
+ *  Decode an unsigned LEB128-encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an unsigned LEB128-encoded integer.
  *  @return the decoded unsigned LEB128 number.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception OVERFLOW_ERROR If the result value cannot be represented
@@ -167,7 +167,7 @@ const func integer: uLeb128ToInt (in string: stri) is func
 (**
  *  Encode an [[integer]] with LEB128 encoding.
  *  @param number The number to be encoded.
- *  @return the LEB128 encoded number as [[string]].
+ *  @return the LEB128-encoded number as a [[string]].
  *)
 const func string: leb128 (in var integer: number) is func
   result
@@ -194,7 +194,8 @@ const func string: leb128 (in var integer: number) is func
 (**
  *  Encode an [[integer]] with unsigned LEB128 encoding.
  *  @param number The number to be encoded.
- *  @return the unsigned LEB128 encoded number as [[string]].
+ *  @return the unsigned LEB128-encoded number as a [[string]].
+ *  @exception RANGE_ERROR If ''number'' is negative.
  *)
 const func string: uLeb128 (in var integer: number) is func
   result

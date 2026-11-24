@@ -558,17 +558,17 @@ const type: tarCatalogType is hash [string] tarHeader;
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a TAR archive.
  *  File paths in a TAR archive can be absolute (they start with a slash)
- *  or relative (they do not start with a slash). The tar file system does
+ *  or relative (they do not start with a slash). The TAR file system does
  *  not support the concept of a current working directory. The functions
- *  chdir and getcwd are not supported by the tar file system. Absolute
+ *  chdir and getcwd are not supported by the TAR file system. Absolute
  *  and relative paths in a TAR archive can be accessed directly.
- *  Since "/" is just a normal path in a TAR archive the root path of a
- *  tar file system is "". Possible usages of tar file system functions are:
+ *  Since "/" is just a normal path in a TAR archive, the root path of a
+ *  TAR file system is "". Possible usages of TAR file system functions are:
  *    getMTime(aTarArchive, "src/drivers")   # Relative path in the archive.
  *    fileType(aTarArchive, "/usr/include")  # Absolute path in the archive.
  *    fileSize(aTarArchive, "/image")        # Absolute path in the archive.
- *    readDir(aTarArchive, "")               # Return e.g.: "src" and "/"
- *    readDir(aTarArchive, "/")              # Return e.g.: "usr" and "image"
+ *    readDir(aTarArchive, "")               # Returns e.g.: "src" and "/"
+ *    readDir(aTarArchive, "/")              # Returns e.g.: "usr" and "image"
  *)
 const type: tarArchive is sub emptyFileSys struct
     var file: tarFile is STD_NULL;
@@ -579,7 +579,7 @@ const type: tarArchive is sub emptyFileSys struct
 
 
 (**
- *  Open a TAR archive with the given tarFile.
+ *  Open a TAR archive with the given ''tarFile''.
  *  @param tarFile File that contains a TAR archive.
  *  @return a file system that accesses the TAR archive, or
  *          fileSys.value if it could not be opened.
@@ -625,7 +625,7 @@ const func fileSys: openTar (inout file: tarFile) is func
 
 
 (**
- *  Open a TAR archive with the given tarFileName.
+ *  Open a TAR archive with the given ''tarFileName''.
  *  @param tarFileName Name of the TAR archive to be opened.
  *  @return a file system that accesses the TAR archive, or
  *          fileSys.value if it could not be opened.
@@ -642,7 +642,7 @@ const func fileSys: openTar (in string: tarFileName) is func
 
 
 (**
- *  Close a TAR archive. The TAR file below stays open.
+ *  Close a TAR archive. The underlying ''tarFile'' stays open.
  *)
 const proc: close (inout tarArchive: tar) is func
   begin
@@ -784,10 +784,12 @@ const func array string: readDir (inout tarArchive: tar, RECURSIVE) is
 (**
  *  Determine the type of a file in a TAR archive.
  *  The function follows symbolic links. If the chain of
- *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  symbolic links is too long, the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  invalid file names cause also ''FILE_ABSENT''.
+ *  invalid file names also cause ''FILE_ABSENT''.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -847,10 +849,12 @@ const func fileType: fileType (inout tarArchive: tar, in var string: filePath) i
 
 (**
  *  Determine the type of a file in a TAR archive.
- *  The function does not follow symbolic links. Therefore it may
+ *  The function does not follow symbolic links. Therefore, it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and invalid file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names also cause ''FILE_ABSENT''.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -896,6 +900,8 @@ const func fileType: fileTypeSL (inout tarArchive: tar, in string: filePath) is 
 (**
  *  Determine the file mode (permissions) of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -917,6 +923,9 @@ const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath) is
 (**
  *  Change the file mode (permissions) of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param mode File mode (permissions) to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
@@ -946,8 +955,10 @@ const proc: setFileMode (inout tarArchive: tar, in string: filePath,
 (**
  *  Determine the size of a file in a TAR archive.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -971,6 +982,8 @@ const func integer: fileSize (inout tarArchive: tar, in string: filePath) is fun
 (**
  *  Determine the modification time of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -993,6 +1006,9 @@ const func time: getMTime (inout tarArchive: tar, in string: filePath) is func
 (**
  *  Set the modification time of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param modificationTime Modification time to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
@@ -1027,7 +1043,10 @@ const proc: setMTime (inout tarArchive: tar, in string: filePath,
 (**
  *  Determine the name of the owner (UID) of a file in a TAR archive.
  *  The function follows symbolic links.
- *  @return the name of the file owner.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @return the name of the file owner, or the numeric UID string
+ *          if no name is available.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
@@ -1055,6 +1074,9 @@ const func string: getOwner (inout tarArchive: tar, in string: filePath) is func
 (**
  *  Set the owner of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param owner Numeric UID or owner name to which the file owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
@@ -1090,7 +1112,10 @@ const proc: setOwner (inout tarArchive: tar, in string: filePath,
 (**
  *  Determine the name of the group (GID) of a file in a TAR archive.
  *  The function follows symbolic links.
- *  @return the name of the file group.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @return the name of the file group, or the numeric GID string
+ *          if no name is available.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
@@ -1118,6 +1143,9 @@ const func string: getGroup (inout tarArchive: tar, in string: filePath) is func
 (**
  *  Set the group of a file in a TAR archive.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param group Numeric GID or group name to which the file group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
@@ -1152,13 +1180,14 @@ const proc: setGroup (inout tarArchive: tar, in string: filePath,
 
 (**
  *  Determine the file mode (permissions) of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath, SYMLINK) is func
   result
@@ -1190,13 +1219,14 @@ const func fileMode: getFileMode (inout tarArchive: tar, in string: filePath, SY
 
 (**
  *  Determine the modification time of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
  *  @return the modification time of the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const func time: getMTime (inout tarArchive: tar, in string: filePath, SYMLINK) is func
   result
@@ -1228,14 +1258,16 @@ const func time: getMTime (inout tarArchive: tar, in string: filePath, SYMLINK) 
 
 (**
  *  Set the modification time of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @param modificationTime Modification time to be set for the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setMTime (inout tarArchive: tar, in string: filePath,
     in time: modificationTime, SYMLINK) is func
@@ -1271,13 +1303,15 @@ const proc: setMTime (inout tarArchive: tar, in string: filePath,
 
 (**
  *  Determine the name of the owner (UID) of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file owner.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @return the name of the symbolic link owner, or the numeric UID string
+ *          if no name is available.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getOwner (inout tarArchive: tar, in string: filePath, SYMLINK) is func
   result
@@ -1313,12 +1347,14 @@ const func string: getOwner (inout tarArchive: tar, in string: filePath, SYMLINK
 
 (**
  *  Set the owner of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @param owner Numeric UID or owner name to which the symbolic link owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setOwner (inout tarArchive: tar, in string: filePath,
     in string: owner, SYMLINK) is func
@@ -1357,13 +1393,15 @@ const proc: setOwner (inout tarArchive: tar, in string: filePath,
 
 (**
  *  Determine the name of the group (GID) of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file group.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @return the name of the symbolic link group, or the numeric GID string
+ *          if no name is available.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getGroup (inout tarArchive: tar, in string: filePath, SYMLINK) is func
   result
@@ -1399,12 +1437,14 @@ const func string: getGroup (inout tarArchive: tar, in string: filePath, SYMLINK
 
 (**
  *  Set the group of a symbolic link in a TAR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @param group Numeric GID or group name to which the symbolic link group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the TAR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setGroup (inout tarArchive: tar, in string: filePath,
     in string: group, SYMLINK) is func
@@ -1442,12 +1482,14 @@ const proc: setGroup (inout tarArchive: tar, in string: filePath,
 
 
 (**
- *  Reads the destination of a symbolic link in a TAR archive.
- *  @return The destination referred by the symbolic link.
+ *  Read the destination of a symbolic link in a TAR archive.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a symbolic link in the TAR archive.
+ *  @return the destination referred to by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive,
- *             or is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: readLink (inout tarArchive: tar, in string: filePath) is func
   result
@@ -1477,9 +1519,9 @@ const func string: readLink (inout tarArchive: tar, in string: filePath) is func
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  The function does not follow symbolic links.
  *  @param tar Open TAR archive.
- *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param symlinkPath Path of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
- *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *  @exception RANGE_ERROR ''symlinkPath'' or ''targetPath'' does not use the
  *             standard path representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
@@ -1611,11 +1653,13 @@ const proc: moveFile (inout tarArchive: tar, in string: sourcePath,
 (**
  *  Get the contents of a file in a TAR archive.
  *  The function follows symbolic links.
- *  @return the specified file as string.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @return the specified file as a string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive,
- *             or is not a regular file, or
+ *             or it is not a regular file, or
  *             the chain of symbolic links is too long.
  *)
 const func string: getFile (inout tarArchive: tar, in string: filePath) is func
@@ -1640,11 +1684,15 @@ const func string: getFile (inout tarArchive: tar, in string: filePath) is func
 
 (**
  *  Write ''data'' to a TAR archive with the given ''filePath''.
- *  If the file exists already, it is overwritten.
+ *  If the file already exists, it is overwritten.
  *  The function follows symbolic links.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param data The new contents of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file exists, but it is not a regular file.
+ *  @exception FILE_ERROR The file exists, but it is not a regular file, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: putFile (inout tarArchive: tar, in var string: filePath,
     in string: data) is func
@@ -1725,7 +1773,7 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
  *  Create a new directory in a TAR archive.
  *  The function does not follow symbolic links.
  *  @param tar Open TAR archive.
- *  @param dirPath Name of the directory to be created.
+ *  @param dirPath Path of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The file ''dirPath'' already exists.
@@ -1790,10 +1838,10 @@ const proc: makeDir (inout tarArchive: tar, in string: dirPath) is func
  *  The function does not follow symbolic links. An attempt to remove a
  *  directory that is not empty triggers FILE_ERROR.
  *  @param tar Open TAR archive.
- *  @param filePath Name of the file to be removed.
+ *  @param filePath Path of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory
+ *  @exception FILE_ERROR The file does not exist, or it is a directory
  *             that is not empty.
  *)
 const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
@@ -1836,7 +1884,7 @@ const proc: removeFile (inout tarArchive: tar, in string: filePath) is func
 
 
 (**
- *  For-loop which loops recursively over the paths in a TAR archive.
+ *  For-loop that loops recursively over the paths in a TAR archive.
  *)
 const proc: for (inout string: filePath) range (inout tarArchive: tar) do
               (in proc: statements)
@@ -1872,7 +1920,15 @@ const func file: openFileInTar (inout tarArchive: tar, in string: filePath,
 
 
 (**
- *  Open a file with ''filePath'' and ''mode'' in in a TAR archive.
+ *  Open a file with ''filePath'' and ''mode'' in a TAR archive.
+ *  @param tar Open TAR archive.
+ *  @param filePath Path of a file in the TAR archive.
+ *  @param mode Mode of the file to be opened. Only "r" is supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened, or if ''filePath'' refers to
+ *          a directory.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
  *)
 const func file: open (inout tarArchive: tar, in string: filePath,
     in string: mode) is

@@ -257,17 +257,17 @@ const type: arCatalogType is hash [string] arHeader;
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access an AR archive.
  *  File paths in an AR archive can be absolute (they start with a slash)
- *  or relative (they do not start with a slash). The ar file system does
+ *  or relative (they do not start with a slash). The AR file system does
  *  not support the concept of a current working directory. The functions
- *  chdir and getcwd are not supported by the ar file system. Absolute
+ *  chdir and getcwd are not supported by the AR file system. Absolute
  *  and relative paths in an AR archive can be accessed directly.
- *  Since "/" is just a normal path in an AR archive the root path of a
- *  ar file system is "". Possible usages of ar file system functions are:
+ *  Since "/" is just a normal path in an AR archive, the root path of an
+ *  AR file system is "". Possible usages of AR file system functions are:
  *    getMTime(anArArchive, "src/drivers")   # Relative path in the archive.
  *    fileType(anArArchive, "/usr/include")  # Absolute path in the archive.
  *    fileSize(anArArchive, "/image")        # Absolute path in the archive.
- *    readDir(anArArchive, "")               # Return e.g.: "src" and "/"
- *    readDir(anArArchive, "/")              # Return e.g.: "usr" and "image"
+ *    readDir(anArArchive, "")               # Returns e.g.: "src" and "/"
+ *    readDir(anArArchive, "/")              # Returns e.g.: "usr" and "image"
  *)
 const type: arArchive is sub emptyFileSys struct
     var file: arFile is STD_NULL;
@@ -279,9 +279,10 @@ const type: arArchive is sub emptyFileSys struct
 
 
 (**
- *  Open an AR archive with the given arFile.
+ *  Open an AR archive with the given ''arFile''.
  *  @param arFile File that contains an AR archive.
- *  @return a file system that accesses the AR archive.
+ *  @return a file system that accesses the AR archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openAr (inout file: arFile) is func
   result
@@ -338,9 +339,10 @@ const func fileSys: openAr (inout file: arFile) is func
 
 
 (**
- *  Open an AR archive with the given arFileName.
+ *  Open an AR archive with the given ''arFileName''.
  *  @param arFileName Name of the AR archive to be opened.
- *  @return a file system that accesses the AR archive.
+ *  @return a file system that accesses the AR archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openAr (in string: arFileName) is func
   result
@@ -354,7 +356,7 @@ const func fileSys: openAr (in string: arFileName) is func
 
 
 (**
- *  Close an AR archive. The AR file below stays open.
+ *  Close an AR archive. The underlying ''arFile'' stays open.
  *)
 const proc: close (inout arArchive: ar) is func
   begin
@@ -536,11 +538,13 @@ const func array string: readDir (inout arArchive: ar, RECURSIVE) is
 
 (**
  *  Determine the type of a file in an AR archive.
- *  The function does follow symbolic links. If the chain of
- *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  The function follows symbolic links. If the chain of
+ *  symbolic links is too long, the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  invalid file names cause also ''FILE_ABSENT''.
+ *  invalid file names also cause ''FILE_ABSENT''.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -598,10 +602,12 @@ const func fileType: fileType (inout arArchive: ar, in var string: filePath) is 
 
 (**
  *  Determine the type of a file in an AR archive.
- *  The function does not follow symbolic links. Therefore it may
+ *  The function does not follow symbolic links. Therefore, it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and invalid file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names also cause ''FILE_ABSENT''.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -647,6 +653,8 @@ const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is fu
 (**
  *  Determine the file mode (permissions) of a file in an AR archive.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -667,6 +675,9 @@ const func fileMode: getFileMode (inout arArchive: ar, in string: filePath) is f
 (**
  *  Change the file mode (permissions) of a file in an AR archive.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param mode File mode (permissions) to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
@@ -695,8 +706,10 @@ const proc: setFileMode (inout arArchive: ar, in string: filePath,
 (**
  *  Determine the size of a file in an AR archive.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, a size of 0 is returned.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -719,6 +732,8 @@ const func integer: fileSize (inout arArchive: ar, in string: filePath) is func
 (**
  *  Determine the modification time of a file in an AR archive.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -742,9 +757,12 @@ const func time: getMTime (inout arArchive: ar, in string: filePath) is func
 (**
  *  Set the modification time of a file in an AR archive.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param modificationTime Modification time to be set for the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
  *)
@@ -775,7 +793,9 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 (**
  *  Determine the name of the owner (UID) of a file in an AR archive.
  *  The function follows symbolic links.
- *  @return the name of the file owner.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @return the numeric UID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
@@ -798,6 +818,9 @@ const func string: getOwner (inout arArchive: ar, in string: filePath) is func
  *  The function follows symbolic links. The AR archive format allows
  *  only a numeric UID. The ''owner'' "root" is mapped to the UID 0. Other
  *  ''owner'' names raise a RANGE_ERROR.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param owner Numeric UID or "root" to which the file owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''owner'' cannot be mapped to a UID.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
@@ -833,7 +856,9 @@ const proc: setOwner (inout arArchive: ar, in string: filePath,
 (**
  *  Determine the name of the group (GID) of a file in an AR archive.
  *  The function follows symbolic links.
- *  @return the name of the file group.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @return the numeric GID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
@@ -856,6 +881,9 @@ const func string: getGroup (inout arArchive: ar, in string: filePath) is func
  *  The function follows symbolic links. The AR archive format allows
  *  only a numeric GID. The ''group'' "root" is mapped to the GID 0. Other
  *  ''group'' names raise a RANGE_ERROR.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param group Numeric GID or "root" to which the file group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''group'' cannot be mapped to a GID.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
@@ -890,13 +918,14 @@ const proc: setGroup (inout arArchive: ar, in string: filePath,
 
 (**
  *  Determine the file mode (permissions) of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const func fileMode: getFileMode (inout arArchive: ar, in string: filePath, SYMLINK) is func
   result
@@ -928,13 +957,14 @@ const func fileMode: getFileMode (inout arArchive: ar, in string: filePath, SYML
 
 (**
  *  Determine the modification time of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
  *  @return the modification time of the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const func time: getMTime (inout arArchive: ar, in string: filePath, SYMLINK) is func
   result
@@ -966,14 +996,16 @@ const func time: getMTime (inout arArchive: ar, in string: filePath, SYMLINK) is
 
 (**
  *  Set the modification time of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @param modificationTime Modification time to be set for the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
+ *  @exception RANGE_ERROR ''modificationTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setMTime (inout arArchive: ar, in string: filePath,
     in time: modificationTime, SYMLINK) is func
@@ -1009,13 +1041,14 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 
 (**
  *  Determine the name of the owner (UID) of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file owner.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @return the numeric UID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getOwner (inout arArchive: ar, in string: filePath, SYMLINK) is func
   result
@@ -1047,14 +1080,17 @@ const func string: getOwner (inout arArchive: ar, in string: filePath, SYMLINK) 
 
 (**
  *  Set the owner of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link. The AR archive format allows only a numeric UID.
+ *  The function only works for symbolic links and does not follow them.
+ *  The AR archive format allows only a numeric UID.
  *  The ''owner'' "root" is mapped to the UID 0. Other ''owner'' names
  *  raise a RANGE_ERROR.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @param owner Numeric UID or "root" to which the symbolic link owner is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''owner'' cannot be mapped to a UID.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setOwner (inout arArchive: ar, in string: filePath,
     in string: owner, SYMLINK) is func
@@ -1093,13 +1129,14 @@ const proc: setOwner (inout arArchive: ar, in string: filePath,
 
 (**
  *  Determine the name of the group (GID) of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
- *  @return the name of the file group.
+ *  The function only works for symbolic links and does not follow them.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @return the numeric GID string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: getGroup (inout arArchive: ar, in string: filePath, SYMLINK) is func
   result
@@ -1131,14 +1168,17 @@ const func string: getGroup (inout arArchive: ar, in string: filePath, SYMLINK) 
 
 (**
  *  Set the group of a symbolic link in an AR archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link. The AR archive format allows only a numeric GID.
+ *  The function only works for symbolic links and does not follow them.
+ *  The AR archive format allows only a numeric GID.
  *  The ''group'' "root" is mapped to the GID 0. Other ''group'' names
  *  raise a RANGE_ERROR.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @param group Numeric GID or "root" to which the symbolic link group is set.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation, or the ''group'' cannot be mapped to a GID.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the AR archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setGroup (inout arArchive: ar, in string: filePath,
     in string: group, SYMLINK) is func
@@ -1176,12 +1216,14 @@ const proc: setGroup (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Reads the destination of a symbolic link in an AR archive.
- *  @return The destination referred by the symbolic link.
+ *  Read the destination of a symbolic link in an AR archive.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a symbolic link in the AR archive.
+ *  @return the destination referred to by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the AR archive,
- *             or is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             it is not a symbolic link.
  *)
 const func string: readLink (inout arArchive: ar, in string: filePath) is func
   result
@@ -1219,9 +1261,9 @@ const func string: readLink (inout arArchive: ar, in string: filePath) is func
  *  The symbolic link ''symlinkPath'' will refer to ''targetPath'' afterwards.
  *  The function does not follow symbolic links.
  *  @param ar Open AR archive.
- *  @param symlinkPath Name of the symbolic link to be created.
+ *  @param symlinkPath Path of the symbolic link to be created.
  *  @param targetPath String to be contained in the symbolic link.
- *  @exception RANGE_ERROR ''targetPath'' or ''symlinkPath'' does not use the
+ *  @exception RANGE_ERROR ''symlinkPath'' or ''targetPath'' does not use the
  *             standard path representation.
  *  @exception FILE_ERROR A system function returns an error.
  *)
@@ -1269,11 +1311,14 @@ const proc: makeLink (inout arArchive: ar, in string: symlinkPath,
 (**
  *  Get the contents of a file in an AR archive.
  *  The function follows symbolic links.
- *  @return the specified file as string.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @return the specified file as a string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the AR archive,
- *             or is not a regular file.
+ *             or it is not a regular file, or
+ *             the chain of symbolic links is too long.
  *)
 const func string: getFile (inout arArchive: ar, in string: filePath) is func
   result
@@ -1297,10 +1342,14 @@ const func string: getFile (inout arArchive: ar, in string: filePath) is func
 
 (**
  *  Write ''data'' to an AR archive with the given ''filePath''.
- *  If the file exists already, it is overwritten.
+ *  If the file already exists, it is overwritten.
  *  The function follows symbolic links.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param data The new contents of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
+ *  @exception FILE_ERROR The file exists, but it is not a regular file.
  *)
 const proc: putFile (inout arArchive: ar, in var string: filePath,
     in string: data) is func
@@ -1376,7 +1425,7 @@ const proc: putFile (inout arArchive: ar, in var string: filePath,
  *  Create a new directory in an AR archive.
  *  The function does not follow symbolic links.
  *  @param ar Open AR archive.
- *  @param dirPath Name of the directory to be created.
+ *  @param dirPath Path of the directory to be created.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The file ''dirPath'' already exists.
@@ -1433,10 +1482,10 @@ const proc: makeDir (inout arArchive: ar, in string: dirPath) is func
  *  The function does not follow symbolic links. An attempt to remove a
  *  directory that is not empty triggers FILE_ERROR.
  *  @param ar Open AR archive.
- *  @param filePath Name of the file to be removed.
+ *  @param filePath Path of the file to be removed.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file does not exist or it is a directory
+ *  @exception FILE_ERROR The file does not exist, or it is a directory
  *             that is not empty.
  *)
 const proc: removeFile (inout arArchive: ar, in string: filePath) is func
@@ -1483,7 +1532,7 @@ const proc: removeFile (inout arArchive: ar, in string: filePath) is func
 
 
 (**
- *  For-loop which loops recursively over the paths in an AR archive.
+ *  For-loop that loops recursively over the paths in an AR archive.
  *)
 const proc: for (inout string: filePath) range (inout arArchive: ar) do
               (in proc: statements)
@@ -1524,7 +1573,15 @@ const func file: openFileInAr (inout arArchive: ar, in string: filePath,
 
 
 (**
- *  Open a file with ''filePath'' and ''mode'' in in an AR archive.
+ *  Open a file with ''filePath'' and ''mode'' in an AR archive.
+ *  @param ar Open AR archive.
+ *  @param filePath Path of a file in the AR archive.
+ *  @param mode Mode of the file to be opened. Only "r" is supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened, or if ''filePath'' refers to
+ *          a directory.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
  *)
 const func file: open (inout arArchive: ar, in string: filePath,
     in string: mode) is

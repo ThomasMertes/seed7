@@ -693,6 +693,8 @@ const func integer: decodePacket (inout lzmaDecoder: lzma,
  *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
  *  lossless data compression. This LZMA decompression function
  *  is tailored towards the header format used in [[zip|ZIP]] files.
+ *  @param compressed File with LZMA-compressed data.
+ *  @param uncompressedSize Size of the uncompressed data in bytes.
  *  @return the uncompressed string.
  *  @exception RANGE_ERROR If ''compressed'' is not in LZMA format.
  *)
@@ -735,7 +737,7 @@ const func string: lzmaDecompress (inout file: compressed,
 
 
 (**
- *  [[file|File]] implementation type to decompress a LZMA file.
+ *  [[file|File]] implementation type to decompress an LZMA file.
  *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
  *  lossless data compression.
  *)
@@ -752,10 +754,11 @@ type_implements_interface(lzmaFile, file);
 
 
 (**
- *  Open a LZMA file for reading (decompression).
+ *  Open an LZMA file for reading (decompression).
  *  LZMA is the Lempel–Ziv–Markov chain algorithm. LZMA performs
  *  lossless data compression. Reading from the file delivers
  *  decompressed data. Writing is not supported.
+ *  @param compressed File with LZMA-compressed data.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if the file is not in LZMA format.
  *)
@@ -916,8 +919,8 @@ const func integer: length (inout lzmaFile: aFile) is func
 
 (**
  *  Determine if the file ''aFile'' is seekable.
- *  If a file is seekable the functions ''seek'' and ''tell''
- *  can be used to set and and obtain the current file position.
+ *  If a file is seekable, the functions ''seek'' and ''tell''
+ *  can be used to set and obtain the current file position.
  *  @return TRUE, since a ''lzmaFile'' is seekable.
  *)
 const boolean: seekable (in lzmaFile: aFile) is TRUE;

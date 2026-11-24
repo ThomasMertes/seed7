@@ -94,6 +94,7 @@ const proc: process_action (in reference: function, in ref_list: params,
     var ACTION: currentAction is action "PRC_NOOP";
     var string: actionName is "";
   begin
+    checkNameParamAliasing(function, formalParams(function), params, c_expr);
     currentAction := getValue(function, ACTION);
     actionName := str(currentAction);
     # c_expr.expr &:= "/* " <& actionName <& " */\n";

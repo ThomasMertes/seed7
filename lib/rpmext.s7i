@@ -240,13 +240,12 @@ const proc: setFileFlags (inout rpmArchive: rpm, in string: filePath,
 
 (**
  *  Determine the file flags of a symbolic link in a RPM archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
  *  @return the file flags.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the RPM archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             it is not a symbolic link.
  *)
 const func integer: getFileFlags (inout rpmArchive: rpm, in string: filePath, SYMLINK) is func
   result
@@ -278,14 +277,13 @@ const func integer: getFileFlags (inout rpmArchive: rpm, in string: filePath, SY
 
 (**
  *  Set the file flags of a symbolic link in a RPM archive.
- *  The function only works for symbolic links and does not follow the
- *  symbolic link.
+ *  The function only works for symbolic links and does not follow them.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''modificationTime'' is invalid or it cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR The file described with ''filePath'' is not
- *             present in the RPM archive, or it is not a symbolic link.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             it is not a symbolic link.
  *)
 const proc: setFileFlags (inout rpmArchive: rpm, in string: filePath,
     in integer: flags, SYMLINK) is func
