@@ -853,7 +853,7 @@ static unsigned int setBigRat (void *const buffer, const const_bigIntType numera
     if (unlikely(bigEqSignedDigit(denominator, 0))) {
       /* Decimal values do not support Infinity and NaN. */
       logError(printf("setBigRat: Decimal values do not support Infinity and NaN.\n"););
-      raise_error(RANGE_ERROR);
+      *err_info = RANGE_ERROR;
     } else {
       number = bigIPowSignedDigit(10, MAX_DECIMAL_SCALE);
       if (unlikely(number == NULL)) {
