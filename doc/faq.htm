@@ -4378,8 +4378,7 @@ exceptions:
 </h3></a><hr />
 <p>
 Seed7 has no support for threads. Threads would open new categories
-of possible errors, so this is a deliberate design decision, not a
-missing feature.
+of possible errors.
 </p><p>
 Concurrency and parallelism are achieved with processes. A process has
 its own memory space, runs independently of the others, and communicates
@@ -4392,20 +4391,18 @@ with them via pipes and sockets:
 <li><span class="lib">poll.s7i</span> waits for input or output readiness on
    sockets and files, so one process can serve many connections without
    threads.</li>
-<li><span class="lib">listener.s7i</span> accepts incoming socket connections
-   with <tt>openInetListener()</tt> and <tt>accept()</tt>, and
-   <tt>waitForRequest()</tt> processes interleaved requests from several
-   clients. This is how <tt><span class="prog">ftpserv.sd7</span></tt> and
-   <span class="lib">httpserv.s7i</span> serve several clients from one
-   process.</li>
+<li><span class="lib">listener.s7i</span> accepts incoming connections with
+   <tt>openInetListener()</tt>, <tt>accept()</tt> and
+   <tt>waitForRequest()</tt>, which processes interleaved requests from
+   several clients in one process.</li>
 <li><span class="lib">socket.s7i</span> provides the sockets, and
-   <span class="lib">shell.s7i</span> runs external commands with <tt>shell()</tt>.</li>
+   <tt>popen()</tt> in <span class="lib">shell.s7i</span> runs an external
+   command with its input or output as a file.</li>
 </ul><p>
 Seed7's <a class="link" href="#faq_garbage_collection">automatic memory management</a>
-uses several mechanisms. Objects
-such as windows, processes and structs are freed by a reference count,
-and a few C functions of the runtime library use a static buffer and
-are documented as not thread safe.
+frees objects such as windows, processes and structs with a reference
+count, which is updated without synchronisation. Two C functions used
+for debug output are documented as not thread safe.
 </p></div>
 
 <div><br /><a name="faq_how_parsed"><h3>How is Seed7 parsed?
