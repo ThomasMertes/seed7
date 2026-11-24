@@ -3779,6 +3779,32 @@ exceptions:
     end func;
 
 
+Is there support for threads, concurrency, or parallelism?
+==========================================================
+
+Seed7 has no support for threads. Threads would open new categories
+of possible errors, so this is a deliberate design decision, not a
+missing feature.
+
+Concurrency is achieved with processes. A process has its own memory
+space and communicates with other processes via pipes and sockets:
+
+ - process.s7i starts and controls processes with startProcess(),
+   startPipe() and pty(), and connects a child's standard streams
+   with childStdIn(), childStdOut() and childStdErr().
+ - poll.s7i waits for input or output readiness on sockets and files,
+   so one process can serve many connections without threads.
+ - listener.s7i accepts and multiplexes incoming socket connections
+   with openInetListener(), accept() and waitForRequest(). This is
+   how ftpserv.sd7 and httpserv.s7i serve several clients at once.
+ - socket.s7i provides the sockets, and shell.s7i runs external
+   commands with shell().
+
+Seed7 manages memory with reference counting and needs no garbage
+collection process. A few runtime library functions use a static
+buffer and are documented as not thread safe.
+
+
 How is Seed7 parsed?
 ====================
 
