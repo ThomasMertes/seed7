@@ -600,6 +600,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
   {
     MYSQL_FIELD *column;
     memSizeType buffer_length;
+    boolType isBLOB = FALSE;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
@@ -668,6 +669,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         /* mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED, which   */
         /* is ignored by sqlFetch(). The actual BLOB data is        */
         /* fetched with mysql_stmt_fetch_column().                  */
+        isBLOB = TRUE;
         buffer_length = 0;
         resultData->length = &resultData->length_value;
         break;
@@ -679,8 +681,26 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     } /* switch */
     logMessage(printf("buffer_length: " FMT_U_MEM "\n", buffer_length););
     if (err_info == OKAY_NO_ERROR) {
-      if (buffer_length != 0) {
-        resultData->buffer = malloc(buffer_length);
+      if (isBLOB) {
+        /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
+        /* Only BLOBs and CLOBs will have a buffer of NULL. */
+        resultData->buffer = NULL;
+        resultData->buffer_type   = column->type;
+        resultData->buffer_length = 0;
+        resultData->is_unsigned   = 0;
+        resultData->is_null = &resultData->is_null_value;
+        resultData->is_null_value = 0;
+        preparedStmt->result_data_array[column_num - 1].name = column->name;
+        /* A charsetnr value of 63 indicates that the */
+        /* character set is binary. This allows to    */
+        /* distinguish BLOB types from TEXT types.    */
+        preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
+      } else {
+        if (buffer_length == 0) {
+          resultData->buffer = malloc(1);
+        } else {
+          resultData->buffer = malloc(buffer_length);
+        } /* if */
         if (unlikely(resultData->buffer == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
@@ -695,20 +715,6 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           /* BINARY from CHAR, and VARBINARY from VARCHAR.       */
           preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
         } /* if */
-      } else {
-        /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
-        /* Only BLOBs and CLOBs will have a buffer of NULL. */
-        resultData->buffer = NULL;
-        resultData->buffer_type   = column->type;
-        resultData->buffer_length = 0;
-        resultData->is_unsigned   = 0;
-        resultData->is_null = &resultData->is_null_value;
-        resultData->is_null_value = 0;
-        preparedStmt->result_data_array[column_num - 1].name = column->name;
-        /* A charsetnr value of 63 indicates that the */
-        /* character set is binary. This allows to    */
-        /* distinguish BLOB types from TEXT types.    */
-        preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } /* if */
     } /* if */
     logFunction(printf("setupResultColumn --> %d\n", err_info););
