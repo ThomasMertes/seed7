@@ -4381,24 +4381,28 @@ Seed7 has no support for threads. Threads would open new categories
 of possible errors, so this is a deliberate design decision, not a
 missing feature.
 </p><p>
-Concurrency is achieved with processes. A process has its own memory
-space and communicates with other processes via pipes and sockets:
+Concurrency and parallelism are achieved with processes. A process has
+its own memory space, runs independently of the others, and communicates
+with them via pipes and sockets:
 </p><ul>
 <li><span class="lib">process.s7i</span> starts and controls processes with
-   <tt>startProcess()</tt>, <tt>startPipe()</tt> and <tt>pty()</tt>, and
-   connects a child's standard streams with <tt>childStdIn()</tt>,
-   <tt>childStdOut()</tt> and <tt>childStdErr()</tt>.</li>
+   <tt>startProcess()</tt> and <tt>startPipe()</tt>, and connects a child's
+   standard streams with <tt>childStdIn()</tt>, <tt>childStdOut()</tt> and
+   <tt>childStdErr()</tt>.</li>
 <li><span class="lib">poll.s7i</span> waits for input or output readiness on
    sockets and files, so one process can serve many connections without
    threads.</li>
-<li><span class="lib">listener.s7i</span> accepts and multiplexes incoming socket
-   connections with <tt>openInetListener()</tt>, <tt>accept()</tt> and
-   <tt>waitForRequest()</tt>. This is how <span class="prog">ftpserv.sd7</span>
-   and <span class="lib">httpserv.s7i</span> serve several clients at once.</li>
+<li><span class="lib">listener.s7i</span> accepts incoming socket connections
+   with <tt>openInetListener()</tt> and <tt>accept()</tt>, and
+   <tt>waitForRequest()</tt> processes interleaved requests from several
+   clients. This is how <tt><span class="prog">ftpserv.sd7</span></tt> and
+   <span class="lib">httpserv.s7i</span> serve several clients from one
+   process.</li>
 <li><span class="lib">socket.s7i</span> provides the sockets, and
    <span class="lib">shell.s7i</span> runs external commands with <tt>shell()</tt>.</li>
 </ul><p>
-Seed7's automatic memory management uses several mechanisms. Objects
+Seed7's <a class="link" href="#faq_garbage_collection">automatic memory management</a>
+uses several mechanisms. Objects
 such as windows, processes and structs are freed by a reference count,
 and a few C functions of the runtime library use a static buffer and
 are documented as not thread safe.

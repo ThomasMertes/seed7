@@ -3786,17 +3786,20 @@ Seed7 has no support for threads. Threads would open new categories
 of possible errors, so this is a deliberate design decision, not a
 missing feature.
 
-Concurrency is achieved with processes. A process has its own memory
-space and communicates with other processes via pipes and sockets:
+Concurrency and parallelism are achieved with processes. A process
+has its own memory space, runs independently of the others, and
+communicates with them via pipes and sockets:
 
- - process.s7i starts and controls processes with startProcess(),
-   startPipe() and pty(), and connects a child's standard streams
-   with childStdIn(), childStdOut() and childStdErr().
+ - process.s7i starts and controls processes with startProcess() and
+   startPipe(), and connects a child's standard streams with
+   childStdIn(), childStdOut() and childStdErr().
  - poll.s7i waits for input or output readiness on sockets and files,
    so one process can serve many connections without threads.
- - listener.s7i accepts and multiplexes incoming socket connections
-   with openInetListener(), accept() and waitForRequest(). This is
-   how ftpserv.sd7 and httpserv.s7i serve several clients at once.
+ - listener.s7i accepts incoming socket connections with
+   openInetListener() and accept(), and waitForRequest() processes
+   interleaved requests from several clients. This is how
+   ftpserv.sd7 and httpserv.s7i serve several clients from one
+   process.
  - socket.s7i provides the sockets, and shell.s7i runs external
    commands with shell().
 
