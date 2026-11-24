@@ -4394,7 +4394,9 @@ with them via pipes and sockets:
 <li><span class="lib">listener.s7i</span> accepts incoming connections with
    <tt>openInetListener()</tt>, <tt>accept()</tt> and
    <tt>waitForRequest()</tt>, which processes interleaved requests from
-   several clients in one process.</li>
+   several clients in one process, as
+   <tt><span class="prog">ftpserv.sd7</span></tt> and
+   <span class="lib">httpserv.s7i</span> do.</li>
 <li><span class="lib">socket.s7i</span> provides the sockets, and
    <tt>popen()</tt> in <span class="lib">shell.s7i</span> runs an external
    command with its input or output as a file.</li>

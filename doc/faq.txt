@@ -3796,7 +3796,8 @@ communicates with them via pipes and sockets:
    so one process can serve many connections without threads.
  - listener.s7i accepts incoming connections with openInetListener(),
    accept() and waitForRequest(), which processes interleaved
-   requests from several clients in one process.
+   requests from several clients in one process, as ftpserv.sd7 and
+   httpserv.s7i do.
  - socket.s7i provides the sockets, and popen() in shell.s7i runs an
    external command with its input or output as a file.
 
