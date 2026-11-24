@@ -1126,6 +1126,15 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
           } else {
             preparedStmt->param_data_array[pos - 1].buffer_capacity = bstri->size;
           } /* if */
+        } else if (bstri->size == 0) {
+          /* buffer_capacity == 0 */
+          free(param->buffer);
+          if (unlikely((param->buffer = malloc(1)) == NULL)) {
+            preparedStmt->param_data_array[pos - 1].buffer_capacity = 0;
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->param_data_array[pos - 1].buffer_capacity = 1;
+          } /* if */
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
