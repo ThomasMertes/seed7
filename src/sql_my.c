@@ -696,11 +696,15 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         /* distinguishing BLOB types from TEXT types. */
         preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } else {
+#if MALLOC_OF_0_RETURNS_NULL
         if (buffer_length == 0) {
           resultData->buffer = malloc(1);
         } else {
           resultData->buffer = malloc(buffer_length);
         } /* if */
+#else
+        resultData->buffer = malloc(buffer_length);
+#endif
         if (unlikely(resultData->buffer == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
