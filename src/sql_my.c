@@ -710,8 +710,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         } else {
           resultData->buffer_type   = column->type;
           resultData->buffer_length = (unsigned long) buffer_length;
-          resultData->is_unsigned   = 0;
-          resultData->is_null = &resultData->is_null_value;
+          resultData->is_unsigned   = (column->flags & UNSIGNED_FLAG) != 0;
+          resultData->is_null       = &resultData->is_null_value;
           resultData->is_null_value = 0;
           preparedStmt->result_data_array[column_num - 1].name = column->name;
           /* A charsetnr value of 63 indicates that the          */
@@ -1573,21 +1573,41 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = bigFromInt32((int32Type)
-                *(int8Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32((uint32Type)
+                  *(uint8Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32((int32Type)
+                  *(int8Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = bigFromInt32((int32Type)
-                *(int16Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32((uint32Type)
+                  *(uint16Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32((int32Type)
+                  *(int16Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = bigFromInt32(
-                *(int32Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32(
+                  *(uint32Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32(
+                  *(int32Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = bigFromInt64(
-                *(int64Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt64(
+                  *(uint64Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt64(
+                  *(int64Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
@@ -1643,24 +1663,44 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            *numerator = bigFromInt32((int32Type)
-                *(int8Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32((uint32Type)
+                  *(uint8Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32((int32Type)
+                  *(int8Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_SHORT:
-            *numerator = bigFromInt32((int32Type)
-                *(int16Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32((uint32Type)
+                  *(uint16Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32((int32Type)
+                  *(int16Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            *numerator = bigFromInt32(
-                *(int32Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32(
+                  *(uint32Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32(
+                  *(int32Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_LONGLONG:
-            *numerator = bigFromInt64(
-                *(int64Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt64(
+                  *(uint64Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt64(
+                  *(int64Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_FLOAT:
@@ -2031,17 +2071,33 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = (floatType) *(int8Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint8Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int8Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = (floatType) *(int16Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint16Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int16Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = (floatType) *(int32Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint32Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int32Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = (floatType) *(int64Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint64Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int64Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_FLOAT:
             columnValue = *(float *) columnData->buffer;
@@ -2114,17 +2170,53 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = *(int8Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = *(uint8Type *) columnData->buffer;
+            } else {
+              columnValue = *(int8Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = *(int16Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = *(uint16Type *) columnData->buffer;
+            } else {
+              columnValue = *(int16Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = *(int32Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+#if INTTYPE_SIZE == 32
+              if (unlikely(*(uint32Type *) columnData->buffer > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U32 " does not fit into an integer.\n",
+                                column, *(uint32Type *) columnData->buffer););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) *(uint32Type *) columnData->buffer;
+              } /* if */
+#else
+              columnValue = *(uint32Type *) columnData->buffer;
+#endif
+            } else {
+              columnValue = *(int32Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = *(int64Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              if (unlikely(*(uint64Type *) columnData->buffer > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U64 " does not fit into an integer.\n",
+                                column, *(uint64Type *) columnData->buffer););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) *(uint64Type *) columnData->buffer;
+              } /* if */
+            } else {
+              columnValue = *(int64Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
