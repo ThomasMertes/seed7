@@ -649,6 +649,17 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         buffer_length = column->length;
         resultData->length = &resultData->length_value;
         break;
+      case MYSQL_TYPE_BIT:
+        if (unlikely(column->length < 1 || column->length > 64)) {
+          logError(printf("setupResultColumn: Column %s: "
+                          "Bit length (%lu) not in allowed range (1 .. 64).\n",
+                          column->name, column->length););
+          err_info = RANGE_ERROR;
+        } else {
+          buffer_length = (column->length + 7) / 8;
+          resultData->length = &resultData->length_value;
+        } /* if */
+        break;
       case MYSQL_TYPE_TIME:
       case MYSQL_TYPE_DATE:
       case MYSQL_TYPE_DATETIME:
@@ -794,6 +805,21 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
     } /* for */
     return okay;
   } /* allParametersBound */
+
+
+
+static uint64Type getBitField (const_ustriType data, unsigned long length)
+
+  {
+    unsigned long pos;
+    uint64Type value = 0;
+
+  /* getBitField */
+    for (pos = 0; pos < length; pos++) {
+      value = (value << 8) | data[pos];
+    } /* for */
+    return value;
+  } /* getBitField */
 
 
 
@@ -1617,6 +1643,11 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                 columnData->length_value,
                 (const_ustriType) columnData->buffer, NULL);
             break;
+          case MYSQL_TYPE_BIT:
+            columnValue = bigFromUInt64(getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value));
+            break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
                             column, nameOfBufferType(
@@ -1740,6 +1771,12 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
               raise_error(err_info);
             } /* if */
             break;
+          case MYSQL_TYPE_BIT:
+            *numerator = bigFromUInt64(getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value));
+            *denominator = bigFromInt32(1);
+            break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
                             column, nameOfBufferType(
@@ -1797,6 +1834,11 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_LONGLONG:
             columnValue = *(int64Type *) columnData->buffer;
+            break;
+          case MYSQL_TYPE_BIT:
+            columnValue = (int64Type) getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value);
             break;
           case MYSQL_TYPE_STRING:
           case MYSQL_TYPE_VAR_STRING:
@@ -2129,6 +2171,11 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
                 (const_ustriType) columnData->buffer,
                 columnData->length_value);
             break;
+          case MYSQL_TYPE_BIT:
+            columnValue = (floatType) getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value);
+            break;
           default:
             logError(printf("sqlColumnFloat: Column " FMT_D " has the unknown type %s.\n",
                             column, nameOfBufferType(
@@ -2228,6 +2275,22 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
             columnValue = getDecimalInt(
                 (const_ustriType) columnData->buffer,
                 columnData->length_value);
+            break;
+          case MYSQL_TYPE_BIT:
+            {
+              uint64Type bitValue = getBitField(
+                  (const_ustriType) columnData->buffer,
+                  columnData->length_value);
+              if (unlikely(bitValue > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U64 " does not fit into an integer.\n",
+                                column, bitValue););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) bitValue;
+              } /* if */
+            }
             break;
           default:
             logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",
