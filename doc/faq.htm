@@ -746,7 +746,7 @@ language tries to avoid such hard-coded constructs in normal programs.
 Extensible programming was an area of active research in the 1960s,
 but in the 1970s the extensibility movement was displaced by the
 abstraction movement. Today's software history gives almost no hint
-that the extensible languages movement had ever occurred. In the
+that the extensible languages movement occurred. In the
 historical movement an extensible programming language consisted of
 a base language providing elementary computing facilities, and a
 meta-language capable of modifying the base language. A program then
@@ -798,7 +798,7 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
       drive letters and different path delimiters.</li></ul></li>
 <li>Differences between Unix sockets and winsockets are hidden and
    a Seed7 <tt><span class="type">socket</span></tt> is a <tt><span class="type">file</span></tt> (as in Unix). The type <tt><span class="type">pollData</span></tt> allows
-   to wait until a socket is ready to read or write data. <span class="link">TLS/SSL</span>
+   the program to wait until a socket is ready to read or write data. <span class="link">TLS/SSL</span>
    and higher level protocols such as <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>
    and <span class="link">SMTP</span> are also supported.</li>
 <li>The library <span class="lib">keybd.s7i</span> defines the file <span class="var">KEYBOARD</span>, which supports
@@ -842,7 +842,7 @@ There is no restriction on the license of your Seed7 programs.
 </p><p>
 For the development of the <span class="link">Seed7 compiler</span> it will be necessary to move some
 source code from the s7 interpreter (under GPL) to the Seed7 runtime library
-(under LGPL). This will only be done to for the Seed7 runtime library and only
+(under LGPL). This will only be done for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
 </p><p>
@@ -1358,6 +1358,7 @@ The following options are recognized by s7:
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><a name="faq_interpreter_option-i"><b>-i</b></a>   Show the identifier table after the analysis phase.</li>
   <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><a name="faq_interpreter_option-n"><b>-n</b></a>   No limit on the number of errors displayed (default: 10).</li>
   <li><a name="faq_interpreter_option-p"><b>-p</b></a>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
   <li><a name="faq_interpreter_option-q"><b>-q</b></a>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
@@ -1414,6 +1415,7 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option <b>-g-debug_c</b> can be used.</li>
   <li><a name="faq_compiler_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><a name="faq_compiler_option-n"><b>-n</b></a>   No limit on the number of errors displayed (default: 10).</li>
   <li><a name="faq_compiler_option-oc"><b>-oc</b><span class="keywd">n</span></a> Optimize generated C code with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
        The level <span class="keywd">n</span> is a digit between 0 and 3:<ul>
          <li><a name="faq_compiler_option-oc0"><b>0</b></a> Do no optimizations with constants.</li>
@@ -1466,7 +1468,7 @@ syntax on
 <li>For the Nano editor there is <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7.nanorc">seed7/doc/seed7.nanorc</a> and
    <a class="link" href="https://github.com/galenguyer/nano-syntax-highlighting/blob/359cc2b641a55579cef347451b064061fbc00aaf/seed7.nanorc">nano-syntax-highlighting/seed7.nanorc</a>. You can copy this file to
    <nobr><span class="lib">/usr/share/nano</span></nobr> (you might need superuser privileges to do that).
-   Arch-user can install package <a class="link" href="https://archlinux.org/packages/extra/any/nano-syntax-highlighting/">nano-syntax-highlighting</a> or
+   Arch-users can install package <a class="link" href="https://archlinux.org/packages/extra/any/nano-syntax-highlighting/">nano-syntax-highlighting</a> or
    <a class="link" href="https://aur.archlinux.org/packages/nano-syntax-highlighting-git">nano-syntax-highlighting-git</a>.</li>
 <li>For Notepad++ there is <a class="link" href="https://github.com/ThomasMertes/seed7/blob/master/doc/seed7udl.xml">seed7/doc/seed7udl.xml</a>. Start Notepad++ and
    go to <span class="stri">Language <b>&rArr;</b> User Defined Language <b>&rArr;</b> Define your language...</span>,
@@ -1497,8 +1499,8 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <tt><span class="keywd">include</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd">is</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">len</span></tt> <tt><span class="keywd">local</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd">param</span></tt> <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">ref</span></tt>
 <tt><span class="keywd_no_ul">repeat</span></tt> <tt><a class="keywd_no_ul" href="#faq_result_variable">result</a></tt> <tt><a class="keywd_no_ul" href="#faq_no_return_statement">return</a></tt> <tt><span class="keywd_no_ul">set</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">val</span></tt>
 <tt><span class="keywd_no_ul">var</span></tt> <tt><span class="keywd">varfunc</span></tt> <tt><span class="keywd_no_ul">when</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
-<li>Keywords which introduce statements are: <tt><span class="keywd">assert</span></tt> <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">if</span></tt> <tt><span class="keywd">include</span></tt>
-<tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
+<li>Keywords which introduce statements are: <tt><span class="keywd">assert</span></tt> <tt><span class="keywd_no_ul">block</span></tt> <tt><span class="keywd_no_ul">case</span></tt> <tt><span class="keywd_no_ul">for</span></tt> <tt><span class="keywd">global</span></tt> <tt><span class="keywd_no_ul">if</span></tt>
+<tt><span class="keywd">include</span></tt> <tt><span class="keywd_no_ul">raise</span></tt> <tt><span class="keywd_no_ul">repeat</span></tt> <tt><span class="keywd_no_ul">syntax</span></tt> <tt><span class="keywd_no_ul">system</span></tt> <tt><span class="keywd_no_ul">while</span></tt></li>
 <li>Keywords which are used in the middle of statements are: <tt><span class="keywd_no_ul">catch</span></tt> <tt><span class="keywd">do</span></tt> <tt><span class="keywd_no_ul">downto</span></tt>
 <tt><span class="keywd_no_ul">else</span></tt> <tt><span class="keywd_no_ul">elsif</span></tt> <tt><span class="keywd">end</span></tt> <tt><span class="keywd_no_ul">exception</span></tt> <tt><span class="keywd_no_ul">key</span></tt> <tt><span class="keywd_no_ul">of</span></tt> <tt><span class="keywd_no_ul">otherwise</span></tt> <tt><span class="keywd_no_ul">range</span></tt> <tt><span class="keywd_no_ul">step</span></tt> <tt><span class="keywd_no_ul">then</span></tt> <tt><span class="keywd_no_ul">to</span></tt> <tt><span class="keywd_no_ul">until</span></tt> <tt><span class="keywd_no_ul">when</span></tt></li>
 <li>Keywords which introduce declarations are: <tt><span class="keywd_no_ul">const</span></tt> <tt><span class="keywd_no_ul">in</span></tt> <tt><span class="keywd_no_ul">inout</span></tt> <tt><span class="keywd_no_ul">ref</span></tt> <tt><span class="keywd_no_ul">val</span></tt> <tt><span class="keywd_no_ul">var</span></tt></li>
@@ -1507,9 +1509,9 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <li>Keywords which are used in expressions are: <tt><span class="keywd_no_ul">default</span></tt> <tt><span class="keywd_no_ul">fixLen</span></tt> <tt><span class="keywd_no_ul">len</span></tt>
 <li>Keywords which are used in type expression are: <tt><span class="keywd_no_ul">array</span></tt> <tt><span class="keywd_no_ul">enum</span></tt> <tt><span class="keywd_no_ul">func</span></tt> <tt><span class="keywd_no_ul">hash</span></tt> <tt><span class="keywd_no_ul">new</span></tt> <tt><span class="keywd_no_ul">of</span></tt>
 <tt><tt><span class="keywd_no_ul">set</span></tt> <span class="keywd_no_ul">struct</span></tt> <tt><span class="keywd_no_ul">sub</span></tt> <tt><span class="keywd_no_ul">varfunc</span></tt></li>
-<li>Keywords which are used as operator symbols are: <tt><span class="op_no_ul">and</span></tt> <tt><span class="op_no_ul">conj</span></tt> <tt><span class="op_no_ul">conv</span></tt> <tt><span class="op_no_ul">digits</span></tt> <tt><span class="op_no_ul">div</span></tt>
-<tt><span class="op_no_ul">exp</span></tt> <tt><span class="op_no_ul">in</span></tt> <tt><span class="op_no_ul">lpad</span></tt> <tt><span class="op_no_ul">lapd0</span></tt> <tt><span class="op_no_ul">mdiv</span></tt> <tt><span class="op_no_ul">mod</span></tt> <tt><span class="op_no_ul">mult</span></tt> <tt><span class="op_no_ul">not</span></tt> <tt><span class="op_no_ul">or</span></tt> <tt><span class="op_no_ul">parse</span></tt> <tt><span class="op_no_ul">radix</span></tt> <tt><span class="op_no_ul">RADIX</span></tt> <tt><span class="op_no_ul">rem</span></tt> <tt><span class="op_no_ul">rpad</span></tt> <tt><span class="op_no_ul">sci</span></tt> <tt><span class="op_no_ul">times</span></tt>
-<tt><span class="keywd">varConv</span></tt></li>
+<li>Keywords which are used as operator symbols are: <tt><span class="op_no_ul">and</span></tt> <tt><span class="op_no_ul">ceilDiv</span></tt> <tt><span class="op_no_ul">conj</span></tt> <tt><span class="op_no_ul">conv</span></tt>
+<tt><span class="op_no_ul">digits</span></tt> <tt><span class="op_no_ul">div</span></tt> <tt><span class="op_no_ul">exp</span></tt> <tt><span class="op_no_ul">in</span></tt> <tt><span class="op_no_ul">lpad</span></tt> <tt><span class="op_no_ul">lapd0</span></tt> <tt><span class="op_no_ul">mdiv</span></tt> <tt><span class="op_no_ul">mod</span></tt> <tt><span class="op_no_ul">mult</span></tt> <tt><span class="op_no_ul">not</span></tt> <tt><span class="op_no_ul">or</span></tt> <tt><span class="op_no_ul">parse</span></tt> <tt><span class="op_no_ul">radix</span></tt> <tt><span class="op_no_ul">RADIX</span></tt>
+<tt><span class="op_no_ul">rem</span></tt> <tt><span class="op_no_ul">rpad</span></tt> <tt><span class="op_no_ul">sci</span></tt> <tt><span class="op_no_ul">times</span></tt> <tt><span class="keywd">varConv</span></tt></li>
 <li><span class="link">Special identifiers</span> like <tt><span class="op_no_ul">:=</span></tt> are sequences of <span class="link">special characters</span>.
 <li>Predefined <span class="link">assignment operators</span> are: <tt><span class="op_no_ul">:=</span></tt> <tt><span class="op_no_ul">+:=</span></tt> <tt><span class="op_no_ul">-:=</span></tt> <tt><span class="op_no_ul">*:=</span></tt> <tt><span class="op_no_ul">/:=</span></tt> <tt><span class="op_no_ul">&lt;&lt;:=</span></tt> <tt><span class="op_no_ul">&gt;&gt;:=</span></tt> <tt><span class="op_no_ul">&amp;:=</span></tt> <tt><span class="op_no_ul">|:=</span></tt>
 <tt><span class="op_no_ul">&gt;&lt;:=</span></tt> <tt><span class="op_no_ul">@:=</span></tt></li>
@@ -1518,15 +1520,15 @@ keywords. So the list of keywords defined in the standard libraries can be used.
 <li>Predefined types are: <tt><span class="type_no_ul">array</span> <span class="type_no_ul">bigInteger</span> <span class="type_no_ul">bigRational</span> <span class="type_no_ul">bin32</span> <span class="type_no_ul">bin64</span> <span class="type_no_ul">bitset</span>
 <span class="type_no_ul">boolean</span> <span class="type_no_ul">bstring</span> <span class="type_no_ul">category</span> <span class="type_no_ul">char</span> <span class="type_no_ul">clib_file</span> <span class="type_no_ul">color</span> <span class="type_no_ul">complex</span> <span class="type_no_ul">creator</span> <span class="type_no_ul">database</span>
 <span class="type_no_ul">destroyer</span> <span class="type_no_ul">duration</span> <span class="type_no_ul">enum</span> <span class="type_no_ul">expr</span> <span class="type_no_ul">file</span> <span class="type_no_ul">fileSys</span> <span class="type_no_ul">float</span> <span class="type_no_ul">func</span> <span class="type_no_ul">hash</span> <span class="type_no_ul">integer</span> <span class="type_no_ul">listener</span>
-<span class="type_no_ul">object</span> <span class="type_no_ul">parseError</span> <span class="type_no_ul">pollData</span> <span class="type_no_ul">proc</span> <span class="type_no_ul">process</span> <span class="type_no_ul">program</span> <span class="type_no_ul">rational</span> <span class="type_no_ul">reference</span> <span class="type_no_ul">ref_list</span>
-<span class="type_no_ul">set</span> <span class="type_no_ul">sqlStatement</span> <span class="type_no_ul">string</span> <span class="type_no_ul">struct</span> <span class="type_no_ul">structElement</span> <span class="type_no_ul">text</span> <span class="type_no_ul">time</span> <span class="type_no_ul">type</span> <tt><span class="type_no_ul">varfunc</span></tt> <span class="type_no_ul">void</span>
-<span class="type">PRIMITIVE_WINDOW</span></tt></li>
+<span class="type_no_ul">object</span> <span class="type_no_ul">parseError</span> <span class="type_no_ul">pixel</span> <span class="type_no_ul">pointList</span> <span class="type_no_ul">pollData</span> <span class="type_no_ul">proc</span> <span class="type_no_ul">process</span> <span class="type_no_ul">program</span> <span class="type_no_ul">rational</span>
+<span class="type_no_ul">reference</span> <span class="type_no_ul">ref_list</span> <span class="type_no_ul">set</span> <span class="type_no_ul">sqlStatement</span> <span class="type_no_ul">string</span> <span class="type_no_ul">struct</span> <span class="type_no_ul">structElement</span> <span class="type_no_ul">text</span> <span class="type_no_ul">time</span>
+<span class="type_no_ul">type</span> <tt><span class="type_no_ul">varfunc</span></tt> <span class="type_no_ul">void</span> <span class="type">PRIMITIVE_WINDOW</span></tt></li>
 <li>Predefined constants are: <tt><span class="var_no_ul">E</span></tt> <span class="var_no_ul">empty</span> <tt><span class="var_no_ul">EOF</span></tt> <tt><span class="var_no_ul">FALSE</span></tt> <tt><span class="var_no_ul">Infinity</span></tt> <tt><span class="var_no_ul">NaN</span></tt> <tt><span class="var_no_ul">NIL</span></tt> <tt><span class="var_no_ul">PI</span></tt> <tt><span class="var_no_ul">TRUE</span></tt></li>
 <li>Predefined variables are: <tt><span class="var_no_ul">CONSOLE_KEYBOARD</span></tt> <tt><span class="var_no_ul">GRAPH_KEYBOARD</span></tt> <tt><span class="var_no_ul">IN</span></tt> <tt><span class="var_no_ul">KEYBOARD</span></tt> <tt><span class="var_no_ul">OUT</span></tt>
 <tt><span class="var_no_ul">STD_CONSOLE</span></tt> <tt><span class="var_no_ul">STD_ERR</span></tt> <tt><span class="var_no_ul">STD_IN</span></tt> <tt><span class="var_no_ul">STD_NULL</span></tt> <tt><span class="var_no_ul">STD_OUT</span></tt></li>
-<li>Predefined exceptions are: <tt><span class="exception">ASSERTION_ERROR</span></tt> <tt><span class="exception">DATABASE_ERROR</span></tt> <tt><span class="exception">FILE_ERROR</span></tt> <tt><span class="exception">GRAPHIC_ERROR</span></tt>
-<tt><span class="exception">ILLEGAL_ACTION</span></tt> <tt><span class="exception">INDEX_ERROR</span></tt> <tt><span class="exception">MEMORY_ERROR</span></tt> <tt><span class="exception">NUMERIC_ERROR</span></tt> <tt><span class="exception">OVERFLOW_ERROR</span></tt>
-<tt><span class="exception">RANGE_ERROR</span></tt></li>
+<li>Predefined exceptions are: <tt><span class="exception">ASSERTION_ERROR</span></tt> <tt><span class="exception">DATABASE_ERROR</span></tt> <tt><span class="exception">FILE_ERROR</span></tt>
+<tt><span class="exception">GRAPHIC_ERROR</span></tt> <tt><span class="exception">ILLEGAL_ACTION</span></tt> <tt><span class="exception">INDEX_ERROR</span></tt> <tt><span class="exception">MEMORY_ERROR</span></tt> <tt><span class="exception">NUMERIC_ERROR</span></tt>
+<tt><span class="exception">OVERFLOW_ERROR</span></tt> <tt><span class="exception">RANGE_ERROR</span></tt></li>
 <li>The syntax of <span class="link">literals</span> and <span class="link">comments</span> is described with the <span class="link">Backus Naur Form</span>.
 Note that the character <tt><span class="var_no_ul">#</span></tt> is used for <span class="link">line comments</span> and inside of
 <span class="link">based integer literals</span> (e.g.: 16#beef).</li>
@@ -1608,7 +1610,7 @@ usecs     calls      place                  name
 252750    9859393    complex.s7i(230)       <span class="op_no_ul">+:=</span>
 122427    160801     draw.s7i(95)           <span class="func">point</span>
 7500      1          draw.s7i(638)          <span class="func">getPixmap</span>
-4506      161500     draw.s7i(43)           <span class="func">colorPixel</span>
+4506      161500     draw.s7i(43)           <span class="func">pixel</span>
 4501      160801     complex.s7i(176)       <span class="op_no_ul">+</span>
 4413      160801     complex.s7i(48)        <span class="func">complex</span>
 633       1          draw.s7i(61)           <span class="func">screen</span>
@@ -1647,7 +1649,7 @@ Seed7 is a case sensitive language. This has several advantages:
    identifier. E.g.: Identifiers in all upper case are used by global
    constants.</li>
 <li>Case sensitive identifier lookup is simpler and faster. Since a
-   significant time is spent for identifier lookups compilations will
+   significant time is spent on identifier lookups compilations will
    speed up.</li>
 </ul></div>
 
@@ -1815,19 +1817,23 @@ mandatory.
 <div><br /><a name="faq_everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
 </h3></a><hr />
 <p>
-There are lots of possibilities to write unreadable code without using the
-extension features of Seed7. The programmer is (as always) responsible to write
-readable programs. The variable/type/function names and other things chosen by
-the programmer can always lead to obfuscated code.
+There are many ways to write unreadable code without using the extension
+features of Seed7. Poor naming choices, convoluted logic, and bad architecture
+can ruin a codebase in any language. The programmer is (as always) responsible
+for writing readable programs.
+</p><p>
+Programmers can introduce functions and this can create unreadable code for
+other developers as well. Yet no one argues that programming languages should
+ban functions.
 </p><p>
 Defining new statements and operators is a feature which should not be used in
-every program by every programmer. It is a feature which allows experienced
-programmers, to write libraries which use statement or operator syntax instead
+every program by every programmer. It is a feature that allows experienced
+programmers to write libraries which use statement or operator syntax instead
 of function syntax, in areas where such a notation is already accepted practice.
 </p><p>
 Statements to access a database or operators for vector arithmetic would be such
-an example. Another example is a construct which can be used in the definition of
-text adventure games.
+an example. A third example is a construct which can be used in the definition
+of text adventure games.
 </p><p>
 The possibility to define statements also allows a more precise language
 definition. The for/while/if statements of C++ are described in the C++ manuals
@@ -1848,10 +1854,10 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do
     <span class="keywd_no_ul">end</span> <span class="keywd_no_ul">if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-The syntax and semantic of a <span class="link">while-statement</span> is described using an <span class="link">if-statement</span>
+The semantics of a <span class="link">while-statement</span> are described using an <span class="link">if-statement</span>
 and recursion. For performance reasons the implementation will usually use a
-different approach to implement a <span class="link">while-loop</span>, but this example shows the expressive
-power of Seed7.
+different approach to implement a <span class="link">while-loop</span>, but this example demonstrates the
+expressive power of Seed7.
 </p></div>
 
 <div><br /><a name="faq_lisp_comparison"><h3>Hasn't Lisp already user defined statements and operators?
@@ -2003,8 +2009,8 @@ Seed7 triggers the error:
 </pre><p>
 Now assume we use a different language. The <tt><span class="op">+</span></tt> could be an addition or
 a string concatenetion. So we need to know the type of <tt><span class="var">a</span></tt> to determine
-what the <tt><span class="op">+</span></tt> does. We can check occurances of <tt><span class="var">a</span></tt> for hints. Now assume
-that the only other occurance is
+what the <tt><span class="op">+</span></tt> does. We can check occurrences of <tt><span class="var">a</span></tt> for hints. Now assume
+that the only other occurrence is
 </p><pre class="indent">
 <span class="var">a</span> <span class="op">:=</span> <span class="func">aFunction</span>();
 </pre><p>
@@ -2104,7 +2110,7 @@ readability. E.g.: If you prefer statements using braces it is harder to read
 statements using keywords instead and vice versa. But you can get accustomed
 to such syntactic things and then they don't hinder readability anymore.
 </p><p>
-Readability is not just about syntax. Other things do effect
+Readability is not just about syntax. Other things affect
 readability as well. In some languages the information is scattered,
 and the reader needs considerable time to gather the information.
 </p><p>
@@ -2165,7 +2171,7 @@ readability. At compile-time the types and other things are checked.
 </pre><p>
   A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
   This causes that <tt><span class="type">type</span></tt> declarations inside of a <tt><span class="keywd">local</span></tt> declaration block
-  are not defined during the parsing. This errors are avoided, if <tt><span class="type">type</span></tt>
+  are not defined during the parsing. These errors are avoided if <tt><span class="type">type</span></tt>
   declarations are made at the top level. E.g.:
 </p><pre class="indent">
 <span class="keywd_no_ul">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
@@ -2553,7 +2559,7 @@ The Seed7 example program above will always print the value 0.
 <p>
 A result variable is a specific local variable used as function result.
 If no <span class="link">assignment</span> to the result variable is done the <span class="link">initialization value</span>
-of the result value is the function result.
+of the result variable is the function result.
 </p><p>
 Result variables are declared in <tt><span class="keywd">func</span> ... <span class="keywd">end func</span></tt> constructs after
 the keyword <tt><span class="keywd">result</span></tt>. E.g.:
@@ -2576,8 +2582,8 @@ type <tt><span class="type">integer</span></tt> is 64-bit signed, smaller intege
 computers have 64-bit processors. Some processors do not have instructions
 for all the smaller integer types. On such computers, smaller integers must
 be converted into larger integers in order to do computations. So programs
-that use smaller integers might actually be slower because of this. Today
-computers' memory covers many gigabytes, so the pressure to save memory is
+that use smaller integers might actually be slower because of this. Today's
+computer memory covers many gigabytes, so the pressure to save memory is
 also gone. If you prefer arrays with smaller integers, because they fit into
 the cache, you should probably stick with C or some other lower level
 language. Seed7 tries to stay above this low level thinking.
@@ -2648,7 +2654,7 @@ The usage of UTF-32 for strings in a program has several advantages:
    save memory by examining strings.</li>
 <li>An UTF-32 string can also hold Ascii, Latin-1, UTF-8 or UTF-16 encoded
    strings. An UTF-32 string can even hold characters from a <span class="link">code page</span>.
-   Of cause it is necessary to know the encoding of such strings. The
+   Of course it is necessary to know the encoding of such strings. The
    possibility to hold all this encodings is an advantage that only UTF-32
    offers.</li>
 </ul><p>
@@ -2720,12 +2726,12 @@ following list:
 It should be obvious: The number one has been invented as starting point
 to count something. The first character in this sentence is T not h. So the
 question is: Why does everybody believe that in computer science the first
-character has the index 0? Basically this origins in the language C. Arrays
-and strings in C are viewed as pointer + offset. So it is natural that the
-first offset is 0. From C this concept spread to many other programming
+character has the index 0? Basically, this has its origins in the language C.
+Arrays and strings in C are viewed as pointer + offset. So it is natural that
+the first offset is 0. From C this concept spread to many other programming
 languages. Seed7 breaks with this tradition as it uses the number one again
 for the purpose it has been invented, thousands of years ago, long before
-zero has been introduced.
+zero was introduced.
 </p></div>
 
 <div><br /><a name="faq_minimum_array_index"><h3>Are arrays indexed from one?
@@ -2771,7 +2777,7 @@ of the type. E.g.:
 <span class="keywd_no_ul">const</span> <span class="type">type</span>: keccakStateType <span class="keywd">is</span> <span class="type">array</span> [0 .. 24] <span class="type">bin64</span>; <span class="comment"># minimum index is 0 and maximum index is 24</span>
 </pre><p>
 Neither minimum index nor maximum index nor the size of a fixed size
-<tt><span class="type">array</span></tt> can change at run-time. The minumum index can be obtained with
+<tt><span class="type">array</span></tt> can change at run-time. The minimum index can be obtained with
 <tt><span class="func">minIdx</span>(<span class="type">dataBlockType</span>)</tt> or <tt><span class="func">minIdx</span>(aDataBlockValue)</tt>. The maximum index
 can be obtained with <tt><span class="func">maxIdx</span>(<span class="type">dataBlockType</span>)</tt> or <tt><span class="func">maxIdx</span>(aDataBlockValue)</tt>.
 The length can be obtained with <tt><span class="func">length</span>(<span class="type">dataBlockType</span>)</tt> or
@@ -2987,7 +2993,7 @@ The operators <tt><span class="op_no_ul">&amp;</span></tt> and <tt><span class="
    The <tt><span class="op_no_ul">&amp;</span></tt> operator does not convert an <tt><span class="type">integer</span></tt> (or some other value) to a <tt><span class="type">string</span></tt>.
 </p><p>
    The priority of <tt><span class="op_no_ul">&amp;</span></tt> is defined to execute the concatenation before doing a
-   comparison. E.g.:
+   comparison. For example:
 </p><pre class="indent">
 name <span class="op_no_ul">&amp;</span> extension <span class="op">=</span> check
 </pre><p>
@@ -3479,7 +3485,7 @@ every category a specific strategy of automatic memory management is used:
    point, where intermediate results can be be freed, at compile time.
    Functions, such as the assignment, can abstain from freeing the
    intermediate result and just assign it to the variable. This way it is not
-   always necessary to copy arbitrary complex values. All this things can be
+   always necessary to copy arbitrary complex values. All these things can be
    decided by the compiler.</li>
 <li>The memory of <span class="link">strings</span>, <span class="link">bigIntegers</span>, <span class="link">bitsets</span>, <span class="link">arrays</span>, <span class="link">hashes</span> and <span class="link">bstrings</span>
    is referenced just once. These types do not need reference counting.</li>
@@ -3792,7 +3798,7 @@ This function can be used to initialize values:
 <span class="keywd_no_ul">var</span> <span class="type_no_ul">complex</span>: one <a class="keywd_no_ul" href="#faq_initialization_with_is">is</a> complex(1.0, 0.0);
 </pre><p>
 Initialization expressions are executed at compile-time. At run-time
-the variable is initialized with minumum effort from the value which
+the variable is initialized with minimum effort from the value which
 has been computed at compile-time.
 </p><p>
 New values for interface types can be created as well. In case of the
@@ -4063,7 +4069,7 @@ achieve this goal:
 <li>Under Windows a stack overflow handler is used. The function
    AddVectoredExceptionHandler() registers an error handler.
    In case of a stack overflow the handler raises <tt><span class="exception">MEMORY_ERROR</span></tt>.
-   At the place where a <tt><span class="exception">MEMORY_ERROR</span></tt> is cought the function
+   At the place where a <tt><span class="exception">MEMORY_ERROR</span></tt> is caught, the function
    _resetstkoflw() is called to restore the guard pages.
 </ul><p>
 The program below triggers a stack overflow with an infinite
@@ -4183,7 +4189,7 @@ stack traces work.
 </p><pre class="box">
   *** Uncaught exception NUMERIC_ERROR raised at tmp_lander.c(764)
 </pre><p>
-In this case the mentioned file name and line number refers to the temporary
+In this case the mentioned file name and line number refer to the temporary
 C file or the Seed7 runtime library. To get useful information there are two
 possibilities:
 </p><ol>
@@ -4204,7 +4210,7 @@ debug compiled Seed7 programs.
 <div><br /><a name="faq_write_raises_RANGE_ERROR"><h3>Why does a write statement raise RANGE_ERROR?
 </h3></a><hr />
 <p>
-Writing an Unicode character beyond <tt><span class="stri">'\255;'</span></tt> to the standard output file (<tt><span class="var">STD_OUT</span></tt>) raises <tt><span class="exception">RANGE_ERROR</span></tt>. The file <tt><span class="var">STD_OUT</span></tt> only supports Latin-1 or Ascii characters <= <tt><span class="stri">'\255;'</span></tt>. This can be avoided by using <tt><span class="var">STD_CONSOLE</span></tt> instead of <tt><span class="var">STD_OUT</span></tt>. You need to include the library <span class="lib">console.s7i</span> with
+Writing a Unicode character beyond <tt><span class="stri">'\255;'</span></tt> to the standard output file (<tt><span class="var">STD_OUT</span></tt>) raises <tt><span class="exception">RANGE_ERROR</span></tt>. The file <tt><span class="var">STD_OUT</span></tt> only supports Latin-1 or Ascii characters <= <tt><span class="stri">'\255;'</span></tt>. This can be avoided by using <tt><span class="var">STD_CONSOLE</span></tt> instead of <tt><span class="var">STD_OUT</span></tt>. You need to include the library <span class="lib">console.s7i</span> with
 </p><pre class="indent">
 <span class="keywd">include</span> <span class="stri">"<span class="lib">console.s7i</span>"</span>;
 </pre><p>
@@ -4312,7 +4318,7 @@ structured statements that can replace them.
 </p><p>
 The <tt>break</tt> and <tt>continue</tt> statements are often seen as a trick to get more
 performance at the expense of <a class="link" href="#faq_maintainability">maintainability</a>. These performance wins are
-questionable. Given todays optimization techniques, the compiler might generate
+questionable. Given today's optimization techniques, the compiler might generate
 the same machine code from clean source code without <tt>break</tt> and <tt>continue</tt>.
 </p><p>
 For the reasons stated above, and to promote structured programming, <tt>break</tt>,
@@ -4519,7 +4525,7 @@ to do LTO. If LTO is not supported the option <a href="#faq_compiler_option-flto
 Basically compiling to a dll/so would be possible. But there are obstacles.
 Regarding libraries, the approach used by Seed7 and other languages differs
 considerably. Seed7 libraries can be included directly, while the usual dll/so
-needs an additional header file which desribes the interfaces of the dll/so.
+needs an additional header file which describes the interfaces of the dll/so.
 The Seed7 overloading does not use name mangling and a possible name mangling
 of Seed7 would be incompatible to the ones used by other languages. Fundamental
 types like <tt><span class="type">string</span></tt>, <tt><span class="type">bigInteger</span></tt>, <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt> and <tt><span class="type">file</span></tt> could not be used
@@ -4951,7 +4957,7 @@ The action "INT_ADD" corresponds to the function 'int_add' in the file
 <span class="link">Chapter 14 (Primitive actions)</span> of the manual contains a detailed description
 of the primitive actions. In the interpreter all action functions get the
 parameters as list. The action functions take the parameters they need from the
-list, perform the action and deliver a result.
+list, perform the action and return a result.
 </p></div>
 
 <div><br /><a name="faq_dollar_signs"><h3>Why are there dollar signs in some places?
