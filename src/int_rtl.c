@@ -2269,7 +2269,7 @@ striType intNBytesBeSigned (intType number, intType length)
           do {
             pos--;
             buffer[pos] = (strElemType) 0xff;
-          } while (pos > dataStart);
+          } while (pos > 0);
         } else if (unlikely(number != -1 || buffer[pos] <= BYTE_MAX)) {
           logError(printf("intNBytesBeSigned: "
                           "Number does not fit into " FMT_D " bytes.\n", length););
