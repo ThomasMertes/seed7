@@ -615,6 +615,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_SHORT:
+      case MYSQL_TYPE_YEAR:
         buffer_length = 2;
         resultData->length = NULL;
         break;
@@ -1582,6 +1583,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             } /* if */
             break;
           case MYSQL_TYPE_SHORT:
+          case MYSQL_TYPE_YEAR:
             if (columnData->is_unsigned) {
               columnValue = bigFromUInt32((uint32Type)
                   *(uint16Type *) columnData->buffer);
@@ -1673,6 +1675,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_SHORT:
+          case MYSQL_TYPE_YEAR:
             if (columnData->is_unsigned) {
               *numerator = bigFromUInt32((uint32Type)
                   *(uint16Type *) columnData->buffer);
@@ -2078,6 +2081,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             } /* if */
             break;
           case MYSQL_TYPE_SHORT:
+          case MYSQL_TYPE_YEAR:
             if (columnData->is_unsigned) {
               columnValue = (floatType) *(uint16Type *) columnData->buffer;
             } else {
@@ -2177,6 +2181,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
             } /* if */
             break;
           case MYSQL_TYPE_SHORT:
+          case MYSQL_TYPE_YEAR:
             if (columnData->is_unsigned) {
               columnValue = *(uint16Type *) columnData->buffer;
             } else {
