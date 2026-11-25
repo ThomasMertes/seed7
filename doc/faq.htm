@@ -537,6 +537,9 @@ Why are break and continue not supported?
 <li><a class="link" href="#faq_define_break_and_continue"><b>
 How to define break and continue?
 </b></a></li>
+<li><a class="link" href="#faq_threads_and_concurrency"><b>
+Is there support for threads, concurrency, or parallelism?
+</b></a></li>
 </ul><h2>
 Implementation
 </h2><ul>
@@ -4370,6 +4373,39 @@ exceptions:
     <span class="keywd_no_ul">until</span> exitLoop;
   <span class="keywd">end func</span>;
 </pre></div>
+
+<div><br /><a name="faq_threads_and_concurrency"><h3>Is there support for threads, concurrency, or parallelism?
+</h3></a><hr />
+<p>
+Seed7 has no support for threads. Threads would open new categories
+of possible errors.
+</p><p>
+Concurrency and parallelism are achieved with processes. A process has
+its own memory space, runs independently of the others, and communicates
+with them via pipes and sockets:
+</p><ul>
+<li><span class="lib">process.s7i</span> starts and controls processes with
+   <tt>startProcess()</tt> and <tt>startPipe()</tt>, and connects a child's
+   standard streams with <tt>childStdIn()</tt>, <tt>childStdOut()</tt> and
+   <tt>childStdErr()</tt>.</li>
+<li><span class="lib">poll.s7i</span> waits for input or output readiness on
+   sockets and files, so one process can serve many connections without
+   threads.</li>
+<li><span class="lib">listener.s7i</span> accepts incoming connections with
+   <tt>openInetListener()</tt>, <tt>accept()</tt> and
+   <tt>waitForRequest()</tt>, which processes interleaved requests from
+   several clients in one process, as
+   <tt><span class="prog">ftpserv.sd7</span></tt> and
+   <span class="lib">httpserv.s7i</span> do.</li>
+<li><span class="lib">socket.s7i</span> provides the sockets, and
+   <tt>popen()</tt> in <span class="lib">shell.s7i</span> runs an external
+   command with its input or output as a file.</li>
+</ul><p>
+Seed7's <a class="link" href="#faq_garbage_collection">automatic memory management</a>
+frees objects such as windows, processes and structs with a reference
+count, which is updated without synchronisation. Two C functions used
+for debug output are documented as not thread safe.
+</p></div>
 
 <div><br /><a name="faq_how_parsed"><h3>How is Seed7 parsed?
 </h3></a><hr />

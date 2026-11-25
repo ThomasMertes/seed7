@@ -13,6 +13,7 @@ Seed7 is a high level general purpose programming language. The Seed7 project is
 * [Object orientation](https://seed7.net/manual/objects.htm) supports interfaces and [multiple dispatch](https://seed7.net/faq.htm#multiple_dispatch).
 * [Static type checking](https://seed7.net/faq.htm#static_type_checking) and the absence of [automatic casts](https://seed7.net/faq.htm#automatic_casts) help to find errors at compile-time.
 * There is an [automatic memory management](https://seed7.net/faq.htm#garbage_collection) that works without a garbage collection process.
+* [Concurrency and parallelism](https://seed7.net/faq.htm#threads_and_concurrency) are achieved with processes, pipes and sockets; there is no thread support.
 * Seed7 is operating system and architecture independent.
 * Seed7 programs are [source code portable](https://seed7.net/faq.htm#portable) without any need to change the code.
 * [Exception handling](https://seed7.net/manual/errors.htm#Exceptions) is supported (e.g. an integer [overflow](https://seed7.net/faq.htm#integer_overflow) raises [OVERFLOW_ERROR](https://seed7.net/manual/errors.htm#OVERFLOW_ERROR)).
