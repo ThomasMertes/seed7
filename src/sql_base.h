@@ -57,3 +57,5 @@ void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
                         const char *file, int line);
 void dllErrorMessage (const char *funcName, const char *dbFuncName,
                       const char *dllList[], memSizeType dllListLength);
+void registerSqlStmt (sqlStmtType sqlStatement);
+void deregisterSqlStmt (sqlStmtType sqlStatement);

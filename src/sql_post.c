@@ -603,6 +603,7 @@ static void freeDatabase (databaseType database)
 
 /**
  *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
  */
 static void closePreparedStmt (sqlStmtType sqlStatement)
 
@@ -636,20 +637,19 @@ static void closePreparedStmt (sqlStmtType sqlStatement)
     if (preparedStmt->execute_result != NULL) {
       PQclear(preparedStmt->execute_result);
     } /* if */
-    if (preparedStmt->db != NULL) {
-      if (preparedStmt->db->connection != NULL) {
-        deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
-        if (unlikely(deallocate_result != NULL)) {
-          /* Ignore possible errors. */
-          PQclear(deallocate_result);
-        } /* if */
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->connection != NULL) {
+      deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
+      if (unlikely(deallocate_result != NULL)) {
+        /* Ignore possible errors. */
+        PQclear(deallocate_result);
       } /* if */
-      if (preparedStmt->db->usage_count != 0) {
-        preparedStmt->db->usage_count--;
-        if (preparedStmt->db->usage_count == 0) {
-          logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
-          freeDatabase((databaseType) preparedStmt->db);
-        } /* if */
+    } /* if */
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
       } /* if */
     } /* if */
     preparedStmt->db = NULL;
@@ -3659,6 +3659,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                 preparedStmt->execute_result = NULL;
                 preparedStmt->fetchOkay = FALSE;
                 preparedStmt->db = db;
+                registerSqlStmt((sqlStmtType) preparedStmt);
                 if (db->usage_count != 0) {
                   db->usage_count++;
                 } /* if */

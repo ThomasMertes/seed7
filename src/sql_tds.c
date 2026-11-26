@@ -408,6 +408,7 @@ static void freeStmtParts (striType *stmtPartArray, memSizeType usedArraySize,
 
 /**
  *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
  */
 static void closePreparedStmt (sqlStmtType sqlStatement)
 
@@ -435,8 +436,8 @@ static void closePreparedStmt (sqlStmtType sqlStatement)
       } /* for */
       FREE_TABLE(preparedStmt->result_array, resultDataRecordTds, preparedStmt->result_array_size);
     } /* if */
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
@@ -2583,6 +2584,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           preparedStmt->dbproc = db->dbproc;
           preparedStmt->stmtPartArray = stmtPartArray;
           preparedStmt->db = db;
+          registerSqlStmt((sqlStmtType) preparedStmt);
           if (db->usage_count != 0) {
             db->usage_count++;
           } /* if */
