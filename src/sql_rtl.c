@@ -1563,6 +1563,13 @@ void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
       /* Do nothing */
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlExecute");
+      logError(printf("sqlExecute(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute == NULL)) {
       dbNoFuncPtr("sqlExecute");
@@ -1599,6 +1606,13 @@ boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
       fetchOkay = FALSE;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlFetch");
+      logError(printf("sqlFetch(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {
       dbNoFuncPtr("sqlFetch");
