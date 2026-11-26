@@ -539,7 +539,7 @@ static void freeDatabase (databaseType database)
 
 
 static void freeDescriptor (preparedStmtType preparedStmt,
-    void *descriptor, uint16Type buffer_type)
+    void *descriptor, uint16Type buffer_type, errInfoType *err_info)
 
   {
     boolean is_temporary;
@@ -559,7 +559,7 @@ static void freeDescriptor (preparedStmtType preparedStmt,
                         preparedStmt->oci_error);
           logError(printf("freeDescriptor: OCILobIsTemporary:\n%s\n",
                           dbError.message););
-          raise_error(DATABASE_ERROR);
+          *err_info = DATABASE_ERROR;
         } else if (is_temporary) {
           if (unlikely(OCILobFreeTemporary(preparedStmt->oci_service_context,
                                            preparedStmt->oci_error,
@@ -568,10 +568,12 @@ static void freeDescriptor (preparedStmtType preparedStmt,
                           preparedStmt->oci_error);
             logError(printf("freeDescriptor: OCILobFreeTemporary:\n%s\n",
                             dbError.message););
-            raise_error(DATABASE_ERROR);
+            *err_info = DATABASE_ERROR;
           } /* if */
         } /* if */
-        OCIDescriptorFree(descriptor, OCI_DTYPE_LOB);  /* Binary LOB or Character LOB */
+        if (likely(*err_info == OKAY_NO_ERROR)) {
+          OCIDescriptorFree(descriptor, OCI_DTYPE_LOB);  /* Binary LOB or Character LOB */
+        } /* if */
         break;
       case SQLT_FILE:
         OCIDescriptorFree(descriptor, OCI_DTYPE_FILE);  /* Binary FILE */
@@ -602,7 +604,8 @@ static void freeDescriptor (preparedStmtType preparedStmt,
 
 
 
-static void freeBindData (preparedStmtType preparedStmt, bindDataType bindData)
+static void freeBindData (preparedStmtType preparedStmt,
+    bindDataType bindData, errInfoType *err_info)
 
   { /* freeBindData */
     /* The bind handle is freed implicitly when the statement handle is deallocated. */
@@ -610,20 +613,23 @@ static void freeBindData (preparedStmtType preparedStmt, bindDataType bindData)
       free(bindData->buffer);
     } /* if */
     if (bindData->descriptor != NULL) {
-      freeDescriptor(preparedStmt, bindData->descriptor, bindData->buffer_type);
+      freeDescriptor(preparedStmt, bindData->descriptor,
+                     bindData->buffer_type, err_info);
     } /* if */
   } /* freeBindData */
 
 
 
-static void freeResultData (preparedStmtType preparedStmt, resultDataType resultData)
+static void freeResultData (preparedStmtType preparedStmt,
+    resultDataType resultData, errInfoType *err_info)
 
   { /* freeResultData */
     if (resultData->column_handle != NULL) {
       OCIDescriptorFree(resultData->column_handle, OCI_DTYPE_PARAM);
     } /* if */
     /* It seems that the define_handle is implicitly freed with the statement handle. */
-    if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
+    if (resultData->buffer != NULL &&
+        resultData->buffer != &resultData->descriptor) {
       if (resultData->buffer_type == SQLT_VST &&
           *(OCIString **) resultData->buffer != NULL) {
         OCIStringResize(preparedStmt->oci_environment,
@@ -634,7 +640,8 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
       free(resultData->buffer);
     } /* if */
     if (resultData->descriptor != NULL) {
-      freeDescriptor(preparedStmt, resultData->descriptor, resultData->buffer_type);
+      freeDescriptor(preparedStmt, resultData->descriptor,
+                     resultData->buffer_type, err_info);
     } /* if */
   } /* freeResultData */
 
@@ -649,6 +656,7 @@ static void closePreparedStmt (sqlStmtType sqlStatement)
   {
     preparedStmtType preparedStmt;
     memSizeType pos;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* closePreparedStmt */
     logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
@@ -656,13 +664,13 @@ static void closePreparedStmt (sqlStmtType sqlStatement)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
-        freeBindData(preparedStmt, &preparedStmt->param_array[pos]);
+        freeBindData(preparedStmt, &preparedStmt->param_array[pos], &err_info);
       } /* for */
       FREE_TABLE(preparedStmt->param_array, bindDataRecordOci, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_array != NULL) {
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
-        freeResultData(preparedStmt, &preparedStmt->result_array[pos]);
+        freeResultData(preparedStmt, &preparedStmt->result_array[pos], &err_info);
       } /* for */
       FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
     } /* if */
@@ -2854,8 +2862,10 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != SQLT_BLOB && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
@@ -3002,8 +3012,10 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != buffer_type && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (buffer_type == SQLT_INTERVAL_YM) {
@@ -3391,8 +3403,10 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != SQLT_TIMESTAMP_TZ && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
