@@ -440,9 +440,9 @@ static void freeDatabase (databaseType database)
 
 
 /**
- *  Closes a prepared statement and frees the memory used by it.
+ *  Closes a prepared statement.
  */
-static void freePreparedStmt (sqlStmtType sqlStatement)
+static void closePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
@@ -451,19 +451,19 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     int numColumns;
     XSQLVAR *var;
 
-  /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->ppStmt != 0) {
-      logMessage(printf("freePreparedStmt: isc_dsql_free_statement\n"););
+      logMessage(printf("closePreparedStmt: isc_dsql_free_statement\n"););
       if (unlikely((isc_dsql_free_statement(status_vector,
                                             &preparedStmt->ppStmt,
                                             DSQL_drop),
                     status_vector[0] == 1 && status_vector[1] != 0))) {
-        setDbErrorMsg("freePreparedStmt", "isc_dsql_free_statement",
+        setDbErrorMsg("closePreparedStmt", "isc_dsql_free_statement",
                       status_vector);
-        logError(printf("freePreparedStmt: isc_dsql_free_statement error:\n%s\n",
+        logError(printf("closePreparedStmt: isc_dsql_free_statement error:\n%s\n",
                         dbError.message););
         raise_error(DATABASE_ERROR);
       } /* if */
@@ -498,6 +498,28 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
         freeDatabase((databaseType) preparedStmt->db);
       } /* if */
     } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
+
+
+
+/**
+ *  Closes a prepared statement and frees the memory used by it.
+ */
+static void freePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+
+  /* freePreparedStmt */
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
+    preparedStmt = (preparedStmtType) sqlStatement;
     FREE_RECORD2(preparedStmt, preparedStmtRecordFire,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
