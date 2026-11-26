@@ -617,13 +617,17 @@ void sqlClose (databaseType database)
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
-                        ((dbType) database)->sqlFunc->sqlClose == NULL)) {
+                        ((dbType) database)->sqlFunc->sqlClose == NULL ||
+                        ((dbType) database)->sqlFunc->closePreparedStmt == NULL)) {
       dbNoFuncPtr("sqlClose");
       logError(printf("sqlClose(" FMT_U_MEM "): "
                       "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else {
+      while (database->sqlStatements != NULL) {
+        ((dbType) database)->sqlFunc->closePreparedStmt(database->sqlStatements);
+      } /* while */
       ((dbType) database)->sqlFunc->sqlClose(database);
     } /* if */
     logFunction(printf("sqlClose -->\n"););
