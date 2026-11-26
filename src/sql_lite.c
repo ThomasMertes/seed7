@@ -65,6 +65,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -78,6 +79,8 @@ typedef struct {
 typedef struct {
     uintType      usage_count;
     dbType        db;
+    sqlStmtType   prevStmt;
+    sqlStmtType   nextStmt;
     sqlFuncType   sqlFunc;
     sqlite3_stmt *ppStmt;
     memSizeType   param_array_size;
@@ -2462,6 +2465,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           memset(database, 0, sizeof(dbRecordLite));
           database->usage_count = 1;
           database->isOpen = TRUE;
+          database->sqlStatements = NULL;
           database->sqlFunc = sqlFunc;
           database->driver     = DB_CATEGORY_SQLITE;
           database->dbCategory = DB_CATEGORY_SQLITE;

@@ -62,6 +62,7 @@
 typedef struct dbStruct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -70,6 +71,8 @@ typedef struct dbStruct {
 typedef struct preparedStmtStruct {
     uintType     usage_count;
     dbType       db;
+    sqlStmtType  prevStmt;
+    sqlStmtType  nextStmt;
     sqlFuncType  sqlFunc;
   } preparedStmtRecord, *preparedStmtType;
 

@@ -64,6 +64,7 @@
 typedef struct {
     uintType      usage_count;
     boolType      isOpen;
+    sqlStmtType   sqlStatements;
     sqlFuncType   sqlFunc;
     int           driver;
     int           dbCategory;
@@ -79,6 +80,8 @@ typedef struct {
 typedef struct {
     uintType        usage_count;
     dbType          db;
+    sqlStmtType     prevStmt;
+    sqlStmtType     nextStmt;
     sqlFuncType     sqlFunc;
     isc_stmt_handle ppStmt;
     XSQLDA         *in_sqlda;
@@ -3901,6 +3904,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                       memset(database, 0, sizeof(dbRecordFire));
                       database->usage_count = 1;
                       database->isOpen = TRUE;
+                      database->sqlStatements = NULL;
                       database->sqlFunc = sqlFunc;
                       database->driver       = DB_CATEGORY_FIREBIRD;
                       database->dbCategory   = DB_CATEGORY_FIREBIRD;

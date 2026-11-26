@@ -67,6 +67,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -108,6 +109,8 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     dbType         db;
+    sqlStmtType    prevStmt;
+    sqlStmtType    nextStmt;
     sqlFuncType    sqlFunc;
     OCIEnv        *oci_environment;
     OCIError      *oci_error;
@@ -5159,6 +5162,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 memset(database, 0, sizeof(dbRecordOci));
                 database->usage_count = 1;
                 database->isOpen = TRUE;
+                database->sqlStatements = NULL;
                 database->sqlFunc = sqlFunc;
                 database->driver              = DB_CATEGORY_OCI;
                 database->dbCategory          = DB_CATEGORY_OCI;

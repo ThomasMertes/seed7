@@ -772,12 +772,15 @@ typedef struct processStruct {
 typedef struct databaseStruct {
     uintType usage_count;
     boolType isOpen;
+    sqlStmtType sqlStatements;
     /* The rest of the structure is only accessible for the driver */
   } databaseRecord;
 
 typedef struct sqlStmtStruct {
     uintType usage_count;
     databaseType db;
+    sqlStmtType prevStmt;
+    sqlStmtType nextStmt;
     /* The rest of the structure is only accessible for the driver */
   } sqlStmtRecord;
 

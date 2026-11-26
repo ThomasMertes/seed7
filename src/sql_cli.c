@@ -34,6 +34,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -86,6 +87,8 @@ typedef struct fetchDataStruct {
 typedef struct {
     uintType        usage_count;
     dbType          db;
+    sqlStmtType     prevStmt;
+    sqlStmtType     nextStmt;
     sqlFuncType     sqlFunc;
     SQLHSTMT        ppStmt;
     memSizeType     param_array_size;
@@ -6614,6 +6617,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       memset(database, 0, sizeof(dbRecordCli));
       database->usage_count = 1;
       database->isOpen = TRUE;
+      database->sqlStatements = NULL;
       database->sqlFunc = sqlFunc;
       database->driver = driver;
       database->dbCategory = determineDbCategory(connection);
