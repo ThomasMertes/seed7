@@ -3566,6 +3566,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
