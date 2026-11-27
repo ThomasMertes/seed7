@@ -1620,6 +1620,7 @@ boolType sqlFetch (sqlStmtType sqlStatement)
                       "Database is not open.\n",
                       (memSizeType) sqlStatement););
       raise_error(DATABASE_ERROR);
+      fetchOkay = FALSE;
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {
       dbNoFuncPtr("sqlFetch");
