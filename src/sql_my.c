@@ -3212,16 +3212,36 @@ databaseType sqlOpenMy (const const_striType host, intType port,
               err_info = MEMORY_ERROR;
               database = NULL;
             } else {
-              if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8") != 0) {
+              if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8mb4") != 0) {
                 logError(printf("sqlOpenMy: Unable to set charset to UTF-8.\n"););
                 err_info = RANGE_ERROR;
                 mysql_close(connection);
+                connection = NULL;
                 database = NULL;
-              } else {
+              } /* if */
+              if (connection != NULL) {
                 /* A host of NULL means "localhost" and a port of 0 means DEFAULT_PORT. */
-                connect_result = mysql_real_connect(connection, host8[0] == '\0' ? NULL : host8,
+                connect_result = mysql_real_connect(connection,
+                                                    host8[0] == '\0' ? NULL : host8,
                                                     user8, password8, dbName8,
                                                     (unsigned int) port, NULL, 0);
+                if (connect_result == NULL) {
+                  if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8") != 0) {
+                    logError(printf("sqlOpenMy: Unable to set charset to UTF-8.\n"););
+                    err_info = RANGE_ERROR;
+                    mysql_close(connection);
+                    connection = NULL;
+                    database = NULL;
+                  } else {
+                    /* A host of NULL means "localhost" and a port of 0 means DEFAULT_PORT. */
+                    connect_result = mysql_real_connect(connection,
+                                                        host8[0] == '\0' ? NULL : host8,
+                                                        user8, password8, dbName8,
+                                                        (unsigned int) port, NULL, 0);
+                  } /* if */
+                } /* if */
+              } /* if */
+              if (connection != NULL) {
                 if (connect_result == NULL) {
                   setDbErrorMsg("sqlOpenMy", "mysql_real_connect",
                                 mysql_errno(connection),
@@ -3234,7 +3254,8 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   err_info = DATABASE_ERROR;
                   mysql_close(connection);
                   database = NULL;
-                } else if (mysql_set_character_set(connection, "utf8") != 0) {
+                } else if (mysql_set_character_set(connection, "utf8mb4") != 0 &&
+                           mysql_set_character_set(connection, "utf8") != 0) {
                   setDbErrorMsg("sqlOpenMy", "mysql_set_character_set",
                                 mysql_errno(connection),
                                 mysql_error(connection));
