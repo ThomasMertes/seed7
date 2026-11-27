@@ -69,4 +69,27 @@ TAGS
 # macOS fork files
 .DS_Store
 
+# Spooky Merge build outputs
+/prg/spooky_merge
+/prg/spooky_merge.exe
+/prg/spooky_merge_test
+/prg/spooky_merge_test.exe
+/prg/spooky_merge.js
+/prg/spooky_merge.wasm
+/prg/spooky_merge.wasm.map
+
+# Emscripten build outputs
+/bin/*.js
+/bin/*.wasm
+/bin/*.wasm.map
+/bin/*_emc.a
+/bin/cc_conf_emcc.prop
+/bin/emcc_env.ini
+/prg/s7.js
+/prg/s7.wasm
+/prg/s7c.js
+/prg/s7c.wasm
+/prg/s7c.wasm.map
+/src/vers_emccl.h
+
 # ----------------------------------------------------------------------------

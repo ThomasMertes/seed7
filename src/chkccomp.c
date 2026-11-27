@@ -2846,6 +2846,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
     fputs("#define INT_DIV_OVERFLOW 1\n", versionFile);
     fputs("#define INT_REM_OVERFLOW 1\n", versionFile);
 #else
+    /* WebAssembly traps signed division overflow before C signals can handle it. */
     sprintf(buffer,
             "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
             "typedef %s int64Type;\n"
@@ -2861,6 +2862,9 @@ static void checkIntDivisionOverflow (FILE *versionFile)
             "signal(SIGABRT,handleSigabrt);\n"
             "#ifdef SIGTRAP\n"
             "signal(SIGTRAP,handleSigtrap);\n"
+            "#endif\n"
+            "#ifdef __EMSCRIPTEN__\n"
+            "puts(\"-1\"); return 0;\n"
             "#endif\n"
             "printf(\"%%d\\n\", minIntValue / minusOne == minIntValue ? 2 : 3);\n"
             "return 0;}\n",

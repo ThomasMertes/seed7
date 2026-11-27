@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="bone" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#fffdf2"/><stop offset=".6" stop-color="#ece3c8"/><stop offset="1" stop-color="#b9ab86"/></linearGradient>
+  <radialGradient id="ember" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5ac8"/><stop offset="1" stop-color="#ff5ac8" stop-opacity="0"/></radialGradient>
+</defs>
+<path d="M512 66 C258 66 112 250 132 470 C142 600 226 668 292 700 L292 820 C292 890 346 934 412 934 L612 934 C678 934 732 890 732 820 L732 700 C798 668 882 600 892 470 C912 250 766 66 512 66 Z" fill="url(#bone)"/>
+<ellipse cx="346" cy="480" rx="112" ry="124" fill="#1b1530" transform="rotate(-8 346 480)"/>
+<ellipse cx="678" cy="480" rx="112" ry="124" fill="#1b1530" transform="rotate(8 678 480)"/>
+<circle cx="346" cy="490" r="60" fill="url(#ember)"/><circle cx="678" cy="490" r="60" fill="url(#ember)"/>
+<path d="M512 590 C540 590 586 672 572 690 C556 708 468 708 452 690 C438 672 484 590 512 590 Z" fill="#1b1530"/>
+<g stroke="#8f8263" stroke-width="16" stroke-linecap="round">
+  <path d="M412 790 L412 900"/><path d="M512 790 L512 910"/><path d="M612 790 L612 900"/>
+</g>
+<path d="M216 400 C226 300 286 206 386 164" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" opacity=".85"/>
+</svg>

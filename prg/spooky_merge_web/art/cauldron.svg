@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="body" x1="0" y1="0" x2="1" y2=".55">
+    <stop offset="0" stop-color="#4a4e68"/>
+    <stop offset=".5" stop-color="#2a2c40"/>
+    <stop offset="1" stop-color="#171825"/>
+  </linearGradient>
+  <linearGradient id="rim" x1="0" x2="1">
+    <stop offset="0" stop-color="#6d7290"/>
+    <stop offset="1" stop-color="#34364c"/>
+  </linearGradient>
+  <linearGradient id="brew" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#b8ff4f"/>
+    <stop offset="1" stop-color="#4fdc33"/>
+  </linearGradient>
+  <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#ffb52e"/>
+    <stop offset="1" stop-color="#ff5a1f"/>
+  </linearGradient>
+  <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+    <stop offset=".62" stop-color="#ff7a24" stop-opacity="0"/>
+    <stop offset="1" stop-color="#ff7a24" stop-opacity=".3"/>
+  </linearGradient>
+  <radialGradient id="bubble" cx="38%" cy="32%" r="72%">
+    <stop offset="0" stop-color="#e2ffa6"/>
+    <stop offset="1" stop-color="#63e338"/>
+  </radialGradient>
+  <filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+    <feGaussianBlur stdDeviation="30"/>
+  </filter>
+</defs>
+
+<!-- One soft glow behind the pot -->
+<ellipse cx="512" cy="330" rx="300" ry="130" fill="#7dff46" opacity=".3" filter="url(#soft)"/>
+
+<ellipse cx="512" cy="900" rx="250" ry="70" fill="#ff6a1f" opacity=".42" filter="url(#soft)"/>
+
+<!-- Handles -->
+<g fill="none" stroke="#34364c" stroke-width="30" stroke-linecap="round">
+  <path d="M176 440 C92 440 92 572 182 566"/>
+  <path d="M848 440 C932 440 932 572 842 566"/>
+</g>
+
+<!-- Pot -->
+<path d="M196 372 C132 500 150 690 276 800 C352 862 672 862 748 800 C874 690 892 500 828 372 Z" fill="url(#body)"/>
+<path d="M196 372 C132 500 150 690 276 800 C352 862 672 862 748 800 C874 690 892 500 828 372 Z" fill="url(#warm)"/>
+<path d="M262 470 C232 560 250 650 306 716" fill="none" stroke="#8c91ad" stroke-width="26" stroke-linecap="round" opacity=".5"/>
+
+<!-- Rim and brew -->
+<ellipse cx="512" cy="368" rx="340" ry="96" fill="url(#rim)"/>
+<ellipse cx="512" cy="368" rx="286" ry="66" fill="url(#brew)"/>
+
+<!-- Three teardrop flames in front of the pot -->
+<path d="M350 782 C359 837 412 857 412 895 C412 931 382 944 350 944 C318 944 288 931 288 895 C288 857 341 837 350 782 Z" fill="url(#flame)"/>
+<path d="M674 782 C683 837 736 857 736 895 C736 931 706 944 674 944 C642 944 612 931 612 895 C612 857 665 837 674 782 Z" fill="url(#flame)"/>
+<path d="M512 716 C525 807 604 839 604 904 C604 963 560 984 512 984 C464 984 420 963 420 904 C420 839 499 807 512 716 Z" fill="url(#flame)"/>
+<path d="M512 824 C519 872 562 889 562 923 C562 955 538 966 512 966 C486 966 462 955 462 923 C462 889 505 872 512 824 Z" fill="#ffe27a"/>
+
+<!-- Bubbles -->
+<circle cx="412" cy="340" r="62" fill="url(#bubble)"/>
+<circle cx="580" cy="300" r="82" fill="url(#bubble)"/>
+<circle cx="490" cy="172" r="42" fill="url(#bubble)"/>
+<circle cx="640" cy="112" r="24" fill="url(#bubble)"/>
+</svg>

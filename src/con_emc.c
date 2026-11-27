@@ -40,6 +40,7 @@
 #include "emscripten.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "fil_rtl.h"
