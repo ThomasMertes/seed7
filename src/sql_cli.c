@@ -4451,10 +4451,13 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
                 if (likely(err_info == OKAY_NO_ERROR)) {
                   if (unlikely(length > SQLLEN_MAX / sizeof(SQLWCHAR))) {
                     /* It is not possible to cast length << 1 to SQLLEN. */
+                    logError(printf("sqlBindStri: Not possible to cast " FMT_U_MEM
+                                    " to int.\n",
+                                    length););
                     free(param->buffer);
                     param->buffer = NULL;
                     param->buffer_capacity = 0;
-                    err_info = MEMORY_ERROR;
+                    err_info = RANGE_ERROR;
                   } else {
                     param->buffer_length = length * sizeof(SQLWCHAR);
                     param->length = (SQLLEN) (length * sizeof(SQLWCHAR));

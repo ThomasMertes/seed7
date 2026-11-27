@@ -550,8 +550,11 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           raise_error(err_info);
         } else if (unlikely(length > INT_MAX)) {
           /* It is not possible to cast length to int. */
+          logError(printf("sqlBindBigInt: Not possible to cast " FMT_U_MEM
+                          " to int.\n",
+                          length););
           free(decimal);
-          raise_error(MEMORY_ERROR);
+          raise_error(RANGE_ERROR);
         } else if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
                                               (int) pos,
                                               (const void *) decimal,
@@ -658,8 +661,11 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           if (precision > DBL_DIG) {
             if (unlikely(length > INT_MAX)) {
               /* It is not possible to cast length to int. */
+              logError(printf("sqlBindBigRat: Not possible to cast " FMT_U_MEM
+                              " to int.\n",
+                              length););
               free(decimal);
-              raise_error(MEMORY_ERROR);
+              raise_error(RANGE_ERROR);
             } else {
               if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
                                              (int) pos,
@@ -777,9 +783,13 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else if (unlikely(bstri->size > INT_MAX ||
-                          !ALLOC_CSTRI(blob, bstri->size))) {
-        /* It is not possible to cast length to int or malloc() failed. */
+      } else if (unlikely(bstri->size > INT_MAX)) {
+        /* It is not possible to cast length to int. */
+        logError(printf("sqlBindBStri: Not possible to cast " FMT_U_MEM
+                        " to int.\n",
+                        length););
+        raise_error(RANGE_ERROR);
+      } else if (unlikely(!ALLOC_CSTRI(blob, bstri->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         memcpy(blob, bstri->mem, bstri->size);
@@ -1098,8 +1108,11 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
         raise_error(MEMORY_ERROR);
       } else if (unlikely(length > INT_MAX)) {
         /* It is not possible to cast length to int. */
+        logError(printf("sqlBindStri: Not possible to cast " FMT_U_MEM
+                        " to int.\n",
+                        length););
         free_cstri8(stri8, stri);
-        raise_error(MEMORY_ERROR);
+        raise_error(RANGE_ERROR);
       } else {
         resized_stri8 = REALLOC_CSTRI(stri8, length);
         if (likely(resized_stri8 != NULL)) {

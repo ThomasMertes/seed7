@@ -1609,8 +1609,11 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           if (likely(decimalNumber != NULL)) {
             if (unlikely(length > INT_MAX)) {
               /* It is not possible to cast length to int. */
+              logError(printf("sqlBindBigInt: Not possible to cast " FMT_U_MEM
+                              " to int.\n",
+                              length););
               free(decimalNumber);
-              err_info = MEMORY_ERROR;
+              err_info = RANGE_ERROR;
             } else {
               free(param->buffer);
               param->buffer = decimalNumber;
@@ -1680,8 +1683,11 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           if (likely(decimalNumber != NULL)) {
             if (unlikely(length > INT_MAX)) {
               /* It is not possible to cast length to int. */
+              logError(printf("sqlBindBigRat: Not possible to cast " FMT_U_MEM
+                              " to int.\n",
+                              length););
               free(decimalNumber);
-              err_info = MEMORY_ERROR;
+              err_info = RANGE_ERROR;
             } else {
               free(param->buffer);
               param->buffer = decimalNumber;
@@ -2170,8 +2176,11 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
             err_info = MEMORY_ERROR;
           } else if (unlikely(length > INT_MAX)) {
             /* It is not possible to cast length to int. */
+            logError(printf("sqlBindStri: Not possible to cast " FMT_U_MEM
+                            " to int.\n",
+                            length););
             free(stri8);
-            err_info = MEMORY_ERROR;
+            err_info = RANGE_ERROR;
           } else {
             resized_stri8 = REALLOC_CSTRI(stri8, length);
             if (likely(resized_stri8 != NULL)) {

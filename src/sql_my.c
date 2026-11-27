@@ -1479,8 +1479,11 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
         raise_error(MEMORY_ERROR);
       } else if (unlikely(length > ULONG_MAX)) {
         /* It is not possible to cast length to unsigned long. */
+        logError(printf("sqlBindStri: Not possible to cast " FMT_U_MEM
+                        " to unsigned long.\n",
+                        length););
         free(stri8);
-        raise_error(MEMORY_ERROR);
+        raise_error(RANGE_ERROR);
       } else {
         resized_stri8 = REALLOC_CSTRI(stri8, length);
         if (likely(resized_stri8 != NULL)) {

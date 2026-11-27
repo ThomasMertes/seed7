@@ -3310,8 +3310,11 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
         raise_error(MEMORY_ERROR);
       } else if (unlikely(length > INT32TYPE_MAX)) {
         /* It is not possible to cast length to sb4. */
+        logError(printf("sqlBindStri: Not possible to cast " FMT_U_MEM
+                        " to int32Type.\n",
+                        length););
         free(stri8);
-        raise_error(MEMORY_ERROR);
+        raise_error(RANGE_ERROR);
       } else {
         resized_stri8 = REALLOC_CSTRI(stri8, length);
         if (likely(resized_stri8 != NULL)) {
