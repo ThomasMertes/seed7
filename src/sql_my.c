@@ -2621,7 +2621,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {

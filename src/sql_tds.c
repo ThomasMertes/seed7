@@ -2420,7 +2420,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     boundStatement = getBoundStatement(preparedStmt, &err_info);
     if (unlikely(boundStatement == NULL)) {
       if (err_info == RANGE_ERROR) {
-        dbLibError("sqlExecute", "SQLExecute",
+        dbLibError("sqlExecute", "sqlExecute",
                    "Unbound statement parameter(s).\n");
         raise_error(DATABASE_ERROR);
       } else {

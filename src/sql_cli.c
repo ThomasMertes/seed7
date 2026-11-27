@@ -5907,7 +5907,7 @@ static errInfoType doExecute (sqlStmtType sqlStatement)
     preparedStmt = (preparedStmtType) sqlStatement;
     /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("doExecute", "SQLExecute",
+      dbLibError("doExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       err_info = DATABASE_ERROR;
     } else {
@@ -5998,7 +5998,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      dbLibError("sqlFetch", "SQLExecute",
+      dbLibError("sqlFetch", "sqlExecute",
                  "Execute was not successful.\n");
       logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;

@@ -3126,7 +3126,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
@@ -3190,7 +3190,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      dbLibError("sqlFetch", "SQLExecute",
+      dbLibError("sqlFetch", "sqlExecute",
                  "Execute was not successful.\n");
       logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;
