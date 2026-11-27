@@ -31,6 +31,7 @@
 
 typedef struct {
     void (*freeDatabase) (databaseType database);
+    void (*closePreparedStmt) (sqlStmtType sqlStatement);
     void (*freePreparedStmt) (sqlStmtType sqlStatement);
     intType (*sqlAffectedRows) (sqlStmtType sqlStatement);
     void (*sqlBindBigInt) (sqlStmtType sqlStatement, intType pos,

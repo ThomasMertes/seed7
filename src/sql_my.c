@@ -64,6 +64,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -85,6 +86,8 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     dbType         db;
+    sqlStmtType    prevStmt;
+    sqlStmtType    nextStmt;
     sqlFuncType    sqlFunc;
     MYSQL_STMT    *ppStmt;
     memSizeType    param_array_size;
@@ -342,16 +345,17 @@ static void freeDatabase (databaseType database)
 
 
 /**
- *  Closes a prepared statement and frees the memory used by it.
+ *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
  */
-static void freePreparedStmt (sqlStmtType sqlStatement)
+static void closePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
     memSizeType pos;
 
-  /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
@@ -371,14 +375,36 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_data_array, resultDataRecordMy, preparedStmt->result_array_size);
     } /* if */
     mysql_stmt_close(preparedStmt->ppStmt);
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
         freeDatabase((databaseType) preparedStmt->db);
       } /* if */
     } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
+
+
+
+/**
+ *  Closes a prepared statement and frees the memory used by it.
+ */
+static void freePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+
+  /* freePreparedStmt */
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
+    preparedStmt = (preparedStmtType) sqlStatement;
     FREE_RECORD2(preparedStmt, preparedStmtRecordMy,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -620,6 +646,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_SHORT:
+      case MYSQL_TYPE_YEAR:
         buffer_length = 2;
         resultData->length = NULL;
         break;
@@ -652,6 +679,17 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         printf("MYSQL_TYPE_NEWDECIMAL: column->decimals = %d\n", column->decimals); */
         buffer_length = column->length;
         resultData->length = &resultData->length_value;
+        break;
+      case MYSQL_TYPE_BIT:
+        if (unlikely(column->length < 1 || column->length > 64)) {
+          logError(printf("setupResultColumn: Column %s: "
+                          "Bit length (%lu) not in allowed range (1 .. 64).\n",
+                          column->name, column->length););
+          err_info = RANGE_ERROR;
+        } else {
+          buffer_length = (column->length + 7) / 8;
+          resultData->length = &resultData->length_value;
+        } /* if */
         break;
       case MYSQL_TYPE_TIME:
       case MYSQL_TYPE_DATE:
@@ -701,18 +739,22 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         /* distinguishing BLOB types from TEXT types. */
         preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } else {
+#if MALLOC_OF_0_RETURNS_NULL
         if (buffer_length == 0) {
           resultData->buffer = malloc(1);
         } else {
           resultData->buffer = malloc(buffer_length);
         } /* if */
+#else
+        resultData->buffer = malloc(buffer_length);
+#endif
         if (unlikely(resultData->buffer == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
           resultData->buffer_type   = column->type;
           resultData->buffer_length = (unsigned long) buffer_length;
-          resultData->is_unsigned   = 0;
-          resultData->is_null = &resultData->is_null_value;
+          resultData->is_unsigned   = (column->flags & UNSIGNED_FLAG) != 0;
+          resultData->is_null       = &resultData->is_null_value;
           resultData->is_null_value = 0;
           preparedStmt->result_data_array[column_num - 1].name = column->name;
           /* A charsetnr value of 63 indicates that the          */
@@ -794,6 +836,21 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
     } /* for */
     return okay;
   } /* allParametersBound */
+
+
+
+static uint64Type getBitField (const_ustriType data, unsigned long length)
+
+  {
+    unsigned long pos;
+    uint64Type value = 0;
+
+  /* getBitField */
+    for (pos = 0; pos < length; pos++) {
+      value = (value << 8) | data[pos];
+    } /* for */
+    return value;
+  } /* getBitField */
 
 
 
@@ -1590,27 +1647,53 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = bigFromInt32((int32Type)
-                *(int8Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32((uint32Type)
+                  *(uint8Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32((int32Type)
+                  *(int8Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = bigFromInt32((int32Type)
-                *(int16Type *) columnData->buffer);
+          case MYSQL_TYPE_YEAR:
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32((uint32Type)
+                  *(uint16Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32((int32Type)
+                  *(int16Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = bigFromInt32(
-                *(int32Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt32(
+                  *(uint32Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt32(
+                  *(int32Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = bigFromInt64(
-                *(int64Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              columnValue = bigFromUInt64(
+                  *(uint64Type *) columnData->buffer);
+            } else {
+              columnValue = bigFromInt64(
+                  *(int64Type *) columnData->buffer);
+            } /* if */
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
             columnValue = bigFromDecimalBuffer(
                 columnData->length_value,
                 (const_ustriType) columnData->buffer, NULL);
+            break;
+          case MYSQL_TYPE_BIT:
+            columnValue = bigFromUInt64(getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value));
             break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
@@ -1660,24 +1743,45 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            *numerator = bigFromInt32((int32Type)
-                *(int8Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32((uint32Type)
+                  *(uint8Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32((int32Type)
+                  *(int8Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_SHORT:
-            *numerator = bigFromInt32((int32Type)
-                *(int16Type *) columnData->buffer);
+          case MYSQL_TYPE_YEAR:
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32((uint32Type)
+                  *(uint16Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32((int32Type)
+                  *(int16Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            *numerator = bigFromInt32(
-                *(int32Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt32(
+                  *(uint32Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt32(
+                  *(int32Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_LONGLONG:
-            *numerator = bigFromInt64(
-                *(int64Type *) columnData->buffer);
+            if (columnData->is_unsigned) {
+              *numerator = bigFromUInt64(
+                  *(uint64Type *) columnData->buffer);
+            } else {
+              *numerator = bigFromInt64(
+                  *(int64Type *) columnData->buffer);
+            } /* if */
             *denominator = bigFromInt32(1);
             break;
           case MYSQL_TYPE_FLOAT:
@@ -1713,6 +1817,12 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               raise_error(err_info);
             } /* if */
+            break;
+          case MYSQL_TYPE_BIT:
+            *numerator = bigFromUInt64(getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value));
+            *denominator = bigFromInt32(1);
             break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
@@ -1771,6 +1881,11 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_LONGLONG:
             columnValue = *(int64Type *) columnData->buffer;
+            break;
+          case MYSQL_TYPE_BIT:
+            columnValue = (int64Type) getBitField(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value);
             break;
           case MYSQL_TYPE_STRING:
           case MYSQL_TYPE_VAR_STRING:
@@ -2048,17 +2163,34 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = (floatType) *(int8Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint8Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int8Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = (floatType) *(int16Type *) columnData->buffer;
+          case MYSQL_TYPE_YEAR:
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint16Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int16Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = (floatType) *(int32Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint32Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int32Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = (floatType) *(int64Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = (floatType) *(uint64Type *) columnData->buffer;
+            } else {
+              columnValue = (floatType) *(int64Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_FLOAT:
             columnValue = *(float *) columnData->buffer;
@@ -2083,6 +2215,11 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
             columnValue = getDecimalFloat(
+                (const_ustriType) columnData->buffer,
+                columnData->length_value);
+            break;
+          case MYSQL_TYPE_BIT:
+            columnValue = (floatType) getBitField(
                 (const_ustriType) columnData->buffer,
                 columnData->length_value);
             break;
@@ -2131,23 +2268,76 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
                           nameOfBufferType(columnData->buffer_type)););
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_TINY:
-            columnValue = *(int8Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              columnValue = *(uint8Type *) columnData->buffer;
+            } else {
+              columnValue = *(int8Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_SHORT:
-            columnValue = *(int16Type *) columnData->buffer;
+          case MYSQL_TYPE_YEAR:
+            if (columnData->is_unsigned) {
+              columnValue = *(uint16Type *) columnData->buffer;
+            } else {
+              columnValue = *(int16Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_INT24:
           case MYSQL_TYPE_LONG:
-            columnValue = *(int32Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+#if INTTYPE_SIZE == 32
+              if (unlikely(*(uint32Type *) columnData->buffer > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U32 " does not fit into an integer.\n",
+                                column, *(uint32Type *) columnData->buffer););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) *(uint32Type *) columnData->buffer;
+              } /* if */
+#else
+              columnValue = *(uint32Type *) columnData->buffer;
+#endif
+            } else {
+              columnValue = *(int32Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_LONGLONG:
-            columnValue = *(int64Type *) columnData->buffer;
+            if (columnData->is_unsigned) {
+              if (unlikely(*(uint64Type *) columnData->buffer > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U64 " does not fit into an integer.\n",
+                                column, *(uint64Type *) columnData->buffer););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) *(uint64Type *) columnData->buffer;
+              } /* if */
+            } else {
+              columnValue = *(int64Type *) columnData->buffer;
+            } /* if */
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
             columnValue = getDecimalInt(
                 (const_ustriType) columnData->buffer,
                 columnData->length_value);
+            break;
+          case MYSQL_TYPE_BIT:
+            {
+              uint64Type bitValue = getBitField(
+                  (const_ustriType) columnData->buffer,
+                  columnData->length_value);
+              if (unlikely(bitValue > INTTYPE_MAX)) {
+                logError(printf("sqlColumnInt: Column " FMT_D ": "
+                                FMT_U64 " does not fit into an integer.\n",
+                                column, bitValue););
+                raise_error(RANGE_ERROR);
+                columnValue = 0;
+              } else {
+                columnValue = (intType) bitValue;
+              } /* if */
+            }
             break;
           default:
             logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",
@@ -2452,7 +2642,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
@@ -2682,6 +2872,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                 preparedStmt->fetchOkay = FALSE;
                 preparedStmt->fetchFinished = TRUE;
                 preparedStmt->db = db;
+                registerSqlStmt((sqlStmtType) preparedStmt);
                 if (db->usage_count != 0) {
                   db->usage_count++;
                 } /* if */
@@ -2919,6 +3110,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlAffectedRows    = &sqlAffectedRows;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
@@ -3043,16 +3235,36 @@ databaseType sqlOpenMy (const const_striType host, intType port,
               err_info = MEMORY_ERROR;
               database = NULL;
             } else {
-              if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8") != 0) {
+              if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8mb4") != 0) {
                 logError(printf("sqlOpenMy: Unable to set charset to UTF-8.\n"););
                 err_info = RANGE_ERROR;
                 mysql_close(connection);
+                connection = NULL;
                 database = NULL;
-              } else {
+              } /* if */
+              if (connection != NULL) {
                 /* A host of NULL means "localhost" and a port of 0 means DEFAULT_PORT. */
-                connect_result = mysql_real_connect(connection, host8[0] == '\0' ? NULL : host8,
+                connect_result = mysql_real_connect(connection,
+                                                    host8[0] == '\0' ? NULL : host8,
                                                     user8, password8, dbName8,
                                                     (unsigned int) port, NULL, 0);
+                if (connect_result == NULL) {
+                  if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8") != 0) {
+                    logError(printf("sqlOpenMy: Unable to set charset to UTF-8.\n"););
+                    err_info = RANGE_ERROR;
+                    mysql_close(connection);
+                    connection = NULL;
+                    database = NULL;
+                  } else {
+                    /* A host of NULL means "localhost" and a port of 0 means DEFAULT_PORT. */
+                    connect_result = mysql_real_connect(connection,
+                                                        host8[0] == '\0' ? NULL : host8,
+                                                        user8, password8, dbName8,
+                                                        (unsigned int) port, NULL, 0);
+                  } /* if */
+                } /* if */
+              } /* if */
+              if (connection != NULL) {
                 if (connect_result == NULL) {
                   setDbErrorMsg("sqlOpenMy", "mysql_real_connect",
                                 mysql_errno(connection),
@@ -3065,7 +3277,8 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   err_info = DATABASE_ERROR;
                   mysql_close(connection);
                   database = NULL;
-                } else if (mysql_set_character_set(connection, "utf8") != 0) {
+                } else if (mysql_set_character_set(connection, "utf8mb4") != 0 &&
+                           mysql_set_character_set(connection, "utf8") != 0) {
                   setDbErrorMsg("sqlOpenMy", "mysql_set_character_set",
                                 mysql_errno(connection),
                                 mysql_error(connection));
@@ -3084,6 +3297,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   memset(database, 0, sizeof(dbRecordMy));
                   database->usage_count = 1;
                   database->isOpen = TRUE;
+                  database->sqlStatements = NULL;
                   database->sqlFunc = sqlFunc;
                   database->driver     = DB_CATEGORY_MYSQL;
                   database->dbCategory = DB_CATEGORY_MYSQL;

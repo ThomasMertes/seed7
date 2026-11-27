@@ -62,6 +62,7 @@
 typedef struct dbStruct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -70,6 +71,8 @@ typedef struct dbStruct {
 typedef struct preparedStmtStruct {
     uintType     usage_count;
     dbType       db;
+    sqlStmtType  prevStmt;
+    sqlStmtType  nextStmt;
     sqlFuncType  sqlFunc;
   } preparedStmtRecord, *preparedStmtType;
 
@@ -645,13 +648,17 @@ void sqlClose (databaseType database)
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else if (unlikely(((dbType) database)->sqlFunc == NULL ||
-                        ((dbType) database)->sqlFunc->sqlClose == NULL)) {
+                        ((dbType) database)->sqlFunc->sqlClose == NULL ||
+                        ((dbType) database)->sqlFunc->closePreparedStmt == NULL)) {
       dbNoFuncPtr("sqlClose");
       logError(printf("sqlClose(" FMT_U_MEM "): "
                       "Function pointer missing.\n",
                       (memSizeType) database););
       raise_error(DATABASE_ERROR);
     } else {
+      while (database->sqlStatements != NULL) {
+        ((dbType) database)->sqlFunc->closePreparedStmt(database->sqlStatements);
+      } /* while */
       ((dbType) database)->sqlFunc->sqlClose(database);
     } /* if */
     logFunction(printf("sqlClose -->\n"););
@@ -1594,6 +1601,13 @@ void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
       /* Do nothing */
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlExecute");
+      logError(printf("sqlExecute(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute == NULL)) {
       dbNoFuncPtr("sqlExecute");
@@ -1629,6 +1643,14 @@ boolType sqlFetch (sqlStmtType sqlStatement)
     logFunction(printf("sqlFetch(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     if (sqlStatement == NULL) {
+      fetchOkay = FALSE;
+    } else if (unlikely(sqlStatement->db == NULL ||
+                        !sqlStatement->db->isOpen)) {
+      dbNotOpen("sqlFetch");
+      logError(printf("sqlFetch(" FMT_U_MEM "): "
+                      "Database is not open.\n",
+                      (memSizeType) sqlStatement););
+      raise_error(DATABASE_ERROR);
       fetchOkay = FALSE;
     } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                         ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {

@@ -118,3 +118,43 @@ void dllErrorMessage (const char *funcName, const char *dbFuncName,
       UNALLOC_CSTRI(dllNames, dllNamesSize);
     } /* if */
   } /* dllErrorMessage */
+
+
+
+/**
+ *  Register a prepared statement at the database connection.
+ *  The caller must assure sqlStatement != NULL && sqlStatement->db != NULL
+ *  The caller must assure that a sqlStatement is just registered once.
+ */
+void registerSqlStmt (sqlStmtType sqlStatement)
+
+  { /* registerSqlStmt */
+    sqlStatement->prevStmt = NULL;
+    sqlStatement->nextStmt = sqlStatement->db->sqlStatements;
+    if (sqlStatement->db->sqlStatements != NULL) {
+      sqlStatement->nextStmt->prevStmt = sqlStatement;
+    } /* if */
+    sqlStatement->db->sqlStatements = sqlStatement;
+  } /* registerSqlStmt */
+
+
+
+/**
+ *  Deregister a prepared statement from the database connection.
+ *  The caller must assure sqlStatement != NULL && sqlStatement->db != NULL
+ *  The caller must assure that a sqlStatement is just deregistered once.
+ */
+void deregisterSqlStmt (sqlStmtType sqlStatement)
+
+  { /* deregisterSqlStmt */
+    if (sqlStatement->prevStmt == NULL) {
+      sqlStatement->db->sqlStatements = sqlStatement->nextStmt;
+    } else {
+      sqlStatement->prevStmt->nextStmt = sqlStatement->nextStmt;
+    } /* if */
+    if (sqlStatement->nextStmt != NULL) {
+      sqlStatement->nextStmt->prevStmt = sqlStatement->prevStmt;
+    } /* if */
+    sqlStatement->prevStmt = NULL;
+    sqlStatement->nextStmt = NULL;
+  } /* deregisterSqlStmt */

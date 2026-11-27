@@ -138,6 +138,8 @@ typedef struct {
 #define MYSQL_NO_DATA        100
 #define MYSQL_DATA_TRUNCATED 101
 
+#define UNSIGNED_FLAG 32
+
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall

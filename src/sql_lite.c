@@ -65,6 +65,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -78,6 +79,8 @@ typedef struct {
 typedef struct {
     uintType      usage_count;
     dbType        db;
+    sqlStmtType   prevStmt;
+    sqlStmtType   nextStmt;
     sqlFuncType   sqlFunc;
     sqlite3_stmt *ppStmt;
     memSizeType   param_array_size;
@@ -323,6 +326,37 @@ static void freeDatabase (databaseType database)
 
 
 /**
+ *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
+ */
+static void closePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    preparedStmt = (preparedStmtType) sqlStatement;
+    if (preparedStmt->param_array != NULL) {
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordLite, preparedStmt->param_array_size);
+    } /* if */
+    sqlite3_finalize(preparedStmt->ppStmt);
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
+    } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
+
+
+
+/**
  *  Closes a prepared statement and frees the memory used by it.
  */
 static void freePreparedStmt (sqlStmtType sqlStatement)
@@ -333,19 +367,11 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
   /* freePreparedStmt */
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (preparedStmt->param_array != NULL) {
-      FREE_TABLE(preparedStmt->param_array, bindDataRecordLite, preparedStmt->param_array_size);
-    } /* if */
-    sqlite3_finalize(preparedStmt->ppStmt);
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
-      preparedStmt->db->usage_count--;
-      if (preparedStmt->db->usage_count == 0) {
-        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
-        freeDatabase((databaseType) preparedStmt->db);
-      } /* if */
-    } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordLite,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -1923,7 +1949,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       logError(printf("sqlExecute: Unbound statement parameter(s).\n"););
       raise_error(DATABASE_ERROR);
@@ -2134,6 +2160,7 @@ static sqlStmtType sqlPrepare (databaseType database,
               preparedStmt->fetchOkay = FALSE;
               preparedStmt->fetchFinished = TRUE;
               preparedStmt->db = db;
+              registerSqlStmt((sqlStmtType) preparedStmt);
               if (db->usage_count != 0) {
                 db->usage_count++;
               } /* if */
@@ -2279,6 +2306,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
@@ -2440,6 +2468,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           memset(database, 0, sizeof(dbRecordLite));
           database->usage_count = 1;
           database->isOpen = TRUE;
+          database->sqlStatements = NULL;
           database->sqlFunc = sqlFunc;
           database->driver     = DB_CATEGORY_SQLITE;
           database->dbCategory = DB_CATEGORY_SQLITE;

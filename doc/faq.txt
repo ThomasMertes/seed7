@@ -150,7 +150,7 @@ language tries to avoid such hard-coded constructs in normal programs.
 Extensible programming was an area of active research in the 1960s,
 but in the 1970s the extensibility movement was displaced by the
 abstraction movement. Today's software history gives almost no hint
-that the extensible languages movement had ever occurred. In the
+that the extensible languages movement occurred. In the
 historical movement an extensible programming language consisted of
 a base language providing elementary computing facilities, and a
 meta-language capable of modifying the base language. A program then
@@ -202,7 +202,7 @@ should be no need to call foreign C functions, or to execute shell
       drive letters and different path delimiters.
  - Differences between Unix sockets and winsockets are hidden and
    a Seed7 socket is a file (as in Unix). The type pollData allows
-   to wait until a socket is ready to read or write data. TLS/SSL
+   the program to wait until a socket is ready to read or write data. TLS/SSL
    and higher level protocols such as HTTP, HTTPS, FTP
    and SMTP are also supported.
  - The library keybd.s7i defines the file KEYBOARD, which supports
@@ -246,7 +246,7 @@ There is no restriction on the license of your Seed7 programs.
 
 For the development of the Seed7 compiler it will be necessary to move some
 source code from the s7 interpreter (under GPL) to the Seed7 runtime library
-(under LGPL). This will only be done to for the Seed7 runtime library and only
+(under LGPL). This will only be done for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
 
@@ -762,6 +762,7 @@ The following options are recognized by s7:
   -d   Equivalent to -da
   -i   Show the identifier table after the analysis phase.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
+  -n   No limit on the number of errors displayed (default: 10).
   -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
        statistics are suppressed.
@@ -818,6 +819,7 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option -g-debug_c can be used.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
+  -n   No limit on the number of errors displayed (default: 10).
   -ocn Optimize generated C code with level n. E.g.: -oc3
        The level n is a digit between 0 and 3:
          0 Do no optimizations with constants.
@@ -871,7 +873,7 @@ Syntax highlighting is available for several editors:
  - For the Nano editor there is seed7/doc/seed7.nanorc and
    nano-syntax-highlighting/seed7.nanorc. You can copy this file to
    '/usr/share/nano' (you might need superuser privileges to do that).
-   Arch-user can install package nano-syntax-highlighting or
+   Arch-users can install package nano-syntax-highlighting or
    nano-syntax-highlighting-git.
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
@@ -902,8 +904,8 @@ keywords. So the list of keywords defined in the standard libraries can be used.
    include inout is key len local new of otherwise param raise range ref
    repeat result return set step struct sub syntax system then to until val
    var varfunc when while
- - Keywords which introduce statements are: assert block case for global if include
-   raise repeat syntax system while
+ - Keywords which introduce statements are: assert block case for global if
+   include raise repeat syntax system while
  - Keywords which are used in the middle of statements are: catch do downto
    else elsif end exception key of otherwise range step then to until when
  - Keywords which introduce declarations are: const in inout ref val var
@@ -912,9 +914,9 @@ keywords. So the list of keywords defined in the standard libraries can be used.
  - Keywords which are used in expressions are: default fixLen len
  - Keywords which are used in type expression are: array enum func hash new of
    set struct sub varfunc
- - Keywords which are used as operator symbols are: and conj conv digits div
-   exp in lpad lapd0 mdiv mod mult not or parse radix RADIX rem rpad sci times
-   varConv
+ - Keywords which are used as operator symbols are: and ceilDiv conj conv
+   digits div exp in lpad lapd0 mdiv mod mult not or parse radix RADIX
+   rem rpad sci times varConv
  - Special identifiers like := are sequences of special characters.
  - Predefined assignment operators are: := +:= -:= *:= /:= <<:= >>:= &:= |:=
    ><:= @:=
@@ -923,15 +925,15 @@ keywords. So the list of keywords defined in the standard libraries can be used.
  - Predefined types are: array bigInteger bigRational bin32 bin64 bitset
    boolean bstring category char clib_file color complex creator database
    destroyer duration enum expr file fileSys float func hash integer listener
-   object parseError pollData proc process program rational reference ref_list
-   set sqlStatement string struct structElement text time type varfunc void
-   PRIMITIVE_WINDOW
+   object parseError pixel pointList pollData proc process program rational
+   reference ref_list set sqlStatement string struct structElement text time
+   type varfunc void PRIMITIVE_WINDOW
  - Predefined constants are: E empty EOF FALSE Infinity NaN NIL PI TRUE
  - Predefined variables are: CONSOLE_KEYBOARD GRAPH_KEYBOARD IN KEYBOARD OUT
    STD_CONSOLE STD_ERR STD_IN STD_NULL STD_OUT
- - Predefined exceptions are: ASSERTION_ERROR DATABASE_ERROR FILE_ERROR GRAPHIC_ERROR
-   ILLEGAL_ACTION INDEX_ERROR MEMORY_ERROR NUMERIC_ERROR OVERFLOW_ERROR
-   RANGE_ERROR
+ - Predefined exceptions are: ASSERTION_ERROR DATABASE_ERROR FILE_ERROR
+   GRAPHIC_ERROR ILLEGAL_ACTION INDEX_ERROR MEMORY_ERROR NUMERIC_ERROR
+   OVERFLOW_ERROR RANGE_ERROR
  - The syntax of literals and comments is described with the Backus Naur Form.
    Note that the character # is used for line comments and inside of
    based integer literals (e.g.: 16#beef).
@@ -1013,7 +1015,7 @@ and function name:
   252750    9859393    complex.s7i(230)       +:=
   122427    160801     draw.s7i(95)           point
   7500      1          draw.s7i(638)          getPixmap
-  4506      161500     draw.s7i(43)           colorPixel
+  4506      161500     draw.s7i(43)           pixel
   4501      160801     complex.s7i(176)       +
   4413      160801     complex.s7i(48)        complex
   633       1          draw.s7i(61)           screen
@@ -1052,7 +1054,7 @@ Seed7 is a case sensitive language. This has several advantages:
    identifier. E.g.: Identifiers in all upper case are used by global
    constants.
  - Case sensitive identifier lookup is simpler and faster. Since a
-   significant time is spent for identifier lookups compilations will
+   significant time is spent on identifier lookups compilations will
    speed up.
 
 
@@ -1220,19 +1222,23 @@ mandatory.
 Isn't the code unreadable if everybody invents new statements?
 ==============================================================
 
-There are lots of possibilities to write unreadable code without using the
-extension features of Seed7. The programmer is (as always) responsible to write
-readable programs. The variable/type/function names and other things chosen by
-the programmer can always lead to obfuscated code.
+There are many ways to write unreadable code without using the extension
+features of Seed7. Poor naming choices, convoluted logic, and bad architecture
+can ruin a codebase in any language. The programmer is (as always) responsible
+for writing readable programs.
+
+Programmers can introduce functions and this can create unreadable code for
+other developers as well. Yet no one argues that programming languages should
+ban functions.
 
 Defining new statements and operators is a feature which should not be used in
-every program by every programmer. It is a feature which allows experienced
-programmers, to write libraries which use statement or operator syntax instead
+every program by every programmer. It is a feature that allows experienced
+programmers to write libraries which use statement or operator syntax instead
 of function syntax, in areas where such a notation is already accepted practice.
 
 Statements to access a database or operators for vector arithmetic would be such
-an example. Another example is a construct which can be used in the definition of
-text adventure games.
+an example. A third example is a construct which can be used in the definition
+of text adventure games.
 
 The possibility to define statements also allows a more precise language
 definition. The for/while/if statements of C++ are described in the C++ manuals
@@ -1253,10 +1259,10 @@ For example:
       end if;
     end func;
 
-The syntax and semantic of a while-statement is described using an if-statement
+The semantics of a while-statement are described using an if-statement
 and recursion. For performance reasons the implementation will usually use a
-different approach to implement a while-loop, but this example shows the expressive
-power of Seed7.
+different approach to implement a while-loop, but this example demonstrates the
+expressive power of Seed7.
 
 
 Hasn't Lisp already user defined statements and operators?
@@ -1408,8 +1414,8 @@ Seed7 triggers the error:
 
 Now assume we use a different language. The + could be an addition or
 a string concatenetion. So we need to know the type of a to determine
-what the + does. We can check occurances of a for hints. Now assume
-that the only other occurance is
+what the + does. We can check occurrences of a for hints. Now assume
+that the only other occurrence is
 
   a := aFunction();
 
@@ -1509,7 +1515,7 @@ readability. E.g.: If you prefer statements using braces it is harder to read
 statements using keywords instead and vice versa. But you can get accustomed
 to such syntactic things and then they don't hinder readability anymore.
 
-Readability is not just about syntax. Other things do effect
+Readability is not just about syntax. Other things affect
 readability as well. In some languages the information is scattered,
 and the reader needs considerable time to gather the information.
 
@@ -1570,7 +1576,7 @@ Why does a local type declaration trigger an error?
 
   A 'local' declaration block is parsed completely before it is executed.
   This causes that 'type' declarations inside of a 'local' declaration block
-  are not defined during the parsing. This errors are avoided, if 'type'
+  are not defined during the parsing. These errors are avoided if 'type'
   declarations are made at the top level. E.g.:
 
     const type: intArrayType is array integer;
@@ -1958,7 +1964,7 @@ What is a result variable?
 
 A result variable is a specific local variable used as function result.
 If no assignment to the result variable is done the initialization value
-of the result value is the function result.
+of the result variable is the function result.
 
 Result variables are declared in 'func ... end func' constructs after
 the keyword 'result'. E.g.:
@@ -1981,8 +1987,8 @@ type 'integer' is 64-bit signed, smaller integer types do not exist. Today's
 computers have 64-bit processors. Some processors do not have instructions
 for all the smaller integer types. On such computers, smaller integers must
 be converted into larger integers in order to do computations. So programs
-that use smaller integers might actually be slower because of this. Today
-computers' memory covers many gigabytes, so the pressure to save memory is
+that use smaller integers might actually be slower because of this. Today's
+computer memory covers many gigabytes, so the pressure to save memory is
 also gone. If you prefer arrays with smaller integers, because they fit into
 the cache, you should probably stick with C or some other lower level
 language. Seed7 tries to stay above this low level thinking.
@@ -2053,7 +2059,7 @@ The usage of UTF-32 for strings in a program has several advantages:
    save memory by examining strings.
  - An UTF-32 string can also hold Ascii, Latin-1, UTF-8 or UTF-16 encoded
    strings. An UTF-32 string can even hold characters from a code page.
-   Of cause it is necessary to know the encoding of such strings. The
+   Of course it is necessary to know the encoding of such strings. The
    possibility to hold all this encodings is an advantage that only UTF-32
    offers.
 
@@ -2125,12 +2131,12 @@ following list:
 It should be obvious: The number one has been invented as starting point
 to count something. The first character in this sentence is T not h. So the
 question is: Why does everybody believe that in computer science the first
-character has the index 0? Basically this origins in the language C. Arrays
-and strings in C are viewed as pointer + offset. So it is natural that the
-first offset is 0. From C this concept spread to many other programming
+character has the index 0? Basically, this has its origins in the language C.
+Arrays and strings in C are viewed as pointer + offset. So it is natural that
+the first offset is 0. From C this concept spread to many other programming
 languages. Seed7 breaks with this tradition as it uses the number one again
 for the purpose it has been invented, thousands of years ago, long before
-zero has been introduced.
+zero was introduced.
 
 
 Are arrays indexed from one?
@@ -2176,7 +2182,7 @@ of the type. E.g.:
   const type: keccakStateType is array [0 .. 24] bin64; # minimum index is 0 and maximum index is 24
 
 Neither minimum index nor maximum index nor the size of a fixed size
-'array' can change at run-time. The minumum index can be obtained with
+'array' can change at run-time. The minimum index can be obtained with
 'minIdx(dataBlockType)' or 'minIdx(aDataBlockValue)'. The maximum index
 can be obtained with 'maxIdx(dataBlockType)' or 'maxIdx(aDataBlockValue)'.
 The length can be obtained with 'length(dataBlockType)' or
@@ -2392,7 +2398,7 @@ The operators & and <& both concatenate strings, but they have different purpose
    The & operator does not convert an integer (or some other value) to a string.
 
    The priority of & is defined to execute the concatenation before doing a
-   comparison. E.g.:
+   comparison. For example:
 
      name & extension = check
 
@@ -2884,7 +2890,7 @@ every category a specific strategy of automatic memory management is used:
    point, where intermediate results can be be freed, at compile time.
    Functions, such as the assignment, can abstain from freeing the
    intermediate result and just assign it to the variable. This way it is not
-   always necessary to copy arbitrary complex values. All this things can be
+   always necessary to copy arbitrary complex values. All these things can be
    decided by the compiler.
  - The memory of strings, bigIntegers, bitsets, arrays, hashes and bstrings
    is referenced just once. These types do not need reference counting.
@@ -3197,7 +3203,7 @@ This function can be used to initialize values:
   var complex: one is complex(1.0, 0.0);
 
 Initialization expressions are executed at compile-time. At run-time
-the variable is initialized with minumum effort from the value which
+the variable is initialized with minimum effort from the value which
 has been computed at compile-time.
 
 New values for interface types can be created as well. In case of the
@@ -3468,7 +3474,7 @@ achieve this goal:
  - Under Windows a stack overflow handler is used. The function
    AddVectoredExceptionHandler() registers an error handler.
    In case of a stack overflow the handler raises MEMORY_ERROR.
-   At the place where a MEMORY_ERROR is cought the function
+   At the place where a MEMORY_ERROR is caught, the function
    _resetstkoflw() is called to restore the guard pages.
 
 The program below triggers a stack overflow with an infinite
@@ -3588,7 +3594,7 @@ stack traces work.
 
   *** Uncaught exception NUMERIC_ERROR raised at tmp_lander.c(764)
 
-In this case the mentioned file name and line number refers to the temporary
+In this case the mentioned file name and line number refer to the temporary
 C file or the Seed7 runtime library. To get useful information there are two
 possibilities:
 
@@ -3609,7 +3615,7 @@ debug compiled Seed7 programs.
 Why does a write statement raise RANGE_ERROR?
 =============================================
 
-Writing an Unicode character beyond '\255;' to the standard output file (STD_OUT) raises RANGE_ERROR. The file STD_OUT only supports Latin-1 or Ascii characters <= '\255;'. This can be avoided by using STD_CONSOLE instead of STD_OUT. You need to include the library console.s7i with
+Writing a Unicode character beyond '\255;' to the standard output file (STD_OUT) raises RANGE_ERROR. The file STD_OUT only supports Latin-1 or Ascii characters <= '\255;'. This can be avoided by using STD_CONSOLE instead of STD_OUT. You need to include the library console.s7i with
 
   include "console.s7i";
 
@@ -3717,7 +3723,7 @@ structured statements that can replace them.
 
 The 'break' and 'continue' statements are often seen as a trick to get more
 performance at the expense of maintainability. These performance wins are
-questionable. Given todays optimization techniques, the compiler might generate
+questionable. Given today's optimization techniques, the compiler might generate
 the same machine code from clean source code without 'break' and 'continue'.
 
 For the reasons stated above, and to promote structured programming, 'break',
@@ -3777,6 +3783,35 @@ exceptions:
         end block;
       until exitLoop;
     end func;
+
+
+Is there support for threads, concurrency, or parallelism?
+==========================================================
+
+Seed7 has no support for threads. Threads would open new categories
+of possible errors.
+
+Concurrency and parallelism are achieved with processes. A process
+has its own memory space, runs independently of the others, and
+communicates with them via pipes and sockets:
+
+ - process.s7i starts and controls processes with startProcess()
+   and startPipe(), and connects a child's standard streams with
+   childStdIn(), childStdOut() and childStdErr().
+ - poll.s7i waits for input or output readiness on
+   sockets and files, so one process can serve many connections
+   without threads.
+ - listener.s7i accepts incoming connections with
+   openInetListener(), accept() and waitForRequest(), which
+   processes interleaved requests from several clients in one
+   process, as ftpserv.sd7 and httpserv.s7i do.
+ - socket.s7i provides the sockets, and popen() in shell.s7i
+   runs an external command with its input or output as a file.
+
+Seed7's automatic memory management frees objects such as windows,
+processes and structs with a reference count, which is updated
+without synchronisation. Two C functions used for debug output are
+documented as not thread safe.
 
 
 How is Seed7 parsed?
@@ -3895,7 +3930,7 @@ Can Seed7 compile to a dll/so?
 Basically compiling to a dll/so would be possible. But there are obstacles.
 Regarding libraries, the approach used by Seed7 and other languages differs
 considerably. Seed7 libraries can be included directly, while the usual dll/so
-needs an additional header file which desribes the interfaces of the dll/so.
+needs an additional header file which describes the interfaces of the dll/so.
 The Seed7 overloading does not use name mangling and a possible name mangling
 of Seed7 would be incompatible to the ones used by other languages. Fundamental
 types like 'string', 'bigInteger', 'array', 'hash' and 'file' could not be used
@@ -4327,7 +4362,7 @@ The action "INT_ADD" corresponds to the function 'int_add' in the file
 Chapter 14 (Primitive actions) of the manual contains a detailed description
 of the primitive actions. In the interpreter all action functions get the
 parameters as list. The action functions take the parameters they need from the
-list, perform the action and deliver a result.
+list, perform the action and return a result.
 
 
 Why are there dollar signs in some places?

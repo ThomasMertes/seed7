@@ -67,6 +67,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -108,6 +109,8 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     dbType         db;
+    sqlStmtType    prevStmt;
+    sqlStmtType    nextStmt;
     sqlFuncType    sqlFunc;
     OCIEnv        *oci_environment;
     OCIError      *oci_error;
@@ -536,7 +539,7 @@ static void freeDatabase (databaseType database)
 
 
 static void freeDescriptor (preparedStmtType preparedStmt,
-    void *descriptor, uint16Type buffer_type)
+    void *descriptor, uint16Type buffer_type, errInfoType *err_info)
 
   {
     boolean is_temporary;
@@ -556,7 +559,7 @@ static void freeDescriptor (preparedStmtType preparedStmt,
                         preparedStmt->oci_error);
           logError(printf("freeDescriptor: OCILobIsTemporary:\n%s\n",
                           dbError.message););
-          raise_error(DATABASE_ERROR);
+          *err_info = DATABASE_ERROR;
         } else if (is_temporary) {
           if (unlikely(OCILobFreeTemporary(preparedStmt->oci_service_context,
                                            preparedStmt->oci_error,
@@ -565,10 +568,12 @@ static void freeDescriptor (preparedStmtType preparedStmt,
                           preparedStmt->oci_error);
             logError(printf("freeDescriptor: OCILobFreeTemporary:\n%s\n",
                             dbError.message););
-            raise_error(DATABASE_ERROR);
+            *err_info = DATABASE_ERROR;
           } /* if */
         } /* if */
-        OCIDescriptorFree(descriptor, OCI_DTYPE_LOB);  /* Binary LOB or Character LOB */
+        if (likely(*err_info == OKAY_NO_ERROR)) {
+          OCIDescriptorFree(descriptor, OCI_DTYPE_LOB);  /* Binary LOB or Character LOB */
+        } /* if */
         break;
       case SQLT_FILE:
         OCIDescriptorFree(descriptor, OCI_DTYPE_FILE);  /* Binary FILE */
@@ -599,7 +604,8 @@ static void freeDescriptor (preparedStmtType preparedStmt,
 
 
 
-static void freeBindData (preparedStmtType preparedStmt, bindDataType bindData)
+static void freeBindData (preparedStmtType preparedStmt,
+    bindDataType bindData, errInfoType *err_info)
 
   { /* freeBindData */
     /* The bind handle is freed implicitly when the statement handle is deallocated. */
@@ -607,20 +613,23 @@ static void freeBindData (preparedStmtType preparedStmt, bindDataType bindData)
       free(bindData->buffer);
     } /* if */
     if (bindData->descriptor != NULL) {
-      freeDescriptor(preparedStmt, bindData->descriptor, bindData->buffer_type);
+      freeDescriptor(preparedStmt, bindData->descriptor,
+                     bindData->buffer_type, err_info);
     } /* if */
   } /* freeBindData */
 
 
 
-static void freeResultData (preparedStmtType preparedStmt, resultDataType resultData)
+static void freeResultData (preparedStmtType preparedStmt,
+    resultDataType resultData, errInfoType *err_info)
 
   { /* freeResultData */
     if (resultData->column_handle != NULL) {
       OCIDescriptorFree(resultData->column_handle, OCI_DTYPE_PARAM);
     } /* if */
     /* It seems that the define_handle is implicitly freed with the statement handle. */
-    if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
+    if (resultData->buffer != NULL &&
+        resultData->buffer != &resultData->descriptor) {
       if (resultData->buffer_type == SQLT_VST &&
           *(OCIString **) resultData->buffer != NULL) {
         OCIStringResize(preparedStmt->oci_environment,
@@ -631,9 +640,52 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
       free(resultData->buffer);
     } /* if */
     if (resultData->descriptor != NULL) {
-      freeDescriptor(preparedStmt, resultData->descriptor, resultData->buffer_type);
+      freeDescriptor(preparedStmt, resultData->descriptor,
+                     resultData->buffer_type, err_info);
     } /* if */
   } /* freeResultData */
+
+
+
+/**
+ *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
+ */
+static void closePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+    memSizeType pos;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    preparedStmt = (preparedStmtType) sqlStatement;
+    if (preparedStmt->param_array != NULL) {
+      for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
+        freeBindData(preparedStmt, &preparedStmt->param_array[pos], &err_info);
+      } /* for */
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordOci, preparedStmt->param_array_size);
+    } /* if */
+    if (preparedStmt->result_array != NULL) {
+      for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
+        freeResultData(preparedStmt, &preparedStmt->result_array[pos], &err_info);
+      } /* for */
+      FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
+    } /* if */
+    OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
+      preparedStmt->db->usage_count--;
+      if (preparedStmt->db->usage_count == 0) {
+        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
+        freeDatabase((databaseType) preparedStmt->db);
+      } /* if */
+    } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
 
 
 
@@ -644,33 +696,15 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
-    memSizeType pos;
 
   /* freePreparedStmt */
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (preparedStmt->param_array != NULL) {
-      for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
-        freeBindData(preparedStmt, &preparedStmt->param_array[pos]);
-      } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecordOci, preparedStmt->param_array_size);
-    } /* if */
-    if (preparedStmt->result_array != NULL) {
-      for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
-        freeResultData(preparedStmt, &preparedStmt->result_array[pos]);
-      } /* for */
-      FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
-    } /* if */
-    OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
-      preparedStmt->db->usage_count--;
-      if (preparedStmt->db->usage_count == 0) {
-        logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
-        freeDatabase((databaseType) preparedStmt->db);
-      } /* if */
-    } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -2828,8 +2862,10 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != SQLT_BLOB && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
@@ -2976,8 +3012,10 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != buffer_type && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (buffer_type == SQLT_INTERVAL_YM) {
@@ -3365,8 +3403,10 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         if (param->buffer_type != SQLT_TIMESTAMP_TZ && param->descriptor != NULL) {
           freeDescriptor(preparedStmt,
                          param->descriptor,
-                         param->buffer_type);
-          param->descriptor = NULL;
+                         param->buffer_type, &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
+            param->descriptor = NULL;
+          } /* if */
         } /* if */
         if (param->descriptor == NULL) {
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
@@ -4588,6 +4628,7 @@ static sqlStmtType sqlPrepare (databaseType database,
               preparedStmt->fetchOkay = FALSE;
               preparedStmt->fetchFinished = TRUE;
               preparedStmt->db = db;
+              registerSqlStmt((sqlStmtType) preparedStmt);
               if (db->usage_count != 0) {
                 db->usage_count++;
               } /* if */
@@ -4843,6 +4884,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
@@ -5137,6 +5179,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 memset(database, 0, sizeof(dbRecordOci));
                 database->usage_count = 1;
                 database->isOpen = TRUE;
+                database->sqlStatements = NULL;
                 database->sqlFunc = sqlFunc;
                 database->driver              = DB_CATEGORY_OCI;
                 database->dbCategory          = DB_CATEGORY_OCI;

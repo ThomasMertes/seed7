@@ -1,3 +1,9 @@
+20261124:
+- A question about threads, concurrency and parallelism has been added
+  to doc/faq.txt and doc/faq.htm, and to the FAQ of the Seed7
+  homepage. It follows discussion #98 and issue #99, where the
+  absence of thread support is explained.
+
 20260711:
 - In encoding.s7i Base64Url encoding and decoding has been added.
   Many thanks to Zykaris for providing the functions toBase64Url()

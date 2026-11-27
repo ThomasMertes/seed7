@@ -67,6 +67,7 @@
 typedef struct {
     uintType     usage_count;
     boolType     isOpen;
+    sqlStmtType  sqlStatements;
     sqlFuncType  sqlFunc;
     int          driver;
     int          dbCategory;
@@ -87,6 +88,8 @@ typedef struct {
 typedef struct {
     uintType        usage_count;
     dbType          db;
+    sqlStmtType     prevStmt;
+    sqlStmtType     nextStmt;
     sqlFuncType     sqlFunc;
     DBPROCESS      *dbproc;
     striType       *stmtPartArray;
@@ -404,16 +407,17 @@ static void freeStmtParts (striType *stmtPartArray, memSizeType usedArraySize,
 
 
 /**
- *  Closes a prepared statement and frees the memory used by it.
+ *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
  */
-static void freePreparedStmt (sqlStmtType sqlStatement)
+static void closePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
     memSizeType pos;
 
-  /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     freeStmtParts(preparedStmt->stmtPartArray, preparedStmt->param_array_size + 1,
@@ -432,14 +436,36 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       } /* for */
       FREE_TABLE(preparedStmt->result_array, resultDataRecordTds, preparedStmt->result_array_size);
     } /* if */
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
         freeDatabase((databaseType) preparedStmt->db);
       } /* if */
     } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
+
+
+
+/**
+ *  Closes a prepared statement and frees the memory used by it.
+ */
+static void freePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+
+  /* freePreparedStmt */
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
+    preparedStmt = (preparedStmtType) sqlStatement;
     FREE_RECORD2(preparedStmt, preparedStmtRecordTds,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -2394,7 +2420,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     boundStatement = getBoundStatement(preparedStmt, &err_info);
     if (unlikely(boundStatement == NULL)) {
       if (err_info == RANGE_ERROR) {
-        dbLibError("sqlExecute", "SQLExecute",
+        dbLibError("sqlExecute", "sqlExecute",
                    "Unbound statement parameter(s).\n");
         raise_error(DATABASE_ERROR);
       } else {
@@ -2558,6 +2584,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           preparedStmt->dbproc = db->dbproc;
           preparedStmt->stmtPartArray = stmtPartArray;
           preparedStmt->db = db;
+          registerSqlStmt((sqlStmtType) preparedStmt);
           if (db->usage_count != 0) {
             db->usage_count++;
           } /* if */
@@ -2713,6 +2740,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
@@ -2934,6 +2962,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                       memset(database, 0, sizeof(dbRecordTds));
                       database->usage_count = 1;
                       database->isOpen = TRUE;
+                      database->sqlStatements = NULL;
                       database->sqlFunc = sqlFunc;
                       database->driver     = DB_CATEGORY_TDS;
                       database->dbCategory = DB_CATEGORY_TDS;

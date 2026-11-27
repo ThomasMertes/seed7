@@ -64,6 +64,7 @@
 typedef struct {
     uintType      usage_count;
     boolType      isOpen;
+    sqlStmtType   sqlStatements;
     sqlFuncType   sqlFunc;
     int           driver;
     int           dbCategory;
@@ -79,6 +80,8 @@ typedef struct {
 typedef struct {
     uintType        usage_count;
     dbType          db;
+    sqlStmtType     prevStmt;
+    sqlStmtType     nextStmt;
     sqlFuncType     sqlFunc;
     isc_stmt_handle ppStmt;
     XSQLDA         *in_sqlda;
@@ -440,9 +443,10 @@ static void freeDatabase (databaseType database)
 
 
 /**
- *  Closes a prepared statement and frees the memory used by it.
+ *  Closes a prepared statement.
+ *  The caller must assure sqlStatement->db != NULL && sqlStatement->db->isOpen
  */
-static void freePreparedStmt (sqlStmtType sqlStatement)
+static void closePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
@@ -451,19 +455,19 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     int numColumns;
     XSQLVAR *var;
 
-  /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+  /* closePreparedStmt */
+    logFunction(printf("closePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->ppStmt != 0) {
-      logMessage(printf("freePreparedStmt: isc_dsql_free_statement\n"););
+      logMessage(printf("closePreparedStmt: isc_dsql_free_statement\n"););
       if (unlikely((isc_dsql_free_statement(status_vector,
                                             &preparedStmt->ppStmt,
                                             DSQL_drop),
                     status_vector[0] == 1 && status_vector[1] != 0))) {
-        setDbErrorMsg("freePreparedStmt", "isc_dsql_free_statement",
+        setDbErrorMsg("closePreparedStmt", "isc_dsql_free_statement",
                       status_vector);
-        logError(printf("freePreparedStmt: isc_dsql_free_statement error:\n%s\n",
+        logError(printf("closePreparedStmt: isc_dsql_free_statement error:\n%s\n",
                         dbError.message););
         raise_error(DATABASE_ERROR);
       } /* if */
@@ -490,14 +494,36 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->param_array, bindDataRecordFire,
                  (memSizeType) preparedStmt->in_sqlda->sqld);
     } /* if */
-    if (preparedStmt->db != NULL &&
-        preparedStmt->db->usage_count != 0) {
+    deregisterSqlStmt(sqlStatement);
+    if (preparedStmt->db->usage_count != 0) {
       preparedStmt->db->usage_count--;
       if (preparedStmt->db->usage_count == 0) {
         logMessage(printf("FREE " FMT_U_MEM "\n", (memSizeType) preparedStmt->db););
         freeDatabase((databaseType) preparedStmt->db);
       } /* if */
     } /* if */
+    preparedStmt->db = NULL;
+    logFunction(printf("closePreparedStmt -->\n"););
+  } /* closePreparedStmt */
+
+
+
+/**
+ *  Closes a prepared statement and frees the memory used by it.
+ */
+static void freePreparedStmt (sqlStmtType sqlStatement)
+
+  {
+    preparedStmtType preparedStmt;
+
+  /* freePreparedStmt */
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
+                       (memSizeType) sqlStatement););
+    if (sqlStatement->db != NULL &&
+        sqlStatement->db->isOpen) {
+      closePreparedStmt(sqlStatement);
+    } /* if */
+    preparedStmt = (preparedStmtType) sqlStatement;
     FREE_RECORD2(preparedStmt, preparedStmtRecordFire,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -3100,7 +3126,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!allParametersBound(preparedStmt))) {
-      dbLibError("sqlExecute", "SQLExecute",
+      dbLibError("sqlExecute", "sqlExecute",
                  "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
@@ -3164,7 +3190,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->executeSuccessful)) {
-      dbLibError("sqlFetch", "SQLExecute",
+      dbLibError("sqlFetch", "sqlExecute",
                  "Execute was not successful.\n");
       logError(printf("sqlFetch: Execute was not successful.\n"););
       preparedStmt->fetchOkay = FALSE;
@@ -3354,6 +3380,7 @@ static sqlStmtType sqlPrepare (databaseType database,
             preparedStmt->fetchOkay = FALSE;
             preparedStmt->fetchFinished = TRUE;
             preparedStmt->db = db;
+            registerSqlStmt((sqlStmtType) preparedStmt);
             if (db->usage_count != 0) {
               db->usage_count++;
             } /* if */
@@ -3539,6 +3566,7 @@ static boolType setupFuncTable (void)
       if (ALLOC_RECORD(sqlFunc, sqlFuncRecord, count.sql_func)) {
         memset(sqlFunc, 0, sizeof(sqlFuncRecord));
         sqlFunc->freeDatabase       = &freeDatabase;
+        sqlFunc->closePreparedStmt  = &closePreparedStmt;
         sqlFunc->freePreparedStmt   = &freePreparedStmt;
         sqlFunc->sqlBindBigInt      = &sqlBindBigInt;
         sqlFunc->sqlBindBigRat      = &sqlBindBigRat;
@@ -3879,6 +3907,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                       memset(database, 0, sizeof(dbRecordFire));
                       database->usage_count = 1;
                       database->isOpen = TRUE;
+                      database->sqlStatements = NULL;
                       database->sqlFunc = sqlFunc;
                       database->driver       = DB_CATEGORY_FIREBIRD;
                       database->dbCategory   = DB_CATEGORY_FIREBIRD;
