@@ -118,6 +118,7 @@ static sqlFuncType sqlFunc = NULL;
 #define MAX_MEDIUM_BLOB_LENGTH                 16777215  /* 2 ** 24 - 1 chars */
 #define MAX_LONG_BLOB_LENGTH   UINT32_SUFFIX(4294967295) /* 2 ** 32 - 1 chars */
 
+#define SEED7_MYSQL_TYPE_JSON 245
 
 #ifdef MYSQL_DLL
 
@@ -444,6 +445,7 @@ static const char *nameOfBufferType (int buffer_type)
       case MYSQL_TYPE_ENUM:        typeName = "MYSQL_TYPE_ENUM"; break;
       case MYSQL_TYPE_GEOMETRY:    typeName = "MYSQL_TYPE_GEOMETRY"; break;
       case MYSQL_TYPE_NULL:        typeName = "MYSQL_TYPE_NULL"; break;
+      case SEED7_MYSQL_TYPE_JSON:  typeName = "MYSQL_TYPE_JSON"; break;
       default:
         sprintf(buffer, "%d", buffer_type);
         typeName = buffer;
@@ -702,6 +704,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_MEDIUM_BLOB:
       case MYSQL_TYPE_LONG_BLOB:
+      case SEED7_MYSQL_TYPE_JSON:
         /* For BLOB types, no buffer is provided (buffer == NULL).   */
         /* This way, mysql_stmt_fetch() will not fetch data.         */
         /* Instead, mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED, */
@@ -2389,6 +2392,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_BLOB:
           case MYSQL_TYPE_MEDIUM_BLOB:
           case MYSQL_TYPE_LONG_BLOB:
+          case SEED7_MYSQL_TYPE_JSON:
             length = columnData->length_value;
             logMessage(printf("length: " FMT_U_MEM "\n", length););
             if (length > 0) {
