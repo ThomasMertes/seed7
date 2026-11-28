@@ -3425,49 +3425,52 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         *(void **) param->buffer = param->descriptor;
         param->buffer_type   = SQLT_TIMESTAMP_TZ;
         param->buffer_length = 0;
-      } /* if */
-      if (year <= 0) {
-        /* In the database BC dates are represented with negative numbers */
-        /* and the year 0 does not exist. The year 0 of the proleptic     */
-        /* Gregorian calendar corresponds to 1 BC (= -1) in the database. */
-        year--;
-      } /* if */
-      if (time_zone < 0) {
-        if (unlikely(year == -1 && month == 12 && day == 31 &&
-                     (hour + (-time_zone) / 60 > 23 ||
-                     (hour + (-time_zone) / 60 == 23 &&
-                     minute + (-time_zone) % 60 > 59)))) {
-          /* When time_zone would move the year from 1 BC to 1 AD, the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by */
-          /* setting time_zone to zero. Luckily all time values at the */
-          /* default date 0-1-1 are not affected by this special case. */
-          time_zone = 0;
-          /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
-                 F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
-                 year, month, day, hour, minute, second, micro_second, time_zone); */
+        if (year <= 0) {
+          /* In the database BC dates are represented with   */
+          /* negative numbers and the year 0 does not exist. */
+          /* The year 0 of the proleptic Gregorian calendar  */
+          /* corresponds to 1 BC (= -1) in the database.     */
+          year--;
         } /* if */
-        timezoneStriLength =
-            (memSizeType) sprintf(timezoneStri, "-" F_D(02) ":" F_D(02),
-                                  (-time_zone) / 60, (-time_zone) % 60);
-      } else {
-        if (unlikely((year == 1 || year == -4712) && month == 1 && day == 1 &&
-                     (time_zone / 60 > hour ||
-                     (time_zone / 60 == hour && time_zone % 60 > minute)))) {
-          /* When time_zone would move the year from 1 AD to 1 BC, the */
-          /* function OCIDateTimeConstruct() fails. This is avoided by */
-          /* setting time_zone to zero. For the minimum allowed time   */
-          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not */
-          /* work correctly, if the time_zone is greater than zero.    */
-          time_zone = 0;
-          /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
-                 F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
-                 year, month, day, hour, minute, second, micro_second, time_zone); */
+        if (time_zone < 0) {
+          if (unlikely(year == -1 && month == 12 && day == 31 &&
+                       (hour + (-time_zone) / 60 > 23 ||
+                       (hour + (-time_zone) / 60 == 23 &&
+                       minute + (-time_zone) % 60 > 59)))) {
+            /* When time_zone would move the year from 1 BC to   */
+            /* 1 AD, the function OCIDateTimeConstruct() fails.  */
+            /* This is avoided by setting time_zone to zero.     */
+            /* Luckily all time values at the default date 0-1-1 */
+            /* are not affected by this special case.            */
+            time_zone = 0;
+            /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
+                   F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
+                   year, month, day, hour, minute, second, micro_second, time_zone); */
+          } /* if */
+          timezoneStriLength =
+              (memSizeType) sprintf(timezoneStri, "-" F_D(02) ":" F_D(02),
+                                    (-time_zone) / 60, (-time_zone) % 60);
+        } else {
+          if (unlikely((year == 1 || year == -4712) && month == 1 && day == 1 &&
+                       (time_zone / 60 > hour ||
+                       (time_zone / 60 == hour && time_zone % 60 > minute)))) {
+            /* When time_zone would move the year from 1 AD to   */
+            /* 1 BC, the function OCIDateTimeConstruct() fails.  */
+            /* This is avoided by setting time_zone to zero.     */
+            /* For the minimum allowed time (January 1, 4712 BC) */
+            /* OCIDateTimeConstruct() does also not work         */
+            /* correctly, if the time_zone is greater than zero. */
+            time_zone = 0;
+            /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
+                   F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
+                   year, month, day, hour, minute, second, micro_second, time_zone); */
+          } /* if */
+          timezoneStriLength =
+              (memSizeType) sprintf(timezoneStri, F_D(02) ":" F_D(02),
+                                    time_zone / 60, time_zone % 60);
         } /* if */
-        timezoneStriLength =
-            (memSizeType) sprintf(timezoneStri, F_D(02) ":" F_D(02),
-                                  time_zone / 60, time_zone % 60);
+        /* printf("timezone: %s\n", timezoneStri); */
       } /* if */
-      /* printf("timezone: %s\n", timezoneStri); */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else if (unlikely(OCIDateTimeConstruct(preparedStmt->oci_environment,
